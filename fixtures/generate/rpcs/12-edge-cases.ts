@@ -1,4 +1,3 @@
-import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
 /**
@@ -60,20 +59,21 @@ export async function traceAllMethods() {
 /**
  * GET /users/{userId}/posts/{postId}/comments/{commentId}
  */
-export async function getUsersUserIdPostsPostIdCommentsCommentId(
-  arg: InferRequestType<
-    (typeof client)['users'][':userId']['posts'][':postId']['comments'][':commentId']['$get']
-  >,
-) {
+export async function getUsersUserIdPostsPostIdCommentsCommentId(arg: {
+  param: { userId: string; postId: number; commentId: string }
+}) {
   return await client['users'][':userId']['posts'][':postId']['comments'][':commentId']['$get'](arg)
 }
 
 /**
  * GET /params-test/{pathParam}
  */
-export async function getParamsTestPathParam(
-  arg: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
-) {
+export async function getParamsTestPathParam(arg: {
+  param: { pathParam: string }
+  query: { queryParam?: string }
+  header: { 'X-Header-Param'?: string }
+  cookie: { session_id?: string }
+}) {
   return await client['params-test'][':pathParam']['$get'](arg)
 }
 
@@ -94,9 +94,10 @@ export async function getMultiContent() {
 /**
  * POST /multi-content
  */
-export async function postMultiContent(
-  arg: InferRequestType<(typeof client)['multi-content']['$post']>,
-) {
+export async function postMultiContent(arg: {
+  form: { file?: File; metadata?: string } | { field1?: string; field2?: string }
+  json: { data?: {} }
+}) {
   return await client['multi-content']['$post'](arg)
 }
 
@@ -128,7 +129,7 @@ export async function getNoOperationId() {
 /**
  * POST /empty-body
  */
-export async function postEmptyBody(arg: InferRequestType<(typeof client)['empty-body']['$post']>) {
+export async function postEmptyBody(arg: { json: {} }) {
   return await client['empty-body']['$post'](arg)
 }
 
@@ -149,17 +150,17 @@ export async function getDeepNesting() {
 /**
  * GET /array-params
  */
-export async function getArrayParams(
-  arg: InferRequestType<(typeof client)['array-params']['$get']>,
-) {
+export async function getArrayParams(arg: {
+  query: { ids?: string[]; tags?: string[]; values?: number[]; coords?: number[] }
+}) {
   return await client['array-params']['$get'](arg)
 }
 
 /**
  * GET /object-param
  */
-export async function getObjectParam(
-  arg: InferRequestType<(typeof client)['object-param']['$get']>,
-) {
+export async function getObjectParam(arg: {
+  query: { filter?: { name?: string; minPrice?: number; maxPrice?: number } }
+}) {
   return await client['object-param']['$get'](arg)
 }

@@ -1,4 +1,3 @@
-import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/pet-store'
 
 /**
@@ -8,7 +7,33 @@ import { client } from '../clients/pet-store'
  *
  * Update an existing pet by Id
  */
-export async function putPet(arg: InferRequestType<typeof client.pet.$put>) {
+export async function putPet(arg: {
+  form: {
+    id?: bigint
+    name: string
+    category?: { id?: bigint; name?: string }
+    photoUrls: string[]
+    tags?: { id?: bigint; name?: string }[]
+    status?: 'available' | 'pending' | 'sold'
+  }
+  json:
+    | {
+        id?: bigint
+        name: string
+        category?: { id?: bigint; name?: string }
+        photoUrls: string[]
+        tags?: { id?: bigint; name?: string }[]
+        status?: 'available' | 'pending' | 'sold'
+      }
+    | {
+        id?: bigint
+        name: string
+        category?: { id?: bigint; name?: string }
+        photoUrls: string[]
+        tags?: { id?: bigint; name?: string }[]
+        status?: 'available' | 'pending' | 'sold'
+      }
+}) {
   return await client.pet.$put(arg)
 }
 
@@ -19,7 +44,33 @@ export async function putPet(arg: InferRequestType<typeof client.pet.$put>) {
  *
  * Add a new pet to the store
  */
-export async function postPet(arg: InferRequestType<typeof client.pet.$post>) {
+export async function postPet(arg: {
+  form: {
+    id?: bigint
+    name: string
+    category?: { id?: bigint; name?: string }
+    photoUrls: string[]
+    tags?: { id?: bigint; name?: string }[]
+    status?: 'available' | 'pending' | 'sold'
+  }
+  json:
+    | {
+        id?: bigint
+        name: string
+        category?: { id?: bigint; name?: string }
+        photoUrls: string[]
+        tags?: { id?: bigint; name?: string }[]
+        status?: 'available' | 'pending' | 'sold'
+      }
+    | {
+        id?: bigint
+        name: string
+        category?: { id?: bigint; name?: string }
+        photoUrls: string[]
+        tags?: { id?: bigint; name?: string }[]
+        status?: 'available' | 'pending' | 'sold'
+      }
+}) {
   return await client.pet.$post(arg)
 }
 
@@ -30,9 +81,9 @@ export async function postPet(arg: InferRequestType<typeof client.pet.$post>) {
  *
  * Multiple status values can be provided with comma separated strings
  */
-export async function getPetFindByStatus(
-  arg: InferRequestType<(typeof client)['pet']['findByStatus']['$get']>,
-) {
+export async function getPetFindByStatus(arg: {
+  query: { status?: 'available' | 'pending' | 'sold' }
+}) {
   return await client['pet']['findByStatus']['$get'](arg)
 }
 
@@ -43,9 +94,7 @@ export async function getPetFindByStatus(
  *
  * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  */
-export async function getPetFindByTags(
-  arg: InferRequestType<(typeof client)['pet']['findByTags']['$get']>,
-) {
+export async function getPetFindByTags(arg: { query: { tags?: string[] } }) {
   return await client['pet']['findByTags']['$get'](arg)
 }
 
@@ -56,7 +105,7 @@ export async function getPetFindByTags(
  *
  * Returns a single pet
  */
-export async function getPetPetId(arg: InferRequestType<(typeof client)['pet'][':petId']['$get']>) {
+export async function getPetPetId(arg: { param: { petId: bigint } }) {
   return await client['pet'][':petId']['$get'](arg)
 }
 
@@ -65,9 +114,10 @@ export async function getPetPetId(arg: InferRequestType<(typeof client)['pet']['
  *
  * Updates a pet in the store with form data
  */
-export async function postPetPetId(
-  arg: InferRequestType<(typeof client)['pet'][':petId']['$post']>,
-) {
+export async function postPetPetId(arg: {
+  param: { petId: bigint }
+  query: { name?: string; status?: string }
+}) {
   return await client['pet'][':petId']['$post'](arg)
 }
 
@@ -78,9 +128,10 @@ export async function postPetPetId(
  *
  * delete a pet
  */
-export async function deletePetPetId(
-  arg: InferRequestType<(typeof client)['pet'][':petId']['$delete']>,
-) {
+export async function deletePetPetId(arg: {
+  param: { petId: bigint }
+  header: { api_key?: string }
+}) {
   return await client['pet'][':petId']['$delete'](arg)
 }
 
@@ -89,9 +140,11 @@ export async function deletePetPetId(
  *
  * uploads an image
  */
-export async function postPetPetIdUploadImage(
-  arg: InferRequestType<(typeof client)['pet'][':petId']['uploadImage']['$post']>,
-) {
+export async function postPetPetIdUploadImage(arg: {
+  param: { petId: bigint }
+  query: { additionalMetadata?: string }
+  json: File
+}) {
   return await client['pet'][':petId']['uploadImage']['$post'](arg)
 }
 
@@ -113,9 +166,33 @@ export async function getStoreInventory() {
  *
  * Place a new order in the store
  */
-export async function postStoreOrder(
-  arg: InferRequestType<(typeof client)['store']['order']['$post']>,
-) {
+export async function postStoreOrder(arg: {
+  form: {
+    id?: bigint
+    petId?: bigint
+    quantity?: number
+    shipDate?: string
+    status?: 'placed' | 'approved' | 'delivered'
+    complete?: boolean
+  }
+  json:
+    | {
+        id?: bigint
+        petId?: bigint
+        quantity?: number
+        shipDate?: string
+        status?: 'placed' | 'approved' | 'delivered'
+        complete?: boolean
+      }
+    | {
+        id?: bigint
+        petId?: bigint
+        quantity?: number
+        shipDate?: string
+        status?: 'placed' | 'approved' | 'delivered'
+        complete?: boolean
+      }
+}) {
   return await client['store']['order']['$post'](arg)
 }
 
@@ -126,9 +203,7 @@ export async function postStoreOrder(
  *
  * For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  */
-export async function getStoreOrderOrderId(
-  arg: InferRequestType<(typeof client)['store']['order'][':orderId']['$get']>,
-) {
+export async function getStoreOrderOrderId(arg: { param: { orderId: bigint } }) {
   return await client['store']['order'][':orderId']['$get'](arg)
 }
 
@@ -139,9 +214,7 @@ export async function getStoreOrderOrderId(
  *
  * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  */
-export async function deleteStoreOrderOrderId(
-  arg: InferRequestType<(typeof client)['store']['order'][':orderId']['$delete']>,
-) {
+export async function deleteStoreOrderOrderId(arg: { param: { orderId: bigint } }) {
   return await client['store']['order'][':orderId']['$delete'](arg)
 }
 
@@ -152,7 +225,39 @@ export async function deleteStoreOrderOrderId(
  *
  * This can only be done by the logged in user.
  */
-export async function postUser(arg: InferRequestType<typeof client.user.$post>) {
+export async function postUser(arg: {
+  form: {
+    id?: bigint
+    username?: string
+    firstName?: string
+    lastName?: string
+    email?: string
+    password?: string
+    phone?: string
+    userStatus?: number
+  }
+  json:
+    | {
+        id?: bigint
+        username?: string
+        firstName?: string
+        lastName?: string
+        email?: string
+        password?: string
+        phone?: string
+        userStatus?: number
+      }
+    | {
+        id?: bigint
+        username?: string
+        firstName?: string
+        lastName?: string
+        email?: string
+        password?: string
+        phone?: string
+        userStatus?: number
+      }
+}) {
   return await client.user.$post(arg)
 }
 
@@ -163,9 +268,18 @@ export async function postUser(arg: InferRequestType<typeof client.user.$post>) 
  *
  * Creates list of users with given input array
  */
-export async function postUserCreateWithList(
-  arg: InferRequestType<(typeof client)['user']['createWithList']['$post']>,
-) {
+export async function postUserCreateWithList(arg: {
+  json: {
+    id?: bigint
+    username?: string
+    firstName?: string
+    lastName?: string
+    email?: string
+    password?: string
+    phone?: string
+    userStatus?: number
+  }[]
+}) {
   return await client['user']['createWithList']['$post'](arg)
 }
 
@@ -174,9 +288,7 @@ export async function postUserCreateWithList(
  *
  * Logs user into the system
  */
-export async function getUserLogin(
-  arg: InferRequestType<(typeof client)['user']['login']['$get']>,
-) {
+export async function getUserLogin(arg: { query: { username?: string; password?: string } }) {
   return await client['user']['login']['$get'](arg)
 }
 
@@ -194,9 +306,7 @@ export async function getUserLogout() {
  *
  * Get user by user name
  */
-export async function getUserUsername(
-  arg: InferRequestType<(typeof client)['user'][':username']['$get']>,
-) {
+export async function getUserUsername(arg: { param: { username: string } }) {
   return await client['user'][':username']['$get'](arg)
 }
 
@@ -207,9 +317,40 @@ export async function getUserUsername(
  *
  * This can only be done by the logged in user.
  */
-export async function putUserUsername(
-  arg: InferRequestType<(typeof client)['user'][':username']['$put']>,
-) {
+export async function putUserUsername(arg: {
+  param: { username: string }
+  form: {
+    id?: bigint
+    username?: string
+    firstName?: string
+    lastName?: string
+    email?: string
+    password?: string
+    phone?: string
+    userStatus?: number
+  }
+  json:
+    | {
+        id?: bigint
+        username?: string
+        firstName?: string
+        lastName?: string
+        email?: string
+        password?: string
+        phone?: string
+        userStatus?: number
+      }
+    | {
+        id?: bigint
+        username?: string
+        firstName?: string
+        lastName?: string
+        email?: string
+        password?: string
+        phone?: string
+        userStatus?: number
+      }
+}) {
   return await client['user'][':username']['$put'](arg)
 }
 
@@ -220,8 +361,6 @@ export async function putUserUsername(
  *
  * This can only be done by the logged in user.
  */
-export async function deleteUserUsername(
-  arg: InferRequestType<(typeof client)['user'][':username']['$delete']>,
-) {
+export async function deleteUserUsername(arg: { param: { username: string } }) {
   return await client['user'][':username']['$delete'](arg)
 }

@@ -1,4 +1,3 @@
-import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
 /**
@@ -15,7 +14,9 @@ export async function getStream() {
  *
  * GraphQL endpoint
  */
-export async function postGraphql(arg: InferRequestType<typeof client.graphql.$post>) {
+export async function postGraphql(arg: {
+  json: string | { query?: string; variables?: {}; operationName?: string }
+}) {
   return await client.graphql.$post(arg)
 }
 
@@ -24,8 +25,8 @@ export async function postGraphql(arg: InferRequestType<typeof client.graphql.$p
  *
  * gRPC-Gateway endpoint
  */
-export async function postGrpcGateway() {
-  return await client['grpc-gateway']['$post']()
+export async function postGrpcGateway(arg: { json: File | File }) {
+  return await client['grpc-gateway']['$post'](arg)
 }
 
 /**

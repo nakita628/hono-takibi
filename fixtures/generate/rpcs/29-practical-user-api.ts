@@ -1,4 +1,3 @@
-import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
 /**
@@ -8,9 +7,9 @@ import { client } from '../clients/29-practical-user-api'
  *
  * メールアドレスとパスワードで新規ユーザーを登録します
  */
-export async function postAuthRegister(
-  arg: InferRequestType<(typeof client)['auth']['register']['$post']>,
-) {
+export async function postAuthRegister(arg: {
+  json: { email: string; password: string; name: string }
+}) {
   return await client['auth']['register']['$post'](arg)
 }
 
@@ -21,9 +20,7 @@ export async function postAuthRegister(
  *
  * メールアドレスとパスワードで認証し、JWTトークンを取得します
  */
-export async function postAuthLogin(
-  arg: InferRequestType<(typeof client)['auth']['login']['$post']>,
-) {
+export async function postAuthLogin(arg: { json: { email: string; password: string } }) {
   return await client['auth']['login']['$post'](arg)
 }
 
@@ -34,9 +31,7 @@ export async function postAuthLogin(
  *
  * リフレッシュトークンを使用して新しいアクセストークンを取得します
  */
-export async function postAuthRefresh(
-  arg: InferRequestType<(typeof client)['auth']['refresh']['$post']>,
-) {
+export async function postAuthRefresh(arg: { json: { refreshToken: string } }) {
   return await client['auth']['refresh']['$post'](arg)
 }
 
@@ -56,9 +51,7 @@ export async function postAuthLogout() {
  *
  * パスワードリセット用のメールを送信します
  */
-export async function postAuthPasswordForgot(
-  arg: InferRequestType<(typeof client)['auth']['password']['forgot']['$post']>,
-) {
+export async function postAuthPasswordForgot(arg: { json: { email: string } }) {
   return await client['auth']['password']['forgot']['$post'](arg)
 }
 
@@ -67,9 +60,7 @@ export async function postAuthPasswordForgot(
  *
  * パスワードリセット実行
  */
-export async function postAuthPasswordReset(
-  arg: InferRequestType<(typeof client)['auth']['password']['reset']['$post']>,
-) {
+export async function postAuthPasswordReset(arg: { json: { token: string; password: string } }) {
   return await client['auth']['password']['reset']['$post'](arg)
 }
 
@@ -80,7 +71,15 @@ export async function postAuthPasswordReset(
  *
  * ページネーション付きでユーザー一覧を取得します（管理者のみ）
  */
-export async function getUsers(arg: InferRequestType<typeof client.users.$get>) {
+export async function getUsers(arg: {
+  query: {
+    page?: number
+    limit?: number
+    sort?: string
+    search?: string
+    status?: 'active' | 'inactive' | 'suspended'
+  }
+}) {
   return await client.users.$get(arg)
 }
 
@@ -89,9 +88,7 @@ export async function getUsers(arg: InferRequestType<typeof client.users.$get>) 
  *
  * ユーザー詳細取得
  */
-export async function getUsersUserId(
-  arg: InferRequestType<(typeof client)['users'][':userId']['$get']>,
-) {
+export async function getUsersUserId(arg: { param: { userId: string } }) {
   return await client['users'][':userId']['$get'](arg)
 }
 
@@ -100,9 +97,7 @@ export async function getUsersUserId(
  *
  * ユーザー削除
  */
-export async function deleteUsersUserId(
-  arg: InferRequestType<(typeof client)['users'][':userId']['$delete']>,
-) {
+export async function deleteUsersUserId(arg: { param: { userId: string } }) {
   return await client['users'][':userId']['$delete'](arg)
 }
 
@@ -111,9 +106,10 @@ export async function deleteUsersUserId(
  *
  * ユーザー情報更新
  */
-export async function patchUsersUserId(
-  arg: InferRequestType<(typeof client)['users'][':userId']['$patch']>,
-) {
+export async function patchUsersUserId(arg: {
+  param: { userId: string }
+  json: { name?: string; status?: 'active' | 'inactive' | 'suspended'; role?: 'user' | 'admin' }
+}) {
   return await client['users'][':userId']['$patch'](arg)
 }
 
@@ -131,9 +127,7 @@ export async function getUsersMe() {
  *
  * 現在のユーザー情報更新
  */
-export async function patchUsersMe(
-  arg: InferRequestType<(typeof client)['users']['me']['$patch']>,
-) {
+export async function patchUsersMe(arg: { json: { name?: string } }) {
   return await client['users']['me']['$patch'](arg)
 }
 
@@ -142,9 +136,9 @@ export async function patchUsersMe(
  *
  * パスワード変更
  */
-export async function putUsersMePassword(
-  arg: InferRequestType<(typeof client)['users']['me']['password']['$put']>,
-) {
+export async function putUsersMePassword(arg: {
+  json: { currentPassword: string; newPassword: string }
+}) {
   return await client['users']['me']['password']['$put'](arg)
 }
 
@@ -153,9 +147,7 @@ export async function putUsersMePassword(
  *
  * アバター画像アップロード
  */
-export async function putUsersMeAvatar(
-  arg: InferRequestType<(typeof client)['users']['me']['avatar']['$put']>,
-) {
+export async function putUsersMeAvatar(arg: { form: { file: File } }) {
   return await client['users']['me']['avatar']['$put'](arg)
 }
 

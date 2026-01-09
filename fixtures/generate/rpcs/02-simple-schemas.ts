@@ -1,4 +1,3 @@
-import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
 /**
@@ -11,15 +10,13 @@ export async function getUsers() {
 /**
  * POST /users
  */
-export async function postUsers(arg: InferRequestType<typeof client.users.$post>) {
+export async function postUsers(arg: { json: { email: string; name?: string } }) {
   return await client.users.$post(arg)
 }
 
 /**
  * GET /users/{userId}
  */
-export async function getUsersUserId(
-  arg: InferRequestType<(typeof client)['users'][':userId']['$get']>,
-) {
+export async function getUsersUserId(arg: { param: { userId: string } }) {
   return await client['users'][':userId']['$get'](arg)
 }

@@ -1,4 +1,3 @@
-import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
 /**
@@ -6,7 +5,14 @@ import { client } from '../clients/38-auth-apikey-management'
  *
  * APIキー一覧取得
  */
-export async function getApiKeys(arg: InferRequestType<(typeof client)['api-keys']['$get']>) {
+export async function getApiKeys(arg: {
+  query: {
+    page?: number
+    limit?: number
+    status?: 'active' | 'revoked' | 'expired'
+    environment?: 'production' | 'staging' | 'development' | 'test'
+  }
+}) {
   return await client['api-keys']['$get'](arg)
 }
 
@@ -15,7 +21,15 @@ export async function getApiKeys(arg: InferRequestType<(typeof client)['api-keys
  *
  * APIキー作成
  */
-export async function postApiKeys(arg: InferRequestType<(typeof client)['api-keys']['$post']>) {
+export async function postApiKeys(arg: {
+  json: {
+    name: string
+    description?: string
+    environment: 'production' | 'staging' | 'development' | 'test'
+    scopes?: string[]
+    expiresAt?: string
+  }
+}) {
   return await client['api-keys']['$post'](arg)
 }
 
@@ -24,9 +38,7 @@ export async function postApiKeys(arg: InferRequestType<(typeof client)['api-key
  *
  * APIキー詳細取得
  */
-export async function getApiKeysKeyId(
-  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
-) {
+export async function getApiKeysKeyId(arg: { param: { keyId: string } }) {
   return await client['api-keys'][':keyId']['$get'](arg)
 }
 
@@ -35,9 +47,7 @@ export async function getApiKeysKeyId(
  *
  * APIキー削除
  */
-export async function deleteApiKeysKeyId(
-  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
-) {
+export async function deleteApiKeysKeyId(arg: { param: { keyId: string } }) {
   return await client['api-keys'][':keyId']['$delete'](arg)
 }
 
@@ -46,9 +56,10 @@ export async function deleteApiKeysKeyId(
  *
  * APIキー更新
  */
-export async function patchApiKeysKeyId(
-  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
-) {
+export async function patchApiKeysKeyId(arg: {
+  param: { keyId: string }
+  json: { name?: string; description?: string; scopes?: string[] }
+}) {
   return await client['api-keys'][':keyId']['$patch'](arg)
 }
 
@@ -57,9 +68,10 @@ export async function patchApiKeysKeyId(
  *
  * APIキー無効化
  */
-export async function postApiKeysKeyIdRevoke(
-  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
-) {
+export async function postApiKeysKeyIdRevoke(arg: {
+  param: { keyId: string }
+  json: { reason?: string }
+}) {
   return await client['api-keys'][':keyId']['revoke']['$post'](arg)
 }
 
@@ -68,9 +80,10 @@ export async function postApiKeysKeyIdRevoke(
  *
  * APIキーローテーション
  */
-export async function postApiKeysKeyIdRotate(
-  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
-) {
+export async function postApiKeysKeyIdRotate(arg: {
+  param: { keyId: string }
+  json: { gracePeriodHours?: number }
+}) {
   return await client['api-keys'][':keyId']['rotate']['$post'](arg)
 }
 
@@ -79,9 +92,10 @@ export async function postApiKeysKeyIdRotate(
  *
  * APIキー使用量取得
  */
-export async function getApiKeysKeyIdUsage(
-  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-) {
+export async function getApiKeysKeyIdUsage(arg: {
+  param: { keyId: string }
+  query: { from: string; to: string; granularity?: 'hour' | 'day' | 'week' | 'month' }
+}) {
   return await client['api-keys'][':keyId']['usage']['$get'](arg)
 }
 
@@ -90,9 +104,7 @@ export async function getApiKeysKeyIdUsage(
  *
  * 現在のレート制限状況取得
  */
-export async function getApiKeysKeyIdRateLimitCurrent(
-  arg: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-) {
+export async function getApiKeysKeyIdRateLimitCurrent(arg: { param: { keyId: string } }) {
   return await client['api-keys'][':keyId']['rate-limit']['current']['$get'](arg)
 }
 
@@ -101,9 +113,9 @@ export async function getApiKeysKeyIdRateLimitCurrent(
  *
  * APIキー検証
  */
-export async function postApiKeysVerify(
-  arg: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
-) {
+export async function postApiKeysVerify(arg: {
+  json: { apiKey: string; requiredScopes?: string[] }
+}) {
   return await client['api-keys']['verify']['$post'](arg)
 }
 

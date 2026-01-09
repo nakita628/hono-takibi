@@ -441,8 +441,7 @@ describe('rpc', () => {
       }
 
       const index = fs.readFileSync(out, 'utf-8')
-      const expected = `import type { InferRequestType } from 'hono/client'
-import { client } from '../index.ts'
+      const expected = `import { client } from '../index.ts'
 
 /**
  * GET /hono
@@ -484,7 +483,22 @@ export async function getZodOpenapiHono() {
  *
  * List users with pagination and optional role filter.
  */
-export async function getUsers(arg: InferRequestType<typeof client.users.$get>) {
+export async function getUsers(arg: {
+  query: {
+    limit?: number
+    offset?: number
+    role?: (
+      | 'attendee'
+      | 'speaker'
+      | 'lt-speaker'
+      | 'staff'
+      | 'sponsor'
+      | 'mc'
+      | 'ghost-wifi-fixer'
+    )[]
+    q?: string
+  }
+}) {
   return await client.users.$get(arg)
 }
 
@@ -495,7 +509,24 @@ export async function getUsers(arg: InferRequestType<typeof client.users.$get>) 
  *
  * Create a new user.
  */
-export async function postUsers(arg: InferRequestType<typeof client.users.$post>) {
+export async function postUsers(arg: {
+  json: {
+    displayName: string
+    email: string
+    roles?: (
+      | 'attendee'
+      | 'speaker'
+      | 'lt-speaker'
+      | 'staff'
+      | 'sponsor'
+      | 'mc'
+      | 'ghost-wifi-fixer'
+    )[]
+    isStudent?: boolean
+    pronouns?: string
+    affiliations?: string[]
+  }
+}) {
   return await client.users.$post(arg)
 }
 
@@ -506,7 +537,7 @@ export async function postUsers(arg: InferRequestType<typeof client.users.$post>
  *
  * Retrieve a single user by ID.
  */
-export async function getUsersId(arg: InferRequestType<(typeof client)['users'][':id']['$get']>) {
+export async function getUsersId(arg: { param: { id: string } }) {
   return await client['users'][':id']['$get'](arg)
 }
 
@@ -517,7 +548,25 @@ export async function getUsersId(arg: InferRequestType<(typeof client)['users'][
  *
  * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
  */
-export async function putUsersId(arg: InferRequestType<(typeof client)['users'][':id']['$put']>) {
+export async function putUsersId(arg: {
+  param: { id: string }
+  json: {
+    displayName: string
+    email: string
+    roles?: (
+      | 'attendee'
+      | 'speaker'
+      | 'lt-speaker'
+      | 'staff'
+      | 'sponsor'
+      | 'mc'
+      | 'ghost-wifi-fixer'
+    )[]
+    isStudent?: boolean
+    pronouns?: string
+    affiliations?: string[]
+  }
+}) {
   return await client['users'][':id']['$put'](arg)
 }
 
@@ -528,9 +577,7 @@ export async function putUsersId(arg: InferRequestType<(typeof client)['users'][
  *
  * Delete a user by ID.
  */
-export async function deleteUsersId(
-  arg: InferRequestType<(typeof client)['users'][':id']['$delete']>,
-) {
+export async function deleteUsersId(arg: { param: { id: string } }) {
   return await client['users'][':id']['$delete'](arg)
 }
 
@@ -541,9 +588,25 @@ export async function deleteUsersId(
  *
  * Partial update (PATCH). Only provided fields will be updated.
  */
-export async function patchUsersId(
-  arg: InferRequestType<(typeof client)['users'][':id']['$patch']>,
-) {
+export async function patchUsersId(arg: {
+  param: { id: string }
+  json: {
+    displayName?: string
+    email?: string
+    roles?: (
+      | 'attendee'
+      | 'speaker'
+      | 'lt-speaker'
+      | 'staff'
+      | 'sponsor'
+      | 'mc'
+      | 'ghost-wifi-fixer'
+    )[]
+    isStudent?: boolean
+    pronouns?: string
+    affiliations?: string[]
+  }
+}) {
   return await client['users'][':id']['$patch'](arg)
 }
 `
@@ -584,8 +647,7 @@ export * from './patchUsersId'
       expect(index).toBe(indexExpected)
 
       const deleteUsersId = fs.readFileSync(path.join(dir, 'rpc', 'deleteUsersId.ts'), 'utf-8')
-      const deleteUsersIdExpected = `import type { InferRequestType } from 'hono/client'
-import { client } from '../index.ts'
+      const deleteUsersIdExpected = `import { client } from '../index.ts'
 
 /**
  * DELETE /users/{id}
@@ -594,9 +656,7 @@ import { client } from '../index.ts'
  *
  * Delete a user by ID.
  */
-export async function deleteUsersId(
-  arg: InferRequestType<(typeof client)['users'][':id']['$delete']>,
-) {
+export async function deleteUsersId(arg: { param: { id: string } }) {
   return await client['users'][':id']['$delete'](arg)
 }
 `
@@ -639,8 +699,7 @@ export async function getHonoX() {
 
       const getUsers = fs.readFileSync(path.join(dir, 'rpc', 'getUsers.ts'), 'utf-8')
 
-      const expected = `import type { InferRequestType } from 'hono/client'
-import { client } from '../index.ts'
+      const expected = `import { client } from '../index.ts'
 
 /**
  * GET /users
@@ -649,7 +708,22 @@ import { client } from '../index.ts'
  *
  * List users with pagination and optional role filter.
  */
-export async function getUsers(arg: InferRequestType<typeof client.users.$get>) {
+export async function getUsers(arg: {
+  query: {
+    limit?: number
+    offset?: number
+    role?: (
+      | 'attendee'
+      | 'speaker'
+      | 'lt-speaker'
+      | 'staff'
+      | 'sponsor'
+      | 'mc'
+      | 'ghost-wifi-fixer'
+    )[]
+    q?: string
+  }
+}) {
   return await client.users.$get(arg)
 }
 `
@@ -658,8 +732,7 @@ export async function getUsers(arg: InferRequestType<typeof client.users.$get>) 
 
       const getUsersId = fs.readFileSync(path.join(dir, 'rpc', 'getUsersId.ts'), 'utf-8')
 
-      const getUsersIdExpected = `import type { InferRequestType } from 'hono/client'
-import { client } from '../index.ts'
+      const getUsersIdExpected = `import { client } from '../index.ts'
 
 /**
  * GET /users/{id}
@@ -668,7 +741,7 @@ import { client } from '../index.ts'
  *
  * Retrieve a single user by ID.
  */
-export async function getUsersId(arg: InferRequestType<(typeof client)['users'][':id']['$get']>) {
+export async function getUsersId(arg: { param: { id: string } }) {
   return await client['users'][':id']['$get'](arg)
 }
 `
@@ -696,8 +769,7 @@ export async function getZodOpenapiHono() {
 
       const patchUsersId = fs.readFileSync(path.join(dir, 'rpc', 'patchUsersId.ts'), 'utf-8')
 
-      const patchUsersIdExpected = `import type { InferRequestType } from 'hono/client'
-import { client } from '../index.ts'
+      const patchUsersIdExpected = `import { client } from '../index.ts'
 
 /**
  * PATCH /users/{id}
@@ -706,17 +778,32 @@ import { client } from '../index.ts'
  *
  * Partial update (PATCH). Only provided fields will be updated.
  */
-export async function patchUsersId(
-  arg: InferRequestType<(typeof client)['users'][':id']['$patch']>,
-) {
+export async function patchUsersId(arg: {
+  param: { id: string }
+  json: {
+    displayName?: string
+    email?: string
+    roles?: (
+      | 'attendee'
+      | 'speaker'
+      | 'lt-speaker'
+      | 'staff'
+      | 'sponsor'
+      | 'mc'
+      | 'ghost-wifi-fixer'
+    )[]
+    isStudent?: boolean
+    pronouns?: string
+    affiliations?: string[]
+  }
+}) {
   return await client['users'][':id']['$patch'](arg)
 }
 `
       expect(patchUsersId).toBe(patchUsersIdExpected)
 
       const postUsers = fs.readFileSync(path.join(dir, 'rpc', 'postUsers.ts'), 'utf-8')
-      const postUsersExpected = `import type { InferRequestType } from 'hono/client'
-import { client } from '../index.ts'
+      const postUsersExpected = `import { client } from '../index.ts'
 
 /**
  * POST /users
@@ -725,7 +812,24 @@ import { client } from '../index.ts'
  *
  * Create a new user.
  */
-export async function postUsers(arg: InferRequestType<typeof client.users.$post>) {
+export async function postUsers(arg: {
+  json: {
+    displayName: string
+    email: string
+    roles?: (
+      | 'attendee'
+      | 'speaker'
+      | 'lt-speaker'
+      | 'staff'
+      | 'sponsor'
+      | 'mc'
+      | 'ghost-wifi-fixer'
+    )[]
+    isStudent?: boolean
+    pronouns?: string
+    affiliations?: string[]
+  }
+}) {
   return await client.users.$post(arg)
 }
 `
@@ -733,8 +837,7 @@ export async function postUsers(arg: InferRequestType<typeof client.users.$post>
 
       const putUsersId = fs.readFileSync(path.join(dir, 'rpc', 'putUsersId.ts'), 'utf-8')
 
-      const putUsersIdExpected = `import type { InferRequestType } from 'hono/client'
-import { client } from '../index.ts'
+      const putUsersIdExpected = `import { client } from '../index.ts'
 
 /**
  * PUT /users/{id}
@@ -743,7 +846,25 @@ import { client } from '../index.ts'
  *
  * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
  */
-export async function putUsersId(arg: InferRequestType<(typeof client)['users'][':id']['$put']>) {
+export async function putUsersId(arg: {
+  param: { id: string }
+  json: {
+    displayName: string
+    email: string
+    roles?: (
+      | 'attendee'
+      | 'speaker'
+      | 'lt-speaker'
+      | 'staff'
+      | 'sponsor'
+      | 'mc'
+      | 'ghost-wifi-fixer'
+    )[]
+    isStudent?: boolean
+    pronouns?: string
+    affiliations?: string[]
+  }
+}) {
   return await client['users'][':id']['$put'](arg)
 }
 `

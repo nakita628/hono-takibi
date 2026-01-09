@@ -1,4 +1,3 @@
-import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/33-practical-notification-api'
 
 /**
@@ -6,7 +5,14 @@ import { client } from '../clients/33-practical-notification-api'
  *
  * 通知一覧取得
  */
-export async function getNotifications(arg: InferRequestType<typeof client.notifications.$get>) {
+export async function getNotifications(arg: {
+  query: {
+    page?: number
+    limit?: number
+    read?: string
+    type?: 'info' | 'success' | 'warning' | 'error' | 'system'
+  }
+}) {
   return await client.notifications.$get(arg)
 }
 
@@ -15,9 +21,7 @@ export async function getNotifications(arg: InferRequestType<typeof client.notif
  *
  * 通知詳細取得
  */
-export async function getNotificationsNotificationId(
-  arg: InferRequestType<(typeof client)['notifications'][':notificationId']['$get']>,
-) {
+export async function getNotificationsNotificationId(arg: { param: { notificationId: string } }) {
   return await client['notifications'][':notificationId']['$get'](arg)
 }
 
@@ -26,9 +30,9 @@ export async function getNotificationsNotificationId(
  *
  * 通知削除
  */
-export async function deleteNotificationsNotificationId(
-  arg: InferRequestType<(typeof client)['notifications'][':notificationId']['$delete']>,
-) {
+export async function deleteNotificationsNotificationId(arg: {
+  param: { notificationId: string }
+}) {
   return await client['notifications'][':notificationId']['$delete'](arg)
 }
 
@@ -37,9 +41,9 @@ export async function deleteNotificationsNotificationId(
  *
  * 既読にする
  */
-export async function postNotificationsNotificationIdRead(
-  arg: InferRequestType<(typeof client)['notifications'][':notificationId']['read']['$post']>,
-) {
+export async function postNotificationsNotificationIdRead(arg: {
+  param: { notificationId: string }
+}) {
   return await client['notifications'][':notificationId']['read']['$post'](arg)
 }
 
@@ -68,9 +72,20 @@ export async function getNotificationsUnreadCount() {
  *
  * 指定したチャンネルでメッセージを送信します
  */
-export async function postMessagesSend(
-  arg: InferRequestType<(typeof client)['messages']['send']['$post']>,
-) {
+export async function postMessagesSend(arg: {
+  json: {
+    channel: 'email' | 'sms' | 'push' | 'in_app'
+    to: string | string[]
+    templateId?: string
+    subject?: string
+    body?: string
+    html?: string
+    variables?: { [key: string]: string }
+    data?: { [key: string]: unknown }
+    priority?: 'low' | 'normal' | 'high'
+    scheduledAt?: string
+  }
+}) {
   return await client['messages']['send']['$post'](arg)
 }
 
@@ -79,9 +94,22 @@ export async function postMessagesSend(
  *
  * 一括メッセージ送信
  */
-export async function postMessagesSendBatch(
-  arg: InferRequestType<(typeof client)['messages']['send-batch']['$post']>,
-) {
+export async function postMessagesSendBatch(arg: {
+  json: {
+    messages: {
+      channel: 'email' | 'sms' | 'push' | 'in_app'
+      to: string | string[]
+      templateId?: string
+      subject?: string
+      body?: string
+      html?: string
+      variables?: { [key: string]: string }
+      data?: { [key: string]: unknown }
+      priority?: 'low' | 'normal' | 'high'
+      scheduledAt?: string
+    }[]
+  }
+}) {
   return await client['messages']['send-batch']['$post'](arg)
 }
 
@@ -90,9 +118,7 @@ export async function postMessagesSendBatch(
  *
  * メッセージ送信状況取得
  */
-export async function getMessagesMessageId(
-  arg: InferRequestType<(typeof client)['messages'][':messageId']['$get']>,
-) {
+export async function getMessagesMessageId(arg: { param: { messageId: string } }) {
   return await client['messages'][':messageId']['$get'](arg)
 }
 
@@ -101,7 +127,9 @@ export async function getMessagesMessageId(
  *
  * テンプレート一覧取得
  */
-export async function getTemplates(arg: InferRequestType<typeof client.templates.$get>) {
+export async function getTemplates(arg: {
+  query: { channel?: 'email' | 'sms' | 'push' | 'in_app'; search?: string }
+}) {
   return await client.templates.$get(arg)
 }
 
@@ -110,7 +138,17 @@ export async function getTemplates(arg: InferRequestType<typeof client.templates
  *
  * テンプレート作成
  */
-export async function postTemplates(arg: InferRequestType<typeof client.templates.$post>) {
+export async function postTemplates(arg: {
+  json: {
+    name: string
+    description?: string
+    channel: 'email' | 'sms' | 'push' | 'in_app'
+    subject?: string
+    body: string
+    html?: string
+    variables?: { name: string; required?: boolean; default?: string }[]
+  }
+}) {
   return await client.templates.$post(arg)
 }
 
@@ -119,9 +157,7 @@ export async function postTemplates(arg: InferRequestType<typeof client.template
  *
  * テンプレート詳細取得
  */
-export async function getTemplatesTemplateId(
-  arg: InferRequestType<(typeof client)['templates'][':templateId']['$get']>,
-) {
+export async function getTemplatesTemplateId(arg: { param: { templateId: string } }) {
   return await client['templates'][':templateId']['$get'](arg)
 }
 
@@ -130,9 +166,18 @@ export async function getTemplatesTemplateId(
  *
  * テンプレート更新
  */
-export async function putTemplatesTemplateId(
-  arg: InferRequestType<(typeof client)['templates'][':templateId']['$put']>,
-) {
+export async function putTemplatesTemplateId(arg: {
+  param: { templateId: string }
+  json: {
+    name?: string
+    description?: string
+    subject?: string
+    body?: string
+    html?: string
+    variables?: { name: string; required?: boolean; default?: string }[]
+    active?: boolean
+  }
+}) {
   return await client['templates'][':templateId']['$put'](arg)
 }
 
@@ -141,9 +186,7 @@ export async function putTemplatesTemplateId(
  *
  * テンプレート削除
  */
-export async function deleteTemplatesTemplateId(
-  arg: InferRequestType<(typeof client)['templates'][':templateId']['$delete']>,
-) {
+export async function deleteTemplatesTemplateId(arg: { param: { templateId: string } }) {
   return await client['templates'][':templateId']['$delete'](arg)
 }
 
@@ -152,9 +195,10 @@ export async function deleteTemplatesTemplateId(
  *
  * テンプレートプレビュー
  */
-export async function postTemplatesTemplateIdPreview(
-  arg: InferRequestType<(typeof client)['templates'][':templateId']['preview']['$post']>,
-) {
+export async function postTemplatesTemplateIdPreview(arg: {
+  param: { templateId: string }
+  json: { variables?: { [key: string]: string } }
+}) {
   return await client['templates'][':templateId']['preview']['$post'](arg)
 }
 
@@ -172,9 +216,30 @@ export async function getChannelsPreferences() {
  *
  * チャンネル設定更新
  */
-export async function putChannelsPreferences(
-  arg: InferRequestType<(typeof client)['channels']['preferences']['$put']>,
-) {
+export async function putChannelsPreferences(arg: {
+  json: {
+    email?: {
+      enabled?: boolean
+      categories?: { [key: string]: boolean }
+      quietHours?: { enabled?: boolean; start?: string; end?: string; timezone?: string }
+    }
+    sms?: {
+      enabled?: boolean
+      categories?: { [key: string]: boolean }
+      quietHours?: { enabled?: boolean; start?: string; end?: string; timezone?: string }
+    }
+    push?: {
+      enabled?: boolean
+      categories?: { [key: string]: boolean }
+      quietHours?: { enabled?: boolean; start?: string; end?: string; timezone?: string }
+    }
+    inApp?: {
+      enabled?: boolean
+      categories?: { [key: string]: boolean }
+      quietHours?: { enabled?: boolean; start?: string; end?: string; timezone?: string }
+    }
+  }
+}) {
   return await client['channels']['preferences']['$put'](arg)
 }
 
@@ -192,9 +257,16 @@ export async function getChannelsDevices() {
  *
  * デバイス登録
  */
-export async function postChannelsDevices(
-  arg: InferRequestType<(typeof client)['channels']['devices']['$post']>,
-) {
+export async function postChannelsDevices(arg: {
+  json: {
+    platform: 'ios' | 'android' | 'web'
+    token: string
+    name?: string
+    model?: string
+    osVersion?: string
+    appVersion?: string
+  }
+}) {
   return await client['channels']['devices']['$post'](arg)
 }
 
@@ -203,9 +275,7 @@ export async function postChannelsDevices(
  *
  * デバイス登録解除
  */
-export async function deleteChannelsDevicesDeviceId(
-  arg: InferRequestType<(typeof client)['channels']['devices'][':deviceId']['$delete']>,
-) {
+export async function deleteChannelsDevicesDeviceId(arg: { param: { deviceId: string } }) {
   return await client['channels']['devices'][':deviceId']['$delete'](arg)
 }
 
@@ -223,7 +293,21 @@ export async function getWebhooks() {
  *
  * Webhook作成
  */
-export async function postWebhooks(arg: InferRequestType<typeof client.webhooks.$post>) {
+export async function postWebhooks(arg: {
+  json: {
+    name?: string
+    url: string
+    events: (
+      | 'message.sent'
+      | 'message.delivered'
+      | 'message.failed'
+      | 'message.opened'
+      | 'message.clicked'
+      | 'message.bounced'
+    )[]
+    headers?: { [key: string]: string }
+  }
+}) {
   return await client.webhooks.$post(arg)
 }
 
@@ -232,9 +316,7 @@ export async function postWebhooks(arg: InferRequestType<typeof client.webhooks.
  *
  * Webhook詳細取得
  */
-export async function getWebhooksWebhookId(
-  arg: InferRequestType<(typeof client)['webhooks'][':webhookId']['$get']>,
-) {
+export async function getWebhooksWebhookId(arg: { param: { webhookId: string } }) {
   return await client['webhooks'][':webhookId']['$get'](arg)
 }
 
@@ -243,9 +325,23 @@ export async function getWebhooksWebhookId(
  *
  * Webhook更新
  */
-export async function putWebhooksWebhookId(
-  arg: InferRequestType<(typeof client)['webhooks'][':webhookId']['$put']>,
-) {
+export async function putWebhooksWebhookId(arg: {
+  param: { webhookId: string }
+  json: {
+    name?: string
+    url?: string
+    events?: (
+      | 'message.sent'
+      | 'message.delivered'
+      | 'message.failed'
+      | 'message.opened'
+      | 'message.clicked'
+      | 'message.bounced'
+    )[]
+    active?: boolean
+    headers?: { [key: string]: string }
+  }
+}) {
   return await client['webhooks'][':webhookId']['$put'](arg)
 }
 
@@ -254,9 +350,7 @@ export async function putWebhooksWebhookId(
  *
  * Webhook削除
  */
-export async function deleteWebhooksWebhookId(
-  arg: InferRequestType<(typeof client)['webhooks'][':webhookId']['$delete']>,
-) {
+export async function deleteWebhooksWebhookId(arg: { param: { webhookId: string } }) {
   return await client['webhooks'][':webhookId']['$delete'](arg)
 }
 
@@ -265,8 +359,6 @@ export async function deleteWebhooksWebhookId(
  *
  * Webhookテスト送信
  */
-export async function postWebhooksWebhookIdTest(
-  arg: InferRequestType<(typeof client)['webhooks'][':webhookId']['test']['$post']>,
-) {
+export async function postWebhooksWebhookIdTest(arg: { param: { webhookId: string } }) {
   return await client['webhooks'][':webhookId']['test']['$post'](arg)
 }

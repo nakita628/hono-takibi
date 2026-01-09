@@ -77,12 +77,31 @@ type ParameterLike = {
   in: 'path' | 'query' | 'header' | 'cookie'
   required?: boolean
   schema?: Schema
+  content?: Record<string, { schema?: Schema }>
 }
 const isParameterObject = (v: unknown): v is ParameterLike => {
   if (!isRecord(v)) return false
   if (typeof v.name !== 'string') return false
   const pos = v.in
   return pos === 'path' || pos === 'query' || pos === 'header' || pos === 'cookie'
+}
+
+/**
+ * Extract schema from parameter (handles both schema and content properties)
+ */
+const getParameterSchema = (p: ParameterLike): Schema | undefined => {
+  if (p.schema) return p.schema
+  // Handle content property (e.g., content: { application/json: { schema: ... } })
+  if (p.content) {
+    const jsonContent = p.content['application/json']
+    if (jsonContent?.schema) return jsonContent.schema
+    // Fallback to first content type
+    const firstKey = Object.keys(p.content)[0]
+    if (firstKey && p.content[firstKey]?.schema) {
+      return p.content[firstKey].schema
+    }
+  }
+  return undefined
 }
 
 const refParamName = (refLike: unknown): string | undefined => {
@@ -105,6 +124,236 @@ const createToParameterLikes =
   (resolveParam: (p: unknown) => ParameterLike | undefined) =>
   (arr?: unknown): ParameterLike[] =>
     Array.isArray(arr) ? arr.map((x) => resolveParam(x)).filter((param) => param !== undefined) : []
+
+/* ─────────────────────────────── Schema to TypeScript type ─────────────────────────────── */
+
+type SchemaToTsOptions = {
+  /** Query parameters use string for boolean (HTTP query params are always strings) */
+  isQueryParam?: boolean
+}
+
+/**
+ * Converts OpenAPI Schema to TypeScript type string.
+ * Used for generating argument types directly from OpenAPI instead of InferRequestType.
+ */
+const schemaToTsType = (
+  schema: Schema | undefined,
+  componentsSchemas: Record<string, Schema>,
+  visited: Set<string> = new Set(),
+  options: SchemaToTsOptions = {},
+): string => {
+  if (!schema) return 'unknown'
+
+  // Handle $ref
+  if (schema.$ref) {
+    const refName = schema.$ref.replace(/^#\/components\/schemas\//, '')
+    // Prevent infinite recursion from circular references
+    if (visited.has(refName)) {
+      return 'unknown'
+    }
+    const refSchema = componentsSchemas[refName]
+    if (refSchema) {
+      const newVisited = new Set(visited)
+      newVisited.add(refName)
+      return schemaToTsType(refSchema, componentsSchemas, newVisited, options)
+    }
+    return 'unknown'
+  }
+
+  // Handle enum
+  if (schema.enum) {
+    if (schema.enum.length === 0) return 'never'
+    return schema.enum.map((v) => JSON.stringify(v)).join(' | ')
+  }
+
+  // Handle const
+  if (schema.const !== undefined) {
+    return JSON.stringify(schema.const)
+  }
+
+  // Handle nullable
+  const nullable = schema.nullable === true
+
+  // Handle allOf
+  if (schema.allOf) {
+    if (schema.allOf.length === 0) return nullable ? '(unknown | null)' : 'unknown'
+    const types = schema.allOf.map((s) => schemaToTsType(s, componentsSchemas, visited, options))
+    const result = types.length === 1 ? types[0] : `(${types.join(' & ')})`
+    return nullable ? `(${result} | null)` : result
+  }
+
+  // Handle oneOf/anyOf
+  if (schema.oneOf || schema.anyOf) {
+    const schemas = schema.oneOf || schema.anyOf || []
+    if (schemas.length === 0) return nullable ? '(never | null)' : 'never'
+    const types = schemas.map((s) => schemaToTsType(s, componentsSchemas, visited, options))
+    const result = types.join(' | ')
+    return nullable ? `(${result} | null)` : result
+  }
+
+  // Handle type
+  const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
+
+  switch (type) {
+    case 'string':
+      // format: binary should be File type for Hono RPC compatibility
+      if (schema.format === 'binary') {
+        return nullable ? '(File | null)' : 'File'
+      }
+      return nullable ? '(string | null)' : 'string'
+    case 'number':
+    case 'integer':
+      // int64 format becomes bigint in Hono
+      if (schema.format === 'int64') {
+        return nullable ? '(bigint | null)' : 'bigint'
+      }
+      return nullable ? '(number | null)' : 'number'
+    case 'boolean':
+      // Query parameters in HTTP are always strings, so boolean becomes string
+      if (options.isQueryParam) {
+        return nullable ? '(string | null)' : 'string'
+      }
+      return nullable ? '(boolean | null)' : 'boolean'
+    case 'null':
+      return 'null'
+    case 'array': {
+      const itemType = schema.items
+        ? schemaToTsType(
+            Array.isArray(schema.items) ? schema.items[0] : schema.items,
+            componentsSchemas,
+            visited,
+            options,
+          )
+        : 'unknown'
+      // Wrap union types in parentheses for correct array syntax
+      const needsParens = itemType.includes(' | ') || itemType.includes(' & ')
+      const arrayType = needsParens ? `(${itemType})[]` : `${itemType}[]`
+      return nullable ? `(${arrayType} | null)` : arrayType
+    }
+    case 'object': {
+      if (!schema.properties) {
+        // Record type for additionalProperties
+        if (schema.additionalProperties) {
+          const valueType =
+            typeof schema.additionalProperties === 'boolean'
+              ? 'unknown'
+              : schemaToTsType(schema.additionalProperties, componentsSchemas, visited, options)
+          return nullable
+            ? `({ [key: string]: ${valueType} } | null)`
+            : `{ [key: string]: ${valueType} }`
+        }
+        return nullable ? '({} | null)' : '{}'
+      }
+      const required = new Set(schema.required || [])
+      const props = Object.entries(schema.properties)
+        .map(([key, propSchema]) => {
+          const propType = schemaToTsType(propSchema, componentsSchemas, visited, options)
+          const isRequired = required.has(key)
+          const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : JSON.stringify(key)
+          return `${safeKey}${isRequired ? '' : '?'}: ${propType}`
+        })
+        .join('; ')
+      return nullable ? `({ ${props} } | null)` : `{ ${props} }`
+    }
+    default:
+      return 'unknown'
+  }
+}
+
+/** Body info with schema and content type */
+type BodyInfo = {
+  schema: Schema
+  contentType: string
+}
+
+/**
+ * Generate Hono RPC argument type from OpenAPI parameters and request body.
+ * Returns type string like "{ param: { id: string }; query: { limit?: number }; json: { name: string } }"
+ */
+const generateArgType = (
+  pathParams: ParameterLike[],
+  queryParams: ParameterLike[],
+  headerParams: ParameterLike[],
+  cookieParams: ParameterLike[],
+  allBodyInfo: AllBodyInfo | undefined,
+  componentsSchemas: Record<string, Schema>,
+): string => {
+  const parts: string[] = []
+
+  // Path parameters
+  if (pathParams.length > 0) {
+    const props = pathParams
+      .map((p) => {
+        const schema = getParameterSchema(p)
+        const type = schemaToTsType(schema, componentsSchemas)
+        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(p.name) ? p.name : JSON.stringify(p.name)
+        return `${safeKey}: ${type}`
+      })
+      .join('; ')
+    parts.push(`param: { ${props} }`)
+  }
+
+  // Query parameters - use isQueryParam: true for HTTP query string semantics
+  if (queryParams.length > 0) {
+    const props = queryParams
+      .map((p) => {
+        const schema = getParameterSchema(p)
+        const type = schemaToTsType(schema, componentsSchemas, new Set(), { isQueryParam: true })
+        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(p.name) ? p.name : JSON.stringify(p.name)
+        const isRequired = p.required === true
+        return `${safeKey}${isRequired ? '' : '?'}: ${type}`
+      })
+      .join('; ')
+    parts.push(`query: { ${props} }`)
+  }
+
+  // Header parameters
+  if (headerParams.length > 0) {
+    const props = headerParams
+      .map((p) => {
+        const schema = getParameterSchema(p)
+        const type = schemaToTsType(schema, componentsSchemas)
+        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(p.name) ? p.name : JSON.stringify(p.name)
+        const isRequired = p.required === true
+        return `${safeKey}${isRequired ? '' : '?'}: ${type}`
+      })
+      .join('; ')
+    parts.push(`header: { ${props} }`)
+  }
+
+  // Cookie parameters
+  if (cookieParams.length > 0) {
+    const props = cookieParams
+      .map((p) => {
+        const schema = getParameterSchema(p)
+        const type = schemaToTsType(schema, componentsSchemas)
+        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(p.name) ? p.name : JSON.stringify(p.name)
+        const isRequired = p.required === true
+        return `${safeKey}${isRequired ? '' : '?'}: ${type}`
+      })
+      .join('; ')
+    parts.push(`cookie: { ${props} }`)
+  }
+
+  // Request body - handle multiple content types
+  if (allBodyInfo) {
+    const { form, json } = allBodyInfo
+    // Generate form types if present
+    if (form.length > 0) {
+      const types = form.map((info) => schemaToTsType(info.schema, componentsSchemas))
+      const unionType = types.length === 1 ? types[0] : types.join(' | ')
+      parts.push(`form: ${unionType}`)
+    }
+    // Generate json types if present
+    if (json.length > 0) {
+      const types = json.map((info) => schemaToTsType(info.schema, componentsSchemas))
+      const unionType = types.length === 1 ? types[0] : types.join(' | ')
+      parts.push(`json: ${unionType}`)
+    }
+  }
+
+  return parts.length > 0 ? `{ ${parts.join('; ')} }` : ''
+}
 
 /* ─────────────────────────────── RequestBody schema pick ─────────────────────────────── */
 
@@ -148,26 +397,41 @@ const refRequestBodyName = (refLike: unknown): string | undefined => {
   return m ? m[1] : undefined
 }
 
-const pickBodySchemaFromContent = (content: unknown): Schema | undefined => {
+type AllBodyInfo = { form: BodyInfo[]; json: BodyInfo[] }
+
+/**
+ * Collect all body infos from content to handle multiple content-types.
+ * Groups by body key ('form' or 'json') with union types.
+ */
+const pickAllBodyInfoFromContent = (content: unknown): AllBodyInfo | undefined => {
   if (!isRecord(content)) return undefined
-  const order = [
-    'application/json',
-    'application/*+json',
-    'application/xml',
-    'application/x-www-form-urlencoded',
-    'multipart/form-data',
-    'application/octet-stream',
-  ]
-  for (const k of order) {
-    const media = isRecord(content[k]) ? content[k] : undefined
-    if (hasSchemaProp(media) && isRecord(media.schema)) return media.schema
+
+  const formInfos: BodyInfo[] = []
+  const jsonInfos: BodyInfo[] = []
+
+  const formContentTypes = ['multipart/form-data', 'application/x-www-form-urlencoded']
+
+  for (const [ct, mediaObj] of Object.entries(content)) {
+    if (!(isRecord(mediaObj) && hasSchemaProp(mediaObj) && isRecord(mediaObj.schema))) continue
+
+    const info: BodyInfo = { schema: mediaObj.schema, contentType: ct }
+
+    if (formContentTypes.includes(ct)) {
+      formInfos.push(info)
+    } else {
+      // All other content types go to json
+      jsonInfos.push(info)
+    }
   }
-  return undefined
+
+  if (formInfos.length === 0 && jsonInfos.length === 0) return undefined
+
+  return { form: formInfos, json: jsonInfos }
 }
 
-const createPickBodySchema =
+const createPickAllBodyInfo =
   (componentsRequestBodies: Record<string, unknown>) =>
-  (op: OperationLike): Schema | undefined => {
+  (op: OperationLike): AllBodyInfo | undefined => {
     const rb = op.requestBody
     if (!isRecord(rb)) return undefined
 
@@ -176,15 +440,16 @@ const createPickBodySchema =
     if (refName) {
       const resolved = componentsRequestBodies[refName]
       if (isRecord(resolved) && isRecord(resolved.content)) {
-        return pickBodySchemaFromContent(resolved.content)
+        return pickAllBodyInfoFromContent(resolved.content)
       }
       // If $ref exists but can't resolve content, still consider it has a body
-      if (resolved !== undefined) return {} // Empty schema indicates body exists
+      if (resolved !== undefined)
+        return { form: [], json: [{ schema: {}, contentType: 'application/json' }] }
       return undefined
     }
 
     // Direct inline requestBody
-    return pickBodySchemaFromContent(rb.content)
+    return pickAllBodyInfoFromContent(rb.content)
   }
 
 /* ─────────────────────────────── Single-operation generator ─────────────────────────────── */
@@ -196,7 +461,8 @@ const generateOperationCode = (
   deps: {
     client: string
     toParameterLikes: (arr?: unknown) => ParameterLike[]
-    pickBodySchema: (op: OperationLike) => Schema | undefined
+    pickAllBodyInfo: (op: OperationLike) => AllBodyInfo | undefined
+    componentsSchemas: Record<string, Schema>
   },
 ): string => {
   const op = item[method]
@@ -211,23 +477,37 @@ const generateOperationCode = (
   const allParams = [...pathLevelParams, ...opParams]
   const pathParams = allParams.filter((p) => p.in === 'path')
   const queryParams = allParams.filter((p) => p.in === 'query')
+  const headerParams = allParams.filter((p) => p.in === 'header')
+  const cookieParams = allParams.filter((p) => p.in === 'cookie')
 
-  const bodySchema = deps.pickBodySchema(op)
-  const hasBody = bodySchema !== undefined
-  const hasArgs = pathParams.length > 0 || queryParams.length > 0 || hasBody
+  const allBodyInfo = deps.pickAllBodyInfo(op)
+  const hasBody =
+    allBodyInfo !== undefined && (allBodyInfo.form.length > 0 || allBodyInfo.json.length > 0)
+  const hasArgs =
+    pathParams.length > 0 ||
+    queryParams.length > 0 ||
+    headerParams.length > 0 ||
+    cookieParams.length > 0 ||
+    hasBody
 
   // Use unified path format for both type and runtime
   const hasBracket = pathAccess.includes('[')
   const methodAccess = hasBracket ? `['$${method}']` : `.$${method}`
 
-  // For type inference, use (typeof client) with brackets when path has brackets
-  const inferType = hasBracket
-    ? `InferRequestType<(typeof ${deps.client})${pathAccess}${methodAccess}>`
-    : `InferRequestType<typeof ${deps.client}${pathAccess}${methodAccess}>`
-  const argSig = hasArgs ? `arg:${inferType}` : ''
-  const call = hasArgs
-    ? `${deps.client}${pathAccess}${methodAccess}(arg)`
-    : `${deps.client}${pathAccess}${methodAccess}()`
+  // Generate argument type directly from OpenAPI instead of using InferRequestType
+  const argType = generateArgType(
+    pathParams,
+    queryParams,
+    headerParams,
+    cookieParams,
+    allBodyInfo,
+    deps.componentsSchemas,
+  )
+  const argSig = hasArgs && argType ? `arg:${argType}` : ''
+  const call =
+    hasArgs && argType
+      ? `${deps.client}${pathAccess}${methodAccess}(arg)`
+      : `${deps.client}${pathAccess}${methodAccess}()`
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
@@ -249,7 +529,8 @@ const buildOperationCodes = (
   deps: {
     client: string
     toParameterLikes: (arr?: unknown) => ParameterLike[]
-    pickBodySchema: (op: OperationLike) => Schema | undefined
+    pickAllBodyInfo: (op: OperationLike) => AllBodyInfo | undefined
+    componentsSchemas: Record<string, Schema>
   },
 ): OperationCode[] =>
   Object.entries(paths)
@@ -318,9 +599,8 @@ const resolveSplitOutDir = (output: string) => {
  * // Generates: src/rpc/getUsers.ts, src/rpc/postUsers.ts, src/rpc/index.ts
  * ```
  */
-const buildHeader = (importPath: string, usesInferRequestType: boolean): string => {
-  const inferImport = usesInferRequestType ? `import type{InferRequestType}from'hono/client'\n` : ''
-  return `${inferImport}import{client}from'${importPath}'\n\n`
+const buildHeader = (importPath: string): string => {
+  return `import{client}from'${importPath}'\n\n`
 }
 
 export async function rpc(
@@ -340,14 +620,16 @@ export async function rpc(
 
   const componentsParameters = openAPI.components?.parameters ?? {}
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
+  const componentsSchemas = (openAPI.components?.schemas ?? {}) as Record<string, Schema>
   const resolveParameter = createResolveParameter(componentsParameters)
   const toParameterLikes = createToParameterLikes(resolveParameter)
-  const pickBodySchema = createPickBodySchema(componentsRequestBodies)
+  const pickAllBodyInfo = createPickAllBodyInfo(componentsRequestBodies)
 
   const deps = {
     client,
     toParameterLikes,
-    pickBodySchema,
+    pickAllBodyInfo,
+    componentsSchemas,
   }
 
   const operationCodes = buildOperationCodes(pathsMaybe, deps)
@@ -355,8 +637,7 @@ export async function rpc(
   // Non-split: write single file
   if (!split) {
     const body = operationCodes.map(({ code }) => code).join('\n\n')
-    const usesInferRequestType = body.includes('InferRequestType')
-    const header = buildHeader(importPath, usesInferRequestType)
+    const header = buildHeader(importPath)
     const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
     if (!coreResult.ok) return { ok: false, error: coreResult.error }
@@ -373,8 +654,7 @@ export async function rpc(
 
   const allResults = await Promise.all([
     ...operationCodes.map(({ funcName, code }) => {
-      const usesInferRequestType = code.includes('InferRequestType')
-      const header = buildHeader(importPath, usesInferRequestType)
+      const header = buildHeader(importPath)
       const fileSrc = `${header}${code}\n`
       const filePath = path.join(outDir, `${funcName}.ts`)
       return core(fileSrc, path.dirname(filePath), filePath)

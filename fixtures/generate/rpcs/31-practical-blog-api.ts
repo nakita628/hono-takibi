@@ -1,4 +1,3 @@
-import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/31-practical-blog-api'
 
 /**
@@ -6,7 +5,18 @@ import { client } from '../clients/31-practical-blog-api'
  *
  * 記事一覧取得
  */
-export async function getPosts(arg: InferRequestType<typeof client.posts.$get>) {
+export async function getPosts(arg: {
+  query: {
+    page?: number
+    limit?: number
+    status?: 'draft' | 'published' | 'scheduled' | 'archived'
+    category?: string
+    tag?: string
+    author?: string
+    search?: string
+    sort?: 'publishedAt:desc' | 'publishedAt:asc' | 'title:asc' | 'title:desc' | 'viewCount:desc'
+  }
+}) {
   return await client.posts.$get(arg)
 }
 
@@ -15,7 +25,28 @@ export async function getPosts(arg: InferRequestType<typeof client.posts.$get>) 
  *
  * 記事作成
  */
-export async function postPosts(arg: InferRequestType<typeof client.posts.$post>) {
+export async function postPosts(arg: {
+  json: {
+    title: string
+    slug?: string
+    excerpt?: string
+    content?: string
+    contentMarkdown?: string
+    featuredImageId?: string
+    categoryId?: string
+    tagIds?: string[]
+    seo?: {
+      metaTitle?: string
+      metaDescription?: string
+      ogTitle?: string
+      ogDescription?: string
+      ogImage?: string
+      canonicalUrl?: string
+      noIndex?: boolean
+    }
+    status?: 'draft' | 'published'
+  }
+}) {
   return await client.posts.$post(arg)
 }
 
@@ -24,9 +55,7 @@ export async function postPosts(arg: InferRequestType<typeof client.posts.$post>
  *
  * 記事詳細取得
  */
-export async function getPostsPostId(
-  arg: InferRequestType<(typeof client)['posts'][':postId']['$get']>,
-) {
+export async function getPostsPostId(arg: { param: { postId: string } }) {
   return await client['posts'][':postId']['$get'](arg)
 }
 
@@ -35,9 +64,28 @@ export async function getPostsPostId(
  *
  * 記事更新
  */
-export async function putPostsPostId(
-  arg: InferRequestType<(typeof client)['posts'][':postId']['$put']>,
-) {
+export async function putPostsPostId(arg: {
+  param: { postId: string }
+  json: {
+    title?: string
+    slug?: string
+    excerpt?: string
+    content?: string
+    contentMarkdown?: string
+    featuredImageId?: string
+    categoryId?: string
+    tagIds?: string[]
+    seo?: {
+      metaTitle?: string
+      metaDescription?: string
+      ogTitle?: string
+      ogDescription?: string
+      ogImage?: string
+      canonicalUrl?: string
+      noIndex?: boolean
+    }
+  }
+}) {
   return await client['posts'][':postId']['$put'](arg)
 }
 
@@ -46,9 +94,7 @@ export async function putPostsPostId(
  *
  * 記事削除
  */
-export async function deletePostsPostId(
-  arg: InferRequestType<(typeof client)['posts'][':postId']['$delete']>,
-) {
+export async function deletePostsPostId(arg: { param: { postId: string } }) {
   return await client['posts'][':postId']['$delete'](arg)
 }
 
@@ -57,9 +103,7 @@ export async function deletePostsPostId(
  *
  * スラッグで記事取得
  */
-export async function getPostsSlugSlug(
-  arg: InferRequestType<(typeof client)['posts']['slug'][':slug']['$get']>,
-) {
+export async function getPostsSlugSlug(arg: { param: { slug: string } }) {
   return await client['posts']['slug'][':slug']['$get'](arg)
 }
 
@@ -68,9 +112,10 @@ export async function getPostsSlugSlug(
  *
  * 記事公開
  */
-export async function postPostsPostIdPublish(
-  arg: InferRequestType<(typeof client)['posts'][':postId']['publish']['$post']>,
-) {
+export async function postPostsPostIdPublish(arg: {
+  param: { postId: string }
+  json: { scheduledAt?: string }
+}) {
   return await client['posts'][':postId']['publish']['$post'](arg)
 }
 
@@ -79,9 +124,7 @@ export async function postPostsPostIdPublish(
  *
  * 記事非公開化
  */
-export async function postPostsPostIdUnpublish(
-  arg: InferRequestType<(typeof client)['posts'][':postId']['unpublish']['$post']>,
-) {
+export async function postPostsPostIdUnpublish(arg: { param: { postId: string } }) {
   return await client['posts'][':postId']['unpublish']['$post'](arg)
 }
 
@@ -90,9 +133,10 @@ export async function postPostsPostIdUnpublish(
  *
  * 記事のコメント一覧取得
  */
-export async function getPostsPostIdComments(
-  arg: InferRequestType<(typeof client)['posts'][':postId']['comments']['$get']>,
-) {
+export async function getPostsPostIdComments(arg: {
+  param: { postId: string }
+  query: { page?: number; limit?: number }
+}) {
   return await client['posts'][':postId']['comments']['$get'](arg)
 }
 
@@ -101,9 +145,16 @@ export async function getPostsPostIdComments(
  *
  * コメント投稿
  */
-export async function postPostsPostIdComments(
-  arg: InferRequestType<(typeof client)['posts'][':postId']['comments']['$post']>,
-) {
+export async function postPostsPostIdComments(arg: {
+  param: { postId: string }
+  json: {
+    content: string
+    authorName: string
+    authorEmail: string
+    authorUrl?: string
+    parentId?: string
+  }
+}) {
   return await client['posts'][':postId']['comments']['$post'](arg)
 }
 
@@ -112,9 +163,7 @@ export async function postPostsPostIdComments(
  *
  * コメント削除
  */
-export async function deleteCommentsCommentId(
-  arg: InferRequestType<(typeof client)['comments'][':commentId']['$delete']>,
-) {
+export async function deleteCommentsCommentId(arg: { param: { commentId: string } }) {
   return await client['comments'][':commentId']['$delete'](arg)
 }
 
@@ -123,9 +172,7 @@ export async function deleteCommentsCommentId(
  *
  * コメント承認
  */
-export async function postCommentsCommentIdApprove(
-  arg: InferRequestType<(typeof client)['comments'][':commentId']['approve']['$post']>,
-) {
+export async function postCommentsCommentIdApprove(arg: { param: { commentId: string } }) {
   return await client['comments'][':commentId']['approve']['$post'](arg)
 }
 
@@ -143,7 +190,9 @@ export async function getCategories() {
  *
  * カテゴリ作成
  */
-export async function postCategories(arg: InferRequestType<typeof client.categories.$post>) {
+export async function postCategories(arg: {
+  json: { name: string; slug?: string; description?: string; parentId?: string }
+}) {
   return await client.categories.$post(arg)
 }
 
@@ -152,9 +201,7 @@ export async function postCategories(arg: InferRequestType<typeof client.categor
  *
  * カテゴリ詳細取得
  */
-export async function getCategoriesCategoryId(
-  arg: InferRequestType<(typeof client)['categories'][':categoryId']['$get']>,
-) {
+export async function getCategoriesCategoryId(arg: { param: { categoryId: string } }) {
   return await client['categories'][':categoryId']['$get'](arg)
 }
 
@@ -163,9 +210,10 @@ export async function getCategoriesCategoryId(
  *
  * カテゴリ更新
  */
-export async function putCategoriesCategoryId(
-  arg: InferRequestType<(typeof client)['categories'][':categoryId']['$put']>,
-) {
+export async function putCategoriesCategoryId(arg: {
+  param: { categoryId: string }
+  json: { name?: string; slug?: string; description?: string; parentId?: string }
+}) {
   return await client['categories'][':categoryId']['$put'](arg)
 }
 
@@ -174,9 +222,7 @@ export async function putCategoriesCategoryId(
  *
  * カテゴリ削除
  */
-export async function deleteCategoriesCategoryId(
-  arg: InferRequestType<(typeof client)['categories'][':categoryId']['$delete']>,
-) {
+export async function deleteCategoriesCategoryId(arg: { param: { categoryId: string } }) {
   return await client['categories'][':categoryId']['$delete'](arg)
 }
 
@@ -185,7 +231,7 @@ export async function deleteCategoriesCategoryId(
  *
  * タグ一覧取得
  */
-export async function getTags(arg: InferRequestType<typeof client.tags.$get>) {
+export async function getTags(arg: { query: { search?: string } }) {
   return await client.tags.$get(arg)
 }
 
@@ -194,7 +240,7 @@ export async function getTags(arg: InferRequestType<typeof client.tags.$get>) {
  *
  * タグ作成
  */
-export async function postTags(arg: InferRequestType<typeof client.tags.$post>) {
+export async function postTags(arg: { json: { name: string; slug?: string } }) {
   return await client.tags.$post(arg)
 }
 
@@ -203,7 +249,9 @@ export async function postTags(arg: InferRequestType<typeof client.tags.$post>) 
  *
  * メディア一覧取得
  */
-export async function getMedia(arg: InferRequestType<typeof client.media.$get>) {
+export async function getMedia(arg: {
+  query: { page?: number; limit?: number; type?: 'image' | 'video' | 'audio' | 'document' }
+}) {
   return await client.media.$get(arg)
 }
 
@@ -212,7 +260,7 @@ export async function getMedia(arg: InferRequestType<typeof client.media.$get>) 
  *
  * メディアアップロード
  */
-export async function postMedia(arg: InferRequestType<typeof client.media.$post>) {
+export async function postMedia(arg: { form: { file: File; altText?: string; caption?: string } }) {
   return await client.media.$post(arg)
 }
 
@@ -221,9 +269,7 @@ export async function postMedia(arg: InferRequestType<typeof client.media.$post>
  *
  * メディア詳細取得
  */
-export async function getMediaMediaId(
-  arg: InferRequestType<(typeof client)['media'][':mediaId']['$get']>,
-) {
+export async function getMediaMediaId(arg: { param: { mediaId: string } }) {
   return await client['media'][':mediaId']['$get'](arg)
 }
 
@@ -232,9 +278,10 @@ export async function getMediaMediaId(
  *
  * メディア情報更新
  */
-export async function putMediaMediaId(
-  arg: InferRequestType<(typeof client)['media'][':mediaId']['$put']>,
-) {
+export async function putMediaMediaId(arg: {
+  param: { mediaId: string }
+  json: { altText?: string; caption?: string }
+}) {
   return await client['media'][':mediaId']['$put'](arg)
 }
 
@@ -243,9 +290,7 @@ export async function putMediaMediaId(
  *
  * メディア削除
  */
-export async function deleteMediaMediaId(
-  arg: InferRequestType<(typeof client)['media'][':mediaId']['$delete']>,
-) {
+export async function deleteMediaMediaId(arg: { param: { mediaId: string } }) {
   return await client['media'][':mediaId']['$delete'](arg)
 }
 
@@ -263,8 +308,6 @@ export async function getAuthors() {
  *
  * 著者詳細取得
  */
-export async function getAuthorsAuthorId(
-  arg: InferRequestType<(typeof client)['authors'][':authorId']['$get']>,
-) {
+export async function getAuthorsAuthorId(arg: { param: { authorId: string } }) {
   return await client['authors'][':authorId']['$get'](arg)
 }

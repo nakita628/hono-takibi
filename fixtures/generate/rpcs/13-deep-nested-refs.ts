@@ -1,14 +1,11 @@
-import type { InferRequestType } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
 /**
  * GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
-export async function getOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
-  arg: InferRequestType<
-    (typeof client)['organizations'][':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-  >,
-) {
+export async function getOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(arg: {
+  param: { orgId: string; deptId: string; teamId: string }
+}) {
   return await client['organizations'][':orgId']['departments'][':deptId']['teams'][':teamId'][
     'members'
   ]['$get'](arg)
@@ -17,11 +14,17 @@ export async function getOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 /**
  * POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
-export async function postOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
-  arg: InferRequestType<
-    (typeof client)['organizations'][':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-  >,
-) {
+export async function postOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(arg: {
+  param: { orgId: string; deptId: string; teamId: string }
+  json: {
+    employeeId: string
+    role: {
+      name: string
+      permissions: { resource: string; actions: ('read' | 'write' | 'delete' | 'admin')[] }[]
+    }
+    allocation?: { percentage: number; effectiveFrom?: string; effectiveTo?: string }
+  }
+}) {
   return await client['organizations'][':orgId']['departments'][':deptId']['teams'][':teamId'][
     'members'
   ]['$post'](arg)
