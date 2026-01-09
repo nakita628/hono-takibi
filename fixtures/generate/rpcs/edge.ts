@@ -38,5 +38,5 @@ export async function putMultiStep(
   args: { json: { id: string; metadata?: { [key: string]: string } | null } & { step?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['multi-step']['$put'](args, options)
+  return await client['multi-step'].$put(args, options)
 }

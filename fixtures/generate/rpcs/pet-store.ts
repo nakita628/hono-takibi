@@ -92,7 +92,7 @@ export async function getPetFindByStatus(
   args: { query: { status?: 'available' | 'pending' | 'sold' } },
   options?: ClientRequestOptions,
 ) {
-  return await client['pet']['findByStatus']['$get'](args, options)
+  return await client.pet.findByStatus.$get(args, options)
 }
 
 /**
@@ -106,7 +106,7 @@ export async function getPetFindByTags(
   args: { query: { tags?: string[] } },
   options?: ClientRequestOptions,
 ) {
-  return await client['pet']['findByTags']['$get'](args, options)
+  return await client.pet.findByTags.$get(args, options)
 }
 
 /**
@@ -120,7 +120,7 @@ export async function getPetPetId(
   args: { param: { petId: bigint } },
   options?: ClientRequestOptions,
 ) {
-  return await client['pet'][':petId']['$get'](args, options)
+  return await client.pet[':petId'].$get(args, options)
 }
 
 /**
@@ -132,7 +132,7 @@ export async function postPetPetId(
   args: { param: { petId: bigint }; query: { name?: string; status?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['pet'][':petId']['$post'](args, options)
+  return await client.pet[':petId'].$post(args, options)
 }
 
 /**
@@ -146,7 +146,7 @@ export async function deletePetPetId(
   args: { param: { petId: bigint }; header: { api_key?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['pet'][':petId']['$delete'](args, options)
+  return await client.pet[':petId'].$delete(args, options)
 }
 
 /**
@@ -158,7 +158,7 @@ export async function postPetPetIdUploadImage(
   args: { param: { petId: bigint }; query: { additionalMetadata?: string }; json: File },
   options?: ClientRequestOptions,
 ) {
-  return await client['pet'][':petId']['uploadImage']['$post'](args, options)
+  return await client.pet[':petId'].uploadImage.$post(args, options)
 }
 
 /**
@@ -168,8 +168,8 @@ export async function postPetPetIdUploadImage(
  *
  * Returns a map of status codes to quantities
  */
-export async function getStoreInventory(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['store']['inventory']['$get'](args, options)
+export async function getStoreInventory(options?: ClientRequestOptions) {
+  return await client.store.inventory.$get(undefined, options)
 }
 
 /**
@@ -209,7 +209,7 @@ export async function postStoreOrder(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['store']['order']['$post'](args, options)
+  return await client.store.order.$post(args, options)
 }
 
 /**
@@ -223,7 +223,7 @@ export async function getStoreOrderOrderId(
   args: { param: { orderId: bigint } },
   options?: ClientRequestOptions,
 ) {
-  return await client['store']['order'][':orderId']['$get'](args, options)
+  return await client.store.order[':orderId'].$get(args, options)
 }
 
 /**
@@ -237,7 +237,7 @@ export async function deleteStoreOrderOrderId(
   args: { param: { orderId: bigint } },
   options?: ClientRequestOptions,
 ) {
-  return await client['store']['order'][':orderId']['$delete'](args, options)
+  return await client.store.order[':orderId'].$delete(args, options)
 }
 
 /**
@@ -308,7 +308,7 @@ export async function postUserCreateWithList(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['user']['createWithList']['$post'](args, options)
+  return await client.user.createWithList.$post(args, options)
 }
 
 /**
@@ -320,7 +320,7 @@ export async function getUserLogin(
   args: { query: { username?: string; password?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['user']['login']['$get'](args, options)
+  return await client.user.login.$get(args, options)
 }
 
 /**
@@ -328,8 +328,8 @@ export async function getUserLogin(
  *
  * Logs out current logged in user session
  */
-export async function getUserLogout(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['user']['logout']['$get'](args, options)
+export async function getUserLogout(options?: ClientRequestOptions) {
+  return await client.user.logout.$get(undefined, options)
 }
 
 /**
@@ -341,7 +341,7 @@ export async function getUserUsername(
   args: { param: { username: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['user'][':username']['$get'](args, options)
+  return await client.user[':username'].$get(args, options)
 }
 
 /**
@@ -388,7 +388,7 @@ export async function putUserUsername(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['user'][':username']['$put'](args, options)
+  return await client.user[':username'].$put(args, options)
 }
 
 /**
@@ -402,5 +402,5 @@ export async function deleteUserUsername(
   args: { param: { username: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['user'][':username']['$delete'](args, options)
+  return await client.user[':username'].$delete(args, options)
 }

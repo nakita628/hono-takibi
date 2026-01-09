@@ -91,30 +91,127 @@ export const getRoute = createRoute({
 
 ### Options
 
-basic
-
 ```bash
 Options:
-  --export-type        export TypeScript type aliases
-  --export-schema      export Zod schema objects
-  --template           generate app file and handler stubs
-  --test               generate empty *.test.ts files
-  --base-path <path>   api prefix (default: /)
+  --export-schemas-types      export schemas types
+  --export-schemas            export schemas
+  --export-parameters-types   export parameters types
+  --export-parameters         export parameters
+  --export-security-schemes   export securitySchemes
+  --export-request-bodies     export requestBodies
+  --export-responses          export responses
+  --export-headers-types      export headers types
+  --export-headers            export headers
+  --export-examples           export examples
+  --export-links              export links
+  --export-callbacks          export callbacks
+  --template                  generate app file and handler stubs
+  --test                      generate empty *.test.ts files
+  --base-path <path>          api prefix (default: /)
+  -h, --help                  display help for command
 ```
 
-template
-
-> **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing the 
+> **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing.
 
 ### Example
 
 ```bash
-npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-type --export-schema --template --base-path '/api/v1'
+npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-schemas --export-schemas-types --template --base-path '/api/v1'
 ```
 
 ## Configuration File (`hono-takibi.config.ts`)
 
 Config used by both the CLI and the Vite plugin.
+
+### Config Reference
+
+All available options are shown below. In practice, use only the options you need.
+
+```ts
+// hono-takibi.config.ts
+import { defineConfig } from 'hono-takibi/config'
+
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/index.ts',
+    exportSchemas: true,
+    exportSchemasTypes: true,
+    exportParameters: true,
+    exportParametersTypes: true,
+    exportSecuritySchemes: true,
+    exportRequestBodies: true,
+    exportResponses: true,
+    exportHeaders: true,
+    exportHeadersTypes: true,
+    exportExamples: true,
+    exportLinks: true,
+    exportCallbacks: true,
+    routes: {
+      output: './src/routes',
+      split: true,
+    },
+    components: {
+      schemas: {
+        output: './src/schemas',
+        exportTypes: true,
+        split: true,
+        import: '../schemas',
+      },
+      parameters: {
+        output: './src/parameters',
+        exportTypes: true,
+        split: true,
+        import: '../parameters',
+      },
+      securitySchemes: {
+        output: './src/securitySchemes',
+        split: true,
+        import: '../securitySchemes',
+      },
+      requestBodies: {
+        output: './src/requestBodies',
+        split: true,
+        import: '../requestBodies',
+      },
+      responses: {
+        output: './src/responses',
+        split: true,
+        import: '../responses',
+      },
+      headers: {
+        output: './src/headers',
+        exportTypes: true,
+        split: true,
+        import: '../headers',
+      },
+      examples: {
+        output: './src/examples',
+        split: true,
+        import: '../examples',
+      },
+      links: {
+        output: './src/links',
+        split: true,
+        import: '../links',
+      },
+      callbacks: {
+        output: './src/callbacks',
+        split: true,
+        import: '../callbacks',
+      },
+    },
+  },
+  type: {
+    output: './src/types.ts',
+  },
+  rpc: {
+    output: './src/rpc',
+    import: '../client',
+    split: true,
+  },
+})
+```
 
 ## Essentials
 
@@ -131,7 +228,7 @@ Config used by both the CLI and the Vite plugin.
 
 ## Single‑file
 
-One file. Set top‑level `output` (don’t define `schema`/`route`).
+One file. Set top‑level `output` (don't define `components`/`routes`).
 
 ```ts
 import { defineConfig } from 'hono-takibi/config'
@@ -140,31 +237,8 @@ export default defineConfig({
   input: 'openapi.yaml',
   'zod-openapi': {
     output: './src/index.ts',
-    exportSchema: true,
-    exportType: true,
-  },
-})
-```
-
----
-
-## Schemas & Routes
-
-Define **both** `schema` and `route` (don’t set top‑level `output`).
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': {
-    // split ON → outputs are directories
-    schema: { output: './src/schemas', split: true },
-    route: { output: './src/routes', import: '../schemas', split: true },
-
-    // split OFF example (one file each):
-    // schema: { output: './src/schemas/index.ts' },
-    // route: { output: './src/routes/index.ts', import: '../schemas' },
+    exportSchemas: true,
+    exportSchemasTypes: true,
   },
 })
 ```
@@ -178,27 +252,13 @@ Works with either pattern.
 * `split: true` → `output` is a **directory**; many files + `index.ts`.
 * `split` **omitted** or `false` → `output` is **one `*.ts` file**.
 
-**Example (split: true)**
-
 ```ts
 import { defineConfig } from 'hono-takibi/config'
 
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchema: true, exportType: true },
+  'zod-openapi': { output: './src/index.ts', exportSchemas: true, exportSchemasTypes: true },
   rpc: { output: './src/rpc', import: '../client', split: true },
-})
-```
-
-**Example (single file; split omitted/false)**
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchema: true, exportType: true },
-  rpc: { output: './src/rpc/index.ts', import: '../client' },
 })
 ```
 

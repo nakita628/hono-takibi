@@ -8,6 +8,6 @@ import { client } from '../clients/additional'
  *
  * zod passthrough
  */
-export async function getPassthrough(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.passthrough.$get(args, options)
+export async function getPassthrough(options?: ClientRequestOptions) {
+  return await client.passthrough.$get(undefined, options)
 }

@@ -19,7 +19,7 @@ export async function postWebauthnRegisterOptions(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['webauthn']['register']['options']['$post'](args, options)
+  return await client.webauthn.register.options.$post(args, options)
 }
 
 /**
@@ -50,7 +50,7 @@ export async function postWebauthnRegisterVerify(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['webauthn']['register']['verify']['$post'](args, options)
+  return await client.webauthn.register.verify.$post(args, options)
 }
 
 /**
@@ -66,7 +66,7 @@ export async function postWebauthnAuthenticateOptions(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['webauthn']['authenticate']['options']['$post'](args, options)
+  return await client.webauthn.authenticate.options.$post(args, options)
 }
 
 /**
@@ -94,7 +94,7 @@ export async function postWebauthnAuthenticateVerify(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['webauthn']['authenticate']['verify']['$post'](args, options)
+  return await client.webauthn.authenticate.verify.$post(args, options)
 }
 
 /**
@@ -104,11 +104,8 @@ export async function postWebauthnAuthenticateVerify(
  *
  * ユーザーに登録されているパスキー一覧を取得
  */
-export async function getWebauthnCredentials(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['webauthn']['credentials']['$get'](args, options)
+export async function getWebauthnCredentials(options?: ClientRequestOptions) {
+  return await client.webauthn.credentials.$get(undefined, options)
 }
 
 /**
@@ -120,7 +117,7 @@ export async function getWebauthnCredentialsCredentialId(
   args: { param: { credentialId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['webauthn']['credentials'][':credentialId']['$get'](args, options)
+  return await client.webauthn.credentials[':credentialId'].$get(args, options)
 }
 
 /**
@@ -134,7 +131,7 @@ export async function deleteWebauthnCredentialsCredentialId(
   args: { param: { credentialId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['webauthn']['credentials'][':credentialId']['$delete'](args, options)
+  return await client.webauthn.credentials[':credentialId'].$delete(args, options)
 }
 
 /**
@@ -148,7 +145,7 @@ export async function patchWebauthnCredentialsCredentialId(
   args: { param: { credentialId: string }; json: { name?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['webauthn']['credentials'][':credentialId']['$patch'](args, options)
+  return await client.webauthn.credentials[':credentialId'].$patch(args, options)
 }
 
 /**
@@ -158,8 +155,8 @@ export async function patchWebauthnCredentialsCredentialId(
  *
  * リライングパーティの設定情報を取得
  */
-export async function getWebauthnSettings(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['webauthn']['settings']['$get'](args, options)
+export async function getWebauthnSettings(options?: ClientRequestOptions) {
+  return await client.webauthn.settings.$get(undefined, options)
 }
 
 /**
@@ -167,8 +164,8 @@ export async function getWebauthnSettings(args?: {} | undefined, options?: Clien
  *
  * リライングパーティ情報取得
  */
-export async function getWebauthnSettingsRp(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['webauthn']['settings']['rp']['$get'](args, options)
+export async function getWebauthnSettingsRp(options?: ClientRequestOptions) {
+  return await client.webauthn.settings.rp.$get(undefined, options)
 }
 
 /**
@@ -180,7 +177,7 @@ export async function putWebauthnSettingsRp(
   args: { json: { name?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['webauthn']['settings']['rp']['$put'](args, options)
+  return await client.webauthn.settings.rp.$put(args, options)
 }
 
 /**
@@ -190,9 +187,6 @@ export async function putWebauthnSettingsRp(
  *
  * 許可されている認証器のAAGUID一覧
  */
-export async function getWebauthnAuthenticators(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['webauthn']['authenticators']['$get'](args, options)
+export async function getWebauthnAuthenticators(options?: ClientRequestOptions) {
+  return await client.webauthn.authenticators.$get(undefined, options)
 }

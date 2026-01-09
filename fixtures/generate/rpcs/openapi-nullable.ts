@@ -8,6 +8,6 @@ import { client } from '../clients/openapi-nullable'
  *
  * zod nullable
  */
-export async function getNullable(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.nullable.$get(args, options)
+export async function getNullable(options?: ClientRequestOptions) {
+  return await client.nullable.$get(undefined, options)
 }

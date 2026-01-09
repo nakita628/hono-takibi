@@ -24,7 +24,7 @@ export async function postEncodingTest(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['encoding-test']['$post'](args, options)
+  return await client['encoding-test'].$post(args, options)
 }
 
 /**
@@ -41,7 +41,7 @@ export async function getContentNegotiation(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['content-negotiation']['$get'](args, options)
+  return await client['content-negotiation'].$get(args, options)
 }
 
 /**
@@ -70,14 +70,14 @@ export async function postBinaryVariations(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['binary-variations']['$post'](args, options)
+  return await client['binary-variations'].$post(args, options)
 }
 
 /**
  * GET /streaming
  */
-export async function getStreaming(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.streaming.$get(args, options)
+export async function getStreaming(options?: ClientRequestOptions) {
+  return await client.streaming.$get(undefined, options)
 }
 
 /**
@@ -107,14 +107,14 @@ export async function postUrlEncodedComplex(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['url-encoded-complex']['$post'](args, options)
+  return await client['url-encoded-complex'].$post(args, options)
 }
 
 /**
  * GET /response-encoding
  */
-export async function getResponseEncoding(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['response-encoding']['$get'](args, options)
+export async function getResponseEncoding(options?: ClientRequestOptions) {
+  return await client['response-encoding'].$get(undefined, options)
 }
 
 /**
@@ -134,5 +134,5 @@ export async function postSchemaEncoding(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['schema-encoding']['$post'](args, options)
+  return await client['schema-encoding'].$post(args, options)
 }

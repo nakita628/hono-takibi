@@ -4,8 +4,8 @@ import { client } from '../clients/19-resolution-order'
 /**
  * GET /entities
  */
-export async function getEntities(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.entities.$get(args, options)
+export async function getEntities(options?: ClientRequestOptions) {
+  return await client.entities.$get(undefined, options)
 }
 
 /**
@@ -151,8 +151,8 @@ export async function postProcess(
 /**
  * GET /graph
  */
-export async function getGraph(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.graph.$get(args, options)
+export async function getGraph(options?: ClientRequestOptions) {
+  return await client.graph.$get(undefined, options)
 }
 
 /**

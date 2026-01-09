@@ -21,7 +21,7 @@ export async function putUsersUserId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$put'](args, options)
+  return await client.users[':userId'].$put(args, options)
 }
 
 /**
@@ -36,7 +36,7 @@ export async function patchUsersUserId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$patch'](args, options)
+  return await client.users[':userId'].$patch(args, options)
 }
 
 /**
@@ -50,7 +50,7 @@ export async function postUsersUserIdAvatar(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['avatar']['$post'](args, options)
+  return await client.users[':userId'].avatar.$post(args, options)
 }
 
 /**
@@ -64,5 +64,5 @@ export async function postBulkUsers(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['bulk']['users']['$post'](args, options)
+  return await client.bulk.users.$post(args, options)
 }

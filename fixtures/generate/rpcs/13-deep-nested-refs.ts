@@ -8,9 +8,10 @@ export async function getOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
   args: { param: { orgId: string; deptId: string; teamId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['organizations'][':orgId']['departments'][':deptId']['teams'][':teamId'][
-    'members'
-  ]['$get'](args, options)
+  return await client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(
+    args,
+    options,
+  )
 }
 
 /**
@@ -30,17 +31,15 @@ export async function postOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['organizations'][':orgId']['departments'][':deptId']['teams'][':teamId'][
-    'members'
-  ]['$post'](args, options)
+  return await client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$post(
+    args,
+    options,
+  )
 }
 
 /**
  * GET /reports/organization-summary
  */
-export async function getReportsOrganizationSummary(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['reports']['organization-summary']['$get'](args, options)
+export async function getReportsOrganizationSummary(options?: ClientRequestOptions) {
+  return await client.reports['organization-summary'].$get(undefined, options)
 }

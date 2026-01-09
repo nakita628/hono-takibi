@@ -451,8 +451,8 @@ import { client } from '../index.ts'
  *
  * Simple ping for Hono
  */
-export async function getHono(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.hono.$get(args, options)
+export async function getHono(options?: ClientRequestOptions) {
+  return await client.hono.$get(undefined, options)
 }
 
 /**
@@ -462,8 +462,8 @@ export async function getHono(args?: {} | undefined, options?: ClientRequestOpti
  *
  * Simple ping for HonoX
  */
-export async function getHonoX(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['hono-x']['$get'](args, options)
+export async function getHonoX(options?: ClientRequestOptions) {
+  return await client['hono-x'].$get(undefined, options)
 }
 
 /**
@@ -473,8 +473,8 @@ export async function getHonoX(args?: {} | undefined, options?: ClientRequestOpt
  *
  * Simple ping for ZodOpenAPIHono
  */
-export async function getZodOpenapiHono(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['zod-openapi-hono']['$get'](args, options)
+export async function getZodOpenapiHono(options?: ClientRequestOptions) {
+  return await client['zod-openapi-hono'].$get(undefined, options)
 }
 
 /**
@@ -545,7 +545,7 @@ export async function postUsers(
  * Retrieve a single user by ID.
  */
 export async function getUsersId(args: { param: { id: string } }, options?: ClientRequestOptions) {
-  return await client['users'][':id']['$get'](args, options)
+  return await client.users[':id'].$get(args, options)
 }
 
 /**
@@ -577,7 +577,7 @@ export async function putUsersId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':id']['$put'](args, options)
+  return await client.users[':id'].$put(args, options)
 }
 
 /**
@@ -591,7 +591,7 @@ export async function deleteUsersId(
   args: { param: { id: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':id']['$delete'](args, options)
+  return await client.users[':id'].$delete(args, options)
 }
 
 /**
@@ -623,7 +623,7 @@ export async function patchUsersId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':id']['$patch'](args, options)
+  return await client.users[':id'].$patch(args, options)
 }
 `
 
@@ -677,7 +677,7 @@ export async function deleteUsersId(
   args: { param: { id: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':id']['$delete'](args, options)
+  return await client.users[':id'].$delete(args, options)
 }
 `
 
@@ -694,8 +694,8 @@ import { client } from '../index.ts'
  *
  * Simple ping for Hono
  */
-export async function getHono(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.hono.$get(args, options)
+export async function getHono(options?: ClientRequestOptions) {
+  return await client.hono.$get(undefined, options)
 }
 `
 
@@ -712,8 +712,8 @@ import { client } from '../index.ts'
  *
  * Simple ping for HonoX
  */
-export async function getHonoX(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['hono-x']['$get'](args, options)
+export async function getHonoX(options?: ClientRequestOptions) {
+  return await client['hono-x'].$get(undefined, options)
 }
 `
 
@@ -769,7 +769,7 @@ import { client } from '../index.ts'
  * Retrieve a single user by ID.
  */
 export async function getUsersId(args: { param: { id: string } }, options?: ClientRequestOptions) {
-  return await client['users'][':id']['$get'](args, options)
+  return await client.users[':id'].$get(args, options)
 }
 `
       expect(getUsersId).toBe(getUsersIdExpected)
@@ -789,8 +789,8 @@ import { client } from '../index.ts'
  *
  * Simple ping for ZodOpenAPIHono
  */
-export async function getZodOpenapiHono(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['zod-openapi-hono']['$get'](args, options)
+export async function getZodOpenapiHono(options?: ClientRequestOptions) {
+  return await client['zod-openapi-hono'].$get(undefined, options)
 }
 `
       expect(getZodOpenapiHono).toBe(getZodOpenapiHonoExpected)
@@ -829,7 +829,7 @@ export async function patchUsersId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':id']['$patch'](args, options)
+  return await client.users[':id'].$patch(args, options)
 }
 `
       expect(patchUsersId).toBe(patchUsersIdExpected)
@@ -905,7 +905,7 @@ export async function putUsersId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':id']['$put'](args, options)
+  return await client.users[':id'].$put(args, options)
 }
 `
       expect(putUsersId).toBe(putUsersIdExpected)
@@ -1134,7 +1134,7 @@ export async function getItemsId(
   args: { param: { id: string }; query: { expand?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['items'][':id']['$get'](args, options)
+  return await client.items[':id'].$get(args, options)
 }
 
 /**
@@ -1150,7 +1150,7 @@ export async function postAllRequired(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['all-required']['$post'](args, options)
+  return await client['all-required'].$post(args, options)
 }
 
 /**
@@ -1162,7 +1162,7 @@ export async function getAllOptional(
   args: { query: { search?: string; sort?: string }; header: { 'X-Debug'?: boolean } },
   options?: ClientRequestOptions,
 ) {
-  return await client['all-optional']['$get'](args, options)
+  return await client['all-optional'].$get(args, options)
 }
 `
 
@@ -1222,7 +1222,7 @@ export async function getItemsId(
   args: { param: { id: string }; query: { expand?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['items'][':id']['$get'](args, options)
+  return await client.items[':id'].$get(args, options)
 }
 `
       expect(getItemsId).toBe(getItemsIdExpected)
@@ -1245,7 +1245,7 @@ export async function postAllRequired(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['all-required']['$post'](args, options)
+  return await client['all-required'].$post(args, options)
 }
 `
       expect(postAllRequired).toBe(postAllRequiredExpected)
@@ -1264,7 +1264,7 @@ export async function getAllOptional(
   args: { query: { search?: string; sort?: string }; header: { 'X-Debug'?: boolean } },
   options?: ClientRequestOptions,
 ) {
-  return await client['all-optional']['$get'](args, options)
+  return await client['all-optional'].$get(args, options)
 }
 `
       expect(getAllOptional).toBe(getAllOptionalExpected)

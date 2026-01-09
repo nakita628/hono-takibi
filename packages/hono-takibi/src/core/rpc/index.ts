@@ -45,9 +45,9 @@ const isValidIdent = (s: string): boolean => /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(s
  *
  * Rules:
  * - '/' -> '.index'
- * - Single segment with valid identifier -> dot notation: '/pet' -> '.pet'
- * - All other cases -> each segment becomes bracket access: '/files/upload' -> "['files']['upload']"
- * - Path params converted: '/files/{fileId}' -> "['files'][':fileId']"
+ * - Valid identifiers use dot notation: '/users' -> '.users'
+ * - Invalid identifiers use bracket notation: '/:id' -> "[':id']"
+ * - Path params converted: '/files/{fileId}' -> ".files[':fileId']"
  */
 const formatPath = (p: string): string => {
   if (p === '/') return '.index'
@@ -59,13 +59,8 @@ const formatPath = (p: string): string => {
     seg.startsWith('{') && seg.endsWith('}') ? `:${seg.slice(1, -1)}` : seg,
   )
 
-  // Single segment with valid identifier: use dot notation
-  if (honoSegs.length === 1 && isValidIdent(honoSegs[0])) {
-    return `.${honoSegs[0]}`
-  }
-
-  // All other cases: each segment becomes separate bracket access
-  return honoSegs.map((seg) => `['${esc(seg)}']`).join('')
+  // Use dot notation for valid identifiers, bracket for others
+  return honoSegs.map((seg) => (isValidIdent(seg) ? `.${seg}` : `['${esc(seg)}']`)).join('')
 }
 
 /* ─────────────────────────────── Parameters ($ref) ─────────────────────────────── */
@@ -482,9 +477,8 @@ const generateOperationCode = (
     cookieParams.length > 0 ||
     hasBody
 
-  // Use unified path format for both type and runtime
-  const hasBracket = pathAccess.includes('[')
-  const methodAccess = hasBracket ? `['$${method}']` : `.$${method}`
+  // Always use dot notation for method access
+  const methodAccess = `.$${method}`
 
   // Generate argument type directly from OpenAPI instead of using InferRequestType
   const argType = generateArgType(
@@ -497,11 +491,13 @@ const generateOperationCode = (
   )
   // options is always a separate parameter
   // If there are required args (params, query, body, etc.), args is required
-  // If no args, use args?: {} | undefined
+  // If no args, omit args parameter entirely
   const argSig = hasArgs
     ? `args: ${argType}, options?: ClientRequestOptions`
-    : 'args?: {} | undefined, options?: ClientRequestOptions'
-  const call = `${deps.client}${pathAccess}${methodAccess}(args, options)`
+    : 'options?: ClientRequestOptions'
+  const call = hasArgs
+    ? `${deps.client}${pathAccess}${methodAccess}(args, options)`
+    : `${deps.client}${pathAccess}${methodAccess}(undefined, options)`
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''

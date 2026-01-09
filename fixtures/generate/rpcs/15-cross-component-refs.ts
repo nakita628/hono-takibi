@@ -91,7 +91,7 @@ export async function getEntitiesEntityId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['entities'][':entityId']['$get'](args, options)
+  return await client.entities[':entityId'].$get(args, options)
 }
 
 /**
@@ -137,7 +137,7 @@ export async function putEntitiesEntityId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['entities'][':entityId']['$put'](args, options)
+  return await client.entities[':entityId'].$put(args, options)
 }
 
 /**
@@ -147,7 +147,7 @@ export async function deleteEntitiesEntityId(
   args: { param: { entityId: string }; header: { 'If-Match'?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['entities'][':entityId']['$delete'](args, options)
+  return await client.entities[':entityId'].$delete(args, options)
 }
 
 /**
@@ -157,7 +157,7 @@ export async function getEntitiesEntityIdRelationships(
   args: { param: { entityId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['entities'][':entityId']['relationships']['$get'](args, options)
+  return await client.entities[':entityId'].relationships.$get(args, options)
 }
 
 /**
@@ -170,7 +170,7 @@ export async function postEntitiesEntityIdRelationships(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['entities'][':entityId']['relationships']['$post'](args, options)
+  return await client.entities[':entityId'].relationships.$post(args, options)
 }
 
 /**

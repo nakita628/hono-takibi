@@ -8,6 +8,6 @@ import { client } from '../client'
  *
  * Simple ping for ZodOpenAPIHono
  */
-export async function getZodOpenapiHono(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['zod-openapi-hono'].$get(args, options)
+export async function getZodOpenapiHono(options?: ClientRequestOptions) {
+  return await client['zod-openapi-hono'].$get(undefined, options)
 }

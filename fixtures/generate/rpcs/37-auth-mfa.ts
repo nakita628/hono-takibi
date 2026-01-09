@@ -6,8 +6,8 @@ import { client } from '../clients/37-auth-mfa'
  *
  * MFA設定状況取得
  */
-export async function getMfaStatus(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['mfa']['status']['$get'](args, options)
+export async function getMfaStatus(options?: ClientRequestOptions) {
+  return await client.mfa.status.$get(undefined, options)
 }
 
 /**
@@ -15,8 +15,8 @@ export async function getMfaStatus(args?: {} | undefined, options?: ClientReques
  *
  * 登録済みMFA方式一覧
  */
-export async function getMfaMethods(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['mfa']['methods']['$get'](args, options)
+export async function getMfaMethods(options?: ClientRequestOptions) {
+  return await client.mfa.methods.$get(undefined, options)
 }
 
 /**
@@ -28,7 +28,7 @@ export async function putMfaPreferred(
   args: { json: { method: 'totp' | 'sms' | 'email' | 'webauthn'; methodId?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['preferred']['$put'](args, options)
+  return await client.mfa.preferred.$put(args, options)
 }
 
 /**
@@ -42,7 +42,7 @@ export async function postMfaTotpSetup(
   args: { json: { issuer?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['totp']['setup']['$post'](args, options)
+  return await client.mfa.totp.setup.$post(args, options)
 }
 
 /**
@@ -56,7 +56,7 @@ export async function postMfaTotpVerify(
   args: { json: { code: string; secret: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['totp']['verify']['$post'](args, options)
+  return await client.mfa.totp.verify.$post(args, options)
 }
 
 /**
@@ -68,7 +68,7 @@ export async function deleteMfaTotp(
   args: { json: { code: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['totp']['$delete'](args, options)
+  return await client.mfa.totp.$delete(args, options)
 }
 
 /**
@@ -82,7 +82,7 @@ export async function postMfaSmsSetup(
   args: { json: { phoneNumber: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['sms']['setup']['$post'](args, options)
+  return await client.mfa.sms.setup.$post(args, options)
 }
 
 /**
@@ -94,7 +94,7 @@ export async function postMfaSmsVerify(
   args: { json: { challengeId: string; code: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['sms']['verify']['$post'](args, options)
+  return await client.mfa.sms.verify.$post(args, options)
 }
 
 /**
@@ -106,7 +106,7 @@ export async function deleteMfaSmsMethodId(
   args: { param: { methodId: string }; json: { verificationCode: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['sms'][':methodId']['$delete'](args, options)
+  return await client.mfa.sms[':methodId'].$delete(args, options)
 }
 
 /**
@@ -118,7 +118,7 @@ export async function postMfaEmailSetup(
   args: { json: { email?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['email']['setup']['$post'](args, options)
+  return await client.mfa.email.setup.$post(args, options)
 }
 
 /**
@@ -130,7 +130,7 @@ export async function postMfaEmailVerify(
   args: { json: { challengeId: string; code: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['email']['verify']['$post'](args, options)
+  return await client.mfa.email.verify.$post(args, options)
 }
 
 /**
@@ -149,7 +149,7 @@ export async function postMfaWebauthnRegisterOptions(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['webauthn']['register']['options']['$post'](args, options)
+  return await client.mfa.webauthn.register.options.$post(args, options)
 }
 
 /**
@@ -169,7 +169,7 @@ export async function postMfaWebauthnRegisterVerify(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['webauthn']['register']['verify']['$post'](args, options)
+  return await client.mfa.webauthn.register.verify.$post(args, options)
 }
 
 /**
@@ -177,11 +177,8 @@ export async function postMfaWebauthnRegisterVerify(
  *
  * WebAuthn認証器一覧
  */
-export async function getMfaWebauthnCredentials(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['mfa']['webauthn']['credentials']['$get'](args, options)
+export async function getMfaWebauthnCredentials(options?: ClientRequestOptions) {
+  return await client.mfa.webauthn.credentials.$get(undefined, options)
 }
 
 /**
@@ -193,7 +190,7 @@ export async function deleteMfaWebauthnCredentialsCredentialId(
   args: { param: { credentialId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['webauthn']['credentials'][':credentialId']['$delete'](args, options)
+  return await client.mfa.webauthn.credentials[':credentialId'].$delete(args, options)
 }
 
 /**
@@ -205,7 +202,7 @@ export async function patchMfaWebauthnCredentialsCredentialId(
   args: { param: { credentialId: string }; json: { name?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['webauthn']['credentials'][':credentialId']['$patch'](args, options)
+  return await client.mfa.webauthn.credentials[':credentialId'].$patch(args, options)
 }
 
 /**
@@ -219,7 +216,7 @@ export async function postMfaBackupCodesGenerate(
   args: { json: { verificationCode: string; count?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['backup-codes']['generate']['$post'](args, options)
+  return await client.mfa['backup-codes'].generate.$post(args, options)
 }
 
 /**
@@ -227,11 +224,8 @@ export async function postMfaBackupCodesGenerate(
  *
  * バックアップコード状況取得
  */
-export async function getMfaBackupCodesStatus(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['mfa']['backup-codes']['status']['$get'](args, options)
+export async function getMfaBackupCodesStatus(options?: ClientRequestOptions) {
+  return await client.mfa['backup-codes'].status.$get(undefined, options)
 }
 
 /**
@@ -247,7 +241,7 @@ export async function postMfaChallenge(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['challenge']['$post'](args, options)
+  return await client.mfa.challenge.$post(args, options)
 }
 
 /**
@@ -261,7 +255,7 @@ export async function postMfaChallengeSend(
   args: { json: { challengeId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['challenge']['send']['$post'](args, options)
+  return await client.mfa.challenge.send.$post(args, options)
 }
 
 /**
@@ -295,7 +289,7 @@ export async function postMfaVerify(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['verify']['$post'](args, options)
+  return await client.mfa.verify.$post(args, options)
 }
 
 /**
@@ -307,7 +301,7 @@ export async function postMfaWebauthnAuthenticateOptions(
   args: { json: { challengeId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['webauthn']['authenticate']['options']['$post'](args, options)
+  return await client.mfa.webauthn.authenticate.options.$post(args, options)
 }
 
 /**
@@ -321,7 +315,7 @@ export async function postMfaRecovery(
   args: { json: { email: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['recovery']['$post'](args, options)
+  return await client.mfa.recovery.$post(args, options)
 }
 
 /**
@@ -335,5 +329,5 @@ export async function postMfaRecoveryVerify(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['mfa']['recovery']['verify']['$post'](args, options)
+  return await client.mfa.recovery.verify.$post(args, options)
 }

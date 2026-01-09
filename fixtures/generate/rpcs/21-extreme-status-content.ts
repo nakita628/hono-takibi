@@ -4,8 +4,8 @@ import { client } from '../clients/21-extreme-status-content'
 /**
  * GET /extreme-responses
  */
-export async function getExtremeResponses(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['extreme-responses']['$get'](args, options)
+export async function getExtremeResponses(options?: ClientRequestOptions) {
+  return await client['extreme-responses'].$get(undefined, options)
 }
 
 /**
@@ -24,7 +24,7 @@ export async function postMultipartVariations(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['multipart-variations']['$post'](args, options)
+  return await client['multipart-variations'].$post(args, options)
 }
 
 /**
@@ -34,5 +34,5 @@ export async function postCharsetVariations(
   args: { form: {}; json: {} | {} | {} | string | string | string },
   options?: ClientRequestOptions,
 ) {
-  return await client['charset-variations']['$post'](args, options)
+  return await client['charset-variations'].$post(args, options)
 }

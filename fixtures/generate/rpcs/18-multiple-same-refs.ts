@@ -49,7 +49,7 @@ export async function getDocumentsDocumentId(
   args: { param: { documentId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['documents'][':documentId']['$get'](args, options)
+  return await client.documents[':documentId'].$get(args, options)
 }
 
 /**
@@ -81,7 +81,7 @@ export async function putDocumentsDocumentId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['documents'][':documentId']['$put'](args, options)
+  return await client.documents[':documentId'].$put(args, options)
 }
 
 /**
@@ -91,7 +91,7 @@ export async function getDocumentsDocumentIdVersions(
   args: { param: { documentId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['documents'][':documentId']['versions']['$get'](args, options)
+  return await client.documents[':documentId'].versions.$get(args, options)
 }
 
 /**
@@ -112,7 +112,7 @@ export async function postDocumentsDocumentIdShare(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['documents'][':documentId']['share']['$post'](args, options)
+  return await client.documents[':documentId'].share.$post(args, options)
 }
 
 /**
@@ -122,7 +122,7 @@ export async function getUsersUserIdDocuments(
   args: { param: { userId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['documents']['$get'](args, options)
+  return await client.users[':userId'].documents.$get(args, options)
 }
 
 /**
@@ -232,8 +232,8 @@ export async function postCompare(
 /**
  * GET /templates
  */
-export async function getTemplates(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.templates.$get(args, options)
+export async function getTemplates(options?: ClientRequestOptions) {
+  return await client.templates.$get(undefined, options)
 }
 
 /**

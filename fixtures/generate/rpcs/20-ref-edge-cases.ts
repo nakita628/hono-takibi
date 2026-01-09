@@ -14,51 +14,48 @@ export async function getTest(
 /**
  * GET /empty-refs
  */
-export async function getEmptyRefs(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['empty-refs']['$get'](args, options)
+export async function getEmptyRefs(options?: ClientRequestOptions) {
+  return await client['empty-refs'].$get(undefined, options)
 }
 
 /**
  * GET /unicode-refs
  */
-export async function getUnicodeRefs(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['unicode-refs']['$get'](args, options)
+export async function getUnicodeRefs(options?: ClientRequestOptions) {
+  return await client['unicode-refs'].$get(undefined, options)
 }
 
 /**
  * GET /special-chars
  */
-export async function getSpecialChars(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['special-chars']['$get'](args, options)
+export async function getSpecialChars(options?: ClientRequestOptions) {
+  return await client['special-chars'].$get(undefined, options)
 }
 
 /**
  * GET /numeric-start
  */
-export async function getNumericStart(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['numeric-start']['$get'](args, options)
+export async function getNumericStart(options?: ClientRequestOptions) {
+  return await client['numeric-start'].$get(undefined, options)
 }
 
 /**
  * GET /ref-in-allof
  */
-export async function getRefInAllof(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['ref-in-allof']['$get'](args, options)
+export async function getRefInAllof(options?: ClientRequestOptions) {
+  return await client['ref-in-allof'].$get(undefined, options)
 }
 
 /**
  * GET /deeply-nested
  */
-export async function getDeeplyNested(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['deeply-nested']['$get'](args, options)
+export async function getDeeplyNested(options?: ClientRequestOptions) {
+  return await client['deeply-nested'].$get(undefined, options)
 }
 
 /**
  * GET /same-name-diff-context
  */
-export async function getSameNameDiffContext(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['same-name-diff-context']['$get'](args, options)
+export async function getSameNameDiffContext(options?: ClientRequestOptions) {
+  return await client['same-name-diff-context'].$get(undefined, options)
 }

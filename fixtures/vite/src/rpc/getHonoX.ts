@@ -8,6 +8,6 @@ import { client } from '../client'
  *
  * Simple ping for HonoX
  */
-export async function getHonoX(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['hono-x'].$get(args, options)
+export async function getHonoX(options?: ClientRequestOptions) {
+  return await client['hono-x'].$get(undefined, options)
 }

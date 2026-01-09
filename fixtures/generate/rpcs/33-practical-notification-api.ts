@@ -29,7 +29,7 @@ export async function getNotificationsNotificationId(
   args: { param: { notificationId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['notifications'][':notificationId']['$get'](args, options)
+  return await client.notifications[':notificationId'].$get(args, options)
 }
 
 /**
@@ -41,7 +41,7 @@ export async function deleteNotificationsNotificationId(
   args: { param: { notificationId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['notifications'][':notificationId']['$delete'](args, options)
+  return await client.notifications[':notificationId'].$delete(args, options)
 }
 
 /**
@@ -53,7 +53,7 @@ export async function postNotificationsNotificationIdRead(
   args: { param: { notificationId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['notifications'][':notificationId']['read']['$post'](args, options)
+  return await client.notifications[':notificationId'].read.$post(args, options)
 }
 
 /**
@@ -61,11 +61,8 @@ export async function postNotificationsNotificationIdRead(
  *
  * 全て既読にする
  */
-export async function postNotificationsReadAll(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['notifications']['read-all']['$post'](args, options)
+export async function postNotificationsReadAll(options?: ClientRequestOptions) {
+  return await client.notifications['read-all'].$post(undefined, options)
 }
 
 /**
@@ -73,11 +70,8 @@ export async function postNotificationsReadAll(
  *
  * 未読件数取得
  */
-export async function getNotificationsUnreadCount(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['notifications']['unread-count']['$get'](args, options)
+export async function getNotificationsUnreadCount(options?: ClientRequestOptions) {
+  return await client.notifications['unread-count'].$get(undefined, options)
 }
 
 /**
@@ -104,7 +98,7 @@ export async function postMessagesSend(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['messages']['send']['$post'](args, options)
+  return await client.messages.send.$post(args, options)
 }
 
 /**
@@ -131,7 +125,7 @@ export async function postMessagesSendBatch(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['messages']['send-batch']['$post'](args, options)
+  return await client.messages['send-batch'].$post(args, options)
 }
 
 /**
@@ -143,7 +137,7 @@ export async function getMessagesMessageId(
   args: { param: { messageId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['messages'][':messageId']['$get'](args, options)
+  return await client.messages[':messageId'].$get(args, options)
 }
 
 /**
@@ -189,7 +183,7 @@ export async function getTemplatesTemplateId(
   args: { param: { templateId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['templates'][':templateId']['$get'](args, options)
+  return await client.templates[':templateId'].$get(args, options)
 }
 
 /**
@@ -212,7 +206,7 @@ export async function putTemplatesTemplateId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['templates'][':templateId']['$put'](args, options)
+  return await client.templates[':templateId'].$put(args, options)
 }
 
 /**
@@ -224,7 +218,7 @@ export async function deleteTemplatesTemplateId(
   args: { param: { templateId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['templates'][':templateId']['$delete'](args, options)
+  return await client.templates[':templateId'].$delete(args, options)
 }
 
 /**
@@ -236,7 +230,7 @@ export async function postTemplatesTemplateIdPreview(
   args: { param: { templateId: string }; json: { variables?: { [key: string]: string } } },
   options?: ClientRequestOptions,
 ) {
-  return await client['templates'][':templateId']['preview']['$post'](args, options)
+  return await client.templates[':templateId'].preview.$post(args, options)
 }
 
 /**
@@ -244,11 +238,8 @@ export async function postTemplatesTemplateIdPreview(
  *
  * チャンネル設定取得
  */
-export async function getChannelsPreferences(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['channels']['preferences']['$get'](args, options)
+export async function getChannelsPreferences(options?: ClientRequestOptions) {
+  return await client.channels.preferences.$get(undefined, options)
 }
 
 /**
@@ -283,7 +274,7 @@ export async function putChannelsPreferences(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['channels']['preferences']['$put'](args, options)
+  return await client.channels.preferences.$put(args, options)
 }
 
 /**
@@ -291,8 +282,8 @@ export async function putChannelsPreferences(
  *
  * デバイス一覧取得
  */
-export async function getChannelsDevices(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['channels']['devices']['$get'](args, options)
+export async function getChannelsDevices(options?: ClientRequestOptions) {
+  return await client.channels.devices.$get(undefined, options)
 }
 
 /**
@@ -313,7 +304,7 @@ export async function postChannelsDevices(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['channels']['devices']['$post'](args, options)
+  return await client.channels.devices.$post(args, options)
 }
 
 /**
@@ -325,7 +316,7 @@ export async function deleteChannelsDevicesDeviceId(
   args: { param: { deviceId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['channels']['devices'][':deviceId']['$delete'](args, options)
+  return await client.channels.devices[':deviceId'].$delete(args, options)
 }
 
 /**
@@ -333,8 +324,8 @@ export async function deleteChannelsDevicesDeviceId(
  *
  * Webhook一覧取得
  */
-export async function getWebhooks(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.webhooks.$get(args, options)
+export async function getWebhooks(options?: ClientRequestOptions) {
+  return await client.webhooks.$get(undefined, options)
 }
 
 /**
@@ -372,7 +363,7 @@ export async function getWebhooksWebhookId(
   args: { param: { webhookId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['webhooks'][':webhookId']['$get'](args, options)
+  return await client.webhooks[':webhookId'].$get(args, options)
 }
 
 /**
@@ -400,7 +391,7 @@ export async function putWebhooksWebhookId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['webhooks'][':webhookId']['$put'](args, options)
+  return await client.webhooks[':webhookId'].$put(args, options)
 }
 
 /**
@@ -412,7 +403,7 @@ export async function deleteWebhooksWebhookId(
   args: { param: { webhookId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['webhooks'][':webhookId']['$delete'](args, options)
+  return await client.webhooks[':webhookId'].$delete(args, options)
 }
 
 /**
@@ -424,5 +415,5 @@ export async function postWebhooksWebhookIdTest(
   args: { param: { webhookId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['webhooks'][':webhookId']['test']['$post'](args, options)
+  return await client.webhooks[':webhookId'].test.$post(args, options)
 }

@@ -4,8 +4,8 @@ import { client } from '../clients/14-circular-refs'
 /**
  * GET /trees
  */
-export async function getTrees(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.trees.$get(args, options)
+export async function getTrees(options?: ClientRequestOptions) {
+  return await client.trees.$get(undefined, options)
 }
 
 /**
@@ -29,55 +29,55 @@ export async function postTrees(
 /**
  * GET /graphs
  */
-export async function getGraphs(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.graphs.$get(args, options)
+export async function getGraphs(options?: ClientRequestOptions) {
+  return await client.graphs.$get(undefined, options)
 }
 
 /**
  * GET /linked-lists
  */
-export async function getLinkedLists(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['linked-lists']['$get'](args, options)
+export async function getLinkedLists(options?: ClientRequestOptions) {
+  return await client['linked-lists'].$get(undefined, options)
 }
 
 /**
  * GET /social-network
  */
-export async function getSocialNetwork(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['social-network']['$get'](args, options)
+export async function getSocialNetwork(options?: ClientRequestOptions) {
+  return await client['social-network'].$get(undefined, options)
 }
 
 /**
  * GET /file-system
  */
-export async function getFileSystem(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['file-system']['$get'](args, options)
+export async function getFileSystem(options?: ClientRequestOptions) {
+  return await client['file-system'].$get(undefined, options)
 }
 
 /**
  * GET /comments
  */
-export async function getComments(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.comments.$get(args, options)
+export async function getComments(options?: ClientRequestOptions) {
+  return await client.comments.$get(undefined, options)
 }
 
 /**
  * GET /polymorphic
  */
-export async function getPolymorphic(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.polymorphic.$get(args, options)
+export async function getPolymorphic(options?: ClientRequestOptions) {
+  return await client.polymorphic.$get(undefined, options)
 }
 
 /**
  * GET /categories
  */
-export async function getCategories(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.categories.$get(args, options)
+export async function getCategories(options?: ClientRequestOptions) {
+  return await client.categories.$get(undefined, options)
 }
 
 /**
  * GET /workflow
  */
-export async function getWorkflow(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.workflow.$get(args, options)
+export async function getWorkflow(options?: ClientRequestOptions) {
+  return await client.workflow.$get(undefined, options)
 }

@@ -4,8 +4,8 @@ import { client } from '../clients/02-simple-schemas'
 /**
  * GET /users
  */
-export async function getUsers(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.users.$get(args, options)
+export async function getUsers(options?: ClientRequestOptions) {
+  return await client.users.$get(undefined, options)
 }
 
 /**
@@ -25,5 +25,5 @@ export async function getUsersUserId(
   args: { param: { userId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$get'](args, options)
+  return await client.users[':userId'].$get(args, options)
 }

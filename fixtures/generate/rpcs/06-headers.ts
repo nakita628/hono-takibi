@@ -18,7 +18,7 @@ export async function getResourcesId(
   args: { param: { id: string }; header: { 'If-None-Match'?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['resources'][':id']['$get'](args, options)
+  return await client.resources[':id'].$get(args, options)
 }
 
 /**
@@ -32,7 +32,7 @@ export async function putResourcesId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['resources'][':id']['$put'](args, options)
+  return await client.resources[':id'].$put(args, options)
 }
 
 /**
@@ -42,5 +42,5 @@ export async function getDownloadId(
   args: { param: { id: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['download'][':id']['$get'](args, options)
+  return await client.download[':id'].$get(args, options)
 }

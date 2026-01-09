@@ -172,8 +172,8 @@ export async function postEvents(
 /**
  * GET /configs
  */
-export async function getConfigs(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.configs.$get(args, options)
+export async function getConfigs(options?: ClientRequestOptions) {
+  return await client.configs.$get(undefined, options)
 }
 
 /**
