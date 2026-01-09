@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/pet-store'
 
 /**
@@ -7,7 +8,7 @@ import { client } from '../clients/pet-store'
  *
  * Update an existing pet by Id
  */
-export async function putPet(arg: {
+export async function putPet(args: {
   form: {
     id?: bigint
     name: string
@@ -33,8 +34,9 @@ export async function putPet(arg: {
         tags?: { id?: bigint; name?: string }[]
         status?: 'available' | 'pending' | 'sold'
       }
+  options?: ClientRequestOptions
 }) {
-  return await client.pet.$put(arg)
+  return await client.pet.$put(args)
 }
 
 /**
@@ -44,7 +46,7 @@ export async function putPet(arg: {
  *
  * Add a new pet to the store
  */
-export async function postPet(arg: {
+export async function postPet(args: {
   form: {
     id?: bigint
     name: string
@@ -70,8 +72,9 @@ export async function postPet(arg: {
         tags?: { id?: bigint; name?: string }[]
         status?: 'available' | 'pending' | 'sold'
       }
+  options?: ClientRequestOptions
 }) {
-  return await client.pet.$post(arg)
+  return await client.pet.$post(args)
 }
 
 /**
@@ -81,10 +84,11 @@ export async function postPet(arg: {
  *
  * Multiple status values can be provided with comma separated strings
  */
-export async function getPetFindByStatus(arg: {
+export async function getPetFindByStatus(args: {
   query: { status?: 'available' | 'pending' | 'sold' }
+  options?: ClientRequestOptions
 }) {
-  return await client['pet']['findByStatus']['$get'](arg)
+  return await client['pet']['findByStatus']['$get'](args)
 }
 
 /**
@@ -94,8 +98,11 @@ export async function getPetFindByStatus(arg: {
  *
  * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  */
-export async function getPetFindByTags(arg: { query: { tags?: string[] } }) {
-  return await client['pet']['findByTags']['$get'](arg)
+export async function getPetFindByTags(args: {
+  query: { tags?: string[] }
+  options?: ClientRequestOptions
+}) {
+  return await client['pet']['findByTags']['$get'](args)
 }
 
 /**
@@ -105,8 +112,11 @@ export async function getPetFindByTags(arg: { query: { tags?: string[] } }) {
  *
  * Returns a single pet
  */
-export async function getPetPetId(arg: { param: { petId: bigint } }) {
-  return await client['pet'][':petId']['$get'](arg)
+export async function getPetPetId(args: {
+  param: { petId: bigint }
+  options?: ClientRequestOptions
+}) {
+  return await client['pet'][':petId']['$get'](args)
 }
 
 /**
@@ -114,11 +124,12 @@ export async function getPetPetId(arg: { param: { petId: bigint } }) {
  *
  * Updates a pet in the store with form data
  */
-export async function postPetPetId(arg: {
+export async function postPetPetId(args: {
   param: { petId: bigint }
   query: { name?: string; status?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['pet'][':petId']['$post'](arg)
+  return await client['pet'][':petId']['$post'](args)
 }
 
 /**
@@ -128,11 +139,12 @@ export async function postPetPetId(arg: {
  *
  * delete a pet
  */
-export async function deletePetPetId(arg: {
+export async function deletePetPetId(args: {
   param: { petId: bigint }
   header: { api_key?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['pet'][':petId']['$delete'](arg)
+  return await client['pet'][':petId']['$delete'](args)
 }
 
 /**
@@ -140,12 +152,13 @@ export async function deletePetPetId(arg: {
  *
  * uploads an image
  */
-export async function postPetPetIdUploadImage(arg: {
+export async function postPetPetIdUploadImage(args: {
   param: { petId: bigint }
   query: { additionalMetadata?: string }
   json: File
+  options?: ClientRequestOptions
 }) {
-  return await client['pet'][':petId']['uploadImage']['$post'](arg)
+  return await client['pet'][':petId']['uploadImage']['$post'](args)
 }
 
 /**
@@ -155,8 +168,8 @@ export async function postPetPetIdUploadImage(arg: {
  *
  * Returns a map of status codes to quantities
  */
-export async function getStoreInventory() {
-  return await client['store']['inventory']['$get']()
+export async function getStoreInventory(args?: { options?: ClientRequestOptions }) {
+  return await client['store']['inventory']['$get'](args)
 }
 
 /**
@@ -166,7 +179,7 @@ export async function getStoreInventory() {
  *
  * Place a new order in the store
  */
-export async function postStoreOrder(arg: {
+export async function postStoreOrder(args: {
   form: {
     id?: bigint
     petId?: bigint
@@ -192,8 +205,9 @@ export async function postStoreOrder(arg: {
         status?: 'placed' | 'approved' | 'delivered'
         complete?: boolean
       }
+  options?: ClientRequestOptions
 }) {
-  return await client['store']['order']['$post'](arg)
+  return await client['store']['order']['$post'](args)
 }
 
 /**
@@ -203,8 +217,11 @@ export async function postStoreOrder(arg: {
  *
  * For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  */
-export async function getStoreOrderOrderId(arg: { param: { orderId: bigint } }) {
-  return await client['store']['order'][':orderId']['$get'](arg)
+export async function getStoreOrderOrderId(args: {
+  param: { orderId: bigint }
+  options?: ClientRequestOptions
+}) {
+  return await client['store']['order'][':orderId']['$get'](args)
 }
 
 /**
@@ -214,8 +231,11 @@ export async function getStoreOrderOrderId(arg: { param: { orderId: bigint } }) 
  *
  * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  */
-export async function deleteStoreOrderOrderId(arg: { param: { orderId: bigint } }) {
-  return await client['store']['order'][':orderId']['$delete'](arg)
+export async function deleteStoreOrderOrderId(args: {
+  param: { orderId: bigint }
+  options?: ClientRequestOptions
+}) {
+  return await client['store']['order'][':orderId']['$delete'](args)
 }
 
 /**
@@ -225,7 +245,7 @@ export async function deleteStoreOrderOrderId(arg: { param: { orderId: bigint } 
  *
  * This can only be done by the logged in user.
  */
-export async function postUser(arg: {
+export async function postUser(args: {
   form: {
     id?: bigint
     username?: string
@@ -257,8 +277,9 @@ export async function postUser(arg: {
         phone?: string
         userStatus?: number
       }
+  options?: ClientRequestOptions
 }) {
-  return await client.user.$post(arg)
+  return await client.user.$post(args)
 }
 
 /**
@@ -268,7 +289,7 @@ export async function postUser(arg: {
  *
  * Creates list of users with given input array
  */
-export async function postUserCreateWithList(arg: {
+export async function postUserCreateWithList(args: {
   json: {
     id?: bigint
     username?: string
@@ -279,8 +300,9 @@ export async function postUserCreateWithList(arg: {
     phone?: string
     userStatus?: number
   }[]
+  options?: ClientRequestOptions
 }) {
-  return await client['user']['createWithList']['$post'](arg)
+  return await client['user']['createWithList']['$post'](args)
 }
 
 /**
@@ -288,8 +310,11 @@ export async function postUserCreateWithList(arg: {
  *
  * Logs user into the system
  */
-export async function getUserLogin(arg: { query: { username?: string; password?: string } }) {
-  return await client['user']['login']['$get'](arg)
+export async function getUserLogin(args: {
+  query: { username?: string; password?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['user']['login']['$get'](args)
 }
 
 /**
@@ -297,8 +322,8 @@ export async function getUserLogin(arg: { query: { username?: string; password?:
  *
  * Logs out current logged in user session
  */
-export async function getUserLogout() {
-  return await client['user']['logout']['$get']()
+export async function getUserLogout(args?: { options?: ClientRequestOptions }) {
+  return await client['user']['logout']['$get'](args)
 }
 
 /**
@@ -306,8 +331,11 @@ export async function getUserLogout() {
  *
  * Get user by user name
  */
-export async function getUserUsername(arg: { param: { username: string } }) {
-  return await client['user'][':username']['$get'](arg)
+export async function getUserUsername(args: {
+  param: { username: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['user'][':username']['$get'](args)
 }
 
 /**
@@ -317,7 +345,7 @@ export async function getUserUsername(arg: { param: { username: string } }) {
  *
  * This can only be done by the logged in user.
  */
-export async function putUserUsername(arg: {
+export async function putUserUsername(args: {
   param: { username: string }
   form: {
     id?: bigint
@@ -350,8 +378,9 @@ export async function putUserUsername(arg: {
         phone?: string
         userStatus?: number
       }
+  options?: ClientRequestOptions
 }) {
-  return await client['user'][':username']['$put'](arg)
+  return await client['user'][':username']['$put'](args)
 }
 
 /**
@@ -361,6 +390,9 @@ export async function putUserUsername(arg: {
  *
  * This can only be done by the logged in user.
  */
-export async function deleteUserUsername(arg: { param: { username: string } }) {
-  return await client['user'][':username']['$delete'](arg)
+export async function deleteUserUsername(args: {
+  param: { username: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['user'][':username']['$delete'](args)
 }

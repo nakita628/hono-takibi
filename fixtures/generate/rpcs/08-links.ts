@@ -1,52 +1,72 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/08-links'
 
 /**
  * POST /orders
  */
-export async function postOrders(arg: {
+export async function postOrders(args: {
   json: { customerId: string; items: { productId: string; quantity: number }[] }
+  options?: ClientRequestOptions
 }) {
-  return await client.orders.$post(arg)
+  return await client.orders.$post(args)
 }
 
 /**
  * GET /orders/{orderId}
  */
-export async function getOrdersOrderId(arg: { param: { orderId: string } }) {
-  return await client['orders'][':orderId']['$get'](arg)
+export async function getOrdersOrderId(args: {
+  param: { orderId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['orders'][':orderId']['$get'](args)
 }
 
 /**
  * DELETE /orders/{orderId}
  */
-export async function deleteOrdersOrderId(arg: { param: { orderId: string } }) {
-  return await client['orders'][':orderId']['$delete'](arg)
+export async function deleteOrdersOrderId(args: {
+  param: { orderId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['orders'][':orderId']['$delete'](args)
 }
 
 /**
  * GET /orders/{orderId}/items
  */
-export async function getOrdersOrderIdItems(arg: { param: { orderId: string } }) {
-  return await client['orders'][':orderId']['items']['$get'](arg)
+export async function getOrdersOrderIdItems(args: {
+  param: { orderId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['orders'][':orderId']['items']['$get'](args)
 }
 
 /**
  * GET /customers/{customerId}
  */
-export async function getCustomersCustomerId(arg: { param: { customerId: string } }) {
-  return await client['customers'][':customerId']['$get'](arg)
+export async function getCustomersCustomerId(args: {
+  param: { customerId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['customers'][':customerId']['$get'](args)
 }
 
 /**
  * GET /customers/{customerId}/orders
  */
-export async function getCustomersCustomerIdOrders(arg: { param: { customerId: string } }) {
-  return await client['customers'][':customerId']['orders']['$get'](arg)
+export async function getCustomersCustomerIdOrders(args: {
+  param: { customerId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['customers'][':customerId']['orders']['$get'](args)
 }
 
 /**
  * GET /payments/{paymentId}
  */
-export async function getPaymentsPaymentId(arg: { param: { paymentId: string } }) {
-  return await client['payments'][':paymentId']['$get'](arg)
+export async function getPaymentsPaymentId(args: {
+  param: { paymentId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['payments'][':paymentId']['$get'](args)
 }

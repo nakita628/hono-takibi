@@ -1,16 +1,17 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
 /**
  * GET /extreme-responses
  */
-export async function getExtremeResponses() {
-  return await client['extreme-responses']['$get']()
+export async function getExtremeResponses(args?: { options?: ClientRequestOptions }) {
+  return await client['extreme-responses']['$get'](args)
 }
 
 /**
  * POST /multipart-variations
  */
-export async function postMultipartVariations(arg: {
+export async function postMultipartVariations(args: {
   form: { file?: File; metadata?: string } | { field1?: string; field2?: string[] }
   json:
     | { parts?: File[] }
@@ -19,15 +20,17 @@ export async function postMultipartVariations(arg: {
     | {}
     | {}
     | {}
+  options?: ClientRequestOptions
 }) {
-  return await client['multipart-variations']['$post'](arg)
+  return await client['multipart-variations']['$post'](args)
 }
 
 /**
  * POST /charset-variations
  */
-export async function postCharsetVariations(arg: {
+export async function postCharsetVariations(args: {
   json: {} | {} | {} | string | string | string | {}
+  options?: ClientRequestOptions
 }) {
-  return await client['charset-variations']['$post'](arg)
+  return await client['charset-variations']['$post'](args)
 }

@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
 /**
@@ -7,10 +8,11 @@ import { client } from '../clients/36-auth-saml-idp'
  *
  * HTTP-Redirect バインディングでのSSO処理
  */
-export async function getSamlSso(arg: {
+export async function getSamlSso(args: {
   query: { SAMLRequest: string; RelayState?: string; SigAlg?: string; Signature?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['saml']['sso']['$get'](arg)
+  return await client['saml']['sso']['$get'](args)
 }
 
 /**
@@ -20,8 +22,11 @@ export async function getSamlSso(arg: {
  *
  * HTTP-POST バインディングでのSSO処理
  */
-export async function postSamlSso(arg: { form: { SAMLRequest: string; RelayState?: string } }) {
-  return await client['saml']['sso']['$post'](arg)
+export async function postSamlSso(args: {
+  form: { SAMLRequest: string; RelayState?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['saml']['sso']['$post'](args)
 }
 
 /**
@@ -31,7 +36,7 @@ export async function postSamlSso(arg: { form: { SAMLRequest: string; RelayState
  *
  * HTTP-Redirect バインディングでのシングルログアウト
  */
-export async function getSamlSlo(arg: {
+export async function getSamlSlo(args: {
   query: {
     SAMLRequest?: string
     SAMLResponse?: string
@@ -39,8 +44,9 @@ export async function getSamlSlo(arg: {
     SigAlg?: string
     Signature?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['saml']['slo']['$get'](arg)
+  return await client['saml']['slo']['$get'](args)
 }
 
 /**
@@ -50,10 +56,11 @@ export async function getSamlSlo(arg: {
  *
  * HTTP-POST バインディングでのシングルログアウト
  */
-export async function postSamlSlo(arg: {
+export async function postSamlSlo(args: {
   form: { SAMLRequest?: string; SAMLResponse?: string; RelayState?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['saml']['slo']['$post'](arg)
+  return await client['saml']['slo']['$post'](args)
 }
 
 /**
@@ -63,8 +70,11 @@ export async function postSamlSlo(arg: {
  *
  * SPからのSAMLレスポンスを処理（IdP-initiated の場合）
  */
-export async function postSamlAcs(arg: { form: { SAMLResponse: string; RelayState?: string } }) {
-  return await client['saml']['acs']['$post'](arg)
+export async function postSamlAcs(args: {
+  form: { SAMLResponse: string; RelayState?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['saml']['acs']['$post'](args)
 }
 
 /**
@@ -74,8 +84,8 @@ export async function postSamlAcs(arg: { form: { SAMLResponse: string; RelayStat
  *
  * SAML 2.0 IdPメタデータをXML形式で取得
  */
-export async function getSamlMetadata() {
-  return await client['saml']['metadata']['$get']()
+export async function getSamlMetadata(args?: { options?: ClientRequestOptions }) {
+  return await client['saml']['metadata']['$get'](args)
 }
 
 /**
@@ -83,8 +93,11 @@ export async function getSamlMetadata() {
  *
  * SP一覧取得
  */
-export async function getServiceProviders(arg: { query: { search?: string; enabled?: string } }) {
-  return await client['service-providers']['$get'](arg)
+export async function getServiceProviders(args: {
+  query: { search?: string; enabled?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['service-providers']['$get'](args)
 }
 
 /**
@@ -92,7 +105,7 @@ export async function getServiceProviders(arg: { query: { search?: string; enabl
  *
  * SP登録
  */
-export async function postServiceProviders(arg: {
+export async function postServiceProviders(args: {
   json:
     | {
         entityId: string
@@ -121,8 +134,9 @@ export async function postServiceProviders(arg: {
         encryptionCertificate?: string
       }
     | string
+  options?: ClientRequestOptions
 }) {
-  return await client['service-providers']['$post'](arg)
+  return await client['service-providers']['$post'](args)
 }
 
 /**
@@ -130,8 +144,11 @@ export async function postServiceProviders(arg: {
  *
  * SP詳細取得
  */
-export async function getServiceProvidersSpId(arg: { param: { spId: string } }) {
-  return await client['service-providers'][':spId']['$get'](arg)
+export async function getServiceProvidersSpId(args: {
+  param: { spId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['service-providers'][':spId']['$get'](args)
 }
 
 /**
@@ -139,7 +156,7 @@ export async function getServiceProvidersSpId(arg: { param: { spId: string } }) 
  *
  * SP更新
  */
-export async function putServiceProvidersSpId(arg: {
+export async function putServiceProvidersSpId(args: {
   param: { spId: string }
   json: {
     name?: string
@@ -168,8 +185,9 @@ export async function putServiceProvidersSpId(arg: {
     defaultRelayState?: string
     sessionDuration?: number
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['service-providers'][':spId']['$put'](arg)
+  return await client['service-providers'][':spId']['$put'](args)
 }
 
 /**
@@ -177,8 +195,11 @@ export async function putServiceProvidersSpId(arg: {
  *
  * SP削除
  */
-export async function deleteServiceProvidersSpId(arg: { param: { spId: string } }) {
-  return await client['service-providers'][':spId']['$delete'](arg)
+export async function deleteServiceProvidersSpId(args: {
+  param: { spId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['service-providers'][':spId']['$delete'](args)
 }
 
 /**
@@ -186,8 +207,11 @@ export async function deleteServiceProvidersSpId(arg: { param: { spId: string } 
  *
  * SPメタデータ取得
  */
-export async function getServiceProvidersSpIdMetadata(arg: { param: { spId: string } }) {
-  return await client['service-providers'][':spId']['metadata']['$get'](arg)
+export async function getServiceProvidersSpIdMetadata(args: {
+  param: { spId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['service-providers'][':spId']['metadata']['$get'](args)
 }
 
 /**
@@ -195,12 +219,13 @@ export async function getServiceProvidersSpIdMetadata(arg: { param: { spId: stri
  *
  * SPメタデータ更新
  */
-export async function putServiceProvidersSpIdMetadata(arg: {
+export async function putServiceProvidersSpIdMetadata(args: {
   param: { spId: string }
   form: { file?: File }
   json: string
+  options?: ClientRequestOptions
 }) {
-  return await client['service-providers'][':spId']['metadata']['$put'](arg)
+  return await client['service-providers'][':spId']['metadata']['$put'](args)
 }
 
 /**
@@ -208,8 +233,11 @@ export async function putServiceProvidersSpIdMetadata(arg: {
  *
  * SP属性マッピング取得
  */
-export async function getServiceProvidersSpIdAttributes(arg: { param: { spId: string } }) {
-  return await client['service-providers'][':spId']['attributes']['$get'](arg)
+export async function getServiceProvidersSpIdAttributes(args: {
+  param: { spId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['service-providers'][':spId']['attributes']['$get'](args)
 }
 
 /**
@@ -217,7 +245,7 @@ export async function getServiceProvidersSpIdAttributes(arg: { param: { spId: st
  *
  * SP属性マッピング更新
  */
-export async function putServiceProvidersSpIdAttributes(arg: {
+export async function putServiceProvidersSpIdAttributes(args: {
   param: { spId: string }
   json: {
     id?: string
@@ -231,8 +259,9 @@ export async function putServiceProvidersSpIdAttributes(arg: {
     required?: boolean
     transform?: string
   }[]
+  options?: ClientRequestOptions
 }) {
-  return await client['service-providers'][':spId']['attributes']['$put'](arg)
+  return await client['service-providers'][':spId']['attributes']['$put'](args)
 }
 
 /**
@@ -240,8 +269,8 @@ export async function putServiceProvidersSpIdAttributes(arg: {
  *
  * 利用可能な属性一覧
  */
-export async function getAttributes() {
-  return await client.attributes.$get()
+export async function getAttributes(args?: { options?: ClientRequestOptions }) {
+  return await client.attributes.$get(args)
 }
 
 /**
@@ -249,8 +278,8 @@ export async function getAttributes() {
  *
  * 証明書一覧取得
  */
-export async function getCertificates() {
-  return await client.certificates.$get()
+export async function getCertificates(args?: { options?: ClientRequestOptions }) {
+  return await client.certificates.$get(args)
 }
 
 /**
@@ -258,15 +287,16 @@ export async function getCertificates() {
  *
  * 証明書アップロード
  */
-export async function postCertificates(arg: {
+export async function postCertificates(args: {
   form: {
     certificate: File
     privateKey: File
     passphrase?: string
     purpose?: 'signing' | 'encryption' | 'both'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.certificates.$post(arg)
+  return await client.certificates.$post(args)
 }
 
 /**
@@ -274,8 +304,11 @@ export async function postCertificates(arg: {
  *
  * 証明書削除
  */
-export async function deleteCertificatesCertId(arg: { param: { certId: string } }) {
-  return await client['certificates'][':certId']['$delete'](arg)
+export async function deleteCertificatesCertId(args: {
+  param: { certId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['certificates'][':certId']['$delete'](args)
 }
 
 /**
@@ -283,8 +316,11 @@ export async function deleteCertificatesCertId(arg: { param: { certId: string } 
  *
  * 証明書有効化
  */
-export async function postCertificatesCertIdActivate(arg: { param: { certId: string } }) {
-  return await client['certificates'][':certId']['activate']['$post'](arg)
+export async function postCertificatesCertIdActivate(args: {
+  param: { certId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['certificates'][':certId']['activate']['$post'](args)
 }
 
 /**
@@ -292,8 +328,11 @@ export async function postCertificatesCertIdActivate(arg: { param: { certId: str
  *
  * アクティブセッション一覧
  */
-export async function getSessions(arg: { query: { userId?: string } }) {
-  return await client.sessions.$get(arg)
+export async function getSessions(args: {
+  query: { userId?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client.sessions.$get(args)
 }
 
 /**
@@ -301,8 +340,11 @@ export async function getSessions(arg: { query: { userId?: string } }) {
  *
  * セッション終了
  */
-export async function deleteSessionsSessionId(arg: { param: { sessionId: string } }) {
-  return await client['sessions'][':sessionId']['$delete'](arg)
+export async function deleteSessionsSessionId(args: {
+  param: { sessionId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['sessions'][':sessionId']['$delete'](args)
 }
 
 /**
@@ -310,7 +352,7 @@ export async function deleteSessionsSessionId(arg: { param: { sessionId: string 
  *
  * SAML監査ログ取得
  */
-export async function getAuditLogs(arg: {
+export async function getAuditLogs(args: {
   query: {
     from?: string
     to?: string
@@ -320,6 +362,7 @@ export async function getAuditLogs(arg: {
     page?: number
     limit?: number
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['audit-logs']['$get'](arg)
+  return await client['audit-logs']['$get'](args)
 }

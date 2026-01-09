@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/09-callbacks'
 
 /**
@@ -5,7 +6,7 @@ import { client } from '../clients/09-callbacks'
  *
  * Register a webhook endpoint
  */
-export async function postWebhooks(arg: {
+export async function postWebhooks(args: {
   json: {
     url: string
     events: (
@@ -19,8 +20,9 @@ export async function postWebhooks(arg: {
     )[]
     secret?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.webhooks.$post(arg)
+  return await client.webhooks.$post(args)
 }
 
 /**
@@ -28,10 +30,11 @@ export async function postWebhooks(arg: {
  *
  * Create a subscription with payment callbacks
  */
-export async function postSubscriptions(arg: {
+export async function postSubscriptions(args: {
   json: { planId: string; paymentMethodId: string; callbackUrl: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.subscriptions.$post(arg)
+  return await client.subscriptions.$post(args)
 }
 
 /**
@@ -39,10 +42,11 @@ export async function postSubscriptions(arg: {
  *
  * Create an async job with progress callbacks
  */
-export async function postJobs(arg: {
+export async function postJobs(args: {
   json: { type: 'export' | 'import' | 'process'; data?: {}; callbackUrl: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.jobs.$post(arg)
+  return await client.jobs.$post(args)
 }
 
 /**
@@ -50,6 +54,9 @@ export async function postJobs(arg: {
  *
  * Trigger data sync with callbacks
  */
-export async function postIntegrationsIntegrationIdSync(arg: { param: { integrationId: string } }) {
-  return await client['integrations'][':integrationId']['sync']['$post'](arg)
+export async function postIntegrationsIntegrationIdSync(args: {
+  param: { integrationId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['integrations'][':integrationId']['sync']['$post'](args)
 }

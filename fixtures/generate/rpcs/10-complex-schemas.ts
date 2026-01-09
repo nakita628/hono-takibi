@@ -1,9 +1,10 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/10-complex-schemas'
 
 /**
  * POST /events
  */
-export async function postEvents(arg: {
+export async function postEvents(args: {
   json:
     | ({
         id: string
@@ -31,14 +32,15 @@ export async function postEvents(arg: {
         timestamp: string
         metadata?: { [key: string]: unknown }
       } & { eventType?: 'system.startup' | 'system.shutdown'; component: string; details?: string })
+  options?: ClientRequestOptions
 }) {
-  return await client.events.$post(arg)
+  return await client.events.$post(args)
 }
 
 /**
  * POST /notifications
  */
-export async function postNotifications(arg: {
+export async function postNotifications(args: {
   json: {
     recipient:
       | { type: 'email'; email: string; name?: string }
@@ -55,27 +57,29 @@ export async function postNotifications(arg: {
     content: { title: string; body: string; imageUrl?: string; actionUrl?: string }
     priority?: 'low' | 'normal' | 'high' | 'urgent'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.notifications.$post(arg)
+  return await client.notifications.$post(args)
 }
 
 /**
  * POST /shapes
  */
-export async function postShapes(arg: {
+export async function postShapes(args: {
   json:
     | { type: 'circle'; radius: number; center?: { x: number; y: number } }
     | { type: 'rectangle'; width: number; height: number; topLeft?: { x: number; y: number } }
     | { type: 'triangle'; vertices: { x: number; y: number }[] }
     | { type: 'polygon'; vertices: { x: number; y: number }[] }
+  options?: ClientRequestOptions
 }) {
-  return await client.shapes.$post(arg)
+  return await client.shapes.$post(args)
 }
 
 /**
  * POST /documents
  */
-export async function postDocuments(arg: {
+export async function postDocuments(args: {
   json: { id: string; title: string; description?: string } & {
     createdAt?: string
     createdBy?: string
@@ -86,19 +90,21 @@ export async function postDocuments(arg: {
     content?: string
     format?: 'markdown' | 'html' | 'plain'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.documents.$post(arg)
+  return await client.documents.$post(args)
 }
 
 /**
  * POST /mixed
  */
-export async function postMixed(arg: {
+export async function postMixed(args: {
   json: {
     value: string | number | boolean | unknown[] | { [key: string]: unknown }
     notNull?: unknown
     restrictedValue?: string & unknown
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.mixed.$post(arg)
+  return await client.mixed.$post(args)
 }

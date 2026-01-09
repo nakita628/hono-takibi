@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/openapi-nullable'
 
 /**
@@ -7,6 +8,6 @@ import { client } from '../clients/openapi-nullable'
  *
  * zod nullable
  */
-export async function getNullable() {
-  return await client.nullable.$get()
+export async function getNullable(args?: { options?: ClientRequestOptions }) {
+  return await client.nullable.$get(args)
 }

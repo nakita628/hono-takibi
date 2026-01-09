@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/openapi-string'
 
 /**
@@ -7,6 +8,6 @@ import { client } from '../clients/openapi-string'
  *
  * zod string
  */
-export async function getString() {
-  return await client.string.$get()
+export async function getString(args?: { options?: ClientRequestOptions }) {
+  return await client.string.$get(args)
 }

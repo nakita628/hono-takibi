@@ -1,9 +1,10 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
 /**
  * POST /encoding-test
  */
-export async function postEncodingTest(arg: {
+export async function postEncodingTest(args: {
   form: {
     simpleString?: string
     arrayExplode?: string[]
@@ -19,28 +20,30 @@ export async function postEncodingTest(arg: {
     arrayOfObjects?: { id?: number; name?: string }[]
     partWithHeaders?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['encoding-test']['$post'](arg)
+  return await client['encoding-test']['$post'](args)
 }
 
 /**
  * GET /content-negotiation
  */
-export async function getContentNegotiation(arg: {
+export async function getContentNegotiation(args: {
   header: {
     Accept?: string
     'Accept-Language'?: string
     'Accept-Encoding'?: string
     'Accept-Charset'?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['content-negotiation']['$get'](arg)
+  return await client['content-negotiation']['$get'](args)
 }
 
 /**
  * POST /binary-variations
  */
-export async function postBinaryVariations(arg: {
+export async function postBinaryVariations(args: {
   json:
     | File
     | { data?: string; filename?: string; mimeType?: string }
@@ -59,28 +62,29 @@ export async function postBinaryVariations(arg: {
     | File
     | File
     | File
+  options?: ClientRequestOptions
 }) {
-  return await client['binary-variations']['$post'](arg)
+  return await client['binary-variations']['$post'](args)
 }
 
 /**
  * GET /streaming
  */
-export async function getStreaming() {
-  return await client.streaming.$get()
+export async function getStreaming(args?: { options?: ClientRequestOptions }) {
+  return await client.streaming.$get(args)
 }
 
 /**
  * POST /streaming
  */
-export async function postStreaming(arg: { json: string | File }) {
-  return await client.streaming.$post(arg)
+export async function postStreaming(args: { json: string | File; options?: ClientRequestOptions }) {
+  return await client.streaming.$post(args)
 }
 
 /**
  * POST /url-encoded-complex
  */
-export async function postUrlEncodedComplex(arg: {
+export async function postUrlEncodedComplex(args: {
   form: {
     string?: string
     number?: number
@@ -93,21 +97,22 @@ export async function postUrlEncodedComplex(arg: {
     emptyString?: string
     multiValue?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['url-encoded-complex']['$post'](arg)
+  return await client['url-encoded-complex']['$post'](args)
 }
 
 /**
  * GET /response-encoding
  */
-export async function getResponseEncoding() {
-  return await client['response-encoding']['$get']()
+export async function getResponseEncoding(args?: { options?: ClientRequestOptions }) {
+  return await client['response-encoding']['$get'](args)
 }
 
 /**
  * POST /schema-encoding
  */
-export async function postSchemaEncoding(arg: {
+export async function postSchemaEncoding(args: {
   json: {
     base64Field?: string
     base64urlField?: string
@@ -117,6 +122,7 @@ export async function postSchemaEncoding(arg: {
     binaryData?: string
     imageData?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['schema-encoding']['$post'](arg)
+  return await client['schema-encoding']['$post'](args)
 }

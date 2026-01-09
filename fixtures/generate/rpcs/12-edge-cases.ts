@@ -1,111 +1,117 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
 /**
  * GET /all-methods
  */
-export async function getAllMethods() {
-  return await client['all-methods']['$get']()
+export async function getAllMethods(args?: { options?: ClientRequestOptions }) {
+  return await client['all-methods']['$get'](args)
 }
 
 /**
  * PUT /all-methods
  */
-export async function putAllMethods() {
-  return await client['all-methods']['$put']()
+export async function putAllMethods(args?: { options?: ClientRequestOptions }) {
+  return await client['all-methods']['$put'](args)
 }
 
 /**
  * POST /all-methods
  */
-export async function postAllMethods() {
-  return await client['all-methods']['$post']()
+export async function postAllMethods(args?: { options?: ClientRequestOptions }) {
+  return await client['all-methods']['$post'](args)
 }
 
 /**
  * DELETE /all-methods
  */
-export async function deleteAllMethods() {
-  return await client['all-methods']['$delete']()
+export async function deleteAllMethods(args?: { options?: ClientRequestOptions }) {
+  return await client['all-methods']['$delete'](args)
 }
 
 /**
  * OPTIONS /all-methods
  */
-export async function optionsAllMethods() {
-  return await client['all-methods']['$options']()
+export async function optionsAllMethods(args?: { options?: ClientRequestOptions }) {
+  return await client['all-methods']['$options'](args)
 }
 
 /**
  * HEAD /all-methods
  */
-export async function headAllMethods() {
-  return await client['all-methods']['$head']()
+export async function headAllMethods(args?: { options?: ClientRequestOptions }) {
+  return await client['all-methods']['$head'](args)
 }
 
 /**
  * PATCH /all-methods
  */
-export async function patchAllMethods() {
-  return await client['all-methods']['$patch']()
+export async function patchAllMethods(args?: { options?: ClientRequestOptions }) {
+  return await client['all-methods']['$patch'](args)
 }
 
 /**
  * TRACE /all-methods
  */
-export async function traceAllMethods() {
-  return await client['all-methods']['$trace']()
+export async function traceAllMethods(args?: { options?: ClientRequestOptions }) {
+  return await client['all-methods']['$trace'](args)
 }
 
 /**
  * GET /users/{userId}/posts/{postId}/comments/{commentId}
  */
-export async function getUsersUserIdPostsPostIdCommentsCommentId(arg: {
+export async function getUsersUserIdPostsPostIdCommentsCommentId(args: {
   param: { userId: string; postId: number; commentId: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['users'][':userId']['posts'][':postId']['comments'][':commentId']['$get'](arg)
+  return await client['users'][':userId']['posts'][':postId']['comments'][':commentId']['$get'](
+    args,
+  )
 }
 
 /**
  * GET /params-test/{pathParam}
  */
-export async function getParamsTestPathParam(arg: {
+export async function getParamsTestPathParam(args: {
   param: { pathParam: string }
   query: { queryParam?: string }
   header: { 'X-Header-Param'?: string }
   cookie: { session_id?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['params-test'][':pathParam']['$get'](arg)
+  return await client['params-test'][':pathParam']['$get'](args)
 }
 
 /**
  * POST /no-content
  */
-export async function postNoContent() {
-  return await client['no-content']['$post']()
+export async function postNoContent(args?: { options?: ClientRequestOptions }) {
+  return await client['no-content']['$post'](args)
 }
 
 /**
  * GET /multi-content
  */
-export async function getMultiContent() {
-  return await client['multi-content']['$get']()
+export async function getMultiContent(args?: { options?: ClientRequestOptions }) {
+  return await client['multi-content']['$get'](args)
 }
 
 /**
  * POST /multi-content
  */
-export async function postMultiContent(arg: {
+export async function postMultiContent(args: {
   form: { file?: File; metadata?: string } | { field1?: string; field2?: string }
   json: { data?: {} }
+  options?: ClientRequestOptions
 }) {
-  return await client['multi-content']['$post'](arg)
+  return await client['multi-content']['$post'](args)
 }
 
 /**
  * GET /response-ranges
  */
-export async function getResponseRanges() {
-  return await client['response-ranges']['$get']()
+export async function getResponseRanges(args?: { options?: ClientRequestOptions }) {
+  return await client['response-ranges']['$get'](args)
 }
 
 /**
@@ -113,8 +119,8 @@ export async function getResponseRanges() {
  *
  * This operation is deprecated
  */
-export async function getDeprecated() {
-  return await client.deprecated.$get()
+export async function getDeprecated(args?: { options?: ClientRequestOptions }) {
+  return await client.deprecated.$get(args)
 }
 
 /**
@@ -122,45 +128,47 @@ export async function getDeprecated() {
  *
  * Operation without operationId
  */
-export async function getNoOperationId() {
-  return await client['no-operation-id']['$get']()
+export async function getNoOperationId(args?: { options?: ClientRequestOptions }) {
+  return await client['no-operation-id']['$get'](args)
 }
 
 /**
  * POST /empty-body
  */
-export async function postEmptyBody(arg: { json: {} }) {
-  return await client['empty-body']['$post'](arg)
+export async function postEmptyBody(args: { json: {}; options?: ClientRequestOptions }) {
+  return await client['empty-body']['$post'](args)
 }
 
 /**
  * GET /circular
  */
-export async function getCircular() {
-  return await client.circular.$get()
+export async function getCircular(args?: { options?: ClientRequestOptions }) {
+  return await client.circular.$get(args)
 }
 
 /**
  * GET /deep-nesting
  */
-export async function getDeepNesting() {
-  return await client['deep-nesting']['$get']()
+export async function getDeepNesting(args?: { options?: ClientRequestOptions }) {
+  return await client['deep-nesting']['$get'](args)
 }
 
 /**
  * GET /array-params
  */
-export async function getArrayParams(arg: {
+export async function getArrayParams(args: {
   query: { ids?: string[]; tags?: string[]; values?: number[]; coords?: number[] }
+  options?: ClientRequestOptions
 }) {
-  return await client['array-params']['$get'](arg)
+  return await client['array-params']['$get'](args)
 }
 
 /**
  * GET /object-param
  */
-export async function getObjectParam(arg: {
+export async function getObjectParam(args: {
   query: { filter?: { name?: string; minPrice?: number; maxPrice?: number } }
+  options?: ClientRequestOptions
 }) {
-  return await client['object-param']['$get'](arg)
+  return await client['object-param']['$get'](args)
 }

@@ -1,18 +1,20 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
 /**
  * GET /documents
  */
-export async function getDocuments(arg: {
+export async function getDocuments(args: {
   query: { author?: string; reviewer?: string; approver?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.documents.$get(arg)
+  return await client.documents.$get(args)
 }
 
 /**
  * POST /documents
  */
-export async function postDocuments(arg: {
+export async function postDocuments(args: {
   json: {
     title: string
     content: {
@@ -33,21 +35,25 @@ export async function postDocuments(arg: {
     parentDocument?: string
     templateId?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.documents.$post(arg)
+  return await client.documents.$post(args)
 }
 
 /**
  * GET /documents/{documentId}
  */
-export async function getDocumentsDocumentId(arg: { param: { documentId: string } }) {
-  return await client['documents'][':documentId']['$get'](arg)
+export async function getDocumentsDocumentId(args: {
+  param: { documentId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['documents'][':documentId']['$get'](args)
 }
 
 /**
  * PUT /documents/{documentId}
  */
-export async function putDocumentsDocumentId(arg: {
+export async function putDocumentsDocumentId(args: {
   param: { documentId: string }
   json: {
     title?: string
@@ -69,21 +75,25 @@ export async function putDocumentsDocumentId(arg: {
     tags?: { name: string; color?: string }[]
     status?: 'draft' | 'in_review' | 'approved' | 'published' | 'archived'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['documents'][':documentId']['$put'](arg)
+  return await client['documents'][':documentId']['$put'](args)
 }
 
 /**
  * GET /documents/{documentId}/versions
  */
-export async function getDocumentsDocumentIdVersions(arg: { param: { documentId: string } }) {
-  return await client['documents'][':documentId']['versions']['$get'](arg)
+export async function getDocumentsDocumentIdVersions(args: {
+  param: { documentId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['documents'][':documentId']['versions']['$get'](args)
 }
 
 /**
  * POST /documents/{documentId}/share
  */
-export async function postDocumentsDocumentIdShare(arg: {
+export async function postDocumentsDocumentIdShare(args: {
   param: { documentId: string }
   json: {
     recipients: {
@@ -94,21 +104,25 @@ export async function postDocumentsDocumentIdShare(arg: {
     }[]
     message?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['documents'][':documentId']['share']['$post'](arg)
+  return await client['documents'][':documentId']['share']['$post'](args)
 }
 
 /**
  * GET /users/{userId}/documents
  */
-export async function getUsersUserIdDocuments(arg: { param: { userId: string } }) {
-  return await client['users'][':userId']['documents']['$get'](arg)
+export async function getUsersUserIdDocuments(args: {
+  param: { userId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['users'][':userId']['documents']['$get'](args)
 }
 
 /**
  * POST /compare
  */
-export async function postCompare(arg: {
+export async function postCompare(args: {
   json: {
     source: {
       id: string
@@ -202,21 +216,22 @@ export async function postCompare(arg: {
     }
     options?: { ignoreWhitespace?: boolean; ignoreCase?: boolean; showLineNumbers?: boolean }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.compare.$post(arg)
+  return await client.compare.$post(args)
 }
 
 /**
  * GET /templates
  */
-export async function getTemplates() {
-  return await client.templates.$get()
+export async function getTemplates(args?: { options?: ClientRequestOptions }) {
+  return await client.templates.$get(args)
 }
 
 /**
  * POST /templates
  */
-export async function postTemplates(arg: {
+export async function postTemplates(args: {
   json: {
     name: string
     description?: string
@@ -245,14 +260,15 @@ export async function postTemplates(arg: {
       description?: string
     }[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.templates.$post(arg)
+  return await client.templates.$post(args)
 }
 
 /**
  * POST /workflows
  */
-export async function postWorkflows(arg: {
+export async function postWorkflows(args: {
   json: {
     name: string
     description?: string
@@ -267,6 +283,7 @@ export async function postWorkflows(arg: {
     }[]
     defaultAssignees?: { [key: string]: string }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.workflows.$post(arg)
+  return await client.workflows.$post(args)
 }

@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/openapi-boolean'
 
 /**
@@ -7,6 +8,6 @@ import { client } from '../clients/openapi-boolean'
  *
  * zod boolean
  */
-export async function getBoolean() {
-  return await client.boolean.$get()
+export async function getBoolean(args?: { options?: ClientRequestOptions }) {
+  return await client.boolean.$get(args)
 }

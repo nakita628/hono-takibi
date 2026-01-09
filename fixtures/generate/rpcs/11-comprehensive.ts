@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
 
 /**
@@ -7,7 +8,7 @@ import { client } from '../clients/11-comprehensive'
  *
  * Retrieve a paginated list of products with optional filtering
  */
-export async function getProducts(arg: {
+export async function getProducts(args: {
   query: {
     page?: number
     limit?: number
@@ -15,8 +16,9 @@ export async function getProducts(arg: {
     category?: 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'toys'
   }
   header: { 'Accept-Language'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.products.$get(arg)
+  return await client.products.$get(args)
 }
 
 /**
@@ -24,7 +26,7 @@ export async function getProducts(arg: {
  *
  * Create a new product
  */
-export async function postProducts(arg: {
+export async function postProducts(args: {
   json: {
     sku?: string
     name: string
@@ -35,8 +37,9 @@ export async function postProducts(arg: {
     inventory?: number
     images?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.products.$post(arg)
+  return await client.products.$post(args)
 }
 
 /**
@@ -44,11 +47,12 @@ export async function postProducts(arg: {
  *
  * Get product by ID
  */
-export async function getProductsProductId(arg: {
+export async function getProductsProductId(args: {
   param: { productId: string }
   header: { 'If-None-Match'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['products'][':productId']['$get'](arg)
+  return await client['products'][':productId']['$get'](args)
 }
 
 /**
@@ -56,7 +60,7 @@ export async function getProductsProductId(arg: {
  *
  * Update a product
  */
-export async function putProductsProductId(arg: {
+export async function putProductsProductId(args: {
   param: { productId: string }
   header: { 'If-Match'?: string }
   json: {
@@ -69,8 +73,9 @@ export async function putProductsProductId(arg: {
     inventory?: number
     images?: string[]
   } & { status?: 'draft' | 'active' | 'archived' }
+  options?: ClientRequestOptions
 }) {
-  return await client['products'][':productId']['$put'](arg)
+  return await client['products'][':productId']['$put'](args)
 }
 
 /**
@@ -78,11 +83,12 @@ export async function putProductsProductId(arg: {
  *
  * Delete a product
  */
-export async function deleteProductsProductId(arg: {
+export async function deleteProductsProductId(args: {
   param: { productId: string }
   header: { 'If-Match'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['products'][':productId']['$delete'](arg)
+  return await client['products'][':productId']['$delete'](args)
 }
 
 /**
@@ -90,7 +96,7 @@ export async function deleteProductsProductId(arg: {
  *
  * Create a new order
  */
-export async function postOrders(arg: {
+export async function postOrders(args: {
   json: {
     items: { productId: string; quantity: number }[]
     shippingAddress: {
@@ -109,8 +115,9 @@ export async function postOrders(arg: {
     }
     callbackUrl?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.orders.$post(arg)
+  return await client.orders.$post(args)
 }
 
 /**
@@ -118,8 +125,9 @@ export async function postOrders(arg: {
  *
  * Register a webhook endpoint
  */
-export async function postWebhooks(arg: {
+export async function postWebhooks(args: {
   json: { url: string; events: string[]; secret?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.webhooks.$post(arg)
+  return await client.webhooks.$post(args)
 }

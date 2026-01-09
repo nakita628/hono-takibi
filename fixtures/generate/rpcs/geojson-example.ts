@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/geojson-example'
 
 /**
@@ -7,8 +8,8 @@ import { client } from '../clients/geojson-example'
  *
  * This endpoint is used to check if the server is working.
  */
-export async function get() {
-  return await client.index.$get()
+export async function get(args?: { options?: ClientRequestOptions }) {
+  return await client.index.$get(args)
 }
 
 /**
@@ -18,6 +19,9 @@ export async function get() {
  *
  * Update the content of an existing post identified by its unique ID.
  */
-export async function getProjects(arg: { query: { chiban: string } }) {
-  return await client.projects.$get(arg)
+export async function getProjects(args: {
+  query: { chiban: string }
+  options?: ClientRequestOptions
+}) {
+  return await client.projects.$get(args)
 }

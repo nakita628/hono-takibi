@@ -1,9 +1,10 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
 /**
  * GET /entities
  */
-export async function getEntities(arg: {
+export async function getEntities(args: {
   query: {
     filter?: {
       field?: string
@@ -26,14 +27,15 @@ export async function getEntities(arg: {
     page?: { page?: number; perPage?: number; cursor?: string }
     sort?: { field?: string; direction?: 'asc' | 'desc' }[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.entities.$get(arg)
+  return await client.entities.$get(args)
 }
 
 /**
  * POST /entities
  */
-export async function postEntities(arg: {
+export async function postEntities(args: {
   header: { 'Idempotency-Key'?: string }
   json: {
     type: 'user' | 'organization' | 'project' | 'resource'
@@ -69,25 +71,27 @@ export async function postEntities(arg: {
       }
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.entities.$post(arg)
+  return await client.entities.$post(args)
 }
 
 /**
  * GET /entities/{entityId}
  */
-export async function getEntitiesEntityId(arg: {
+export async function getEntitiesEntityId(args: {
   param: { entityId: string }
   query: { include?: ('parent' | 'children' | 'owner' | 'members')[] }
   header: { 'If-None-Match'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['entities'][':entityId']['$get'](arg)
+  return await client['entities'][':entityId']['$get'](args)
 }
 
 /**
  * PUT /entities/{entityId}
  */
-export async function putEntitiesEntityId(arg: {
+export async function putEntitiesEntityId(args: {
   param: { entityId: string }
   header: { 'If-Match'?: string }
   json: {
@@ -123,41 +127,47 @@ export async function putEntitiesEntityId(arg: {
       }
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['entities'][':entityId']['$put'](arg)
+  return await client['entities'][':entityId']['$put'](args)
 }
 
 /**
  * DELETE /entities/{entityId}
  */
-export async function deleteEntitiesEntityId(arg: {
+export async function deleteEntitiesEntityId(args: {
   param: { entityId: string }
   header: { 'If-Match'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['entities'][':entityId']['$delete'](arg)
+  return await client['entities'][':entityId']['$delete'](args)
 }
 
 /**
  * GET /entities/{entityId}/relationships
  */
-export async function getEntitiesEntityIdRelationships(arg: { param: { entityId: string } }) {
-  return await client['entities'][':entityId']['relationships']['$get'](arg)
+export async function getEntitiesEntityIdRelationships(args: {
+  param: { entityId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['entities'][':entityId']['relationships']['$get'](args)
 }
 
 /**
  * POST /entities/{entityId}/relationships
  */
-export async function postEntitiesEntityIdRelationships(arg: {
+export async function postEntitiesEntityIdRelationships(args: {
   param: { entityId: string }
   json: { type: string; targetId: string; meta?: { count?: number; createdAt?: string } }
+  options?: ClientRequestOptions
 }) {
-  return await client['entities'][':entityId']['relationships']['$post'](arg)
+  return await client['entities'][':entityId']['relationships']['$post'](args)
 }
 
 /**
  * POST /batch
  */
-export async function postBatch(arg: {
+export async function postBatch(args: {
   json: {
     operations: {
       id?: string
@@ -234,6 +244,7 @@ export async function postBatch(arg: {
           }
     }[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.batch.$post(arg)
+  return await client.batch.$post(args)
 }

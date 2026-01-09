@@ -352,6 +352,9 @@ const generateArgType = (
     }
   }
 
+  // Always add options parameter for ClientRequestOptions
+  parts.push('options?: ClientRequestOptions')
+
   return parts.length > 0 ? `{ ${parts.join('; ')} }` : ''
 }
 
@@ -503,11 +506,10 @@ const generateOperationCode = (
     allBodyInfo,
     deps.componentsSchemas,
   )
-  const argSig = hasArgs && argType ? `arg:${argType}` : ''
-  const call =
-    hasArgs && argType
-      ? `${deps.client}${pathAccess}${methodAccess}(arg)`
-      : `${deps.client}${pathAccess}${methodAccess}()`
+  // If there are required args (params, query, body, etc.), args is required
+  // If only options, args is optional
+  const argSig = hasArgs ? `args:${argType}` : `args?:${argType}`
+  const call = `${deps.client}${pathAccess}${methodAccess}(args)`
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
@@ -600,7 +602,7 @@ const resolveSplitOutDir = (output: string) => {
  * ```
  */
 const buildHeader = (importPath: string): string => {
-  return `import{client}from'${importPath}'\n\n`
+  return `import type{ClientRequestOptions}from'hono/client'\nimport{client}from'${importPath}'\n\n`
 }
 
 export async function rpc(

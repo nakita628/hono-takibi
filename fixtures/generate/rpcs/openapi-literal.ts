@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/openapi-literal'
 
 /**
@@ -7,6 +8,6 @@ import { client } from '../clients/openapi-literal'
  *
  * zod primitive
  */
-export async function getPrimitive() {
-  return await client.primitive.$get()
+export async function getPrimitive(args?: { options?: ClientRequestOptions }) {
+  return await client.primitive.$get(args)
 }

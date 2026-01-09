@@ -1,9 +1,10 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/not-schema'
 
 /**
  * POST /validate
  */
-export async function postValidate(arg: {
+export async function postValidate(args: {
   json: {
     notSpecificValue?: unknown
     notString?: unknown
@@ -15,6 +16,7 @@ export async function postValidate(arg: {
     notBoolean?: unknown
     notInteger?: unknown
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.validate.$post(arg)
+  return await client.validate.$post(args)
 }

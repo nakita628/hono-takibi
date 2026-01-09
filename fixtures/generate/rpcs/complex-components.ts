@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/complex-components'
 
 /**
@@ -5,7 +6,7 @@ import { client } from '../clients/complex-components'
  *
  * Issue access token
  */
-export async function postAuthToken(arg: {
+export async function postAuthToken(args: {
   json: {
     grantType: 'client_credentials' | 'refresh_token'
     clientId?: string
@@ -13,8 +14,9 @@ export async function postAuthToken(arg: {
     refreshToken?: string
     trace?: { traceId: string; parent?: unknown; baggage?: { [key: string]: string } }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['auth']['token']['$post'](arg)
+  return await client['auth']['token']['$post'](args)
 }
 
 /**
@@ -22,7 +24,7 @@ export async function postAuthToken(arg: {
  *
  * List users
  */
-export async function getUsers(arg: {
+export async function getUsers(args: {
   query: {
     limit?: number
     cursor?: string
@@ -10627,8 +10629,9 @@ export async function getUsers(arg: {
         }
   }
   header: { 'x-trace-id'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.users.$get(arg)
+  return await client.users.$get(args)
 }
 
 /**
@@ -10636,7 +10639,7 @@ export async function getUsers(arg: {
  *
  * Create user
  */
-export async function postUsers(arg: {
+export async function postUsers(args: {
   header: { 'x-trace-id'?: string }
   json: {
     id: string | string
@@ -13130,8 +13133,9 @@ export async function postUsers(arg: {
       }
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.users.$post(arg)
+  return await client.users.$post(args)
 }
 
 /**
@@ -13139,12 +13143,13 @@ export async function postUsers(arg: {
  *
  * Get user by id
  */
-export async function getUsersUserId(arg: {
+export async function getUsersUserId(args: {
   param: { userId: string | string }
   query: { include?: ('company' | 'manager' | 'reports' | 'orders' | 'auditTrail' | 'graph')[] }
   header: { 'x-trace-id'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['users'][':userId']['$get'](arg)
+  return await client['users'][':userId']['$get'](args)
 }
 
 /**
@@ -13152,7 +13157,7 @@ export async function getUsersUserId(arg: {
  *
  * Update user (partial)
  */
-export async function patchUsersUserId(arg: {
+export async function patchUsersUserId(args: {
   param: { userId: string | string }
   header: { 'x-trace-id'?: string }
   json:
@@ -18519,8 +18524,9 @@ export async function patchUsersUserId(arg: {
           causes?: unknown[]
         }
       }
+  options?: ClientRequestOptions
 }) {
-  return await client['users'][':userId']['$patch'](arg)
+  return await client['users'][':userId']['$patch'](args)
 }
 
 /**
@@ -18528,12 +18534,13 @@ export async function patchUsersUserId(arg: {
  *
  * Get company by id
  */
-export async function getCompaniesCompanyId(arg: {
+export async function getCompaniesCompanyId(args: {
   param: { companyId: string | string }
   query: { include?: ('company' | 'manager' | 'reports' | 'orders' | 'auditTrail' | 'graph')[] }
   header: { 'x-trace-id'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['companies'][':companyId']['$get'](arg)
+  return await client['companies'][':companyId']['$get'](args)
 }
 
 /**
@@ -18541,7 +18548,7 @@ export async function getCompaniesCompanyId(arg: {
  *
  * List orders
  */
-export async function getOrders(arg: {
+export async function getOrders(args: {
   query: {
     limit?: number
     cursor?: string
@@ -29147,8 +29154,9 @@ export async function getOrders(arg: {
         }
   }
   header: { 'x-trace-id'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.orders.$get(arg)
+  return await client.orders.$get(args)
 }
 
 /**
@@ -29156,7 +29164,7 @@ export async function getOrders(arg: {
  *
  * Create order (and optionally trigger callback)
  */
-export async function postOrders(arg: {
+export async function postOrders(args: {
   header: { 'x-trace-id'?: string }
   json: {
     id: string | string
@@ -35187,8 +35195,9 @@ export async function postOrders(arg: {
       }
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.orders.$post(arg)
+  return await client.orders.$post(args)
 }
 
 /**
@@ -35196,12 +35205,13 @@ export async function postOrders(arg: {
  *
  * Get order by id
  */
-export async function getOrdersOrderId(arg: {
+export async function getOrdersOrderId(args: {
   param: { orderId: string | string }
   query: { include?: ('company' | 'manager' | 'reports' | 'orders' | 'auditTrail' | 'graph')[] }
   header: { 'x-trace-id'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['orders'][':orderId']['$get'](arg)
+  return await client['orders'][':orderId']['$get'](args)
 }
 
 /**
@@ -35209,11 +35219,12 @@ export async function getOrdersOrderId(arg: {
  *
  * Get file metadata
  */
-export async function getFilesFileId(arg: {
+export async function getFilesFileId(args: {
   param: { fileId: string | string }
   header: { 'x-trace-id'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['files'][':fileId']['$get'](arg)
+  return await client['files'][':fileId']['$get'](args)
 }
 
 /**
@@ -35221,7 +35232,7 @@ export async function getFilesFileId(arg: {
  *
  * Create webhook subscription
  */
-export async function postSubscriptions(arg: {
+export async function postSubscriptions(args: {
   header: { 'x-trace-id'?: string }
   json: {
     id: string | string
@@ -47862,6 +47873,7 @@ export async function postSubscriptions(arg: {
       trace?: { traceId: string; parent?: unknown; baggage?: { [key: string]: string } }
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.subscriptions.$post(arg)
+  return await client.subscriptions.$post(args)
 }

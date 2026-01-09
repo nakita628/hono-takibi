@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/33-practical-notification-api'
 
 /**
@@ -5,15 +6,16 @@ import { client } from '../clients/33-practical-notification-api'
  *
  * 通知一覧取得
  */
-export async function getNotifications(arg: {
+export async function getNotifications(args: {
   query: {
     page?: number
     limit?: number
     read?: string
     type?: 'info' | 'success' | 'warning' | 'error' | 'system'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.notifications.$get(arg)
+  return await client.notifications.$get(args)
 }
 
 /**
@@ -21,8 +23,11 @@ export async function getNotifications(arg: {
  *
  * 通知詳細取得
  */
-export async function getNotificationsNotificationId(arg: { param: { notificationId: string } }) {
-  return await client['notifications'][':notificationId']['$get'](arg)
+export async function getNotificationsNotificationId(args: {
+  param: { notificationId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['notifications'][':notificationId']['$get'](args)
 }
 
 /**
@@ -30,10 +35,11 @@ export async function getNotificationsNotificationId(arg: { param: { notificatio
  *
  * 通知削除
  */
-export async function deleteNotificationsNotificationId(arg: {
+export async function deleteNotificationsNotificationId(args: {
   param: { notificationId: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['notifications'][':notificationId']['$delete'](arg)
+  return await client['notifications'][':notificationId']['$delete'](args)
 }
 
 /**
@@ -41,10 +47,11 @@ export async function deleteNotificationsNotificationId(arg: {
  *
  * 既読にする
  */
-export async function postNotificationsNotificationIdRead(arg: {
+export async function postNotificationsNotificationIdRead(args: {
   param: { notificationId: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['notifications'][':notificationId']['read']['$post'](arg)
+  return await client['notifications'][':notificationId']['read']['$post'](args)
 }
 
 /**
@@ -52,8 +59,8 @@ export async function postNotificationsNotificationIdRead(arg: {
  *
  * 全て既読にする
  */
-export async function postNotificationsReadAll() {
-  return await client['notifications']['read-all']['$post']()
+export async function postNotificationsReadAll(args?: { options?: ClientRequestOptions }) {
+  return await client['notifications']['read-all']['$post'](args)
 }
 
 /**
@@ -61,8 +68,8 @@ export async function postNotificationsReadAll() {
  *
  * 未読件数取得
  */
-export async function getNotificationsUnreadCount() {
-  return await client['notifications']['unread-count']['$get']()
+export async function getNotificationsUnreadCount(args?: { options?: ClientRequestOptions }) {
+  return await client['notifications']['unread-count']['$get'](args)
 }
 
 /**
@@ -72,7 +79,7 @@ export async function getNotificationsUnreadCount() {
  *
  * 指定したチャンネルでメッセージを送信します
  */
-export async function postMessagesSend(arg: {
+export async function postMessagesSend(args: {
   json: {
     channel: 'email' | 'sms' | 'push' | 'in_app'
     to: string | string[]
@@ -85,8 +92,9 @@ export async function postMessagesSend(arg: {
     priority?: 'low' | 'normal' | 'high'
     scheduledAt?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['messages']['send']['$post'](arg)
+  return await client['messages']['send']['$post'](args)
 }
 
 /**
@@ -94,7 +102,7 @@ export async function postMessagesSend(arg: {
  *
  * 一括メッセージ送信
  */
-export async function postMessagesSendBatch(arg: {
+export async function postMessagesSendBatch(args: {
   json: {
     messages: {
       channel: 'email' | 'sms' | 'push' | 'in_app'
@@ -109,8 +117,9 @@ export async function postMessagesSendBatch(arg: {
       scheduledAt?: string
     }[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['messages']['send-batch']['$post'](arg)
+  return await client['messages']['send-batch']['$post'](args)
 }
 
 /**
@@ -118,8 +127,11 @@ export async function postMessagesSendBatch(arg: {
  *
  * メッセージ送信状況取得
  */
-export async function getMessagesMessageId(arg: { param: { messageId: string } }) {
-  return await client['messages'][':messageId']['$get'](arg)
+export async function getMessagesMessageId(args: {
+  param: { messageId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['messages'][':messageId']['$get'](args)
 }
 
 /**
@@ -127,10 +139,11 @@ export async function getMessagesMessageId(arg: { param: { messageId: string } }
  *
  * テンプレート一覧取得
  */
-export async function getTemplates(arg: {
+export async function getTemplates(args: {
   query: { channel?: 'email' | 'sms' | 'push' | 'in_app'; search?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.templates.$get(arg)
+  return await client.templates.$get(args)
 }
 
 /**
@@ -138,7 +151,7 @@ export async function getTemplates(arg: {
  *
  * テンプレート作成
  */
-export async function postTemplates(arg: {
+export async function postTemplates(args: {
   json: {
     name: string
     description?: string
@@ -148,8 +161,9 @@ export async function postTemplates(arg: {
     html?: string
     variables?: { name: string; required?: boolean; default?: string }[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.templates.$post(arg)
+  return await client.templates.$post(args)
 }
 
 /**
@@ -157,8 +171,11 @@ export async function postTemplates(arg: {
  *
  * テンプレート詳細取得
  */
-export async function getTemplatesTemplateId(arg: { param: { templateId: string } }) {
-  return await client['templates'][':templateId']['$get'](arg)
+export async function getTemplatesTemplateId(args: {
+  param: { templateId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['templates'][':templateId']['$get'](args)
 }
 
 /**
@@ -166,7 +183,7 @@ export async function getTemplatesTemplateId(arg: { param: { templateId: string 
  *
  * テンプレート更新
  */
-export async function putTemplatesTemplateId(arg: {
+export async function putTemplatesTemplateId(args: {
   param: { templateId: string }
   json: {
     name?: string
@@ -177,8 +194,9 @@ export async function putTemplatesTemplateId(arg: {
     variables?: { name: string; required?: boolean; default?: string }[]
     active?: boolean
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['templates'][':templateId']['$put'](arg)
+  return await client['templates'][':templateId']['$put'](args)
 }
 
 /**
@@ -186,8 +204,11 @@ export async function putTemplatesTemplateId(arg: {
  *
  * テンプレート削除
  */
-export async function deleteTemplatesTemplateId(arg: { param: { templateId: string } }) {
-  return await client['templates'][':templateId']['$delete'](arg)
+export async function deleteTemplatesTemplateId(args: {
+  param: { templateId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['templates'][':templateId']['$delete'](args)
 }
 
 /**
@@ -195,11 +216,12 @@ export async function deleteTemplatesTemplateId(arg: { param: { templateId: stri
  *
  * テンプレートプレビュー
  */
-export async function postTemplatesTemplateIdPreview(arg: {
+export async function postTemplatesTemplateIdPreview(args: {
   param: { templateId: string }
   json: { variables?: { [key: string]: string } }
+  options?: ClientRequestOptions
 }) {
-  return await client['templates'][':templateId']['preview']['$post'](arg)
+  return await client['templates'][':templateId']['preview']['$post'](args)
 }
 
 /**
@@ -207,8 +229,8 @@ export async function postTemplatesTemplateIdPreview(arg: {
  *
  * チャンネル設定取得
  */
-export async function getChannelsPreferences() {
-  return await client['channels']['preferences']['$get']()
+export async function getChannelsPreferences(args?: { options?: ClientRequestOptions }) {
+  return await client['channels']['preferences']['$get'](args)
 }
 
 /**
@@ -216,7 +238,7 @@ export async function getChannelsPreferences() {
  *
  * チャンネル設定更新
  */
-export async function putChannelsPreferences(arg: {
+export async function putChannelsPreferences(args: {
   json: {
     email?: {
       enabled?: boolean
@@ -239,8 +261,9 @@ export async function putChannelsPreferences(arg: {
       quietHours?: { enabled?: boolean; start?: string; end?: string; timezone?: string }
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['channels']['preferences']['$put'](arg)
+  return await client['channels']['preferences']['$put'](args)
 }
 
 /**
@@ -248,8 +271,8 @@ export async function putChannelsPreferences(arg: {
  *
  * デバイス一覧取得
  */
-export async function getChannelsDevices() {
-  return await client['channels']['devices']['$get']()
+export async function getChannelsDevices(args?: { options?: ClientRequestOptions }) {
+  return await client['channels']['devices']['$get'](args)
 }
 
 /**
@@ -257,7 +280,7 @@ export async function getChannelsDevices() {
  *
  * デバイス登録
  */
-export async function postChannelsDevices(arg: {
+export async function postChannelsDevices(args: {
   json: {
     platform: 'ios' | 'android' | 'web'
     token: string
@@ -266,8 +289,9 @@ export async function postChannelsDevices(arg: {
     osVersion?: string
     appVersion?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['channels']['devices']['$post'](arg)
+  return await client['channels']['devices']['$post'](args)
 }
 
 /**
@@ -275,8 +299,11 @@ export async function postChannelsDevices(arg: {
  *
  * デバイス登録解除
  */
-export async function deleteChannelsDevicesDeviceId(arg: { param: { deviceId: string } }) {
-  return await client['channels']['devices'][':deviceId']['$delete'](arg)
+export async function deleteChannelsDevicesDeviceId(args: {
+  param: { deviceId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['channels']['devices'][':deviceId']['$delete'](args)
 }
 
 /**
@@ -284,8 +311,8 @@ export async function deleteChannelsDevicesDeviceId(arg: { param: { deviceId: st
  *
  * Webhook一覧取得
  */
-export async function getWebhooks() {
-  return await client.webhooks.$get()
+export async function getWebhooks(args?: { options?: ClientRequestOptions }) {
+  return await client.webhooks.$get(args)
 }
 
 /**
@@ -293,7 +320,7 @@ export async function getWebhooks() {
  *
  * Webhook作成
  */
-export async function postWebhooks(arg: {
+export async function postWebhooks(args: {
   json: {
     name?: string
     url: string
@@ -307,8 +334,9 @@ export async function postWebhooks(arg: {
     )[]
     headers?: { [key: string]: string }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.webhooks.$post(arg)
+  return await client.webhooks.$post(args)
 }
 
 /**
@@ -316,8 +344,11 @@ export async function postWebhooks(arg: {
  *
  * Webhook詳細取得
  */
-export async function getWebhooksWebhookId(arg: { param: { webhookId: string } }) {
-  return await client['webhooks'][':webhookId']['$get'](arg)
+export async function getWebhooksWebhookId(args: {
+  param: { webhookId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['webhooks'][':webhookId']['$get'](args)
 }
 
 /**
@@ -325,7 +356,7 @@ export async function getWebhooksWebhookId(arg: { param: { webhookId: string } }
  *
  * Webhook更新
  */
-export async function putWebhooksWebhookId(arg: {
+export async function putWebhooksWebhookId(args: {
   param: { webhookId: string }
   json: {
     name?: string
@@ -341,8 +372,9 @@ export async function putWebhooksWebhookId(arg: {
     active?: boolean
     headers?: { [key: string]: string }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['webhooks'][':webhookId']['$put'](arg)
+  return await client['webhooks'][':webhookId']['$put'](args)
 }
 
 /**
@@ -350,8 +382,11 @@ export async function putWebhooksWebhookId(arg: {
  *
  * Webhook削除
  */
-export async function deleteWebhooksWebhookId(arg: { param: { webhookId: string } }) {
-  return await client['webhooks'][':webhookId']['$delete'](arg)
+export async function deleteWebhooksWebhookId(args: {
+  param: { webhookId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['webhooks'][':webhookId']['$delete'](args)
 }
 
 /**
@@ -359,6 +394,9 @@ export async function deleteWebhooksWebhookId(arg: { param: { webhookId: string 
  *
  * Webhookテスト送信
  */
-export async function postWebhooksWebhookIdTest(arg: { param: { webhookId: string } }) {
-  return await client['webhooks'][':webhookId']['test']['$post'](arg)
+export async function postWebhooksWebhookIdTest(args: {
+  param: { webhookId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['webhooks'][':webhookId']['test']['$post'](args)
 }

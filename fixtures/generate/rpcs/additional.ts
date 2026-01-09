@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/additional'
 
 /**
@@ -7,6 +8,6 @@ import { client } from '../clients/additional'
  *
  * zod passthrough
  */
-export async function getPassthrough() {
-  return await client.passthrough.$get()
+export async function getPassthrough(args?: { options?: ClientRequestOptions }) {
+  return await client.passthrough.$get(args)
 }

@@ -1,25 +1,33 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
 /**
  * GET /items
  */
-export async function getItems(arg: { query: { page?: number; limit?: number; sort?: string } }) {
-  return await client.items.$get(arg)
+export async function getItems(args: {
+  query: { page?: number; limit?: number; sort?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client.items.$get(args)
 }
 
 /**
  * GET /items/{itemId}
  */
-export async function getItemsItemId(arg: { param: { itemId: string } }) {
-  return await client['items'][':itemId']['$get'](arg)
+export async function getItemsItemId(args: {
+  param: { itemId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['items'][':itemId']['$get'](args)
 }
 
 /**
  * DELETE /items/{itemId}
  */
-export async function deleteItemsItemId(arg: {
+export async function deleteItemsItemId(args: {
   param: { itemId: string }
   header: { 'If-Match'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['items'][':itemId']['$delete'](arg)
+  return await client['items'][':itemId']['$delete'](args)
 }

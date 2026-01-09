@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
 /**
@@ -7,8 +8,11 @@ import { client } from '../clients/40-auth-session-management'
  *
  * 現在のユーザーのアクティブなセッション一覧を取得
  */
-export async function getSessions(arg: { query: { includeExpired?: string } }) {
-  return await client.sessions.$get(arg)
+export async function getSessions(args: {
+  query: { includeExpired?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client.sessions.$get(args)
 }
 
 /**
@@ -18,7 +22,7 @@ export async function getSessions(arg: { query: { includeExpired?: string } }) {
  *
  * 認証成功後にセッションを作成
  */
-export async function postSessions(arg: {
+export async function postSessions(args: {
   json: {
     grantType: 'password' | 'mfa_token' | 'sso_token' | 'passkey' | 'magic_link' | 'social'
     username?: string
@@ -33,8 +37,9 @@ export async function postSessions(arg: {
     deviceFingerprint?: string
     rememberMe?: boolean
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.sessions.$post(arg)
+  return await client.sessions.$post(args)
 }
 
 /**
@@ -42,8 +47,8 @@ export async function postSessions(arg: {
  *
  * 現在のセッション取得
  */
-export async function getSessionsCurrent() {
-  return await client['sessions']['current']['$get']()
+export async function getSessionsCurrent(args?: { options?: ClientRequestOptions }) {
+  return await client['sessions']['current']['$get'](args)
 }
 
 /**
@@ -51,8 +56,8 @@ export async function getSessionsCurrent() {
  *
  * 現在のセッション終了（ログアウト）
  */
-export async function deleteSessionsCurrent() {
-  return await client['sessions']['current']['$delete']()
+export async function deleteSessionsCurrent(args?: { options?: ClientRequestOptions }) {
+  return await client['sessions']['current']['$delete'](args)
 }
 
 /**
@@ -62,8 +67,11 @@ export async function deleteSessionsCurrent() {
  *
  * リフレッシュトークンを使用してセッションを更新
  */
-export async function postSessionsCurrentRefresh(arg: { json: { refreshToken: string } }) {
-  return await client['sessions']['current']['refresh']['$post'](arg)
+export async function postSessionsCurrentRefresh(args: {
+  json: { refreshToken: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['sessions']['current']['refresh']['$post'](args)
 }
 
 /**
@@ -73,8 +81,11 @@ export async function postSessionsCurrentRefresh(arg: { json: { refreshToken: st
  *
  * アクティブなセッションの有効期限を延長
  */
-export async function postSessionsCurrentExtend(arg: { json: { duration?: number } }) {
-  return await client['sessions']['current']['extend']['$post'](arg)
+export async function postSessionsCurrentExtend(args: {
+  json: { duration?: number }
+  options?: ClientRequestOptions
+}) {
+  return await client['sessions']['current']['extend']['$post'](args)
 }
 
 /**
@@ -84,8 +95,8 @@ export async function postSessionsCurrentExtend(arg: { json: { duration?: number
  *
  * ユーザーアクティビティを記録してアイドルタイムアウトをリセット
  */
-export async function postSessionsCurrentActivity() {
-  return await client['sessions']['current']['activity']['$post']()
+export async function postSessionsCurrentActivity(args?: { options?: ClientRequestOptions }) {
+  return await client['sessions']['current']['activity']['$post'](args)
 }
 
 /**
@@ -93,8 +104,11 @@ export async function postSessionsCurrentActivity() {
  *
  * セッション詳細取得
  */
-export async function getSessionsSessionId(arg: { param: { sessionId: string } }) {
-  return await client['sessions'][':sessionId']['$get'](arg)
+export async function getSessionsSessionId(args: {
+  param: { sessionId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['sessions'][':sessionId']['$get'](args)
 }
 
 /**
@@ -104,8 +118,11 @@ export async function getSessionsSessionId(arg: { param: { sessionId: string } }
  *
  * 指定したセッションを強制的に終了
  */
-export async function deleteSessionsSessionId(arg: { param: { sessionId: string } }) {
-  return await client['sessions'][':sessionId']['$delete'](arg)
+export async function deleteSessionsSessionId(args: {
+  param: { sessionId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['sessions'][':sessionId']['$delete'](args)
 }
 
 /**
@@ -115,8 +132,11 @@ export async function deleteSessionsSessionId(arg: { param: { sessionId: string 
  *
  * 現在のセッション以外の全セッションを無効化
  */
-export async function postSessionsRevokeAll(arg: { json: { includeCurrent?: boolean } }) {
-  return await client['sessions']['revoke-all']['$post'](arg)
+export async function postSessionsRevokeAll(args: {
+  json: { includeCurrent?: boolean }
+  options?: ClientRequestOptions
+}) {
+  return await client['sessions']['revoke-all']['$post'](args)
 }
 
 /**
@@ -126,10 +146,11 @@ export async function postSessionsRevokeAll(arg: { json: { includeCurrent?: bool
  *
  * セッショントークンの有効性を検証
  */
-export async function postSessionsValidate(arg: {
+export async function postSessionsValidate(args: {
   json: { accessToken?: string; sessionId?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['sessions']['validate']['$post'](arg)
+  return await client['sessions']['validate']['$post'](args)
 }
 
 /**
@@ -137,10 +158,11 @@ export async function postSessionsValidate(arg: {
  *
  * セッション履歴取得
  */
-export async function getSessionsHistory(arg: {
+export async function getSessionsHistory(args: {
   query: { page?: number; limit?: number; from?: string; to?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['sessions']['history']['$get'](arg)
+  return await client['sessions']['history']['$get'](args)
 }
 
 /**
@@ -150,10 +172,11 @@ export async function getSessionsHistory(arg: {
  *
  * 不審なログイン試行などのセキュリティイベントを取得
  */
-export async function getSessionsSecurityEvents(arg: {
+export async function getSessionsSecurityEvents(args: {
   query: { page?: number; limit?: number; severity?: 'low' | 'medium' | 'high' | 'critical' }
+  options?: ClientRequestOptions
 }) {
-  return await client['sessions']['security-events']['$get'](arg)
+  return await client['sessions']['security-events']['$get'](args)
 }
 
 /**
@@ -161,8 +184,8 @@ export async function getSessionsSecurityEvents(arg: {
  *
  * セッションポリシー取得
  */
-export async function getSessionsPolicies() {
-  return await client['sessions']['policies']['$get']()
+export async function getSessionsPolicies(args?: { options?: ClientRequestOptions }) {
+  return await client['sessions']['policies']['$get'](args)
 }
 
 /**
@@ -170,7 +193,7 @@ export async function getSessionsPolicies() {
  *
  * セッションポリシー更新
  */
-export async function putSessionsPolicies(arg: {
+export async function putSessionsPolicies(args: {
   json: {
     sessionDuration?: number
     idleTimeout?: number
@@ -182,8 +205,9 @@ export async function putSessionsPolicies(arg: {
     rememberMeDuration?: number
     refreshTokenRotation?: boolean
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['sessions']['policies']['$put'](arg)
+  return await client['sessions']['policies']['$put'](args)
 }
 
 /**
@@ -191,8 +215,8 @@ export async function putSessionsPolicies(arg: {
  *
  * 信頼済みデバイス一覧
  */
-export async function getSessionsTrustedDevices() {
-  return await client['sessions']['trusted-devices']['$get']()
+export async function getSessionsTrustedDevices(args?: { options?: ClientRequestOptions }) {
+  return await client['sessions']['trusted-devices']['$get'](args)
 }
 
 /**
@@ -200,10 +224,11 @@ export async function getSessionsTrustedDevices() {
  *
  * 現在のデバイスを信頼
  */
-export async function postSessionsTrustedDevices(arg: {
+export async function postSessionsTrustedDevices(args: {
   json: { name?: string; trustDuration?: number }
+  options?: ClientRequestOptions
 }) {
-  return await client['sessions']['trusted-devices']['$post'](arg)
+  return await client['sessions']['trusted-devices']['$post'](args)
 }
 
 /**
@@ -211,6 +236,9 @@ export async function postSessionsTrustedDevices(arg: {
  *
  * 信頼済みデバイス削除
  */
-export async function deleteSessionsTrustedDevicesDeviceId(arg: { param: { deviceId: string } }) {
-  return await client['sessions']['trusted-devices'][':deviceId']['$delete'](arg)
+export async function deleteSessionsTrustedDevicesDeviceId(args: {
+  param: { deviceId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['sessions']['trusted-devices'][':deviceId']['$delete'](args)
 }

@@ -1,9 +1,10 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
 /**
  * POST /messages
  */
-export async function postMessages(arg: {
+export async function postMessages(args: {
   json:
     | ((({ id: string } & ({ createdAt?: string; updatedAt?: string } & {
         createdBy?: string
@@ -122,14 +123,15 @@ export async function postMessages(arg: {
           replyTo?: unknown
         }
       }) & { type?: 'composite'; parts: unknown[] })
+  options?: ClientRequestOptions
 }) {
-  return await client.messages.$post(arg)
+  return await client.messages.$post(args)
 }
 
 /**
  * POST /events
  */
-export async function postEvents(arg: {
+export async function postEvents(args: {
   json: {
     eventType: string
     payload:
@@ -158,21 +160,22 @@ export async function postEvents(arg: {
       | { deviceId?: string; platform?: 'ios' | 'android'; appVersion?: string }
       | { apiKey?: string; clientId?: string; ipAddress?: string }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.events.$post(arg)
+  return await client.events.$post(args)
 }
 
 /**
  * GET /configs
  */
-export async function getConfigs() {
-  return await client.configs.$get()
+export async function getConfigs(args?: { options?: ClientRequestOptions }) {
+  return await client.configs.$get(args)
 }
 
 /**
  * PUT /configs
  */
-export async function putConfigs(arg: {
+export async function putConfigs(args: {
   json: {
     settings?: {
       general?: { enabled?: boolean; description?: string } & {
@@ -201,14 +204,15 @@ export async function putConfigs(arg: {
       [key: string]: string | number | boolean | unknown[] | { [key: string]: unknown }
     }
   } & { version?: number; etag?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.configs.$put(arg)
+  return await client.configs.$put(args)
 }
 
 /**
  * POST /resources
  */
-export async function postResources(arg: {
+export async function postResources(args: {
   json:
     | (((({ id: string } & ({ createdAt?: string; updatedAt?: string } & {
         createdBy?: string
@@ -449,14 +453,15 @@ export async function postResources(arg: {
           }
         }
       })
+  options?: ClientRequestOptions
 }) {
-  return await client.resources.$post(arg)
+  return await client.resources.$post(args)
 }
 
 /**
  * POST /validations
  */
-export async function postValidations(arg: {
+export async function postValidations(args: {
   json: {
     target:
       | (((({ id: string } & ({ createdAt?: string; updatedAt?: string } & {
@@ -867,6 +872,7 @@ export async function postValidations(arg: {
       | { ruleType?: 'custom'; handler: string; config?: {} }
     )[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.validations.$post(arg)
+  return await client.validations.$post(args)
 }

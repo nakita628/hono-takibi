@@ -441,7 +441,8 @@ describe('rpc', () => {
       }
 
       const index = fs.readFileSync(out, 'utf-8')
-      const expected = `import { client } from '../index.ts'
+      const expected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../index.ts'
 
 /**
  * GET /hono
@@ -450,8 +451,8 @@ describe('rpc', () => {
  *
  * Simple ping for Hono
  */
-export async function getHono() {
-  return await client.hono.$get()
+export async function getHono(args?: { options?: ClientRequestOptions }) {
+  return await client.hono.$get(args)
 }
 
 /**
@@ -461,8 +462,8 @@ export async function getHono() {
  *
  * Simple ping for HonoX
  */
-export async function getHonoX() {
-  return await client['hono-x']['$get']()
+export async function getHonoX(args?: { options?: ClientRequestOptions }) {
+  return await client['hono-x']['$get'](args)
 }
 
 /**
@@ -472,8 +473,8 @@ export async function getHonoX() {
  *
  * Simple ping for ZodOpenAPIHono
  */
-export async function getZodOpenapiHono() {
-  return await client['zod-openapi-hono']['$get']()
+export async function getZodOpenapiHono(args?: { options?: ClientRequestOptions }) {
+  return await client['zod-openapi-hono']['$get'](args)
 }
 
 /**
@@ -483,7 +484,7 @@ export async function getZodOpenapiHono() {
  *
  * List users with pagination and optional role filter.
  */
-export async function getUsers(arg: {
+export async function getUsers(args: {
   query: {
     limit?: number
     offset?: number
@@ -498,8 +499,9 @@ export async function getUsers(arg: {
     )[]
     q?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.users.$get(arg)
+  return await client.users.$get(args)
 }
 
 /**
@@ -509,7 +511,7 @@ export async function getUsers(arg: {
  *
  * Create a new user.
  */
-export async function postUsers(arg: {
+export async function postUsers(args: {
   json: {
     displayName: string
     email: string
@@ -526,8 +528,9 @@ export async function postUsers(arg: {
     pronouns?: string
     affiliations?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.users.$post(arg)
+  return await client.users.$post(args)
 }
 
 /**
@@ -537,8 +540,8 @@ export async function postUsers(arg: {
  *
  * Retrieve a single user by ID.
  */
-export async function getUsersId(arg: { param: { id: string } }) {
-  return await client['users'][':id']['$get'](arg)
+export async function getUsersId(args: { param: { id: string }; options?: ClientRequestOptions }) {
+  return await client['users'][':id']['$get'](args)
 }
 
 /**
@@ -548,7 +551,7 @@ export async function getUsersId(arg: { param: { id: string } }) {
  *
  * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
  */
-export async function putUsersId(arg: {
+export async function putUsersId(args: {
   param: { id: string }
   json: {
     displayName: string
@@ -566,8 +569,9 @@ export async function putUsersId(arg: {
     pronouns?: string
     affiliations?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['users'][':id']['$put'](arg)
+  return await client['users'][':id']['$put'](args)
 }
 
 /**
@@ -577,8 +581,11 @@ export async function putUsersId(arg: {
  *
  * Delete a user by ID.
  */
-export async function deleteUsersId(arg: { param: { id: string } }) {
-  return await client['users'][':id']['$delete'](arg)
+export async function deleteUsersId(args: {
+  param: { id: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['users'][':id']['$delete'](args)
 }
 
 /**
@@ -588,7 +595,7 @@ export async function deleteUsersId(arg: { param: { id: string } }) {
  *
  * Partial update (PATCH). Only provided fields will be updated.
  */
-export async function patchUsersId(arg: {
+export async function patchUsersId(args: {
   param: { id: string }
   json: {
     displayName?: string
@@ -606,8 +613,9 @@ export async function patchUsersId(arg: {
     pronouns?: string
     affiliations?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['users'][':id']['$patch'](arg)
+  return await client['users'][':id']['$patch'](args)
 }
 `
 
@@ -647,7 +655,8 @@ export * from './patchUsersId'
       expect(index).toBe(indexExpected)
 
       const deleteUsersId = fs.readFileSync(path.join(dir, 'rpc', 'deleteUsersId.ts'), 'utf-8')
-      const deleteUsersIdExpected = `import { client } from '../index.ts'
+      const deleteUsersIdExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../index.ts'
 
 /**
  * DELETE /users/{id}
@@ -656,15 +665,19 @@ export * from './patchUsersId'
  *
  * Delete a user by ID.
  */
-export async function deleteUsersId(arg: { param: { id: string } }) {
-  return await client['users'][':id']['$delete'](arg)
+export async function deleteUsersId(args: {
+  param: { id: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['users'][':id']['$delete'](args)
 }
 `
 
       expect(deleteUsersId).toBe(deleteUsersIdExpected)
 
       const getHono = fs.readFileSync(path.join(dir, 'rpc', 'getHono.ts'), 'utf-8')
-      const getHonoExpected = `import { client } from '../index.ts'
+      const getHonoExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../index.ts'
 
 /**
  * GET /hono
@@ -673,15 +686,16 @@ export async function deleteUsersId(arg: { param: { id: string } }) {
  *
  * Simple ping for Hono
  */
-export async function getHono() {
-  return await client.hono.$get()
+export async function getHono(args?: { options?: ClientRequestOptions }) {
+  return await client.hono.$get(args)
 }
 `
 
       expect(getHono).toBe(getHonoExpected)
 
       const getHonoX = fs.readFileSync(path.join(dir, 'rpc', 'getHonoX.ts'), 'utf-8')
-      const getHonoXExpected = `import { client } from '../index.ts'
+      const getHonoXExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../index.ts'
 
 /**
  * GET /hono-x
@@ -690,8 +704,8 @@ export async function getHono() {
  *
  * Simple ping for HonoX
  */
-export async function getHonoX() {
-  return await client['hono-x']['$get']()
+export async function getHonoX(args?: { options?: ClientRequestOptions }) {
+  return await client['hono-x']['$get'](args)
 }
 `
 
@@ -699,7 +713,8 @@ export async function getHonoX() {
 
       const getUsers = fs.readFileSync(path.join(dir, 'rpc', 'getUsers.ts'), 'utf-8')
 
-      const expected = `import { client } from '../index.ts'
+      const expected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../index.ts'
 
 /**
  * GET /users
@@ -708,7 +723,7 @@ export async function getHonoX() {
  *
  * List users with pagination and optional role filter.
  */
-export async function getUsers(arg: {
+export async function getUsers(args: {
   query: {
     limit?: number
     offset?: number
@@ -723,8 +738,9 @@ export async function getUsers(arg: {
     )[]
     q?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.users.$get(arg)
+  return await client.users.$get(args)
 }
 `
 
@@ -732,7 +748,8 @@ export async function getUsers(arg: {
 
       const getUsersId = fs.readFileSync(path.join(dir, 'rpc', 'getUsersId.ts'), 'utf-8')
 
-      const getUsersIdExpected = `import { client } from '../index.ts'
+      const getUsersIdExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../index.ts'
 
 /**
  * GET /users/{id}
@@ -741,8 +758,8 @@ export async function getUsers(arg: {
  *
  * Retrieve a single user by ID.
  */
-export async function getUsersId(arg: { param: { id: string } }) {
-  return await client['users'][':id']['$get'](arg)
+export async function getUsersId(args: { param: { id: string }; options?: ClientRequestOptions }) {
+  return await client['users'][':id']['$get'](args)
 }
 `
       expect(getUsersId).toBe(getUsersIdExpected)
@@ -752,7 +769,8 @@ export async function getUsersId(arg: { param: { id: string } }) {
         'utf-8',
       )
 
-      const getZodOpenapiHonoExpected = `import { client } from '../index.ts'
+      const getZodOpenapiHonoExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../index.ts'
 
 /**
  * GET /zod-openapi-hono
@@ -761,15 +779,16 @@ export async function getUsersId(arg: { param: { id: string } }) {
  *
  * Simple ping for ZodOpenAPIHono
  */
-export async function getZodOpenapiHono() {
-  return await client['zod-openapi-hono']['$get']()
+export async function getZodOpenapiHono(args?: { options?: ClientRequestOptions }) {
+  return await client['zod-openapi-hono']['$get'](args)
 }
 `
       expect(getZodOpenapiHono).toBe(getZodOpenapiHonoExpected)
 
       const patchUsersId = fs.readFileSync(path.join(dir, 'rpc', 'patchUsersId.ts'), 'utf-8')
 
-      const patchUsersIdExpected = `import { client } from '../index.ts'
+      const patchUsersIdExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../index.ts'
 
 /**
  * PATCH /users/{id}
@@ -778,7 +797,7 @@ export async function getZodOpenapiHono() {
  *
  * Partial update (PATCH). Only provided fields will be updated.
  */
-export async function patchUsersId(arg: {
+export async function patchUsersId(args: {
   param: { id: string }
   json: {
     displayName?: string
@@ -796,14 +815,16 @@ export async function patchUsersId(arg: {
     pronouns?: string
     affiliations?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['users'][':id']['$patch'](arg)
+  return await client['users'][':id']['$patch'](args)
 }
 `
       expect(patchUsersId).toBe(patchUsersIdExpected)
 
       const postUsers = fs.readFileSync(path.join(dir, 'rpc', 'postUsers.ts'), 'utf-8')
-      const postUsersExpected = `import { client } from '../index.ts'
+      const postUsersExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../index.ts'
 
 /**
  * POST /users
@@ -812,7 +833,7 @@ export async function patchUsersId(arg: {
  *
  * Create a new user.
  */
-export async function postUsers(arg: {
+export async function postUsers(args: {
   json: {
     displayName: string
     email: string
@@ -829,15 +850,17 @@ export async function postUsers(arg: {
     pronouns?: string
     affiliations?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.users.$post(arg)
+  return await client.users.$post(args)
 }
 `
       expect(postUsers).toBe(postUsersExpected)
 
       const putUsersId = fs.readFileSync(path.join(dir, 'rpc', 'putUsersId.ts'), 'utf-8')
 
-      const putUsersIdExpected = `import { client } from '../index.ts'
+      const putUsersIdExpected = `import type { ClientRequestOptions } from 'hono/client'
+import { client } from '../index.ts'
 
 /**
  * PUT /users/{id}
@@ -846,7 +869,7 @@ export async function postUsers(arg: {
  *
  * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
  */
-export async function putUsersId(arg: {
+export async function putUsersId(args: {
   param: { id: string }
   json: {
     displayName: string
@@ -864,8 +887,9 @@ export async function putUsersId(arg: {
     pronouns?: string
     affiliations?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['users'][':id']['$put'](arg)
+  return await client['users'][':id']['$put'](args)
 }
 `
       expect(putUsersId).toBe(putUsersIdExpected)

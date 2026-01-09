@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
 /**
@@ -5,7 +6,7 @@ import { client } from '../clients/34-practical-storage-api'
  *
  * ファイル一覧取得
  */
-export async function getFiles(arg: {
+export async function getFiles(args: {
   query: {
     folderId?: string
     search?: string
@@ -14,8 +15,9 @@ export async function getFiles(arg: {
     page?: number
     limit?: number
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.files.$get(arg)
+  return await client.files.$get(args)
 }
 
 /**
@@ -23,10 +25,11 @@ export async function getFiles(arg: {
  *
  * ファイルアップロード
  */
-export async function postFilesUpload(arg: {
+export async function postFilesUpload(args: {
   form: { file: File; folderId?: string; name?: string; overwrite?: boolean }
+  options?: ClientRequestOptions
 }) {
-  return await client['files']['upload']['$post'](arg)
+  return await client['files']['upload']['$post'](args)
 }
 
 /**
@@ -36,10 +39,11 @@ export async function postFilesUpload(arg: {
  *
  * 大容量ファイルの分割アップロードを開始します
  */
-export async function postFilesUploadMultipartInit(arg: {
+export async function postFilesUploadMultipartInit(args: {
   json: { filename: string; size: number; folderId?: string; contentType?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['files']['upload']['multipart']['init']['$post'](arg)
+  return await client['files']['upload']['multipart']['init']['$post'](args)
 }
 
 /**
@@ -47,12 +51,13 @@ export async function postFilesUploadMultipartInit(arg: {
  *
  * パートアップロード
  */
-export async function postFilesUploadMultipartUploadIdPart(arg: {
+export async function postFilesUploadMultipartUploadIdPart(args: {
   param: { uploadId: string }
   query: { partNumber: number }
   json: File
+  options?: ClientRequestOptions
 }) {
-  return await client['files']['upload']['multipart'][':uploadId']['part']['$post'](arg)
+  return await client['files']['upload']['multipart'][':uploadId']['part']['$post'](args)
 }
 
 /**
@@ -60,11 +65,12 @@ export async function postFilesUploadMultipartUploadIdPart(arg: {
  *
  * マルチパートアップロード完了
  */
-export async function postFilesUploadMultipartUploadIdComplete(arg: {
+export async function postFilesUploadMultipartUploadIdComplete(args: {
   param: { uploadId: string }
   json: { parts: { partNumber: number; etag: string }[] }
+  options?: ClientRequestOptions
 }) {
-  return await client['files']['upload']['multipart'][':uploadId']['complete']['$post'](arg)
+  return await client['files']['upload']['multipart'][':uploadId']['complete']['$post'](args)
 }
 
 /**
@@ -72,8 +78,11 @@ export async function postFilesUploadMultipartUploadIdComplete(arg: {
  *
  * ファイル情報取得
  */
-export async function getFilesFileId(arg: { param: { fileId: string } }) {
-  return await client['files'][':fileId']['$get'](arg)
+export async function getFilesFileId(args: {
+  param: { fileId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['files'][':fileId']['$get'](args)
 }
 
 /**
@@ -81,8 +90,11 @@ export async function getFilesFileId(arg: { param: { fileId: string } }) {
  *
  * ファイル削除（ゴミ箱へ移動）
  */
-export async function deleteFilesFileId(arg: { param: { fileId: string } }) {
-  return await client['files'][':fileId']['$delete'](arg)
+export async function deleteFilesFileId(args: {
+  param: { fileId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['files'][':fileId']['$delete'](args)
 }
 
 /**
@@ -90,11 +102,12 @@ export async function deleteFilesFileId(arg: { param: { fileId: string } }) {
  *
  * ファイル情報更新
  */
-export async function patchFilesFileId(arg: {
+export async function patchFilesFileId(args: {
   param: { fileId: string }
   json: { name?: string; description?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['files'][':fileId']['$patch'](arg)
+  return await client['files'][':fileId']['$patch'](args)
 }
 
 /**
@@ -102,8 +115,11 @@ export async function patchFilesFileId(arg: {
  *
  * ファイルダウンロード
  */
-export async function getFilesFileIdDownload(arg: { param: { fileId: string } }) {
-  return await client['files'][':fileId']['download']['$get'](arg)
+export async function getFilesFileIdDownload(args: {
+  param: { fileId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['files'][':fileId']['download']['$get'](args)
 }
 
 /**
@@ -111,11 +127,12 @@ export async function getFilesFileIdDownload(arg: { param: { fileId: string } })
  *
  * 署名付きダウンロードURL取得
  */
-export async function getFilesFileIdDownloadUrl(arg: {
+export async function getFilesFileIdDownloadUrl(args: {
   param: { fileId: string }
   query: { expiresIn?: number }
+  options?: ClientRequestOptions
 }) {
-  return await client['files'][':fileId']['download-url']['$get'](arg)
+  return await client['files'][':fileId']['download-url']['$get'](args)
 }
 
 /**
@@ -123,11 +140,12 @@ export async function getFilesFileIdDownloadUrl(arg: {
  *
  * ファイルコピー
  */
-export async function postFilesFileIdCopy(arg: {
+export async function postFilesFileIdCopy(args: {
   param: { fileId: string }
   json: { destinationFolderId: string; name?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['files'][':fileId']['copy']['$post'](arg)
+  return await client['files'][':fileId']['copy']['$post'](args)
 }
 
 /**
@@ -135,11 +153,12 @@ export async function postFilesFileIdCopy(arg: {
  *
  * ファイル移動
  */
-export async function postFilesFileIdMove(arg: {
+export async function postFilesFileIdMove(args: {
   param: { fileId: string }
   json: { destinationFolderId: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['files'][':fileId']['move']['$post'](arg)
+  return await client['files'][':fileId']['move']['$post'](args)
 }
 
 /**
@@ -147,11 +166,12 @@ export async function postFilesFileIdMove(arg: {
  *
  * サムネイル取得
  */
-export async function getFilesFileIdThumbnail(arg: {
+export async function getFilesFileIdThumbnail(args: {
   param: { fileId: string }
   query: { size?: 'small' | 'medium' | 'large' }
+  options?: ClientRequestOptions
 }) {
-  return await client['files'][':fileId']['thumbnail']['$get'](arg)
+  return await client['files'][':fileId']['thumbnail']['$get'](args)
 }
 
 /**
@@ -159,10 +179,11 @@ export async function getFilesFileIdThumbnail(arg: {
  *
  * フォルダ作成
  */
-export async function postFolders(arg: {
+export async function postFolders(args: {
   json: { name: string; parentId?: string; color?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.folders.$post(arg)
+  return await client.folders.$post(args)
 }
 
 /**
@@ -170,8 +191,11 @@ export async function postFolders(arg: {
  *
  * フォルダ情報取得
  */
-export async function getFoldersFolderId(arg: { param: { folderId: string } }) {
-  return await client['folders'][':folderId']['$get'](arg)
+export async function getFoldersFolderId(args: {
+  param: { folderId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['folders'][':folderId']['$get'](args)
 }
 
 /**
@@ -179,8 +203,11 @@ export async function getFoldersFolderId(arg: { param: { folderId: string } }) {
  *
  * フォルダ削除
  */
-export async function deleteFoldersFolderId(arg: { param: { folderId: string } }) {
-  return await client['folders'][':folderId']['$delete'](arg)
+export async function deleteFoldersFolderId(args: {
+  param: { folderId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['folders'][':folderId']['$delete'](args)
 }
 
 /**
@@ -188,11 +215,12 @@ export async function deleteFoldersFolderId(arg: { param: { folderId: string } }
  *
  * フォルダ情報更新
  */
-export async function patchFoldersFolderId(arg: {
+export async function patchFoldersFolderId(args: {
   param: { folderId: string }
   json: { name?: string; color?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['folders'][':folderId']['$patch'](arg)
+  return await client['folders'][':folderId']['$patch'](args)
 }
 
 /**
@@ -200,8 +228,11 @@ export async function patchFoldersFolderId(arg: {
  *
  * 共有設定取得
  */
-export async function getFilesFileIdShare(arg: { param: { fileId: string } }) {
-  return await client['files'][':fileId']['share']['$get'](arg)
+export async function getFilesFileIdShare(args: {
+  param: { fileId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['files'][':fileId']['share']['$get'](args)
 }
 
 /**
@@ -209,15 +240,16 @@ export async function getFilesFileIdShare(arg: { param: { fileId: string } }) {
  *
  * ファイル共有
  */
-export async function postFilesFileIdShare(arg: {
+export async function postFilesFileIdShare(args: {
   param: { fileId: string }
   json: {
     collaborators?: { email: string; permission: 'viewer' | 'editor' }[]
     message?: string
     notifyByEmail?: boolean
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['files'][':fileId']['share']['$post'](arg)
+  return await client['files'][':fileId']['share']['$post'](args)
 }
 
 /**
@@ -225,8 +257,11 @@ export async function postFilesFileIdShare(arg: {
  *
  * 共有解除
  */
-export async function deleteFilesFileIdShare(arg: { param: { fileId: string } }) {
-  return await client['files'][':fileId']['share']['$delete'](arg)
+export async function deleteFilesFileIdShare(args: {
+  param: { fileId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['files'][':fileId']['share']['$delete'](args)
 }
 
 /**
@@ -234,11 +269,12 @@ export async function deleteFilesFileIdShare(arg: { param: { fileId: string } })
  *
  * 共有リンク作成
  */
-export async function postFilesFileIdShareLink(arg: {
+export async function postFilesFileIdShareLink(args: {
   param: { fileId: string }
   json: { password?: string; expiresAt?: string; allowDownload?: boolean }
+  options?: ClientRequestOptions
 }) {
-  return await client['files'][':fileId']['share']['link']['$post'](arg)
+  return await client['files'][':fileId']['share']['link']['$post'](args)
 }
 
 /**
@@ -246,8 +282,11 @@ export async function postFilesFileIdShareLink(arg: {
  *
  * バージョン一覧取得
  */
-export async function getFilesFileIdVersions(arg: { param: { fileId: string } }) {
-  return await client['files'][':fileId']['versions']['$get'](arg)
+export async function getFilesFileIdVersions(args: {
+  param: { fileId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['files'][':fileId']['versions']['$get'](args)
 }
 
 /**
@@ -255,10 +294,11 @@ export async function getFilesFileIdVersions(arg: { param: { fileId: string } })
  *
  * バージョン復元
  */
-export async function postFilesFileIdVersionsVersionIdRestore(arg: {
+export async function postFilesFileIdVersionsVersionIdRestore(args: {
   param: { fileId: string; versionId: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['files'][':fileId']['versions'][':versionId']['restore']['$post'](arg)
+  return await client['files'][':fileId']['versions'][':versionId']['restore']['$post'](args)
 }
 
 /**
@@ -266,8 +306,11 @@ export async function postFilesFileIdVersionsVersionIdRestore(arg: {
  *
  * ゴミ箱一覧取得
  */
-export async function getTrash(arg: { query: { page?: number; limit?: number } }) {
-  return await client.trash.$get(arg)
+export async function getTrash(args: {
+  query: { page?: number; limit?: number }
+  options?: ClientRequestOptions
+}) {
+  return await client.trash.$get(args)
 }
 
 /**
@@ -275,8 +318,8 @@ export async function getTrash(arg: { query: { page?: number; limit?: number } }
  *
  * ゴミ箱を空にする
  */
-export async function deleteTrash() {
-  return await client.trash.$delete()
+export async function deleteTrash(args?: { options?: ClientRequestOptions }) {
+  return await client.trash.$delete(args)
 }
 
 /**
@@ -284,8 +327,11 @@ export async function deleteTrash() {
  *
  * ゴミ箱から復元
  */
-export async function postTrashFileIdRestore(arg: { param: { fileId: string } }) {
-  return await client['trash'][':fileId']['restore']['$post'](arg)
+export async function postTrashFileIdRestore(args: {
+  param: { fileId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['trash'][':fileId']['restore']['$post'](args)
 }
 
 /**
@@ -293,6 +339,6 @@ export async function postTrashFileIdRestore(arg: { param: { fileId: string } })
  *
  * ストレージ使用量取得
  */
-export async function getStorageUsage() {
-  return await client['storage']['usage']['$get']()
+export async function getStorageUsage(args?: { options?: ClientRequestOptions }) {
+  return await client['storage']['usage']['$get'](args)
 }

@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
 /**
@@ -7,15 +8,16 @@ import { client } from '../clients/39-auth-webauthn-passkey'
  *
  * パスキー登録のためのPublicKeyCredentialCreationOptionsを生成
  */
-export async function postWebauthnRegisterOptions(arg: {
+export async function postWebauthnRegisterOptions(args: {
   json: {
     authenticatorAttachment?: 'platform' | 'cross-platform'
     residentKey?: 'discouraged' | 'preferred' | 'required'
     userVerification?: 'discouraged' | 'preferred' | 'required'
     attestation?: 'none' | 'indirect' | 'direct' | 'enterprise'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['webauthn']['register']['options']['$post'](arg)
+  return await client['webauthn']['register']['options']['$post'](args)
 }
 
 /**
@@ -25,7 +27,7 @@ export async function postWebauthnRegisterOptions(arg: {
  *
  * クライアントから送信された認証情報を検証し、パスキーを登録
  */
-export async function postWebauthnRegisterVerify(arg: {
+export async function postWebauthnRegisterVerify(args: {
   json: {
     id: string
     rawId: string
@@ -42,8 +44,9 @@ export async function postWebauthnRegisterVerify(arg: {
     authenticatorAttachment?: 'platform' | 'cross-platform'
     name?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['webauthn']['register']['verify']['$post'](arg)
+  return await client['webauthn']['register']['verify']['$post'](args)
 }
 
 /**
@@ -53,10 +56,11 @@ export async function postWebauthnRegisterVerify(arg: {
  *
  * パスキー認証のためのPublicKeyCredentialRequestOptionsを生成
  */
-export async function postWebauthnAuthenticateOptions(arg: {
+export async function postWebauthnAuthenticateOptions(args: {
   json: { username?: string; userVerification?: 'discouraged' | 'preferred' | 'required' }
+  options?: ClientRequestOptions
 }) {
-  return await client['webauthn']['authenticate']['options']['$post'](arg)
+  return await client['webauthn']['authenticate']['options']['$post'](args)
 }
 
 /**
@@ -66,7 +70,7 @@ export async function postWebauthnAuthenticateOptions(arg: {
  *
  * クライアントから送信された認証レスポンスを検証
  */
-export async function postWebauthnAuthenticateVerify(arg: {
+export async function postWebauthnAuthenticateVerify(args: {
   json: {
     id: string
     rawId: string
@@ -80,8 +84,9 @@ export async function postWebauthnAuthenticateVerify(arg: {
     clientExtensionResults?: {}
     authenticatorAttachment?: 'platform' | 'cross-platform'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['webauthn']['authenticate']['verify']['$post'](arg)
+  return await client['webauthn']['authenticate']['verify']['$post'](args)
 }
 
 /**
@@ -91,8 +96,8 @@ export async function postWebauthnAuthenticateVerify(arg: {
  *
  * ユーザーに登録されているパスキー一覧を取得
  */
-export async function getWebauthnCredentials() {
-  return await client['webauthn']['credentials']['$get']()
+export async function getWebauthnCredentials(args?: { options?: ClientRequestOptions }) {
+  return await client['webauthn']['credentials']['$get'](args)
 }
 
 /**
@@ -100,8 +105,11 @@ export async function getWebauthnCredentials() {
  *
  * 認証情報詳細取得
  */
-export async function getWebauthnCredentialsCredentialId(arg: { param: { credentialId: string } }) {
-  return await client['webauthn']['credentials'][':credentialId']['$get'](arg)
+export async function getWebauthnCredentialsCredentialId(args: {
+  param: { credentialId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['webauthn']['credentials'][':credentialId']['$get'](args)
 }
 
 /**
@@ -111,10 +119,11 @@ export async function getWebauthnCredentialsCredentialId(arg: { param: { credent
  *
  * パスキーを削除（少なくとも1つは残す必要がある場合あり）
  */
-export async function deleteWebauthnCredentialsCredentialId(arg: {
+export async function deleteWebauthnCredentialsCredentialId(args: {
   param: { credentialId: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['webauthn']['credentials'][':credentialId']['$delete'](arg)
+  return await client['webauthn']['credentials'][':credentialId']['$delete'](args)
 }
 
 /**
@@ -124,11 +133,12 @@ export async function deleteWebauthnCredentialsCredentialId(arg: {
  *
  * パスキーの名前などを更新
  */
-export async function patchWebauthnCredentialsCredentialId(arg: {
+export async function patchWebauthnCredentialsCredentialId(args: {
   param: { credentialId: string }
   json: { name?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['webauthn']['credentials'][':credentialId']['$patch'](arg)
+  return await client['webauthn']['credentials'][':credentialId']['$patch'](args)
 }
 
 /**
@@ -138,8 +148,8 @@ export async function patchWebauthnCredentialsCredentialId(arg: {
  *
  * リライングパーティの設定情報を取得
  */
-export async function getWebauthnSettings() {
-  return await client['webauthn']['settings']['$get']()
+export async function getWebauthnSettings(args?: { options?: ClientRequestOptions }) {
+  return await client['webauthn']['settings']['$get'](args)
 }
 
 /**
@@ -147,8 +157,8 @@ export async function getWebauthnSettings() {
  *
  * リライングパーティ情報取得
  */
-export async function getWebauthnSettingsRp() {
-  return await client['webauthn']['settings']['rp']['$get']()
+export async function getWebauthnSettingsRp(args?: { options?: ClientRequestOptions }) {
+  return await client['webauthn']['settings']['rp']['$get'](args)
 }
 
 /**
@@ -156,8 +166,11 @@ export async function getWebauthnSettingsRp() {
  *
  * リライングパーティ情報更新
  */
-export async function putWebauthnSettingsRp(arg: { json: { name?: string } }) {
-  return await client['webauthn']['settings']['rp']['$put'](arg)
+export async function putWebauthnSettingsRp(args: {
+  json: { name?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['webauthn']['settings']['rp']['$put'](args)
 }
 
 /**
@@ -167,6 +180,6 @@ export async function putWebauthnSettingsRp(arg: { json: { name?: string } }) {
  *
  * 許可されている認証器のAAGUID一覧
  */
-export async function getWebauthnAuthenticators() {
-  return await client['webauthn']['authenticators']['$get']()
+export async function getWebauthnAuthenticators(args?: { options?: ClientRequestOptions }) {
+  return await client['webauthn']['authenticators']['$get'](args)
 }

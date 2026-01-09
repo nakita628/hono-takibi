@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
 /**
@@ -7,8 +8,8 @@ import { client } from '../clients/hono-rest-example'
  *
  * Retrieve a simple welcome message from the Hono API.
  */
-export async function get() {
-  return await client.index.$get()
+export async function get(args?: { options?: ClientRequestOptions }) {
+  return await client.index.$get(args)
 }
 
 /**
@@ -18,8 +19,11 @@ export async function get() {
  *
  * Retrieve a paginated list of posts. Specify the page number and the number of posts per page.
  */
-export async function getPosts(arg: { query: { page: number; rows: number } }) {
-  return await client.posts.$get(arg)
+export async function getPosts(args: {
+  query: { page: number; rows: number }
+  options?: ClientRequestOptions
+}) {
+  return await client.posts.$get(args)
 }
 
 /**
@@ -29,8 +33,8 @@ export async function getPosts(arg: { query: { page: number; rows: number } }) {
  *
  * Submit a new post with a maximum length of 140 characters.
  */
-export async function postPosts(arg: { json: { post: string } }) {
-  return await client.posts.$post(arg)
+export async function postPosts(args: { json: { post: string }; options?: ClientRequestOptions }) {
+  return await client.posts.$post(args)
 }
 
 /**
@@ -40,8 +44,12 @@ export async function postPosts(arg: { json: { post: string } }) {
  *
  * Update the content of an existing post identified by its unique ID.
  */
-export async function putPostsId(arg: { param: { id: string }; json: { post: string } }) {
-  return await client['posts'][':id']['$put'](arg)
+export async function putPostsId(args: {
+  param: { id: string }
+  json: { post: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':id']['$put'](args)
 }
 
 /**
@@ -51,6 +59,9 @@ export async function putPostsId(arg: { param: { id: string }; json: { post: str
  *
  * Delete an existing post identified by its unique ID.
  */
-export async function deletePostsId(arg: { param: { id: string } }) {
-  return await client['posts'][':id']['$delete'](arg)
+export async function deletePostsId(args: {
+  param: { id: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':id']['$delete'](args)
 }

@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/example'
 
 /**
@@ -5,6 +6,6 @@ import { client } from '../clients/example'
  *
  * Returns a payload exercising every custom format, constraint, and nullable case
  */
-export async function getSample() {
-  return await client.sample.$get()
+export async function getSample(args?: { options?: ClientRequestOptions }) {
+  return await client.sample.$get(args)
 }

@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/complex-schema-reference-random'
 
 /**
@@ -5,6 +6,6 @@ import { client } from '../clients/complex-schema-reference-random'
  *
  * Test endpoint for comprehensive schema references
  */
-export async function getTest() {
-  return await client.test.$get()
+export async function getTest(args?: { options?: ClientRequestOptions }) {
+  return await client.test.$get(args)
 }

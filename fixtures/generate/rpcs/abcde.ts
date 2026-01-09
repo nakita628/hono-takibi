@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/abcde'
 
 /**
@@ -5,6 +6,6 @@ import { client } from '../clients/abcde'
  *
  * Get example data
  */
-export async function getExample() {
-  return await client.example.$get()
+export async function getExample(args?: { options?: ClientRequestOptions }) {
+  return await client.example.$get(args)
 }

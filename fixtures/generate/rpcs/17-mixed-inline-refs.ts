@@ -1,23 +1,25 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/17-mixed-inline-refs'
 
 /**
  * GET /users
  */
-export async function getUsers(arg: {
+export async function getUsers(args: {
   query: {
     status?: 'active' | 'inactive' | 'pending'
     limit?: number
     offset?: number
     filter?: { status?: string[]; createdAfter?: string; createdBefore?: string; search?: string }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.users.$get(arg)
+  return await client.users.$get(args)
 }
 
 /**
  * POST /users
  */
-export async function postUsers(arg: {
+export async function postUsers(args: {
   json: {
     email: string
     profile?: {
@@ -37,21 +39,25 @@ export async function postUsers(arg: {
       dateFormat?: string
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.users.$post(arg)
+  return await client.users.$post(args)
 }
 
 /**
  * GET /users/{userId}
  */
-export async function getUsersUserId(arg: { param: { userId: string } }) {
-  return await client['users'][':userId']['$get'](arg)
+export async function getUsersUserId(args: {
+  param: { userId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['users'][':userId']['$get'](args)
 }
 
 /**
  * POST /orders
  */
-export async function postOrders(arg: {
+export async function postOrders(args: {
   json: {
     items: { productId: string; variantId: string; quantity: number }[]
     shippingAddress?: {
@@ -72,21 +78,25 @@ export async function postOrders(arg: {
       | { method: 'credit_card'; cardToken: string; saveCard?: boolean }
       | { method: 'bank_transfer'; bankAccount: string; routingNumber?: string }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.orders.$post(arg)
+  return await client.orders.$post(args)
 }
 
 /**
  * GET /products/{productId}/variants
  */
-export async function getProductsProductIdVariants(arg: { param: { productId: string } }) {
-  return await client['products'][':productId']['variants']['$get'](arg)
+export async function getProductsProductIdVariants(args: {
+  param: { productId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['products'][':productId']['variants']['$get'](args)
 }
 
 /**
  * POST /reports/generate
  */
-export async function postReportsGenerate(arg: {
+export async function postReportsGenerate(args: {
   json: {
     reportType: 'sales' | 'inventory' | 'users' | 'custom'
     parameters:
@@ -130,14 +140,15 @@ export async function postReportsGenerate(arg: {
       }
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['reports']['generate']['$post'](arg)
+  return await client['reports']['generate']['$post'](args)
 }
 
 /**
  * POST /webhooks/test
  */
-export async function postWebhooksTest(arg: {
+export async function postWebhooksTest(args: {
   json: {
     endpoint: string
     headers?: { [key: string]: string }
@@ -302,6 +313,7 @@ export async function postWebhooksTest(arg: {
       maxDelay?: number
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['webhooks']['test']['$post'](arg)
+  return await client['webhooks']['test']['$post'](args)
 }

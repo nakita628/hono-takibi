@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
 /**
@@ -8,7 +9,7 @@ import { client } from '../clients/35-auth-oauth2-server'
  * Authorization Code フローの認可リクエスト。
 ユーザーをログイン画面にリダイレクトし、認可後にコールバックURLへリダイレクトします。
  */
-export async function getOauthAuthorize(arg: {
+export async function getOauthAuthorize(args: {
   query: {
     response_type: 'code' | 'token'
     client_id: string
@@ -22,8 +23,9 @@ export async function getOauthAuthorize(arg: {
     login_hint?: string
     ui_locales?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['oauth']['authorize']['$get'](arg)
+  return await client['oauth']['authorize']['$get'](args)
 }
 
 /**
@@ -34,7 +36,7 @@ export async function getOauthAuthorize(arg: {
  * アクセストークンを発行します。
 Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。
  */
-export async function postOauthToken(arg: {
+export async function postOauthToken(args: {
   form:
     | {
         grant_type: 'authorization_code'
@@ -65,8 +67,9 @@ export async function postOauthToken(arg: {
         client_secret?: string
         scope?: string
       }
+  options?: ClientRequestOptions
 }) {
-  return await client['oauth']['token']['$post'](arg)
+  return await client['oauth']['token']['$post'](args)
 }
 
 /**
@@ -76,15 +79,16 @@ export async function postOauthToken(arg: {
  *
  * アクセストークンまたはリフレッシュトークンを無効化します（RFC 7009）
  */
-export async function postOauthRevoke(arg: {
+export async function postOauthRevoke(args: {
   form: {
     token: string
     token_type_hint?: 'access_token' | 'refresh_token'
     client_id?: string
     client_secret?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['oauth']['revoke']['$post'](arg)
+  return await client['oauth']['revoke']['$post'](args)
 }
 
 /**
@@ -94,10 +98,11 @@ export async function postOauthRevoke(arg: {
  *
  * トークンの有効性と情報を取得します（RFC 7662）
  */
-export async function postOauthIntrospect(arg: {
+export async function postOauthIntrospect(args: {
   form: { token: string; token_type_hint?: 'access_token' | 'refresh_token' }
+  options?: ClientRequestOptions
 }) {
-  return await client['oauth']['introspect']['$post'](arg)
+  return await client['oauth']['introspect']['$post'](args)
 }
 
 /**
@@ -107,8 +112,11 @@ export async function postOauthIntrospect(arg: {
  *
  * デバイスフロー用の認可コードを発行します（RFC 8628）
  */
-export async function postOauthDeviceCode(arg: { form: { client_id: string; scope?: string } }) {
-  return await client['oauth']['device']['code']['$post'](arg)
+export async function postOauthDeviceCode(args: {
+  form: { client_id: string; scope?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['oauth']['device']['code']['$post'](args)
 }
 
 /**
@@ -118,8 +126,8 @@ export async function postOauthDeviceCode(arg: { form: { client_id: string; scop
  *
  * OpenID Connect UserInfo エンドポイント
  */
-export async function getOauthUserinfo() {
-  return await client['oauth']['userinfo']['$get']()
+export async function getOauthUserinfo(args?: { options?: ClientRequestOptions }) {
+  return await client['oauth']['userinfo']['$get'](args)
 }
 
 /**
@@ -129,8 +137,8 @@ export async function getOauthUserinfo() {
  *
  * OpenID Connect の設定情報を返します
  */
-export async function getWellKnownOpenidConfiguration() {
-  return await client['.well-known']['openid-configuration']['$get']()
+export async function getWellKnownOpenidConfiguration(args?: { options?: ClientRequestOptions }) {
+  return await client['.well-known']['openid-configuration']['$get'](args)
 }
 
 /**
@@ -140,8 +148,8 @@ export async function getWellKnownOpenidConfiguration() {
  *
  * JWTの検証に使用する公開鍵セット
  */
-export async function getWellKnownJwksJson() {
-  return await client['.well-known']['jwks.json']['$get']()
+export async function getWellKnownJwksJson(args?: { options?: ClientRequestOptions }) {
+  return await client['.well-known']['jwks.json']['$get'](args)
 }
 
 /**
@@ -149,8 +157,8 @@ export async function getWellKnownJwksJson() {
  *
  * クライアント一覧取得
  */
-export async function getOauthClients() {
-  return await client['oauth']['clients']['$get']()
+export async function getOauthClients(args?: { options?: ClientRequestOptions }) {
+  return await client['oauth']['clients']['$get'](args)
 }
 
 /**
@@ -158,7 +166,7 @@ export async function getOauthClients() {
  *
  * クライアント作成
  */
-export async function postOauthClients(arg: {
+export async function postOauthClients(args: {
   json: {
     clientName: string
     clientType?: 'public' | 'confidential'
@@ -179,8 +187,9 @@ export async function postOauthClients(arg: {
     contacts?: string[]
     tokenEndpointAuthMethod?: 'client_secret_basic' | 'client_secret_post' | 'none'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['oauth']['clients']['$post'](arg)
+  return await client['oauth']['clients']['$post'](args)
 }
 
 /**
@@ -188,8 +197,11 @@ export async function postOauthClients(arg: {
  *
  * クライアント詳細取得
  */
-export async function getOauthClientsClientId(arg: { param: { clientId: string } }) {
-  return await client['oauth']['clients'][':clientId']['$get'](arg)
+export async function getOauthClientsClientId(args: {
+  param: { clientId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['oauth']['clients'][':clientId']['$get'](args)
 }
 
 /**
@@ -197,7 +209,7 @@ export async function getOauthClientsClientId(arg: { param: { clientId: string }
  *
  * クライアント更新
  */
-export async function putOauthClientsClientId(arg: {
+export async function putOauthClientsClientId(args: {
   param: { clientId: string }
   json: {
     clientName?: string
@@ -211,8 +223,9 @@ export async function putOauthClientsClientId(arg: {
     tosUri?: string
     contacts?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['oauth']['clients'][':clientId']['$put'](arg)
+  return await client['oauth']['clients'][':clientId']['$put'](args)
 }
 
 /**
@@ -220,8 +233,11 @@ export async function putOauthClientsClientId(arg: {
  *
  * クライアント削除
  */
-export async function deleteOauthClientsClientId(arg: { param: { clientId: string } }) {
-  return await client['oauth']['clients'][':clientId']['$delete'](arg)
+export async function deleteOauthClientsClientId(args: {
+  param: { clientId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['oauth']['clients'][':clientId']['$delete'](args)
 }
 
 /**
@@ -229,8 +245,11 @@ export async function deleteOauthClientsClientId(arg: { param: { clientId: strin
  *
  * クライアントシークレット再生成
  */
-export async function postOauthClientsClientIdSecret(arg: { param: { clientId: string } }) {
-  return await client['oauth']['clients'][':clientId']['secret']['$post'](arg)
+export async function postOauthClientsClientIdSecret(args: {
+  param: { clientId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['oauth']['clients'][':clientId']['secret']['$post'](args)
 }
 
 /**
@@ -240,8 +259,8 @@ export async function postOauthClientsClientIdSecret(arg: { param: { clientId: s
  *
  * ユーザーが許可したアプリケーション一覧
  */
-export async function getOauthConsents() {
-  return await client['oauth']['consents']['$get']()
+export async function getOauthConsents(args?: { options?: ClientRequestOptions }) {
+  return await client['oauth']['consents']['$get'](args)
 }
 
 /**
@@ -251,6 +270,9 @@ export async function getOauthConsents() {
  *
  * アプリケーションへのアクセス許可を取り消します
  */
-export async function deleteOauthConsentsClientId(arg: { param: { clientId: string } }) {
-  return await client['oauth']['consents'][':clientId']['$delete'](arg)
+export async function deleteOauthConsentsClientId(args: {
+  param: { clientId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['oauth']['consents'][':clientId']['$delete'](args)
 }

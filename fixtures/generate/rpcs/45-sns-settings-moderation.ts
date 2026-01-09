@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
 /**
@@ -5,8 +6,8 @@ import { client } from '../clients/45-sns-settings-moderation'
  *
  * アカウント設定取得
  */
-export async function getSettingsAccount() {
-  return await client['settings']['account']['$get']()
+export async function getSettingsAccount(args?: { options?: ClientRequestOptions }) {
+  return await client['settings']['account']['$get'](args)
 }
 
 /**
@@ -14,10 +15,11 @@ export async function getSettingsAccount() {
  *
  * アカウント設定更新
  */
-export async function putSettingsAccount(arg: {
+export async function putSettingsAccount(args: {
   json: { language?: string; timezone?: string; country?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['settings']['account']['$put'](arg)
+  return await client['settings']['account']['$put'](args)
 }
 
 /**
@@ -25,8 +27,11 @@ export async function putSettingsAccount(arg: {
  *
  * ユーザー名利用可能確認
  */
-export async function getSettingsUsernameCheck(arg: { query: { username: string } }) {
-  return await client['settings']['username']['check']['$get'](arg)
+export async function getSettingsUsernameCheck(args: {
+  query: { username: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['settings']['username']['check']['$get'](args)
 }
 
 /**
@@ -34,8 +39,8 @@ export async function getSettingsUsernameCheck(arg: { query: { username: string 
  *
  * プライバシー設定取得
  */
-export async function getSettingsPrivacy() {
-  return await client['settings']['privacy']['$get']()
+export async function getSettingsPrivacy(args?: { options?: ClientRequestOptions }) {
+  return await client['settings']['privacy']['$get'](args)
 }
 
 /**
@@ -43,7 +48,7 @@ export async function getSettingsPrivacy() {
  *
  * プライバシー設定更新
  */
-export async function putSettingsPrivacy(arg: {
+export async function putSettingsPrivacy(args: {
   json: {
     protectedPosts?: boolean
     allowTagging?: 'everyone' | 'followers' | 'none'
@@ -54,8 +59,9 @@ export async function putSettingsPrivacy(arg: {
     personalizeAds?: boolean
     allowDataSharing?: boolean
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['settings']['privacy']['$put'](arg)
+  return await client['settings']['privacy']['$put'](args)
 }
 
 /**
@@ -63,8 +69,8 @@ export async function putSettingsPrivacy(arg: {
  *
  * コンテンツ設定取得
  */
-export async function getSettingsContentPreferences() {
-  return await client['settings']['content-preferences']['$get']()
+export async function getSettingsContentPreferences(args?: { options?: ClientRequestOptions }) {
+  return await client['settings']['content-preferences']['$get'](args)
 }
 
 /**
@@ -72,7 +78,7 @@ export async function getSettingsContentPreferences() {
  *
  * コンテンツ設定更新
  */
-export async function putSettingsContentPreferences(arg: {
+export async function putSettingsContentPreferences(args: {
   json: {
     sensitiveContentFilter?: 'hide' | 'warn' | 'show'
     autoplayVideos?: 'always' | 'wifi' | 'never'
@@ -81,8 +87,9 @@ export async function putSettingsContentPreferences(arg: {
     hideViewCounts?: boolean
     hideLikeCounts?: boolean
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['settings']['content-preferences']['$put'](arg)
+  return await client['settings']['content-preferences']['$put'](args)
 }
 
 /**
@@ -90,8 +97,8 @@ export async function putSettingsContentPreferences(arg: {
  *
  * ミュートワード一覧取得
  */
-export async function getSettingsMutedWords() {
-  return await client['settings']['muted-words']['$get']()
+export async function getSettingsMutedWords(args?: { options?: ClientRequestOptions }) {
+  return await client['settings']['muted-words']['$get'](args)
 }
 
 /**
@@ -99,15 +106,16 @@ export async function getSettingsMutedWords() {
  *
  * ミュートワード追加
  */
-export async function postSettingsMutedWords(arg: {
+export async function postSettingsMutedWords(args: {
   json: {
     word: string
     matchWholeWord?: boolean
     duration?: number
     scope?: 'all' | 'home_timeline' | 'notifications'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['settings']['muted-words']['$post'](arg)
+  return await client['settings']['muted-words']['$post'](args)
 }
 
 /**
@@ -115,8 +123,11 @@ export async function postSettingsMutedWords(arg: {
  *
  * ミュートワード削除
  */
-export async function deleteSettingsMutedWordsWordId(arg: { param: { wordId: string } }) {
-  return await client['settings']['muted-words'][':wordId']['$delete'](arg)
+export async function deleteSettingsMutedWordsWordId(args: {
+  param: { wordId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['settings']['muted-words'][':wordId']['$delete'](args)
 }
 
 /**
@@ -124,8 +135,8 @@ export async function deleteSettingsMutedWordsWordId(arg: { param: { wordId: str
  *
  * ログインセッション一覧
  */
-export async function getSettingsSessions() {
-  return await client['settings']['sessions']['$get']()
+export async function getSettingsSessions(args?: { options?: ClientRequestOptions }) {
+  return await client['settings']['sessions']['$get'](args)
 }
 
 /**
@@ -133,8 +144,11 @@ export async function getSettingsSessions() {
  *
  * セッション無効化
  */
-export async function deleteSettingsSessionsSessionId(arg: { param: { sessionId: string } }) {
-  return await client['settings']['sessions'][':sessionId']['$delete'](arg)
+export async function deleteSettingsSessionsSessionId(args: {
+  param: { sessionId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['settings']['sessions'][':sessionId']['$delete'](args)
 }
 
 /**
@@ -142,8 +156,8 @@ export async function deleteSettingsSessionsSessionId(arg: { param: { sessionId:
  *
  * 連携アプリ一覧
  */
-export async function getSettingsConnectedApps() {
-  return await client['settings']['connected-apps']['$get']()
+export async function getSettingsConnectedApps(args?: { options?: ClientRequestOptions }) {
+  return await client['settings']['connected-apps']['$get'](args)
 }
 
 /**
@@ -151,8 +165,11 @@ export async function getSettingsConnectedApps() {
  *
  * 連携アプリ解除
  */
-export async function deleteSettingsConnectedAppsAppId(arg: { param: { appId: string } }) {
-  return await client['settings']['connected-apps'][':appId']['$delete'](arg)
+export async function deleteSettingsConnectedAppsAppId(args: {
+  param: { appId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['settings']['connected-apps'][':appId']['$delete'](args)
 }
 
 /**
@@ -160,8 +177,8 @@ export async function deleteSettingsConnectedAppsAppId(arg: { param: { appId: st
  *
  * データエクスポートリクエスト
  */
-export async function postSettingsDataExport() {
-  return await client['settings']['data-export']['$post']()
+export async function postSettingsDataExport(args?: { options?: ClientRequestOptions }) {
+  return await client['settings']['data-export']['$post'](args)
 }
 
 /**
@@ -169,8 +186,11 @@ export async function postSettingsDataExport() {
  *
  * データエクスポート状況確認
  */
-export async function getSettingsDataExportRequestId(arg: { param: { requestId: string } }) {
-  return await client['settings']['data-export'][':requestId']['$get'](arg)
+export async function getSettingsDataExportRequestId(args: {
+  param: { requestId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['settings']['data-export'][':requestId']['$get'](args)
 }
 
 /**
@@ -178,8 +198,11 @@ export async function getSettingsDataExportRequestId(arg: { param: { requestId: 
  *
  * アカウント一時停止
  */
-export async function postSettingsDeactivate(arg: { json: { password: string } }) {
-  return await client['settings']['deactivate']['$post'](arg)
+export async function postSettingsDeactivate(args: {
+  json: { password: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['settings']['deactivate']['$post'](args)
 }
 
 /**
@@ -187,7 +210,7 @@ export async function postSettingsDeactivate(arg: { json: { password: string } }
  *
  * 通報作成
  */
-export async function postReports(arg: {
+export async function postReports(args: {
   json: {
     type: 'post' | 'user' | 'message'
     targetId: string
@@ -205,8 +228,9 @@ export async function postReports(arg: {
     description?: string
     relatedPostIds?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.reports.$post(arg)
+  return await client.reports.$post(args)
 }
 
 /**
@@ -214,8 +238,11 @@ export async function postReports(arg: {
  *
  * 通報詳細取得
  */
-export async function getReportsReportId(arg: { param: { reportId: string } }) {
-  return await client['reports'][':reportId']['$get'](arg)
+export async function getReportsReportId(args: {
+  param: { reportId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['reports'][':reportId']['$get'](args)
 }
 
 /**
@@ -225,15 +252,16 @@ export async function getReportsReportId(arg: { param: { reportId: string } }) {
  *
  * モデレーター用
  */
-export async function getModerationQueue(arg: {
+export async function getModerationQueue(args: {
   query: {
     status?: 'pending' | 'in_review' | 'resolved'
     type?: 'post' | 'user' | 'message'
     cursor?: string
     limit?: number
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['moderation']['queue']['$get'](arg)
+  return await client['moderation']['queue']['$get'](args)
 }
 
 /**
@@ -241,8 +269,11 @@ export async function getModerationQueue(arg: {
  *
  * モデレーションアイテム詳細
  */
-export async function getModerationItemsItemId(arg: { param: { itemId: string } }) {
-  return await client['moderation']['items'][':itemId']['$get'](arg)
+export async function getModerationItemsItemId(args: {
+  param: { itemId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['moderation']['items'][':itemId']['$get'](args)
 }
 
 /**
@@ -250,7 +281,7 @@ export async function getModerationItemsItemId(arg: { param: { itemId: string } 
  *
  * モデレーションアクション実行
  */
-export async function postModerationItemsItemIdAction(arg: {
+export async function postModerationItemsItemIdAction(args: {
   param: { itemId: string }
   json: {
     action: 'approve' | 'remove_content' | 'warn_user' | 'suspend_user' | 'dismiss'
@@ -258,8 +289,9 @@ export async function postModerationItemsItemIdAction(arg: {
     suspensionDuration?: number
     notifyUser?: boolean
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['moderation']['items'][':itemId']['action']['$post'](arg)
+  return await client['moderation']['items'][':itemId']['action']['$post'](args)
 }
 
 /**
@@ -267,8 +299,11 @@ export async function postModerationItemsItemIdAction(arg: {
  *
  * ユーザーのモデレーション履歴
  */
-export async function getModerationUsersUserIdHistory(arg: { param: { userId: string } }) {
-  return await client['moderation']['users'][':userId']['history']['$get'](arg)
+export async function getModerationUsersUserIdHistory(args: {
+  param: { userId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['moderation']['users'][':userId']['history']['$get'](args)
 }
 
 /**
@@ -276,11 +311,12 @@ export async function getModerationUsersUserIdHistory(arg: { param: { userId: st
  *
  * ユーザー凍結
  */
-export async function postModerationUsersUserIdSuspend(arg: {
+export async function postModerationUsersUserIdSuspend(args: {
   param: { userId: string }
   json: { reason: string; duration?: number; note?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['moderation']['users'][':userId']['suspend']['$post'](arg)
+  return await client['moderation']['users'][':userId']['suspend']['$post'](args)
 }
 
 /**
@@ -288,11 +324,12 @@ export async function postModerationUsersUserIdSuspend(arg: {
  *
  * ユーザー凍結解除
  */
-export async function postModerationUsersUserIdUnsuspend(arg: {
+export async function postModerationUsersUserIdUnsuspend(args: {
   param: { userId: string }
   json: { note?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['moderation']['users'][':userId']['unsuspend']['$post'](arg)
+  return await client['moderation']['users'][':userId']['unsuspend']['$post'](args)
 }
 
 /**
@@ -300,8 +337,11 @@ export async function postModerationUsersUserIdUnsuspend(arg: {
  *
  * 投稿分析取得
  */
-export async function getAnalyticsPostsPostId(arg: { param: { postId: string } }) {
-  return await client['analytics']['posts'][':postId']['$get'](arg)
+export async function getAnalyticsPostsPostId(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['analytics']['posts'][':postId']['$get'](args)
 }
 
 /**
@@ -309,8 +349,11 @@ export async function getAnalyticsPostsPostId(arg: { param: { postId: string } }
  *
  * アカウント分析取得
  */
-export async function getAnalyticsAccount(arg: { query: { period?: '7d' | '28d' | '90d' } }) {
-  return await client['analytics']['account']['$get'](arg)
+export async function getAnalyticsAccount(args: {
+  query: { period?: '7d' | '28d' | '90d' }
+  options?: ClientRequestOptions
+}) {
+  return await client['analytics']['account']['$get'](args)
 }
 
 /**
@@ -318,8 +361,11 @@ export async function getAnalyticsAccount(arg: { query: { period?: '7d' | '28d' 
  *
  * フォロワー分析取得
  */
-export async function getAnalyticsFollowers(arg: { query: { period?: '7d' | '28d' | '90d' } }) {
-  return await client['analytics']['followers']['$get'](arg)
+export async function getAnalyticsFollowers(args: {
+  query: { period?: '7d' | '28d' | '90d' }
+  options?: ClientRequestOptions
+}) {
+  return await client['analytics']['followers']['$get'](args)
 }
 
 /**
@@ -327,12 +373,13 @@ export async function getAnalyticsFollowers(arg: { query: { period?: '7d' | '28d
  *
  * トップ投稿取得
  */
-export async function getAnalyticsTopPosts(arg: {
+export async function getAnalyticsTopPosts(args: {
   query: {
     period?: '7d' | '28d' | '90d'
     metric?: 'impressions' | 'engagements' | 'likes' | 'reposts'
     limit?: number
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['analytics']['top-posts']['$get'](arg)
+  return await client['analytics']['top-posts']['$get'](args)
 }

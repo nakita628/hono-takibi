@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/complex-openapi'
 
 /**
@@ -5,8 +6,8 @@ import { client } from '../clients/complex-openapi'
  *
  * List all users
  */
-export async function getUsers() {
-  return await client.users.$get()
+export async function getUsers(args?: { options?: ClientRequestOptions }) {
+  return await client.users.$get(args)
 }
 
 /**
@@ -14,15 +15,16 @@ export async function getUsers() {
  *
  * Create a new user
  */
-export async function postUsers(arg: {
+export async function postUsers(args: {
   json: {
     name: string
     email: string
     address?: { street: string; city: string; state: string; postalCode: string; country: string }
     profile?: { bio?: string; social?: { twitter?: string; linkedin?: string } }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.users.$post(arg)
+  return await client.users.$post(args)
 }
 
 /**
@@ -30,8 +32,11 @@ export async function postUsers(arg: {
  *
  * Retrieve a user by ID
  */
-export async function getUsersUserId(arg: { param: { userId: string } }) {
-  return await client['users'][':userId']['$get'](arg)
+export async function getUsersUserId(args: {
+  param: { userId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['users'][':userId']['$get'](args)
 }
 
 /**
@@ -39,7 +44,7 @@ export async function getUsersUserId(arg: { param: { userId: string } }) {
  *
  * Update an existing user
  */
-export async function putUsersUserId(arg: {
+export async function putUsersUserId(args: {
   param: { userId: string }
   json: {
     name?: string
@@ -47,8 +52,9 @@ export async function putUsersUserId(arg: {
     address?: { street: string; city: string; state: string; postalCode: string; country: string }
     profile?: { bio?: string; social?: { twitter?: string; linkedin?: string } }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['users'][':userId']['$put'](arg)
+  return await client['users'][':userId']['$put'](args)
 }
 
 /**
@@ -56,8 +62,11 @@ export async function putUsersUserId(arg: {
  *
  * Delete a user
  */
-export async function deleteUsersUserId(arg: { param: { userId: string } }) {
-  return await client['users'][':userId']['$delete'](arg)
+export async function deleteUsersUserId(args: {
+  param: { userId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['users'][':userId']['$delete'](args)
 }
 
 /**
@@ -65,8 +74,8 @@ export async function deleteUsersUserId(arg: { param: { userId: string } }) {
  *
  * List all orders
  */
-export async function getOrders() {
-  return await client.orders.$get()
+export async function getOrders(args?: { options?: ClientRequestOptions }) {
+  return await client.orders.$get(args)
 }
 
 /**
@@ -74,7 +83,7 @@ export async function getOrders() {
  *
  * Create a new order
  */
-export async function postOrders(arg: {
+export async function postOrders(args: {
   json: {
     userId: string
     items: { productId: string; quantity: number; price: number }[]
@@ -82,6 +91,7 @@ export async function postOrders(arg: {
       | { method: 'credit_card'; cardNumber: string; cardHolder: string; expirationDate: string }
       | { method: 'paypal'; email: string }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.orders.$post(arg)
+  return await client.orders.$post(args)
 }

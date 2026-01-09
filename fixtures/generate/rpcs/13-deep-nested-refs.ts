@@ -1,20 +1,22 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
 /**
  * GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
-export async function getOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(arg: {
+export async function getOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(args: {
   param: { orgId: string; deptId: string; teamId: string }
+  options?: ClientRequestOptions
 }) {
   return await client['organizations'][':orgId']['departments'][':deptId']['teams'][':teamId'][
     'members'
-  ]['$get'](arg)
+  ]['$get'](args)
 }
 
 /**
  * POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
-export async function postOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(arg: {
+export async function postOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(args: {
   param: { orgId: string; deptId: string; teamId: string }
   json: {
     employeeId: string
@@ -24,15 +26,16 @@ export async function postOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
     }
     allocation?: { percentage: number; effectiveFrom?: string; effectiveTo?: string }
   }
+  options?: ClientRequestOptions
 }) {
   return await client['organizations'][':orgId']['departments'][':deptId']['teams'][':teamId'][
     'members'
-  ]['$post'](arg)
+  ]['$post'](args)
 }
 
 /**
  * GET /reports/organization-summary
  */
-export async function getReportsOrganizationSummary() {
-  return await client['reports']['organization-summary']['$get']()
+export async function getReportsOrganizationSummary(args?: { options?: ClientRequestOptions }) {
+  return await client['reports']['organization-summary']['$get'](args)
 }

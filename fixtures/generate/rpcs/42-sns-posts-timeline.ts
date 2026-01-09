@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/42-sns-posts-timeline'
 
 /**
@@ -7,10 +8,11 @@ import { client } from '../clients/42-sns-posts-timeline'
  *
  * 公開投稿の一覧を取得（検索・フィルタ用）
  */
-export async function getPosts(arg: {
+export async function getPosts(args: {
   query: { cursor?: string; limit?: number; userId?: string; hashtag?: string; mediaOnly?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.posts.$get(arg)
+  return await client.posts.$get(args)
 }
 
 /**
@@ -18,7 +20,7 @@ export async function getPosts(arg: {
  *
  * 投稿作成
  */
-export async function postPosts(arg: {
+export async function postPosts(args: {
   json: {
     text: string
     mediaIds?: string[]
@@ -27,8 +29,9 @@ export async function postPosts(arg: {
     replySettings?: 'everyone' | 'followers' | 'mentioned'
     quotedPostId?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.posts.$post(arg)
+  return await client.posts.$post(args)
 }
 
 /**
@@ -36,8 +39,11 @@ export async function postPosts(arg: {
  *
  * 投稿詳細取得
  */
-export async function getPostsPostId(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['$get'](arg)
+export async function getPostsPostId(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['$get'](args)
 }
 
 /**
@@ -45,8 +51,11 @@ export async function getPostsPostId(arg: { param: { postId: string } }) {
  *
  * 投稿削除
  */
-export async function deletePostsPostId(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['$delete'](arg)
+export async function deletePostsPostId(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['$delete'](args)
 }
 
 /**
@@ -56,8 +65,11 @@ export async function deletePostsPostId(arg: { param: { postId: string } }) {
  *
  * 投稿とその返信スレッドを取得
  */
-export async function getPostsPostIdThread(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['thread']['$get'](arg)
+export async function getPostsPostIdThread(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['thread']['$get'](args)
 }
 
 /**
@@ -67,8 +79,11 @@ export async function getPostsPostIdThread(arg: { param: { postId: string } }) {
  *
  * 親投稿と返信を含むコンテキストを取得
  */
-export async function getPostsPostIdContext(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['context']['$get'](arg)
+export async function getPostsPostIdContext(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['context']['$get'](args)
 }
 
 /**
@@ -78,10 +93,11 @@ export async function getPostsPostIdContext(arg: { param: { postId: string } }) 
  *
  * フォローしているユーザーの投稿を時系列で取得
  */
-export async function getTimelineHome(arg: {
+export async function getTimelineHome(args: {
   query: { cursor?: string; limit?: number; includeReplies?: string; includeReposts?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['timeline']['home']['$get'](arg)
+  return await client['timeline']['home']['$get'](args)
 }
 
 /**
@@ -91,8 +107,11 @@ export async function getTimelineHome(arg: {
  *
  * アルゴリズムによるおすすめ投稿
  */
-export async function getTimelineForYou(arg: { query: { cursor?: string; limit?: number } }) {
-  return await client['timeline']['for-you']['$get'](arg)
+export async function getTimelineForYou(args: {
+  query: { cursor?: string; limit?: number }
+  options?: ClientRequestOptions
+}) {
+  return await client['timeline']['for-you']['$get'](args)
 }
 
 /**
@@ -100,7 +119,7 @@ export async function getTimelineForYou(arg: { query: { cursor?: string; limit?:
  *
  * ユーザータイムライン取得
  */
-export async function getTimelineUserUserId(arg: {
+export async function getTimelineUserUserId(args: {
   param: { userId: string }
   query: {
     cursor?: string
@@ -109,8 +128,9 @@ export async function getTimelineUserUserId(arg: {
     includeReposts?: string
     mediaOnly?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['timeline']['user'][':userId']['$get'](arg)
+  return await client['timeline']['user'][':userId']['$get'](args)
 }
 
 /**
@@ -118,11 +138,12 @@ export async function getTimelineUserUserId(arg: {
  *
  * ハッシュタグタイムライン取得
  */
-export async function getTimelineHashtagHashtag(arg: {
+export async function getTimelineHashtagHashtag(args: {
   param: { hashtag: string }
   query: { cursor?: string; limit?: number }
+  options?: ClientRequestOptions
 }) {
-  return await client['timeline']['hashtag'][':hashtag']['$get'](arg)
+  return await client['timeline']['hashtag'][':hashtag']['$get'](args)
 }
 
 /**
@@ -130,8 +151,11 @@ export async function getTimelineHashtagHashtag(arg: {
  *
  * いいね
  */
-export async function postPostsPostIdLike(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['like']['$post'](arg)
+export async function postPostsPostIdLike(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['like']['$post'](args)
 }
 
 /**
@@ -139,8 +163,11 @@ export async function postPostsPostIdLike(arg: { param: { postId: string } }) {
  *
  * いいね解除
  */
-export async function deletePostsPostIdLike(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['like']['$delete'](arg)
+export async function deletePostsPostIdLike(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['like']['$delete'](args)
 }
 
 /**
@@ -148,8 +175,11 @@ export async function deletePostsPostIdLike(arg: { param: { postId: string } }) 
  *
  * リポスト
  */
-export async function postPostsPostIdRepost(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['repost']['$post'](arg)
+export async function postPostsPostIdRepost(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['repost']['$post'](args)
 }
 
 /**
@@ -157,8 +187,11 @@ export async function postPostsPostIdRepost(arg: { param: { postId: string } }) 
  *
  * リポスト解除
  */
-export async function deletePostsPostIdRepost(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['repost']['$delete'](arg)
+export async function deletePostsPostIdRepost(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['repost']['$delete'](args)
 }
 
 /**
@@ -166,11 +199,12 @@ export async function deletePostsPostIdRepost(arg: { param: { postId: string } }
  *
  * 引用投稿
  */
-export async function postPostsPostIdQuote(arg: {
+export async function postPostsPostIdQuote(args: {
   param: { postId: string }
   json: { text: string; mediaIds?: string[] }
+  options?: ClientRequestOptions
 }) {
-  return await client['posts'][':postId']['quote']['$post'](arg)
+  return await client['posts'][':postId']['quote']['$post'](args)
 }
 
 /**
@@ -178,8 +212,11 @@ export async function postPostsPostIdQuote(arg: {
  *
  * ブックマーク追加
  */
-export async function postPostsPostIdBookmark(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['bookmark']['$post'](arg)
+export async function postPostsPostIdBookmark(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['bookmark']['$post'](args)
 }
 
 /**
@@ -187,8 +224,11 @@ export async function postPostsPostIdBookmark(arg: { param: { postId: string } }
  *
  * ブックマーク解除
  */
-export async function deletePostsPostIdBookmark(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['bookmark']['$delete'](arg)
+export async function deletePostsPostIdBookmark(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['bookmark']['$delete'](args)
 }
 
 /**
@@ -196,8 +236,11 @@ export async function deletePostsPostIdBookmark(arg: { param: { postId: string }
  *
  * ブックマーク一覧取得
  */
-export async function getBookmarks(arg: { query: { cursor?: string; limit?: number } }) {
-  return await client.bookmarks.$get(arg)
+export async function getBookmarks(args: {
+  query: { cursor?: string; limit?: number }
+  options?: ClientRequestOptions
+}) {
+  return await client.bookmarks.$get(args)
 }
 
 /**
@@ -205,11 +248,12 @@ export async function getBookmarks(arg: { query: { cursor?: string; limit?: numb
  *
  * いいねしたユーザー一覧
  */
-export async function getPostsPostIdLikes(arg: {
+export async function getPostsPostIdLikes(args: {
   param: { postId: string }
   query: { cursor?: string; limit?: number }
+  options?: ClientRequestOptions
 }) {
-  return await client['posts'][':postId']['likes']['$get'](arg)
+  return await client['posts'][':postId']['likes']['$get'](args)
 }
 
 /**
@@ -217,11 +261,12 @@ export async function getPostsPostIdLikes(arg: {
  *
  * リポストしたユーザー一覧
  */
-export async function getPostsPostIdReposts(arg: {
+export async function getPostsPostIdReposts(args: {
   param: { postId: string }
   query: { cursor?: string; limit?: number }
+  options?: ClientRequestOptions
 }) {
-  return await client['posts'][':postId']['reposts']['$get'](arg)
+  return await client['posts'][':postId']['reposts']['$get'](args)
 }
 
 /**
@@ -229,11 +274,12 @@ export async function getPostsPostIdReposts(arg: {
  *
  * 引用投稿一覧
  */
-export async function getPostsPostIdQuotes(arg: {
+export async function getPostsPostIdQuotes(args: {
   param: { postId: string }
   query: { cursor?: string; limit?: number }
+  options?: ClientRequestOptions
 }) {
-  return await client['posts'][':postId']['quotes']['$get'](arg)
+  return await client['posts'][':postId']['quotes']['$get'](args)
 }
 
 /**
@@ -241,11 +287,12 @@ export async function getPostsPostIdQuotes(arg: {
  *
  * 返信一覧取得
  */
-export async function getPostsPostIdReplies(arg: {
+export async function getPostsPostIdReplies(args: {
   param: { postId: string }
   query: { cursor?: string; limit?: number; sort?: 'recent' | 'popular' | 'relevant' }
+  options?: ClientRequestOptions
 }) {
-  return await client['posts'][':postId']['replies']['$get'](arg)
+  return await client['posts'][':postId']['replies']['$get'](args)
 }
 
 /**
@@ -253,7 +300,7 @@ export async function getPostsPostIdReplies(arg: {
  *
  * 返信投稿
  */
-export async function postPostsPostIdReplies(arg: {
+export async function postPostsPostIdReplies(args: {
   param: { postId: string }
   json: {
     text: string
@@ -263,8 +310,9 @@ export async function postPostsPostIdReplies(arg: {
     replySettings?: 'everyone' | 'followers' | 'mentioned'
     quotedPostId?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['posts'][':postId']['replies']['$post'](arg)
+  return await client['posts'][':postId']['replies']['$post'](args)
 }
 
 /**
@@ -272,8 +320,11 @@ export async function postPostsPostIdReplies(arg: {
  *
  * メディアアップロード
  */
-export async function postMediaUpload(arg: { form: { file: File; alt?: string } }) {
-  return await client['media']['upload']['$post'](arg)
+export async function postMediaUpload(args: {
+  form: { file: File; alt?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['media']['upload']['$post'](args)
 }
 
 /**
@@ -281,8 +332,11 @@ export async function postMediaUpload(arg: { form: { file: File; alt?: string } 
  *
  * メディア情報取得
  */
-export async function getMediaMediaId(arg: { param: { mediaId: string } }) {
-  return await client['media'][':mediaId']['$get'](arg)
+export async function getMediaMediaId(args: {
+  param: { mediaId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['media'][':mediaId']['$get'](args)
 }
 
 /**
@@ -290,9 +344,10 @@ export async function getMediaMediaId(arg: { param: { mediaId: string } }) {
  *
  * メディア情報更新
  */
-export async function patchMediaMediaId(arg: {
+export async function patchMediaMediaId(args: {
   param: { mediaId: string }
   json: { alt?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['media'][':mediaId']['$patch'](arg)
+  return await client['media'][':mediaId']['$patch'](args)
 }

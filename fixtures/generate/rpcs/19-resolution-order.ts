@@ -1,16 +1,17 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
 /**
  * GET /entities
  */
-export async function getEntities() {
-  return await client.entities.$get()
+export async function getEntities(args?: { options?: ClientRequestOptions }) {
+  return await client.entities.$get(args)
 }
 
 /**
  * POST /process
  */
-export async function postProcess(arg: {
+export async function postProcess(args: {
   json: {
     input: {
       data?:
@@ -136,21 +137,22 @@ export async function postProcess(arg: {
       }
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.process.$post(arg)
+  return await client.process.$post(args)
 }
 
 /**
  * GET /graph
  */
-export async function getGraph() {
-  return await client.graph.$get()
+export async function getGraph(args?: { options?: ClientRequestOptions }) {
+  return await client.graph.$get(args)
 }
 
 /**
  * POST /transform
  */
-export async function postTransform(arg: {
+export async function postTransform(args: {
   json: {
     transforms: {
       type: string
@@ -234,6 +236,7 @@ export async function postTransform(arg: {
       }
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.transform.$post(arg)
+  return await client.transform.$post(args)
 }

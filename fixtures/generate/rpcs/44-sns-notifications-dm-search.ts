@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/44-sns-notifications-dm-search'
 
 /**
@@ -5,15 +6,16 @@ import { client } from '../clients/44-sns-notifications-dm-search'
  *
  * 通知一覧取得
  */
-export async function getNotifications(arg: {
+export async function getNotifications(args: {
   query: {
     cursor?: string
     limit?: number
     types?: string
     filter?: 'all' | 'mentions' | 'verified'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.notifications.$get(arg)
+  return await client.notifications.$get(args)
 }
 
 /**
@@ -21,8 +23,8 @@ export async function getNotifications(arg: {
  *
  * 未読通知数取得
  */
-export async function getNotificationsUnreadCount() {
-  return await client['notifications']['unread-count']['$get']()
+export async function getNotificationsUnreadCount(args?: { options?: ClientRequestOptions }) {
+  return await client['notifications']['unread-count']['$get'](args)
 }
 
 /**
@@ -30,10 +32,11 @@ export async function getNotificationsUnreadCount() {
  *
  * 通知を既読にする
  */
-export async function postNotificationsMarkRead(arg: {
+export async function postNotificationsMarkRead(args: {
   json: { notificationIds?: string[]; maxId?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['notifications']['mark-read']['$post'](arg)
+  return await client['notifications']['mark-read']['$post'](args)
 }
 
 /**
@@ -41,8 +44,8 @@ export async function postNotificationsMarkRead(arg: {
  *
  * 通知設定取得
  */
-export async function getNotificationsSettings() {
-  return await client['notifications']['settings']['$get']()
+export async function getNotificationsSettings(args?: { options?: ClientRequestOptions }) {
+  return await client['notifications']['settings']['$get'](args)
 }
 
 /**
@@ -50,7 +53,7 @@ export async function getNotificationsSettings() {
  *
  * 通知設定更新
  */
-export async function putNotificationsSettings(arg: {
+export async function putNotificationsSettings(args: {
   json: {
     likes?: boolean
     reposts?: boolean
@@ -63,8 +66,9 @@ export async function putNotificationsSettings(arg: {
     pushNotifications?: boolean
     filterQuality?: 'all' | 'filtered'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['notifications']['settings']['$put'](arg)
+  return await client['notifications']['settings']['$put'](args)
 }
 
 /**
@@ -72,8 +76,11 @@ export async function putNotificationsSettings(arg: {
  *
  * 会話一覧取得
  */
-export async function getDmConversations(arg: { query: { cursor?: string; limit?: number } }) {
-  return await client['dm']['conversations']['$get'](arg)
+export async function getDmConversations(args: {
+  query: { cursor?: string; limit?: number }
+  options?: ClientRequestOptions
+}) {
+  return await client['dm']['conversations']['$get'](args)
 }
 
 /**
@@ -81,10 +88,11 @@ export async function getDmConversations(arg: { query: { cursor?: string; limit?
  *
  * 会話作成
  */
-export async function postDmConversations(arg: {
+export async function postDmConversations(args: {
   json: { participantIds: string[]; name?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['dm']['conversations']['$post'](arg)
+  return await client['dm']['conversations']['$post'](args)
 }
 
 /**
@@ -92,8 +100,11 @@ export async function postDmConversations(arg: {
  *
  * 会話詳細取得
  */
-export async function getDmConversationsConversationId(arg: { param: { conversationId: string } }) {
-  return await client['dm']['conversations'][':conversationId']['$get'](arg)
+export async function getDmConversationsConversationId(args: {
+  param: { conversationId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['dm']['conversations'][':conversationId']['$get'](args)
 }
 
 /**
@@ -101,10 +112,11 @@ export async function getDmConversationsConversationId(arg: { param: { conversat
  *
  * 会話を退出
  */
-export async function deleteDmConversationsConversationId(arg: {
+export async function deleteDmConversationsConversationId(args: {
   param: { conversationId: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['dm']['conversations'][':conversationId']['$delete'](arg)
+  return await client['dm']['conversations'][':conversationId']['$delete'](args)
 }
 
 /**
@@ -112,11 +124,12 @@ export async function deleteDmConversationsConversationId(arg: {
  *
  * メッセージ一覧取得
  */
-export async function getDmConversationsConversationIdMessages(arg: {
+export async function getDmConversationsConversationIdMessages(args: {
   param: { conversationId: string }
   query: { cursor?: string; limit?: number }
+  options?: ClientRequestOptions
 }) {
-  return await client['dm']['conversations'][':conversationId']['messages']['$get'](arg)
+  return await client['dm']['conversations'][':conversationId']['messages']['$get'](args)
 }
 
 /**
@@ -124,11 +137,12 @@ export async function getDmConversationsConversationIdMessages(arg: {
  *
  * メッセージ送信
  */
-export async function postDmConversationsConversationIdMessages(arg: {
+export async function postDmConversationsConversationIdMessages(args: {
   param: { conversationId: string }
   json: { text?: string; mediaIds?: string[]; sharedPostId?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['dm']['conversations'][':conversationId']['messages']['$post'](arg)
+  return await client['dm']['conversations'][':conversationId']['messages']['$post'](args)
 }
 
 /**
@@ -136,11 +150,12 @@ export async function postDmConversationsConversationIdMessages(arg: {
  *
  * 会話を既読にする
  */
-export async function postDmConversationsConversationIdRead(arg: {
+export async function postDmConversationsConversationIdRead(args: {
   param: { conversationId: string }
   json: { lastReadMessageId?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['dm']['conversations'][':conversationId']['read']['$post'](arg)
+  return await client['dm']['conversations'][':conversationId']['read']['$post'](args)
 }
 
 /**
@@ -148,10 +163,11 @@ export async function postDmConversationsConversationIdRead(arg: {
  *
  * 入力中インジケーター送信
  */
-export async function postDmConversationsConversationIdTyping(arg: {
+export async function postDmConversationsConversationIdTyping(args: {
   param: { conversationId: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['dm']['conversations'][':conversationId']['typing']['$post'](arg)
+  return await client['dm']['conversations'][':conversationId']['typing']['$post'](args)
 }
 
 /**
@@ -159,8 +175,11 @@ export async function postDmConversationsConversationIdTyping(arg: {
  *
  * メッセージ削除
  */
-export async function deleteDmMessagesMessageId(arg: { param: { messageId: string } }) {
-  return await client['dm']['messages'][':messageId']['$delete'](arg)
+export async function deleteDmMessagesMessageId(args: {
+  param: { messageId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['dm']['messages'][':messageId']['$delete'](args)
 }
 
 /**
@@ -168,11 +187,12 @@ export async function deleteDmMessagesMessageId(arg: { param: { messageId: strin
  *
  * メッセージにリアクション追加
  */
-export async function postDmMessagesMessageIdReactions(arg: {
+export async function postDmMessagesMessageIdReactions(args: {
   param: { messageId: string }
   json: { emoji: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['dm']['messages'][':messageId']['reactions']['$post'](arg)
+  return await client['dm']['messages'][':messageId']['reactions']['$post'](args)
 }
 
 /**
@@ -180,11 +200,12 @@ export async function postDmMessagesMessageIdReactions(arg: {
  *
  * メッセージのリアクション削除
  */
-export async function deleteDmMessagesMessageIdReactions(arg: {
+export async function deleteDmMessagesMessageIdReactions(args: {
   param: { messageId: string }
   query: { emoji: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['dm']['messages'][':messageId']['reactions']['$delete'](arg)
+  return await client['dm']['messages'][':messageId']['reactions']['$delete'](args)
 }
 
 /**
@@ -192,8 +213,8 @@ export async function deleteDmMessagesMessageIdReactions(arg: {
  *
  * 未読メッセージ数取得
  */
-export async function getDmUnreadCount() {
-  return await client['dm']['unread-count']['$get']()
+export async function getDmUnreadCount(args?: { options?: ClientRequestOptions }) {
+  return await client['dm']['unread-count']['$get'](args)
 }
 
 /**
@@ -201,7 +222,7 @@ export async function getDmUnreadCount() {
  *
  * 投稿検索
  */
-export async function getSearchPosts(arg: {
+export async function getSearchPosts(args: {
   query: {
     q: string
     cursor?: string
@@ -213,8 +234,9 @@ export async function getSearchPosts(arg: {
     until?: string
     lang?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['search']['posts']['$get'](arg)
+  return await client['search']['posts']['$get'](args)
 }
 
 /**
@@ -222,10 +244,11 @@ export async function getSearchPosts(arg: {
  *
  * ユーザー検索
  */
-export async function getSearchUsers(arg: {
+export async function getSearchUsers(args: {
   query: { q: string; cursor?: string; limit?: number }
+  options?: ClientRequestOptions
 }) {
-  return await client['search']['users']['$get'](arg)
+  return await client['search']['users']['$get'](args)
 }
 
 /**
@@ -233,8 +256,11 @@ export async function getSearchUsers(arg: {
  *
  * ハッシュタグ検索
  */
-export async function getSearchHashtags(arg: { query: { q: string; limit?: number } }) {
-  return await client['search']['hashtags']['$get'](arg)
+export async function getSearchHashtags(args: {
+  query: { q: string; limit?: number }
+  options?: ClientRequestOptions
+}) {
+  return await client['search']['hashtags']['$get'](args)
 }
 
 /**
@@ -242,8 +268,8 @@ export async function getSearchHashtags(arg: { query: { q: string; limit?: numbe
  *
  * 最近の検索履歴
  */
-export async function getSearchRecent() {
-  return await client['search']['recent']['$get']()
+export async function getSearchRecent(args?: { options?: ClientRequestOptions }) {
+  return await client['search']['recent']['$get'](args)
 }
 
 /**
@@ -251,8 +277,8 @@ export async function getSearchRecent() {
  *
  * 検索履歴クリア
  */
-export async function deleteSearchRecent() {
-  return await client['search']['recent']['$delete']()
+export async function deleteSearchRecent(args?: { options?: ClientRequestOptions }) {
+  return await client['search']['recent']['$delete'](args)
 }
 
 /**
@@ -260,8 +286,11 @@ export async function deleteSearchRecent() {
  *
  * トレンド取得
  */
-export async function getTrends(arg: { query: { woeid?: number; limit?: number } }) {
-  return await client.trends.$get(arg)
+export async function getTrends(args: {
+  query: { woeid?: number; limit?: number }
+  options?: ClientRequestOptions
+}) {
+  return await client.trends.$get(args)
 }
 
 /**
@@ -269,8 +298,8 @@ export async function getTrends(arg: { query: { woeid?: number; limit?: number }
  *
  * トレンド対応地域一覧
  */
-export async function getTrendsLocations() {
-  return await client['trends']['locations']['$get']()
+export async function getTrendsLocations(args?: { options?: ClientRequestOptions }) {
+  return await client['trends']['locations']['$get'](args)
 }
 
 /**
@@ -278,8 +307,11 @@ export async function getTrendsLocations() {
  *
  * おすすめユーザー取得
  */
-export async function getSuggestionsUsers(arg: { query: { limit?: number } }) {
-  return await client['suggestions']['users']['$get'](arg)
+export async function getSuggestionsUsers(args: {
+  query: { limit?: number }
+  options?: ClientRequestOptions
+}) {
+  return await client['suggestions']['users']['$get'](args)
 }
 
 /**
@@ -287,8 +319,11 @@ export async function getSuggestionsUsers(arg: { query: { limit?: number } }) {
  *
  * おすすめユーザーを非表示
  */
-export async function postSuggestionsUsersUserIdHide(arg: { param: { userId: string } }) {
-  return await client['suggestions']['users'][':userId']['hide']['$post'](arg)
+export async function postSuggestionsUsersUserIdHide(args: {
+  param: { userId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['suggestions']['users'][':userId']['hide']['$post'](args)
 }
 
 /**
@@ -296,8 +331,8 @@ export async function postSuggestionsUsersUserIdHide(arg: { param: { userId: str
  *
  * おすすめトピック取得
  */
-export async function getSuggestionsTopics() {
-  return await client['suggestions']['topics']['$get']()
+export async function getSuggestionsTopics(args?: { options?: ClientRequestOptions }) {
+  return await client['suggestions']['topics']['$get'](args)
 }
 
 /**
@@ -305,8 +340,11 @@ export async function getSuggestionsTopics() {
  *
  * トピックをフォロー
  */
-export async function postTopicsTopicIdFollow(arg: { param: { topicId: string } }) {
-  return await client['topics'][':topicId']['follow']['$post'](arg)
+export async function postTopicsTopicIdFollow(args: {
+  param: { topicId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['topics'][':topicId']['follow']['$post'](args)
 }
 
 /**
@@ -314,6 +352,9 @@ export async function postTopicsTopicIdFollow(arg: { param: { topicId: string } 
  *
  * トピックのフォロー解除
  */
-export async function deleteTopicsTopicIdFollow(arg: { param: { topicId: string } }) {
-  return await client['topics'][':topicId']['follow']['$delete'](arg)
+export async function deleteTopicsTopicIdFollow(args: {
+  param: { topicId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['topics'][':topicId']['follow']['$delete'](args)
 }

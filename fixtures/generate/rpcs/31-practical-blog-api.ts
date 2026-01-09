@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/31-practical-blog-api'
 
 /**
@@ -5,7 +6,7 @@ import { client } from '../clients/31-practical-blog-api'
  *
  * 記事一覧取得
  */
-export async function getPosts(arg: {
+export async function getPosts(args: {
   query: {
     page?: number
     limit?: number
@@ -16,8 +17,9 @@ export async function getPosts(arg: {
     search?: string
     sort?: 'publishedAt:desc' | 'publishedAt:asc' | 'title:asc' | 'title:desc' | 'viewCount:desc'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.posts.$get(arg)
+  return await client.posts.$get(args)
 }
 
 /**
@@ -25,7 +27,7 @@ export async function getPosts(arg: {
  *
  * 記事作成
  */
-export async function postPosts(arg: {
+export async function postPosts(args: {
   json: {
     title: string
     slug?: string
@@ -46,8 +48,9 @@ export async function postPosts(arg: {
     }
     status?: 'draft' | 'published'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.posts.$post(arg)
+  return await client.posts.$post(args)
 }
 
 /**
@@ -55,8 +58,11 @@ export async function postPosts(arg: {
  *
  * 記事詳細取得
  */
-export async function getPostsPostId(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['$get'](arg)
+export async function getPostsPostId(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['$get'](args)
 }
 
 /**
@@ -64,7 +70,7 @@ export async function getPostsPostId(arg: { param: { postId: string } }) {
  *
  * 記事更新
  */
-export async function putPostsPostId(arg: {
+export async function putPostsPostId(args: {
   param: { postId: string }
   json: {
     title?: string
@@ -85,8 +91,9 @@ export async function putPostsPostId(arg: {
       noIndex?: boolean
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['posts'][':postId']['$put'](arg)
+  return await client['posts'][':postId']['$put'](args)
 }
 
 /**
@@ -94,8 +101,11 @@ export async function putPostsPostId(arg: {
  *
  * 記事削除
  */
-export async function deletePostsPostId(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['$delete'](arg)
+export async function deletePostsPostId(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['$delete'](args)
 }
 
 /**
@@ -103,8 +113,11 @@ export async function deletePostsPostId(arg: { param: { postId: string } }) {
  *
  * スラッグで記事取得
  */
-export async function getPostsSlugSlug(arg: { param: { slug: string } }) {
-  return await client['posts']['slug'][':slug']['$get'](arg)
+export async function getPostsSlugSlug(args: {
+  param: { slug: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts']['slug'][':slug']['$get'](args)
 }
 
 /**
@@ -112,11 +125,12 @@ export async function getPostsSlugSlug(arg: { param: { slug: string } }) {
  *
  * 記事公開
  */
-export async function postPostsPostIdPublish(arg: {
+export async function postPostsPostIdPublish(args: {
   param: { postId: string }
   json: { scheduledAt?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['posts'][':postId']['publish']['$post'](arg)
+  return await client['posts'][':postId']['publish']['$post'](args)
 }
 
 /**
@@ -124,8 +138,11 @@ export async function postPostsPostIdPublish(arg: {
  *
  * 記事非公開化
  */
-export async function postPostsPostIdUnpublish(arg: { param: { postId: string } }) {
-  return await client['posts'][':postId']['unpublish']['$post'](arg)
+export async function postPostsPostIdUnpublish(args: {
+  param: { postId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['posts'][':postId']['unpublish']['$post'](args)
 }
 
 /**
@@ -133,11 +150,12 @@ export async function postPostsPostIdUnpublish(arg: { param: { postId: string } 
  *
  * 記事のコメント一覧取得
  */
-export async function getPostsPostIdComments(arg: {
+export async function getPostsPostIdComments(args: {
   param: { postId: string }
   query: { page?: number; limit?: number }
+  options?: ClientRequestOptions
 }) {
-  return await client['posts'][':postId']['comments']['$get'](arg)
+  return await client['posts'][':postId']['comments']['$get'](args)
 }
 
 /**
@@ -145,7 +163,7 @@ export async function getPostsPostIdComments(arg: {
  *
  * コメント投稿
  */
-export async function postPostsPostIdComments(arg: {
+export async function postPostsPostIdComments(args: {
   param: { postId: string }
   json: {
     content: string
@@ -154,8 +172,9 @@ export async function postPostsPostIdComments(arg: {
     authorUrl?: string
     parentId?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['posts'][':postId']['comments']['$post'](arg)
+  return await client['posts'][':postId']['comments']['$post'](args)
 }
 
 /**
@@ -163,8 +182,11 @@ export async function postPostsPostIdComments(arg: {
  *
  * コメント削除
  */
-export async function deleteCommentsCommentId(arg: { param: { commentId: string } }) {
-  return await client['comments'][':commentId']['$delete'](arg)
+export async function deleteCommentsCommentId(args: {
+  param: { commentId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['comments'][':commentId']['$delete'](args)
 }
 
 /**
@@ -172,8 +194,11 @@ export async function deleteCommentsCommentId(arg: { param: { commentId: string 
  *
  * コメント承認
  */
-export async function postCommentsCommentIdApprove(arg: { param: { commentId: string } }) {
-  return await client['comments'][':commentId']['approve']['$post'](arg)
+export async function postCommentsCommentIdApprove(args: {
+  param: { commentId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['comments'][':commentId']['approve']['$post'](args)
 }
 
 /**
@@ -181,8 +206,8 @@ export async function postCommentsCommentIdApprove(arg: { param: { commentId: st
  *
  * カテゴリ一覧取得
  */
-export async function getCategories() {
-  return await client.categories.$get()
+export async function getCategories(args?: { options?: ClientRequestOptions }) {
+  return await client.categories.$get(args)
 }
 
 /**
@@ -190,10 +215,11 @@ export async function getCategories() {
  *
  * カテゴリ作成
  */
-export async function postCategories(arg: {
+export async function postCategories(args: {
   json: { name: string; slug?: string; description?: string; parentId?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client.categories.$post(arg)
+  return await client.categories.$post(args)
 }
 
 /**
@@ -201,8 +227,11 @@ export async function postCategories(arg: {
  *
  * カテゴリ詳細取得
  */
-export async function getCategoriesCategoryId(arg: { param: { categoryId: string } }) {
-  return await client['categories'][':categoryId']['$get'](arg)
+export async function getCategoriesCategoryId(args: {
+  param: { categoryId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['categories'][':categoryId']['$get'](args)
 }
 
 /**
@@ -210,11 +239,12 @@ export async function getCategoriesCategoryId(arg: { param: { categoryId: string
  *
  * カテゴリ更新
  */
-export async function putCategoriesCategoryId(arg: {
+export async function putCategoriesCategoryId(args: {
   param: { categoryId: string }
   json: { name?: string; slug?: string; description?: string; parentId?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['categories'][':categoryId']['$put'](arg)
+  return await client['categories'][':categoryId']['$put'](args)
 }
 
 /**
@@ -222,8 +252,11 @@ export async function putCategoriesCategoryId(arg: {
  *
  * カテゴリ削除
  */
-export async function deleteCategoriesCategoryId(arg: { param: { categoryId: string } }) {
-  return await client['categories'][':categoryId']['$delete'](arg)
+export async function deleteCategoriesCategoryId(args: {
+  param: { categoryId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['categories'][':categoryId']['$delete'](args)
 }
 
 /**
@@ -231,8 +264,11 @@ export async function deleteCategoriesCategoryId(arg: { param: { categoryId: str
  *
  * タグ一覧取得
  */
-export async function getTags(arg: { query: { search?: string } }) {
-  return await client.tags.$get(arg)
+export async function getTags(args: {
+  query: { search?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client.tags.$get(args)
 }
 
 /**
@@ -240,8 +276,11 @@ export async function getTags(arg: { query: { search?: string } }) {
  *
  * タグ作成
  */
-export async function postTags(arg: { json: { name: string; slug?: string } }) {
-  return await client.tags.$post(arg)
+export async function postTags(args: {
+  json: { name: string; slug?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client.tags.$post(args)
 }
 
 /**
@@ -249,10 +288,11 @@ export async function postTags(arg: { json: { name: string; slug?: string } }) {
  *
  * メディア一覧取得
  */
-export async function getMedia(arg: {
+export async function getMedia(args: {
   query: { page?: number; limit?: number; type?: 'image' | 'video' | 'audio' | 'document' }
+  options?: ClientRequestOptions
 }) {
-  return await client.media.$get(arg)
+  return await client.media.$get(args)
 }
 
 /**
@@ -260,8 +300,11 @@ export async function getMedia(arg: {
  *
  * メディアアップロード
  */
-export async function postMedia(arg: { form: { file: File; altText?: string; caption?: string } }) {
-  return await client.media.$post(arg)
+export async function postMedia(args: {
+  form: { file: File; altText?: string; caption?: string }
+  options?: ClientRequestOptions
+}) {
+  return await client.media.$post(args)
 }
 
 /**
@@ -269,8 +312,11 @@ export async function postMedia(arg: { form: { file: File; altText?: string; cap
  *
  * メディア詳細取得
  */
-export async function getMediaMediaId(arg: { param: { mediaId: string } }) {
-  return await client['media'][':mediaId']['$get'](arg)
+export async function getMediaMediaId(args: {
+  param: { mediaId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['media'][':mediaId']['$get'](args)
 }
 
 /**
@@ -278,11 +324,12 @@ export async function getMediaMediaId(arg: { param: { mediaId: string } }) {
  *
  * メディア情報更新
  */
-export async function putMediaMediaId(arg: {
+export async function putMediaMediaId(args: {
   param: { mediaId: string }
   json: { altText?: string; caption?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['media'][':mediaId']['$put'](arg)
+  return await client['media'][':mediaId']['$put'](args)
 }
 
 /**
@@ -290,8 +337,11 @@ export async function putMediaMediaId(arg: {
  *
  * メディア削除
  */
-export async function deleteMediaMediaId(arg: { param: { mediaId: string } }) {
-  return await client['media'][':mediaId']['$delete'](arg)
+export async function deleteMediaMediaId(args: {
+  param: { mediaId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['media'][':mediaId']['$delete'](args)
 }
 
 /**
@@ -299,8 +349,8 @@ export async function deleteMediaMediaId(arg: { param: { mediaId: string } }) {
  *
  * 著者一覧取得
  */
-export async function getAuthors() {
-  return await client.authors.$get()
+export async function getAuthors(args?: { options?: ClientRequestOptions }) {
+  return await client.authors.$get(args)
 }
 
 /**
@@ -308,6 +358,9 @@ export async function getAuthors() {
  *
  * 著者詳細取得
  */
-export async function getAuthorsAuthorId(arg: { param: { authorId: string } }) {
-  return await client['authors'][':authorId']['$get'](arg)
+export async function getAuthorsAuthorId(args: {
+  param: { authorId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['authors'][':authorId']['$get'](args)
 }

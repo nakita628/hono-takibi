@@ -1,3 +1,4 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
 /**
@@ -5,15 +6,16 @@ import { client } from '../clients/32-practical-project-api'
  *
  * プロジェクト一覧取得
  */
-export async function getProjects(arg: {
+export async function getProjects(args: {
   query: {
     page?: number
     limit?: number
     status?: 'active' | 'on_hold' | 'completed' | 'archived'
     search?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.projects.$get(arg)
+  return await client.projects.$get(args)
 }
 
 /**
@@ -21,7 +23,7 @@ export async function getProjects(arg: {
  *
  * プロジェクト作成
  */
-export async function postProjects(arg: {
+export async function postProjects(args: {
   json: {
     name: string
     description?: string
@@ -30,8 +32,9 @@ export async function postProjects(arg: {
     startDate?: string
     endDate?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.projects.$post(arg)
+  return await client.projects.$post(args)
 }
 
 /**
@@ -39,8 +42,11 @@ export async function postProjects(arg: {
  *
  * プロジェクト詳細取得
  */
-export async function getProjectsProjectId(arg: { param: { projectId: string } }) {
-  return await client['projects'][':projectId']['$get'](arg)
+export async function getProjectsProjectId(args: {
+  param: { projectId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['projects'][':projectId']['$get'](args)
 }
 
 /**
@@ -48,7 +54,7 @@ export async function getProjectsProjectId(arg: { param: { projectId: string } }
  *
  * プロジェクト更新
  */
-export async function putProjectsProjectId(arg: {
+export async function putProjectsProjectId(args: {
   param: { projectId: string }
   json: {
     name?: string
@@ -58,8 +64,9 @@ export async function putProjectsProjectId(arg: {
     startDate?: string
     endDate?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['projects'][':projectId']['$put'](arg)
+  return await client['projects'][':projectId']['$put'](args)
 }
 
 /**
@@ -67,8 +74,11 @@ export async function putProjectsProjectId(arg: {
  *
  * プロジェクト削除
  */
-export async function deleteProjectsProjectId(arg: { param: { projectId: string } }) {
-  return await client['projects'][':projectId']['$delete'](arg)
+export async function deleteProjectsProjectId(args: {
+  param: { projectId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['projects'][':projectId']['$delete'](args)
 }
 
 /**
@@ -76,8 +86,11 @@ export async function deleteProjectsProjectId(arg: { param: { projectId: string 
  *
  * プロジェクトメンバー一覧
  */
-export async function getProjectsProjectIdMembers(arg: { param: { projectId: string } }) {
-  return await client['projects'][':projectId']['members']['$get'](arg)
+export async function getProjectsProjectIdMembers(args: {
+  param: { projectId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['projects'][':projectId']['members']['$get'](args)
 }
 
 /**
@@ -85,11 +98,12 @@ export async function getProjectsProjectIdMembers(arg: { param: { projectId: str
  *
  * メンバー追加
  */
-export async function postProjectsProjectIdMembers(arg: {
+export async function postProjectsProjectIdMembers(args: {
   param: { projectId: string }
   json: { userId: string; role: 'admin' | 'member' | 'viewer' }
+  options?: ClientRequestOptions
 }) {
-  return await client['projects'][':projectId']['members']['$post'](arg)
+  return await client['projects'][':projectId']['members']['$post'](args)
 }
 
 /**
@@ -97,7 +111,7 @@ export async function postProjectsProjectIdMembers(arg: {
  *
  * プロジェクトのタスク一覧
  */
-export async function getProjectsProjectIdTasks(arg: {
+export async function getProjectsProjectIdTasks(args: {
   param: { projectId: string }
   query: {
     page?: number
@@ -106,8 +120,9 @@ export async function getProjectsProjectIdTasks(arg: {
     assignee?: string
     priority?: 'low' | 'medium' | 'high' | 'urgent'
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['projects'][':projectId']['tasks']['$get'](arg)
+  return await client['projects'][':projectId']['tasks']['$get'](args)
 }
 
 /**
@@ -115,7 +130,7 @@ export async function getProjectsProjectIdTasks(arg: {
  *
  * タスク作成
  */
-export async function postProjectsProjectIdTasks(arg: {
+export async function postProjectsProjectIdTasks(args: {
   param: { projectId: string }
   json: {
     title: string
@@ -129,8 +144,9 @@ export async function postProjectsProjectIdTasks(arg: {
     tags?: string[]
     subtasks?: { title: string }[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['projects'][':projectId']['tasks']['$post'](arg)
+  return await client['projects'][':projectId']['tasks']['$post'](args)
 }
 
 /**
@@ -138,8 +154,11 @@ export async function postProjectsProjectIdTasks(arg: {
  *
  * タスク詳細取得
  */
-export async function getTasksTaskId(arg: { param: { taskId: string } }) {
-  return await client['tasks'][':taskId']['$get'](arg)
+export async function getTasksTaskId(args: {
+  param: { taskId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['tasks'][':taskId']['$get'](args)
 }
 
 /**
@@ -147,7 +166,7 @@ export async function getTasksTaskId(arg: { param: { taskId: string } }) {
  *
  * タスク更新
  */
-export async function putTasksTaskId(arg: {
+export async function putTasksTaskId(args: {
   param: { taskId: string }
   json: {
     title?: string
@@ -160,8 +179,9 @@ export async function putTasksTaskId(arg: {
     estimatedHours?: number
     tags?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['tasks'][':taskId']['$put'](arg)
+  return await client['tasks'][':taskId']['$put'](args)
 }
 
 /**
@@ -169,8 +189,11 @@ export async function putTasksTaskId(arg: {
  *
  * タスク削除
  */
-export async function deleteTasksTaskId(arg: { param: { taskId: string } }) {
-  return await client['tasks'][':taskId']['$delete'](arg)
+export async function deleteTasksTaskId(args: {
+  param: { taskId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['tasks'][':taskId']['$delete'](args)
 }
 
 /**
@@ -178,11 +201,12 @@ export async function deleteTasksTaskId(arg: { param: { taskId: string } }) {
  *
  * タスクステータス更新
  */
-export async function patchTasksTaskIdStatus(arg: {
+export async function patchTasksTaskIdStatus(args: {
   param: { taskId: string }
   json: { status: 'todo' | 'in_progress' | 'in_review' | 'done' | 'cancelled' }
+  options?: ClientRequestOptions
 }) {
-  return await client['tasks'][':taskId']['status']['$patch'](arg)
+  return await client['tasks'][':taskId']['status']['$patch'](args)
 }
 
 /**
@@ -190,8 +214,11 @@ export async function patchTasksTaskIdStatus(arg: {
  *
  * タスクコメント一覧
  */
-export async function getTasksTaskIdComments(arg: { param: { taskId: string } }) {
-  return await client['tasks'][':taskId']['comments']['$get'](arg)
+export async function getTasksTaskIdComments(args: {
+  param: { taskId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['tasks'][':taskId']['comments']['$get'](args)
 }
 
 /**
@@ -199,11 +226,12 @@ export async function getTasksTaskIdComments(arg: { param: { taskId: string } })
  *
  * コメント追加
  */
-export async function postTasksTaskIdComments(arg: {
+export async function postTasksTaskIdComments(args: {
   param: { taskId: string }
   json: { content: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['tasks'][':taskId']['comments']['$post'](arg)
+  return await client['tasks'][':taskId']['comments']['$post'](args)
 }
 
 /**
@@ -211,8 +239,11 @@ export async function postTasksTaskIdComments(arg: {
  *
  * 時間記録一覧
  */
-export async function getTasksTaskIdTimeEntries(arg: { param: { taskId: string } }) {
-  return await client['tasks'][':taskId']['time-entries']['$get'](arg)
+export async function getTasksTaskIdTimeEntries(args: {
+  param: { taskId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['tasks'][':taskId']['time-entries']['$get'](args)
 }
 
 /**
@@ -220,11 +251,12 @@ export async function getTasksTaskIdTimeEntries(arg: { param: { taskId: string }
  *
  * 時間記録作成
  */
-export async function postTasksTaskIdTimeEntries(arg: {
+export async function postTasksTaskIdTimeEntries(args: {
   param: { taskId: string }
   json: { description?: string; duration: number; date: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['tasks'][':taskId']['time-entries']['$post'](arg)
+  return await client['tasks'][':taskId']['time-entries']['$post'](args)
 }
 
 /**
@@ -232,8 +264,11 @@ export async function postTasksTaskIdTimeEntries(arg: {
  *
  * マイルストーン一覧
  */
-export async function getProjectsProjectIdMilestones(arg: { param: { projectId: string } }) {
-  return await client['projects'][':projectId']['milestones']['$get'](arg)
+export async function getProjectsProjectIdMilestones(args: {
+  param: { projectId: string }
+  options?: ClientRequestOptions
+}) {
+  return await client['projects'][':projectId']['milestones']['$get'](args)
 }
 
 /**
@@ -241,11 +276,12 @@ export async function getProjectsProjectIdMilestones(arg: { param: { projectId: 
  *
  * マイルストーン作成
  */
-export async function postProjectsProjectIdMilestones(arg: {
+export async function postProjectsProjectIdMilestones(args: {
   param: { projectId: string }
   json: { name: string; description?: string; dueDate?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['projects'][':projectId']['milestones']['$post'](arg)
+  return await client['projects'][':projectId']['milestones']['$post'](args)
 }
 
 /**
@@ -253,8 +289,8 @@ export async function postProjectsProjectIdMilestones(arg: {
  *
  * チーム一覧取得
  */
-export async function getTeams() {
-  return await client.teams.$get()
+export async function getTeams(args?: { options?: ClientRequestOptions }) {
+  return await client.teams.$get(args)
 }
 
 /**
@@ -262,8 +298,9 @@ export async function getTeams() {
  *
  * チーム作成
  */
-export async function postTeams(arg: {
+export async function postTeams(args: {
   json: { name: string; description?: string; memberIds?: string[] }
+  options?: ClientRequestOptions
 }) {
-  return await client.teams.$post(arg)
+  return await client.teams.$post(args)
 }

@@ -1,9 +1,10 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/22-extreme-validation'
 
 /**
  * POST /validate
  */
-export async function postValidate(arg: {
+export async function postValidate(args: {
   json: {
     extremeStrings?: {
       emptyOnly?: string
@@ -130,6 +131,7 @@ export async function postValidate(arg: {
       recursiveConstrained?: { value?: string; children?: unknown[] }
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client.validate.$post(arg)
+  return await client.validate.$post(args)
 }

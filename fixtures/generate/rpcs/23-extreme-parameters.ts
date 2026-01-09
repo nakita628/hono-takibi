@@ -1,9 +1,10 @@
+import type { ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/23-extreme-parameters'
 
 /**
  * GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
  */
-export async function getAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(arg: {
+export async function getAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(args: {
   param: {
     p1: string
     p2: number
@@ -16,16 +17,17 @@ export async function getAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(arg: {
     p9: string
     p10: string
   }
+  options?: ClientRequestOptions
 }) {
   return await client['a'][':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][
     ':p7'
-  ]['h'][':p8']['i'][':p9']['j'][':p10']['$get'](arg)
+  ]['h'][':p8']['i'][':p9']['j'][':p10']['$get'](args)
 }
 
 /**
  * GET /query-styles
  */
-export async function getQueryStyles(arg: {
+export async function getQueryStyles(args: {
   query: {
     formExplode?: string[]
     formNoExplode?: string[]
@@ -42,23 +44,25 @@ export async function getQueryStyles(arg: {
       sort?: { field?: string; order?: 'asc' | 'desc' }[]
     }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['query-styles']['$get'](arg)
+  return await client['query-styles']['$get'](args)
 }
 
 /**
  * GET /path-styles/{simple}/{label}/{matrix}
  */
-export async function getPathStylesSimpleLabelMatrix(arg: {
+export async function getPathStylesSimpleLabelMatrix(args: {
   param: { simple: string[]; label: string[]; matrix: { x?: number; y?: number } }
+  options?: ClientRequestOptions
 }) {
-  return await client['path-styles'][':simple'][':label'][':matrix']['$get'](arg)
+  return await client['path-styles'][':simple'][':label'][':matrix']['$get'](args)
 }
 
 /**
  * GET /header-styles
  */
-export async function getHeaderStyles(arg: {
+export async function getHeaderStyles(args: {
   header: {
     'X-Simple-Array'?: string[]
     'X-Simple-Array-Exploded'?: string[]
@@ -83,14 +87,15 @@ export async function getHeaderStyles(arg: {
     'X-Real-IP'?: string
     'User-Agent'?: string
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['header-styles']['$get'](arg)
+  return await client['header-styles']['$get'](args)
 }
 
 /**
  * GET /cookie-styles
  */
-export async function getCookieStyles(arg: {
+export async function getCookieStyles(args: {
   cookie: {
     session_id?: string
     preferences?: { theme?: string; language?: string }
@@ -102,14 +107,15 @@ export async function getCookieStyles(arg: {
     cart_id?: string
     visited?: string[]
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['cookie-styles']['$get'](arg)
+  return await client['cookie-styles']['$get'](args)
 }
 
 /**
  * GET /many-query-params
  */
-export async function getManyQueryParams(arg: {
+export async function getManyQueryParams(args: {
   query: {
     q?: string
     page?: number
@@ -160,14 +166,15 @@ export async function getManyQueryParams(arg: {
     cache?: string
     timeout?: number
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['many-query-params']['$get'](arg)
+  return await client['many-query-params']['$get'](args)
 }
 
 /**
  * GET /parameter-content
  */
-export async function getParameterContent(arg: {
+export async function getParameterContent(args: {
   query: {
     jsonFilter?: { field?: string; operator?: string; value?: string }
     complexQuery?: {
@@ -176,29 +183,32 @@ export async function getParameterContent(arg: {
     }
   }
   header: { 'X-Metadata'?: { requestId?: string; timestamp?: string; source?: string } }
+  options?: ClientRequestOptions
 }) {
-  return await client['parameter-content']['$get'](arg)
+  return await client['parameter-content']['$get'](args)
 }
 
 /**
  * GET /deprecated-params
  */
-export async function getDeprecatedParams(arg: {
+export async function getDeprecatedParams(args: {
   query: { oldParam?: string; legacyFilter?: string; newParam?: string }
   header: { 'X-Legacy-Header'?: string }
+  options?: ClientRequestOptions
 }) {
-  return await client['deprecated-params']['$get'](arg)
+  return await client['deprecated-params']['$get'](args)
 }
 
 /**
  * GET /examples-params
  */
-export async function getExamplesParams(arg: {
+export async function getExamplesParams(args: {
   query: {
     status?: 'active' | 'inactive' | 'pending'
     ids?: string[]
     filter?: { status?: string; date?: string }
   }
+  options?: ClientRequestOptions
 }) {
-  return await client['examples-params']['$get'](arg)
+  return await client['examples-params']['$get'](args)
 }
