@@ -297,7 +297,7 @@ const runAllWithConf = async (config: Conf): Promise<{ logs: string[] }> => {
         outDir,
         parametersConfig.split === true,
         parametersConfig.exportTypes === true,
-        config['zod-openapi']?.components?.schemas,
+        config['zod-openapi']?.components,
       )
       return parameterResult.ok
         ? `✓ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outDir}`
@@ -317,7 +317,7 @@ const runAllWithConf = async (config: Conf): Promise<{ logs: string[] }> => {
         outDir,
         headersConfig.split === true,
         headersConfig.exportTypes === true,
-        config['zod-openapi']?.components?.schemas,
+        config['zod-openapi']?.components,
       )
       return headersResult.ok
         ? `✓ headers${headersConfig.split === true ? '(split)' : ''} -> ${outDir}`
@@ -404,7 +404,7 @@ const runAllWithConf = async (config: Conf): Promise<{ logs: string[] }> => {
         openAPI.components?.requestBodies,
         outDir,
         requestBodiesConfig.split === true,
-        config['zod-openapi']?.components?.schemas,
+        config['zod-openapi']?.components,
       )
       return requestBodiesResult.ok
         ? `✓ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outDir}`
@@ -423,7 +423,7 @@ const runAllWithConf = async (config: Conf): Promise<{ logs: string[] }> => {
         openAPI.components?.responses,
         outDir,
         responsesConfig.split === true,
-        config['zod-openapi']?.components?.schemas,
+        config['zod-openapi']?.components,
       )
       return responsesResult.ok
         ? `✓ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outDir}`

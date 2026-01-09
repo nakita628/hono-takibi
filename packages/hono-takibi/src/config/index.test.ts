@@ -3,12 +3,12 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { config } from './index'
+import { loadConfig } from './index'
 
 // Test run
 // pnpm vitest run ./src/config/index.test.ts
 
-describe('config()', () => {
+describe('loadConfig()', () => {
   const origCwd = process.cwd()
 
   beforeEach(() => {
@@ -41,7 +41,7 @@ export default {
 `
     fs.writeFileSync(p, c, 'utf-8')
 
-    await expect(config()).resolves.toStrictEqual({
+    await expect(loadConfig()).resolves.toStrictEqual({
       ok: true,
       value: {
         input: 'openapi.yaml',
@@ -59,7 +59,7 @@ export default {
   })
 
   it('fails: config file missing', async () => {
-    const result = await config()
+    const result = await loadConfig()
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error).toMatch(/Config not found:/)

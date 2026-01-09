@@ -172,7 +172,7 @@ export async function honoTakibi(): Promise<
           config['zod-openapi']?.components?.parameters?.output,
           config['zod-openapi']?.components?.parameters?.split ?? false,
           config['zod-openapi']?.components?.parameters?.exportTypes ?? false,
-          config['zod-openapi']?.components?.schemas,
+          config['zod-openapi']?.components,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.headers
@@ -181,7 +181,7 @@ export async function honoTakibi(): Promise<
           config['zod-openapi']?.components?.headers?.output,
           config['zod-openapi']?.components?.headers?.split ?? false,
           config['zod-openapi']?.components?.headers?.exportTypes ?? false,
-          config['zod-openapi']?.components?.schemas,
+          config['zod-openapi']?.components,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.examples
@@ -217,7 +217,7 @@ export async function honoTakibi(): Promise<
           openAPI.components?.requestBodies,
           config['zod-openapi']?.components?.requestBodies?.output,
           config['zod-openapi']?.components?.requestBodies?.split ?? false,
-          config['zod-openapi']?.components?.schemas,
+          config['zod-openapi']?.components,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.responses
@@ -225,7 +225,7 @@ export async function honoTakibi(): Promise<
           openAPI.components?.responses,
           config['zod-openapi']?.components?.responses?.output,
           config['zod-openapi']?.components?.responses?.split ?? false,
-          config['zod-openapi']?.components?.schemas,
+          config['zod-openapi']?.components,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.routes

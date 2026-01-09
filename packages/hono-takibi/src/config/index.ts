@@ -185,150 +185,155 @@ export function parseConfig(
   }
 
   // zod-openapi
-  const zodOpenAPI = config['zod-openapi']
-
-  if (zodOpenAPI !== undefined) {
+  if (config['zod-openapi'] !== undefined) {
     if (
-      zodOpenAPI.exportSchemasTypes !== undefined &&
-      typeof zodOpenAPI.exportSchemasTypes !== 'boolean'
+      config['zod-openapi'].exportSchemasTypes !== undefined &&
+      typeof config['zod-openapi'].exportSchemasTypes !== 'boolean'
     ) {
       return {
         ok: false,
-        error: `Invalid exportSchemasTypes format for zod-openapi: ${String(zodOpenAPI.exportSchemasTypes)}`,
-      }
-    }
-
-    if (zodOpenAPI.exportSchemas !== undefined && typeof zodOpenAPI.exportSchemas !== 'boolean') {
-      return {
-        ok: false,
-        error: `Invalid exportSchemas format for zod-openapi: ${String(zodOpenAPI.exportSchemas)}`,
+        error: `Invalid exportSchemasTypes format for zod-openapi: ${String(config['zod-openapi'].exportSchemasTypes)}`,
       }
     }
 
     if (
-      zodOpenAPI.exportParametersTypes !== undefined &&
-      typeof zodOpenAPI.exportParametersTypes !== 'boolean'
+      config['zod-openapi'].exportSchemas !== undefined &&
+      typeof config['zod-openapi'].exportSchemas !== 'boolean'
     ) {
       return {
         ok: false,
-        error: `Invalid exportParametersTypes format for zod-openapi: ${String(zodOpenAPI.exportParametersTypes)}`,
+        error: `Invalid exportSchemas format for zod-openapi: ${String(config['zod-openapi'].exportSchemas)}`,
       }
     }
 
     if (
-      zodOpenAPI.exportParameters !== undefined &&
-      typeof zodOpenAPI.exportParameters !== 'boolean'
+      config['zod-openapi'].exportParametersTypes !== undefined &&
+      typeof config['zod-openapi'].exportParametersTypes !== 'boolean'
     ) {
       return {
         ok: false,
-        error: `Invalid exportParameters format for zod-openapi: ${String(zodOpenAPI.exportParameters)}`,
+        error: `Invalid exportParametersTypes format for zod-openapi: ${String(config['zod-openapi'].exportParametersTypes)}`,
       }
     }
 
     if (
-      zodOpenAPI.exportSecuritySchemes !== undefined &&
-      typeof zodOpenAPI.exportSecuritySchemes !== 'boolean'
+      config['zod-openapi'].exportParameters !== undefined &&
+      typeof config['zod-openapi'].exportParameters !== 'boolean'
     ) {
       return {
         ok: false,
-        error: `Invalid exportSecuritySchemes format for zod-openapi: ${String(
-          zodOpenAPI.exportSecuritySchemes,
-        )}`,
+        error: `Invalid exportParameters format for zod-openapi: ${String(config['zod-openapi'].exportParameters)}`,
       }
     }
 
     if (
-      zodOpenAPI.exportRequestBodies !== undefined &&
-      typeof zodOpenAPI.exportRequestBodies !== 'boolean'
+      config['zod-openapi'].exportSecuritySchemes !== undefined &&
+      typeof config['zod-openapi'].exportSecuritySchemes !== 'boolean'
     ) {
       return {
         ok: false,
-        error: `Invalid exportRequestBodies format for zod-openapi: ${String(
-          zodOpenAPI.exportRequestBodies,
-        )}`,
-      }
-    }
-    if (
-      zodOpenAPI.exportResponses !== undefined &&
-      typeof zodOpenAPI.exportResponses !== 'boolean'
-    ) {
-      return {
-        ok: false,
-        error: `Invalid exportResponses format for zod-openapi: ${String(zodOpenAPI.exportResponses)}`,
+        error: `Invalid exportSecuritySchemes format for zod-openapi: ${String(config['zod-openapi'].exportSecuritySchemes)}`,
       }
     }
 
     if (
-      zodOpenAPI.exportHeadersTypes !== undefined &&
-      typeof zodOpenAPI.exportHeadersTypes !== 'boolean'
+      config['zod-openapi'].exportRequestBodies !== undefined &&
+      typeof config['zod-openapi'].exportRequestBodies !== 'boolean'
     ) {
       return {
         ok: false,
-        error: `Invalid exportHeadersTypes format for zod-openapi: ${String(zodOpenAPI.exportHeadersTypes)}`,
-      }
-    }
-
-    if (zodOpenAPI.exportHeaders !== undefined && typeof zodOpenAPI.exportHeaders !== 'boolean') {
-      return {
-        ok: false,
-        error: `Invalid exportHeaders format for zod-openapi: ${String(zodOpenAPI.exportHeaders)}`,
-      }
-    }
-
-    if (zodOpenAPI.exportExamples !== undefined && typeof zodOpenAPI.exportExamples !== 'boolean') {
-      return {
-        ok: false,
-        error: `Invalid exportExamples format for zod-openapi: ${String(zodOpenAPI.exportExamples)}`,
-      }
-    }
-
-    if (zodOpenAPI.exportLinks !== undefined && typeof zodOpenAPI.exportLinks !== 'boolean') {
-      return {
-        ok: false,
-        error: `Invalid exportLinks format for zod-openapi: ${String(zodOpenAPI.exportLinks)}`,
+        error: `Invalid exportRequestBodies format for zod-openapi: ${String(config['zod-openapi'].exportRequestBodies)}`,
       }
     }
     if (
-      zodOpenAPI.exportCallbacks !== undefined &&
-      typeof zodOpenAPI.exportCallbacks !== 'boolean'
+      config['zod-openapi'].exportResponses !== undefined &&
+      typeof config['zod-openapi'].exportResponses !== 'boolean'
     ) {
       return {
         ok: false,
-        error: `Invalid exportCallbacks format for zod-openapi: ${String(zodOpenAPI.exportCallbacks)}`,
+        error: `Invalid exportResponses format for zod-openapi: ${String(config['zod-openapi'].exportResponses)}`,
+      }
+    }
+
+    if (
+      config['zod-openapi'].exportHeadersTypes !== undefined &&
+      typeof config['zod-openapi'].exportHeadersTypes !== 'boolean'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid exportHeadersTypes format for zod-openapi: ${String(config['zod-openapi'].exportHeadersTypes)}`,
+      }
+    }
+
+    if (
+      config['zod-openapi'].exportHeaders !== undefined &&
+      typeof config['zod-openapi'].exportHeaders !== 'boolean'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid exportHeaders format for zod-openapi: ${String(config['zod-openapi'].exportHeaders)}`,
+      }
+    }
+
+    if (
+      config['zod-openapi'].exportExamples !== undefined &&
+      typeof config['zod-openapi'].exportExamples !== 'boolean'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid exportExamples format for zod-openapi: ${String(config['zod-openapi'].exportExamples)}`,
+      }
+    }
+
+    if (
+      config['zod-openapi'].exportLinks !== undefined &&
+      typeof config['zod-openapi'].exportLinks !== 'boolean'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid exportLinks format for zod-openapi: ${String(config['zod-openapi'].exportLinks)}`,
+      }
+    }
+    if (
+      config['zod-openapi'].exportCallbacks !== undefined &&
+      typeof config['zod-openapi'].exportCallbacks !== 'boolean'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid exportCallbacks format for zod-openapi: ${String(config['zod-openapi'].exportCallbacks)}`,
       }
     }
   }
 
-  const routes = zodOpenAPI?.routes
-  if (routes !== undefined) {
-    const splitValue = routes.split
-    if (splitValue !== undefined && typeof splitValue !== 'boolean') {
+  if (config['zod-openapi']?.routes !== undefined) {
+    if (
+      config['zod-openapi'].routes.split !== undefined &&
+      typeof config['zod-openapi'].routes.split !== 'boolean'
+    ) {
       return {
         ok: false,
-        error: `Invalid split format for routes: ${String(splitValue)}`,
+        error: `Invalid split format for routes: ${String(config['zod-openapi'].routes.split)}`,
       }
     }
-    const isSplit = splitValue ?? false
-    if (isSplit) {
-      if (isTs(routes.output)) {
+    if (config['zod-openapi'].routes.split === true) {
+      if (isTs(config['zod-openapi'].routes.output)) {
         return {
           ok: false,
-          error: `Invalid routes output path for split mode (must be a directory, not .ts): ${routes.output}`,
+          error: `Invalid routes output path for split mode (must be a directory, not .ts): ${config['zod-openapi'].routes.output}`,
         }
       }
     } else {
-      if (!isTs(routes.output)) {
+      if (!isTs(config['zod-openapi'].routes.output)) {
         return {
           ok: false,
-          error: `Invalid routes output path for non-split mode (must be .ts file): ${routes.output}`,
+          error: `Invalid routes output path for non-split mode (must be .ts file): ${config['zod-openapi'].routes.output}`,
         }
       }
     }
   }
 
-  const components = zodOpenAPI?.components
-  if (components !== undefined) {
-    for (const k in components) {
+  if (config['zod-openapi']?.components !== undefined) {
+    for (const k in config['zod-openapi'].components) {
       if (
         k === 'schemas' ||
         k === 'parameters' ||
@@ -340,50 +345,46 @@ export function parseConfig(
         k === 'links' ||
         k === 'callbacks'
       ) {
-        const result = parseComponentsValue(k, components[k])
+        const result = parseComponentsValue(k, config['zod-openapi'].components[k])
         if (!result.ok) return { ok: false, error: result.error }
       }
     }
   }
 
   // type
-  const type = config.type
-  if (type !== undefined) {
-    if (!isTs(type.output)) {
+  if (config.type !== undefined) {
+    if (!isTs(config.type.output)) {
       return {
         ok: false,
-        error: `Invalid type output format: ${String(type.output)} (must be .ts file)`,
+        error: `Invalid type output format: ${String(config.type.output)} (must be .ts file)`,
       }
     }
   }
 
   // rpc
-  const rpc = config.rpc
-  if (rpc !== undefined) {
-    if (typeof rpc.output !== 'string') {
-      return { ok: false, error: `Invalid output format for rpc: ${String(rpc.output)}` }
+  if (config.rpc !== undefined) {
+    if (typeof config.rpc.output !== 'string') {
+      return { ok: false, error: `Invalid output format for rpc: ${String(config.rpc.output)}` }
     }
-    if (typeof rpc.import !== 'string') {
-      return { ok: false, error: `Invalid import format for rpc: ${String(rpc.import)}` }
+    if (typeof config.rpc.import !== 'string') {
+      return { ok: false, error: `Invalid import format for rpc: ${String(config.rpc.import)}` }
     }
-    const splitValue = rpc.split
-    if (splitValue !== undefined && typeof splitValue !== 'boolean') {
-      return { ok: false, error: `Invalid split format for rpc: ${String(splitValue)}` }
+    if (config.rpc.split !== undefined && typeof config.rpc.split !== 'boolean') {
+      return { ok: false, error: `Invalid split format for rpc: ${String(config.rpc.split)}` }
     }
     // split
-    const isSplit = splitValue ?? false
-    if (isSplit) {
-      if (isTs(rpc.output)) {
+    if (config.rpc.split === true) {
+      if (isTs(config.rpc.output)) {
         return {
           ok: false,
-          error: `Invalid rpc output path for split mode (must be a directory, not .ts): ${rpc.output}`,
+          error: `Invalid rpc output path for split mode (must be a directory, not .ts): ${config.rpc.output}`,
         }
       }
     } else {
-      if (!isTs(rpc.output)) {
+      if (!isTs(config.rpc.output)) {
         return {
           ok: false,
-          error: `Invalid output format for rpc (non-split mode must be .ts file): ${String(rpc.output)}`,
+          error: `Invalid output format for rpc (non-split mode must be .ts file): ${String(config.rpc.output)}`,
         }
       }
     }

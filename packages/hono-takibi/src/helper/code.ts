@@ -35,8 +35,9 @@ export function makeExportConst(value: { readonly [k: string]: unknown }, suffix
 
 /**
  * Universal import generator.
- * @param isRoute - true for route files (createRoute), false for components (z only)
- * @param prefix - module prefix for fallback paths (default: '.')
+ *
+ * Automatically detects whether createRoute is needed by checking code content.
+ * @param split - Whether in split mode (affects fallback path: '..' for split, '.' for single file)
  */
 export function makeImports(
   code: string,
@@ -50,8 +51,7 @@ export function makeImports(
         }
       }
     | undefined,
-  isRoute: boolean,
-  prefix = '.',
+  split = false,
 ): string {
   // Regex patterns for each OpenAPI component type
   // Using negative lookbehind to exclude ParamsSchema and HeaderSchema from Schema matches
@@ -66,6 +66,7 @@ export function makeImports(
     { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Callback)\b/g, key: 'callbacks' },
   ]
 
+  const prefix = split ? '..' : '.'
   const resolvePath = (key: string): string => {
     const target = components?.[key]
     return target?.import ?? (target ? makeModuleSpec(fromFile, target) : `${prefix}/${key}`)
@@ -79,9 +80,10 @@ export function makeImports(
     ).filter(Boolean),
   )
 
-  // Build hono import
+  // Build hono import - auto-detect createRoute usage
   const needsZ = code.includes('z.')
-  const honoLine = isRoute
+  const needsCreateRoute = code.includes('createRoute(')
+  const honoLine = needsCreateRoute
     ? `import{createRoute${needsZ ? ',z' : ''}}from'@hono/zod-openapi'`
     : needsZ
       ? `import{z}from'@hono/zod-openapi'`

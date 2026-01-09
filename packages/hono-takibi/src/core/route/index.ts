@@ -82,7 +82,7 @@ export async function route(
 
   // Write a single route file
   const writeFile = async (filePath: string, src: string) => {
-    const code = makeImports(src, filePath, components, true)
+    const code = makeImports(src, filePath, components)
     const result = await core(code, path.dirname(filePath), filePath)
     return result.ok ? { ok: true as const, value: filePath } : result
   }

@@ -43,7 +43,13 @@ export async function requestBodies(
   requestBodies: Components['requestBodies'],
   output: string,
   split: boolean,
-  imports?: { readonly output: string; readonly split?: boolean; readonly import?: string },
+  components?: {
+    readonly [k: string]: {
+      readonly output: string | `${string}.ts`
+      readonly split?: boolean
+      readonly import?: string
+    }
+  },
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -52,10 +58,8 @@ export async function requestBodies(
   const bodyNames = Object.keys(requestBodies)
   if (bodyNames.length === 0) return { ok: true, value: 'No requestBodies found' }
 
-  const prefix = split ? '..' : '.'
-  const componentImports = imports ? { schemas: imports } : undefined
   const toFileCode = (code: string, filePath: string) =>
-    makeImports(code, filePath, componentImports, false, prefix)
+    makeImports(code, filePath, components, split)
 
   if (split) {
     const outDir = String(output).replace(/\.ts$/, '')
