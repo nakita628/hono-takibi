@@ -221,34 +221,35 @@ const debounce = (ms: number, fn: () => void): (() => void) => {
  * @param c - Parsed configuration object
  * @returns Promise resolving to object containing log messages
  */
-const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
-  const openAPIResult = await parseOpenAPI(c.input)
+const runAllWithConf = async (config: Conf): Promise<{ logs: string[] }> => {
+  const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { logs: [`✗ parseOpenAPI: ${openAPIResult.error}`] }
   const openAPI = openAPIResult.value
 
   const jobs: Array<Promise<string>> = []
 
-  const zodOpenAPI = c['zod-openapi']
-  const components = zodOpenAPI?.components
-
   // zod-openapi top-level output (non-split)
-  if (zodOpenAPI && !(components?.schemas || zodOpenAPI.routes) && zodOpenAPI.output) {
-    const out = toAbs(zodOpenAPI.output)
+  if (
+    config['zod-openapi'] &&
+    !(config['zod-openapi'].components?.schemas || config['zod-openapi'].routes) &&
+    config['zod-openapi'].output
+  ) {
+    const out = toAbs(config['zod-openapi'].output)
     const runZodOpenAPI = async () => {
       if (!isTsFile(out)) return `✗ zod-openapi: Invalid output format: ${out}`
       const result = await takibi(openAPI, out, false, false, '/', {
-        exportSchemasTypes: zodOpenAPI.exportSchemasTypes ?? false,
-        exportSchemas: zodOpenAPI.exportSchemas ?? false,
-        exportParametersTypes: zodOpenAPI.exportParametersTypes ?? false,
-        exportParameters: zodOpenAPI.exportParameters ?? false,
-        exportSecuritySchemes: zodOpenAPI.exportSecuritySchemes ?? false,
-        exportRequestBodies: zodOpenAPI.exportRequestBodies ?? false,
-        exportResponses: zodOpenAPI.exportResponses ?? false,
-        exportHeadersTypes: zodOpenAPI.exportHeadersTypes ?? false,
-        exportHeaders: zodOpenAPI.exportHeaders ?? false,
-        exportExamples: zodOpenAPI.exportExamples ?? false,
-        exportLinks: zodOpenAPI.exportLinks ?? false,
-        exportCallbacks: zodOpenAPI.exportCallbacks ?? false,
+        exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,
+        exportSchemas: config['zod-openapi']?.exportSchemas ?? false,
+        exportParametersTypes: config['zod-openapi']?.exportParametersTypes ?? false,
+        exportParameters: config['zod-openapi']?.exportParameters ?? false,
+        exportSecuritySchemes: config['zod-openapi']?.exportSecuritySchemes ?? false,
+        exportRequestBodies: config['zod-openapi']?.exportRequestBodies ?? false,
+        exportResponses: config['zod-openapi']?.exportResponses ?? false,
+        exportHeadersTypes: config['zod-openapi']?.exportHeadersTypes ?? false,
+        exportHeaders: config['zod-openapi']?.exportHeaders ?? false,
+        exportExamples: config['zod-openapi']?.exportExamples ?? false,
+        exportLinks: config['zod-openapi']?.exportLinks ?? false,
+        exportCallbacks: config['zod-openapi']?.exportCallbacks ?? false,
       })
       return result.ok ? `✓ zod-openapi -> ${out}` : `✗ zod-openapi: ${result.error}`
     }
@@ -256,8 +257,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // components.schemas
-  if (components?.schemas) {
-    const schemasConfig = components.schemas
+  if (config['zod-openapi']?.components?.schemas) {
+    const schemasConfig = config['zod-openapi'].components.schemas
     const runSchema = async () => {
       if (schemasConfig.split === true) {
         const outDir = toAbs(schemasConfig.output)
@@ -286,8 +287,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // components.parameters
-  if (components?.parameters) {
-    const parametersConfig = components.parameters
+  if (config['zod-openapi']?.components?.parameters) {
+    const parametersConfig = config['zod-openapi'].components.parameters
     const runParameters = async () => {
       const outDir = toAbs(parametersConfig.output)
       if (parametersConfig.split === true) await deleteAllTsShallow(outDir)
@@ -296,7 +297,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
         outDir,
         parametersConfig.split === true,
         parametersConfig.exportTypes === true,
-        components?.schemas,
+        config['zod-openapi']?.components?.schemas,
       )
       return parameterResult.ok
         ? `✓ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outDir}`
@@ -306,8 +307,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // components.headers
-  if (components?.headers) {
-    const headersConfig = components.headers
+  if (config['zod-openapi']?.components?.headers) {
+    const headersConfig = config['zod-openapi'].components.headers
     const runHeaders = async () => {
       const outDir = toAbs(headersConfig.output)
       if (headersConfig.split === true) await deleteAllTsShallow(outDir)
@@ -316,7 +317,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
         outDir,
         headersConfig.split === true,
         headersConfig.exportTypes === true,
-        components?.schemas,
+        config['zod-openapi']?.components?.schemas,
       )
       return headersResult.ok
         ? `✓ headers${headersConfig.split === true ? '(split)' : ''} -> ${outDir}`
@@ -326,8 +327,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // components.examples
-  if (components?.examples) {
-    const examplesConfig = components.examples
+  if (config['zod-openapi']?.components?.examples) {
+    const examplesConfig = config['zod-openapi'].components.examples
     const runExamples = async () => {
       const outDir = toAbs(examplesConfig.output)
       if (examplesConfig.split === true) await deleteAllTsShallow(outDir)
@@ -344,8 +345,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // components.links
-  if (components?.links) {
-    const linksConfig = components.links
+  if (config['zod-openapi']?.components?.links) {
+    const linksConfig = config['zod-openapi'].components.links
     const runLinks = async () => {
       const outDir = toAbs(linksConfig.output)
       if (linksConfig.split === true) await deleteAllTsShallow(outDir)
@@ -358,8 +359,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // components.callbacks
-  if (components?.callbacks) {
-    const callbacksConfig = components.callbacks
+  if (config['zod-openapi']?.components?.callbacks) {
+    const callbacksConfig = config['zod-openapi'].components.callbacks
     const runCallbacks = async () => {
       const outDir = toAbs(callbacksConfig.output)
       if (callbacksConfig.split === true) await deleteAllTsShallow(outDir)
@@ -376,8 +377,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // components.securitySchemes
-  if (components?.securitySchemes) {
-    const securitySchemesConfig = components.securitySchemes
+  if (config['zod-openapi']?.components?.securitySchemes) {
+    const securitySchemesConfig = config['zod-openapi'].components.securitySchemes
     const runSecuritySchemes = async () => {
       const outDir = toAbs(securitySchemesConfig.output)
       if (securitySchemesConfig.split === true) await deleteAllTsShallow(outDir)
@@ -394,8 +395,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // components.requestBodies
-  if (components?.requestBodies) {
-    const requestBodiesConfig = components.requestBodies
+  if (config['zod-openapi']?.components?.requestBodies) {
+    const requestBodiesConfig = config['zod-openapi'].components.requestBodies
     const runRequestBodies = async () => {
       const outDir = toAbs(requestBodiesConfig.output)
       if (requestBodiesConfig.split === true) await deleteAllTsShallow(outDir)
@@ -403,7 +404,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
         openAPI.components?.requestBodies,
         outDir,
         requestBodiesConfig.split === true,
-        components?.schemas,
+        config['zod-openapi']?.components?.schemas,
       )
       return requestBodiesResult.ok
         ? `✓ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outDir}`
@@ -413,8 +414,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // components.responses
-  if (components?.responses) {
-    const responsesConfig = components.responses
+  if (config['zod-openapi']?.components?.responses) {
+    const responsesConfig = config['zod-openapi'].components.responses
     const runResponses = async () => {
       const outDir = toAbs(responsesConfig.output)
       if (responsesConfig.split === true) await deleteAllTsShallow(outDir)
@@ -422,7 +423,7 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
         openAPI.components?.responses,
         outDir,
         responsesConfig.split === true,
-        components?.schemas,
+        config['zod-openapi']?.components?.schemas,
       )
       return responsesResult.ok
         ? `✓ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outDir}`
@@ -432,15 +433,15 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // zod-openapi.routes
-  if (zodOpenAPI?.routes) {
-    const routesConfig = zodOpenAPI.routes
+  if (config['zod-openapi']?.routes) {
+    const routesConfig = config['zod-openapi'].routes
     const runRoutes = async () => {
       const out = toAbs(routesConfig.output)
       if (routesConfig.split === true) await deleteAllTsShallow(out)
       const routeResult = await route(
         openAPI,
         { output: out, split: routesConfig.split ?? false },
-        components,
+        config['zod-openapi']?.components,
       )
       return routeResult.ok
         ? `✓ routes${routesConfig.split === true ? '(split)' : ''} -> ${out}`
@@ -450,8 +451,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // type
-  if (c.type) {
-    const typeConfig = c.type
+  if (config.type) {
+    const typeConfig = config.type
     const out = toAbs(typeConfig.output)
     const runType = async () => {
       if (!isTsFile(out)) return `✗ type: Invalid output format: ${out}`
@@ -462,8 +463,8 @@ const runAllWithConf = async (c: Conf): Promise<{ logs: string[] }> => {
   }
 
   // rpc
-  if (c.rpc) {
-    const rpcConfig = c.rpc
+  if (config.rpc) {
+    const rpcConfig = config.rpc
     const runRpc = async () => {
       if (rpcConfig.split === true) {
         const outDir = toAbs(rpcConfig.output)

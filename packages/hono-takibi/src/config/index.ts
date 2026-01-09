@@ -391,7 +391,7 @@ export function parseConfig(
   return { ok: true, value: config }
 }
 
-export async function config(): Promise<
+export async function loadConfig(): Promise<
   | {
       readonly ok: true
       readonly value: Config
