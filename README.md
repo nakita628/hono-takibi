@@ -123,6 +123,96 @@ npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-sche
 
 Config used by both the CLI and the Vite plugin.
 
+### Config Reference
+
+All available options are shown below. In practice, use only the options you need.
+
+```ts
+// hono-takibi.config.ts
+import { defineConfig } from 'hono-takibi/config'
+
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    output: './src/index.ts',
+    exportSchemas: true,
+    exportSchemasTypes: true,
+    exportParameters: true,
+    exportParametersTypes: true,
+    exportSecuritySchemes: true,
+    exportRequestBodies: true,
+    exportResponses: true,
+    exportHeaders: true,
+    exportHeadersTypes: true,
+    exportExamples: true,
+    exportLinks: true,
+    exportCallbacks: true,
+    routes: {
+      output: './src/routes',
+      split: true,
+    },
+    components: {
+      schemas: {
+        output: './src/schemas',
+        exportTypes: true,
+        split: true,
+        import: '../schemas',
+      },
+      parameters: {
+        output: './src/parameters',
+        exportTypes: true,
+        split: true,
+        import: '../parameters',
+      },
+      securitySchemes: {
+        output: './src/securitySchemes',
+        split: true,
+        import: '../securitySchemes',
+      },
+      requestBodies: {
+        output: './src/requestBodies',
+        split: true,
+        import: '../requestBodies',
+      },
+      responses: {
+        output: './src/responses',
+        split: true,
+        import: '../responses',
+      },
+      headers: {
+        output: './src/headers',
+        exportTypes: true,
+        split: true,
+        import: '../headers',
+      },
+      examples: {
+        output: './src/examples',
+        split: true,
+        import: '../examples',
+      },
+      links: {
+        output: './src/links',
+        split: true,
+        import: '../links',
+      },
+      callbacks: {
+        output: './src/callbacks',
+        split: true,
+        import: '../callbacks',
+      },
+    },
+  },
+  type: {
+    output: './src/types.ts',
+  },
+  rpc: {
+    output: './src/rpc',
+    import: '../client',
+    split: true,
+  },
+})
+```
+
 ## Essentials
 
 * Put **`hono-takibi.config.ts`** at repo root.
@@ -162,8 +252,6 @@ Works with either pattern.
 * `split: true` → `output` is a **directory**; many files + `index.ts`.
 * `split` **omitted** or `false` → `output` is **one `*.ts` file**.
 
-**Example (split: true)**
-
 ```ts
 import { defineConfig } from 'hono-takibi/config'
 
@@ -171,18 +259,6 @@ export default defineConfig({
   input: 'openapi.yaml',
   'zod-openapi': { output: './src/index.ts', exportSchemas: true, exportSchemasTypes: true },
   rpc: { output: './src/rpc', import: '../client', split: true },
-})
-```
-
-**Example (single file; split omitted/false)**
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchemas: true, exportSchemasTypes: true },
-  rpc: { output: './src/rpc/index.ts', import: '../client' },
 })
 ```
 

@@ -8,8 +8,8 @@ import { client } from '../clients/hono-rest-example'
  *
  * Retrieve a simple welcome message from the Hono API.
  */
-export async function get(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.index.$get(args, options)
+export async function get(options?: ClientRequestOptions) {
+  return await client.index.$get(undefined, options)
 }
 
 /**
@@ -48,7 +48,7 @@ export async function putPostsId(
   args: { param: { id: string }; json: { post: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':id']['$put'](args, options)
+  return await client.posts[':id'].$put(args, options)
 }
 
 /**
@@ -62,5 +62,5 @@ export async function deletePostsId(
   args: { param: { id: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':id']['$delete'](args, options)
+  return await client.posts[':id'].$delete(args, options)
 }

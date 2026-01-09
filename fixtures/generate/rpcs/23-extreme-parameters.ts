@@ -21,9 +21,9 @@ export async function getAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['a'][':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][
-    ':p7'
-  ]['h'][':p8']['i'][':p9']['j'][':p10']['$get'](args, options)
+  return await client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[
+    ':p9'
+  ].j[':p10'].$get(args, options)
 }
 
 /**
@@ -50,7 +50,7 @@ export async function getQueryStyles(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['query-styles']['$get'](args, options)
+  return await client['query-styles'].$get(args, options)
 }
 
 /**
@@ -60,7 +60,7 @@ export async function getPathStylesSimpleLabelMatrix(
   args: { param: { simple: string[]; label: string[]; matrix: { x?: number; y?: number } } },
   options?: ClientRequestOptions,
 ) {
-  return await client['path-styles'][':simple'][':label'][':matrix']['$get'](args, options)
+  return await client['path-styles'][':simple'][':label'][':matrix'].$get(args, options)
 }
 
 /**
@@ -95,7 +95,7 @@ export async function getHeaderStyles(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['header-styles']['$get'](args, options)
+  return await client['header-styles'].$get(args, options)
 }
 
 /**
@@ -117,7 +117,7 @@ export async function getCookieStyles(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['cookie-styles']['$get'](args, options)
+  return await client['cookie-styles'].$get(args, options)
 }
 
 /**
@@ -178,7 +178,7 @@ export async function getManyQueryParams(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['many-query-params']['$get'](args, options)
+  return await client['many-query-params'].$get(args, options)
 }
 
 /**
@@ -197,7 +197,7 @@ export async function getParameterContent(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['parameter-content']['$get'](args, options)
+  return await client['parameter-content'].$get(args, options)
 }
 
 /**
@@ -210,7 +210,7 @@ export async function getDeprecatedParams(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['deprecated-params']['$get'](args, options)
+  return await client['deprecated-params'].$get(args, options)
 }
 
 /**
@@ -226,5 +226,5 @@ export async function getExamplesParams(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['examples-params']['$get'](args, options)
+  return await client['examples-params'].$get(args, options)
 }

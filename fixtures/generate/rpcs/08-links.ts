@@ -18,7 +18,7 @@ export async function getOrdersOrderId(
   args: { param: { orderId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['orders'][':orderId']['$get'](args, options)
+  return await client.orders[':orderId'].$get(args, options)
 }
 
 /**
@@ -28,7 +28,7 @@ export async function deleteOrdersOrderId(
   args: { param: { orderId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['orders'][':orderId']['$delete'](args, options)
+  return await client.orders[':orderId'].$delete(args, options)
 }
 
 /**
@@ -38,7 +38,7 @@ export async function getOrdersOrderIdItems(
   args: { param: { orderId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['orders'][':orderId']['items']['$get'](args, options)
+  return await client.orders[':orderId'].items.$get(args, options)
 }
 
 /**
@@ -48,7 +48,7 @@ export async function getCustomersCustomerId(
   args: { param: { customerId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['customers'][':customerId']['$get'](args, options)
+  return await client.customers[':customerId'].$get(args, options)
 }
 
 /**
@@ -58,7 +58,7 @@ export async function getCustomersCustomerIdOrders(
   args: { param: { customerId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['customers'][':customerId']['orders']['$get'](args, options)
+  return await client.customers[':customerId'].orders.$get(args, options)
 }
 
 /**
@@ -68,5 +68,5 @@ export async function getPaymentsPaymentId(
   args: { param: { paymentId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['payments'][':paymentId']['$get'](args, options)
+  return await client.payments[':paymentId'].$get(args, options)
 }

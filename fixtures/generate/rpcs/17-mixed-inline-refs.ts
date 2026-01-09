@@ -55,7 +55,7 @@ export async function getUsersUserId(
   args: { param: { userId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$get'](args, options)
+  return await client.users[':userId'].$get(args, options)
 }
 
 /**
@@ -96,7 +96,7 @@ export async function getProductsProductIdVariants(
   args: { param: { productId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['products'][':productId']['variants']['$get'](args, options)
+  return await client.products[':productId'].variants.$get(args, options)
 }
 
 /**
@@ -150,7 +150,7 @@ export async function postReportsGenerate(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['reports']['generate']['$post'](args, options)
+  return await client.reports.generate.$post(args, options)
 }
 
 /**
@@ -327,5 +327,5 @@ export async function postWebhooksTest(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['webhooks']['test']['$post'](args, options)
+  return await client.webhooks.test.$post(args, options)
 }

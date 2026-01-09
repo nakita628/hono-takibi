@@ -8,6 +8,6 @@ import { client } from '../clients/openapi-number'
  *
  * zod number
  */
-export async function getNumber(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.number.$get(args, options)
+export async function getNumber(options?: ClientRequestOptions) {
+  return await client.number.$get(undefined, options)
 }

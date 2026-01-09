@@ -12,7 +12,7 @@ export async function postAuthRegister(
   args: { json: { email: string; password: string; name: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['auth']['register']['$post'](args, options)
+  return await client.auth.register.$post(args, options)
 }
 
 /**
@@ -26,7 +26,7 @@ export async function postAuthLogin(
   args: { json: { email: string; password: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['auth']['login']['$post'](args, options)
+  return await client.auth.login.$post(args, options)
 }
 
 /**
@@ -40,7 +40,7 @@ export async function postAuthRefresh(
   args: { json: { refreshToken: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['auth']['refresh']['$post'](args, options)
+  return await client.auth.refresh.$post(args, options)
 }
 
 /**
@@ -48,8 +48,8 @@ export async function postAuthRefresh(
  *
  * ログアウト
  */
-export async function postAuthLogout(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['auth']['logout']['$post'](args, options)
+export async function postAuthLogout(options?: ClientRequestOptions) {
+  return await client.auth.logout.$post(undefined, options)
 }
 
 /**
@@ -63,7 +63,7 @@ export async function postAuthPasswordForgot(
   args: { json: { email: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['auth']['password']['forgot']['$post'](args, options)
+  return await client.auth.password.forgot.$post(args, options)
 }
 
 /**
@@ -75,7 +75,7 @@ export async function postAuthPasswordReset(
   args: { json: { token: string; password: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['auth']['password']['reset']['$post'](args, options)
+  return await client.auth.password.reset.$post(args, options)
 }
 
 /**
@@ -109,7 +109,7 @@ export async function getUsersUserId(
   args: { param: { userId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$get'](args, options)
+  return await client.users[':userId'].$get(args, options)
 }
 
 /**
@@ -121,7 +121,7 @@ export async function deleteUsersUserId(
   args: { param: { userId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$delete'](args, options)
+  return await client.users[':userId'].$delete(args, options)
 }
 
 /**
@@ -136,7 +136,7 @@ export async function patchUsersUserId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$patch'](args, options)
+  return await client.users[':userId'].$patch(args, options)
 }
 
 /**
@@ -144,8 +144,8 @@ export async function patchUsersUserId(
  *
  * 現在のユーザー情報取得
  */
-export async function getUsersMe(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['users']['me']['$get'](args, options)
+export async function getUsersMe(options?: ClientRequestOptions) {
+  return await client.users.me.$get(undefined, options)
 }
 
 /**
@@ -157,7 +157,7 @@ export async function patchUsersMe(
   args: { json: { name?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users']['me']['$patch'](args, options)
+  return await client.users.me.$patch(args, options)
 }
 
 /**
@@ -169,7 +169,7 @@ export async function putUsersMePassword(
   args: { json: { currentPassword: string; newPassword: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users']['me']['password']['$put'](args, options)
+  return await client.users.me.password.$put(args, options)
 }
 
 /**
@@ -181,7 +181,7 @@ export async function putUsersMeAvatar(
   args: { form: { file: File } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users']['me']['avatar']['$put'](args, options)
+  return await client.users.me.avatar.$put(args, options)
 }
 
 /**
@@ -189,6 +189,6 @@ export async function putUsersMeAvatar(
  *
  * アバター画像削除
  */
-export async function deleteUsersMeAvatar(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['users']['me']['avatar']['$delete'](args, options)
+export async function deleteUsersMeAvatar(options?: ClientRequestOptions) {
+  return await client.users.me.avatar.$delete(undefined, options)
 }

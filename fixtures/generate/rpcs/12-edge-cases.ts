@@ -4,57 +4,57 @@ import { client } from '../clients/12-edge-cases'
 /**
  * GET /all-methods
  */
-export async function getAllMethods(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['all-methods']['$get'](args, options)
+export async function getAllMethods(options?: ClientRequestOptions) {
+  return await client['all-methods'].$get(undefined, options)
 }
 
 /**
  * PUT /all-methods
  */
-export async function putAllMethods(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['all-methods']['$put'](args, options)
+export async function putAllMethods(options?: ClientRequestOptions) {
+  return await client['all-methods'].$put(undefined, options)
 }
 
 /**
  * POST /all-methods
  */
-export async function postAllMethods(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['all-methods']['$post'](args, options)
+export async function postAllMethods(options?: ClientRequestOptions) {
+  return await client['all-methods'].$post(undefined, options)
 }
 
 /**
  * DELETE /all-methods
  */
-export async function deleteAllMethods(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['all-methods']['$delete'](args, options)
+export async function deleteAllMethods(options?: ClientRequestOptions) {
+  return await client['all-methods'].$delete(undefined, options)
 }
 
 /**
  * OPTIONS /all-methods
  */
-export async function optionsAllMethods(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['all-methods']['$options'](args, options)
+export async function optionsAllMethods(options?: ClientRequestOptions) {
+  return await client['all-methods'].$options(undefined, options)
 }
 
 /**
  * HEAD /all-methods
  */
-export async function headAllMethods(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['all-methods']['$head'](args, options)
+export async function headAllMethods(options?: ClientRequestOptions) {
+  return await client['all-methods'].$head(undefined, options)
 }
 
 /**
  * PATCH /all-methods
  */
-export async function patchAllMethods(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['all-methods']['$patch'](args, options)
+export async function patchAllMethods(options?: ClientRequestOptions) {
+  return await client['all-methods'].$patch(undefined, options)
 }
 
 /**
  * TRACE /all-methods
  */
-export async function traceAllMethods(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['all-methods']['$trace'](args, options)
+export async function traceAllMethods(options?: ClientRequestOptions) {
+  return await client['all-methods'].$trace(undefined, options)
 }
 
 /**
@@ -64,10 +64,7 @@ export async function getUsersUserIdPostsPostIdCommentsCommentId(
   args: { param: { userId: string; postId: number; commentId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['posts'][':postId']['comments'][':commentId']['$get'](
-    args,
-    options,
-  )
+  return await client.users[':userId'].posts[':postId'].comments[':commentId'].$get(args, options)
 }
 
 /**
@@ -82,21 +79,21 @@ export async function getParamsTestPathParam(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['params-test'][':pathParam']['$get'](args, options)
+  return await client['params-test'][':pathParam'].$get(args, options)
 }
 
 /**
  * POST /no-content
  */
-export async function postNoContent(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['no-content']['$post'](args, options)
+export async function postNoContent(options?: ClientRequestOptions) {
+  return await client['no-content'].$post(undefined, options)
 }
 
 /**
  * GET /multi-content
  */
-export async function getMultiContent(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['multi-content']['$get'](args, options)
+export async function getMultiContent(options?: ClientRequestOptions) {
+  return await client['multi-content'].$get(undefined, options)
 }
 
 /**
@@ -109,14 +106,14 @@ export async function postMultiContent(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['multi-content']['$post'](args, options)
+  return await client['multi-content'].$post(args, options)
 }
 
 /**
  * GET /response-ranges
  */
-export async function getResponseRanges(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['response-ranges']['$get'](args, options)
+export async function getResponseRanges(options?: ClientRequestOptions) {
+  return await client['response-ranges'].$get(undefined, options)
 }
 
 /**
@@ -124,8 +121,8 @@ export async function getResponseRanges(args?: {} | undefined, options?: ClientR
  *
  * This operation is deprecated
  */
-export async function getDeprecated(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.deprecated.$get(args, options)
+export async function getDeprecated(options?: ClientRequestOptions) {
+  return await client.deprecated.$get(undefined, options)
 }
 
 /**
@@ -133,29 +130,29 @@ export async function getDeprecated(args?: {} | undefined, options?: ClientReque
  *
  * Operation without operationId
  */
-export async function getNoOperationId(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['no-operation-id']['$get'](args, options)
+export async function getNoOperationId(options?: ClientRequestOptions) {
+  return await client['no-operation-id'].$get(undefined, options)
 }
 
 /**
  * POST /empty-body
  */
 export async function postEmptyBody(args: { json: {} }, options?: ClientRequestOptions) {
-  return await client['empty-body']['$post'](args, options)
+  return await client['empty-body'].$post(args, options)
 }
 
 /**
  * GET /circular
  */
-export async function getCircular(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.circular.$get(args, options)
+export async function getCircular(options?: ClientRequestOptions) {
+  return await client.circular.$get(undefined, options)
 }
 
 /**
  * GET /deep-nesting
  */
-export async function getDeepNesting(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['deep-nesting']['$get'](args, options)
+export async function getDeepNesting(options?: ClientRequestOptions) {
+  return await client['deep-nesting'].$get(undefined, options)
 }
 
 /**
@@ -165,7 +162,7 @@ export async function getArrayParams(
   args: { query: { ids?: string[]; tags?: string[]; values?: number[]; coords?: number[] } },
   options?: ClientRequestOptions,
 ) {
-  return await client['array-params']['$get'](args, options)
+  return await client['array-params'].$get(args, options)
 }
 
 /**
@@ -175,5 +172,5 @@ export async function getObjectParam(
   args: { query: { filter?: { name?: string; minPrice?: number; maxPrice?: number } } },
   options?: ClientRequestOptions,
 ) {
-  return await client['object-param']['$get'](args, options)
+  return await client['object-param'].$get(args, options)
 }

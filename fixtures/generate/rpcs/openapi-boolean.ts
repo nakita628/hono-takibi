@@ -8,6 +8,6 @@ import { client } from '../clients/openapi-boolean'
  *
  * zod boolean
  */
-export async function getBoolean(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.boolean.$get(args, options)
+export async function getBoolean(options?: ClientRequestOptions) {
+  return await client.boolean.$get(undefined, options)
 }

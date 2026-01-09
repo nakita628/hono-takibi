@@ -6,8 +6,8 @@ import { client } from '../clients/complex-openapi'
  *
  * List all users
  */
-export async function getUsers(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.users.$get(args, options)
+export async function getUsers(options?: ClientRequestOptions) {
+  return await client.users.$get(undefined, options)
 }
 
 /**
@@ -38,7 +38,7 @@ export async function getUsersUserId(
   args: { param: { userId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$get'](args, options)
+  return await client.users[':userId'].$get(args, options)
 }
 
 /**
@@ -58,7 +58,7 @@ export async function putUsersUserId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$put'](args, options)
+  return await client.users[':userId'].$put(args, options)
 }
 
 /**
@@ -70,7 +70,7 @@ export async function deleteUsersUserId(
   args: { param: { userId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$delete'](args, options)
+  return await client.users[':userId'].$delete(args, options)
 }
 
 /**
@@ -78,8 +78,8 @@ export async function deleteUsersUserId(
  *
  * List all orders
  */
-export async function getOrders(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.orders.$get(args, options)
+export async function getOrders(options?: ClientRequestOptions) {
+  return await client.orders.$get(undefined, options)
 }
 
 /**

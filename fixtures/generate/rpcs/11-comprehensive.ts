@@ -55,7 +55,7 @@ export async function getProductsProductId(
   args: { param: { productId: string }; header: { 'If-None-Match'?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['products'][':productId']['$get'](args, options)
+  return await client.products[':productId'].$get(args, options)
 }
 
 /**
@@ -80,7 +80,7 @@ export async function putProductsProductId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['products'][':productId']['$put'](args, options)
+  return await client.products[':productId'].$put(args, options)
 }
 
 /**
@@ -92,7 +92,7 @@ export async function deleteProductsProductId(
   args: { param: { productId: string }; header: { 'If-Match'?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['products'][':productId']['$delete'](args, options)
+  return await client.products[':productId'].$delete(args, options)
 }
 
 /**

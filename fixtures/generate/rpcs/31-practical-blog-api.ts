@@ -66,7 +66,7 @@ export async function getPostsPostId(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['$get'](args, options)
+  return await client.posts[':postId'].$get(args, options)
 }
 
 /**
@@ -99,7 +99,7 @@ export async function putPostsPostId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['$put'](args, options)
+  return await client.posts[':postId'].$put(args, options)
 }
 
 /**
@@ -111,7 +111,7 @@ export async function deletePostsPostId(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['$delete'](args, options)
+  return await client.posts[':postId'].$delete(args, options)
 }
 
 /**
@@ -123,7 +123,7 @@ export async function getPostsSlugSlug(
   args: { param: { slug: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts']['slug'][':slug']['$get'](args, options)
+  return await client.posts.slug[':slug'].$get(args, options)
 }
 
 /**
@@ -135,7 +135,7 @@ export async function postPostsPostIdPublish(
   args: { param: { postId: string }; json: { scheduledAt?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['publish']['$post'](args, options)
+  return await client.posts[':postId'].publish.$post(args, options)
 }
 
 /**
@@ -147,7 +147,7 @@ export async function postPostsPostIdUnpublish(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['unpublish']['$post'](args, options)
+  return await client.posts[':postId'].unpublish.$post(args, options)
 }
 
 /**
@@ -159,7 +159,7 @@ export async function getPostsPostIdComments(
   args: { param: { postId: string }; query: { page?: number; limit?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['comments']['$get'](args, options)
+  return await client.posts[':postId'].comments.$get(args, options)
 }
 
 /**
@@ -180,7 +180,7 @@ export async function postPostsPostIdComments(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['comments']['$post'](args, options)
+  return await client.posts[':postId'].comments.$post(args, options)
 }
 
 /**
@@ -192,7 +192,7 @@ export async function deleteCommentsCommentId(
   args: { param: { commentId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['comments'][':commentId']['$delete'](args, options)
+  return await client.comments[':commentId'].$delete(args, options)
 }
 
 /**
@@ -204,7 +204,7 @@ export async function postCommentsCommentIdApprove(
   args: { param: { commentId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['comments'][':commentId']['approve']['$post'](args, options)
+  return await client.comments[':commentId'].approve.$post(args, options)
 }
 
 /**
@@ -212,8 +212,8 @@ export async function postCommentsCommentIdApprove(
  *
  * カテゴリ一覧取得
  */
-export async function getCategories(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.categories.$get(args, options)
+export async function getCategories(options?: ClientRequestOptions) {
+  return await client.categories.$get(undefined, options)
 }
 
 /**
@@ -237,7 +237,7 @@ export async function getCategoriesCategoryId(
   args: { param: { categoryId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['categories'][':categoryId']['$get'](args, options)
+  return await client.categories[':categoryId'].$get(args, options)
 }
 
 /**
@@ -252,7 +252,7 @@ export async function putCategoriesCategoryId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['categories'][':categoryId']['$put'](args, options)
+  return await client.categories[':categoryId'].$put(args, options)
 }
 
 /**
@@ -264,7 +264,7 @@ export async function deleteCategoriesCategoryId(
   args: { param: { categoryId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['categories'][':categoryId']['$delete'](args, options)
+  return await client.categories[':categoryId'].$delete(args, options)
 }
 
 /**
@@ -326,7 +326,7 @@ export async function getMediaMediaId(
   args: { param: { mediaId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['media'][':mediaId']['$get'](args, options)
+  return await client.media[':mediaId'].$get(args, options)
 }
 
 /**
@@ -338,7 +338,7 @@ export async function putMediaMediaId(
   args: { param: { mediaId: string }; json: { altText?: string; caption?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['media'][':mediaId']['$put'](args, options)
+  return await client.media[':mediaId'].$put(args, options)
 }
 
 /**
@@ -350,7 +350,7 @@ export async function deleteMediaMediaId(
   args: { param: { mediaId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['media'][':mediaId']['$delete'](args, options)
+  return await client.media[':mediaId'].$delete(args, options)
 }
 
 /**
@@ -358,8 +358,8 @@ export async function deleteMediaMediaId(
  *
  * 著者一覧取得
  */
-export async function getAuthors(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.authors.$get(args, options)
+export async function getAuthors(options?: ClientRequestOptions) {
+  return await client.authors.$get(undefined, options)
 }
 
 /**
@@ -371,5 +371,5 @@ export async function getAuthorsAuthorId(
   args: { param: { authorId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['authors'][':authorId']['$get'](args, options)
+  return await client.authors[':authorId'].$get(args, options)
 }

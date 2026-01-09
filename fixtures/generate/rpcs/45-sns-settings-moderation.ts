@@ -6,8 +6,8 @@ import { client } from '../clients/45-sns-settings-moderation'
  *
  * アカウント設定取得
  */
-export async function getSettingsAccount(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['settings']['account']['$get'](args, options)
+export async function getSettingsAccount(options?: ClientRequestOptions) {
+  return await client.settings.account.$get(undefined, options)
 }
 
 /**
@@ -19,7 +19,7 @@ export async function putSettingsAccount(
   args: { json: { language?: string; timezone?: string; country?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['settings']['account']['$put'](args, options)
+  return await client.settings.account.$put(args, options)
 }
 
 /**
@@ -31,7 +31,7 @@ export async function getSettingsUsernameCheck(
   args: { query: { username: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['settings']['username']['check']['$get'](args, options)
+  return await client.settings.username.check.$get(args, options)
 }
 
 /**
@@ -39,8 +39,8 @@ export async function getSettingsUsernameCheck(
  *
  * プライバシー設定取得
  */
-export async function getSettingsPrivacy(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['settings']['privacy']['$get'](args, options)
+export async function getSettingsPrivacy(options?: ClientRequestOptions) {
+  return await client.settings.privacy.$get(undefined, options)
 }
 
 /**
@@ -63,7 +63,7 @@ export async function putSettingsPrivacy(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['settings']['privacy']['$put'](args, options)
+  return await client.settings.privacy.$put(args, options)
 }
 
 /**
@@ -71,11 +71,8 @@ export async function putSettingsPrivacy(
  *
  * コンテンツ設定取得
  */
-export async function getSettingsContentPreferences(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['settings']['content-preferences']['$get'](args, options)
+export async function getSettingsContentPreferences(options?: ClientRequestOptions) {
+  return await client.settings['content-preferences'].$get(undefined, options)
 }
 
 /**
@@ -96,7 +93,7 @@ export async function putSettingsContentPreferences(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['settings']['content-preferences']['$put'](args, options)
+  return await client.settings['content-preferences'].$put(args, options)
 }
 
 /**
@@ -104,8 +101,8 @@ export async function putSettingsContentPreferences(
  *
  * ミュートワード一覧取得
  */
-export async function getSettingsMutedWords(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['settings']['muted-words']['$get'](args, options)
+export async function getSettingsMutedWords(options?: ClientRequestOptions) {
+  return await client.settings['muted-words'].$get(undefined, options)
 }
 
 /**
@@ -124,7 +121,7 @@ export async function postSettingsMutedWords(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['settings']['muted-words']['$post'](args, options)
+  return await client.settings['muted-words'].$post(args, options)
 }
 
 /**
@@ -136,7 +133,7 @@ export async function deleteSettingsMutedWordsWordId(
   args: { param: { wordId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['settings']['muted-words'][':wordId']['$delete'](args, options)
+  return await client.settings['muted-words'][':wordId'].$delete(args, options)
 }
 
 /**
@@ -144,8 +141,8 @@ export async function deleteSettingsMutedWordsWordId(
  *
  * ログインセッション一覧
  */
-export async function getSettingsSessions(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['settings']['sessions']['$get'](args, options)
+export async function getSettingsSessions(options?: ClientRequestOptions) {
+  return await client.settings.sessions.$get(undefined, options)
 }
 
 /**
@@ -157,7 +154,7 @@ export async function deleteSettingsSessionsSessionId(
   args: { param: { sessionId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['settings']['sessions'][':sessionId']['$delete'](args, options)
+  return await client.settings.sessions[':sessionId'].$delete(args, options)
 }
 
 /**
@@ -165,11 +162,8 @@ export async function deleteSettingsSessionsSessionId(
  *
  * 連携アプリ一覧
  */
-export async function getSettingsConnectedApps(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['settings']['connected-apps']['$get'](args, options)
+export async function getSettingsConnectedApps(options?: ClientRequestOptions) {
+  return await client.settings['connected-apps'].$get(undefined, options)
 }
 
 /**
@@ -181,7 +175,7 @@ export async function deleteSettingsConnectedAppsAppId(
   args: { param: { appId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['settings']['connected-apps'][':appId']['$delete'](args, options)
+  return await client.settings['connected-apps'][':appId'].$delete(args, options)
 }
 
 /**
@@ -189,11 +183,8 @@ export async function deleteSettingsConnectedAppsAppId(
  *
  * データエクスポートリクエスト
  */
-export async function postSettingsDataExport(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['settings']['data-export']['$post'](args, options)
+export async function postSettingsDataExport(options?: ClientRequestOptions) {
+  return await client.settings['data-export'].$post(undefined, options)
 }
 
 /**
@@ -205,7 +196,7 @@ export async function getSettingsDataExportRequestId(
   args: { param: { requestId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['settings']['data-export'][':requestId']['$get'](args, options)
+  return await client.settings['data-export'][':requestId'].$get(args, options)
 }
 
 /**
@@ -217,7 +208,7 @@ export async function postSettingsDeactivate(
   args: { json: { password: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['settings']['deactivate']['$post'](args, options)
+  return await client.settings.deactivate.$post(args, options)
 }
 
 /**
@@ -259,7 +250,7 @@ export async function getReportsReportId(
   args: { param: { reportId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['reports'][':reportId']['$get'](args, options)
+  return await client.reports[':reportId'].$get(args, options)
 }
 
 /**
@@ -280,7 +271,7 @@ export async function getModerationQueue(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['moderation']['queue']['$get'](args, options)
+  return await client.moderation.queue.$get(args, options)
 }
 
 /**
@@ -292,7 +283,7 @@ export async function getModerationItemsItemId(
   args: { param: { itemId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['moderation']['items'][':itemId']['$get'](args, options)
+  return await client.moderation.items[':itemId'].$get(args, options)
 }
 
 /**
@@ -312,7 +303,7 @@ export async function postModerationItemsItemIdAction(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['moderation']['items'][':itemId']['action']['$post'](args, options)
+  return await client.moderation.items[':itemId'].action.$post(args, options)
 }
 
 /**
@@ -324,7 +315,7 @@ export async function getModerationUsersUserIdHistory(
   args: { param: { userId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['moderation']['users'][':userId']['history']['$get'](args, options)
+  return await client.moderation.users[':userId'].history.$get(args, options)
 }
 
 /**
@@ -336,7 +327,7 @@ export async function postModerationUsersUserIdSuspend(
   args: { param: { userId: string }; json: { reason: string; duration?: number; note?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['moderation']['users'][':userId']['suspend']['$post'](args, options)
+  return await client.moderation.users[':userId'].suspend.$post(args, options)
 }
 
 /**
@@ -348,7 +339,7 @@ export async function postModerationUsersUserIdUnsuspend(
   args: { param: { userId: string }; json: { note?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['moderation']['users'][':userId']['unsuspend']['$post'](args, options)
+  return await client.moderation.users[':userId'].unsuspend.$post(args, options)
 }
 
 /**
@@ -360,7 +351,7 @@ export async function getAnalyticsPostsPostId(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['analytics']['posts'][':postId']['$get'](args, options)
+  return await client.analytics.posts[':postId'].$get(args, options)
 }
 
 /**
@@ -372,7 +363,7 @@ export async function getAnalyticsAccount(
   args: { query: { period?: '7d' | '28d' | '90d' } },
   options?: ClientRequestOptions,
 ) {
-  return await client['analytics']['account']['$get'](args, options)
+  return await client.analytics.account.$get(args, options)
 }
 
 /**
@@ -384,7 +375,7 @@ export async function getAnalyticsFollowers(
   args: { query: { period?: '7d' | '28d' | '90d' } },
   options?: ClientRequestOptions,
 ) {
-  return await client['analytics']['followers']['$get'](args, options)
+  return await client.analytics.followers.$get(args, options)
 }
 
 /**
@@ -402,5 +393,5 @@ export async function getAnalyticsTopPosts(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['analytics']['top-posts']['$get'](args, options)
+  return await client.analytics['top-posts'].$get(args, options)
 }

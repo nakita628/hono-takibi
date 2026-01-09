@@ -64,7 +64,7 @@ export async function getProductsProductId(
   args: { param: { productId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['products'][':productId']['$get'](args, options)
+  return await client.products[':productId'].$get(args, options)
 }
 
 /**
@@ -90,7 +90,7 @@ export async function putProductsProductId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['products'][':productId']['$put'](args, options)
+  return await client.products[':productId'].$put(args, options)
 }
 
 /**
@@ -102,7 +102,7 @@ export async function deleteProductsProductId(
   args: { param: { productId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['products'][':productId']['$delete'](args, options)
+  return await client.products[':productId'].$delete(args, options)
 }
 
 /**
@@ -114,7 +114,7 @@ export async function postProductsProductIdImages(
   args: { param: { productId: string }; form: { file: File; isPrimary?: boolean } },
   options?: ClientRequestOptions,
 ) {
-  return await client['products'][':productId']['images']['$post'](args, options)
+  return await client.products[':productId'].images.$post(args, options)
 }
 
 /**
@@ -122,8 +122,8 @@ export async function postProductsProductIdImages(
  *
  * カテゴリ一覧取得
  */
-export async function getCategories(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.categories.$get(args, options)
+export async function getCategories(options?: ClientRequestOptions) {
+  return await client.categories.$get(undefined, options)
 }
 
 /**
@@ -143,8 +143,8 @@ export async function postCategories(
  *
  * カート取得
  */
-export async function getCart(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.cart.$get(args, options)
+export async function getCart(options?: ClientRequestOptions) {
+  return await client.cart.$get(undefined, options)
 }
 
 /**
@@ -152,8 +152,8 @@ export async function getCart(args?: {} | undefined, options?: ClientRequestOpti
  *
  * カートをクリア
  */
-export async function deleteCart(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.cart.$delete(args, options)
+export async function deleteCart(options?: ClientRequestOptions) {
+  return await client.cart.$delete(undefined, options)
 }
 
 /**
@@ -165,7 +165,7 @@ export async function postCartItems(
   args: { json: { productId: string; quantity: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['cart']['items']['$post'](args, options)
+  return await client.cart.items.$post(args, options)
 }
 
 /**
@@ -177,7 +177,7 @@ export async function putCartItemsItemId(
   args: { param: { itemId: string }; json: { quantity: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['cart']['items'][':itemId']['$put'](args, options)
+  return await client.cart.items[':itemId'].$put(args, options)
 }
 
 /**
@@ -189,7 +189,7 @@ export async function deleteCartItemsItemId(
   args: { param: { itemId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['cart']['items'][':itemId']['$delete'](args, options)
+  return await client.cart.items[':itemId'].$delete(args, options)
 }
 
 /**
@@ -257,7 +257,7 @@ export async function getOrdersOrderId(
   args: { param: { orderId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['orders'][':orderId']['$get'](args, options)
+  return await client.orders[':orderId'].$get(args, options)
 }
 
 /**
@@ -269,7 +269,7 @@ export async function postOrdersOrderIdCancel(
   args: { param: { orderId: string }; json: { reason?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['orders'][':orderId']['cancel']['$post'](args, options)
+  return await client.orders[':orderId'].cancel.$post(args, options)
 }
 
 /**
@@ -281,7 +281,7 @@ export async function getInventoryProductId(
   args: { param: { productId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['inventory'][':productId']['$get'](args, options)
+  return await client.inventory[':productId'].$get(args, options)
 }
 
 /**
@@ -296,5 +296,5 @@ export async function putInventoryProductId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['inventory'][':productId']['$put'](args, options)
+  return await client.inventory[':productId'].$put(args, options)
 }

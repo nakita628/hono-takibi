@@ -14,7 +14,7 @@ export async function getSamlSso(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['saml']['sso']['$get'](args, options)
+  return await client.saml.sso.$get(args, options)
 }
 
 /**
@@ -28,7 +28,7 @@ export async function postSamlSso(
   args: { form: { SAMLRequest: string; RelayState?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['saml']['sso']['$post'](args, options)
+  return await client.saml.sso.$post(args, options)
 }
 
 /**
@@ -50,7 +50,7 @@ export async function getSamlSlo(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['saml']['slo']['$get'](args, options)
+  return await client.saml.slo.$get(args, options)
 }
 
 /**
@@ -64,7 +64,7 @@ export async function postSamlSlo(
   args: { form: { SAMLRequest?: string; SAMLResponse?: string; RelayState?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['saml']['slo']['$post'](args, options)
+  return await client.saml.slo.$post(args, options)
 }
 
 /**
@@ -78,7 +78,7 @@ export async function postSamlAcs(
   args: { form: { SAMLResponse: string; RelayState?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['saml']['acs']['$post'](args, options)
+  return await client.saml.acs.$post(args, options)
 }
 
 /**
@@ -88,8 +88,8 @@ export async function postSamlAcs(
  *
  * SAML 2.0 IdPメタデータをXML形式で取得
  */
-export async function getSamlMetadata(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['saml']['metadata']['$get'](args, options)
+export async function getSamlMetadata(options?: ClientRequestOptions) {
+  return await client.saml.metadata.$get(undefined, options)
 }
 
 /**
@@ -101,7 +101,7 @@ export async function getServiceProviders(
   args: { query: { search?: string; enabled?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['service-providers']['$get'](args, options)
+  return await client['service-providers'].$get(args, options)
 }
 
 /**
@@ -142,7 +142,7 @@ export async function postServiceProviders(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['service-providers']['$post'](args, options)
+  return await client['service-providers'].$post(args, options)
 }
 
 /**
@@ -154,7 +154,7 @@ export async function getServiceProvidersSpId(
   args: { param: { spId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['service-providers'][':spId']['$get'](args, options)
+  return await client['service-providers'][':spId'].$get(args, options)
 }
 
 /**
@@ -195,7 +195,7 @@ export async function putServiceProvidersSpId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['service-providers'][':spId']['$put'](args, options)
+  return await client['service-providers'][':spId'].$put(args, options)
 }
 
 /**
@@ -207,7 +207,7 @@ export async function deleteServiceProvidersSpId(
   args: { param: { spId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['service-providers'][':spId']['$delete'](args, options)
+  return await client['service-providers'][':spId'].$delete(args, options)
 }
 
 /**
@@ -219,7 +219,7 @@ export async function getServiceProvidersSpIdMetadata(
   args: { param: { spId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['service-providers'][':spId']['metadata']['$get'](args, options)
+  return await client['service-providers'][':spId'].metadata.$get(args, options)
 }
 
 /**
@@ -231,7 +231,7 @@ export async function putServiceProvidersSpIdMetadata(
   args: { param: { spId: string }; form: { file?: File }; json: string },
   options?: ClientRequestOptions,
 ) {
-  return await client['service-providers'][':spId']['metadata']['$put'](args, options)
+  return await client['service-providers'][':spId'].metadata.$put(args, options)
 }
 
 /**
@@ -243,7 +243,7 @@ export async function getServiceProvidersSpIdAttributes(
   args: { param: { spId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['service-providers'][':spId']['attributes']['$get'](args, options)
+  return await client['service-providers'][':spId'].attributes.$get(args, options)
 }
 
 /**
@@ -269,7 +269,7 @@ export async function putServiceProvidersSpIdAttributes(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['service-providers'][':spId']['attributes']['$put'](args, options)
+  return await client['service-providers'][':spId'].attributes.$put(args, options)
 }
 
 /**
@@ -277,8 +277,8 @@ export async function putServiceProvidersSpIdAttributes(
  *
  * 利用可能な属性一覧
  */
-export async function getAttributes(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.attributes.$get(args, options)
+export async function getAttributes(options?: ClientRequestOptions) {
+  return await client.attributes.$get(undefined, options)
 }
 
 /**
@@ -286,8 +286,8 @@ export async function getAttributes(args?: {} | undefined, options?: ClientReque
  *
  * 証明書一覧取得
  */
-export async function getCertificates(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.certificates.$get(args, options)
+export async function getCertificates(options?: ClientRequestOptions) {
+  return await client.certificates.$get(undefined, options)
 }
 
 /**
@@ -318,7 +318,7 @@ export async function deleteCertificatesCertId(
   args: { param: { certId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['certificates'][':certId']['$delete'](args, options)
+  return await client.certificates[':certId'].$delete(args, options)
 }
 
 /**
@@ -330,7 +330,7 @@ export async function postCertificatesCertIdActivate(
   args: { param: { certId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['certificates'][':certId']['activate']['$post'](args, options)
+  return await client.certificates[':certId'].activate.$post(args, options)
 }
 
 /**
@@ -354,7 +354,7 @@ export async function deleteSessionsSessionId(
   args: { param: { sessionId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['sessions'][':sessionId']['$delete'](args, options)
+  return await client.sessions[':sessionId'].$delete(args, options)
 }
 
 /**
@@ -376,5 +376,5 @@ export async function getAuditLogs(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['audit-logs']['$get'](args, options)
+  return await client['audit-logs'].$get(args, options)
 }

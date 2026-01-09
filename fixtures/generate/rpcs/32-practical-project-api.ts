@@ -50,7 +50,7 @@ export async function getProjectsProjectId(
   args: { param: { projectId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['projects'][':projectId']['$get'](args, options)
+  return await client.projects[':projectId'].$get(args, options)
 }
 
 /**
@@ -72,7 +72,7 @@ export async function putProjectsProjectId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['projects'][':projectId']['$put'](args, options)
+  return await client.projects[':projectId'].$put(args, options)
 }
 
 /**
@@ -84,7 +84,7 @@ export async function deleteProjectsProjectId(
   args: { param: { projectId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['projects'][':projectId']['$delete'](args, options)
+  return await client.projects[':projectId'].$delete(args, options)
 }
 
 /**
@@ -96,7 +96,7 @@ export async function getProjectsProjectIdMembers(
   args: { param: { projectId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['projects'][':projectId']['members']['$get'](args, options)
+  return await client.projects[':projectId'].members.$get(args, options)
 }
 
 /**
@@ -111,7 +111,7 @@ export async function postProjectsProjectIdMembers(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['projects'][':projectId']['members']['$post'](args, options)
+  return await client.projects[':projectId'].members.$post(args, options)
 }
 
 /**
@@ -132,7 +132,7 @@ export async function getProjectsProjectIdTasks(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['projects'][':projectId']['tasks']['$get'](args, options)
+  return await client.projects[':projectId'].tasks.$get(args, options)
 }
 
 /**
@@ -158,7 +158,7 @@ export async function postProjectsProjectIdTasks(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['projects'][':projectId']['tasks']['$post'](args, options)
+  return await client.projects[':projectId'].tasks.$post(args, options)
 }
 
 /**
@@ -170,7 +170,7 @@ export async function getTasksTaskId(
   args: { param: { taskId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['tasks'][':taskId']['$get'](args, options)
+  return await client.tasks[':taskId'].$get(args, options)
 }
 
 /**
@@ -195,7 +195,7 @@ export async function putTasksTaskId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['tasks'][':taskId']['$put'](args, options)
+  return await client.tasks[':taskId'].$put(args, options)
 }
 
 /**
@@ -207,7 +207,7 @@ export async function deleteTasksTaskId(
   args: { param: { taskId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['tasks'][':taskId']['$delete'](args, options)
+  return await client.tasks[':taskId'].$delete(args, options)
 }
 
 /**
@@ -222,7 +222,7 @@ export async function patchTasksTaskIdStatus(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['tasks'][':taskId']['status']['$patch'](args, options)
+  return await client.tasks[':taskId'].status.$patch(args, options)
 }
 
 /**
@@ -234,7 +234,7 @@ export async function getTasksTaskIdComments(
   args: { param: { taskId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['tasks'][':taskId']['comments']['$get'](args, options)
+  return await client.tasks[':taskId'].comments.$get(args, options)
 }
 
 /**
@@ -246,7 +246,7 @@ export async function postTasksTaskIdComments(
   args: { param: { taskId: string }; json: { content: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['tasks'][':taskId']['comments']['$post'](args, options)
+  return await client.tasks[':taskId'].comments.$post(args, options)
 }
 
 /**
@@ -258,7 +258,7 @@ export async function getTasksTaskIdTimeEntries(
   args: { param: { taskId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['tasks'][':taskId']['time-entries']['$get'](args, options)
+  return await client.tasks[':taskId']['time-entries'].$get(args, options)
 }
 
 /**
@@ -273,7 +273,7 @@ export async function postTasksTaskIdTimeEntries(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['tasks'][':taskId']['time-entries']['$post'](args, options)
+  return await client.tasks[':taskId']['time-entries'].$post(args, options)
 }
 
 /**
@@ -285,7 +285,7 @@ export async function getProjectsProjectIdMilestones(
   args: { param: { projectId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['projects'][':projectId']['milestones']['$get'](args, options)
+  return await client.projects[':projectId'].milestones.$get(args, options)
 }
 
 /**
@@ -300,7 +300,7 @@ export async function postProjectsProjectIdMilestones(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['projects'][':projectId']['milestones']['$post'](args, options)
+  return await client.projects[':projectId'].milestones.$post(args, options)
 }
 
 /**
@@ -308,8 +308,8 @@ export async function postProjectsProjectIdMilestones(
  *
  * チーム一覧取得
  */
-export async function getTeams(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.teams.$get(args, options)
+export async function getTeams(options?: ClientRequestOptions) {
+  return await client.teams.$get(undefined, options)
 }
 
 /**

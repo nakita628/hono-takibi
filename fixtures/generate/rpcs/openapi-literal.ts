@@ -8,6 +8,6 @@ import { client } from '../clients/openapi-literal'
  *
  * zod primitive
  */
-export async function getPrimitive(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.primitive.$get(args, options)
+export async function getPrimitive(options?: ClientRequestOptions) {
+  return await client.primitive.$get(undefined, options)
 }

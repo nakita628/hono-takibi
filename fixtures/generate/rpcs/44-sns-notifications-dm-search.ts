@@ -25,11 +25,8 @@ export async function getNotifications(
  *
  * 未読通知数取得
  */
-export async function getNotificationsUnreadCount(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['notifications']['unread-count']['$get'](args, options)
+export async function getNotificationsUnreadCount(options?: ClientRequestOptions) {
+  return await client.notifications['unread-count'].$get(undefined, options)
 }
 
 /**
@@ -41,7 +38,7 @@ export async function postNotificationsMarkRead(
   args: { json: { notificationIds?: string[]; maxId?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['notifications']['mark-read']['$post'](args, options)
+  return await client.notifications['mark-read'].$post(args, options)
 }
 
 /**
@@ -49,11 +46,8 @@ export async function postNotificationsMarkRead(
  *
  * 通知設定取得
  */
-export async function getNotificationsSettings(
-  args?: {} | undefined,
-  options?: ClientRequestOptions,
-) {
-  return await client['notifications']['settings']['$get'](args, options)
+export async function getNotificationsSettings(options?: ClientRequestOptions) {
+  return await client.notifications.settings.$get(undefined, options)
 }
 
 /**
@@ -78,7 +72,7 @@ export async function putNotificationsSettings(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['notifications']['settings']['$put'](args, options)
+  return await client.notifications.settings.$put(args, options)
 }
 
 /**
@@ -90,7 +84,7 @@ export async function getDmConversations(
   args: { query: { cursor?: string; limit?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['dm']['conversations']['$get'](args, options)
+  return await client.dm.conversations.$get(args, options)
 }
 
 /**
@@ -102,7 +96,7 @@ export async function postDmConversations(
   args: { json: { participantIds: string[]; name?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['dm']['conversations']['$post'](args, options)
+  return await client.dm.conversations.$post(args, options)
 }
 
 /**
@@ -114,7 +108,7 @@ export async function getDmConversationsConversationId(
   args: { param: { conversationId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['dm']['conversations'][':conversationId']['$get'](args, options)
+  return await client.dm.conversations[':conversationId'].$get(args, options)
 }
 
 /**
@@ -126,7 +120,7 @@ export async function deleteDmConversationsConversationId(
   args: { param: { conversationId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['dm']['conversations'][':conversationId']['$delete'](args, options)
+  return await client.dm.conversations[':conversationId'].$delete(args, options)
 }
 
 /**
@@ -138,7 +132,7 @@ export async function getDmConversationsConversationIdMessages(
   args: { param: { conversationId: string }; query: { cursor?: string; limit?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['dm']['conversations'][':conversationId']['messages']['$get'](args, options)
+  return await client.dm.conversations[':conversationId'].messages.$get(args, options)
 }
 
 /**
@@ -153,7 +147,7 @@ export async function postDmConversationsConversationIdMessages(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['dm']['conversations'][':conversationId']['messages']['$post'](args, options)
+  return await client.dm.conversations[':conversationId'].messages.$post(args, options)
 }
 
 /**
@@ -165,7 +159,7 @@ export async function postDmConversationsConversationIdRead(
   args: { param: { conversationId: string }; json: { lastReadMessageId?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['dm']['conversations'][':conversationId']['read']['$post'](args, options)
+  return await client.dm.conversations[':conversationId'].read.$post(args, options)
 }
 
 /**
@@ -177,7 +171,7 @@ export async function postDmConversationsConversationIdTyping(
   args: { param: { conversationId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['dm']['conversations'][':conversationId']['typing']['$post'](args, options)
+  return await client.dm.conversations[':conversationId'].typing.$post(args, options)
 }
 
 /**
@@ -189,7 +183,7 @@ export async function deleteDmMessagesMessageId(
   args: { param: { messageId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['dm']['messages'][':messageId']['$delete'](args, options)
+  return await client.dm.messages[':messageId'].$delete(args, options)
 }
 
 /**
@@ -201,7 +195,7 @@ export async function postDmMessagesMessageIdReactions(
   args: { param: { messageId: string }; json: { emoji: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['dm']['messages'][':messageId']['reactions']['$post'](args, options)
+  return await client.dm.messages[':messageId'].reactions.$post(args, options)
 }
 
 /**
@@ -213,7 +207,7 @@ export async function deleteDmMessagesMessageIdReactions(
   args: { param: { messageId: string }; query: { emoji: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['dm']['messages'][':messageId']['reactions']['$delete'](args, options)
+  return await client.dm.messages[':messageId'].reactions.$delete(args, options)
 }
 
 /**
@@ -221,8 +215,8 @@ export async function deleteDmMessagesMessageIdReactions(
  *
  * 未読メッセージ数取得
  */
-export async function getDmUnreadCount(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['dm']['unread-count']['$get'](args, options)
+export async function getDmUnreadCount(options?: ClientRequestOptions) {
+  return await client.dm['unread-count'].$get(undefined, options)
 }
 
 /**
@@ -246,7 +240,7 @@ export async function getSearchPosts(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['search']['posts']['$get'](args, options)
+  return await client.search.posts.$get(args, options)
 }
 
 /**
@@ -258,7 +252,7 @@ export async function getSearchUsers(
   args: { query: { q: string; cursor?: string; limit?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['search']['users']['$get'](args, options)
+  return await client.search.users.$get(args, options)
 }
 
 /**
@@ -270,7 +264,7 @@ export async function getSearchHashtags(
   args: { query: { q: string; limit?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['search']['hashtags']['$get'](args, options)
+  return await client.search.hashtags.$get(args, options)
 }
 
 /**
@@ -278,8 +272,8 @@ export async function getSearchHashtags(
  *
  * 最近の検索履歴
  */
-export async function getSearchRecent(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['search']['recent']['$get'](args, options)
+export async function getSearchRecent(options?: ClientRequestOptions) {
+  return await client.search.recent.$get(undefined, options)
 }
 
 /**
@@ -287,8 +281,8 @@ export async function getSearchRecent(args?: {} | undefined, options?: ClientReq
  *
  * 検索履歴クリア
  */
-export async function deleteSearchRecent(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['search']['recent']['$delete'](args, options)
+export async function deleteSearchRecent(options?: ClientRequestOptions) {
+  return await client.search.recent.$delete(undefined, options)
 }
 
 /**
@@ -308,8 +302,8 @@ export async function getTrends(
  *
  * トレンド対応地域一覧
  */
-export async function getTrendsLocations(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['trends']['locations']['$get'](args, options)
+export async function getTrendsLocations(options?: ClientRequestOptions) {
+  return await client.trends.locations.$get(undefined, options)
 }
 
 /**
@@ -321,7 +315,7 @@ export async function getSuggestionsUsers(
   args: { query: { limit?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['suggestions']['users']['$get'](args, options)
+  return await client.suggestions.users.$get(args, options)
 }
 
 /**
@@ -333,7 +327,7 @@ export async function postSuggestionsUsersUserIdHide(
   args: { param: { userId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['suggestions']['users'][':userId']['hide']['$post'](args, options)
+  return await client.suggestions.users[':userId'].hide.$post(args, options)
 }
 
 /**
@@ -341,8 +335,8 @@ export async function postSuggestionsUsersUserIdHide(
  *
  * おすすめトピック取得
  */
-export async function getSuggestionsTopics(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['suggestions']['topics']['$get'](args, options)
+export async function getSuggestionsTopics(options?: ClientRequestOptions) {
+  return await client.suggestions.topics.$get(undefined, options)
 }
 
 /**
@@ -354,7 +348,7 @@ export async function postTopicsTopicIdFollow(
   args: { param: { topicId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['topics'][':topicId']['follow']['$post'](args, options)
+  return await client.topics[':topicId'].follow.$post(args, options)
 }
 
 /**
@@ -366,5 +360,5 @@ export async function deleteTopicsTopicIdFollow(
   args: { param: { topicId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['topics'][':topicId']['follow']['$delete'](args, options)
+  return await client.topics[':topicId'].follow.$delete(args, options)
 }

@@ -18,7 +18,7 @@ export async function postAuthToken(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['auth']['token']['$post'](args, options)
+  return await client.auth.token.$post(args, options)
 }
 
 /**
@@ -13328,7 +13328,7 @@ export async function getUsersUserId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$get'](args, options)
+  return await client.users[':userId'].$get(args, options)
 }
 
 /**
@@ -18791,7 +18791,7 @@ export async function patchUsersUserId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['users'][':userId']['$patch'](args, options)
+  return await client.users[':userId'].$patch(args, options)
 }
 
 /**
@@ -18807,7 +18807,7 @@ export async function getCompaniesCompanyId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['companies'][':companyId']['$get'](args, options)
+  return await client.companies[':companyId'].$get(args, options)
 }
 
 /**
@@ -35721,7 +35721,7 @@ export async function getOrdersOrderId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['orders'][':orderId']['$get'](args, options)
+  return await client.orders[':orderId'].$get(args, options)
 }
 
 /**
@@ -35733,7 +35733,7 @@ export async function getFilesFileId(
   args: { param: { fileId: string | string }; header: { 'x-trace-id'?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['$get'](args, options)
+  return await client.files[':fileId'].$get(args, options)
 }
 
 /**

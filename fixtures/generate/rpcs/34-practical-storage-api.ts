@@ -37,7 +37,7 @@ export async function postFilesUpload(
   args: { form: { file: File; folderId?: string; name?: string; overwrite?: boolean } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files']['upload']['$post'](args, options)
+  return await client.files.upload.$post(args, options)
 }
 
 /**
@@ -51,7 +51,7 @@ export async function postFilesUploadMultipartInit(
   args: { json: { filename: string; size: number; folderId?: string; contentType?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files']['upload']['multipart']['init']['$post'](args, options)
+  return await client.files.upload.multipart.init.$post(args, options)
 }
 
 /**
@@ -63,7 +63,7 @@ export async function postFilesUploadMultipartUploadIdPart(
   args: { param: { uploadId: string }; query: { partNumber: number }; json: File },
   options?: ClientRequestOptions,
 ) {
-  return await client['files']['upload']['multipart'][':uploadId']['part']['$post'](args, options)
+  return await client.files.upload.multipart[':uploadId'].part.$post(args, options)
 }
 
 /**
@@ -75,10 +75,7 @@ export async function postFilesUploadMultipartUploadIdComplete(
   args: { param: { uploadId: string }; json: { parts: { partNumber: number; etag: string }[] } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files']['upload']['multipart'][':uploadId']['complete']['$post'](
-    args,
-    options,
-  )
+  return await client.files.upload.multipart[':uploadId'].complete.$post(args, options)
 }
 
 /**
@@ -90,7 +87,7 @@ export async function getFilesFileId(
   args: { param: { fileId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['$get'](args, options)
+  return await client.files[':fileId'].$get(args, options)
 }
 
 /**
@@ -102,7 +99,7 @@ export async function deleteFilesFileId(
   args: { param: { fileId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['$delete'](args, options)
+  return await client.files[':fileId'].$delete(args, options)
 }
 
 /**
@@ -114,7 +111,7 @@ export async function patchFilesFileId(
   args: { param: { fileId: string }; json: { name?: string; description?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['$patch'](args, options)
+  return await client.files[':fileId'].$patch(args, options)
 }
 
 /**
@@ -126,7 +123,7 @@ export async function getFilesFileIdDownload(
   args: { param: { fileId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['download']['$get'](args, options)
+  return await client.files[':fileId'].download.$get(args, options)
 }
 
 /**
@@ -138,7 +135,7 @@ export async function getFilesFileIdDownloadUrl(
   args: { param: { fileId: string }; query: { expiresIn?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['download-url']['$get'](args, options)
+  return await client.files[':fileId']['download-url'].$get(args, options)
 }
 
 /**
@@ -150,7 +147,7 @@ export async function postFilesFileIdCopy(
   args: { param: { fileId: string }; json: { destinationFolderId: string; name?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['copy']['$post'](args, options)
+  return await client.files[':fileId'].copy.$post(args, options)
 }
 
 /**
@@ -162,7 +159,7 @@ export async function postFilesFileIdMove(
   args: { param: { fileId: string }; json: { destinationFolderId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['move']['$post'](args, options)
+  return await client.files[':fileId'].move.$post(args, options)
 }
 
 /**
@@ -174,7 +171,7 @@ export async function getFilesFileIdThumbnail(
   args: { param: { fileId: string }; query: { size?: 'small' | 'medium' | 'large' } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['thumbnail']['$get'](args, options)
+  return await client.files[':fileId'].thumbnail.$get(args, options)
 }
 
 /**
@@ -198,7 +195,7 @@ export async function getFoldersFolderId(
   args: { param: { folderId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['folders'][':folderId']['$get'](args, options)
+  return await client.folders[':folderId'].$get(args, options)
 }
 
 /**
@@ -210,7 +207,7 @@ export async function deleteFoldersFolderId(
   args: { param: { folderId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['folders'][':folderId']['$delete'](args, options)
+  return await client.folders[':folderId'].$delete(args, options)
 }
 
 /**
@@ -222,7 +219,7 @@ export async function patchFoldersFolderId(
   args: { param: { folderId: string }; json: { name?: string; color?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['folders'][':folderId']['$patch'](args, options)
+  return await client.folders[':folderId'].$patch(args, options)
 }
 
 /**
@@ -234,7 +231,7 @@ export async function getFilesFileIdShare(
   args: { param: { fileId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['share']['$get'](args, options)
+  return await client.files[':fileId'].share.$get(args, options)
 }
 
 /**
@@ -253,7 +250,7 @@ export async function postFilesFileIdShare(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['share']['$post'](args, options)
+  return await client.files[':fileId'].share.$post(args, options)
 }
 
 /**
@@ -265,7 +262,7 @@ export async function deleteFilesFileIdShare(
   args: { param: { fileId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['share']['$delete'](args, options)
+  return await client.files[':fileId'].share.$delete(args, options)
 }
 
 /**
@@ -280,7 +277,7 @@ export async function postFilesFileIdShareLink(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['share']['link']['$post'](args, options)
+  return await client.files[':fileId'].share.link.$post(args, options)
 }
 
 /**
@@ -292,7 +289,7 @@ export async function getFilesFileIdVersions(
   args: { param: { fileId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['versions']['$get'](args, options)
+  return await client.files[':fileId'].versions.$get(args, options)
 }
 
 /**
@@ -304,10 +301,7 @@ export async function postFilesFileIdVersionsVersionIdRestore(
   args: { param: { fileId: string; versionId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['files'][':fileId']['versions'][':versionId']['restore']['$post'](
-    args,
-    options,
-  )
+  return await client.files[':fileId'].versions[':versionId'].restore.$post(args, options)
 }
 
 /**
@@ -327,8 +321,8 @@ export async function getTrash(
  *
  * ゴミ箱を空にする
  */
-export async function deleteTrash(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.trash.$delete(args, options)
+export async function deleteTrash(options?: ClientRequestOptions) {
+  return await client.trash.$delete(undefined, options)
 }
 
 /**
@@ -340,7 +334,7 @@ export async function postTrashFileIdRestore(
   args: { param: { fileId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['trash'][':fileId']['restore']['$post'](args, options)
+  return await client.trash[':fileId'].restore.$post(args, options)
 }
 
 /**
@@ -348,6 +342,6 @@ export async function postTrashFileIdRestore(
  *
  * ストレージ使用量取得
  */
-export async function getStorageUsage(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['storage']['usage']['$get'](args, options)
+export async function getStorageUsage(options?: ClientRequestOptions) {
+  return await client.storage.usage.$get(undefined, options)
 }

@@ -18,7 +18,7 @@ export async function getItemsItemId(
   args: { param: { itemId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['items'][':itemId']['$get'](args, options)
+  return await client.items[':itemId'].$get(args, options)
 }
 
 /**
@@ -28,5 +28,5 @@ export async function deleteItemsItemId(
   args: { param: { itemId: string }; header: { 'If-Match'?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['items'][':itemId']['$delete'](args, options)
+  return await client.items[':itemId'].$delete(args, options)
 }

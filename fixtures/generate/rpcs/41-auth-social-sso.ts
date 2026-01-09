@@ -33,7 +33,7 @@ export async function getSocialAuthorizeProvider(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['social']['authorize'][':provider']['$get'](args, options)
+  return await client.social.authorize[':provider'].$get(args, options)
 }
 
 /**
@@ -62,7 +62,7 @@ export async function getSocialCallbackProvider(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['social']['callback'][':provider']['$get'](args, options)
+  return await client.social.callback[':provider'].$get(args, options)
 }
 
 /**
@@ -76,7 +76,7 @@ export async function postSocialToken(
   args: { json: { provider: string; code: string; redirectUri: string; codeVerifier?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['social']['token']['$post'](args, options)
+  return await client.social.token.$post(args, options)
 }
 
 /**
@@ -90,7 +90,7 @@ export async function postSocialTokenNative(
   args: { json: { provider: string; token: string; tokenType?: 'id_token' | 'access_token' } },
   options?: ClientRequestOptions,
 ) {
-  return await client['social']['token']['native']['$post'](args, options)
+  return await client.social.token.native.$post(args, options)
 }
 
 /**
@@ -98,8 +98,8 @@ export async function postSocialTokenNative(
  *
  * 有効なプロバイダー一覧
  */
-export async function getProviders(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.providers.$get(args, options)
+export async function getProviders(options?: ClientRequestOptions) {
+  return await client.providers.$get(undefined, options)
 }
 
 /**
@@ -107,8 +107,8 @@ export async function getProviders(args?: {} | undefined, options?: ClientReques
  *
  * 全プロバイダー一覧（管理用）
  */
-export async function getProvidersAdmin(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['providers']['admin']['$get'](args, options)
+export async function getProvidersAdmin(options?: ClientRequestOptions) {
+  return await client.providers.admin.$get(undefined, options)
 }
 
 /**
@@ -137,7 +137,7 @@ export async function postProvidersAdmin(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['providers']['admin']['$post'](args, options)
+  return await client.providers.admin.$post(args, options)
 }
 
 /**
@@ -149,7 +149,7 @@ export async function getProvidersProviderId(
   args: { param: { providerId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['providers'][':providerId']['$get'](args, options)
+  return await client.providers[':providerId'].$get(args, options)
 }
 
 /**
@@ -177,7 +177,7 @@ export async function putProvidersProviderId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['providers'][':providerId']['$put'](args, options)
+  return await client.providers[':providerId'].$put(args, options)
 }
 
 /**
@@ -189,7 +189,7 @@ export async function deleteProvidersProviderId(
   args: { param: { providerId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['providers'][':providerId']['$delete'](args, options)
+  return await client.providers[':providerId'].$delete(args, options)
 }
 
 /**
@@ -201,7 +201,7 @@ export async function postProvidersProviderIdTest(
   args: { param: { providerId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['providers'][':providerId']['test']['$post'](args, options)
+  return await client.providers[':providerId'].test.$post(args, options)
 }
 
 /**
@@ -209,8 +209,8 @@ export async function postProvidersProviderIdTest(
  *
  * 連携アカウント一覧
  */
-export async function getAccountLinked(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['account']['linked']['$get'](args, options)
+export async function getAccountLinked(options?: ClientRequestOptions) {
+  return await client.account.linked.$get(undefined, options)
 }
 
 /**
@@ -239,7 +239,7 @@ export async function postAccountLinkProvider(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['account']['link'][':provider']['$post'](args, options)
+  return await client.account.link[':provider'].$post(args, options)
 }
 
 /**
@@ -265,7 +265,7 @@ export async function deleteAccountLinkProvider(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['account']['link'][':provider']['$delete'](args, options)
+  return await client.account.link[':provider'].$delete(args, options)
 }
 
 /**
@@ -273,8 +273,8 @@ export async function deleteAccountLinkProvider(
  *
  * エンタープライズSSO設定一覧
  */
-export async function getEnterpriseSso(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['enterprise']['sso']['$get'](args, options)
+export async function getEnterpriseSso(options?: ClientRequestOptions) {
+  return await client.enterprise.sso.$get(undefined, options)
 }
 
 /**
@@ -320,7 +320,7 @@ export async function postEnterpriseSso(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['enterprise']['sso']['$post'](args, options)
+  return await client.enterprise.sso.$post(args, options)
 }
 
 /**
@@ -332,7 +332,7 @@ export async function getEnterpriseSsoConfigId(
   args: { param: { configId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['enterprise']['sso'][':configId']['$get'](args, options)
+  return await client.enterprise.sso[':configId'].$get(args, options)
 }
 
 /**
@@ -379,7 +379,7 @@ export async function putEnterpriseSsoConfigId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['enterprise']['sso'][':configId']['$put'](args, options)
+  return await client.enterprise.sso[':configId'].$put(args, options)
 }
 
 /**
@@ -391,7 +391,7 @@ export async function deleteEnterpriseSsoConfigId(
   args: { param: { configId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['enterprise']['sso'][':configId']['$delete'](args, options)
+  return await client.enterprise.sso[':configId'].$delete(args, options)
 }
 
 /**
@@ -403,7 +403,7 @@ export async function getEnterpriseSsoDomainLookup(
   args: { query: { domain: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['enterprise']['sso']['domain-lookup']['$get'](args, options)
+  return await client.enterprise.sso['domain-lookup'].$get(args, options)
 }
 
 /**
@@ -417,5 +417,5 @@ export async function getEnterpriseSsoConfigIdMetadata(
   args: { param: { configId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['enterprise']['sso'][':configId']['metadata']['$get'](args, options)
+  return await client.enterprise.sso[':configId'].metadata.$get(args, options)
 }

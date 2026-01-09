@@ -4,356 +4,356 @@ import { client } from '../clients/28-reserved-words'
 /**
  * GET /class
  */
-export async function getClass(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.class.$get(args, options)
+export async function getClass(options?: ClientRequestOptions) {
+  return await client.class.$get(undefined, options)
 }
 
 /**
  * GET /interface
  */
-export async function getInterface(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.interface.$get(args, options)
+export async function getInterface(options?: ClientRequestOptions) {
+  return await client.interface.$get(undefined, options)
 }
 
 /**
  * GET /type
  */
-export async function getType(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.type.$get(args, options)
+export async function getType(options?: ClientRequestOptions) {
+  return await client.type.$get(undefined, options)
 }
 
 /**
  * POST /function
  */
-export async function postFunction(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.function.$post(args, options)
+export async function postFunction(options?: ClientRequestOptions) {
+  return await client.function.$post(undefined, options)
 }
 
 /**
  * GET /return
  */
-export async function getReturn(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.return.$get(args, options)
+export async function getReturn(options?: ClientRequestOptions) {
+  return await client.return.$get(undefined, options)
 }
 
 /**
  * GET /import
  */
-export async function getImport(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.import.$get(args, options)
+export async function getImport(options?: ClientRequestOptions) {
+  return await client.import.$get(undefined, options)
 }
 
 /**
  * GET /export
  */
-export async function getExport(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.export.$get(args, options)
+export async function getExport(options?: ClientRequestOptions) {
+  return await client.export.$get(undefined, options)
 }
 
 /**
  * GET /default
  */
-export async function getDefault(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.default.$get(args, options)
+export async function getDefault(options?: ClientRequestOptions) {
+  return await client.default.$get(undefined, options)
 }
 
 /**
  * POST /new
  */
-export async function postNew(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.new.$post(args, options)
+export async function postNew(options?: ClientRequestOptions) {
+  return await client.new.$post(undefined, options)
 }
 
 /**
  * DELETE /delete
  */
-export async function deleteDelete(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.delete.$delete(args, options)
+export async function deleteDelete(options?: ClientRequestOptions) {
+  return await client.delete.$delete(undefined, options)
 }
 
 /**
  * GET /void
  */
-export async function getVoid(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.void.$get(args, options)
+export async function getVoid(options?: ClientRequestOptions) {
+  return await client.void.$get(undefined, options)
 }
 
 /**
  * GET /null
  */
-export async function getNull(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.null.$get(args, options)
+export async function getNull(options?: ClientRequestOptions) {
+  return await client.null.$get(undefined, options)
 }
 
 /**
  * GET /true
  */
-export async function getTrue(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.true.$get(args, options)
+export async function getTrue(options?: ClientRequestOptions) {
+  return await client.true.$get(undefined, options)
 }
 
 /**
  * GET /false
  */
-export async function getFalse(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.false.$get(args, options)
+export async function getFalse(options?: ClientRequestOptions) {
+  return await client.false.$get(undefined, options)
 }
 
 /**
  * GET /if
  */
-export async function getIf(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.if.$get(args, options)
+export async function getIf(options?: ClientRequestOptions) {
+  return await client.if.$get(undefined, options)
 }
 
 /**
  * GET /else
  */
-export async function getElse(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.else.$get(args, options)
+export async function getElse(options?: ClientRequestOptions) {
+  return await client.else.$get(undefined, options)
 }
 
 /**
  * GET /for
  */
-export async function getFor(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.for.$get(args, options)
+export async function getFor(options?: ClientRequestOptions) {
+  return await client.for.$get(undefined, options)
 }
 
 /**
  * GET /while
  */
-export async function getWhile(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.while.$get(args, options)
+export async function getWhile(options?: ClientRequestOptions) {
+  return await client.while.$get(undefined, options)
 }
 
 /**
  * GET /switch
  */
-export async function getSwitch(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.switch.$get(args, options)
+export async function getSwitch(options?: ClientRequestOptions) {
+  return await client.switch.$get(undefined, options)
 }
 
 /**
  * GET /case
  */
-export async function getCase(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.case.$get(args, options)
+export async function getCase(options?: ClientRequestOptions) {
+  return await client.case.$get(undefined, options)
 }
 
 /**
  * GET /break
  */
-export async function getBreak(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.break.$get(args, options)
+export async function getBreak(options?: ClientRequestOptions) {
+  return await client.break.$get(undefined, options)
 }
 
 /**
  * GET /continue
  */
-export async function getContinue(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.continue.$get(args, options)
+export async function getContinue(options?: ClientRequestOptions) {
+  return await client.continue.$get(undefined, options)
 }
 
 /**
  * GET /try
  */
-export async function getTry(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.try.$get(args, options)
+export async function getTry(options?: ClientRequestOptions) {
+  return await client.try.$get(undefined, options)
 }
 
 /**
  * GET /catch
  */
-export async function getCatch(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.catch.$get(args, options)
+export async function getCatch(options?: ClientRequestOptions) {
+  return await client.catch.$get(undefined, options)
 }
 
 /**
  * GET /finally
  */
-export async function getFinally(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.finally.$get(args, options)
+export async function getFinally(options?: ClientRequestOptions) {
+  return await client.finally.$get(undefined, options)
 }
 
 /**
  * GET /throw
  */
-export async function getThrow(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.throw.$get(args, options)
+export async function getThrow(options?: ClientRequestOptions) {
+  return await client.throw.$get(undefined, options)
 }
 
 /**
  * GET /async
  */
-export async function getAsync(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.async.$get(args, options)
+export async function getAsync(options?: ClientRequestOptions) {
+  return await client.async.$get(undefined, options)
 }
 
 /**
  * GET /await
  */
-export async function getAwait(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.await.$get(args, options)
+export async function getAwait(options?: ClientRequestOptions) {
+  return await client.await.$get(undefined, options)
 }
 
 /**
  * GET /yield
  */
-export async function getYield(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.yield.$get(args, options)
+export async function getYield(options?: ClientRequestOptions) {
+  return await client.yield.$get(undefined, options)
 }
 
 /**
  * GET /static
  */
-export async function getStatic(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.static.$get(args, options)
+export async function getStatic(options?: ClientRequestOptions) {
+  return await client.static.$get(undefined, options)
 }
 
 /**
  * GET /public
  */
-export async function getPublic(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.public.$get(args, options)
+export async function getPublic(options?: ClientRequestOptions) {
+  return await client.public.$get(undefined, options)
 }
 
 /**
  * GET /private
  */
-export async function getPrivate(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.private.$get(args, options)
+export async function getPrivate(options?: ClientRequestOptions) {
+  return await client.private.$get(undefined, options)
 }
 
 /**
  * GET /protected
  */
-export async function getProtected(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.protected.$get(args, options)
+export async function getProtected(options?: ClientRequestOptions) {
+  return await client.protected.$get(undefined, options)
 }
 
 /**
  * GET /abstract
  */
-export async function getAbstract(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.abstract.$get(args, options)
+export async function getAbstract(options?: ClientRequestOptions) {
+  return await client.abstract.$get(undefined, options)
 }
 
 /**
  * GET /final
  */
-export async function getFinal(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.final.$get(args, options)
+export async function getFinal(options?: ClientRequestOptions) {
+  return await client.final.$get(undefined, options)
 }
 
 /**
  * GET /extends
  */
-export async function getExtends(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.extends.$get(args, options)
+export async function getExtends(options?: ClientRequestOptions) {
+  return await client.extends.$get(undefined, options)
 }
 
 /**
  * GET /implements
  */
-export async function getImplements(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.implements.$get(args, options)
+export async function getImplements(options?: ClientRequestOptions) {
+  return await client.implements.$get(undefined, options)
 }
 
 /**
  * GET /package
  */
-export async function getPackage(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.package.$get(args, options)
+export async function getPackage(options?: ClientRequestOptions) {
+  return await client.package.$get(undefined, options)
 }
 
 /**
  * GET /enum
  */
-export async function getEnum(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.enum.$get(args, options)
+export async function getEnum(options?: ClientRequestOptions) {
+  return await client.enum.$get(undefined, options)
 }
 
 /**
  * GET /const
  */
-export async function getConst(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.const.$get(args, options)
+export async function getConst(options?: ClientRequestOptions) {
+  return await client.const.$get(undefined, options)
 }
 
 /**
  * GET /let
  */
-export async function getLet(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.let.$get(args, options)
+export async function getLet(options?: ClientRequestOptions) {
+  return await client.let.$get(undefined, options)
 }
 
 /**
  * GET /var
  */
-export async function getVar(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.var.$get(args, options)
+export async function getVar(options?: ClientRequestOptions) {
+  return await client.var.$get(undefined, options)
 }
 
 /**
  * GET /this
  */
-export async function getThis(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.this.$get(args, options)
+export async function getThis(options?: ClientRequestOptions) {
+  return await client.this.$get(undefined, options)
 }
 
 /**
  * GET /super
  */
-export async function getSuper(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.super.$get(args, options)
+export async function getSuper(options?: ClientRequestOptions) {
+  return await client.super.$get(undefined, options)
 }
 
 /**
  * GET /self
  */
-export async function getSelf(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.self.$get(args, options)
+export async function getSelf(options?: ClientRequestOptions) {
+  return await client.self.$get(undefined, options)
 }
 
 /**
  * GET /constructor
  */
-export async function getConstructor(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.constructor.$get(args, options)
+export async function getConstructor(options?: ClientRequestOptions) {
+  return await client.constructor.$get(undefined, options)
 }
 
 /**
  * GET /prototype
  */
-export async function getPrototype(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.prototype.$get(args, options)
+export async function getPrototype(options?: ClientRequestOptions) {
+  return await client.prototype.$get(undefined, options)
 }
 
 /**
  * GET /toString
  */
-export async function getToString(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.toString.$get(args, options)
+export async function getToString(options?: ClientRequestOptions) {
+  return await client.toString.$get(undefined, options)
 }
 
 /**
  * GET /valueOf
  */
-export async function getValueOf(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.valueOf.$get(args, options)
+export async function getValueOf(options?: ClientRequestOptions) {
+  return await client.valueOf.$get(undefined, options)
 }
 
 /**
  * GET /hasOwnProperty
  */
-export async function getHasOwnProperty(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.hasOwnProperty.$get(args, options)
+export async function getHasOwnProperty(options?: ClientRequestOptions) {
+  return await client.hasOwnProperty.$get(undefined, options)
 }
 
 /**
  * GET /name-collisions
  */
-export async function getNameCollisions(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client['name-collisions']['$get'](args, options)
+export async function getNameCollisions(options?: ClientRequestOptions) {
+  return await client['name-collisions'].$get(undefined, options)
 }

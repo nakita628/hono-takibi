@@ -4,6 +4,6 @@ import { client } from '../clients/self'
 /**
  * GET /categories
  */
-export async function getCategories(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.categories.$get(args, options)
+export async function getCategories(options?: ClientRequestOptions) {
+  return await client.categories.$get(undefined, options)
 }

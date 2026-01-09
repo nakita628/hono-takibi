@@ -60,5 +60,5 @@ export async function postIntegrationsIntegrationIdSync(
   args: { param: { integrationId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['integrations'][':integrationId']['sync']['$post'](args, options)
+  return await client.integrations[':integrationId'].sync.$post(args, options)
 }

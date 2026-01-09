@@ -53,7 +53,7 @@ export async function getPostsPostId(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['$get'](args, options)
+  return await client.posts[':postId'].$get(args, options)
 }
 
 /**
@@ -65,7 +65,7 @@ export async function deletePostsPostId(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['$delete'](args, options)
+  return await client.posts[':postId'].$delete(args, options)
 }
 
 /**
@@ -79,7 +79,7 @@ export async function getPostsPostIdThread(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['thread']['$get'](args, options)
+  return await client.posts[':postId'].thread.$get(args, options)
 }
 
 /**
@@ -93,7 +93,7 @@ export async function getPostsPostIdContext(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['context']['$get'](args, options)
+  return await client.posts[':postId'].context.$get(args, options)
 }
 
 /**
@@ -109,7 +109,7 @@ export async function getTimelineHome(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['timeline']['home']['$get'](args, options)
+  return await client.timeline.home.$get(args, options)
 }
 
 /**
@@ -123,7 +123,7 @@ export async function getTimelineForYou(
   args: { query: { cursor?: string; limit?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['timeline']['for-you']['$get'](args, options)
+  return await client.timeline['for-you'].$get(args, options)
 }
 
 /**
@@ -144,7 +144,7 @@ export async function getTimelineUserUserId(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['timeline']['user'][':userId']['$get'](args, options)
+  return await client.timeline.user[':userId'].$get(args, options)
 }
 
 /**
@@ -156,7 +156,7 @@ export async function getTimelineHashtagHashtag(
   args: { param: { hashtag: string }; query: { cursor?: string; limit?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['timeline']['hashtag'][':hashtag']['$get'](args, options)
+  return await client.timeline.hashtag[':hashtag'].$get(args, options)
 }
 
 /**
@@ -168,7 +168,7 @@ export async function postPostsPostIdLike(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['like']['$post'](args, options)
+  return await client.posts[':postId'].like.$post(args, options)
 }
 
 /**
@@ -180,7 +180,7 @@ export async function deletePostsPostIdLike(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['like']['$delete'](args, options)
+  return await client.posts[':postId'].like.$delete(args, options)
 }
 
 /**
@@ -192,7 +192,7 @@ export async function postPostsPostIdRepost(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['repost']['$post'](args, options)
+  return await client.posts[':postId'].repost.$post(args, options)
 }
 
 /**
@@ -204,7 +204,7 @@ export async function deletePostsPostIdRepost(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['repost']['$delete'](args, options)
+  return await client.posts[':postId'].repost.$delete(args, options)
 }
 
 /**
@@ -216,7 +216,7 @@ export async function postPostsPostIdQuote(
   args: { param: { postId: string }; json: { text: string; mediaIds?: string[] } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['quote']['$post'](args, options)
+  return await client.posts[':postId'].quote.$post(args, options)
 }
 
 /**
@@ -228,7 +228,7 @@ export async function postPostsPostIdBookmark(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['bookmark']['$post'](args, options)
+  return await client.posts[':postId'].bookmark.$post(args, options)
 }
 
 /**
@@ -240,7 +240,7 @@ export async function deletePostsPostIdBookmark(
   args: { param: { postId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['bookmark']['$delete'](args, options)
+  return await client.posts[':postId'].bookmark.$delete(args, options)
 }
 
 /**
@@ -264,7 +264,7 @@ export async function getPostsPostIdLikes(
   args: { param: { postId: string }; query: { cursor?: string; limit?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['likes']['$get'](args, options)
+  return await client.posts[':postId'].likes.$get(args, options)
 }
 
 /**
@@ -276,7 +276,7 @@ export async function getPostsPostIdReposts(
   args: { param: { postId: string }; query: { cursor?: string; limit?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['reposts']['$get'](args, options)
+  return await client.posts[':postId'].reposts.$get(args, options)
 }
 
 /**
@@ -288,7 +288,7 @@ export async function getPostsPostIdQuotes(
   args: { param: { postId: string }; query: { cursor?: string; limit?: number } },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['quotes']['$get'](args, options)
+  return await client.posts[':postId'].quotes.$get(args, options)
 }
 
 /**
@@ -303,7 +303,7 @@ export async function getPostsPostIdReplies(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['replies']['$get'](args, options)
+  return await client.posts[':postId'].replies.$get(args, options)
 }
 
 /**
@@ -325,7 +325,7 @@ export async function postPostsPostIdReplies(
   },
   options?: ClientRequestOptions,
 ) {
-  return await client['posts'][':postId']['replies']['$post'](args, options)
+  return await client.posts[':postId'].replies.$post(args, options)
 }
 
 /**
@@ -337,7 +337,7 @@ export async function postMediaUpload(
   args: { form: { file: File; alt?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['media']['upload']['$post'](args, options)
+  return await client.media.upload.$post(args, options)
 }
 
 /**
@@ -349,7 +349,7 @@ export async function getMediaMediaId(
   args: { param: { mediaId: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['media'][':mediaId']['$get'](args, options)
+  return await client.media[':mediaId'].$get(args, options)
 }
 
 /**
@@ -361,5 +361,5 @@ export async function patchMediaMediaId(
   args: { param: { mediaId: string }; json: { alt?: string } },
   options?: ClientRequestOptions,
 ) {
-  return await client['media'][':mediaId']['$patch'](args, options)
+  return await client.media[':mediaId'].$patch(args, options)
 }

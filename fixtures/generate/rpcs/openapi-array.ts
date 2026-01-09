@@ -8,6 +8,6 @@ import { client } from '../clients/openapi-array'
  *
  * zod array
  */
-export async function getArray(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.array.$get(args, options)
+export async function getArray(options?: ClientRequestOptions) {
+  return await client.array.$get(undefined, options)
 }

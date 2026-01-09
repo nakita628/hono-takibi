@@ -8,8 +8,8 @@ import { client } from '../clients/geojson-example'
  *
  * This endpoint is used to check if the server is working.
  */
-export async function get(args?: {} | undefined, options?: ClientRequestOptions) {
-  return await client.index.$get(args, options)
+export async function get(options?: ClientRequestOptions) {
+  return await client.index.$get(undefined, options)
 }
 
 /**
