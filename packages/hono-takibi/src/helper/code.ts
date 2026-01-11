@@ -53,11 +53,13 @@ export function makeImports(
     | undefined,
   split = false,
 ): string {
-  // Regex patterns for each OpenAPI component type
+  // Regex patterns for each OpenAPI component type (ordered per OpenAPI spec)
+  // https://swagger.io/docs/specification/v3_0/components/
   // Using negative lookbehind to exclude ParamsSchema and HeaderSchema from Schema matches
   const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
     { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*(?<!Params)(?<!Header)Schema)\b/g, key: 'schemas' },
     { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*ParamsSchema)\b/g, key: 'parameters' },
+    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*SecurityScheme)\b/g, key: 'securitySchemes' },
     { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*RequestBody)\b/g, key: 'requestBodies' },
     { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Response)\b/g, key: 'responses' },
     { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*HeaderSchema)\b/g, key: 'headers' },
