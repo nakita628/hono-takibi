@@ -12,10 +12,7 @@ export const SearchFilterQueryParamParamsSchema = SearchFilterSchema.exactOption
     content: {
       'application/json': {
         schema: { $ref: '#/components/schemas/SearchFilter' },
-        examples: {
-          userFilter: { $ref: '#/components/examples/UserFilterExample' },
-          orderFilter: { $ref: '#/components/examples/OrderFilterExample' },
-        },
+        examples: { userFilter: UserFilterExample, orderFilter: OrderFilterExample },
       },
     },
   },

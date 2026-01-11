@@ -1556,6 +1556,16 @@ components:
         status: 429
         traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
 
+    # Examples that reference other examples
+    UserFullAlias:
+      $ref: "#/components/examples/UserFull"
+
+    DefaultUserExample:
+      $ref: "#/components/examples/UserMinimal"
+
+    ChainedUserExample:
+      $ref: "#/components/examples/DefaultUserExample"
+
   links:
     # NOTE: links refer to operationId; parameters can be runtime expressions.
     GetUserLink:

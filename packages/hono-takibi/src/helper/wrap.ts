@@ -219,20 +219,52 @@ export function wrap(
       ? openapiSchema.slice(1, -1)
       : openapiSchema
 
-  // Serialize parameter object with examples $ref resolution
-  const serializeParam = (param: Parameter): string => {
-    const { examples, ...rest } = param
-    const restStr = JSON.stringify(rest)
-    if (!examples) {
-      return restStr
+  /**
+   * Serializes a media object with examples handled as code references.
+   */
+  const serializeMedia = (mediaObj: unknown): string => {
+    if (!mediaObj || typeof mediaObj !== 'object') {
+      return JSON.stringify(mediaObj)
     }
-    // Insert resolved examples before closing brace
-    const examplesStr = `"examples":${makeExamples(examples)}`
-    // Merge examples into the parameter object:
-    // - If restStr is '{}' (empty object), wrap examplesStr with braces: `{${examplesStr}}`
-    // - Otherwise, remove trailing '}' from restStr, append comma + examplesStr + '}'
-    //   e.g. '{"name":"id"}' → '{"name":"id","examples":{...}}'
-    return restStr === '{}' ? `{${examplesStr}}` : `${restStr.slice(0, -1)},${examplesStr}}`
+    const obj = mediaObj as Record<string, unknown>
+    const { examples: mediaExamples, ...mediaRest } = obj as {
+      examples?: Parameters<typeof makeExamples>[0]
+      [k: string]: unknown
+    }
+    const entries = Object.entries(mediaRest).map(
+      ([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`,
+    )
+    if (mediaExamples) {
+      entries.push(`"examples":${makeExamples(mediaExamples)}`)
+    }
+    return `{${entries.join(',')}}`
+  }
+
+  /**
+   * Serializes content object with examples handled as code references.
+   */
+  const serializeContent = (content: Record<string, unknown>): string => {
+    const entries = Object.entries(content).map(
+      ([mediaType, mediaObj]) => `${JSON.stringify(mediaType)}:${serializeMedia(mediaObj)}`,
+    )
+    return `{${entries.join(',')}}`
+  }
+
+  /**
+   * Serializes parameter object with examples as code references (not JSON strings).
+   */
+  const serializeParam = (param: Parameter): string => {
+    const entries: string[] = []
+    for (const [key, value] of Object.entries(param)) {
+      if (key === 'examples' && value) {
+        entries.push(`"examples":${makeExamples(value as Parameters<typeof makeExamples>[0])}`)
+      } else if (key === 'content' && value) {
+        entries.push(`"content":${serializeContent(value as Record<string, unknown>)}`)
+      } else {
+        entries.push(`${JSON.stringify(key)}:${JSON.stringify(value)}`)
+      }
+    }
+    return `{${entries.join(',')}}`
   }
 
   const openapiProps = [
@@ -532,6 +564,44 @@ if (import.meta.vitest) {
       const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
       const expected =
         'z.string().openapi({param:{"name":"id","in":"path","required":true,"schema":{"type":"string"},"examples":{"laptop":LaptopIdExample,"tshirt":{value:"tshirt-123"}}}})'
+      expect(result).toBe(expected)
+    })
+
+    it('should handle Unicode characters in parameter examples', () => {
+      const testParameter: Parameter = {
+        name: 'filter',
+        in: 'query',
+        required: false,
+        schema: { type: 'string' },
+        examples: {
+          japanese: { value: '日本語テスト' },
+          emoji: { value: '🔥炎のテスト🔥' },
+        },
+      }
+      const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
+      const expected =
+        'z.string().exactOptional().openapi({param:{"name":"filter","in":"query","required":false,"schema":{"type":"string"},"examples":{"japanese":{value:"日本語テスト"},"emoji":{value:"🔥炎のテスト🔥"}}}})'
+      expect(result).toBe(expected)
+    })
+
+    it('should handle content with examples containing Unicode', () => {
+      const testParameter: Parameter = {
+        name: 'filter',
+        in: 'query',
+        required: false,
+        schema: { type: 'object' },
+        content: {
+          'application/json': {
+            schema: { type: 'object' },
+            examples: {
+              japanese: { value: { name: '田中太郎', description: '参照地獄テスト' } },
+            },
+          },
+        },
+      }
+      const result = wrap('z.object({})', { type: 'object' }, { parameters: testParameter })
+      const expected =
+        'z.object({}).exactOptional().openapi({param:{"name":"filter","in":"query","required":false,"schema":{"type":"object"},"content":{"application/json":{"schema":{"type":"object"},"examples":{"japanese":{value:{"name":"田中太郎","description":"参照地獄テスト"}}}}}}})'
       expect(result).toBe(expected)
     })
   })

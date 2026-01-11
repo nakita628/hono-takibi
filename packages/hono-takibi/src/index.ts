@@ -1844,6 +1844,340 @@ export const getUsersRoute = createRoute({
 `)
     })
 
+    it('generates split examples with cross-references', () => {
+      const openAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/users': {
+            get: {
+              operationId: 'getUsers',
+              responses: {
+                200: {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object' },
+                      examples: {
+                        ChainedUser: { $ref: '#/components/examples/ChainedUser' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          examples: {
+            BaseUser: {
+              summary: 'Base user',
+              value: { id: 1, name: 'Base' },
+            },
+            AliasUser: {
+              $ref: '#/components/examples/BaseUser',
+            },
+            ChainedUser: {
+              $ref: '#/components/examples/AliasUser',
+            },
+          },
+        },
+      }
+
+      const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    routes: { output: 'src/routes', split: true },
+    components: {
+      examples: { output: 'src/examples', split: true, import: '@/examples' },
+    },
+  },
+}`
+
+      fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+      fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+
+      // Check index.ts exports all examples
+      const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
+      expect(examplesIndex).toBe(`export * from './aliasUser.ts'
+export * from './baseUser.ts'
+export * from './chainedUser.ts'
+`)
+
+      // Check BaseUser is exported as object (no import)
+      const baseUserFile = fs.readFileSync(path.join(testDir, 'src/examples/baseUser.ts'), 'utf-8')
+      expect(
+        baseUserFile,
+      ).toBe(`export const BaseUserExample = { summary: 'Base user', value: { id: 1, name: 'Base' } }
+`)
+      expect(baseUserFile).not.toContain('import')
+
+      // Check AliasUser imports and references BaseUser
+      const aliasUserFile = fs.readFileSync(
+        path.join(testDir, 'src/examples/aliasUser.ts'),
+        'utf-8',
+      )
+      expect(aliasUserFile).toBe(`import { BaseUserExample } from './baseUser.ts'
+
+export const AliasUserExample = BaseUserExample
+`)
+
+      // Check ChainedUser imports and references BaseUser
+      // (SwaggerParser.bundle resolves $ref chains to final target)
+      const chainedUserFile = fs.readFileSync(
+        path.join(testDir, 'src/examples/chainedUser.ts'),
+        'utf-8',
+      )
+      expect(chainedUserFile).toBe(`import { BaseUserExample } from './baseUser.ts'
+
+export const ChainedUserExample = BaseUserExample
+`)
+
+      // Check route imports the resolved BaseUser from examples
+      // (SwaggerParser.bundle resolves all $ref chains to final target)
+      const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
+      expect(getUsersRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+import { BaseUserExample } from '@/examples'
+
+export const getUsersRoute = createRoute({
+  method: 'get',
+  path: '/users',
+  operationId: 'getUsers',
+  responses: {
+    200: {
+      description: 'Success',
+      content: {
+        'application/json': { schema: z.object({}), examples: { ChainedUser: BaseUserExample } },
+      },
+    },
+  },
+})
+`)
+    })
+
+    it('generates split examples with $ref and sibling properties (OpenAPI 3.1+)', () => {
+      // Note: SwaggerParser.bundle() resolves $ref, so sibling properties are lost
+      // in the bundled output. The sibling properties feature is tested in exports.ts unit tests.
+      // This test verifies that $ref resolution works correctly in split mode.
+      const openAPI = {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/users': {
+            get: {
+              operationId: 'getUsers',
+              responses: {
+                200: {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object' },
+                      examples: {
+                        ExtendedUser: { $ref: '#/components/examples/ExtendedUser' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          examples: {
+            BaseUser: {
+              summary: 'Base user example',
+              value: { id: 1, name: 'Base' },
+            },
+            ExtendedUser: {
+              $ref: '#/components/examples/BaseUser',
+              summary: 'Extended user with custom summary',
+              description: 'This example extends BaseUser with additional metadata',
+            },
+          },
+        },
+      }
+
+      const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    routes: { output: 'src/routes', split: true },
+    components: {
+      examples: { output: 'src/examples', split: true, import: '@/examples' },
+    },
+  },
+}`
+
+      fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+      fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+
+      // Check index.ts exports all examples
+      const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
+      expect(examplesIndex).toBe(`export * from './baseUser.ts'
+export * from './extendedUser.ts'
+`)
+
+      // Check BaseUser is exported with its own properties
+      const baseUserFile = fs.readFileSync(path.join(testDir, 'src/examples/baseUser.ts'), 'utf-8')
+      expect(baseUserFile).toBe(
+        `export const BaseUserExample = { summary: 'Base user example', value: { id: 1, name: 'Base' } }
+`,
+      )
+
+      // SwaggerParser.bundle() resolves $ref, so ExtendedUser becomes a simple reference
+      // (sibling properties are lost in bundle process)
+      const extendedUserFile = fs.readFileSync(
+        path.join(testDir, 'src/examples/extendedUser.ts'),
+        'utf-8',
+      )
+      expect(extendedUserFile).toBe(`import { BaseUserExample } from './baseUser.ts'
+
+export const ExtendedUserExample = BaseUserExample
+`)
+
+      // Check route imports the resolved example
+      // SwaggerParser.bundle() resolves $ref chains, so route uses ExtendedUserExample
+      const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
+      expect(getUsersRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+import { ExtendedUserExample } from '@/examples'
+
+export const getUsersRoute = createRoute({
+  method: 'get',
+  path: '/users',
+  operationId: 'getUsers',
+  responses: {
+    200: {
+      description: 'Success',
+      content: {
+        'application/json': {
+          schema: z.object({}),
+          examples: { ExtendedUser: ExtendedUserExample },
+        },
+      },
+    },
+  },
+})
+`)
+    })
+
+    it('generates split examples with Unicode characters', () => {
+      const openAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/messages': {
+            get: {
+              operationId: 'getMessages',
+              responses: {
+                200: {
+                  description: 'Success',
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object' },
+                      examples: {
+                        JapaneseMessage: { $ref: '#/components/examples/JapaneseMessage' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          examples: {
+            JapaneseMessage: {
+              summary: 'Japanese message',
+              value: {
+                text: 'こんにちは世界 🌍',
+                emoji: '🔥💯✨',
+              },
+            },
+            AliasJapanese: {
+              $ref: '#/components/examples/JapaneseMessage',
+            },
+          },
+        },
+      }
+
+      const config = `export default {
+  input: 'openapi.json',
+  'zod-openapi': {
+    routes: { output: 'src/routes', split: true },
+    components: {
+      examples: { output: 'src/examples', split: true, import: '@/examples' },
+    },
+  },
+}`
+
+      fs.writeFileSync(path.join(testDir, 'openapi.json'), JSON.stringify(openAPI))
+      fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+      execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+        cwd: path.resolve(testDir),
+      })
+
+      // Check index.ts exports all examples
+      const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
+      expect(examplesIndex).toBe(`export * from './aliasJapanese.ts'
+export * from './japaneseMessage.ts'
+`)
+
+      // Check JapaneseMessage is exported with Unicode content
+      const japaneseFile = fs.readFileSync(
+        path.join(testDir, 'src/examples/japaneseMessage.ts'),
+        'utf-8',
+      )
+      expect(japaneseFile).toBe(`export const JapaneseMessageExample = {
+  summary: 'Japanese message',
+  value: { text: 'こんにちは世界 🌍', emoji: '🔥💯✨' },
+}
+`)
+
+      // Check AliasJapanese imports and references JapaneseMessage
+      const aliasFile = fs.readFileSync(
+        path.join(testDir, 'src/examples/aliasJapanese.ts'),
+        'utf-8',
+      )
+      expect(aliasFile).toBe(`import { JapaneseMessageExample } from './japaneseMessage.ts'
+
+export const AliasJapaneseExample = JapaneseMessageExample
+`)
+
+      // Check route imports the resolved JapaneseMessage
+      const getMessagesRoute = fs.readFileSync(
+        path.join(testDir, 'src/routes/getMessages.ts'),
+        'utf-8',
+      )
+      expect(getMessagesRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+import { JapaneseMessageExample } from '@/examples'
+
+export const getMessagesRoute = createRoute({
+  method: 'get',
+  path: '/messages',
+  operationId: 'getMessages',
+  responses: {
+    200: {
+      description: 'Success',
+      content: {
+        'application/json': {
+          schema: z.object({}),
+          examples: { JapaneseMessage: JapaneseMessageExample },
+        },
+      },
+    },
+  },
+})
+`)
+    })
+
     it('generates split links with path alias', () => {
       const openAPI = {
         openapi: '3.0.3',
