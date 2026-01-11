@@ -32,3 +32,19 @@ export {
 } from './schema.js'
 export { makeRecordTypeString, makeTypeString } from './type.js'
 export { wrap } from './wrap.js'
+
+// Test run
+// pnpm vitest run ./packages/hono-takibi/src/helper/index.ts
+if (import.meta.vitest) {
+  const { describe, it, expect } = import.meta.vitest
+  const helper = await import('./index.js')
+
+  describe('helper barrel file exports', () => {
+    it('should export ast', () => {
+      expect(typeof helper.ast).toBe('function')
+    })
+    it('should export wrap', () => {
+      expect(typeof helper.wrap).toBe('function')
+    })
+  })
+}

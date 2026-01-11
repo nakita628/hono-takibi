@@ -54,8 +54,6 @@
     "deps": "rm -rf node_modules && pnpm install",
     "build": "rm -rf ./dist/* && tsc",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "coverage": "vitest run --coverage",
     "release": "pnpm build && pnpm publish"
   },
   "dependencies": {
@@ -72,9 +70,7 @@
     "@typespec/http": "^1.7.0",
     "@typespec/rest": "^0.77.0",
     "@typespec/versioning": "^0.77.0",
-    "@vitest/coverage-v8": "^4.0.16",
     "vite": "^7.3.0",
-    "vitest": "^4.0.16",
     "zod": "^4.3.4"
   }
 }

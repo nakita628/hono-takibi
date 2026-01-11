@@ -7,7 +7,7 @@
     "strict": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "types": ["node"],
+    "types": ["vitest/importMeta", "node"],
     "declaration": true,
     "exactOptionalPropertyTypes": true
   },

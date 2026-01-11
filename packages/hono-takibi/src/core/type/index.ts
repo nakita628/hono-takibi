@@ -16,7 +16,11 @@
  * @module core/type
  */
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
 import { zodOpenAPIHono } from '../../generator/zod-openapi-hono/openapi/index.js'
 import { core } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
@@ -133,11 +137,16 @@ export async function type(
 
 function apiType(code: string): string | undefined {
   const VIRTUAL_FILE_NAME = 'virtual.ts'
+  const nodeModulesPath = path.resolve(__dirname, '../../../node_modules')
   const compilerOptions: ts.CompilerOptions = {
     target: ts.ScriptTarget.ESNext,
     module: ts.ModuleKind.NodeNext,
     moduleResolution: ts.ModuleResolutionKind.NodeNext,
     strict: true,
+    baseUrl: nodeModulesPath,
+    paths: {
+      '@hono/zod-openapi': [path.join(nodeModulesPath, '@hono/zod-openapi')],
+    },
   }
 
   const sourceFile = ts.createSourceFile(
@@ -178,4 +187,78 @@ function apiType(code: string): string | undefined {
       ts.TypeFormatFlags.UseFullyQualifiedType |
       ts.TypeFormatFlags.WriteTypeArgumentsOfSignature,
   )
+}
+
+// Test run
+// pnpm vitest run ./packages/hono-takibi/src/core/type/index.ts
+if (import.meta.vitest) {
+  const { describe, it, expect } = import.meta.vitest
+  const fs = await import('node:fs')
+  const os = await import('node:os')
+  const nodePath = await import('node:path')
+
+  const openapi = {
+    openapi: '3.0.0',
+    info: {
+      title: 'Test API',
+      version: '1.0.0',
+    },
+    components: {
+      schemas: {
+        Test: {
+          type: 'object',
+          required: ['test'],
+          properties: {
+            test: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    },
+    paths: {
+      '/test': {
+        post: {
+          summary: 'Test endpoint',
+          requestBody: {
+            required: true,
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Test',
+                },
+              },
+            },
+          },
+          responses: {
+            '200': {
+              description: 'Successful test',
+            },
+          },
+        },
+      },
+    },
+  } as OpenAPI
+
+  describe('type', () => {
+    it('should return ok when successful', { timeout: 10000 }, async () => {
+      const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
+      try {
+        const input = nodePath.join(dir, 'openapi.json') as
+          | `${string}.yaml`
+          | `${string}.json`
+          | `${string}.tsp`
+        const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
+        fs.writeFileSync(input, JSON.stringify(openapi), 'utf-8')
+        const result = await type(openapi, out)
+        expect(result.ok).toBe(true)
+        const code = fs.readFileSync(out, 'utf-8')
+        expect(code).toContain(
+          '$post: { input: { json: { test: string } }; output: {}; outputFormat: string; status: 200 }',
+        )
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+      }
+    })
+  })
 }
