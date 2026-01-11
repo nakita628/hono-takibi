@@ -157,14 +157,16 @@ export type Components = {
     readonly [k: string]: Parameter
   }
   readonly examples?: {
-    readonly [k: string]: {
-      readonly summary?: string
-      readonly description?: string
-      readonly dataValue: unknown
-      readonly serializedValue: string
-      readonly externalValue?: string
-      readonly value: unknown
-    }
+    readonly [k: string]:
+      | {
+          readonly summary?: string
+          readonly description?: string
+          readonly dataValue?: unknown
+          readonly serializedValue?: string
+          readonly externalValue?: string
+          readonly value?: unknown
+        }
+      | Reference
   }
   readonly requestBodies?: {
     readonly [k: string]: RequestBody
