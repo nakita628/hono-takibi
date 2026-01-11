@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { EntitySchema } from './entity'
-import { CompanySchema } from './company'
 import { AddressSchema } from './address'
+import { CompanySchema } from './company'
+import { EntitySchema } from './entity'
 
 type PersonType = z.infer<typeof EntitySchema> & {
   displayName: string

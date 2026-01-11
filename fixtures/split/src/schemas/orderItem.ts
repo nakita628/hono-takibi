@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { ProductSchema } from './product'
 import { MoneySchema } from './money'
+import { ProductSchema } from './product'
 
 type OrderItemType = {
   product: z.infer<typeof ProductSchema>

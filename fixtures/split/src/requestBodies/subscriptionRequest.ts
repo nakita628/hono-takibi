@@ -1,5 +1,5 @@
-import { WebhookSubscriptionSchema } from '../schemas'
 import { SubscriptionExample } from '../examples'
+import { WebhookSubscriptionSchema } from '../schemas'
 
 export const SubscriptionRequestRequestBody = {
   content: {

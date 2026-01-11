@@ -1,11 +1,11 @@
 import { z } from '@hono/zod-openapi'
-import { EntitySchema } from './entity'
-import { UserSchema } from './user'
-import { OrderStatusSchema } from './orderStatus'
-import { OrderItemSchema } from './orderItem'
 import { AddressSchema } from './address'
 import { AuditLogSchema } from './auditLog'
+import { EntitySchema } from './entity'
+import { OrderItemSchema } from './orderItem'
+import { OrderStatusSchema } from './orderStatus'
 import { ResourceLinksSchema } from './resourceLinks'
+import { UserSchema } from './user'
 
 type OrderType = z.infer<typeof EntitySchema> & {
   buyer: z.infer<typeof UserSchema>

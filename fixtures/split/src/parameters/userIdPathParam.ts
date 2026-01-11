@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { IdSchema } from '../schemas'
 import { UserIdUlidExample, UserIdUuidExample } from '../examples'
+import { IdSchema } from '../schemas'
 
 export const UserIdPathParamParamsSchema = IdSchema.openapi({
   param: {
