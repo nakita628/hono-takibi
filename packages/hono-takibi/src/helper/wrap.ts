@@ -219,8 +219,20 @@ export function wrap(
       ? openapiSchema.slice(1, -1)
       : openapiSchema
 
+  // Serialize parameter object with examples $ref resolution
+  const serializeParam = (param: Parameter): string => {
+    const { examples, ...rest } = param as Parameter & { examples?: Record<string, unknown> }
+    const restStr = JSON.stringify(rest)
+    if (!examples) {
+      return restStr
+    }
+    // Insert resolved examples before closing brace
+    const examplesStr = `"examples":${makeExamples(examples as Parameters<typeof makeExamples>[0])}`
+    return restStr === '{}' ? `{${examplesStr}}` : `${restStr.slice(0, -1)},${examplesStr}}`
+  }
+
   const openapiProps = [
-    meta?.parameters ? `param:${JSON.stringify(meta.parameters)}` : undefined,
+    meta?.parameters ? `param:${serializeParam(meta.parameters)}` : undefined,
     ...headerMetaProps,
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)
@@ -500,6 +512,29 @@ if (import.meta.vitest) {
       )
       const expected = 'z.string().openapi({"examples":["example1","example2"]})'
       expect(result).toBe(expected)
+    })
+
+    it('should resolve $ref in parameter examples', () => {
+      const result = wrap(
+        'z.string()',
+        { type: 'string' },
+        {
+          parameters: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+            examples: {
+              laptop: { $ref: '#/components/examples/LaptopId' },
+              tshirt: { value: 'tshirt-123' },
+            },
+          } as any,
+        },
+      )
+      // $ref should be resolved to variable reference
+      expect(result).toContain('LaptopIdExample')
+      // inline example should be preserved
+      expect(result).toContain('"tshirt":{value:"tshirt-123"}')
     })
   })
 }

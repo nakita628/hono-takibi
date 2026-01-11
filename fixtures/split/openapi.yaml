@@ -815,8 +815,7 @@ components:
       description: Correlation id (parameter) - schema refs TraceId
       schema:
         $ref: "#/components/schemas/TraceId"
-      example:
-        $ref: "#/components/examples/TraceIdExample/value"
+      example: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
 
     UserIdPathParam:
       name: userId
@@ -1243,8 +1242,7 @@ components:
       description: Trace id header component (same concept as parameter)
       schema:
         $ref: "#/components/schemas/TraceId"
-      example:
-        $ref: "#/components/examples/TraceIdExample/value"
+      example: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
 
     WwwAuthenticateHeader:
       description: WWW-Authenticate for Bearer
@@ -1288,16 +1286,14 @@ components:
         clientId: "client_123"
         clientSecret: "secret_abc"
         trace:
-          traceId:
-            $ref: "#/components/examples/TraceIdExample/value"
+          traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
 
     TokenRequestRefresh:
       value:
         grantType: refresh_token
         refreshToken: "refresh_xxx"
         trace:
-          traceId:
-            $ref: "#/components/examples/TraceIdExample/value"
+          traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
 
     TokenResponseExample:
       value:
@@ -1308,8 +1304,7 @@ components:
         meta:
           createdAt: "2026-01-04T00:00:00Z"
           trace:
-            traceId:
-              $ref: "#/components/examples/TraceIdExample/value"
+            traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
 
     UserMinimal:
       value:
@@ -1325,8 +1320,7 @@ components:
         meta:
           createdAt: "2026-01-04T00:00:00Z"
           trace:
-            traceId:
-              $ref: "#/components/examples/TraceIdExample/value"
+            traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
         name: "Inferno Taro"
         email: "taro@inferno.example"
         company:
@@ -1335,7 +1329,11 @@ components:
             createdAt: "2026-01-04T00:00:00Z"
           name: "Inferno Inc."
         manager:
-          $ref: "#/components/examples/UserMinimal" # example referencing example (evil but usable as a value template)
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Minimal User"
+          email: "min@example.com"
         addresses:
           - line1: "1-2-3 Hell St"
             city: "Tokyo"
@@ -1369,7 +1367,11 @@ components:
           createdAt: "2026-01-04T00:00:00Z"
         name: "Inferno Inc."
         employees:
-          - $ref: "#/components/examples/UserMinimal/value"
+          - id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+            meta:
+              createdAt: "2026-01-04T00:00:00Z"
+            name: "Minimal User"
+            email: "min@example.com"
 
     OrderExample:
       value:
@@ -1377,7 +1379,11 @@ components:
         meta:
           createdAt: "2026-01-04T00:00:00Z"
         buyer:
-          $ref: "#/components/examples/UserMinimal/value"
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Minimal User"
+          email: "min@example.com"
         status: paid
         items:
           - product:
@@ -1391,19 +1397,26 @@ components:
             quantity: 1
         auditTrail:
           - entity:
-              $ref: "#/components/examples/UserMinimal/value"
+              id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+              meta:
+                createdAt: "2026-01-04T00:00:00Z"
+              name: "Minimal User"
+              email: "min@example.com"
             event:
               type: order.created
               payload:
-                order:
-                  $ref: "#/components/examples/OrderExample/value" # recursion in example too
+                orderId: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
             meta:
               createdAt: "2026-01-04T00:00:00Z"
 
     UserListExample:
       value:
         items:
-          - $ref: "#/components/examples/UserMinimal/value"
+          - id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+            meta:
+              createdAt: "2026-01-04T00:00:00Z"
+            name: "Minimal User"
+            email: "min@example.com"
         nextCursor: "cursor_opaque_123"
         meta:
           createdAt: "2026-01-04T00:00:00Z"
@@ -1411,7 +1424,16 @@ components:
     OrderListExample:
       value:
         items:
-          - $ref: "#/components/examples/OrderExample/value"
+          - id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+            meta:
+              createdAt: "2026-01-04T00:00:00Z"
+            buyer:
+              id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+              meta:
+                createdAt: "2026-01-04T00:00:00Z"
+              name: "Minimal User"
+              email: "min@example.com"
+            status: paid
         nextCursor: "cursor_opaque_orders_123"
         meta:
           createdAt: "2026-01-04T00:00:00Z"
@@ -1427,7 +1449,11 @@ components:
         download:
           href: "/files/01J1K9N3E6R6ZK7Z6B0Q9Q3H3J/download"
         owner:
-          $ref: "#/components/examples/UserMinimal/value"
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Minimal User"
+          email: "min@example.com"
 
     SubscriptionExample:
       value:
@@ -1445,26 +1471,42 @@ components:
     WebhookEventExample:
       value:
         subscription:
-          $ref: "#/components/examples/SubscriptionExample/value"
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          callbackUrl: "https://client.example/webhook"
+          events: [order.created, user.updated]
+          secret:
+            secretId: "sec_123"
+            rotation:
+              next:
+                secretId: "sec_456"
         event:
           type: order.created
           payload:
-            order:
-              $ref: "#/components/examples/OrderExample/value"
+            orderId: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
 
     UserFilterExample:
       value:
         kind: user
         email: "taro@inferno.example"
         manager:
-          $ref: "#/components/examples/UserMinimal/value"
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Minimal User"
+          email: "min@example.com"
 
     OrderFilterExample:
       value:
         kind: order
         status: paid
         buyer:
-          $ref: "#/components/examples/UserMinimal/value"
+          id: "01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
+          meta:
+            createdAt: "2026-01-04T00:00:00Z"
+          name: "Minimal User"
+          email: "min@example.com"
         minTotal:
           currency: JPY
           amount: 1000
@@ -1474,8 +1516,7 @@ components:
         type: "https://errors.inferno.example/problem/generic"
         title: "Something went wrong"
         status: 500
-        traceId:
-          $ref: "#/components/examples/TraceIdExample/value"
+        traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
         causes:
           - type: "https://errors.inferno.example/problem/inner"
             title: "Inner failure"
@@ -1486,8 +1527,7 @@ components:
         type: "https://errors.inferno.example/problem/validation"
         title: "Validation error"
         status: 400
-        traceId:
-          $ref: "#/components/examples/TraceIdExample/value"
+        traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
         errors:
           - path: "email"
             message: "Invalid email"
@@ -1500,24 +1540,21 @@ components:
         type: "https://errors.inferno.example/problem/unauthorized"
         title: "Unauthorized"
         status: 401
-        traceId:
-          $ref: "#/components/examples/TraceIdExample/value"
+        traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
 
     ProblemNotFound:
       value:
         type: "https://errors.inferno.example/problem/notfound"
         title: "Not found"
         status: 404
-        traceId:
-          $ref: "#/components/examples/TraceIdExample/value"
+        traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
 
     ProblemRateLimited:
       value:
         type: "https://errors.inferno.example/problem/ratelimited"
         title: "Too many requests"
         status: 429
-        traceId:
-          $ref: "#/components/examples/TraceIdExample/value"
+        traceId: "trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J"
 
   links:
     # NOTE: links refer to operationId; parameters can be runtime expressions.

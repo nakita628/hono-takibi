@@ -1,5 +1,5 @@
-import { TokenRequestClientCredentialsExample, TokenRequestRefreshExample } from '../examples'
 import { TokenRequestSchema } from '../schemas'
+import { TokenRequestClientCredentialsExample, TokenRequestRefreshExample } from '../examples'
 
 export const TokenRequestRequestBody = {
   content: {

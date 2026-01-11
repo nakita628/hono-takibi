@@ -1,6 +1,6 @@
 import { z } from '@hono/zod-openapi'
-import { CompanySchema } from './company'
 import { EntitySchema } from './entity'
+import { CompanySchema } from './company'
 import { MoneySchema } from './money'
 
 type ProductType = z.infer<typeof EntitySchema> & {

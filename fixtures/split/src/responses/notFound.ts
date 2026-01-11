@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { ProblemNotFoundExample } from '../examples'
-import { TraceIdHeaderHeaderSchema } from '../headers'
 import { ProblemDetailsSchema } from '../schemas'
+import { TraceIdHeaderHeaderSchema } from '../headers'
+import { ProblemNotFoundExample } from '../examples'
 
 export const NotFoundResponse = {
   description: 'Not Found',

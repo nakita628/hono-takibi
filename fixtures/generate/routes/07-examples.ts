@@ -220,10 +220,7 @@ export const getProductsProductIdRoute = createRoute({
             in: 'path',
             required: true,
             schema: { type: 'string' },
-            examples: {
-              laptop: { $ref: '#/components/examples/LaptopProductId' },
-              tshirt: { $ref: '#/components/examples/TShirtProductId' },
-            },
+            examples: { laptop: LaptopProductIdExample, tshirt: TShirtProductIdExample },
           },
         }),
     }),

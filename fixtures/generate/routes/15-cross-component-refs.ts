@@ -329,6 +329,11 @@ const SortExpressionSchema = z
   })
   .openapi('SortExpression')
 
+const EntityIdExample = {
+  summary: 'Valid entity ID',
+  value: '550e8400-e29b-41d4-a716-446655440000',
+}
+
 const EntityIdPathParamsSchema = EntityIdSchema.openapi({
   param: {
     name: 'entityId',
@@ -336,9 +341,29 @@ const EntityIdPathParamsSchema = EntityIdSchema.openapi({
     required: true,
     description: 'Entity unique identifier',
     schema: { $ref: '#/components/schemas/EntityId' },
-    examples: { validUuid: { $ref: '#/components/examples/EntityIdExample' } },
+    examples: { validUuid: EntityIdExample },
   },
 })
+
+const SimpleFilterExample = {
+  summary: 'Simple filter',
+  value: { field: 'status', operator: 'eq', value: 'active' },
+}
+
+const ComplexFilterExample = {
+  summary: 'Complex filter with AND/OR',
+  value: {
+    and: [
+      { field: 'status', operator: 'eq', value: 'active' },
+      {
+        or: [
+          { field: 'type', operator: 'eq', value: 'user' },
+          { field: 'type', operator: 'eq', value: 'project' },
+        ],
+      },
+    ],
+  },
+}
 
 const FilterParamParamsSchema = FilterExpressionSchema.exactOptional().openapi({
   param: {
@@ -349,10 +374,7 @@ const FilterParamParamsSchema = FilterExpressionSchema.exactOptional().openapi({
     style: 'deepObject',
     explode: true,
     schema: { $ref: '#/components/schemas/FilterExpression' },
-    examples: {
-      simpleFilter: { $ref: '#/components/examples/SimpleFilterExample' },
-      complexFilter: { $ref: '#/components/examples/ComplexFilterExample' },
-    },
+    examples: { simpleFilter: SimpleFilterExample, complexFilter: ComplexFilterExample },
   },
 })
 
@@ -419,6 +441,8 @@ const IncludeParamParamsSchema = z
     },
   })
 
+const EtagExample = { summary: 'ETag value', value: '"33a64df551425fcc55e4d42a148795d9f25f89d4"' }
+
 const IfMatchHeaderParamsSchema = z
   .string()
   .exactOptional()
@@ -429,7 +453,7 @@ const IfMatchHeaderParamsSchema = z
       description: 'ETag for optimistic locking',
       required: false,
       schema: { type: 'string' },
-      examples: { etag: { $ref: '#/components/examples/EtagExample' } },
+      examples: { etag: EtagExample },
     },
   })
 
@@ -446,6 +470,11 @@ const IfNoneMatchHeaderParamsSchema = z
     },
   })
 
+const IdempotencyKeyExample = {
+  summary: 'Idempotency key',
+  value: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
+}
+
 const IdempotencyKeyHeaderParamsSchema = z
   .uuid()
   .exactOptional()
@@ -456,7 +485,7 @@ const IdempotencyKeyHeaderParamsSchema = z
       description: 'Idempotency key for safe retries',
       required: false,
       schema: { type: 'string', format: 'uuid' },
-      examples: { idempotencyKey: { $ref: '#/components/examples/IdempotencyKeyExample' } },
+      examples: { idempotencyKey: IdempotencyKeyExample },
     },
   })
 
@@ -739,41 +768,9 @@ const PreconditionFailedResponse = {
   content: { 'application/json': { schema: ErrorListSchema } },
 }
 
-const EntityIdExample = {
-  summary: 'Valid entity ID',
-  value: '550e8400-e29b-41d4-a716-446655440000',
-}
-
-const EtagExample = { summary: 'ETag value', value: '"33a64df551425fcc55e4d42a148795d9f25f89d4"' }
-
-const IdempotencyKeyExample = {
-  summary: 'Idempotency key',
-  value: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
-}
-
 const RequestIdExample = {
   summary: 'Request ID',
   value: 'req-550e8400-e29b-41d4-a716-446655440000',
-}
-
-const SimpleFilterExample = {
-  summary: 'Simple filter',
-  value: { field: 'status', operator: 'eq', value: 'active' },
-}
-
-const ComplexFilterExample = {
-  summary: 'Complex filter with AND/OR',
-  value: {
-    and: [
-      { field: 'status', operator: 'eq', value: 'active' },
-      {
-        or: [
-          { field: 'type', operator: 'eq', value: 'user' },
-          { field: 'type', operator: 'eq', value: 'project' },
-        ],
-      },
-    ],
-  },
 }
 
 const GetEntityByIdLink = {

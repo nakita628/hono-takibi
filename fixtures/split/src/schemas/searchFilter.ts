@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
-import { CompanyFilterSchema } from './companyFilter'
-import { OrderFilterSchema } from './orderFilter'
 import { UserFilterSchema } from './userFilter'
+import { OrderFilterSchema } from './orderFilter'
+import { CompanyFilterSchema } from './companyFilter'
 
 export const SearchFilterSchema = z
   .xor([UserFilterSchema, OrderFilterSchema, CompanyFilterSchema])

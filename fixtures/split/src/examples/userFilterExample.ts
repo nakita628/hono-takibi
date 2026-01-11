@@ -2,6 +2,11 @@ export const UserFilterExample = {
   value: {
     kind: 'user',
     email: 'taro@inferno.example',
-    manager: { $ref: '#/components/examples/UserMinimal/value' },
+    manager: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Minimal User',
+      email: 'min@example.com',
+    },
   },
 }

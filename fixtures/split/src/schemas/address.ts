@@ -1,7 +1,7 @@
 import { z } from '@hono/zod-openapi'
 import { GeoPointSchema } from './geoPoint'
-import { PersonSchema } from './person'
 import { UserSchema } from './user'
+import { PersonSchema } from './person'
 
 type AddressType = {
   line1: string

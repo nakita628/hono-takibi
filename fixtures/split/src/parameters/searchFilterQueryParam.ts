@@ -1,5 +1,6 @@
-import type { z } from '@hono/zod-openapi'
+import { z } from '@hono/zod-openapi'
 import { SearchFilterSchema } from '../schemas'
+import { OrderFilterExample, UserFilterExample } from '../examples'
 
 export const SearchFilterQueryParamParamsSchema = SearchFilterSchema.exactOptional().openapi({
   param: {

@@ -650,9 +650,13 @@ const TraceIdHeaderParamParamsSchema = TraceIdSchema.exactOptional().openapi({
     required: false,
     description: 'Correlation id (parameter) - schema refs TraceId',
     schema: { $ref: '#/components/schemas/TraceId' },
-    example: { $ref: '#/components/examples/TraceIdExample/value' },
+    example: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
   },
 })
+
+const UserIdUuidExample = { summary: 'userId uuid', value: 'f3b1b6d8-4c8c-4f1a-9b6f-1c7e6d8b9a01' }
+
+const UserIdUlidExample = { summary: 'userId ulid', value: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' }
 
 const UserIdPathParamParamsSchema = IdSchema.openapi({
   param: {
@@ -660,10 +664,7 @@ const UserIdPathParamParamsSchema = IdSchema.openapi({
     in: 'path',
     required: true,
     schema: { $ref: '#/components/schemas/Id' },
-    examples: {
-      uuid: { $ref: '#/components/examples/UserIdUuid' },
-      ulid: { $ref: '#/components/examples/UserIdUlid' },
-    },
+    examples: { uuid: UserIdUuidExample, ulid: UserIdUlidExample },
   },
 })
 
@@ -807,7 +808,7 @@ const TokenRequestClientCredentialsExample = {
     grantType: 'client_credentials',
     clientId: 'client_123',
     clientSecret: 'secret_abc',
-    trace: { traceId: { $ref: '#/components/examples/TraceIdExample/value' } },
+    trace: { traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' },
   },
 }
 
@@ -815,7 +816,7 @@ const TokenRequestRefreshExample = {
   value: {
     grantType: 'refresh_token',
     refreshToken: 'refresh_xxx',
-    trace: { traceId: { $ref: '#/components/examples/TraceIdExample/value' } },
+    trace: { traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' },
   },
 }
 
@@ -837,7 +838,7 @@ const UserFullExample = {
     id: 'f3b1b6d8-4c8c-4f1a-9b6f-1c7e6d8b9a01',
     meta: {
       createdAt: '2026-01-04T00:00:00Z',
-      trace: { traceId: { $ref: '#/components/examples/TraceIdExample/value' } },
+      trace: { traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' },
     },
     name: 'Inferno Taro',
     email: 'taro@inferno.example',
@@ -846,7 +847,12 @@ const UserFullExample = {
       meta: { createdAt: '2026-01-04T00:00:00Z' },
       name: 'Inferno Inc.',
     },
-    manager: { $ref: '#/components/examples/UserMinimal' },
+    manager: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Minimal User',
+      email: 'min@example.com',
+    },
     addresses: [
       {
         line1: '1-2-3 Hell St',
@@ -919,7 +925,12 @@ const OrderExample = {
   value: {
     id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
     meta: { createdAt: '2026-01-04T00:00:00Z' },
-    buyer: { $ref: '#/components/examples/UserMinimal/value' },
+    buyer: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Minimal User',
+      email: 'min@example.com',
+    },
     status: 'paid',
     items: [
       {
@@ -934,11 +945,13 @@ const OrderExample = {
     ],
     auditTrail: [
       {
-        entity: { $ref: '#/components/examples/UserMinimal/value' },
-        event: {
-          type: 'order.created',
-          payload: { order: { $ref: '#/components/examples/OrderExample/value' } },
+        entity: {
+          id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+          meta: { createdAt: '2026-01-04T00:00:00Z' },
+          name: 'Minimal User',
+          email: 'min@example.com',
         },
+        event: { type: 'order.created', payload: { orderId: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' } },
         meta: { createdAt: '2026-01-04T00:00:00Z' },
       },
     ],
@@ -972,11 +985,14 @@ const SubscriptionRequestRequestBody = {
 
 const WebhookEventExample = {
   value: {
-    subscription: { $ref: '#/components/examples/SubscriptionExample/value' },
-    event: {
-      type: 'order.created',
-      payload: { order: { $ref: '#/components/examples/OrderExample/value' } },
+    subscription: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      callbackUrl: 'https://client.example/webhook',
+      events: ['order.created', 'user.updated'],
+      secret: { secretId: 'sec_123', rotation: { next: { secretId: 'sec_456' } } },
     },
+    event: { type: 'order.created', payload: { orderId: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' } },
   },
 }
 
@@ -989,7 +1005,7 @@ const WebhookEventRequestRequestBody = {
 
 const TraceIdHeaderHeaderSchema = TraceIdSchema.exactOptional().openapi({
   description: 'Trace id header component (same concept as parameter)',
-  example: { $ref: '#/components/examples/TraceIdExample/value' },
+  example: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
 })
 
 const ProblemGenericExample = {
@@ -997,7 +1013,7 @@ const ProblemGenericExample = {
     type: 'https://errors.inferno.example/problem/generic',
     title: 'Something went wrong',
     status: 500,
-    traceId: { $ref: '#/components/examples/TraceIdExample/value' },
+    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
     causes: [
       { type: 'https://errors.inferno.example/problem/inner', title: 'Inner failure', status: 500 },
     ],
@@ -1020,7 +1036,7 @@ const ProblemValidationExample = {
     type: 'https://errors.inferno.example/problem/validation',
     title: 'Validation error',
     status: 400,
-    traceId: { $ref: '#/components/examples/TraceIdExample/value' },
+    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
     errors: [
       {
         path: 'email',
@@ -1055,7 +1071,7 @@ const ProblemUnauthorizedExample = {
     type: 'https://errors.inferno.example/problem/unauthorized',
     title: 'Unauthorized',
     status: 401,
-    traceId: { $ref: '#/components/examples/TraceIdExample/value' },
+    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
   },
 }
 
@@ -1084,7 +1100,7 @@ const ProblemNotFoundExample = {
     type: 'https://errors.inferno.example/problem/notfound',
     title: 'Not found',
     status: 404,
-    traceId: { $ref: '#/components/examples/TraceIdExample/value' },
+    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
   },
 }
 
@@ -1119,7 +1135,7 @@ const ProblemRateLimitedExample = {
     type: 'https://errors.inferno.example/problem/ratelimited',
     title: 'Too many requests',
     status: 429,
-    traceId: { $ref: '#/components/examples/TraceIdExample/value' },
+    traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
   },
 }
 
@@ -1147,7 +1163,7 @@ const TokenResponseExample = {
     scope: 'inferno.read',
     meta: {
       createdAt: '2026-01-04T00:00:00Z',
-      trace: { traceId: { $ref: '#/components/examples/TraceIdExample/value' } },
+      trace: { traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' },
     },
   },
 }
@@ -1190,7 +1206,14 @@ const UserResponse = {
 
 const UserListExample = {
   value: {
-    items: [{ $ref: '#/components/examples/UserMinimal/value' }],
+    items: [
+      {
+        id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+        meta: { createdAt: '2026-01-04T00:00:00Z' },
+        name: 'Minimal User',
+        email: 'min@example.com',
+      },
+    ],
     nextCursor: 'cursor_opaque_123',
     meta: { createdAt: '2026-01-04T00:00:00Z' },
   },
@@ -1224,7 +1247,14 @@ const CompanyExample = {
     id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
     meta: { createdAt: '2026-01-04T00:00:00Z' },
     name: 'Inferno Inc.',
-    employees: [{ $ref: '#/components/examples/UserMinimal/value' }],
+    employees: [
+      {
+        id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+        meta: { createdAt: '2026-01-04T00:00:00Z' },
+        name: 'Minimal User',
+        email: 'min@example.com',
+      },
+    ],
   },
 }
 
@@ -1257,7 +1287,19 @@ const OrderResponse = {
 
 const OrderListExample = {
   value: {
-    items: [{ $ref: '#/components/examples/OrderExample/value' }],
+    items: [
+      {
+        id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+        meta: { createdAt: '2026-01-04T00:00:00Z' },
+        buyer: {
+          id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+          meta: { createdAt: '2026-01-04T00:00:00Z' },
+          name: 'Minimal User',
+          email: 'min@example.com',
+        },
+        status: 'paid',
+      },
+    ],
     nextCursor: 'cursor_opaque_orders_123',
     meta: { createdAt: '2026-01-04T00:00:00Z' },
   },
@@ -1294,7 +1336,12 @@ const FileExample = {
     size: 123456,
     contentType: 'image/png',
     download: { href: '/files/01J1K9N3E6R6ZK7Z6B0Q9Q3H3J/download' },
-    owner: { $ref: '#/components/examples/UserMinimal/value' },
+    owner: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Minimal User',
+      email: 'min@example.com',
+    },
   },
 }
 
@@ -1324,15 +1371,16 @@ const SubscriptionResponse = {
 
 const TraceIdExample = { summary: 'TraceId example', value: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' }
 
-const UserIdUuidExample = { summary: 'userId uuid', value: 'f3b1b6d8-4c8c-4f1a-9b6f-1c7e6d8b9a01' }
-
-const UserIdUlidExample = { summary: 'userId ulid', value: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' }
-
 const UserFilterExample = {
   value: {
     kind: 'user',
     email: 'taro@inferno.example',
-    manager: { $ref: '#/components/examples/UserMinimal/value' },
+    manager: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Minimal User',
+      email: 'min@example.com',
+    },
   },
 }
 
@@ -1340,7 +1388,12 @@ const OrderFilterExample = {
   value: {
     kind: 'order',
     status: 'paid',
-    buyer: { $ref: '#/components/examples/UserMinimal/value' },
+    buyer: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Minimal User',
+      email: 'min@example.com',
+    },
     minTotal: { currency: 'JPY', amount: 1000 },
   },
 }
