@@ -102,6 +102,78 @@ export function makeImports(
   return [honoLine, ...imports, '\n', code, ''].filter(Boolean).join('\n')
 }
 
+/**
+ * Sorts example names so that referenced examples come before referencing ones.
+ * Uses topological sort to handle dependency order.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A([Start]) --> B["Build dependency map"]
+ *   B --> C["Initialize visited/visiting sets"]
+ *   C --> D["For each name: visit()"]
+ *   D --> E{Already visited?}
+ *   E -->|Yes| F["Skip"]
+ *   E -->|No| G{Currently visiting?}
+ *   G -->|Yes| H["Skip (circular)"]
+ *   G -->|No| I["Mark as visiting"]
+ *   I --> J["Visit dependencies first"]
+ *   J --> K["Mark as visited"]
+ *   K --> L["Push to sorted"]
+ *   F --> M{More names?}
+ *   H --> M
+ *   L --> M
+ *   M -->|Yes| D
+ *   M -->|No| N(["Return sorted"])
+ * ```
+ *
+ * @param examples - Object containing example definitions with optional $ref
+ * @param names - Array of example names to sort
+ * @returns Sorted array with dependencies before dependents
+ */
+export function sortExamplesByDependency(
+  examples: { readonly [k: string]: { readonly $ref?: string; readonly [k: string]: unknown } },
+  names: readonly string[],
+): readonly string[] {
+  const deps = new Map<string, readonly string[]>()
+
+  for (const name of names) {
+    const example = examples[name]
+    if (example.$ref?.startsWith('#/components/examples/')) {
+      const refName = example.$ref.split('/').at(-1)
+      if (refName && names.includes(refName)) {
+        deps.set(name, [refName])
+      } else {
+        deps.set(name, [])
+      }
+    } else {
+      deps.set(name, [])
+    }
+  }
+
+  // Topological sort
+  const sorted: string[] = []
+  const visited = new Set<string>()
+  const visiting = new Set<string>()
+
+  const visit = (name: string): void => {
+    if (visited.has(name)) return
+    if (visiting.has(name)) return // Circular dependency, skip
+    visiting.add(name)
+    for (const dep of deps.get(name) ?? []) {
+      visit(dep)
+    }
+    visiting.delete(name)
+    visited.add(name)
+    sorted.push(name)
+  }
+
+  for (const name of names) {
+    visit(name)
+  }
+
+  return sorted
+}
+
 // Test run
 // pnpm vitest run ./packages/hono-takibi/src/helper/code.ts
 if (import.meta.vitest) {
@@ -138,6 +210,95 @@ if (import.meta.vitest) {
         output: '/src/shared/schemas/index.ts',
       })
       expect(result).toBe('../../../shared/schemas')
+    })
+  })
+
+  describe('sortExamplesByDependency', () => {
+    it.concurrent('returns names in original order when no dependencies', () => {
+      const result = sortExamplesByDependency(
+        {
+          A: { value: 'a' },
+          B: { value: 'b' },
+          C: { value: 'c' },
+        },
+        ['A', 'B', 'C'],
+      )
+      expect(result).toStrictEqual(['A', 'B', 'C'])
+    })
+
+    it.concurrent('sorts with single dependency', () => {
+      const result = sortExamplesByDependency(
+        {
+          Alias: { $ref: '#/components/examples/Base' },
+          Base: { value: 'base' },
+        },
+        ['Alias', 'Base'],
+      )
+      expect(result).toStrictEqual(['Base', 'Alias'])
+    })
+
+    it.concurrent('sorts with chain of dependencies', () => {
+      const result = sortExamplesByDependency(
+        {
+          Third: { $ref: '#/components/examples/Second' },
+          Second: { $ref: '#/components/examples/First' },
+          First: { value: 'first' },
+        },
+        ['Third', 'Second', 'First'],
+      )
+      expect(result).toStrictEqual(['First', 'Second', 'Third'])
+    })
+
+    it.concurrent('handles circular dependencies gracefully', () => {
+      const result = sortExamplesByDependency(
+        {
+          A: { $ref: '#/components/examples/B' },
+          B: { $ref: '#/components/examples/A' },
+        },
+        ['A', 'B'],
+      )
+      // Should not hang, returns some order
+      expect(result).toHaveLength(2)
+    })
+
+    it.concurrent('ignores refs to non-existent examples', () => {
+      const result = sortExamplesByDependency(
+        {
+          A: { $ref: '#/components/examples/NotExist' },
+          B: { value: 'b' },
+        },
+        ['A', 'B'],
+      )
+      expect(result).toStrictEqual(['A', 'B'])
+    })
+
+    it.concurrent('ignores non-example refs', () => {
+      const result = sortExamplesByDependency(
+        {
+          A: { $ref: '#/components/schemas/User' },
+          B: { value: 'b' },
+        },
+        ['A', 'B'],
+      )
+      expect(result).toStrictEqual(['A', 'B'])
+    })
+
+    it.concurrent('handles empty input', () => {
+      const result = sortExamplesByDependency({}, [])
+      expect(result).toStrictEqual([])
+    })
+
+    it.concurrent('handles mixed inline and ref examples', () => {
+      const result = sortExamplesByDependency(
+        {
+          RefExample: { $ref: '#/components/examples/InlineExample' },
+          InlineExample: { value: 'inline' },
+          AnotherInline: { value: 'another' },
+        },
+        ['RefExample', 'InlineExample', 'AnotherInline'],
+      )
+      // InlineExample should come before RefExample
+      expect(result.indexOf('InlineExample')).toBeLessThan(result.indexOf('RefExample'))
     })
   })
 }

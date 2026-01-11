@@ -1,17 +1,6 @@
-import { makeConst } from '../../../../helper/code.js'
+import { makeConst, sortExamplesByDependency } from '../../../../helper/code.js'
 import { makeRef } from '../../../../helper/openapi.js'
 import type { Components } from '../../../../openapi/index.js'
-
-// Example type that can be either inline value or $ref reference
-type ExampleOrRef = {
-  readonly $ref?: string
-  readonly summary?: string
-  readonly description?: string
-  readonly dataValue?: unknown
-  readonly serializedValue?: string
-  readonly externalValue?: string
-  readonly value?: unknown
-}
 
 /**
  * Generates TypeScript code for OpenAPI example components.
@@ -19,6 +8,20 @@ type ExampleOrRef = {
  * Handles both inline examples and $ref references to other examples.
  * When an example references another example via $ref, it generates
  * a variable reference instead of duplicating the value.
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A([Start]) --> B{Has examples?}
+ *   B -->|No| C["Return ''"]
+ *   B -->|Yes| D["Sort by dependency"]
+ *   D --> E["For each example"]
+ *   E --> F{Has $ref?}
+ *   F -->|Yes| G["Generate: const X = RefName"]
+ *   F -->|No| H["Generate: const X = JSON"]
+ *   G --> I["Join with newlines"]
+ *   H --> I
+ *   I --> J(["Return code"])
+ * ```
  *
  * @param components - OpenAPI components object
  * @param exportExamples - Whether to export the example constants
@@ -28,71 +31,24 @@ export function examplesCode(components: Components, exportExamples: boolean): s
   const { examples } = components
   if (!examples) return ''
 
-  // Cast to allow $ref property (OpenAPI spec allows references in examples)
-  const examplesWithRef = examples as { readonly [k: string]: ExampleOrRef }
+  // Type guard for $ref property (OpenAPI spec allows references in examples)
+  const hasRef = (v: unknown): v is { readonly $ref: string } =>
+    typeof v === 'object' && v !== null && '$ref' in v && typeof v.$ref === 'string'
 
   // Sort examples to ensure referenced examples are defined first
-  const exampleNames = Object.keys(examplesWithRef)
-  const sortedNames = sortExamplesByDependency(examplesWithRef, exampleNames)
+  const exampleNames = Object.keys(examples)
+  const sortedNames = sortExamplesByDependency(examples, exampleNames)
 
   return sortedNames
     .map((k) => {
-      const example = examplesWithRef[k]
+      const example = examples[k]
       // Handle $ref to another example
-      if (example.$ref) {
+      if (hasRef(example)) {
         return `${makeConst(exportExamples, k, 'Example')}${makeRef(example.$ref)}`
       }
       return `${makeConst(exportExamples, k, 'Example')}${JSON.stringify(example)}`
     })
     .join('\n\n')
-}
-
-/**
- * Sorts example names so that referenced examples come before referencing ones.
- * Uses topological sort to handle dependency order.
- */
-function sortExamplesByDependency(
-  examples: { readonly [k: string]: ExampleOrRef },
-  names: readonly string[],
-): readonly string[] {
-  const deps = new Map<string, readonly string[]>()
-
-  for (const name of names) {
-    const example = examples[name]
-    if (example.$ref?.startsWith('#/components/examples/')) {
-      const refName = example.$ref.split('/').at(-1)
-      if (refName && names.includes(refName)) {
-        deps.set(name, [refName])
-      } else {
-        deps.set(name, [])
-      }
-    } else {
-      deps.set(name, [])
-    }
-  }
-
-  // Topological sort
-  const sorted: string[] = []
-  const visited = new Set<string>()
-  const visiting = new Set<string>()
-
-  const visit = (name: string): void => {
-    if (visited.has(name)) return
-    if (visiting.has(name)) return // Circular dependency, skip
-    visiting.add(name)
-    for (const dep of deps.get(name) ?? []) {
-      visit(dep)
-    }
-    visiting.delete(name)
-    visited.add(name)
-    sorted.push(name)
-  }
-
-  for (const name of names) {
-    visit(name)
-  }
-
-  return sorted
 }
 
 // Test run
@@ -140,6 +96,7 @@ if (import.meta.vitest) {
     })
 
     it('should generate example with $ref to another example', () => {
+      // hasRef type guard handles $ref at runtime
       const components: Components = {
         examples: {
           BaseExample: {
@@ -150,8 +107,7 @@ if (import.meta.vitest) {
           AliasExample: {
             $ref: '#/components/examples/BaseExample',
           },
-          // biome-ignore lint/suspicious/noExplicitAny: test data with $ref
-        } as any,
+        },
       }
       const result = examplesCode(components, true)
       // BaseExample should come first (dependency order)
@@ -161,6 +117,7 @@ if (import.meta.vitest) {
     })
 
     it('should handle multiple $ref examples with correct dependency order', () => {
+      // hasRef type guard handles $ref at runtime
       const components: Components = {
         examples: {
           // Defined in reverse order to test sorting
@@ -175,8 +132,7 @@ if (import.meta.vitest) {
             serializedValue: '{"data":"first"}',
             value: { data: 'first' },
           },
-          // biome-ignore lint/suspicious/noExplicitAny: test data with $ref
-        } as any,
+        },
       }
       const result = examplesCode(components, true)
       const lines = result.split('\n\n')
@@ -187,6 +143,7 @@ if (import.meta.vitest) {
     })
 
     it('should handle mixed inline and $ref examples', () => {
+      // hasRef type guard handles $ref at runtime
       const components: Components = {
         examples: {
           RefExample: {
@@ -202,8 +159,7 @@ if (import.meta.vitest) {
             serializedValue: '"another"',
             value: 'another',
           },
-          // biome-ignore lint/suspicious/noExplicitAny: test data with $ref
-        } as any,
+        },
       }
       const result = examplesCode(components, true)
       // InlineExample should come before RefExample
