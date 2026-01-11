@@ -1,4 +1,9 @@
 import { hc } from 'hono/client'
-import routes from '../types/edge'
+import type routes from '../types/edge'
 
-export const client = hc<typeof routes>('/')
+export type Client = ReturnType<typeof hc<typeof routes>>
+
+export const hcWithType = (...args: Parameters<typeof hc>): Client =>
+  hc<typeof routes>(...args)
+
+export const client = hcWithType('/')

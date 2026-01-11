@@ -768,6 +768,33 @@ const IncludeQueryParamParamsSchema = z
     },
   })
 
+const UserFilterExample = {
+  value: {
+    kind: 'user',
+    email: 'taro@inferno.example',
+    manager: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Minimal User',
+      email: 'min@example.com',
+    },
+  },
+}
+
+const OrderFilterExample = {
+  value: {
+    kind: 'order',
+    status: 'paid',
+    buyer: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      name: 'Minimal User',
+      email: 'min@example.com',
+    },
+    minTotal: { currency: 'JPY', amount: 1000 },
+  },
+}
+
 const SearchFilterQueryParamParamsSchema = SearchFilterSchema.exactOptional().openapi({
   param: {
     name: 'filter',
@@ -778,10 +805,7 @@ const SearchFilterQueryParamParamsSchema = SearchFilterSchema.exactOptional().op
     content: {
       'application/json': {
         schema: { $ref: '#/components/schemas/SearchFilter' },
-        examples: {
-          userFilter: { $ref: '#/components/examples/UserFilterExample' },
-          orderFilter: { $ref: '#/components/examples/OrderFilterExample' },
-        },
+        examples: { userFilter: UserFilterExample, orderFilter: OrderFilterExample },
       },
     },
   },
@@ -1370,33 +1394,6 @@ const SubscriptionResponse = {
 }
 
 const TraceIdExample = { summary: 'TraceId example', value: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' }
-
-const UserFilterExample = {
-  value: {
-    kind: 'user',
-    email: 'taro@inferno.example',
-    manager: {
-      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-      meta: { createdAt: '2026-01-04T00:00:00Z' },
-      name: 'Minimal User',
-      email: 'min@example.com',
-    },
-  },
-}
-
-const OrderFilterExample = {
-  value: {
-    kind: 'order',
-    status: 'paid',
-    buyer: {
-      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
-      meta: { createdAt: '2026-01-04T00:00:00Z' },
-      name: 'Minimal User',
-      email: 'min@example.com',
-    },
-    minTotal: { currency: 'JPY', amount: 1000 },
-  },
-}
 
 const SubscriptionLifecycleCallback = {
   '{$request.body#/callbackUrl}': {
