@@ -1,4 +1,4 @@
-import type { z } from '@hono/zod-openapi'
+import { z } from '@hono/zod-openapi'
 import { TraceIdSchema } from '../schemas'
 
 export const TraceIdHeaderParamParamsSchema = TraceIdSchema.exactOptional().openapi({
@@ -8,7 +8,7 @@ export const TraceIdHeaderParamParamsSchema = TraceIdSchema.exactOptional().open
     required: false,
     description: 'Correlation id (parameter) - schema refs TraceId',
     schema: { $ref: '#/components/schemas/TraceId' },
-    example: { $ref: '#/components/examples/TraceIdExample/value' },
+    example: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
   },
 })
 

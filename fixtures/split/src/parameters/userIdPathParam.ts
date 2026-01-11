@@ -1,4 +1,5 @@
-import type { z } from '@hono/zod-openapi'
+import { z } from '@hono/zod-openapi'
+import { UserIdUlidExample, UserIdUuidExample } from '../examples'
 import { IdSchema } from '../schemas'
 
 export const UserIdPathParamParamsSchema = IdSchema.openapi({
@@ -7,10 +8,7 @@ export const UserIdPathParamParamsSchema = IdSchema.openapi({
     in: 'path',
     required: true,
     schema: { $ref: '#/components/schemas/Id' },
-    examples: {
-      uuid: { $ref: '#/components/examples/UserIdUuid' },
-      ulid: { $ref: '#/components/examples/UserIdUlid' },
-    },
+    examples: { uuid: UserIdUuidExample, ulid: UserIdUlidExample },
   },
 })
 

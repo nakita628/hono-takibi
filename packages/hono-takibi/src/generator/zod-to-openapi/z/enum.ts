@@ -57,3 +57,31 @@ export function _enum(schema: Schema): string {
   }
   return zLit(schema.enum[0])
 }
+
+// Test run
+// pnpm vitest run ./packages/hono-takibi/src/generator/zod-to-openapi/z/enum.ts
+if (import.meta.vitest) {
+  const { describe, it, expect } = import.meta.vitest
+  describe('_enum', () => {
+    it.concurrent.each<[Schema, string]>([
+      [{ enum: ['A', 'B'] }, 'z.enum(["A","B"])'],
+      [{ enum: [1, 2] }, 'z.union([z.literal(1),z.literal(2)])'],
+      [{ enum: [true, false] }, 'z.union([z.literal(true),z.literal(false)])'],
+      [{ enum: [null] }, 'z.literal(null)'],
+      [{ enum: ['abc'] }, `z.literal('abc')`],
+      [{ type: 'array', enum: [[1, 2]] }, 'z.tuple([z.literal(1),z.literal(2)])'],
+      [
+        {
+          type: 'array',
+          enum: [
+            [1, 2],
+            [3, 4],
+          ],
+        },
+        'z.union([z.tuple([z.literal(1),z.literal(2)]),z.tuple([z.literal(3),z.literal(4)])])',
+      ],
+    ])('_enum(%o) → %s', (input, expected) => {
+      expect(_enum(input)).toBe(expected)
+    })
+  })
+}

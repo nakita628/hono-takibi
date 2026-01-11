@@ -6,7 +6,7 @@ export const TokenResponseExample = {
     scope: 'inferno.read',
     meta: {
       createdAt: '2026-01-04T00:00:00Z',
-      trace: { traceId: { $ref: '#/components/examples/TraceIdExample/value' } },
+      trace: { traceId: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' },
     },
   },
 }

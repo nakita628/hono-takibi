@@ -13,9 +13,14 @@ async function main() {
       try {
         const clientOutput = join(__dirname, '../clients', `${baseName}.ts`)
         const clientCode = `import { hc } from 'hono/client'
-import routes from '../types/${baseName}'
+import type routes from '../types/${baseName}'
 
-export const client = hc<typeof routes>('/')
+export type Client = ReturnType<typeof hc<typeof routes>>
+
+export const hcWithType = (...args: Parameters<typeof hc>): Client =>
+  hc<typeof routes>(...args)
+
+export const client = hcWithType('/')
 `
         await writeFile(clientOutput, clientCode)
         return { file, success: true }

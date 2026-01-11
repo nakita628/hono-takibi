@@ -65,6 +65,7 @@
         "noUnusedTemplateLiteral": "error",
         "useConst": "error",
         "useExponentiationOperator": "error",
+        "useImportType": "off",
         "useNamingConvention": "off",
         "useTemplate": "error"
       },

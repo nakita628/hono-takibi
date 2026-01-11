@@ -1,4 +1,4 @@
-import type { z } from '@hono/zod-openapi'
+import { z } from '@hono/zod-openapi'
 import { CursorSchema } from '../schemas'
 
 export const CursorQueryParamParamsSchema = CursorSchema.exactOptional().openapi({

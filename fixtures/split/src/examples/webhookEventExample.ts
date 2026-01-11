@@ -1,9 +1,12 @@
 export const WebhookEventExample = {
   value: {
-    subscription: { $ref: '#/components/examples/SubscriptionExample/value' },
-    event: {
-      type: 'order.created',
-      payload: { order: { $ref: '#/components/examples/OrderExample/value' } },
+    subscription: {
+      id: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
+      meta: { createdAt: '2026-01-04T00:00:00Z' },
+      callbackUrl: 'https://client.example/webhook',
+      events: ['order.created', 'user.updated'],
+      secret: { secretId: 'sec_123', rotation: { next: { secretId: 'sec_456' } } },
     },
+    event: { type: 'order.created', payload: { orderId: '01J1K9N3E6R6ZK7Z6B0Q9Q3H3J' } },
   },
 }

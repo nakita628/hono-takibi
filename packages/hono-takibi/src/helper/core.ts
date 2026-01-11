@@ -72,3 +72,24 @@ export async function core(
   if (!writeResult.ok) return { ok: false, error: writeResult.error }
   return { ok: true, value: undefined }
 }
+
+// Test run
+// pnpm vitest run ./packages/hono-takibi/src/helper/core.ts
+if (import.meta.vitest) {
+  const { describe, it, expect, beforeEach, afterEach } = import.meta.vitest
+  const fs = await import('node:fs')
+
+  describe('core', () => {
+    beforeEach(() => {
+      fs.mkdirSync('test', { recursive: true })
+    })
+    afterEach(() => {
+      fs.rmSync('test', { recursive: true, force: true })
+    })
+
+    it('should generate core code', async () => {
+      const result = await core('console.log("Hello, world!")', 'test', 'test/test.ts')
+      expect(result).toStrictEqual({ ok: true, value: undefined })
+    })
+  })
+}
