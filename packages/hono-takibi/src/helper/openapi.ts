@@ -79,7 +79,7 @@ export function makeRef($ref: string): string {
     const parentSchema = toIdentifierPascalCase(
       ensureSuffix(decodeURIComponent(propertiesMatch[1]), 'Schema'),
     )
-    return `z.lazy(() => ${parentSchema})`
+    return `z.lazy(()=>${parentSchema})`
   }
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
@@ -383,11 +383,11 @@ export function makeCallbacks(
         }
       },
 ): string {
-  const isRef = (v: unknown): v is { $ref: string } =>
-    typeof v === 'object' &&
-    v !== null &&
-    '$ref' in v &&
-    typeof (v as { $ref: unknown }).$ref === 'string'
+  const isRef = (v: unknown): v is { $ref: string } => {
+    if (typeof v !== 'object' || v === null || !('$ref' in v)) return false
+    const obj = v as Record<string, unknown>
+    return typeof obj.$ref === 'string'
+  }
   const isPathItem = (v: unknown): v is PathItem => typeof v === 'object' && v !== null
   const isParameter = (v: unknown): v is Parameter =>
     typeof v === 'object' && v !== null && 'name' in v && 'in' in v && 'schema' in v
@@ -665,8 +665,8 @@ if (import.meta.vitest) {
         ['', 'Schema'],
         ['#/components/schemas/TestSchema', 'TestSchema'],
         ['#/components/parameters/TestParamsSchema', 'TestParamsSchema'],
-        ['#/components/schemas/User/properties/parent', 'z.lazy(() => UserSchema)'],
-        ['#/components/schemas/UserSchema/properties/children', 'z.lazy(() => UserSchema)'],
+        ['#/components/schemas/User/properties/parent', 'z.lazy(()=>UserSchema)'],
+        ['#/components/schemas/UserSchema/properties/children', 'z.lazy(()=>UserSchema)'],
         ['#/unknown/path/Test', 'TestSchema'],
         ['#/components/schemas/my-test-schema', 'MyTestSchemaSchema'],
         ['#/components/schemas/my_test_schema', 'MyTestSchemaSchema'],
@@ -676,7 +676,7 @@ if (import.meta.vitest) {
         ['#/components/callbacks/EventCallback', 'EventCallback'],
         [
           '#/components/schemas/Category/properties/subcategories/items',
-          'z.lazy(() => CategorySchema)',
+          'z.lazy(()=>CategorySchema)',
         ],
       ])('makeRef(%s) -> %s', ($ref, expected) => {
         expect(makeRef($ref)).toBe(expected)

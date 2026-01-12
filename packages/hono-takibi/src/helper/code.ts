@@ -134,44 +134,42 @@ export function sortExamplesByDependency(
   examples: { readonly [k: string]: { readonly $ref?: string; readonly [k: string]: unknown } },
   names: readonly string[],
 ): readonly string[] {
-  const deps = new Map<string, readonly string[]>()
-
-  for (const name of names) {
-    const example = examples[name]
-    if (example.$ref?.startsWith('#/components/examples/')) {
-      const refName = example.$ref.split('/').at(-1)
-      if (refName && names.includes(refName)) {
-        deps.set(name, [refName])
-      } else {
-        deps.set(name, [])
+  const deps = new Map<string, readonly string[]>(
+    names.map((name) => {
+      const example = examples[name]
+      if (example.$ref?.startsWith('#/components/examples/')) {
+        const refName = example.$ref.split('/').at(-1)
+        return [name, refName && names.includes(refName) ? [refName] : []]
       }
-    } else {
-      deps.set(name, [])
-    }
+      return [name, []]
+    }),
+  )
+
+  // Topological sort (functional style)
+  const visit = (
+    name: string,
+    visited: ReadonlySet<string>,
+    visiting: ReadonlySet<string>,
+  ): readonly string[] => {
+    if (visited.has(name) || visiting.has(name)) return []
+    const newVisiting = new Set([...visiting, name])
+    const depResults = (deps.get(name) ?? []).flatMap((dep) => visit(dep, visited, newVisiting))
+    return [...depResults, name]
   }
 
-  // Topological sort
-  const sorted: string[] = []
-  const visited = new Set<string>()
-  const visiting = new Set<string>()
-
-  const visit = (name: string): void => {
-    if (visited.has(name)) return
-    if (visiting.has(name)) return // Circular dependency, skip
-    visiting.add(name)
-    for (const dep of deps.get(name) ?? []) {
-      visit(dep)
-    }
-    visiting.delete(name)
-    visited.add(name)
-    sorted.push(name)
-  }
-
-  for (const name of names) {
-    visit(name)
-  }
-
-  return sorted
+  return names.reduce<{
+    readonly sorted: readonly string[]
+    readonly visited: ReadonlySet<string>
+  }>(
+    (acc, name) => {
+      const result = visit(name, acc.visited, new Set())
+      return {
+        sorted: [...acc.sorted, ...result],
+        visited: new Set([...acc.visited, ...result]),
+      }
+    },
+    { sorted: [], visited: new Set() },
+  ).sorted
 }
 
 // Test run

@@ -1,4 +1,3 @@
-export type { CircularAnalysis } from './ast.js'
 export { analyzeCircularSchemas, ast } from './ast.js'
 export { makeBarell } from './barell.js'
 export { makeConst, makeExportConst, makeImports, makeModuleSpec } from './code.js'

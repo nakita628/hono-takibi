@@ -219,24 +219,22 @@ export function wrap(
       ? openapiSchema.slice(1, -1)
       : openapiSchema
 
+  const isRecord = (v: unknown): v is Record<string, unknown> =>
+    typeof v === 'object' && v !== null && !Array.isArray(v)
+
   /**
    * Serializes a media object with examples handled as code references.
    */
   const serializeMedia = (mediaObj: unknown): string => {
-    if (!mediaObj || typeof mediaObj !== 'object') {
-      return JSON.stringify(mediaObj)
-    }
-    const obj = mediaObj as Record<string, unknown>
-    const { examples: mediaExamples, ...mediaRest } = obj as {
-      examples?: Parameters<typeof makeExamples>[0]
-      [k: string]: unknown
-    }
-    const entries = Object.entries(mediaRest).map(
+    if (!isRecord(mediaObj)) return JSON.stringify(mediaObj)
+    const { examples: mediaExamples, ...mediaRest } = mediaObj
+    const restEntries = Object.entries(mediaRest).map(
       ([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`,
     )
-    if (mediaExamples) {
-      entries.push(`"examples":${makeExamples(mediaExamples)}`)
-    }
+    const examplesEntry = isRecord(mediaExamples)
+      ? `"examples":${makeExamples(mediaExamples as Parameters<typeof makeExamples>[0])}`
+      : undefined
+    const entries = examplesEntry ? [...restEntries, examplesEntry] : restEntries
     return `{${entries.join(',')}}`
   }
 
@@ -254,16 +252,15 @@ export function wrap(
    * Serializes parameter object with examples as code references (not JSON strings).
    */
   const serializeParam = (param: Parameter): string => {
-    const entries: string[] = []
-    for (const [key, value] of Object.entries(param)) {
-      if (key === 'examples' && value) {
-        entries.push(`"examples":${makeExamples(value as Parameters<typeof makeExamples>[0])}`)
-      } else if (key === 'content' && value) {
-        entries.push(`"content":${serializeContent(value as Record<string, unknown>)}`)
-      } else {
-        entries.push(`${JSON.stringify(key)}:${JSON.stringify(value)}`)
+    const entries = Object.entries(param).map(([key, value]) => {
+      if (key === 'examples' && isRecord(value)) {
+        return `"examples":${makeExamples(value as Parameters<typeof makeExamples>[0])}`
       }
-    }
+      if (key === 'content' && isRecord(value)) {
+        return `"content":${serializeContent(value)}`
+      }
+      return `${JSON.stringify(key)}:${JSON.stringify(value)}`
+    })
     return `{${entries.join(',')}}`
   }
 

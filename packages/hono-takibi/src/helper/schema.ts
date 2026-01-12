@@ -6,12 +6,12 @@ import {
   renderNamedImport,
   toIdentifierPascalCase,
 } from '../utils/index.js'
-import type { CircularAnalysis } from './ast.js'
+import type { analyzeCircularSchemas } from './ast.js'
 
 export function makeSchemaInfo(
   schemaName: string,
   schema: Schema,
-  analysis: CircularAnalysis,
+  analysis: ReturnType<typeof analyzeCircularSchemas>,
 ): {
   readonly schemaName: string
   readonly schema: Schema
@@ -36,7 +36,7 @@ export function makeSchemaInfo(
 export function makeSchemaInfos(
   schemas: Record<string, Schema>,
   schemaNames: readonly string[],
-  analysis: CircularAnalysis,
+  analysis: ReturnType<typeof analyzeCircularSchemas>,
 ): readonly ReturnType<typeof makeSchemaInfo>[] {
   return schemaNames.map((name) => makeSchemaInfo(name, schemas[name], analysis))
 }
@@ -45,7 +45,7 @@ export function makeSchemaCode(
   info: ReturnType<typeof makeSchemaInfo>,
   options: { readonly exportKeyword: string; readonly exportType: boolean },
 ): string {
-  const zExpr = info.needsLazy ? `z.lazy(() => ${info.zSchema})` : info.zSchema
+  const zExpr = info.needsLazy ? `z.lazy(()=>${info.zSchema})` : info.zSchema
   const returnType = info.needsTypeDef ? `:z.ZodType<${info.safeSchemaName}Type>` : ''
 
   const schemaCode = `${options.exportKeyword}const ${info.variableName}${returnType}=${zExpr}.openapi('${info.safeSchemaName}')`
@@ -109,7 +109,7 @@ export function makeSplitSchemaFile(
   schemaName: string,
   schema: Schema,
   schemas: Record<string, Schema>,
-  analysis: CircularAnalysis,
+  analysis: ReturnType<typeof analyzeCircularSchemas>,
   exportType: boolean,
 ): string {
   const info = makeSchemaInfo(schemaName, schema, analysis)
