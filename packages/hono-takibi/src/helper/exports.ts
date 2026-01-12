@@ -63,7 +63,7 @@ export async function makeExports(
   ])
 
   const firstError = results.find((r) => !r.ok)
-  if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
+  if (firstError) return firstError
 
   return {
     ok: true,

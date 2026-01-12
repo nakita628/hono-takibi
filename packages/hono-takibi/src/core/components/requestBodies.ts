@@ -75,7 +75,7 @@ export async function requestBodies(
     ])
 
     const firstError = allResults.find((r) => !r.ok)
-    if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
+    if (firstError) return firstError
 
     return {
       ok: true,
