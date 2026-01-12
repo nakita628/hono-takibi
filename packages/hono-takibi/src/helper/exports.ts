@@ -6,8 +6,6 @@ import { core } from './core.js'
  * Generates TypeScript export files for OpenAPI components in split mode.
  *
  * Creates individual TypeScript files for each component with proper exports.
- * SwaggerParser.bundle() resolves all $ref references before this function
- * is called, so no $ref handling is needed here.
  *
  * ```mermaid
  * flowchart TD
