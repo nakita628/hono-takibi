@@ -31,15 +31,17 @@ import { honoTakibi } from './cli/index.js'
  * npx hono-takibi openapi.yaml -o routes.ts
  * ```
  */
-honoTakibi().then((result) => {
-  if (result.ok) {
-    console.log(result.value)
-    process.exit(0)
-  } else {
-    console.error(result.error)
-    process.exit(1)
-  }
-})
+if (!import.meta.vitest) {
+  honoTakibi().then((result) => {
+    if (result.ok) {
+      console.log(result.value)
+      process.exit(0)
+    } else {
+      console.error(result.error)
+      process.exit(1)
+    }
+  })
+}
 
 // Test run
 // pnpm vitest run ./packages/hono-takibi/src/index.ts
