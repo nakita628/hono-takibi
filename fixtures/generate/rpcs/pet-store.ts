@@ -106,7 +106,7 @@ export async function getPetFindByTags(
   args: { query: { tags?: string[] } },
   options?: ClientRequestOptions,
 ) {
-  return await client.pet.findByTags.$get(args, options)
+  return await client.pet['findByTags'].$get(args, options)
 }
 
 /**
