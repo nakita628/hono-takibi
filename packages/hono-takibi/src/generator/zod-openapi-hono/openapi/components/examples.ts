@@ -9,6 +9,12 @@ import type { Components } from '../../../../openapi/index.js'
  * When an example references another example via $ref, it generates
  * a variable reference instead of duplicating the value.
  *
+ * **Important:** `$ref` is only resolved at the top level of an example object.
+ * If `$ref` appears inside the `value` property (e.g., `employees: [{ $ref: '...' }]`),
+ * it will NOT be resolved - it will be serialized as a literal JSON object.
+ * This is correct behavior per OpenAPI specification - the spec only supports
+ * `$ref` to reference entire example objects, not nested values within `value`.
+ *
  * ```mermaid
  * flowchart TD
  *   A([Start]) --> B{Has examples?}
@@ -22,6 +28,8 @@ import type { Components } from '../../../../openapi/index.js'
  *   H --> I
  *   I --> J(["Return code"])
  * ```
+ *
+ * @see https://swagger.io/docs/specification/v3_0/adding-examples/
  *
  * @param components - OpenAPI components object
  * @param exportExamples - Whether to export the example constants
