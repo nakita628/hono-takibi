@@ -116,9 +116,46 @@ export function makeRef($ref: string): string {
 }
 
 /**
- * generates a examples code from the given examples object.
- * @param examples Examples object
- * @returns
+ * Generates examples code from the given examples object.
+ *
+ * **Important:** `$ref` is only resolved at the top level of an example object.
+ * If `$ref` appears inside the `value` property (e.g., `employees: [{ $ref: '...' }]`),
+ * it will NOT be resolved - it will be serialized as a literal JSON object.
+ *
+ * This is correct behavior per OpenAPI specification. The spec only supports
+ * `$ref` to reference entire example objects, not nested values within `value`.
+ *
+ * **Custom extensions (x-*)** like `x-extends` are NOT resolved by
+ * @apidevtools/swagger-parser bundle() and are treated as opaque data.
+ * For example:
+ * ```yaml
+ * UserMinimalWithMeta:
+ *   x-extends:
+ *     $ref: "#/components/examples/UserMinimal"
+ *   value:
+ *     meta: { createdAt: "2026-01-04T00:00:00Z" }
+ * ```
+ * Generates:
+ * ```ts
+ * {"x-extends":{"$ref":"#/components/examples/UserMinimal"},"value":{...}}
+ * ```
+ *
+ * @see https://swagger.io/docs/specification/v3_0/adding-examples/
+ *
+ * @example
+ * ```ts
+ * // $ref at top level - RESOLVED to variable reference
+ * { $ref: '#/components/examples/UserExample' } → UserExample
+ *
+ * // $ref inside value - NOT resolved, serialized as-is
+ * { value: { employees: [{ $ref: '#/...' }] } } → {"value":{"employees":[{"$ref":"#/..."}]}}
+ *
+ * // x-extends with $ref - NOT resolved, serialized as-is
+ * { x-extends: { $ref: '#/...' }, value: {...} } → {"x-extends":{"$ref":"#/..."},"value":{...}}
+ * ```
+ *
+ * @param examples - Examples object from OpenAPI components
+ * @returns Generated TypeScript code string
  */
 export function makeExamples(examples: {
   readonly [k: string]:
@@ -147,7 +184,13 @@ export function makeExamples(examples: {
 }) {
   const result = Object.entries(examples)
     .map(([k, example]) => {
-      // Reference
+      // Reference with $ref
+      // Note: When $ref is present, sibling properties (summary, description) are IGNORED.
+      // This follows OpenAPI 3.0 spec where $ref must be the only property in an object.
+      // OpenAPI 3.1 allows sibling properties, but for backward compatibility and
+      // per JSON Reference spec, we only use the $ref and discard siblings.
+      // SwaggerParser.bundle() preserves both $ref and siblings in the parsed object,
+      // but hono-takibi intentionally ignores siblings to generate clean variable references.
       if ('$ref' in example && example.$ref) {
         return `${JSON.stringify(k)}:${makeRef(example.$ref)}`
       }
