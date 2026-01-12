@@ -1,4 +1,5 @@
-import { makeConst, sortExamplesByDependency } from '../../../../helper/code.js'
+import { ast } from '../../../../helper/ast.js'
+import { makeConst } from '../../../../helper/code.js'
 import { makeRef } from '../../../../helper/openapi.js'
 import type { Components } from '../../../../openapi/index.js'
 
@@ -212,12 +213,9 @@ export function examplesCode(components: Components, exportExamples: boolean): s
   const hasRef = (v: unknown): v is { readonly $ref: string } =>
     typeof v === 'object' && v !== null && '$ref' in v && typeof v.$ref === 'string'
 
-  // Sort examples to ensure referenced examples are defined first
-  // e.g., UserMinimal must be defined before UserMinimalForEmployees
-  const exampleNames = Object.keys(examples)
-  const sortedNames = sortExamplesByDependency(examples, exampleNames)
-
-  return sortedNames
+  // Generate code for all examples, then use ast() to sort by dependency
+  // ast() parses TypeScript and topologically sorts declarations
+  const code = Object.keys(examples)
     .map((k) => {
       const example = examples[k]
 
@@ -266,6 +264,9 @@ export function examplesCode(components: Components, exportExamples: boolean): s
       return `${makeConst(exportExamples, k, 'Example')}${JSON.stringify(example)}`
     })
     .join('\n\n')
+
+  // Use ast() to topologically sort declarations by dependency
+  return ast(code)
 }
 
 // Test run
