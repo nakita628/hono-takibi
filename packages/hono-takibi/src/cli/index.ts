@@ -21,7 +21,7 @@
  */
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { loadConfig } from '../config/index.js'
+import { readConfig } from '../config/index.js'
 import {
   callbacks,
   examples,
@@ -38,7 +38,6 @@ import {
   type,
 } from '../core/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
-import { parseCli } from '../utils/index.js'
 
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
@@ -96,6 +95,103 @@ Options:
  * }
  * ```
  */
+
+/**
+ * Parse raw CLI arguments into structured options.
+ *
+ * - Validates `<input>` ends with `.yaml`/`.json`/`.tsp`
+ * - Requires `-o <output.ts>`
+ * - Extracts boolean flags for component exports and templates/tests
+ * - Extracts optional `--base-path <path>`
+ *
+ * ```mermaid
+ * flowchart TD
+ *   A["parseCli(args)"] --> B["Extract input & output (-o)"]
+ *   B --> C{"input endsWith .yaml/.json/.tsp AND output endsWith .ts?"}
+ *   C -->|No| D["return { ok:false, error:'Usage: hono-takibi ...' }"]
+ *   C -->|Yes| E["Read flags (--export-schemas-types, --export-schemas, ..., --template, --test)"]
+ *   E --> F["Read optional --base-path value"]
+ *   F --> G["return { ok:true, value:{ input, output, flags... } }"]
+ * ```
+ *
+ * @param args - Raw CLI arguments (e.g., `process.argv.slice(2)`).
+ * @returns `{ ok:true, value }` on success; `{ ok:false, error }` on invalid usage.
+ */
+function parseCli(args: readonly string[]):
+  | {
+      readonly ok: true
+      readonly value: {
+        readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
+        readonly output: `${string}.ts`
+        readonly template: boolean
+        readonly test: boolean
+        readonly basePath: string
+        readonly componentsOptions: {
+          readonly exportSchemas: boolean
+          readonly exportSchemasTypes: boolean
+          readonly exportParameters: boolean
+          readonly exportParametersTypes: boolean
+          readonly exportSecuritySchemes: boolean
+          readonly exportRequestBodies: boolean
+          readonly exportResponses: boolean
+          readonly exportHeaders: boolean
+          readonly exportHeadersTypes: boolean
+          readonly exportExamples: boolean
+          readonly exportLinks: boolean
+          readonly exportCallbacks: boolean
+        }
+      }
+    }
+  | {
+      readonly ok: false
+      readonly error: string
+    } {
+  const input = args[0]
+  const oIdx = args.indexOf('-o')
+  const output = oIdx !== -1 ? args[oIdx + 1] : undefined
+  /** yaml or json or tsp */
+  const isYamlOrJsonOrTsp = (
+    i: string,
+  ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
+    i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
+  const isTs = (o: string): o is `${string}.ts` => o.endsWith('.ts')
+  const getFlagValue = (args: readonly string[], flag: string): string | undefined => {
+    const idx = args.indexOf(flag)
+    if (idx !== -1 && args[idx + 1] && !args[idx + 1].startsWith('-')) return args[idx + 1]
+    return undefined
+  }
+  if (!(input && output && isYamlOrJsonOrTsp(input) && isTs(output))) {
+    return {
+      ok: false,
+      error: HELP_TEXT,
+    }
+  }
+  return {
+    ok: true,
+    value: {
+      input,
+      output,
+      template: args.includes('--template'),
+      test: args.includes('--test'),
+      basePath: getFlagValue(args, '--base-path') ?? '/', // default: /
+      componentsOptions: {
+        exportSchemas: args.includes('--export-schemas') ?? false,
+        exportSchemasTypes: args.includes('--export-schemas-types') ?? false,
+        exportParameters: args.includes('--export-parameters') ?? false,
+        exportParametersTypes: args.includes('--export-parameters-types') ?? false,
+        exportSecuritySchemes: args.includes('--export-security-schemes') ?? false,
+        exportRequestBodies: args.includes('--export-request-bodies') ?? false,
+        exportResponses: args.includes('--export-responses') ?? false,
+        exportHeaders: args.includes('--export-headers') ?? false,
+        exportHeadersTypes: args.includes('--export-headers-types') ?? false,
+        exportExamples: args.includes('--export-examples') ?? false,
+        exportLinks: args.includes('--export-links') ?? false,
+        exportCallbacks: args.includes('--export-callbacks') ?? false,
+      },
+    },
+  }
+}
+
 export async function honoTakibi(): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -119,7 +215,7 @@ export async function honoTakibi(): Promise<
     return { ok: true, value: takibiResult.value }
   }
 
-  const loadConfigResult = await loadConfig()
+  const loadConfigResult = await readConfig()
   if (!loadConfigResult.ok) return { ok: false, error: loadConfigResult.error }
   const config = loadConfigResult.value
 
