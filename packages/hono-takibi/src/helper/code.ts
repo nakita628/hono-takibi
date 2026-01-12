@@ -106,6 +106,29 @@ export function makeImports(
  * Sorts example names so that referenced examples come before referencing ones.
  * Uses topological sort to handle dependency order.
  *
+ * ## Why This Function Is Required
+ *
+ * When generating TypeScript code for OpenAPI examples with `$ref` references,
+ * the referenced example must be defined BEFORE the referencing example.
+ * Without this sorting, the generated code would have undefined variable errors.
+ *
+ * @example
+ * ```yaml
+ * # OpenAPI input
+ * components:
+ *   examples:
+ *     AliasExample:
+ *       $ref: "#/components/examples/BaseExample"
+ *     BaseExample:
+ *       value: { id: 1 }
+ * ```
+ *
+ * ```ts
+ * // Generated TypeScript (correct order after sorting)
+ * export const BaseExample = { value: { id: 1 } }   // Must come first
+ * export const AliasExample = BaseExample           // References BaseExample
+ * ```
+ *
  * ```mermaid
  * flowchart TD
  *   A([Start]) --> B["Build dependency map"]
