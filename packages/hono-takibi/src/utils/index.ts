@@ -96,44 +96,6 @@ export function isHttpMethod(
 }
 
 /**
- * Checks if all given content types share the same schema definition.
- *
- * @param contentTypes - Array of content type keys (e.g., ['application/json', 'application/xml']).
- * @param content - OpenAPI content object mapping content types to media objects.
- * @returns `true` if all specified content types refer to the same schema; otherwise `false`.
- *
- * @example
- * ```ts
- * isUniqueContentSchema(['application/json', 'application/xml'], {
- *   'application/json': { schema: { type: 'string' } },
- *   'application/xml': { schema: { type: 'string' } },
- * }) // true
- * ```
- */
-export function isUniqueContentSchema(
-  contentTypes: readonly string[],
-  content: {
-    readonly [key: string]: {
-      readonly schema: {
-        readonly $ref?:
-          | `#/components/schemas/${string}`
-          | `#/components/parameters/${string}`
-          | `#/components/securitySchemes/${string}`
-          | `#/components/requestBodies/${string}`
-          | `#/components/responses/${string}`
-          | `#/components/headers/${string}`
-          | `#/components/examples/${string}`
-          | `#/components/links/${string}`
-          | `#/components/callbacks/${string}`
-      }
-    }
-  },
-): boolean {
-  const schema = new Set(contentTypes.map((type) => JSON.stringify(content?.[type].schema)))
-  return schema.size === 1
-}
-
-/**
  * Generates a PascalCase route name from HTTP method and path.
  *
  * @param method - HTTP method (e.g., 'get', 'post').
@@ -184,23 +146,6 @@ export const requestParamsArray = (parameters: {
         .join(',')
       return `${name}:z.object({${fields}})`
     })
-
-/**
- * Escapes a string for safe use in TypeScript string literals.
- *
- * @param text - The input text to escape.
- * @returns The escaped string.
- */
-export function escapeStringLiteral(text: string): string {
-  return text
-    .replace(/[\n\t]/g, ' ')
-    .replace(/\u200B|\u200C|\u200D|\uFEFF/g, ' ')
-    .replace(/　/g, ' ')
-    .replace(/\s+/g, ' ')
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .trim()
-}
 
 /**
  * Converts a string to a safe TypeScript object key.
@@ -413,22 +358,6 @@ if (import.meta.vitest) {
         expect(isHttpMethod(method)).toBe(expected)
       })
     })
-    // isUniqueContentSchema
-    describe('isUniqueContentSchema Test', () => {
-      it.concurrent('isUniqueContentSchema -> true', () => {
-        const result = isUniqueContentSchema(['application/json'], {
-          'application/json': { schema: { $ref: '#/components/schemas/Test' } },
-        })
-        expect(result).toBe(true)
-      })
-      it.concurrent('isUniqueContentSchema -> false', () => {
-        const result = isUniqueContentSchema(['application/json', 'application/xml'], {
-          'application/json': { schema: { $ref: '#/components/schemas/Test' } },
-          'application/xml': { schema: { $ref: '#/components/schemas/Example' } },
-        })
-        expect(result).toBe(false)
-      })
-    })
     // methodPath
     describe('methodPath', () => {
       it.concurrent.each([
@@ -502,27 +431,6 @@ if (import.meta.vitest) {
         ],
       ])('requestParamsArray(%o) -> %o', (input, expected) => {
         expect(requestParamsArray(input)).toStrictEqual(expected)
-      })
-    })
-    // escapeStringLiteral
-    describe('escapeStringLiteral', () => {
-      it.concurrent.each([
-        ['', ''],
-        ["'", "\\'"],
-        ["'test", "\\'test"],
-        ["It's a test", "It\\'s a test"],
-        ['test "string" with quotes', 'test "string" with quotes'],
-        ["Retrieve Santa's wishlist for Christmas.", "Retrieve Santa\\'s wishlist for Christmas."],
-        ["Santa's wishlist.", "Santa\\'s wishlist."],
-        ['back\\slash', 'back\\\\slash'],
-        ['full width space', 'full width space'],
-        ['multi\nline\ntext', 'multi line text'],
-        ['\u200Bhidden', 'hidden'],
-        ['   trim me   ', 'trim me'],
-        ['\t tabbed', 'tabbed'],
-        ['a\nb\tc\u200Bd\uFEFF', 'a b c d'],
-      ])(`escapeStringLiteral('%s') -> '%s'`, (input, expected) => {
-        expect(escapeStringLiteral(input)).toBe(expected)
       })
     })
     // getToSafeIdentifier
