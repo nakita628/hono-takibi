@@ -86,22 +86,32 @@ export function zodToOpenAPI(
 ): string {
   if (schema === undefined) throw new Error('Schema is undefined')
   // isOptional should only affect the outermost schema, not nested schemas
-  // Strip isOptional for recursive calls
+  // Strip isOptional for recursive calls using destructuring to avoid 'as' cast
   const innerMeta: typeof meta = meta?.isOptional
-    ? (Object.fromEntries(Object.entries(meta).filter(([k]) => k !== 'isOptional')) as typeof meta)
+    ? (() => {
+        const { isOptional: _, ...rest } = meta
+        return rest
+      })()
     : meta
   /** ref */
   if (schema.$ref !== undefined) {
     return wrap(makeRef(schema.$ref), schema, meta)
   }
+
+  // Helper: Check if schema is null type
+  const isNullType = (s: Schema) =>
+    s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)
+
+  // Helper: Check if schema is a bare $ref (no other properties)
+  // Used to optimize $ref handling - when $ref is the only property,
+  // we can use makeRef() directly instead of recursing
+  const isRefOnly = (s: Schema) => s.$ref !== undefined && Object.keys(s).length === 1
+
   /* combinators */
   /** allOf */
   if (schema.allOf !== undefined) {
     if (!schema.allOf?.length) return wrap('z.any()', schema, meta)
 
-    const isNullType = (s: Schema) =>
-      s.type === 'null' || (s.nullable === true && Object.keys(s).length === 1)
-    const isRefOnly = (s: Schema) => s.$ref !== undefined && Object.keys(s).length === 1
     const nullable =
       schema.nullable === true ||
       (Array.isArray(schema.type) ? schema.type.includes('null') : schema.type === 'null') ||
@@ -124,36 +134,21 @@ export function zodToOpenAPI(
   }
   /* anyOf */
   if (schema.anyOf !== undefined) {
-    if (!schema.anyOf || schema.anyOf.length === 0) {
-      return wrap('z.any()', schema, meta)
-    }
-    const anyOfSchemas = schema.anyOf.map((subSchema) => {
-      if (subSchema.$ref && Object.keys(subSchema).length === 1) {
-        if (subSchema.$ref) {
-          return makeRef(subSchema.$ref)
-        }
-      }
-      return zodToOpenAPI(subSchema, innerMeta)
-    })
-    const z = `z.union([${anyOfSchemas.join(',')}])`
-    return wrap(z, schema, meta)
+    if (schema.anyOf.length === 0) return wrap('z.any()', schema, meta)
+    const anyOfSchemas = schema.anyOf.map((s) =>
+      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta),
+    )
+    return wrap(`z.union([${anyOfSchemas.join(',')}])`, schema, meta)
   }
   /* oneOf */
   if (schema.oneOf !== undefined) {
-    if (!schema.oneOf || schema.oneOf.length === 0) {
-      return wrap('z.any()', schema, meta)
-    }
+    if (schema.oneOf.length === 0) return wrap('z.any()', schema, meta)
     // Check if any oneOf member is a $ref (could reference allOf schema) or uses allOf directly
     // ZodIntersection (from allOf) is not compatible with discriminatedUnion
     const hasRefOrAllOf = schema.oneOf.some((s) => s.$ref !== undefined || s.allOf !== undefined)
-    const oneOfSchemas = schema.oneOf.map((s) => {
-      if (s.$ref && Object.keys(s).length === 1) {
-        if (s.$ref) {
-          return makeRef(s.$ref)
-        }
-      }
-      return zodToOpenAPI(s, innerMeta)
-    })
+    const oneOfSchemas = schema.oneOf.map((s) =>
+      isRefOnly(s) ? makeRef(s.$ref ?? '') : zodToOpenAPI(s, innerMeta),
+    )
     const discriminator = schema.discriminator?.propertyName
     // Use z.xor when $ref is present (referenced schema might use allOf)
     const z =
@@ -164,7 +159,7 @@ export function zodToOpenAPI(
   }
   /* not */
   if (schema.not !== undefined) {
-    const typePredicates: Record<string, string> = {
+    const typePredicates: { readonly [key: string]: string } = {
       string: `(v) => typeof v !== 'string'`,
       number: `(v) => typeof v !== 'number'`,
       integer: `(v) => typeof v !== 'number' || !Number.isInteger(v)`,
