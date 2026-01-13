@@ -1,4190 +1,201 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/messages': {
       $post: {
-        input: { json: unknown }
-        output:
-          | {
-              id: string
-              createdAt?: string | undefined
-              updatedAt?: string | undefined
-              createdBy?: string | undefined
-              updatedBy?: string | undefined
-              version?: number | undefined
-              etag?: string | undefined
-              type: 'text'
-              sender: { id: string; name: string; avatar?: string | undefined }
-              recipient: { id: string; name: string; avatar?: string | undefined }
-              metadata?:
-                | {
-                    priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                    expiresAt?: string | undefined
-                    replyTo?:
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'text'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          content: string
-                          formatting?:
-                            | {
-                                bold?: { start: number; end: number }[] | undefined
-                                italic?: { start: number; end: number }[] | undefined
-                                links?: { start: number; end: number; url: string }[] | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'image'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          dimensions?: { width: number; height: number } | undefined
-                          alt?: string | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'video'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          duration?: number | undefined
-                          thumbnail?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'document'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          pageCount?: number | undefined
-                          preview?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'composite'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          parts: (
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'text'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                content: string
-                                formatting?:
-                                  | {
-                                      bold?: { start: number; end: number }[] | undefined
-                                      italic?: { start: number; end: number }[] | undefined
-                                      links?:
-                                        | { start: number; end: number; url: string }[]
-                                        | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'video'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                duration?: number | undefined
-                                thumbnail?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'document'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                pageCount?: number | undefined
-                                preview?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                          )[]
-                        }
-                      | undefined
-                  }
-                | undefined
-              content: string
-              formatting?:
-                | {
-                    bold?: { start: number; end: number }[] | undefined
-                    italic?: { start: number; end: number }[] | undefined
-                    links?: { start: number; end: number; url: string }[] | undefined
-                  }
-                | undefined
-              deliveryStatus?:
-                | {
-                    sent?: boolean | undefined
-                    delivered?: boolean | undefined
-                    read?: boolean | undefined
-                    timestamps?:
-                      | {
-                          sentAt?: string | undefined
-                          deliveredAt?: string | undefined
-                          readAt?: string | undefined
-                        }
-                      | undefined
-                  }
-                | undefined
-            }
-          | {
-              id: string
-              createdAt?: string | undefined
-              updatedAt?: string | undefined
-              createdBy?: string | undefined
-              updatedBy?: string | undefined
-              version?: number | undefined
-              etag?: string | undefined
-              type: 'image'
-              sender: { id: string; name: string; avatar?: string | undefined }
-              recipient: { id: string; name: string; avatar?: string | undefined }
-              metadata?:
-                | {
-                    priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                    expiresAt?: string | undefined
-                    replyTo?:
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'text'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          content: string
-                          formatting?:
-                            | {
-                                bold?: { start: number; end: number }[] | undefined
-                                italic?: { start: number; end: number }[] | undefined
-                                links?: { start: number; end: number; url: string }[] | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'image'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          dimensions?: { width: number; height: number } | undefined
-                          alt?: string | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'video'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          duration?: number | undefined
-                          thumbnail?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'document'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          pageCount?: number | undefined
-                          preview?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'composite'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          parts: (
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'text'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                content: string
-                                formatting?:
-                                  | {
-                                      bold?: { start: number; end: number }[] | undefined
-                                      italic?: { start: number; end: number }[] | undefined
-                                      links?:
-                                        | { start: number; end: number; url: string }[]
-                                        | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'video'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                duration?: number | undefined
-                                thumbnail?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'document'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                pageCount?: number | undefined
-                                preview?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                          )[]
-                        }
-                      | undefined
-                  }
-                | undefined
-              url: string
-              mimeType: string
-              size: number
-              checksum?: string | undefined
-              dimensions?: { width: number; height: number } | undefined
-              alt?: string | undefined
-              deliveryStatus?:
-                | {
-                    sent?: boolean | undefined
-                    delivered?: boolean | undefined
-                    read?: boolean | undefined
-                    timestamps?:
-                      | {
-                          sentAt?: string | undefined
-                          deliveredAt?: string | undefined
-                          readAt?: string | undefined
-                        }
-                      | undefined
-                  }
-                | undefined
-            }
-          | {
-              id: string
-              createdAt?: string | undefined
-              updatedAt?: string | undefined
-              createdBy?: string | undefined
-              updatedBy?: string | undefined
-              version?: number | undefined
-              etag?: string | undefined
-              type: 'video'
-              sender: { id: string; name: string; avatar?: string | undefined }
-              recipient: { id: string; name: string; avatar?: string | undefined }
-              metadata?:
-                | {
-                    priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                    expiresAt?: string | undefined
-                    replyTo?:
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'text'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          content: string
-                          formatting?:
-                            | {
-                                bold?: { start: number; end: number }[] | undefined
-                                italic?: { start: number; end: number }[] | undefined
-                                links?: { start: number; end: number; url: string }[] | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'image'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          dimensions?: { width: number; height: number } | undefined
-                          alt?: string | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'video'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          duration?: number | undefined
-                          thumbnail?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'document'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          pageCount?: number | undefined
-                          preview?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'composite'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          parts: (
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'text'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                content: string
-                                formatting?:
-                                  | {
-                                      bold?: { start: number; end: number }[] | undefined
-                                      italic?: { start: number; end: number }[] | undefined
-                                      links?:
-                                        | { start: number; end: number; url: string }[]
-                                        | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'video'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                duration?: number | undefined
-                                thumbnail?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'document'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                pageCount?: number | undefined
-                                preview?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                          )[]
-                        }
-                      | undefined
-                  }
-                | undefined
-              url: string
-              mimeType: string
-              size: number
-              checksum?: string | undefined
-              duration?: number | undefined
-              thumbnail?:
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    type: 'image'
-                    sender: { id: string; name: string; avatar?: string | undefined }
-                    recipient: { id: string; name: string; avatar?: string | undefined }
-                    metadata?:
-                      | {
-                          priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                          expiresAt?: string | undefined
-                          replyTo?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'text'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                content: string
-                                formatting?:
-                                  | {
-                                      bold?: { start: number; end: number }[] | undefined
-                                      italic?: { start: number; end: number }[] | undefined
-                                      links?:
-                                        | { start: number; end: number; url: string }[]
-                                        | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'video'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                duration?: number | undefined
-                                thumbnail?: any | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'document'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                pageCount?: number | undefined
-                                preview?: any | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'composite'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                parts: (
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'text'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      content: string
-                                      formatting?:
-                                        | {
-                                            bold?: { start: number; end: number }[] | undefined
-                                            italic?: { start: number; end: number }[] | undefined
-                                            links?:
-                                              | { start: number; end: number; url: string }[]
-                                              | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'video'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      duration?: number | undefined
-                                      thumbnail?: any | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'document'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      pageCount?: number | undefined
-                                      preview?: any | undefined
-                                    }
-                                  | any
-                                )[]
-                              }
-                            | undefined
-                        }
-                      | undefined
-                    url: string
-                    mimeType: string
-                    size: number
-                    checksum?: string | undefined
-                    dimensions?: { width: number; height: number } | undefined
-                    alt?: string | undefined
-                  }
-                | undefined
-              deliveryStatus?:
-                | {
-                    sent?: boolean | undefined
-                    delivered?: boolean | undefined
-                    read?: boolean | undefined
-                    timestamps?:
-                      | {
-                          sentAt?: string | undefined
-                          deliveredAt?: string | undefined
-                          readAt?: string | undefined
-                        }
-                      | undefined
-                  }
-                | undefined
-            }
-          | {
-              id: string
-              createdAt?: string | undefined
-              updatedAt?: string | undefined
-              createdBy?: string | undefined
-              updatedBy?: string | undefined
-              version?: number | undefined
-              etag?: string | undefined
-              type: 'document'
-              sender: { id: string; name: string; avatar?: string | undefined }
-              recipient: { id: string; name: string; avatar?: string | undefined }
-              metadata?:
-                | {
-                    priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                    expiresAt?: string | undefined
-                    replyTo?:
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'text'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          content: string
-                          formatting?:
-                            | {
-                                bold?: { start: number; end: number }[] | undefined
-                                italic?: { start: number; end: number }[] | undefined
-                                links?: { start: number; end: number; url: string }[] | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'image'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          dimensions?: { width: number; height: number } | undefined
-                          alt?: string | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'video'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          duration?: number | undefined
-                          thumbnail?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'document'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          pageCount?: number | undefined
-                          preview?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'composite'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          parts: (
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'text'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                content: string
-                                formatting?:
-                                  | {
-                                      bold?: { start: number; end: number }[] | undefined
-                                      italic?: { start: number; end: number }[] | undefined
-                                      links?:
-                                        | { start: number; end: number; url: string }[]
-                                        | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'video'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                duration?: number | undefined
-                                thumbnail?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'document'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                pageCount?: number | undefined
-                                preview?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                          )[]
-                        }
-                      | undefined
-                  }
-                | undefined
-              url: string
-              mimeType: string
-              size: number
-              checksum?: string | undefined
-              pageCount?: number | undefined
-              preview?:
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    type: 'image'
-                    sender: { id: string; name: string; avatar?: string | undefined }
-                    recipient: { id: string; name: string; avatar?: string | undefined }
-                    metadata?:
-                      | {
-                          priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                          expiresAt?: string | undefined
-                          replyTo?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'text'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                content: string
-                                formatting?:
-                                  | {
-                                      bold?: { start: number; end: number }[] | undefined
-                                      italic?: { start: number; end: number }[] | undefined
-                                      links?:
-                                        | { start: number; end: number; url: string }[]
-                                        | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'video'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                duration?: number | undefined
-                                thumbnail?: any | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'document'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                pageCount?: number | undefined
-                                preview?: any | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'composite'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                parts: (
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'text'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      content: string
-                                      formatting?:
-                                        | {
-                                            bold?: { start: number; end: number }[] | undefined
-                                            italic?: { start: number; end: number }[] | undefined
-                                            links?:
-                                              | { start: number; end: number; url: string }[]
-                                              | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'video'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      duration?: number | undefined
-                                      thumbnail?: any | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'document'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      pageCount?: number | undefined
-                                      preview?: any | undefined
-                                    }
-                                  | any
-                                )[]
-                              }
-                            | undefined
-                        }
-                      | undefined
-                    url: string
-                    mimeType: string
-                    size: number
-                    checksum?: string | undefined
-                    dimensions?: { width: number; height: number } | undefined
-                    alt?: string | undefined
-                  }
-                | undefined
-              deliveryStatus?:
-                | {
-                    sent?: boolean | undefined
-                    delivered?: boolean | undefined
-                    read?: boolean | undefined
-                    timestamps?:
-                      | {
-                          sentAt?: string | undefined
-                          deliveredAt?: string | undefined
-                          readAt?: string | undefined
-                        }
-                      | undefined
-                  }
-                | undefined
-            }
-          | {
-              id: string
-              createdAt?: string | undefined
-              updatedAt?: string | undefined
-              createdBy?: string | undefined
-              updatedBy?: string | undefined
-              version?: number | undefined
-              etag?: string | undefined
-              type: 'composite'
-              sender: { id: string; name: string; avatar?: string | undefined }
-              recipient: { id: string; name: string; avatar?: string | undefined }
-              metadata?:
-                | {
-                    priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                    expiresAt?: string | undefined
-                    replyTo?:
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'text'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          content: string
-                          formatting?:
-                            | {
-                                bold?: { start: number; end: number }[] | undefined
-                                italic?: { start: number; end: number }[] | undefined
-                                links?: { start: number; end: number; url: string }[] | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'image'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          dimensions?: { width: number; height: number } | undefined
-                          alt?: string | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'video'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          duration?: number | undefined
-                          thumbnail?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'document'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          pageCount?: number | undefined
-                          preview?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'composite'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?: any | undefined
-                          parts: (
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'text'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                content: string
-                                formatting?:
-                                  | {
-                                      bold?: { start: number; end: number }[] | undefined
-                                      italic?: { start: number; end: number }[] | undefined
-                                      links?:
-                                        | { start: number; end: number; url: string }[]
-                                        | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'video'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                duration?: number | undefined
-                                thumbnail?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'document'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                pageCount?: number | undefined
-                                preview?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                          )[]
-                        }
-                      | undefined
-                  }
-                | undefined
-              parts: (
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    type: 'text'
-                    sender: { id: string; name: string; avatar?: string | undefined }
-                    recipient: { id: string; name: string; avatar?: string | undefined }
-                    metadata?:
-                      | {
-                          priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                          expiresAt?: string | undefined
-                          replyTo?:
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'video'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                duration?: number | undefined
-                                thumbnail?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'document'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                pageCount?: number | undefined
-                                preview?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'composite'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                parts: (
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'video'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      duration?: number | undefined
-                                      thumbnail?:
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'image'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            dimensions?:
-                                              | { width: number; height: number }
-                                              | undefined
-                                            alt?: string | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'document'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      pageCount?: number | undefined
-                                      preview?:
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'image'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            dimensions?:
-                                              | { width: number; height: number }
-                                              | undefined
-                                            alt?: string | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                )[]
-                              }
-                            | undefined
-                        }
-                      | undefined
-                    content: string
-                    formatting?:
-                      | {
-                          bold?: { start: number; end: number }[] | undefined
-                          italic?: { start: number; end: number }[] | undefined
-                          links?: { start: number; end: number; url: string }[] | undefined
-                        }
-                      | undefined
-                  }
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    type: 'image'
-                    sender: { id: string; name: string; avatar?: string | undefined }
-                    recipient: { id: string; name: string; avatar?: string | undefined }
-                    metadata?:
-                      | {
-                          priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                          expiresAt?: string | undefined
-                          replyTo?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'text'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                content: string
-                                formatting?:
-                                  | {
-                                      bold?: { start: number; end: number }[] | undefined
-                                      italic?: { start: number; end: number }[] | undefined
-                                      links?:
-                                        | { start: number; end: number; url: string }[]
-                                        | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'video'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                duration?: number | undefined
-                                thumbnail?: any | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'document'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                pageCount?: number | undefined
-                                preview?: any | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'composite'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                parts: (
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'text'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      content: string
-                                      formatting?:
-                                        | {
-                                            bold?: { start: number; end: number }[] | undefined
-                                            italic?: { start: number; end: number }[] | undefined
-                                            links?:
-                                              | { start: number; end: number; url: string }[]
-                                              | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'video'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      duration?: number | undefined
-                                      thumbnail?: any | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'document'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      pageCount?: number | undefined
-                                      preview?: any | undefined
-                                    }
-                                  | any
-                                )[]
-                              }
-                            | undefined
-                        }
-                      | undefined
-                    url: string
-                    mimeType: string
-                    size: number
-                    checksum?: string | undefined
-                    dimensions?: { width: number; height: number } | undefined
-                    alt?: string | undefined
-                  }
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    type: 'video'
-                    sender: { id: string; name: string; avatar?: string | undefined }
-                    recipient: { id: string; name: string; avatar?: string | undefined }
-                    metadata?:
-                      | {
-                          priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                          expiresAt?: string | undefined
-                          replyTo?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'text'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                content: string
-                                formatting?:
-                                  | {
-                                      bold?: { start: number; end: number }[] | undefined
-                                      italic?: { start: number; end: number }[] | undefined
-                                      links?:
-                                        | { start: number; end: number; url: string }[]
-                                        | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'document'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                pageCount?: number | undefined
-                                preview?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'composite'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                parts: (
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'text'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      content: string
-                                      formatting?:
-                                        | {
-                                            bold?: { start: number; end: number }[] | undefined
-                                            italic?: { start: number; end: number }[] | undefined
-                                            links?:
-                                              | { start: number; end: number; url: string }[]
-                                              | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'document'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      pageCount?: number | undefined
-                                      preview?:
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'image'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            dimensions?:
-                                              | { width: number; height: number }
-                                              | undefined
-                                            alt?: string | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                )[]
-                              }
-                            | undefined
-                        }
-                      | undefined
-                    url: string
-                    mimeType: string
-                    size: number
-                    checksum?: string | undefined
-                    duration?: number | undefined
-                    thumbnail?:
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'image'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?:
-                            | {
-                                priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                                expiresAt?: string | undefined
-                                replyTo?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'text'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      content: string
-                                      formatting?:
-                                        | {
-                                            bold?: { start: number; end: number }[] | undefined
-                                            italic?: { start: number; end: number }[] | undefined
-                                            links?:
-                                              | { start: number; end: number; url: string }[]
-                                              | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'document'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      pageCount?: number | undefined
-                                      preview?: any | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'composite'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      parts: (
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'text'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            content: string
-                                            formatting?:
-                                              | {
-                                                  bold?:
-                                                    | { start: number; end: number }[]
-                                                    | undefined
-                                                  italic?:
-                                                    | { start: number; end: number }[]
-                                                    | undefined
-                                                  links?:
-                                                    | { start: number; end: number; url: string }[]
-                                                    | undefined
-                                                }
-                                              | undefined
-                                          }
-                                        | any
-                                        | any
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'document'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            pageCount?: number | undefined
-                                            preview?: any | undefined
-                                          }
-                                        | any
-                                      )[]
-                                    }
-                                  | undefined
-                              }
-                            | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          dimensions?: { width: number; height: number } | undefined
-                          alt?: string | undefined
-                        }
-                      | undefined
-                  }
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    type: 'document'
-                    sender: { id: string; name: string; avatar?: string | undefined }
-                    recipient: { id: string; name: string; avatar?: string | undefined }
-                    metadata?:
-                      | {
-                          priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                          expiresAt?: string | undefined
-                          replyTo?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'text'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                content: string
-                                formatting?:
-                                  | {
-                                      bold?: { start: number; end: number }[] | undefined
-                                      italic?: { start: number; end: number }[] | undefined
-                                      links?:
-                                        | { start: number; end: number; url: string }[]
-                                        | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'video'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                duration?: number | undefined
-                                thumbnail?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'composite'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                parts: (
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'text'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      content: string
-                                      formatting?:
-                                        | {
-                                            bold?: { start: number; end: number }[] | undefined
-                                            italic?: { start: number; end: number }[] | undefined
-                                            links?:
-                                              | { start: number; end: number; url: string }[]
-                                              | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'video'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      duration?: number | undefined
-                                      thumbnail?:
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'image'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            dimensions?:
-                                              | { width: number; height: number }
-                                              | undefined
-                                            alt?: string | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                  | any
-                                )[]
-                              }
-                            | undefined
-                        }
-                      | undefined
-                    url: string
-                    mimeType: string
-                    size: number
-                    checksum?: string | undefined
-                    pageCount?: number | undefined
-                    preview?:
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'image'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?:
-                            | {
-                                priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                                expiresAt?: string | undefined
-                                replyTo?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'text'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      content: string
-                                      formatting?:
-                                        | {
-                                            bold?: { start: number; end: number }[] | undefined
-                                            italic?: { start: number; end: number }[] | undefined
-                                            links?:
-                                              | { start: number; end: number; url: string }[]
-                                              | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'video'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      duration?: number | undefined
-                                      thumbnail?: any | undefined
-                                    }
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'composite'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      parts: (
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'text'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            content: string
-                                            formatting?:
-                                              | {
-                                                  bold?:
-                                                    | { start: number; end: number }[]
-                                                    | undefined
-                                                  italic?:
-                                                    | { start: number; end: number }[]
-                                                    | undefined
-                                                  links?:
-                                                    | { start: number; end: number; url: string }[]
-                                                    | undefined
-                                                }
-                                              | undefined
-                                          }
-                                        | any
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'video'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            duration?: number | undefined
-                                            thumbnail?: any | undefined
-                                          }
-                                        | any
-                                        | any
-                                      )[]
-                                    }
-                                  | undefined
-                              }
-                            | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          dimensions?: { width: number; height: number } | undefined
-                          alt?: string | undefined
-                        }
-                      | undefined
-                  }
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    type: 'composite'
-                    sender: { id: string; name: string; avatar?: string | undefined }
-                    recipient: { id: string; name: string; avatar?: string | undefined }
-                    metadata?:
-                      | {
-                          priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                          expiresAt?: string | undefined
-                          replyTo?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'text'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                content: string
-                                formatting?:
-                                  | {
-                                      bold?: { start: number; end: number }[] | undefined
-                                      italic?: { start: number; end: number }[] | undefined
-                                      links?:
-                                        | { start: number; end: number; url: string }[]
-                                        | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'video'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                duration?: number | undefined
-                                thumbnail?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'document'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?: any | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                pageCount?: number | undefined
-                                preview?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                            | undefined
-                        }
-                      | undefined
-                    parts: (
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'text'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?:
-                            | {
-                                priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                                expiresAt?: string | undefined
-                                replyTo?:
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'video'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      duration?: number | undefined
-                                      thumbnail?:
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'image'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            dimensions?:
-                                              | { width: number; height: number }
-                                              | undefined
-                                            alt?: string | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'document'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      pageCount?: number | undefined
-                                      preview?:
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'image'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            dimensions?:
-                                              | { width: number; height: number }
-                                              | undefined
-                                            alt?: string | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                  | undefined
-                              }
-                            | undefined
-                          content: string
-                          formatting?:
-                            | {
-                                bold?: { start: number; end: number }[] | undefined
-                                italic?: { start: number; end: number }[] | undefined
-                                links?: { start: number; end: number; url: string }[] | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'image'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?:
-                            | {
-                                priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                                expiresAt?: string | undefined
-                                replyTo?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'text'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      content: string
-                                      formatting?:
-                                        | {
-                                            bold?: { start: number; end: number }[] | undefined
-                                            italic?: { start: number; end: number }[] | undefined
-                                            links?:
-                                              | { start: number; end: number; url: string }[]
-                                              | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'video'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      duration?: number | undefined
-                                      thumbnail?: any | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'document'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      pageCount?: number | undefined
-                                      preview?: any | undefined
-                                    }
-                                  | any
-                                  | undefined
-                              }
-                            | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          dimensions?: { width: number; height: number } | undefined
-                          alt?: string | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'video'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?:
-                            | {
-                                priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                                expiresAt?: string | undefined
-                                replyTo?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'text'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      content: string
-                                      formatting?:
-                                        | {
-                                            bold?: { start: number; end: number }[] | undefined
-                                            italic?: { start: number; end: number }[] | undefined
-                                            links?:
-                                              | { start: number; end: number; url: string }[]
-                                              | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'document'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      pageCount?: number | undefined
-                                      preview?:
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'image'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            dimensions?:
-                                              | { width: number; height: number }
-                                              | undefined
-                                            alt?: string | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                  | undefined
-                              }
-                            | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          duration?: number | undefined
-                          thumbnail?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?:
-                                  | {
-                                      priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                                      expiresAt?: string | undefined
-                                      replyTo?:
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'text'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            content: string
-                                            formatting?:
-                                              | {
-                                                  bold?:
-                                                    | { start: number; end: number }[]
-                                                    | undefined
-                                                  italic?:
-                                                    | { start: number; end: number }[]
-                                                    | undefined
-                                                  links?:
-                                                    | { start: number; end: number; url: string }[]
-                                                    | undefined
-                                                }
-                                              | undefined
-                                          }
-                                        | any
-                                        | any
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'document'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            pageCount?: number | undefined
-                                            preview?: any | undefined
-                                          }
-                                        | any
-                                        | undefined
-                                    }
-                                  | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          type: 'document'
-                          sender: { id: string; name: string; avatar?: string | undefined }
-                          recipient: { id: string; name: string; avatar?: string | undefined }
-                          metadata?:
-                            | {
-                                priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                                expiresAt?: string | undefined
-                                replyTo?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'text'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      content: string
-                                      formatting?:
-                                        | {
-                                            bold?: { start: number; end: number }[] | undefined
-                                            italic?: { start: number; end: number }[] | undefined
-                                            links?:
-                                              | { start: number; end: number; url: string }[]
-                                              | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'image'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      dimensions?: { width: number; height: number } | undefined
-                                      alt?: string | undefined
-                                    }
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      type: 'video'
-                                      sender: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      recipient: {
-                                        id: string
-                                        name: string
-                                        avatar?: string | undefined
-                                      }
-                                      metadata?: any | undefined
-                                      url: string
-                                      mimeType: string
-                                      size: number
-                                      checksum?: string | undefined
-                                      duration?: number | undefined
-                                      thumbnail?:
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'image'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            dimensions?:
-                                              | { width: number; height: number }
-                                              | undefined
-                                            alt?: string | undefined
-                                          }
-                                        | undefined
-                                    }
-                                  | any
-                                  | any
-                                  | undefined
-                              }
-                            | undefined
-                          url: string
-                          mimeType: string
-                          size: number
-                          checksum?: string | undefined
-                          pageCount?: number | undefined
-                          preview?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                type: 'image'
-                                sender: { id: string; name: string; avatar?: string | undefined }
-                                recipient: { id: string; name: string; avatar?: string | undefined }
-                                metadata?:
-                                  | {
-                                      priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
-                                      expiresAt?: string | undefined
-                                      replyTo?:
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'text'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            content: string
-                                            formatting?:
-                                              | {
-                                                  bold?:
-                                                    | { start: number; end: number }[]
-                                                    | undefined
-                                                  italic?:
-                                                    | { start: number; end: number }[]
-                                                    | undefined
-                                                  links?:
-                                                    | { start: number; end: number; url: string }[]
-                                                    | undefined
-                                                }
-                                              | undefined
-                                          }
-                                        | any
-                                        | {
-                                            id: string
-                                            createdAt?: string | undefined
-                                            updatedAt?: string | undefined
-                                            createdBy?: string | undefined
-                                            updatedBy?: string | undefined
-                                            version?: number | undefined
-                                            etag?: string | undefined
-                                            type: 'video'
-                                            sender: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            recipient: {
-                                              id: string
-                                              name: string
-                                              avatar?: string | undefined
-                                            }
-                                            metadata?: any | undefined
-                                            url: string
-                                            mimeType: string
-                                            size: number
-                                            checksum?: string | undefined
-                                            duration?: number | undefined
-                                            thumbnail?: any | undefined
-                                          }
-                                        | any
-                                        | any
-                                        | undefined
-                                    }
-                                  | undefined
-                                url: string
-                                mimeType: string
-                                size: number
-                                checksum?: string | undefined
-                                dimensions?: { width: number; height: number } | undefined
-                                alt?: string | undefined
-                              }
-                            | undefined
-                        }
-                      | any
-                    )[]
-                  }
-              )[]
-              deliveryStatus?:
-                | {
-                    sent?: boolean | undefined
-                    delivered?: boolean | undefined
-                    read?: boolean | undefined
-                    timestamps?:
-                      | {
-                          sentAt?: string | undefined
-                          deliveredAt?: string | undefined
-                          readAt?: string | undefined
-                        }
-                      | undefined
-                  }
-                | undefined
-            }
+        input: {
+          json:
+            | {
+                id: string
+                createdAt?: string | undefined
+                updatedAt?: string | undefined
+                createdBy?: string | undefined
+                updatedBy?: string | undefined
+                version?: number | undefined
+                etag?: string | undefined
+                type: 'text'
+                sender: { id: string; name: string; avatar?: string | undefined }
+                recipient: { id: string; name: string; avatar?: string | undefined }
+                metadata?:
+                  | {
+                      priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                      expiresAt?: string | undefined
+                      replyTo?: unknown | undefined
+                    }
+                  | undefined
+                content: string
+                formatting?:
+                  | {
+                      bold?: { start: number; end: number }[] | undefined
+                      italic?: { start: number; end: number }[] | undefined
+                      links?: { start: number; end: number; url: string }[] | undefined
+                    }
+                  | undefined
+              }
+            | {
+                id: string
+                createdAt?: string | undefined
+                updatedAt?: string | undefined
+                createdBy?: string | undefined
+                updatedBy?: string | undefined
+                version?: number | undefined
+                etag?: string | undefined
+                type: 'image'
+                sender: { id: string; name: string; avatar?: string | undefined }
+                recipient: { id: string; name: string; avatar?: string | undefined }
+                metadata?:
+                  | {
+                      priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                      expiresAt?: string | undefined
+                      replyTo?: unknown | undefined
+                    }
+                  | undefined
+                url: string
+                mimeType: string
+                size: number
+                checksum?: string | undefined
+                dimensions?: { width: number; height: number } | undefined
+                alt?: string | undefined
+              }
+            | {
+                id: string
+                createdAt?: string | undefined
+                updatedAt?: string | undefined
+                createdBy?: string | undefined
+                updatedBy?: string | undefined
+                version?: number | undefined
+                etag?: string | undefined
+                type: 'video'
+                sender: { id: string; name: string; avatar?: string | undefined }
+                recipient: { id: string; name: string; avatar?: string | undefined }
+                metadata?:
+                  | {
+                      priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                      expiresAt?: string | undefined
+                      replyTo?: unknown | undefined
+                    }
+                  | undefined
+                url: string
+                mimeType: string
+                size: number
+                checksum?: string | undefined
+                duration?: number | undefined
+                thumbnail?:
+                  | {
+                      id: string
+                      createdAt?: string | undefined
+                      updatedAt?: string | undefined
+                      createdBy?: string | undefined
+                      updatedBy?: string | undefined
+                      version?: number | undefined
+                      etag?: string | undefined
+                      type: 'image'
+                      sender: { id: string; name: string; avatar?: string | undefined }
+                      recipient: { id: string; name: string; avatar?: string | undefined }
+                      metadata?:
+                        | {
+                            priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                            expiresAt?: string | undefined
+                            replyTo?: unknown | undefined
+                          }
+                        | undefined
+                      url: string
+                      mimeType: string
+                      size: number
+                      checksum?: string | undefined
+                      dimensions?: { width: number; height: number } | undefined
+                      alt?: string | undefined
+                    }
+                  | undefined
+              }
+            | {
+                id: string
+                createdAt?: string | undefined
+                updatedAt?: string | undefined
+                createdBy?: string | undefined
+                updatedBy?: string | undefined
+                version?: number | undefined
+                etag?: string | undefined
+                type: 'document'
+                sender: { id: string; name: string; avatar?: string | undefined }
+                recipient: { id: string; name: string; avatar?: string | undefined }
+                metadata?:
+                  | {
+                      priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                      expiresAt?: string | undefined
+                      replyTo?: unknown | undefined
+                    }
+                  | undefined
+                url: string
+                mimeType: string
+                size: number
+                checksum?: string | undefined
+                pageCount?: number | undefined
+                preview?:
+                  | {
+                      id: string
+                      createdAt?: string | undefined
+                      updatedAt?: string | undefined
+                      createdBy?: string | undefined
+                      updatedBy?: string | undefined
+                      version?: number | undefined
+                      etag?: string | undefined
+                      type: 'image'
+                      sender: { id: string; name: string; avatar?: string | undefined }
+                      recipient: { id: string; name: string; avatar?: string | undefined }
+                      metadata?:
+                        | {
+                            priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                            expiresAt?: string | undefined
+                            replyTo?: unknown | undefined
+                          }
+                        | undefined
+                      url: string
+                      mimeType: string
+                      size: number
+                      checksum?: string | undefined
+                      dimensions?: { width: number; height: number } | undefined
+                      alt?: string | undefined
+                    }
+                  | undefined
+              }
+            | {
+                id: string
+                createdAt?: string | undefined
+                updatedAt?: string | undefined
+                createdBy?: string | undefined
+                updatedBy?: string | undefined
+                version?: number | undefined
+                etag?: string | undefined
+                type: 'composite'
+                sender: { id: string; name: string; avatar?: string | undefined }
+                recipient: { id: string; name: string; avatar?: string | undefined }
+                metadata?:
+                  | {
+                      priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                      expiresAt?: string | undefined
+                      replyTo?: unknown | undefined
+                    }
+                  | undefined
+                parts: unknown[]
+              }
+        }
+        output: {
+          deliveryStatus?:
+            | {
+                sent?: boolean | undefined
+                delivered?: boolean | undefined
+                read?: boolean | undefined
+                timestamps?:
+                  | {
+                      sentAt?: string | undefined
+                      deliveredAt?: string | undefined
+                      readAt?: string | undefined
+                    }
+                  | undefined
+              }
+            | undefined
+        }
         outputFormat: 'json'
         status: 201
       }
@@ -4195,7 +206,53 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         input: {
           json: {
             eventType: string
-            payload: unknown
+            payload:
+              | {
+                  timestamp?: string | undefined
+                  source?: string | undefined
+                  correlationId?: string | undefined
+                  userId: string
+                  userAction?: 'login' | 'logout' | 'register' | 'update' | 'delete' | undefined
+                  previousState?:
+                    | {
+                        status?: string | undefined
+                        roles?: string[] | undefined
+                        preferences?: { [x: string]: unknown } | undefined
+                      }
+                    | undefined
+                  newState?:
+                    | {
+                        status?: string | undefined
+                        roles?: string[] | undefined
+                        preferences?: { [x: string]: unknown } | undefined
+                      }
+                    | undefined
+                }
+              | {
+                  timestamp?: string | undefined
+                  source?: string | undefined
+                  correlationId?: string | undefined
+                  orderId: string
+                  orderAction?: 'created' | 'updated' | 'cancelled' | 'completed' | undefined
+                  items?:
+                    | { productId: string; quantity: number; price?: number | undefined }[]
+                    | undefined
+                }
+              | {
+                  timestamp?: string | undefined
+                  source?: string | undefined
+                  correlationId?: string | undefined
+                  component: string
+                  severity: 'info' | 'warning' | 'error' | 'critical'
+                  metrics?: { [x: string]: number } | undefined
+                }
+              | {
+                  timestamp?: string | undefined
+                  source?: string | undefined
+                  correlationId?: string | undefined
+                  customType?: string | undefined
+                  data?: { [x: string]: unknown } | undefined
+                }
             context?:
               | {
                   userAgent?: string | undefined
@@ -4233,24 +290,55 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
           version?: number | undefined
           etag?: string | undefined
           settings: {
-            [x: string]: { enabled?: boolean | undefined; description?: string | undefined }
+            general?:
+              | {
+                  enabled?: boolean | undefined
+                  description?: string | undefined
+                  environment?: string | undefined
+                  debug?: boolean | undefined
+                  logLevel?: string | undefined
+                }
+              | undefined
+            features?:
+              | { enabled?: boolean | undefined; description?: string | undefined }
+              | undefined
+            limits?: { enabled?: boolean | undefined; description?: string | undefined } | undefined
           }
-          overrides?: { [x: string]: any } | undefined
+          overrides?:
+            | { [x: string]: string | number | boolean | unknown[] | { [x: string]: unknown } }
+            | undefined
         }
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/configs': {
       $put: {
         input: {
           json: {
             settings?:
-              | Record<string, { enabled?: boolean | undefined; description?: string | undefined }>
+              | {
+                  general?:
+                    | {
+                        enabled?: boolean | undefined
+                        description?: string | undefined
+                        environment?: string | undefined
+                        debug?: boolean | undefined
+                        logLevel?: string | undefined
+                      }
+                    | undefined
+                  features?:
+                    | { enabled?: boolean | undefined; description?: string | undefined }
+                    | undefined
+                  limits?:
+                    | { enabled?: boolean | undefined; description?: string | undefined }
+                    | undefined
+                }
               | undefined
-            overrides?: Record<string, unknown> | undefined
-          } & { version?: number | undefined; etag?: string | undefined }
+            overrides?:
+              | { [x: string]: string | number | boolean | unknown[] | { [x: string]: unknown } }
+              | undefined
+            version?: number | undefined
+            etag?: string | undefined
+          }
         }
         output: {}
         outputFormat: string
@@ -4260,531 +348,206 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
   } & {
     '/resources': {
       $post: {
-        input: { json: unknown }
-        output:
-          | {
-              id: string
-              createdAt?: string | undefined
-              updatedAt?: string | undefined
-              createdBy?: string | undefined
-              updatedBy?: string | undefined
-              version?: number | undefined
-              etag?: string | undefined
-              name: string
-              description?: string | undefined
-              tags?: string[] | undefined
-              resourceType: 'compute'
-              status: {
-                state: 'pending' | 'provisioning' | 'running' | 'stopped' | 'failed' | 'terminated'
-                health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                lastChecked?: string | undefined
-              }
-              dependencies?:
-                | {
-                    resourceId: string
-                    type: 'hard' | 'soft'
-                    resource?:
-                      | any
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'storage'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?: any[] | undefined
-                          cost?:
-                            | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
-                            | undefined
-                          size: number
-                          storageType: 'ssd' | 'hdd' | 'nvme'
-                          iops?: number | undefined
-                          attachedTo?: any | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'network'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?: any[] | undefined
-                          cost?:
-                            | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
-                            | undefined
-                          cidr: string
-                          subnets?: any[] | undefined
-                          parentNetwork?: any | undefined
-                          connectedResources?:
-                            | (
-                                | any
-                                | {
-                                    id: string
-                                    createdAt?: string | undefined
-                                    updatedAt?: string | undefined
-                                    createdBy?: string | undefined
-                                    updatedBy?: string | undefined
-                                    version?: number | undefined
-                                    etag?: string | undefined
-                                    name: string
-                                    description?: string | undefined
-                                    tags?: string[] | undefined
-                                    resourceType: 'storage'
-                                    status: {
-                                      state:
-                                        | 'pending'
-                                        | 'provisioning'
-                                        | 'running'
-                                        | 'stopped'
-                                        | 'failed'
-                                        | 'terminated'
-                                      health?:
-                                        | 'unknown'
-                                        | 'healthy'
-                                        | 'degraded'
-                                        | 'unhealthy'
-                                        | undefined
-                                      lastChecked?: string | undefined
-                                    }
-                                    dependencies?: any[] | undefined
-                                    cost?:
-                                      | {
-                                          hourly?: number | undefined
-                                          monthly?: number | undefined
-                                          currency?: string | undefined
-                                        }
-                                      | undefined
-                                    size: number
-                                    storageType: 'ssd' | 'hdd' | 'nvme'
-                                    iops?: number | undefined
-                                    attachedTo?: any | undefined
-                                  }
-                              )[]
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'composite'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?: any[] | undefined
-                          cost?:
-                            | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
-                            | undefined
-                          components: (
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'storage'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                size: number
-                                storageType: 'ssd' | 'hdd' | 'nvme'
-                                iops?: number | undefined
-                                attachedTo?: any | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'network'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cidr: string
-                                subnets?: any[] | undefined
-                                parentNetwork?: any | undefined
-                                connectedResources?:
-                                  | (
-                                      | any
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'storage'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          size: number
-                                          storageType: 'ssd' | 'hdd' | 'nvme'
-                                          iops?: number | undefined
-                                          attachedTo?: any | undefined
-                                        }
-                                    )[]
-                                  | undefined
-                              }
-                            | any
-                          )[]
-                          template?:
-                            | {
-                                name?: string | undefined
-                                version?: string | undefined
-                                parameters?: { [x: string]: any } | undefined
-                              }
-                            | undefined
-                        }
-                      | undefined
-                  }[]
-                | undefined
-              cost?:
-                | {
-                    hourly?: number | undefined
-                    monthly?: number | undefined
-                    currency?: string | undefined
-                  }
-                | undefined
-              cpu: { cores: number; architecture?: string | undefined }
-              memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-              storage?:
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    name: string
-                    description?: string | undefined
-                    tags?: string[] | undefined
-                    resourceType: 'storage'
-                    status: {
-                      state:
-                        | 'pending'
-                        | 'provisioning'
-                        | 'running'
-                        | 'stopped'
-                        | 'failed'
-                        | 'terminated'
-                      health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                      lastChecked?: string | undefined
+        input: {
+          json:
+            | {
+                id: string
+                createdAt?: string | undefined
+                updatedAt?: string | undefined
+                createdBy?: string | undefined
+                updatedBy?: string | undefined
+                version?: number | undefined
+                etag?: string | undefined
+                name: string
+                description?: string | undefined
+                tags?: string[] | undefined
+                resourceType: 'compute'
+                status: {
+                  state:
+                    | 'pending'
+                    | 'provisioning'
+                    | 'running'
+                    | 'stopped'
+                    | 'failed'
+                    | 'terminated'
+                  health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                  lastChecked?: string | undefined
+                }
+                dependencies?:
+                  | { resourceId: string; type: 'hard' | 'soft'; resource?: unknown | undefined }[]
+                  | undefined
+                cost?:
+                  | {
+                      hourly?: number | undefined
+                      monthly?: number | undefined
+                      currency?: string | undefined
                     }
-                    dependencies?:
-                      | {
-                          resourceId: string
-                          type: 'hard' | 'soft'
-                          resource?:
-                            | any
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'network'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cidr: string
-                                subnets?: any[] | undefined
-                                parentNetwork?: any | undefined
-                                connectedResources?: (any | any)[] | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'composite'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                components: (
-                                  | any
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      name: string
-                                      description?: string | undefined
-                                      tags?: string[] | undefined
-                                      resourceType: 'network'
-                                      status: {
-                                        state:
-                                          | 'pending'
-                                          | 'provisioning'
-                                          | 'running'
-                                          | 'stopped'
-                                          | 'failed'
-                                          | 'terminated'
-                                        health?:
-                                          | 'unknown'
-                                          | 'healthy'
-                                          | 'degraded'
-                                          | 'unhealthy'
-                                          | undefined
-                                        lastChecked?: string | undefined
-                                      }
-                                      dependencies?: any[] | undefined
-                                      cost?:
-                                        | {
-                                            hourly?: number | undefined
-                                            monthly?: number | undefined
-                                            currency?: string | undefined
-                                          }
-                                        | undefined
-                                      cidr: string
-                                      subnets?: any[] | undefined
-                                      parentNetwork?: any | undefined
-                                      connectedResources?: (any | any)[] | undefined
-                                    }
-                                  | any
-                                )[]
-                                template?:
-                                  | {
-                                      name?: string | undefined
-                                      version?: string | undefined
-                                      parameters?: { [x: string]: any } | undefined
-                                    }
-                                  | undefined
-                              }
-                            | undefined
-                        }[]
-                      | undefined
-                    cost?:
-                      | {
-                          hourly?: number | undefined
-                          monthly?: number | undefined
-                          currency?: string | undefined
-                        }
-                      | undefined
-                    size: number
-                    storageType: 'ssd' | 'hdd' | 'nvme'
-                    iops?: number | undefined
-                    attachedTo?: any | undefined
-                  }[]
-                | undefined
-            }
-          | {
-              id: string
-              createdAt?: string | undefined
-              updatedAt?: string | undefined
-              createdBy?: string | undefined
-              updatedBy?: string | undefined
-              version?: number | undefined
-              etag?: string | undefined
-              name: string
-              description?: string | undefined
-              tags?: string[] | undefined
-              resourceType: 'storage'
-              status: {
-                state: 'pending' | 'provisioning' | 'running' | 'stopped' | 'failed' | 'terminated'
-                health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                lastChecked?: string | undefined
+                  | undefined
+                cpu: { cores: number; architecture?: string | undefined }
+                memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
+                storage?:
+                  | {
+                      id: string
+                      createdAt?: string | undefined
+                      updatedAt?: string | undefined
+                      createdBy?: string | undefined
+                      updatedBy?: string | undefined
+                      version?: number | undefined
+                      etag?: string | undefined
+                      name: string
+                      description?: string | undefined
+                      tags?: string[] | undefined
+                      resourceType: 'storage'
+                      status: {
+                        state:
+                          | 'pending'
+                          | 'provisioning'
+                          | 'running'
+                          | 'stopped'
+                          | 'failed'
+                          | 'terminated'
+                        health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                        lastChecked?: string | undefined
+                      }
+                      dependencies?:
+                        | {
+                            resourceId: string
+                            type: 'hard' | 'soft'
+                            resource?: unknown | undefined
+                          }[]
+                        | undefined
+                      cost?:
+                        | {
+                            hourly?: number | undefined
+                            monthly?: number | undefined
+                            currency?: string | undefined
+                          }
+                        | undefined
+                      size: number
+                      storageType: 'ssd' | 'hdd' | 'nvme'
+                      iops?: number | undefined
+                      attachedTo?: unknown | undefined
+                    }[]
+                  | undefined
               }
-              dependencies?:
-                | {
-                    resourceId: string
-                    type: 'hard' | 'soft'
-                    resource?:
+            | {
+                id: string
+                createdAt?: string | undefined
+                updatedAt?: string | undefined
+                createdBy?: string | undefined
+                updatedBy?: string | undefined
+                version?: number | undefined
+                etag?: string | undefined
+                name: string
+                description?: string | undefined
+                tags?: string[] | undefined
+                resourceType: 'storage'
+                status: {
+                  state:
+                    | 'pending'
+                    | 'provisioning'
+                    | 'running'
+                    | 'stopped'
+                    | 'failed'
+                    | 'terminated'
+                  health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                  lastChecked?: string | undefined
+                }
+                dependencies?:
+                  | { resourceId: string; type: 'hard' | 'soft'; resource?: unknown | undefined }[]
+                  | undefined
+                cost?:
+                  | {
+                      hourly?: number | undefined
+                      monthly?: number | undefined
+                      currency?: string | undefined
+                    }
+                  | undefined
+                size: number
+                storageType: 'ssd' | 'hdd' | 'nvme'
+                iops?: number | undefined
+                attachedTo?:
+                  | {
+                      id: string
+                      createdAt?: string | undefined
+                      updatedAt?: string | undefined
+                      createdBy?: string | undefined
+                      updatedBy?: string | undefined
+                      version?: number | undefined
+                      etag?: string | undefined
+                      name: string
+                      description?: string | undefined
+                      tags?: string[] | undefined
+                      resourceType: 'compute'
+                      status: {
+                        state:
+                          | 'pending'
+                          | 'provisioning'
+                          | 'running'
+                          | 'stopped'
+                          | 'failed'
+                          | 'terminated'
+                        health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                        lastChecked?: string | undefined
+                      }
+                      dependencies?:
+                        | {
+                            resourceId: string
+                            type: 'hard' | 'soft'
+                            resource?: unknown | undefined
+                          }[]
+                        | undefined
+                      cost?:
+                        | {
+                            hourly?: number | undefined
+                            monthly?: number | undefined
+                            currency?: string | undefined
+                          }
+                        | undefined
+                      cpu: { cores: number; architecture?: string | undefined }
+                      memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
+                      storage?: unknown[] | undefined
+                    }
+                  | undefined
+              }
+            | {
+                id: string
+                createdAt?: string | undefined
+                updatedAt?: string | undefined
+                createdBy?: string | undefined
+                updatedBy?: string | undefined
+                version?: number | undefined
+                etag?: string | undefined
+                name: string
+                description?: string | undefined
+                tags?: string[] | undefined
+                resourceType: 'network'
+                status: {
+                  state:
+                    | 'pending'
+                    | 'provisioning'
+                    | 'running'
+                    | 'stopped'
+                    | 'failed'
+                    | 'terminated'
+                  health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                  lastChecked?: string | undefined
+                }
+                dependencies?:
+                  | { resourceId: string; type: 'hard' | 'soft'; resource?: unknown | undefined }[]
+                  | undefined
+                cost?:
+                  | {
+                      hourly?: number | undefined
+                      monthly?: number | undefined
+                      currency?: string | undefined
+                    }
+                  | undefined
+                cidr: string
+                subnets?: unknown[] | undefined
+                parentNetwork?: unknown | undefined
+                connectedResources?:
+                  | (
                       | {
                           id: string
                           createdAt?: string | undefined
@@ -4805,510 +568,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                               | 'stopped'
                               | 'failed'
                               | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
+                            health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
                             lastChecked?: string | undefined
                           }
-                          dependencies?: any[] | undefined
-                          cost?:
+                          dependencies?:
                             | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
+                                resourceId: string
+                                type: 'hard' | 'soft'
+                                resource?: unknown | undefined
+                              }[]
                             | undefined
-                          cpu: { cores: number; architecture?: string | undefined }
-                          memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                          storage?: any[] | undefined
-                        }
-                      | any
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'network'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?: any[] | undefined
-                          cost?:
-                            | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
-                            | undefined
-                          cidr: string
-                          subnets?: any[] | undefined
-                          parentNetwork?: any | undefined
-                          connectedResources?:
-                            | (
-                                | {
-                                    id: string
-                                    createdAt?: string | undefined
-                                    updatedAt?: string | undefined
-                                    createdBy?: string | undefined
-                                    updatedBy?: string | undefined
-                                    version?: number | undefined
-                                    etag?: string | undefined
-                                    name: string
-                                    description?: string | undefined
-                                    tags?: string[] | undefined
-                                    resourceType: 'compute'
-                                    status: {
-                                      state:
-                                        | 'pending'
-                                        | 'provisioning'
-                                        | 'running'
-                                        | 'stopped'
-                                        | 'failed'
-                                        | 'terminated'
-                                      health?:
-                                        | 'unknown'
-                                        | 'healthy'
-                                        | 'degraded'
-                                        | 'unhealthy'
-                                        | undefined
-                                      lastChecked?: string | undefined
-                                    }
-                                    dependencies?: any[] | undefined
-                                    cost?:
-                                      | {
-                                          hourly?: number | undefined
-                                          monthly?: number | undefined
-                                          currency?: string | undefined
-                                        }
-                                      | undefined
-                                    cpu: { cores: number; architecture?: string | undefined }
-                                    memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                                    storage?: any[] | undefined
-                                  }
-                                | any
-                              )[]
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'composite'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?: any[] | undefined
-                          cost?:
-                            | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
-                            | undefined
-                          components: (
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'compute'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cpu: { cores: number; architecture?: string | undefined }
-                                memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                                storage?: any[] | undefined
-                              }
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'network'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cidr: string
-                                subnets?: any[] | undefined
-                                parentNetwork?: any | undefined
-                                connectedResources?:
-                                  | (
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'compute'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          cpu: { cores: number; architecture?: string | undefined }
-                                          memory: {
-                                            size: number
-                                            unit?: 'MB' | 'GB' | 'TB' | undefined
-                                          }
-                                          storage?: any[] | undefined
-                                        }
-                                      | any
-                                    )[]
-                                  | undefined
-                              }
-                            | any
-                          )[]
-                          template?:
-                            | {
-                                name?: string | undefined
-                                version?: string | undefined
-                                parameters?: { [x: string]: any } | undefined
-                              }
-                            | undefined
-                        }
-                      | undefined
-                  }[]
-                | undefined
-              cost?:
-                | {
-                    hourly?: number | undefined
-                    monthly?: number | undefined
-                    currency?: string | undefined
-                  }
-                | undefined
-              size: number
-              storageType: 'ssd' | 'hdd' | 'nvme'
-              iops?: number | undefined
-              attachedTo?:
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    name: string
-                    description?: string | undefined
-                    tags?: string[] | undefined
-                    resourceType: 'compute'
-                    status: {
-                      state:
-                        | 'pending'
-                        | 'provisioning'
-                        | 'running'
-                        | 'stopped'
-                        | 'failed'
-                        | 'terminated'
-                      health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                      lastChecked?: string | undefined
-                    }
-                    dependencies?:
-                      | {
-                          resourceId: string
-                          type: 'hard' | 'soft'
-                          resource?:
-                            | any
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'network'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cidr: string
-                                subnets?: any[] | undefined
-                                parentNetwork?: any | undefined
-                                connectedResources?: (any | any)[] | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'composite'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                components: (
-                                  | any
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      name: string
-                                      description?: string | undefined
-                                      tags?: string[] | undefined
-                                      resourceType: 'network'
-                                      status: {
-                                        state:
-                                          | 'pending'
-                                          | 'provisioning'
-                                          | 'running'
-                                          | 'stopped'
-                                          | 'failed'
-                                          | 'terminated'
-                                        health?:
-                                          | 'unknown'
-                                          | 'healthy'
-                                          | 'degraded'
-                                          | 'unhealthy'
-                                          | undefined
-                                        lastChecked?: string | undefined
-                                      }
-                                      dependencies?: any[] | undefined
-                                      cost?:
-                                        | {
-                                            hourly?: number | undefined
-                                            monthly?: number | undefined
-                                            currency?: string | undefined
-                                          }
-                                        | undefined
-                                      cidr: string
-                                      subnets?: any[] | undefined
-                                      parentNetwork?: any | undefined
-                                      connectedResources?: (any | any)[] | undefined
-                                    }
-                                  | any
-                                )[]
-                                template?:
-                                  | {
-                                      name?: string | undefined
-                                      version?: string | undefined
-                                      parameters?: { [x: string]: any } | undefined
-                                    }
-                                  | undefined
-                              }
-                            | undefined
-                        }[]
-                      | undefined
-                    cost?:
-                      | {
-                          hourly?: number | undefined
-                          monthly?: number | undefined
-                          currency?: string | undefined
-                        }
-                      | undefined
-                    cpu: { cores: number; architecture?: string | undefined }
-                    memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                    storage?: any[] | undefined
-                  }
-                | undefined
-            }
-          | {
-              id: string
-              createdAt?: string | undefined
-              updatedAt?: string | undefined
-              createdBy?: string | undefined
-              updatedBy?: string | undefined
-              version?: number | undefined
-              etag?: string | undefined
-              name: string
-              description?: string | undefined
-              tags?: string[] | undefined
-              resourceType: 'network'
-              status: {
-                state: 'pending' | 'provisioning' | 'running' | 'stopped' | 'failed' | 'terminated'
-                health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                lastChecked?: string | undefined
-              }
-              dependencies?:
-                | {
-                    resourceId: string
-                    type: 'hard' | 'soft'
-                    resource?:
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'compute'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?: any[] | undefined
                           cost?:
                             | {
                                 hourly?: number | undefined
@@ -5340,14 +609,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                     | 'failed'
                                     | 'terminated'
                                   health?:
-                                    | 'unknown'
                                     | 'healthy'
                                     | 'degraded'
                                     | 'unhealthy'
+                                    | 'unknown'
                                     | undefined
                                   lastChecked?: string | undefined
                                 }
-                                dependencies?: any[] | undefined
+                                dependencies?:
+                                  | {
+                                      resourceId: string
+                                      type: 'hard' | 'soft'
+                                      resource?: unknown | undefined
+                                    }[]
+                                  | undefined
                                 cost?:
                                   | {
                                       hourly?: number | undefined
@@ -5358,7 +633,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                 size: number
                                 storageType: 'ssd' | 'hdd' | 'nvme'
                                 iops?: number | undefined
-                                attachedTo?: any | undefined
+                                attachedTo?: unknown | undefined
                               }[]
                             | undefined
                         }
@@ -5382,10 +657,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                               | 'stopped'
                               | 'failed'
                               | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
+                            health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
                             lastChecked?: string | undefined
                           }
-                          dependencies?: any[] | undefined
+                          dependencies?:
+                            | {
+                                resourceId: string
+                                type: 'hard' | 'soft'
+                                resource?: unknown | undefined
+                              }[]
+                            | undefined
                           cost?:
                             | {
                                 hourly?: number | undefined
@@ -5418,171 +699,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                     | 'failed'
                                     | 'terminated'
                                   health?:
-                                    | 'unknown'
                                     | 'healthy'
                                     | 'degraded'
                                     | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cpu: { cores: number; architecture?: string | undefined }
-                                memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                                storage?: any[] | undefined
-                              }
-                            | undefined
-                        }
-                      | any
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'composite'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?: any[] | undefined
-                          cost?:
-                            | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
-                            | undefined
-                          components: (
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'compute'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
                                     | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
                                     | undefined
                                   lastChecked?: string | undefined
                                 }
-                                dependencies?: any[] | undefined
-                                cost?:
+                                dependencies?:
                                   | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cpu: { cores: number; architecture?: string | undefined }
-                                memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                                storage?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      name: string
-                                      description?: string | undefined
-                                      tags?: string[] | undefined
-                                      resourceType: 'storage'
-                                      status: {
-                                        state:
-                                          | 'pending'
-                                          | 'provisioning'
-                                          | 'running'
-                                          | 'stopped'
-                                          | 'failed'
-                                          | 'terminated'
-                                        health?:
-                                          | 'unknown'
-                                          | 'healthy'
-                                          | 'degraded'
-                                          | 'unhealthy'
-                                          | undefined
-                                        lastChecked?: string | undefined
-                                      }
-                                      dependencies?: any[] | undefined
-                                      cost?:
-                                        | {
-                                            hourly?: number | undefined
-                                            monthly?: number | undefined
-                                            currency?: string | undefined
-                                          }
-                                        | undefined
-                                      size: number
-                                      storageType: 'ssd' | 'hdd' | 'nvme'
-                                      iops?: number | undefined
-                                      attachedTo?: any | undefined
+                                      resourceId: string
+                                      type: 'hard' | 'soft'
+                                      resource?: unknown | undefined
                                     }[]
                                   | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'storage'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
                                 cost?:
                                   | {
                                       hourly?: number | undefined
@@ -5590,68 +720,235 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                       currency?: string | undefined
                                     }
                                   | undefined
-                                size: number
-                                storageType: 'ssd' | 'hdd' | 'nvme'
-                                iops?: number | undefined
-                                attachedTo?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      name: string
-                                      description?: string | undefined
-                                      tags?: string[] | undefined
-                                      resourceType: 'compute'
-                                      status: {
-                                        state:
-                                          | 'pending'
-                                          | 'provisioning'
-                                          | 'running'
-                                          | 'stopped'
-                                          | 'failed'
-                                          | 'terminated'
-                                        health?:
-                                          | 'unknown'
-                                          | 'healthy'
-                                          | 'degraded'
-                                          | 'unhealthy'
-                                          | undefined
-                                        lastChecked?: string | undefined
-                                      }
-                                      dependencies?: any[] | undefined
-                                      cost?:
-                                        | {
-                                            hourly?: number | undefined
-                                            monthly?: number | undefined
-                                            currency?: string | undefined
-                                          }
-                                        | undefined
-                                      cpu: { cores: number; architecture?: string | undefined }
-                                      memory: {
-                                        size: number
-                                        unit?: 'MB' | 'GB' | 'TB' | undefined
-                                      }
-                                      storage?: any[] | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                            | any
-                          )[]
-                          template?:
-                            | {
-                                name?: string | undefined
-                                version?: string | undefined
-                                parameters?: { [x: string]: any } | undefined
+                                cpu: { cores: number; architecture?: string | undefined }
+                                memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
+                                storage?: unknown[] | undefined
                               }
                             | undefined
                         }
+                    )[]
+                  | undefined
+              }
+            | {
+                id: string
+                createdAt?: string | undefined
+                updatedAt?: string | undefined
+                createdBy?: string | undefined
+                updatedBy?: string | undefined
+                version?: number | undefined
+                etag?: string | undefined
+                name: string
+                description?: string | undefined
+                tags?: string[] | undefined
+                resourceType: 'composite'
+                status: {
+                  state:
+                    | 'pending'
+                    | 'provisioning'
+                    | 'running'
+                    | 'stopped'
+                    | 'failed'
+                    | 'terminated'
+                  health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                  lastChecked?: string | undefined
+                }
+                dependencies?:
+                  | { resourceId: string; type: 'hard' | 'soft'; resource?: unknown | undefined }[]
+                  | undefined
+                cost?:
+                  | {
+                      hourly?: number | undefined
+                      monthly?: number | undefined
+                      currency?: string | undefined
+                    }
+                  | undefined
+                components: unknown[]
+                template?:
+                  | {
+                      name?: string | undefined
+                      version?: string | undefined
+                      parameters?:
+                        | {
+                            [x: string]:
+                              | string
+                              | number
+                              | boolean
+                              | unknown[]
+                              | { [x: string]: unknown }
+                          }
+                        | undefined
+                    }
+                  | undefined
+              }
+        }
+        output:
+          | {
+              id: string
+              createdAt?: string | undefined
+              updatedAt?: string | undefined
+              createdBy?: string | undefined
+              updatedBy?: string | undefined
+              version?: number | undefined
+              etag?: string | undefined
+              name: string
+              description?: string | undefined
+              tags?: string[] | undefined
+              resourceType: 'compute'
+              status: {
+                state: 'pending' | 'provisioning' | 'running' | 'stopped' | 'failed' | 'terminated'
+                health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                lastChecked?: string | undefined
+              }
+              dependencies?:
+                | { resourceId: string; type: 'hard' | 'soft'; resource?: unknown | undefined }[]
+                | undefined
+              cost?:
+                | {
+                    hourly?: number | undefined
+                    monthly?: number | undefined
+                    currency?: string | undefined
+                  }
+                | undefined
+              cpu: { cores: number; architecture?: string | undefined }
+              memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
+              storage?:
+                | {
+                    id: string
+                    createdAt?: string | undefined
+                    updatedAt?: string | undefined
+                    createdBy?: string | undefined
+                    updatedBy?: string | undefined
+                    version?: number | undefined
+                    etag?: string | undefined
+                    name: string
+                    description?: string | undefined
+                    tags?: string[] | undefined
+                    resourceType: 'storage'
+                    status: {
+                      state:
+                        | 'pending'
+                        | 'provisioning'
+                        | 'running'
+                        | 'stopped'
+                        | 'failed'
+                        | 'terminated'
+                      health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                      lastChecked?: string | undefined
+                    }
+                    dependencies?:
+                      | {
+                          resourceId: string
+                          type: 'hard' | 'soft'
+                          resource?: unknown | undefined
+                        }[]
                       | undefined
+                    cost?:
+                      | {
+                          hourly?: number | undefined
+                          monthly?: number | undefined
+                          currency?: string | undefined
+                        }
+                      | undefined
+                    size: number
+                    storageType: 'ssd' | 'hdd' | 'nvme'
+                    iops?: number | undefined
+                    attachedTo?: unknown | undefined
                   }[]
+                | undefined
+            }
+          | {
+              id: string
+              createdAt?: string | undefined
+              updatedAt?: string | undefined
+              createdBy?: string | undefined
+              updatedBy?: string | undefined
+              version?: number | undefined
+              etag?: string | undefined
+              name: string
+              description?: string | undefined
+              tags?: string[] | undefined
+              resourceType: 'storage'
+              status: {
+                state: 'pending' | 'provisioning' | 'running' | 'stopped' | 'failed' | 'terminated'
+                health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                lastChecked?: string | undefined
+              }
+              dependencies?:
+                | { resourceId: string; type: 'hard' | 'soft'; resource?: unknown | undefined }[]
+                | undefined
+              cost?:
+                | {
+                    hourly?: number | undefined
+                    monthly?: number | undefined
+                    currency?: string | undefined
+                  }
+                | undefined
+              size: number
+              storageType: 'ssd' | 'hdd' | 'nvme'
+              iops?: number | undefined
+              attachedTo?:
+                | {
+                    id: string
+                    createdAt?: string | undefined
+                    updatedAt?: string | undefined
+                    createdBy?: string | undefined
+                    updatedBy?: string | undefined
+                    version?: number | undefined
+                    etag?: string | undefined
+                    name: string
+                    description?: string | undefined
+                    tags?: string[] | undefined
+                    resourceType: 'compute'
+                    status: {
+                      state:
+                        | 'pending'
+                        | 'provisioning'
+                        | 'running'
+                        | 'stopped'
+                        | 'failed'
+                        | 'terminated'
+                      health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                      lastChecked?: string | undefined
+                    }
+                    dependencies?:
+                      | {
+                          resourceId: string
+                          type: 'hard' | 'soft'
+                          resource?: unknown | undefined
+                        }[]
+                      | undefined
+                    cost?:
+                      | {
+                          hourly?: number | undefined
+                          monthly?: number | undefined
+                          currency?: string | undefined
+                        }
+                      | undefined
+                    cpu: { cores: number; architecture?: string | undefined }
+                    memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
+                    storage?: unknown[] | undefined
+                  }
+                | undefined
+            }
+          | {
+              id: string
+              createdAt?: string | undefined
+              updatedAt?: string | undefined
+              createdBy?: string | undefined
+              updatedBy?: string | undefined
+              version?: number | undefined
+              etag?: string | undefined
+              name: string
+              description?: string | undefined
+              tags?: string[] | undefined
+              resourceType: 'network'
+              status: {
+                state: 'pending' | 'provisioning' | 'running' | 'stopped' | 'failed' | 'terminated'
+                health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                lastChecked?: string | undefined
+              }
+              dependencies?:
+                | { resourceId: string; type: 'hard' | 'soft'; resource?: unknown | undefined }[]
                 | undefined
               cost?:
                 | {
@@ -5661,8 +958,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   }
                 | undefined
               cidr: string
-              subnets?: any[] | undefined
-              parentNetwork?: any | undefined
+              subnets?: unknown[] | undefined
+              parentNetwork?: unknown | undefined
               connectedResources?:
                 | (
                     | {
@@ -5685,148 +982,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                             | 'stopped'
                             | 'failed'
                             | 'terminated'
-                          health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
+                          health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
                           lastChecked?: string | undefined
                         }
                         dependencies?:
                           | {
                               resourceId: string
                               type: 'hard' | 'soft'
-                              resource?:
-                                | any
-                                | {
-                                    id: string
-                                    createdAt?: string | undefined
-                                    updatedAt?: string | undefined
-                                    createdBy?: string | undefined
-                                    updatedBy?: string | undefined
-                                    version?: number | undefined
-                                    etag?: string | undefined
-                                    name: string
-                                    description?: string | undefined
-                                    tags?: string[] | undefined
-                                    resourceType: 'storage'
-                                    status: {
-                                      state:
-                                        | 'pending'
-                                        | 'provisioning'
-                                        | 'running'
-                                        | 'stopped'
-                                        | 'failed'
-                                        | 'terminated'
-                                      health?:
-                                        | 'unknown'
-                                        | 'healthy'
-                                        | 'degraded'
-                                        | 'unhealthy'
-                                        | undefined
-                                      lastChecked?: string | undefined
-                                    }
-                                    dependencies?: any[] | undefined
-                                    cost?:
-                                      | {
-                                          hourly?: number | undefined
-                                          monthly?: number | undefined
-                                          currency?: string | undefined
-                                        }
-                                      | undefined
-                                    size: number
-                                    storageType: 'ssd' | 'hdd' | 'nvme'
-                                    iops?: number | undefined
-                                    attachedTo?: any | undefined
-                                  }
-                                | any
-                                | {
-                                    id: string
-                                    createdAt?: string | undefined
-                                    updatedAt?: string | undefined
-                                    createdBy?: string | undefined
-                                    updatedBy?: string | undefined
-                                    version?: number | undefined
-                                    etag?: string | undefined
-                                    name: string
-                                    description?: string | undefined
-                                    tags?: string[] | undefined
-                                    resourceType: 'composite'
-                                    status: {
-                                      state:
-                                        | 'pending'
-                                        | 'provisioning'
-                                        | 'running'
-                                        | 'stopped'
-                                        | 'failed'
-                                        | 'terminated'
-                                      health?:
-                                        | 'unknown'
-                                        | 'healthy'
-                                        | 'degraded'
-                                        | 'unhealthy'
-                                        | undefined
-                                      lastChecked?: string | undefined
-                                    }
-                                    dependencies?: any[] | undefined
-                                    cost?:
-                                      | {
-                                          hourly?: number | undefined
-                                          monthly?: number | undefined
-                                          currency?: string | undefined
-                                        }
-                                      | undefined
-                                    components: (
-                                      | any
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'storage'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          size: number
-                                          storageType: 'ssd' | 'hdd' | 'nvme'
-                                          iops?: number | undefined
-                                          attachedTo?: any | undefined
-                                        }
-                                      | any
-                                      | any
-                                    )[]
-                                    template?:
-                                      | {
-                                          name?: string | undefined
-                                          version?: string | undefined
-                                          parameters?: { [x: string]: any } | undefined
-                                        }
-                                      | undefined
-                                  }
-                                | undefined
+                              resource?: unknown | undefined
                             }[]
                           | undefined
                         cost?:
@@ -5860,10 +1023,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                   | 'failed'
                                   | 'terminated'
                                 health?:
-                                  | 'unknown'
                                   | 'healthy'
                                   | 'degraded'
                                   | 'unhealthy'
+                                  | 'unknown'
                                   | undefined
                                 lastChecked?: string | undefined
                               }
@@ -5871,56 +1034,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                 | {
                                     resourceId: string
                                     type: 'hard' | 'soft'
-                                    resource?:
-                                      | any
-                                      | any
-                                      | any
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'composite'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          components: (any | any | any | any)[]
-                                          template?:
-                                            | {
-                                                name?: string | undefined
-                                                version?: string | undefined
-                                                parameters?: { [x: string]: any } | undefined
-                                              }
-                                            | undefined
-                                        }
-                                      | undefined
+                                    resource?: unknown | undefined
                                   }[]
                                 | undefined
                               cost?:
@@ -5933,7 +1047,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                               size: number
                               storageType: 'ssd' | 'hdd' | 'nvme'
                               iops?: number | undefined
-                              attachedTo?: any | undefined
+                              attachedTo?: unknown | undefined
                             }[]
                           | undefined
                       }
@@ -5957,149 +1071,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                             | 'stopped'
                             | 'failed'
                             | 'terminated'
-                          health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
+                          health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
                           lastChecked?: string | undefined
                         }
                         dependencies?:
                           | {
                               resourceId: string
                               type: 'hard' | 'soft'
-                              resource?:
-                                | {
-                                    id: string
-                                    createdAt?: string | undefined
-                                    updatedAt?: string | undefined
-                                    createdBy?: string | undefined
-                                    updatedBy?: string | undefined
-                                    version?: number | undefined
-                                    etag?: string | undefined
-                                    name: string
-                                    description?: string | undefined
-                                    tags?: string[] | undefined
-                                    resourceType: 'compute'
-                                    status: {
-                                      state:
-                                        | 'pending'
-                                        | 'provisioning'
-                                        | 'running'
-                                        | 'stopped'
-                                        | 'failed'
-                                        | 'terminated'
-                                      health?:
-                                        | 'unknown'
-                                        | 'healthy'
-                                        | 'degraded'
-                                        | 'unhealthy'
-                                        | undefined
-                                      lastChecked?: string | undefined
-                                    }
-                                    dependencies?: any[] | undefined
-                                    cost?:
-                                      | {
-                                          hourly?: number | undefined
-                                          monthly?: number | undefined
-                                          currency?: string | undefined
-                                        }
-                                      | undefined
-                                    cpu: { cores: number; architecture?: string | undefined }
-                                    memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                                    storage?: any[] | undefined
-                                  }
-                                | any
-                                | any
-                                | {
-                                    id: string
-                                    createdAt?: string | undefined
-                                    updatedAt?: string | undefined
-                                    createdBy?: string | undefined
-                                    updatedBy?: string | undefined
-                                    version?: number | undefined
-                                    etag?: string | undefined
-                                    name: string
-                                    description?: string | undefined
-                                    tags?: string[] | undefined
-                                    resourceType: 'composite'
-                                    status: {
-                                      state:
-                                        | 'pending'
-                                        | 'provisioning'
-                                        | 'running'
-                                        | 'stopped'
-                                        | 'failed'
-                                        | 'terminated'
-                                      health?:
-                                        | 'unknown'
-                                        | 'healthy'
-                                        | 'degraded'
-                                        | 'unhealthy'
-                                        | undefined
-                                      lastChecked?: string | undefined
-                                    }
-                                    dependencies?: any[] | undefined
-                                    cost?:
-                                      | {
-                                          hourly?: number | undefined
-                                          monthly?: number | undefined
-                                          currency?: string | undefined
-                                        }
-                                      | undefined
-                                    components: (
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'compute'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          cpu: { cores: number; architecture?: string | undefined }
-                                          memory: {
-                                            size: number
-                                            unit?: 'MB' | 'GB' | 'TB' | undefined
-                                          }
-                                          storage?: any[] | undefined
-                                        }
-                                      | any
-                                      | any
-                                      | any
-                                    )[]
-                                    template?:
-                                      | {
-                                          name?: string | undefined
-                                          version?: string | undefined
-                                          parameters?: { [x: string]: any } | undefined
-                                        }
-                                      | undefined
-                                  }
-                                | undefined
+                              resource?: unknown | undefined
                             }[]
                           | undefined
                         cost?:
@@ -6134,10 +1113,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                   | 'failed'
                                   | 'terminated'
                                 health?:
-                                  | 'unknown'
                                   | 'healthy'
                                   | 'degraded'
                                   | 'unhealthy'
+                                  | 'unknown'
                                   | undefined
                                 lastChecked?: string | undefined
                               }
@@ -6145,56 +1124,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                 | {
                                     resourceId: string
                                     type: 'hard' | 'soft'
-                                    resource?:
-                                      | any
-                                      | any
-                                      | any
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'composite'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          components: (any | any | any | any)[]
-                                          template?:
-                                            | {
-                                                name?: string | undefined
-                                                version?: string | undefined
-                                                parameters?: { [x: string]: any } | undefined
-                                              }
-                                            | undefined
-                                        }
-                                      | undefined
+                                    resource?: unknown | undefined
                                   }[]
                                 | undefined
                               cost?:
@@ -6206,7 +1136,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                 | undefined
                               cpu: { cores: number; architecture?: string | undefined }
                               memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                              storage?: any[] | undefined
+                              storage?: unknown[] | undefined
                             }
                           | undefined
                       }
@@ -6227,377 +1157,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               resourceType: 'composite'
               status: {
                 state: 'pending' | 'provisioning' | 'running' | 'stopped' | 'failed' | 'terminated'
-                health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
+                health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
                 lastChecked?: string | undefined
               }
               dependencies?:
-                | {
-                    resourceId: string
-                    type: 'hard' | 'soft'
-                    resource?:
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'compute'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?: any[] | undefined
-                          cost?:
-                            | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
-                            | undefined
-                          cpu: { cores: number; architecture?: string | undefined }
-                          memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                          storage?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'storage'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                size: number
-                                storageType: 'ssd' | 'hdd' | 'nvme'
-                                iops?: number | undefined
-                                attachedTo?: any | undefined
-                              }[]
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'storage'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?: any[] | undefined
-                          cost?:
-                            | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
-                            | undefined
-                          size: number
-                          storageType: 'ssd' | 'hdd' | 'nvme'
-                          iops?: number | undefined
-                          attachedTo?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'compute'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cpu: { cores: number; architecture?: string | undefined }
-                                memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                                storage?: any[] | undefined
-                              }
-                            | undefined
-                        }
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'network'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?: any[] | undefined
-                          cost?:
-                            | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
-                            | undefined
-                          cidr: string
-                          subnets?: any[] | undefined
-                          parentNetwork?: any | undefined
-                          connectedResources?:
-                            | (
-                                | {
-                                    id: string
-                                    createdAt?: string | undefined
-                                    updatedAt?: string | undefined
-                                    createdBy?: string | undefined
-                                    updatedBy?: string | undefined
-                                    version?: number | undefined
-                                    etag?: string | undefined
-                                    name: string
-                                    description?: string | undefined
-                                    tags?: string[] | undefined
-                                    resourceType: 'compute'
-                                    status: {
-                                      state:
-                                        | 'pending'
-                                        | 'provisioning'
-                                        | 'running'
-                                        | 'stopped'
-                                        | 'failed'
-                                        | 'terminated'
-                                      health?:
-                                        | 'unknown'
-                                        | 'healthy'
-                                        | 'degraded'
-                                        | 'unhealthy'
-                                        | undefined
-                                      lastChecked?: string | undefined
-                                    }
-                                    dependencies?: any[] | undefined
-                                    cost?:
-                                      | {
-                                          hourly?: number | undefined
-                                          monthly?: number | undefined
-                                          currency?: string | undefined
-                                        }
-                                      | undefined
-                                    cpu: { cores: number; architecture?: string | undefined }
-                                    memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                                    storage?:
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'storage'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          size: number
-                                          storageType: 'ssd' | 'hdd' | 'nvme'
-                                          iops?: number | undefined
-                                          attachedTo?: any | undefined
-                                        }[]
-                                      | undefined
-                                  }
-                                | {
-                                    id: string
-                                    createdAt?: string | undefined
-                                    updatedAt?: string | undefined
-                                    createdBy?: string | undefined
-                                    updatedBy?: string | undefined
-                                    version?: number | undefined
-                                    etag?: string | undefined
-                                    name: string
-                                    description?: string | undefined
-                                    tags?: string[] | undefined
-                                    resourceType: 'storage'
-                                    status: {
-                                      state:
-                                        | 'pending'
-                                        | 'provisioning'
-                                        | 'running'
-                                        | 'stopped'
-                                        | 'failed'
-                                        | 'terminated'
-                                      health?:
-                                        | 'unknown'
-                                        | 'healthy'
-                                        | 'degraded'
-                                        | 'unhealthy'
-                                        | undefined
-                                      lastChecked?: string | undefined
-                                    }
-                                    dependencies?: any[] | undefined
-                                    cost?:
-                                      | {
-                                          hourly?: number | undefined
-                                          monthly?: number | undefined
-                                          currency?: string | undefined
-                                        }
-                                      | undefined
-                                    size: number
-                                    storageType: 'ssd' | 'hdd' | 'nvme'
-                                    iops?: number | undefined
-                                    attachedTo?:
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'compute'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          cpu: { cores: number; architecture?: string | undefined }
-                                          memory: {
-                                            size: number
-                                            unit?: 'MB' | 'GB' | 'TB' | undefined
-                                          }
-                                          storage?: any[] | undefined
-                                        }
-                                      | undefined
-                                  }
-                              )[]
-                            | undefined
-                        }
-                      | any
-                      | undefined
-                  }[]
+                | { resourceId: string; type: 'hard' | 'soft'; resource?: unknown | undefined }[]
                 | undefined
               cost?:
                 | {
@@ -6606,1028 +1170,21 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     currency?: string | undefined
                   }
                 | undefined
-              components: (
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    name: string
-                    description?: string | undefined
-                    tags?: string[] | undefined
-                    resourceType: 'compute'
-                    status: {
-                      state:
-                        | 'pending'
-                        | 'provisioning'
-                        | 'running'
-                        | 'stopped'
-                        | 'failed'
-                        | 'terminated'
-                      health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                      lastChecked?: string | undefined
-                    }
-                    dependencies?:
-                      | {
-                          resourceId: string
-                          type: 'hard' | 'soft'
-                          resource?:
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'storage'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                size: number
-                                storageType: 'ssd' | 'hdd' | 'nvme'
-                                iops?: number | undefined
-                                attachedTo?: any | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'network'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cidr: string
-                                subnets?: any[] | undefined
-                                parentNetwork?: any | undefined
-                                connectedResources?:
-                                  | (
-                                      | any
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'storage'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          size: number
-                                          storageType: 'ssd' | 'hdd' | 'nvme'
-                                          iops?: number | undefined
-                                          attachedTo?: any | undefined
-                                        }
-                                    )[]
-                                  | undefined
-                              }
-                            | any
-                            | undefined
-                        }[]
-                      | undefined
-                    cost?:
-                      | {
-                          hourly?: number | undefined
-                          monthly?: number | undefined
-                          currency?: string | undefined
-                        }
-                      | undefined
-                    cpu: { cores: number; architecture?: string | undefined }
-                    memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                    storage?:
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'storage'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?:
-                            | {
-                                resourceId: string
-                                type: 'hard' | 'soft'
-                                resource?:
-                                  | any
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      name: string
-                                      description?: string | undefined
-                                      tags?: string[] | undefined
-                                      resourceType: 'network'
-                                      status: {
-                                        state:
-                                          | 'pending'
-                                          | 'provisioning'
-                                          | 'running'
-                                          | 'stopped'
-                                          | 'failed'
-                                          | 'terminated'
-                                        health?:
-                                          | 'unknown'
-                                          | 'healthy'
-                                          | 'degraded'
-                                          | 'unhealthy'
-                                          | undefined
-                                        lastChecked?: string | undefined
-                                      }
-                                      dependencies?: any[] | undefined
-                                      cost?:
-                                        | {
-                                            hourly?: number | undefined
-                                            monthly?: number | undefined
-                                            currency?: string | undefined
-                                          }
-                                        | undefined
-                                      cidr: string
-                                      subnets?: any[] | undefined
-                                      parentNetwork?: any | undefined
-                                      connectedResources?: (any | any)[] | undefined
-                                    }
-                                  | any
-                                  | undefined
-                              }[]
-                            | undefined
-                          cost?:
-                            | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
-                            | undefined
-                          size: number
-                          storageType: 'ssd' | 'hdd' | 'nvme'
-                          iops?: number | undefined
-                          attachedTo?: any | undefined
-                        }[]
-                      | undefined
-                  }
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    name: string
-                    description?: string | undefined
-                    tags?: string[] | undefined
-                    resourceType: 'storage'
-                    status: {
-                      state:
-                        | 'pending'
-                        | 'provisioning'
-                        | 'running'
-                        | 'stopped'
-                        | 'failed'
-                        | 'terminated'
-                      health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                      lastChecked?: string | undefined
-                    }
-                    dependencies?:
-                      | {
-                          resourceId: string
-                          type: 'hard' | 'soft'
-                          resource?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'compute'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cpu: { cores: number; architecture?: string | undefined }
-                                memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                                storage?: any[] | undefined
-                              }
-                            | any
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'network'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cidr: string
-                                subnets?: any[] | undefined
-                                parentNetwork?: any | undefined
-                                connectedResources?:
-                                  | (
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'compute'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          cpu: { cores: number; architecture?: string | undefined }
-                                          memory: {
-                                            size: number
-                                            unit?: 'MB' | 'GB' | 'TB' | undefined
-                                          }
-                                          storage?: any[] | undefined
-                                        }
-                                      | any
-                                    )[]
-                                  | undefined
-                              }
-                            | any
-                            | undefined
-                        }[]
-                      | undefined
-                    cost?:
-                      | {
-                          hourly?: number | undefined
-                          monthly?: number | undefined
-                          currency?: string | undefined
-                        }
-                      | undefined
-                    size: number
-                    storageType: 'ssd' | 'hdd' | 'nvme'
-                    iops?: number | undefined
-                    attachedTo?:
-                      | {
-                          id: string
-                          createdAt?: string | undefined
-                          updatedAt?: string | undefined
-                          createdBy?: string | undefined
-                          updatedBy?: string | undefined
-                          version?: number | undefined
-                          etag?: string | undefined
-                          name: string
-                          description?: string | undefined
-                          tags?: string[] | undefined
-                          resourceType: 'compute'
-                          status: {
-                            state:
-                              | 'pending'
-                              | 'provisioning'
-                              | 'running'
-                              | 'stopped'
-                              | 'failed'
-                              | 'terminated'
-                            health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                            lastChecked?: string | undefined
-                          }
-                          dependencies?:
-                            | {
-                                resourceId: string
-                                type: 'hard' | 'soft'
-                                resource?:
-                                  | any
-                                  | any
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      name: string
-                                      description?: string | undefined
-                                      tags?: string[] | undefined
-                                      resourceType: 'network'
-                                      status: {
-                                        state:
-                                          | 'pending'
-                                          | 'provisioning'
-                                          | 'running'
-                                          | 'stopped'
-                                          | 'failed'
-                                          | 'terminated'
-                                        health?:
-                                          | 'unknown'
-                                          | 'healthy'
-                                          | 'degraded'
-                                          | 'unhealthy'
-                                          | undefined
-                                        lastChecked?: string | undefined
-                                      }
-                                      dependencies?: any[] | undefined
-                                      cost?:
-                                        | {
-                                            hourly?: number | undefined
-                                            monthly?: number | undefined
-                                            currency?: string | undefined
-                                          }
-                                        | undefined
-                                      cidr: string
-                                      subnets?: any[] | undefined
-                                      parentNetwork?: any | undefined
-                                      connectedResources?: (any | any)[] | undefined
-                                    }
-                                  | any
-                                  | undefined
-                              }[]
-                            | undefined
-                          cost?:
-                            | {
-                                hourly?: number | undefined
-                                monthly?: number | undefined
-                                currency?: string | undefined
-                              }
-                            | undefined
-                          cpu: { cores: number; architecture?: string | undefined }
-                          memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                          storage?: any[] | undefined
-                        }
-                      | undefined
-                  }
-                | {
-                    id: string
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?: string | undefined
-                    updatedBy?: string | undefined
-                    version?: number | undefined
-                    etag?: string | undefined
-                    name: string
-                    description?: string | undefined
-                    tags?: string[] | undefined
-                    resourceType: 'network'
-                    status: {
-                      state:
-                        | 'pending'
-                        | 'provisioning'
-                        | 'running'
-                        | 'stopped'
-                        | 'failed'
-                        | 'terminated'
-                      health?: 'unknown' | 'healthy' | 'degraded' | 'unhealthy' | undefined
-                      lastChecked?: string | undefined
-                    }
-                    dependencies?:
-                      | {
-                          resourceId: string
-                          type: 'hard' | 'soft'
-                          resource?:
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'compute'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                cpu: { cores: number; architecture?: string | undefined }
-                                memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                                storage?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      name: string
-                                      description?: string | undefined
-                                      tags?: string[] | undefined
-                                      resourceType: 'storage'
-                                      status: {
-                                        state:
-                                          | 'pending'
-                                          | 'provisioning'
-                                          | 'running'
-                                          | 'stopped'
-                                          | 'failed'
-                                          | 'terminated'
-                                        health?:
-                                          | 'unknown'
-                                          | 'healthy'
-                                          | 'degraded'
-                                          | 'unhealthy'
-                                          | undefined
-                                        lastChecked?: string | undefined
-                                      }
-                                      dependencies?: any[] | undefined
-                                      cost?:
-                                        | {
-                                            hourly?: number | undefined
-                                            monthly?: number | undefined
-                                            currency?: string | undefined
-                                          }
-                                        | undefined
-                                      size: number
-                                      storageType: 'ssd' | 'hdd' | 'nvme'
-                                      iops?: number | undefined
-                                      attachedTo?: any | undefined
-                                    }[]
-                                  | undefined
-                              }
-                            | {
-                                id: string
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                createdBy?: string | undefined
-                                updatedBy?: string | undefined
-                                version?: number | undefined
-                                etag?: string | undefined
-                                name: string
-                                description?: string | undefined
-                                tags?: string[] | undefined
-                                resourceType: 'storage'
-                                status: {
-                                  state:
-                                    | 'pending'
-                                    | 'provisioning'
-                                    | 'running'
-                                    | 'stopped'
-                                    | 'failed'
-                                    | 'terminated'
-                                  health?:
-                                    | 'unknown'
-                                    | 'healthy'
-                                    | 'degraded'
-                                    | 'unhealthy'
-                                    | undefined
-                                  lastChecked?: string | undefined
-                                }
-                                dependencies?: any[] | undefined
-                                cost?:
-                                  | {
-                                      hourly?: number | undefined
-                                      monthly?: number | undefined
-                                      currency?: string | undefined
-                                    }
-                                  | undefined
-                                size: number
-                                storageType: 'ssd' | 'hdd' | 'nvme'
-                                iops?: number | undefined
-                                attachedTo?:
-                                  | {
-                                      id: string
-                                      createdAt?: string | undefined
-                                      updatedAt?: string | undefined
-                                      createdBy?: string | undefined
-                                      updatedBy?: string | undefined
-                                      version?: number | undefined
-                                      etag?: string | undefined
-                                      name: string
-                                      description?: string | undefined
-                                      tags?: string[] | undefined
-                                      resourceType: 'compute'
-                                      status: {
-                                        state:
-                                          | 'pending'
-                                          | 'provisioning'
-                                          | 'running'
-                                          | 'stopped'
-                                          | 'failed'
-                                          | 'terminated'
-                                        health?:
-                                          | 'unknown'
-                                          | 'healthy'
-                                          | 'degraded'
-                                          | 'unhealthy'
-                                          | undefined
-                                        lastChecked?: string | undefined
-                                      }
-                                      dependencies?: any[] | undefined
-                                      cost?:
-                                        | {
-                                            hourly?: number | undefined
-                                            monthly?: number | undefined
-                                            currency?: string | undefined
-                                          }
-                                        | undefined
-                                      cpu: { cores: number; architecture?: string | undefined }
-                                      memory: {
-                                        size: number
-                                        unit?: 'MB' | 'GB' | 'TB' | undefined
-                                      }
-                                      storage?: any[] | undefined
-                                    }
-                                  | undefined
-                              }
-                            | any
-                            | any
-                            | undefined
-                        }[]
-                      | undefined
-                    cost?:
-                      | {
-                          hourly?: number | undefined
-                          monthly?: number | undefined
-                          currency?: string | undefined
-                        }
-                      | undefined
-                    cidr: string
-                    subnets?: any[] | undefined
-                    parentNetwork?: any | undefined
-                    connectedResources?:
-                      | (
-                          | {
-                              id: string
-                              createdAt?: string | undefined
-                              updatedAt?: string | undefined
-                              createdBy?: string | undefined
-                              updatedBy?: string | undefined
-                              version?: number | undefined
-                              etag?: string | undefined
-                              name: string
-                              description?: string | undefined
-                              tags?: string[] | undefined
-                              resourceType: 'compute'
-                              status: {
-                                state:
-                                  | 'pending'
-                                  | 'provisioning'
-                                  | 'running'
-                                  | 'stopped'
-                                  | 'failed'
-                                  | 'terminated'
-                                health?:
-                                  | 'unknown'
-                                  | 'healthy'
-                                  | 'degraded'
-                                  | 'unhealthy'
-                                  | undefined
-                                lastChecked?: string | undefined
-                              }
-                              dependencies?:
-                                | {
-                                    resourceId: string
-                                    type: 'hard' | 'soft'
-                                    resource?:
-                                      | any
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'storage'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          size: number
-                                          storageType: 'ssd' | 'hdd' | 'nvme'
-                                          iops?: number | undefined
-                                          attachedTo?: any | undefined
-                                        }
-                                      | any
-                                      | any
-                                      | undefined
-                                  }[]
-                                | undefined
-                              cost?:
-                                | {
-                                    hourly?: number | undefined
-                                    monthly?: number | undefined
-                                    currency?: string | undefined
-                                  }
-                                | undefined
-                              cpu: { cores: number; architecture?: string | undefined }
-                              memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                              storage?:
-                                | {
-                                    id: string
-                                    createdAt?: string | undefined
-                                    updatedAt?: string | undefined
-                                    createdBy?: string | undefined
-                                    updatedBy?: string | undefined
-                                    version?: number | undefined
-                                    etag?: string | undefined
-                                    name: string
-                                    description?: string | undefined
-                                    tags?: string[] | undefined
-                                    resourceType: 'storage'
-                                    status: {
-                                      state:
-                                        | 'pending'
-                                        | 'provisioning'
-                                        | 'running'
-                                        | 'stopped'
-                                        | 'failed'
-                                        | 'terminated'
-                                      health?:
-                                        | 'unknown'
-                                        | 'healthy'
-                                        | 'degraded'
-                                        | 'unhealthy'
-                                        | undefined
-                                      lastChecked?: string | undefined
-                                    }
-                                    dependencies?:
-                                      | {
-                                          resourceId: string
-                                          type: 'hard' | 'soft'
-                                          resource?: any | any | any | any | undefined
-                                        }[]
-                                      | undefined
-                                    cost?:
-                                      | {
-                                          hourly?: number | undefined
-                                          monthly?: number | undefined
-                                          currency?: string | undefined
-                                        }
-                                      | undefined
-                                    size: number
-                                    storageType: 'ssd' | 'hdd' | 'nvme'
-                                    iops?: number | undefined
-                                    attachedTo?: any | undefined
-                                  }[]
-                                | undefined
-                            }
-                          | {
-                              id: string
-                              createdAt?: string | undefined
-                              updatedAt?: string | undefined
-                              createdBy?: string | undefined
-                              updatedBy?: string | undefined
-                              version?: number | undefined
-                              etag?: string | undefined
-                              name: string
-                              description?: string | undefined
-                              tags?: string[] | undefined
-                              resourceType: 'storage'
-                              status: {
-                                state:
-                                  | 'pending'
-                                  | 'provisioning'
-                                  | 'running'
-                                  | 'stopped'
-                                  | 'failed'
-                                  | 'terminated'
-                                health?:
-                                  | 'unknown'
-                                  | 'healthy'
-                                  | 'degraded'
-                                  | 'unhealthy'
-                                  | undefined
-                                lastChecked?: string | undefined
-                              }
-                              dependencies?:
-                                | {
-                                    resourceId: string
-                                    type: 'hard' | 'soft'
-                                    resource?:
-                                      | {
-                                          id: string
-                                          createdAt?: string | undefined
-                                          updatedAt?: string | undefined
-                                          createdBy?: string | undefined
-                                          updatedBy?: string | undefined
-                                          version?: number | undefined
-                                          etag?: string | undefined
-                                          name: string
-                                          description?: string | undefined
-                                          tags?: string[] | undefined
-                                          resourceType: 'compute'
-                                          status: {
-                                            state:
-                                              | 'pending'
-                                              | 'provisioning'
-                                              | 'running'
-                                              | 'stopped'
-                                              | 'failed'
-                                              | 'terminated'
-                                            health?:
-                                              | 'unknown'
-                                              | 'healthy'
-                                              | 'degraded'
-                                              | 'unhealthy'
-                                              | undefined
-                                            lastChecked?: string | undefined
-                                          }
-                                          dependencies?: any[] | undefined
-                                          cost?:
-                                            | {
-                                                hourly?: number | undefined
-                                                monthly?: number | undefined
-                                                currency?: string | undefined
-                                              }
-                                            | undefined
-                                          cpu: { cores: number; architecture?: string | undefined }
-                                          memory: {
-                                            size: number
-                                            unit?: 'MB' | 'GB' | 'TB' | undefined
-                                          }
-                                          storage?: any[] | undefined
-                                        }
-                                      | any
-                                      | any
-                                      | any
-                                      | undefined
-                                  }[]
-                                | undefined
-                              cost?:
-                                | {
-                                    hourly?: number | undefined
-                                    monthly?: number | undefined
-                                    currency?: string | undefined
-                                  }
-                                | undefined
-                              size: number
-                              storageType: 'ssd' | 'hdd' | 'nvme'
-                              iops?: number | undefined
-                              attachedTo?:
-                                | {
-                                    id: string
-                                    createdAt?: string | undefined
-                                    updatedAt?: string | undefined
-                                    createdBy?: string | undefined
-                                    updatedBy?: string | undefined
-                                    version?: number | undefined
-                                    etag?: string | undefined
-                                    name: string
-                                    description?: string | undefined
-                                    tags?: string[] | undefined
-                                    resourceType: 'compute'
-                                    status: {
-                                      state:
-                                        | 'pending'
-                                        | 'provisioning'
-                                        | 'running'
-                                        | 'stopped'
-                                        | 'failed'
-                                        | 'terminated'
-                                      health?:
-                                        | 'unknown'
-                                        | 'healthy'
-                                        | 'degraded'
-                                        | 'unhealthy'
-                                        | undefined
-                                      lastChecked?: string | undefined
-                                    }
-                                    dependencies?:
-                                      | {
-                                          resourceId: string
-                                          type: 'hard' | 'soft'
-                                          resource?: any | any | any | any | undefined
-                                        }[]
-                                      | undefined
-                                    cost?:
-                                      | {
-                                          hourly?: number | undefined
-                                          monthly?: number | undefined
-                                          currency?: string | undefined
-                                        }
-                                      | undefined
-                                    cpu: { cores: number; architecture?: string | undefined }
-                                    memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
-                                    storage?: any[] | undefined
-                                  }
-                                | undefined
-                            }
-                        )[]
-                      | undefined
-                  }
-                | any
-              )[]
+              components: unknown[]
               template?:
                 | {
                     name?: string | undefined
                     version?: string | undefined
-                    parameters?: { [x: string]: any } | undefined
+                    parameters?:
+                      | {
+                          [x: string]:
+                            | string
+                            | number
+                            | boolean
+                            | unknown[]
+                            | { [x: string]: unknown }
+                        }
+                      | undefined
                   }
                 | undefined
             }
@@ -7638,29 +1195,677 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
   } & {
     '/validations': {
       $post: {
-        input: { json: { target: unknown; rules: unknown[] } }
+        input: {
+          json: {
+            target:
+              | {
+                  id: string
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                  createdBy?: string | undefined
+                  updatedBy?: string | undefined
+                  version?: number | undefined
+                  etag?: string | undefined
+                  name: string
+                  description?: string | undefined
+                  tags?: string[] | undefined
+                  resourceType: 'compute'
+                  status: {
+                    state:
+                      | 'pending'
+                      | 'provisioning'
+                      | 'running'
+                      | 'stopped'
+                      | 'failed'
+                      | 'terminated'
+                    health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                    lastChecked?: string | undefined
+                  }
+                  dependencies?:
+                    | {
+                        resourceId: string
+                        type: 'hard' | 'soft'
+                        resource?: unknown | undefined
+                      }[]
+                    | undefined
+                  cost?:
+                    | {
+                        hourly?: number | undefined
+                        monthly?: number | undefined
+                        currency?: string | undefined
+                      }
+                    | undefined
+                  cpu: { cores: number; architecture?: string | undefined }
+                  memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
+                  storage?:
+                    | {
+                        id: string
+                        createdAt?: string | undefined
+                        updatedAt?: string | undefined
+                        createdBy?: string | undefined
+                        updatedBy?: string | undefined
+                        version?: number | undefined
+                        etag?: string | undefined
+                        name: string
+                        description?: string | undefined
+                        tags?: string[] | undefined
+                        resourceType: 'storage'
+                        status: {
+                          state:
+                            | 'pending'
+                            | 'provisioning'
+                            | 'running'
+                            | 'stopped'
+                            | 'failed'
+                            | 'terminated'
+                          health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                          lastChecked?: string | undefined
+                        }
+                        dependencies?:
+                          | {
+                              resourceId: string
+                              type: 'hard' | 'soft'
+                              resource?: unknown | undefined
+                            }[]
+                          | undefined
+                        cost?:
+                          | {
+                              hourly?: number | undefined
+                              monthly?: number | undefined
+                              currency?: string | undefined
+                            }
+                          | undefined
+                        size: number
+                        storageType: 'ssd' | 'hdd' | 'nvme'
+                        iops?: number | undefined
+                        attachedTo?: unknown | undefined
+                      }[]
+                    | undefined
+                }
+              | {
+                  id: string
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                  createdBy?: string | undefined
+                  updatedBy?: string | undefined
+                  version?: number | undefined
+                  etag?: string | undefined
+                  name: string
+                  description?: string | undefined
+                  tags?: string[] | undefined
+                  resourceType: 'storage'
+                  status: {
+                    state:
+                      | 'pending'
+                      | 'provisioning'
+                      | 'running'
+                      | 'stopped'
+                      | 'failed'
+                      | 'terminated'
+                    health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                    lastChecked?: string | undefined
+                  }
+                  dependencies?:
+                    | {
+                        resourceId: string
+                        type: 'hard' | 'soft'
+                        resource?: unknown | undefined
+                      }[]
+                    | undefined
+                  cost?:
+                    | {
+                        hourly?: number | undefined
+                        monthly?: number | undefined
+                        currency?: string | undefined
+                      }
+                    | undefined
+                  size: number
+                  storageType: 'ssd' | 'hdd' | 'nvme'
+                  iops?: number | undefined
+                  attachedTo?:
+                    | {
+                        id: string
+                        createdAt?: string | undefined
+                        updatedAt?: string | undefined
+                        createdBy?: string | undefined
+                        updatedBy?: string | undefined
+                        version?: number | undefined
+                        etag?: string | undefined
+                        name: string
+                        description?: string | undefined
+                        tags?: string[] | undefined
+                        resourceType: 'compute'
+                        status: {
+                          state:
+                            | 'pending'
+                            | 'provisioning'
+                            | 'running'
+                            | 'stopped'
+                            | 'failed'
+                            | 'terminated'
+                          health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                          lastChecked?: string | undefined
+                        }
+                        dependencies?:
+                          | {
+                              resourceId: string
+                              type: 'hard' | 'soft'
+                              resource?: unknown | undefined
+                            }[]
+                          | undefined
+                        cost?:
+                          | {
+                              hourly?: number | undefined
+                              monthly?: number | undefined
+                              currency?: string | undefined
+                            }
+                          | undefined
+                        cpu: { cores: number; architecture?: string | undefined }
+                        memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
+                        storage?: unknown[] | undefined
+                      }
+                    | undefined
+                }
+              | {
+                  id: string
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                  createdBy?: string | undefined
+                  updatedBy?: string | undefined
+                  version?: number | undefined
+                  etag?: string | undefined
+                  name: string
+                  description?: string | undefined
+                  tags?: string[] | undefined
+                  resourceType: 'network'
+                  status: {
+                    state:
+                      | 'pending'
+                      | 'provisioning'
+                      | 'running'
+                      | 'stopped'
+                      | 'failed'
+                      | 'terminated'
+                    health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                    lastChecked?: string | undefined
+                  }
+                  dependencies?:
+                    | {
+                        resourceId: string
+                        type: 'hard' | 'soft'
+                        resource?: unknown | undefined
+                      }[]
+                    | undefined
+                  cost?:
+                    | {
+                        hourly?: number | undefined
+                        monthly?: number | undefined
+                        currency?: string | undefined
+                      }
+                    | undefined
+                  cidr: string
+                  subnets?: unknown[] | undefined
+                  parentNetwork?: unknown | undefined
+                  connectedResources?:
+                    | (
+                        | {
+                            id: string
+                            createdAt?: string | undefined
+                            updatedAt?: string | undefined
+                            createdBy?: string | undefined
+                            updatedBy?: string | undefined
+                            version?: number | undefined
+                            etag?: string | undefined
+                            name: string
+                            description?: string | undefined
+                            tags?: string[] | undefined
+                            resourceType: 'compute'
+                            status: {
+                              state:
+                                | 'pending'
+                                | 'provisioning'
+                                | 'running'
+                                | 'stopped'
+                                | 'failed'
+                                | 'terminated'
+                              health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                              lastChecked?: string | undefined
+                            }
+                            dependencies?:
+                              | {
+                                  resourceId: string
+                                  type: 'hard' | 'soft'
+                                  resource?: unknown | undefined
+                                }[]
+                              | undefined
+                            cost?:
+                              | {
+                                  hourly?: number | undefined
+                                  monthly?: number | undefined
+                                  currency?: string | undefined
+                                }
+                              | undefined
+                            cpu: { cores: number; architecture?: string | undefined }
+                            memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
+                            storage?:
+                              | {
+                                  id: string
+                                  createdAt?: string | undefined
+                                  updatedAt?: string | undefined
+                                  createdBy?: string | undefined
+                                  updatedBy?: string | undefined
+                                  version?: number | undefined
+                                  etag?: string | undefined
+                                  name: string
+                                  description?: string | undefined
+                                  tags?: string[] | undefined
+                                  resourceType: 'storage'
+                                  status: {
+                                    state:
+                                      | 'pending'
+                                      | 'provisioning'
+                                      | 'running'
+                                      | 'stopped'
+                                      | 'failed'
+                                      | 'terminated'
+                                    health?:
+                                      | 'healthy'
+                                      | 'degraded'
+                                      | 'unhealthy'
+                                      | 'unknown'
+                                      | undefined
+                                    lastChecked?: string | undefined
+                                  }
+                                  dependencies?:
+                                    | {
+                                        resourceId: string
+                                        type: 'hard' | 'soft'
+                                        resource?: unknown | undefined
+                                      }[]
+                                    | undefined
+                                  cost?:
+                                    | {
+                                        hourly?: number | undefined
+                                        monthly?: number | undefined
+                                        currency?: string | undefined
+                                      }
+                                    | undefined
+                                  size: number
+                                  storageType: 'ssd' | 'hdd' | 'nvme'
+                                  iops?: number | undefined
+                                  attachedTo?: unknown | undefined
+                                }[]
+                              | undefined
+                          }
+                        | {
+                            id: string
+                            createdAt?: string | undefined
+                            updatedAt?: string | undefined
+                            createdBy?: string | undefined
+                            updatedBy?: string | undefined
+                            version?: number | undefined
+                            etag?: string | undefined
+                            name: string
+                            description?: string | undefined
+                            tags?: string[] | undefined
+                            resourceType: 'storage'
+                            status: {
+                              state:
+                                | 'pending'
+                                | 'provisioning'
+                                | 'running'
+                                | 'stopped'
+                                | 'failed'
+                                | 'terminated'
+                              health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                              lastChecked?: string | undefined
+                            }
+                            dependencies?:
+                              | {
+                                  resourceId: string
+                                  type: 'hard' | 'soft'
+                                  resource?: unknown | undefined
+                                }[]
+                              | undefined
+                            cost?:
+                              | {
+                                  hourly?: number | undefined
+                                  monthly?: number | undefined
+                                  currency?: string | undefined
+                                }
+                              | undefined
+                            size: number
+                            storageType: 'ssd' | 'hdd' | 'nvme'
+                            iops?: number | undefined
+                            attachedTo?:
+                              | {
+                                  id: string
+                                  createdAt?: string | undefined
+                                  updatedAt?: string | undefined
+                                  createdBy?: string | undefined
+                                  updatedBy?: string | undefined
+                                  version?: number | undefined
+                                  etag?: string | undefined
+                                  name: string
+                                  description?: string | undefined
+                                  tags?: string[] | undefined
+                                  resourceType: 'compute'
+                                  status: {
+                                    state:
+                                      | 'pending'
+                                      | 'provisioning'
+                                      | 'running'
+                                      | 'stopped'
+                                      | 'failed'
+                                      | 'terminated'
+                                    health?:
+                                      | 'healthy'
+                                      | 'degraded'
+                                      | 'unhealthy'
+                                      | 'unknown'
+                                      | undefined
+                                    lastChecked?: string | undefined
+                                  }
+                                  dependencies?:
+                                    | {
+                                        resourceId: string
+                                        type: 'hard' | 'soft'
+                                        resource?: unknown | undefined
+                                      }[]
+                                    | undefined
+                                  cost?:
+                                    | {
+                                        hourly?: number | undefined
+                                        monthly?: number | undefined
+                                        currency?: string | undefined
+                                      }
+                                    | undefined
+                                  cpu: { cores: number; architecture?: string | undefined }
+                                  memory: { size: number; unit?: 'MB' | 'GB' | 'TB' | undefined }
+                                  storage?: unknown[] | undefined
+                                }
+                              | undefined
+                          }
+                      )[]
+                    | undefined
+                }
+              | {
+                  id: string
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                  createdBy?: string | undefined
+                  updatedBy?: string | undefined
+                  version?: number | undefined
+                  etag?: string | undefined
+                  name: string
+                  description?: string | undefined
+                  tags?: string[] | undefined
+                  resourceType: 'composite'
+                  status: {
+                    state:
+                      | 'pending'
+                      | 'provisioning'
+                      | 'running'
+                      | 'stopped'
+                      | 'failed'
+                      | 'terminated'
+                    health?: 'healthy' | 'degraded' | 'unhealthy' | 'unknown' | undefined
+                    lastChecked?: string | undefined
+                  }
+                  dependencies?:
+                    | {
+                        resourceId: string
+                        type: 'hard' | 'soft'
+                        resource?: unknown | undefined
+                      }[]
+                    | undefined
+                  cost?:
+                    | {
+                        hourly?: number | undefined
+                        monthly?: number | undefined
+                        currency?: string | undefined
+                      }
+                    | undefined
+                  components: unknown[]
+                  template?:
+                    | {
+                        name?: string | undefined
+                        version?: string | undefined
+                        parameters?:
+                          | {
+                              [x: string]:
+                                | string
+                                | number
+                                | boolean
+                                | unknown[]
+                                | { [x: string]: unknown }
+                            }
+                          | undefined
+                      }
+                    | undefined
+                }
+              | {
+                  id: string
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                  createdBy?: string | undefined
+                  updatedBy?: string | undefined
+                  version?: number | undefined
+                  etag?: string | undefined
+                  settings: {
+                    general?:
+                      | {
+                          enabled?: boolean | undefined
+                          description?: string | undefined
+                          environment?: string | undefined
+                          debug?: boolean | undefined
+                          logLevel?: string | undefined
+                        }
+                      | undefined
+                    features?:
+                      | { enabled?: boolean | undefined; description?: string | undefined }
+                      | undefined
+                    limits?:
+                      | { enabled?: boolean | undefined; description?: string | undefined }
+                      | undefined
+                  }
+                  overrides?:
+                    | {
+                        [x: string]:
+                          | string
+                          | number
+                          | boolean
+                          | unknown[]
+                          | { [x: string]: unknown }
+                      }
+                    | undefined
+                }
+              | {
+                  id: string
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                  createdBy?: string | undefined
+                  updatedBy?: string | undefined
+                  version?: number | undefined
+                  etag?: string | undefined
+                  type: 'text'
+                  sender: { id: string; name: string; avatar?: string | undefined }
+                  recipient: { id: string; name: string; avatar?: string | undefined }
+                  metadata?:
+                    | {
+                        priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                        expiresAt?: string | undefined
+                        replyTo?: unknown | undefined
+                      }
+                    | undefined
+                  content: string
+                  formatting?:
+                    | {
+                        bold?: { start: number; end: number }[] | undefined
+                        italic?: { start: number; end: number }[] | undefined
+                        links?: { start: number; end: number; url: string }[] | undefined
+                      }
+                    | undefined
+                }
+              | {
+                  id: string
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                  createdBy?: string | undefined
+                  updatedBy?: string | undefined
+                  version?: number | undefined
+                  etag?: string | undefined
+                  type: 'image'
+                  sender: { id: string; name: string; avatar?: string | undefined }
+                  recipient: { id: string; name: string; avatar?: string | undefined }
+                  metadata?:
+                    | {
+                        priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                        expiresAt?: string | undefined
+                        replyTo?: unknown | undefined
+                      }
+                    | undefined
+                  url: string
+                  mimeType: string
+                  size: number
+                  checksum?: string | undefined
+                  dimensions?: { width: number; height: number } | undefined
+                  alt?: string | undefined
+                }
+              | {
+                  id: string
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                  createdBy?: string | undefined
+                  updatedBy?: string | undefined
+                  version?: number | undefined
+                  etag?: string | undefined
+                  type: 'video'
+                  sender: { id: string; name: string; avatar?: string | undefined }
+                  recipient: { id: string; name: string; avatar?: string | undefined }
+                  metadata?:
+                    | {
+                        priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                        expiresAt?: string | undefined
+                        replyTo?: unknown | undefined
+                      }
+                    | undefined
+                  url: string
+                  mimeType: string
+                  size: number
+                  checksum?: string | undefined
+                  duration?: number | undefined
+                  thumbnail?:
+                    | {
+                        id: string
+                        createdAt?: string | undefined
+                        updatedAt?: string | undefined
+                        createdBy?: string | undefined
+                        updatedBy?: string | undefined
+                        version?: number | undefined
+                        etag?: string | undefined
+                        type: 'image'
+                        sender: { id: string; name: string; avatar?: string | undefined }
+                        recipient: { id: string; name: string; avatar?: string | undefined }
+                        metadata?:
+                          | {
+                              priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                              expiresAt?: string | undefined
+                              replyTo?: unknown | undefined
+                            }
+                          | undefined
+                        url: string
+                        mimeType: string
+                        size: number
+                        checksum?: string | undefined
+                        dimensions?: { width: number; height: number } | undefined
+                        alt?: string | undefined
+                      }
+                    | undefined
+                }
+              | {
+                  id: string
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                  createdBy?: string | undefined
+                  updatedBy?: string | undefined
+                  version?: number | undefined
+                  etag?: string | undefined
+                  type: 'document'
+                  sender: { id: string; name: string; avatar?: string | undefined }
+                  recipient: { id: string; name: string; avatar?: string | undefined }
+                  metadata?:
+                    | {
+                        priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                        expiresAt?: string | undefined
+                        replyTo?: unknown | undefined
+                      }
+                    | undefined
+                  url: string
+                  mimeType: string
+                  size: number
+                  checksum?: string | undefined
+                  pageCount?: number | undefined
+                  preview?:
+                    | {
+                        id: string
+                        createdAt?: string | undefined
+                        updatedAt?: string | undefined
+                        createdBy?: string | undefined
+                        updatedBy?: string | undefined
+                        version?: number | undefined
+                        etag?: string | undefined
+                        type: 'image'
+                        sender: { id: string; name: string; avatar?: string | undefined }
+                        recipient: { id: string; name: string; avatar?: string | undefined }
+                        metadata?:
+                          | {
+                              priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                              expiresAt?: string | undefined
+                              replyTo?: unknown | undefined
+                            }
+                          | undefined
+                        url: string
+                        mimeType: string
+                        size: number
+                        checksum?: string | undefined
+                        dimensions?: { width: number; height: number } | undefined
+                        alt?: string | undefined
+                      }
+                    | undefined
+                }
+              | {
+                  id: string
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                  createdBy?: string | undefined
+                  updatedBy?: string | undefined
+                  version?: number | undefined
+                  etag?: string | undefined
+                  type: 'composite'
+                  sender: { id: string; name: string; avatar?: string | undefined }
+                  recipient: { id: string; name: string; avatar?: string | undefined }
+                  metadata?:
+                    | {
+                        priority?: 'low' | 'normal' | 'high' | 'urgent' | undefined
+                        expiresAt?: string | undefined
+                        replyTo?: unknown | undefined
+                      }
+                    | undefined
+                  parts: unknown[]
+                }
+            rules: { ruleType: string; severity?: 'error' | 'warning' | 'info' | undefined }[]
+          }
+        }
         output: {
           valid: boolean
-          issues: (
-            | {
-                path: string
-                message: string
-                severity: 'error' | 'info' | 'warning'
-                code?: string | undefined
-                keyword?: string | undefined
-                expected?: {} | undefined
-                actual?: {} | undefined
-              }
-            | {
-                path: string
-                message: string
-                severity: 'error' | 'info' | 'warning'
-                code?: string | undefined
-                rule?: string | undefined
-                context?: {} | undefined
-              }
-          )[]
-          metadata?: {} | undefined
+          issues: {
+            path: string
+            message: string
+            severity: 'error' | 'warning' | 'info'
+            code?: string | undefined
+          }[]
+          metadata?: { [x: string]: unknown } | undefined
         }
         outputFormat: 'json'
         status: 200

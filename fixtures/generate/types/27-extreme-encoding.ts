@@ -214,7 +214,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
     '/streaming': {
       $get:
         | { input: {}; output: string; outputFormat: 'text'; status: 200 }
-        | { input: {}; output: string; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: string; outputFormat: 'text'; status: 200 }
         | {
             input: {}
             output: {

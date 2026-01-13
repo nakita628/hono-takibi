@@ -38,7 +38,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
         | { input: {}; output: { [x: string]: unknown }; outputFormat: 'json'; status: 200 }
         | { input: {}; output: { [x: string]: unknown }; outputFormat: 'json'; status: 200 }
         | { input: {}; output: { [x: string]: unknown }; outputFormat: 'json'; status: 200 }
-        | { input: {}; output: string; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: string; outputFormat: 'text'; status: 200 }
         | { input: {}; output: File; outputFormat: 'text'; status: 200 }
         | { input: {}; output: File; outputFormat: 'text'; status: 200 }
         | { input: {}; output: File; outputFormat: 'text'; status: 200 }
