@@ -231,6 +231,21 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
     '/url-encoded-complex': {
       $post: {
         input: {
+          json: {
+            string?: string | undefined
+            number?: number | undefined
+            boolean?: boolean | undefined
+            arrayDefault?: string[] | undefined
+            arrayExplode?: number[] | undefined
+            nested?:
+              | { key1?: string | undefined; key2?: { subkey?: string | undefined } | undefined }
+              | undefined
+            specialChars?: string | undefined
+            unicode?: string | undefined
+            emptyString?: string | undefined
+            multiValue?: string[] | undefined
+          }
+        } & {
           form: {
             string?: string | undefined
             number?: number | undefined

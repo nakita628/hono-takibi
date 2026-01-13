@@ -119,7 +119,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
   } & {
     '/multipart-variations': {
       $post: {
-        input: {
+        input: { json: { field1?: string | undefined; field2?: string[] | undefined } } & {
           form:
             | { file?: File | undefined; metadata?: string | undefined }
             | { field1?: string | undefined; field2?: string[] | undefined }

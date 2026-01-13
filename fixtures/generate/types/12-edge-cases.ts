@@ -46,7 +46,11 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
         | { input: {}; output: File; outputFormat: 'text'; status: 200 }
         | { input: {}; output: File; outputFormat: 'text'; status: 200 }
       $post: {
-        input: { json: { data?: { [x: string]: unknown } | undefined } } & {
+        input: {
+          json:
+            | { data?: { [x: string]: unknown } | undefined }
+            | { field1?: string | undefined; field2?: string | undefined }
+        } & {
           form:
             | { file?: File | undefined; metadata?: string | undefined }
             | { field1?: string | undefined; field2?: string | undefined }

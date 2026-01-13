@@ -63,6 +63,42 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
       $post:
         | {
             input: {
+              json:
+                | {
+                    grant_type: 'authorization_code'
+                    code: string
+                    redirect_uri: string
+                    client_id: string
+                    client_secret?: string | undefined
+                    code_verifier?: string | undefined
+                  }
+                | {
+                    grant_type: 'client_credentials'
+                    client_id: string
+                    client_secret: string
+                    scope?: string | undefined
+                  }
+                | {
+                    grant_type: 'refresh_token'
+                    refresh_token: string
+                    client_id?: string | undefined
+                    client_secret?: string | undefined
+                    scope?: string | undefined
+                  }
+                | {
+                    grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+                    device_code: string
+                    client_id: string
+                  }
+                | {
+                    grant_type: 'password'
+                    username: string
+                    password: string
+                    client_id?: string | undefined
+                    client_secret?: string | undefined
+                    scope?: string | undefined
+                  }
+            } & {
               form:
                 | {
                     grant_type: 'authorization_code'
@@ -112,6 +148,42 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
           }
         | {
             input: {
+              json:
+                | {
+                    grant_type: 'authorization_code'
+                    code: string
+                    redirect_uri: string
+                    client_id: string
+                    client_secret?: string | undefined
+                    code_verifier?: string | undefined
+                  }
+                | {
+                    grant_type: 'client_credentials'
+                    client_id: string
+                    client_secret: string
+                    scope?: string | undefined
+                  }
+                | {
+                    grant_type: 'refresh_token'
+                    refresh_token: string
+                    client_id?: string | undefined
+                    client_secret?: string | undefined
+                    scope?: string | undefined
+                  }
+                | {
+                    grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+                    device_code: string
+                    client_id: string
+                  }
+                | {
+                    grant_type: 'password'
+                    username: string
+                    password: string
+                    client_id?: string | undefined
+                    client_secret?: string | undefined
+                    scope?: string | undefined
+                  }
+            } & {
               form:
                 | {
                     grant_type: 'authorization_code'
@@ -168,6 +240,42 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
           }
         | {
             input: {
+              json:
+                | {
+                    grant_type: 'authorization_code'
+                    code: string
+                    redirect_uri: string
+                    client_id: string
+                    client_secret?: string | undefined
+                    code_verifier?: string | undefined
+                  }
+                | {
+                    grant_type: 'client_credentials'
+                    client_id: string
+                    client_secret: string
+                    scope?: string | undefined
+                  }
+                | {
+                    grant_type: 'refresh_token'
+                    refresh_token: string
+                    client_id?: string | undefined
+                    client_secret?: string | undefined
+                    scope?: string | undefined
+                  }
+                | {
+                    grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+                    device_code: string
+                    client_id: string
+                  }
+                | {
+                    grant_type: 'password'
+                    username: string
+                    password: string
+                    client_id?: string | undefined
+                    client_secret?: string | undefined
+                    scope?: string | undefined
+                  }
+            } & {
               form:
                 | {
                     grant_type: 'authorization_code'
@@ -228,6 +336,13 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
       $post:
         | {
             input: {
+              json: {
+                token: string
+                token_type_hint?: 'access_token' | 'refresh_token' | undefined
+                client_id?: string | undefined
+                client_secret?: string | undefined
+              }
+            } & {
               form: {
                 token: string
                 token_type_hint?: 'access_token' | 'refresh_token' | undefined
@@ -241,6 +356,13 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
           }
         | {
             input: {
+              json: {
+                token: string
+                token_type_hint?: 'access_token' | 'refresh_token' | undefined
+                client_id?: string | undefined
+                client_secret?: string | undefined
+              }
+            } & {
               form: {
                 token: string
                 token_type_hint?: 'access_token' | 'refresh_token' | undefined
@@ -272,6 +394,11 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
       $post:
         | {
             input: {
+              json: {
+                token: string
+                token_type_hint?: 'access_token' | 'refresh_token' | undefined
+              }
+            } & {
               form: {
                 token: string
                 token_type_hint?: 'access_token' | 'refresh_token' | undefined
@@ -296,6 +423,11 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
           }
         | {
             input: {
+              json: {
+                token: string
+                token_type_hint?: 'access_token' | 'refresh_token' | undefined
+              }
+            } & {
               form: {
                 token: string
                 token_type_hint?: 'access_token' | 'refresh_token' | undefined
@@ -310,7 +442,9 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
     '/oauth/device/code': {
       $post:
         | {
-            input: { form: { client_id: string; scope?: string | undefined } }
+            input: { json: { client_id: string; scope?: string | undefined } } & {
+              form: { client_id: string; scope?: string | undefined }
+            }
             output: {
               device_code: string
               user_code: string
@@ -323,7 +457,9 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
             status: 200
           }
         | {
-            input: { form: { client_id: string; scope?: string | undefined } }
+            input: { json: { client_id: string; scope?: string | undefined } } & {
+              form: { client_id: string; scope?: string | undefined }
+            }
             output: {
               error:
                 | 'invalid_request'

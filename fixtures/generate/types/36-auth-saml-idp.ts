@@ -42,19 +42,25 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
           }
       $post:
         | {
-            input: { form: { SAMLRequest: string; RelayState?: string | undefined } }
+            input: { json: { SAMLRequest: string; RelayState?: string | undefined } } & {
+              form: { SAMLRequest: string; RelayState?: string | undefined }
+            }
             output: string
             outputFormat: 'text'
             status: 200
           }
         | {
-            input: { form: { SAMLRequest: string; RelayState?: string | undefined } }
+            input: { json: { SAMLRequest: string; RelayState?: string | undefined } } & {
+              form: { SAMLRequest: string; RelayState?: string | undefined }
+            }
             output: {}
             outputFormat: string
             status: 302
           }
         | {
-            input: { form: { SAMLRequest: string; RelayState?: string | undefined } }
+            input: { json: { SAMLRequest: string; RelayState?: string | undefined } } & {
+              form: { SAMLRequest: string; RelayState?: string | undefined }
+            }
             output: {
               error:
                 | 'invalid_request'
@@ -89,6 +95,12 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
       }
       $post: {
         input: {
+          json: {
+            SAMLRequest?: string | undefined
+            SAMLResponse?: string | undefined
+            RelayState?: string | undefined
+          }
+        } & {
           form: {
             SAMLRequest?: string | undefined
             SAMLResponse?: string | undefined
@@ -104,13 +116,17 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
     '/saml/acs': {
       $post:
         | {
-            input: { form: { SAMLResponse: string; RelayState?: string | undefined } }
+            input: { json: { SAMLResponse: string; RelayState?: string | undefined } } & {
+              form: { SAMLResponse: string; RelayState?: string | undefined }
+            }
             output: {}
             outputFormat: string
             status: 302
           }
         | {
-            input: { form: { SAMLResponse: string; RelayState?: string | undefined } }
+            input: { json: { SAMLResponse: string; RelayState?: string | undefined } } & {
+              form: { SAMLResponse: string; RelayState?: string | undefined }
+            }
             output: {}
             outputFormat: string
             status: 400
