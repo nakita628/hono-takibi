@@ -23,7 +23,7 @@ import type { OpenAPI } from '../../openapi/index.js'
  *   J -->|Yes| L["writeResult = writeFile(output, honoResult.value)"]
  *   L --> M{"writeResult.ok ?"}
  *   M -->|No| N["return { ok:false, error: writeResult.error }"]
- *   M -->|Yes| O{"template && output includes '/' ?"}
+ *   M -->|Yes| O{"template ?"}
  *   O -->|No| P["return { ok:true, value: 'Generated code written to ' + output }"]
  *   O -->|Yes| Q["appResult = fmt(app(openAPI, output, basePath))"]
  *   Q --> R{"appResult.ok ?"}
@@ -81,7 +81,7 @@ export async function takibi(
     )
     if (!coreResult.ok) return { ok: false, error: coreResult.error }
     /** template */
-    if (template && output.includes('/')) {
+    if (template) {
       const dir = path.dirname(output)
       const target = path.join(dir, 'index.ts')
       const [appResult, zodOpenAPIHonoHandlerResult] = await Promise.all([
@@ -632,6 +632,36 @@ export default app
 `
         expect(indexContent).toBe(expectedIndex)
       } finally {
+        fs.rmSync(dir, { recursive: true, force: true })
+      }
+    })
+
+    it('works with output path without "/" (filename only) and generates correct import paths', async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-no-slash-'))
+      const originalCwd = process.cwd()
+      try {
+        process.chdir(dir)
+
+        const out = 'route.ts' as `${string}.ts`
+        const result = await runTakibi(simpleOpenapi, out, { template: true, test: false })
+
+        expect(result).toStrictEqual({
+          ok: true,
+          value: 'Generated code and template files written',
+        })
+
+        expect(fs.existsSync(path.join(dir, 'route.ts'))).toBe(true)
+        expect(fs.existsSync(path.join(dir, 'index.ts'))).toBe(true)
+        expect(fs.existsSync(path.join(dir, 'handlers', 'test.ts'))).toBe(true)
+
+        const indexContent = fs.readFileSync(path.join(dir, 'index.ts'), 'utf-8')
+        expect(indexContent).toContain("import { getTestRoute } from './route'")
+        expect(indexContent).toContain("import { getTestRouteHandler } from './handlers'")
+
+        const handlerContent = fs.readFileSync(path.join(dir, 'handlers', 'test.ts'), 'utf-8')
+        expect(handlerContent).toContain("import type { getTestRoute } from '../route'")
+      } finally {
+        process.chdir(originalCwd)
         fs.rmSync(dir, { recursive: true, force: true })
       }
     })
