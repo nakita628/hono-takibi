@@ -111,8 +111,6 @@ Options:
   -h, --help                  display help for command
 ```
 
-> **⚠️** When using the `--template` option, you must specify a valid directory path. Ensure the directory exists before executing.
-
 ### Example
 
 ```bash
