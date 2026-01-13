@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/auth/register': {
       $post:
@@ -8,18 +8,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: {
               accessToken: string
               refreshToken: string
+              expiresIn?: number | undefined
               user: {
                 id: string
                 email: string
                 name: string
-                status: 'active' | 'inactive' | 'suspended'
-                createdAt: string
                 avatarUrl?: string | undefined
+                status: 'active' | 'inactive' | 'suspended'
                 role?: 'user' | 'admin' | undefined
                 lastLoginAt?: string | undefined
+                createdAt: string
                 updatedAt?: string | undefined
               }
-              expiresIn?: number | undefined
             }
             outputFormat: 'json'
             status: 201
@@ -53,18 +53,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: {
               accessToken: string
               refreshToken: string
+              expiresIn?: number | undefined
               user: {
                 id: string
                 email: string
                 name: string
-                status: 'active' | 'inactive' | 'suspended'
-                createdAt: string
                 avatarUrl?: string | undefined
+                status: 'active' | 'inactive' | 'suspended'
                 role?: 'user' | 'admin' | undefined
                 lastLoginAt?: string | undefined
+                createdAt: string
                 updatedAt?: string | undefined
               }
-              expiresIn?: number | undefined
             }
             outputFormat: 'json'
             status: 200
@@ -88,18 +88,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: {
               accessToken: string
               refreshToken: string
+              expiresIn?: number | undefined
               user: {
                 id: string
                 email: string
                 name: string
-                status: 'active' | 'inactive' | 'suspended'
-                createdAt: string
                 avatarUrl?: string | undefined
+                status: 'active' | 'inactive' | 'suspended'
                 role?: 'user' | 'admin' | undefined
                 lastLoginAt?: string | undefined
+                createdAt: string
                 updatedAt?: string | undefined
               }
-              expiresIn?: number | undefined
             }
             outputFormat: 'json'
             status: 200
@@ -118,6 +118,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
   } & {
     '/auth/logout': {
       $post:
+        | { input: {}; output: {}; outputFormat: string; status: 204 }
         | {
             input: {}
             output: {
@@ -128,7 +129,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 401
           }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/auth/password/forgot': {
@@ -144,6 +144,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $post:
         | {
             input: { json: { token: string; password: string } }
+            output: {}
+            outputFormat: string
+            status: 200
+          }
+        | {
+            input: { json: { token: string; password: string } }
             output: {
               code: string
               message: string
@@ -151,12 +157,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 400
-          }
-        | {
-            input: { json: { token: string; password: string } }
-            output: {}
-            outputFormat: string
-            status: 200
           }
     }
   } & {
@@ -173,12 +173,21 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               }
             }
             output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+              data: {
+                id: string
+                email: string
+                name: string
+                avatarUrl?: string | undefined
+                status: 'active' | 'inactive' | 'suspended'
+                role?: 'user' | 'admin' | undefined
+                lastLoginAt?: string | undefined
+                createdAt: string
+                updatedAt?: string | undefined
+              }[]
+              pagination: { page: number; limit: number; total: number; totalPages: number }
             }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: {
@@ -191,21 +200,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               }
             }
             output: {
-              data: {
-                id: string
-                email: string
-                name: string
-                status: 'active' | 'inactive' | 'suspended'
-                createdAt: string
-                avatarUrl?: string | undefined
-                role?: 'user' | 'admin' | undefined
-                lastLoginAt?: string | undefined
-                updatedAt?: string | undefined
-              }[]
-              pagination: { page: number; limit: number; total: number; totalPages: number }
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
             }
             outputFormat: 'json'
-            status: 200
+            status: 401
           }
         | {
             input: {
@@ -232,24 +232,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | {
             input: { param: { userId: string } }
             output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { userId: string } }
-            output: {
               id: string
               email: string
               name: string
-              status: 'active' | 'inactive' | 'suspended'
-              createdAt: string
               avatarUrl?: string | undefined
+              status: 'active' | 'inactive' | 'suspended'
               role?: 'user' | 'admin' | undefined
               lastLoginAt?: string | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
@@ -263,11 +253,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               details?: { field?: string | undefined; message?: string | undefined }[] | undefined
             }
             outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { param: { userId: string } }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/users/:userId': {
       $patch:
         | {
             input: { param: { userId: string } } & {
@@ -278,30 +275,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               }
             }
             output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { userId: string } } & {
-              json: {
-                name?: string | undefined
-                status?: 'active' | 'inactive' | 'suspended' | undefined
-                role?: 'user' | 'admin' | undefined
-              }
-            }
-            output: {
               id: string
               email: string
               name: string
-              status: 'active' | 'inactive' | 'suspended'
-              createdAt: string
               avatarUrl?: string | undefined
+              status: 'active' | 'inactive' | 'suspended'
               role?: 'user' | 'admin' | undefined
               lastLoginAt?: string | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
@@ -321,12 +302,26 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               details?: { field?: string | undefined; message?: string | undefined }[] | undefined
             }
             outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { param: { userId: string } } & {
+              json: {
+                name?: string | undefined
+                status?: 'active' | 'inactive' | 'suspended' | undefined
+                role?: 'user' | 'admin' | undefined
+              }
+            }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/users/:userId': {
       $delete:
+        | { input: { param: { userId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { userId: string } }
             output: {
@@ -337,7 +332,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { userId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { userId: string } }
             output: {
@@ -355,33 +349,46 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | {
             input: {}
             output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+              id: string
+              email: string
+              name: string
+              avatarUrl?: string | undefined
+              status: 'active' | 'inactive' | 'suspended'
+              role?: 'user' | 'admin' | undefined
+              lastLoginAt?: string | undefined
+              createdAt: string
+              updatedAt?: string | undefined
             }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: {}
             output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 401
+          }
+      $patch:
+        | {
+            input: { json: { name?: string | undefined } }
+            output: {
               id: string
               email: string
               name: string
-              status: 'active' | 'inactive' | 'suspended'
-              createdAt: string
               avatarUrl?: string | undefined
+              status: 'active' | 'inactive' | 'suspended'
               role?: 'user' | 'admin' | undefined
               lastLoginAt?: string | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/users/me': {
-      $patch:
         | {
             input: { json: { name?: string | undefined } }
             output: {
@@ -391,22 +398,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 401
-          }
-        | {
-            input: { json: { name?: string | undefined } }
-            output: {
-              id: string
-              email: string
-              name: string
-              status: 'active' | 'inactive' | 'suspended'
-              createdAt: string
-              avatarUrl?: string | undefined
-              role?: 'user' | 'admin' | undefined
-              lastLoginAt?: string | undefined
-              updatedAt?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 200
           }
     }
   } & {
@@ -414,6 +405,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $put:
         | {
             input: { json: { currentPassword: string; newPassword: string } }
+            output: {}
+            outputFormat: string
+            status: 200
+          }
+        | {
+            input: { json: { currentPassword: string; newPassword: string } }
             output: {
               code: string
               message: string
@@ -431,23 +428,19 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 401
-          }
-        | {
-            input: { json: { currentPassword: string; newPassword: string } }
-            output: {}
-            outputFormat: string
-            status: 200
           }
     }
   } & {
     '/users/me/avatar': {
       $put:
         | {
-            input: {
-              form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-              }
-            }
+            input: { form: { file: File } }
+            output: { avatarUrl?: string | undefined }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: { form: { file: File } }
             output: {
               code: string
               message: string
@@ -457,11 +450,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             status: 400
           }
         | {
-            input: {
-              form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-              }
-            }
+            input: { form: { file: File } }
             output: {
               code: string
               message: string
@@ -470,20 +459,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 401
           }
-        | {
-            input: {
-              form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-              }
-            }
-            output: { avatarUrl?: string | undefined }
-            outputFormat: 'json'
-            status: 200
-          }
-    }
-  } & {
-    '/users/me/avatar': {
       $delete:
+        | { input: {}; output: {}; outputFormat: string; status: 204 }
         | {
             input: {}
             output: {
@@ -494,7 +471,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 401
           }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
     }
   },
   '/'

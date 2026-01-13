@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/webauthn/register/options': {
       $post:
@@ -7,8 +7,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: {
               json: {
                 authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
-                residentKey?: 'required' | 'discouraged' | 'preferred' | undefined
-                userVerification?: 'required' | 'discouraged' | 'preferred' | undefined
+                residentKey?: 'discouraged' | 'preferred' | 'required' | undefined
+                userVerification?: 'discouraged' | 'preferred' | 'required' | undefined
                 attestation?: 'none' | 'indirect' | 'direct' | 'enterprise' | undefined
               }
             }
@@ -30,9 +30,9 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               authenticatorSelection?:
                 | {
                     authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
-                    residentKey?: 'required' | 'discouraged' | 'preferred' | undefined
+                    residentKey?: 'discouraged' | 'preferred' | 'required' | undefined
                     requireResidentKey?: boolean | undefined
-                    userVerification?: 'required' | 'discouraged' | 'preferred' | undefined
+                    userVerification?: 'discouraged' | 'preferred' | 'required' | undefined
                   }
                 | undefined
               attestation?: 'none' | 'indirect' | 'direct' | 'enterprise' | undefined
@@ -45,8 +45,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: {
               json: {
                 authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
-                residentKey?: 'required' | 'discouraged' | 'preferred' | undefined
-                userVerification?: 'required' | 'discouraged' | 'preferred' | undefined
+                residentKey?: 'discouraged' | 'preferred' | 'required' | undefined
+                userVerification?: 'discouraged' | 'preferred' | 'required' | undefined
                 attestation?: 'none' | 'indirect' | 'direct' | 'enterprise' | undefined
               }
             }
@@ -81,41 +81,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 name?: string | undefined
               }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              json: {
-                id: string
-                rawId: string
-                response: {
-                  clientDataJSON: string
-                  attestationObject: string
-                  transports?:
-                    | ('usb' | 'nfc' | 'ble' | 'smart-card' | 'hybrid' | 'internal')[]
-                    | undefined
-                  publicKeyAlgorithm?: number | undefined
-                  publicKey?: string | undefined
-                  authenticatorData?: string | undefined
-                }
-                type: 'public-key'
-                clientExtensionResults?:
-                  | { credProps?: { rk?: boolean | undefined } | undefined }
-                  | undefined
-                authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
-                name?: string | undefined
-              }
-            }
             output: {
               id: string
               credentialId: string
-              publicKey: string
-              signCount: number
-              createdAt: string
               name?: string | undefined
+              publicKey: string
               publicKeyAlgorithm?: number | undefined
+              signCount: number
               transports?:
                 | ('usb' | 'nfc' | 'ble' | 'smart-card' | 'hybrid' | 'internal')[]
                 | undefined
@@ -132,6 +104,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   }
                 | undefined
               lastUsedAt?: string | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 201
@@ -161,7 +134,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             output: {
               error:
-                | 'timeout'
                 | 'invalid_request'
                 | 'invalid_origin'
                 | 'invalid_rp_id'
@@ -172,13 +144,41 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 | 'user_not_found'
                 | 'sign_count_invalid'
                 | 'user_verification_failed'
+                | 'timeout'
                 | 'not_allowed'
                 | 'unknown_error'
               message: string
-              details?: {} | undefined
+              details?: Record<string, unknown> | undefined
             }
             outputFormat: 'json'
             status: 400
+          }
+        | {
+            input: {
+              json: {
+                id: string
+                rawId: string
+                response: {
+                  clientDataJSON: string
+                  attestationObject: string
+                  transports?:
+                    | ('usb' | 'nfc' | 'ble' | 'smart-card' | 'hybrid' | 'internal')[]
+                    | undefined
+                  publicKeyAlgorithm?: number | undefined
+                  publicKey?: string | undefined
+                  authenticatorData?: string | undefined
+                }
+                type: 'public-key'
+                clientExtensionResults?:
+                  | { credProps?: { rk?: boolean | undefined } | undefined }
+                  | undefined
+                authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
+                name?: string | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -187,13 +187,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         input: {
           json: {
             username?: string | undefined
-            userVerification?: 'required' | 'discouraged' | 'preferred' | undefined
+            userVerification?: 'discouraged' | 'preferred' | 'required' | undefined
           }
         }
         output: {
           challenge: string
-          rpId: string
           timeout?: number | undefined
+          rpId: string
           allowCredentials?:
             | {
                 type: 'public-key'
@@ -203,8 +203,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   | undefined
               }[]
             | undefined
-          userVerification?: 'required' | 'discouraged' | 'preferred' | undefined
-          extensions?: {} | undefined
+          userVerification?: 'discouraged' | 'preferred' | 'required' | undefined
+          extensions?: Record<string, unknown> | undefined
         }
         outputFormat: 'json'
         status: 200
@@ -225,44 +225,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   userHandle?: string | undefined
                 }
                 type: 'public-key'
-                clientExtensionResults?: Record<string, never> | undefined
-                authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
-              }
-            }
-            output: {
-              error:
-                | 'timeout'
-                | 'invalid_request'
-                | 'invalid_origin'
-                | 'invalid_rp_id'
-                | 'challenge_mismatch'
-                | 'invalid_signature'
-                | 'invalid_attestation'
-                | 'credential_not_found'
-                | 'user_not_found'
-                | 'sign_count_invalid'
-                | 'user_verification_failed'
-                | 'not_allowed'
-                | 'unknown_error'
-              message: string
-              details?: {} | undefined
-            }
-            outputFormat: 'json'
-            status: 400
-          }
-        | {
-            input: {
-              json: {
-                id: string
-                rawId: string
-                response: {
-                  clientDataJSON: string
-                  authenticatorData: string
-                  signature: string
-                  userHandle?: string | undefined
-                }
-                type: 'public-key'
-                clientExtensionResults?: Record<string, never> | undefined
+                clientExtensionResults?: Record<string, unknown> | undefined
                 authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
               }
             }
@@ -294,13 +257,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   userHandle?: string | undefined
                 }
                 type: 'public-key'
-                clientExtensionResults?: Record<string, never> | undefined
+                clientExtensionResults?: Record<string, unknown> | undefined
                 authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
               }
             }
             output: {
               error:
-                | 'timeout'
                 | 'invalid_request'
                 | 'invalid_origin'
                 | 'invalid_rp_id'
@@ -311,10 +273,48 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 | 'user_not_found'
                 | 'sign_count_invalid'
                 | 'user_verification_failed'
+                | 'timeout'
                 | 'not_allowed'
                 | 'unknown_error'
               message: string
-              details?: {} | undefined
+              details?: Record<string, unknown> | undefined
+            }
+            outputFormat: 'json'
+            status: 400
+          }
+        | {
+            input: {
+              json: {
+                id: string
+                rawId: string
+                response: {
+                  clientDataJSON: string
+                  authenticatorData: string
+                  signature: string
+                  userHandle?: string | undefined
+                }
+                type: 'public-key'
+                clientExtensionResults?: Record<string, unknown> | undefined
+                authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
+              }
+            }
+            output: {
+              error:
+                | 'invalid_request'
+                | 'invalid_origin'
+                | 'invalid_rp_id'
+                | 'challenge_mismatch'
+                | 'invalid_signature'
+                | 'invalid_attestation'
+                | 'credential_not_found'
+                | 'user_not_found'
+                | 'sign_count_invalid'
+                | 'user_verification_failed'
+                | 'timeout'
+                | 'not_allowed'
+                | 'unknown_error'
+              message: string
+              details?: Record<string, unknown> | undefined
             }
             outputFormat: 'json'
             status: 401
@@ -325,20 +325,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               id: string
               credentialId: string
-              publicKey: string
-              signCount: number
-              createdAt: string
               name?: string | undefined
+              publicKey: string
               publicKeyAlgorithm?: number | undefined
+              signCount: number
               transports?:
                 | ('usb' | 'nfc' | 'ble' | 'smart-card' | 'hybrid' | 'internal')[]
                 | undefined
@@ -355,9 +348,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   }
                 | undefined
               lastUsedAt?: string | undefined
+              createdAt: string
             }[]
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -365,20 +365,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { param: { credentialId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { credentialId: string } }
             output: {
               id: string
               credentialId: string
-              publicKey: string
-              signCount: number
-              createdAt: string
               name?: string | undefined
+              publicKey: string
               publicKeyAlgorithm?: number | undefined
+              signCount: number
               transports?:
                 | ('usb' | 'nfc' | 'ble' | 'smart-card' | 'hybrid' | 'internal')[]
                 | undefined
@@ -395,9 +388,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   }
                 | undefined
               lastUsedAt?: string | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { credentialId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
         | {
             input: { param: { credentialId: string } }
@@ -405,26 +405,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/webauthn/credentials/:credentialId': {
       $patch:
-        | {
-            input: { param: { credentialId: string } } & { json: { name?: string | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: { param: { credentialId: string } } & { json: { name?: string | undefined } }
             output: {
               id: string
               credentialId: string
-              publicKey: string
-              signCount: number
-              createdAt: string
               name?: string | undefined
+              publicKey: string
               publicKeyAlgorithm?: number | undefined
+              signCount: number
               transports?:
                 | ('usb' | 'nfc' | 'ble' | 'smart-card' | 'hybrid' | 'internal')[]
                 | undefined
@@ -441,20 +431,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   }
                 | undefined
               lastUsedAt?: string | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/webauthn/credentials/:credentialId': {
-      $delete:
         | {
-            input: { param: { credentialId: string } }
+            input: { param: { credentialId: string } } & { json: { name?: string | undefined } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+      $delete:
         | {
             input: { param: { credentialId: string } }
             output: {}
@@ -466,6 +454,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 400
+          }
+        | {
+            input: { param: { credentialId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -480,9 +474,9 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             | { alg?: number | undefined; name?: string | undefined }[]
             | undefined
           timeout?: number | undefined
-          userVerification?: 'required' | 'discouraged' | 'preferred' | undefined
+          userVerification?: 'discouraged' | 'preferred' | 'required' | undefined
           attestation?: 'none' | 'indirect' | 'direct' | 'enterprise' | undefined
-          residentKeyRequirement?: 'required' | 'discouraged' | 'preferred' | undefined
+          residentKeyRequirement?: 'discouraged' | 'preferred' | 'required' | undefined
         }
         outputFormat: 'json'
         status: 200
@@ -493,42 +487,33 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
+            output: { id: string; name: string; origin: string; icon?: string | undefined }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+      $put:
+        | {
+            input: { json: { name?: string | undefined } }
             output: { id: string; name: string; origin: string; icon?: string | undefined }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/webauthn/settings/rp': {
-      $put:
         | {
             input: { json: { name?: string | undefined } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
-          }
-        | {
-            input: { json: { name?: string | undefined } }
-            output: { id: string; name: string; origin: string; icon?: string | undefined }
-            outputFormat: 'json'
-            status: 200
           }
     }
   } & {
     '/webauthn/authenticators': {
       $get:
-        | {
-            input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: {}
             output: {
@@ -540,6 +525,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }[]
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   },

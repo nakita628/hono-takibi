@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/organizations/:orgId/departments/:deptId/teams/:teamId/members': {
       $get:
@@ -49,13 +49,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 }
                 employmentInfo: {
                   startDate: string
+                  endDate?: string | undefined
                   status: 'active' | 'on_leave' | 'terminated' | 'retired'
                   position: {
                     title: string
                     level: { code: string; name: string; rank: number }
                     department?: string | undefined
                   }
-                  endDate?: string | undefined
                   compensation?:
                     | {
                         salary?:
@@ -165,7 +165,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 name: string
                 permissions: {
                   resource: string
-                  actions: ('delete' | 'read' | 'write' | 'admin')[]
+                  actions: ('read' | 'write' | 'delete' | 'admin')[]
                 }[]
               }
               joinedAt?: string | undefined
@@ -186,9 +186,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/organizations/:orgId/departments/:deptId/teams/:teamId/members': {
       $post: {
         input: { param: { orgId: string; deptId: string; teamId: string } } & {
           json: {
@@ -197,7 +194,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               name: string
               permissions: {
                 resource: string
-                actions: ('delete' | 'read' | 'write' | 'admin')[]
+                actions: ('read' | 'write' | 'delete' | 'admin')[]
               }[]
             }
             allocation?:
@@ -249,13 +246,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             employmentInfo: {
               startDate: string
+              endDate?: string | undefined
               status: 'active' | 'on_leave' | 'terminated' | 'retired'
               position: {
                 title: string
                 level: { code: string; name: string; rank: number }
                 department?: string | undefined
               }
-              endDate?: string | undefined
               compensation?:
                 | {
                     salary?:
@@ -347,7 +344,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
           }
           role: {
             name: string
-            permissions: { resource: string; actions: ('delete' | 'read' | 'write' | 'admin')[] }[]
+            permissions: { resource: string; actions: ('read' | 'write' | 'delete' | 'admin')[] }[]
           }
           joinedAt?: string | undefined
           allocation?:
@@ -370,12 +367,78 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
           organization: {
             id: string
             name: string
+            metadata?:
+              | {
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                  createdBy?:
+                    | {
+                        id?: string | undefined
+                        name?: string | undefined
+                        email?: string | undefined
+                      }
+                    | undefined
+                  updatedBy?:
+                    | {
+                        id?: string | undefined
+                        name?: string | undefined
+                        email?: string | undefined
+                      }
+                    | undefined
+                  version?: number | undefined
+                  tags?: { key: string; value: string }[] | undefined
+                }
+              | undefined
             departments: {
               id: string
               name: string
+              metadata?:
+                | {
+                    createdAt?: string | undefined
+                    updatedAt?: string | undefined
+                    createdBy?:
+                      | {
+                          id?: string | undefined
+                          name?: string | undefined
+                          email?: string | undefined
+                        }
+                      | undefined
+                    updatedBy?:
+                      | {
+                          id?: string | undefined
+                          name?: string | undefined
+                          email?: string | undefined
+                        }
+                      | undefined
+                    version?: number | undefined
+                    tags?: { key: string; value: string }[] | undefined
+                  }
+                | undefined
               teams: {
                 id: string
                 name: string
+                metadata?:
+                  | {
+                      createdAt?: string | undefined
+                      updatedAt?: string | undefined
+                      createdBy?:
+                        | {
+                            id?: string | undefined
+                            name?: string | undefined
+                            email?: string | undefined
+                          }
+                        | undefined
+                      updatedBy?:
+                        | {
+                            id?: string | undefined
+                            name?: string | undefined
+                            email?: string | undefined
+                          }
+                        | undefined
+                      version?: number | undefined
+                      tags?: { key: string; value: string }[] | undefined
+                    }
+                  | undefined
                 members: {
                   employee: {
                     id: string
@@ -420,13 +483,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     }
                     employmentInfo: {
                       startDate: string
+                      endDate?: string | undefined
                       status: 'active' | 'on_leave' | 'terminated' | 'retired'
                       position: {
                         title: string
                         level: { code: string; name: string; rank: number }
                         department?: string | undefined
                       }
-                      endDate?: string | undefined
                       compensation?:
                         | {
                             salary?:
@@ -472,17 +535,48 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                     contact?:
                                       | {
                                           email?: string | undefined
-                                          phone?: any | undefined
+                                          phone?:
+                                            | {
+                                                countryCode: string
+                                                number: string
+                                                extension?: string | undefined
+                                              }
+                                            | undefined
                                           website?: string | undefined
-                                          socialMedia?: any[] | undefined
+                                          socialMedia?:
+                                            | {
+                                                platform:
+                                                  | 'linkedin'
+                                                  | 'twitter'
+                                                  | 'facebook'
+                                                  | 'instagram'
+                                                url: string
+                                              }[]
+                                            | undefined
                                         }
                                       | undefined
                                   }
                                   coverage?:
                                     | {
                                         level?: 'individual' | 'family' | undefined
-                                        deductible?: { amount: number; currency: any } | undefined
-                                        maxBenefit?: { amount: number; currency: any } | undefined
+                                        deductible?:
+                                          | {
+                                              amount: number
+                                              currency: {
+                                                code: string
+                                                symbol?: string | undefined
+                                              }
+                                            }
+                                          | undefined
+                                        maxBenefit?:
+                                          | {
+                                              amount: number
+                                              currency: {
+                                                code: string
+                                                symbol?: string | undefined
+                                              }
+                                            }
+                                          | undefined
                                       }
                                     | undefined
                                 }[]
@@ -511,7 +605,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     name: string
                     permissions: {
                       resource: string
-                      actions: ('delete' | 'read' | 'write' | 'admin')[]
+                      actions: ('read' | 'write' | 'delete' | 'admin')[]
                     }[]
                   }
                   joinedAt?: string | undefined
@@ -523,28 +617,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       }
                     | undefined
                 }[]
-                metadata?:
-                  | {
-                      createdAt?: string | undefined
-                      updatedAt?: string | undefined
-                      createdBy?:
-                        | {
-                            id?: string | undefined
-                            name?: string | undefined
-                            email?: string | undefined
-                          }
-                        | undefined
-                      updatedBy?:
-                        | {
-                            id?: string | undefined
-                            name?: string | undefined
-                            email?: string | undefined
-                          }
-                        | undefined
-                      version?: number | undefined
-                      tags?: { key: string; value: string }[] | undefined
-                    }
-                  | undefined
                 lead?:
                   | {
                       id: string
@@ -591,13 +663,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       }
                       employmentInfo: {
                         startDate: string
+                        endDate?: string | undefined
                         status: 'active' | 'on_leave' | 'terminated' | 'retired'
                         position: {
                           title: string
                           level: { code: string; name: string; rank: number }
                           department?: string | undefined
                         }
-                        endDate?: string | undefined
                         compensation?:
                           | {
                               salary?:
@@ -749,7 +821,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                               | {
                                   name: string
                                   dueDate: string
-                                  status?: 'completed' | 'pending' | 'overdue' | undefined
+                                  status?: 'pending' | 'completed' | 'overdue' | undefined
                                 }[]
                               | undefined
                           }
@@ -807,13 +879,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                               }
                               employmentInfo: {
                                 startDate: string
+                                endDate?: string | undefined
                                 status: 'active' | 'on_leave' | 'terminated' | 'retired'
                                 position: {
                                   title: string
                                   level: { code: string; name: string; rank: number }
                                   department?: string | undefined
                                 }
-                                endDate?: string | undefined
                                 compensation?:
                                   | {
                                       salary?:
@@ -833,8 +905,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                             shares?: number | undefined
                                             vestingSchedule?:
                                               | {
-                                                  cliff?: any | undefined
-                                                  totalPeriod?: any | undefined
+                                                  cliff?:
+                                                    | {
+                                                        value: number
+                                                        unit: 'days' | 'weeks' | 'months' | 'years'
+                                                      }
+                                                    | undefined
+                                                  totalPeriod?:
+                                                    | {
+                                                        value: number
+                                                        unit: 'days' | 'weeks' | 'months' | 'years'
+                                                      }
+                                                    | undefined
                                                   frequency?:
                                                     | 'monthly'
                                                     | 'quarterly'
@@ -853,12 +935,53 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                               | 'vision'
                                               | 'life'
                                               | 'retirement'
-                                            provider: { name: string; contact?: any | undefined }
+                                            provider: {
+                                              name: string
+                                              contact?:
+                                                | {
+                                                    email?: string | undefined
+                                                    phone?:
+                                                      | {
+                                                          countryCode: string
+                                                          number: string
+                                                          extension?: string | undefined
+                                                        }
+                                                      | undefined
+                                                    website?: string | undefined
+                                                    socialMedia?:
+                                                      | {
+                                                          platform:
+                                                            | 'linkedin'
+                                                            | 'twitter'
+                                                            | 'facebook'
+                                                            | 'instagram'
+                                                          url: string
+                                                        }[]
+                                                      | undefined
+                                                  }
+                                                | undefined
+                                            }
                                             coverage?:
                                               | {
                                                   level?: 'individual' | 'family' | undefined
-                                                  deductible?: any | undefined
-                                                  maxBenefit?: any | undefined
+                                                  deductible?:
+                                                    | {
+                                                        amount: number
+                                                        currency: {
+                                                          code: string
+                                                          symbol?: string | undefined
+                                                        }
+                                                      }
+                                                    | undefined
+                                                  maxBenefit?:
+                                                    | {
+                                                        amount: number
+                                                        currency: {
+                                                          code: string
+                                                          symbol?: string | undefined
+                                                        }
+                                                      }
+                                                    | undefined
                                                 }
                                               | undefined
                                           }[]
@@ -889,28 +1012,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     }[]
                   | undefined
               }[]
-              metadata?:
-                | {
-                    createdAt?: string | undefined
-                    updatedAt?: string | undefined
-                    createdBy?:
-                      | {
-                          id?: string | undefined
-                          name?: string | undefined
-                          email?: string | undefined
-                        }
-                      | undefined
-                    updatedBy?:
-                      | {
-                          id?: string | undefined
-                          name?: string | undefined
-                          email?: string | undefined
-                        }
-                      | undefined
-                    version?: number | undefined
-                    tags?: { key: string; value: string }[] | undefined
-                  }
-                | undefined
               manager?:
                 | {
                     id: string
@@ -955,13 +1056,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     }
                     employmentInfo: {
                       startDate: string
+                      endDate?: string | undefined
                       status: 'active' | 'on_leave' | 'terminated' | 'retired'
                       position: {
                         title: string
                         level: { code: string; name: string; rank: number }
                         department?: string | undefined
                       }
-                      endDate?: string | undefined
                       compensation?:
                         | {
                             salary?:
@@ -1088,28 +1189,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   }
                 | undefined
             }[]
-            metadata?:
-              | {
-                  createdAt?: string | undefined
-                  updatedAt?: string | undefined
-                  createdBy?:
-                    | {
-                        id?: string | undefined
-                        name?: string | undefined
-                        email?: string | undefined
-                      }
-                    | undefined
-                  updatedBy?:
-                    | {
-                        id?: string | undefined
-                        name?: string | undefined
-                        email?: string | undefined
-                      }
-                    | undefined
-                  version?: number | undefined
-                  tags?: { key: string; value: string }[] | undefined
-                }
-              | undefined
             headquarters?:
               | {
                   street?: string | undefined

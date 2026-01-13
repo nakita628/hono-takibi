@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/oauth/authorize': {
       $get:
@@ -9,8 +9,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 response_type: 'code' | 'token'
                 client_id: string
                 redirect_uri: string
-                state: string
                 scope?: string | undefined
+                state: string
                 code_challenge?: string | undefined
                 code_challenge_method?: 'plain' | 'S256' | undefined
                 nonce?: string | undefined
@@ -29,8 +29,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 response_type: 'code' | 'token'
                 client_id: string
                 redirect_uri: string
-                state: string
                 scope?: string | undefined
+                state: string
                 code_challenge?: string | undefined
                 code_challenge_method?: 'plain' | 'S256' | undefined
                 nonce?: string | undefined
@@ -61,62 +61,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
   } & {
     '/oauth/token': {
       $post:
-        | {
-            input: {
-              form:
-                | {
-                    grant_type: 'authorization_code'
-                    code: string
-                    redirect_uri: string
-                    client_id: string
-                    client_secret?: string | undefined
-                    code_verifier?: string | undefined
-                  }
-                | {
-                    grant_type: 'client_credentials'
-                    client_id: string
-                    client_secret: string
-                    scope?: string | undefined
-                  }
-                | {
-                    grant_type: 'refresh_token'
-                    refresh_token: string
-                    client_id?: string | undefined
-                    client_secret?: string | undefined
-                    scope?: string | undefined
-                  }
-                | {
-                    grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
-                    device_code: string
-                    client_id: string
-                  }
-                | {
-                    grant_type: 'password'
-                    username: string
-                    password: string
-                    client_id?: string | undefined
-                    client_secret?: string | undefined
-                    scope?: string | undefined
-                  }
-            }
-            output: {
-              error:
-                | 'invalid_request'
-                | 'invalid_client'
-                | 'invalid_grant'
-                | 'unauthorized_client'
-                | 'unsupported_grant_type'
-                | 'invalid_scope'
-                | 'access_denied'
-                | 'expired_token'
-                | 'authorization_pending'
-                | 'slow_down'
-              error_description?: string | undefined
-              error_uri?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 400
-          }
         | {
             input: {
               form:
@@ -220,6 +164,62 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               error_uri?: string | undefined
             }
             outputFormat: 'json'
+            status: 400
+          }
+        | {
+            input: {
+              form:
+                | {
+                    grant_type: 'authorization_code'
+                    code: string
+                    redirect_uri: string
+                    client_id: string
+                    client_secret?: string | undefined
+                    code_verifier?: string | undefined
+                  }
+                | {
+                    grant_type: 'client_credentials'
+                    client_id: string
+                    client_secret: string
+                    scope?: string | undefined
+                  }
+                | {
+                    grant_type: 'refresh_token'
+                    refresh_token: string
+                    client_id?: string | undefined
+                    client_secret?: string | undefined
+                    scope?: string | undefined
+                  }
+                | {
+                    grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+                    device_code: string
+                    client_id: string
+                  }
+                | {
+                    grant_type: 'password'
+                    username: string
+                    password: string
+                    client_id?: string | undefined
+                    client_secret?: string | undefined
+                    scope?: string | undefined
+                  }
+            }
+            output: {
+              error:
+                | 'invalid_request'
+                | 'invalid_client'
+                | 'invalid_grant'
+                | 'unauthorized_client'
+                | 'unsupported_grant_type'
+                | 'invalid_scope'
+                | 'access_denied'
+                | 'expired_token'
+                | 'authorization_pending'
+                | 'slow_down'
+              error_description?: string | undefined
+              error_uri?: string | undefined
+            }
+            outputFormat: 'json'
             status: 401
           }
     }
@@ -230,7 +230,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: {
               form: {
                 token: string
-                token_type_hint?: 'refresh_token' | 'access_token' | undefined
+                token_type_hint?: 'access_token' | 'refresh_token' | undefined
+                client_id?: string | undefined
+                client_secret?: string | undefined
+              }
+            }
+            output: {}
+            outputFormat: string
+            status: 200
+          }
+        | {
+            input: {
+              form: {
+                token: string
+                token_type_hint?: 'access_token' | 'refresh_token' | undefined
                 client_id?: string | undefined
                 client_secret?: string | undefined
               }
@@ -253,19 +266,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 400
           }
-        | {
-            input: {
-              form: {
-                token: string
-                token_type_hint?: 'refresh_token' | 'access_token' | undefined
-                client_id?: string | undefined
-                client_secret?: string | undefined
-              }
-            }
-            output: {}
-            outputFormat: string
-            status: 200
-          }
     }
   } & {
     '/oauth/introspect': {
@@ -274,7 +274,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: {
               form: {
                 token: string
-                token_type_hint?: 'refresh_token' | 'access_token' | undefined
+                token_type_hint?: 'access_token' | 'refresh_token' | undefined
               }
             }
             output: {
@@ -298,7 +298,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: {
               form: {
                 token: string
-                token_type_hint?: 'refresh_token' | 'access_token' | undefined
+                token_type_hint?: 'access_token' | 'refresh_token' | undefined
               }
             }
             output: { code: string; message: string }
@@ -309,6 +309,19 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
   } & {
     '/oauth/device/code': {
       $post:
+        | {
+            input: { form: { client_id: string; scope?: string | undefined } }
+            output: {
+              device_code: string
+              user_code: string
+              verification_uri: string
+              verification_uri_complete?: string | undefined
+              expires_in: number
+              interval?: number | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
         | {
             input: { form: { client_id: string; scope?: string | undefined } }
             output: {
@@ -329,29 +342,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 400
           }
-        | {
-            input: { form: { client_id: string; scope?: string | undefined } }
-            output: {
-              device_code: string
-              user_code: string
-              verification_uri: string
-              expires_in: number
-              verification_uri_complete?: string | undefined
-              interval?: number | undefined
-            }
-            outputFormat: 'json'
-            status: 200
-          }
     }
   } & {
     '/oauth/userinfo': {
       $get:
-        | {
-            input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: {}
             output: {
@@ -388,6 +382,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/.well-known/openid-configuration': {
@@ -397,15 +397,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
           issuer: string
           authorization_endpoint: string
           token_endpoint: string
-          jwks_uri: string
-          response_types_supported: string[]
-          subject_types_supported: string[]
-          id_token_signing_alg_values_supported: string[]
           userinfo_endpoint?: string | undefined
+          jwks_uri: string
           registration_endpoint?: string | undefined
           scopes_supported?: string[] | undefined
+          response_types_supported: string[]
           response_modes_supported?: string[] | undefined
           grant_types_supported?: string[] | undefined
+          subject_types_supported: string[]
+          id_token_signing_alg_values_supported: string[]
           token_endpoint_auth_methods_supported?: string[] | undefined
           claims_supported?: string[] | undefined
           code_challenge_methods_supported?: string[] | undefined
@@ -443,24 +443,17 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               clientId: string
               clientName: string
               clientType: 'public' | 'confidential'
-              createdAt: string
               redirectUris?: string[] | undefined
               grantTypes?:
                 | (
-                    | 'password'
                     | 'authorization_code'
                     | 'client_credentials'
                     | 'refresh_token'
+                    | 'password'
                     | 'urn:ietf:params:oauth:grant-type:device_code'
                   )[]
                 | undefined
@@ -472,31 +465,35 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               tosUri?: string | undefined
               contacts?: string[] | undefined
               tokenEndpointAuthMethod?:
-                | 'none'
                 | 'client_secret_basic'
                 | 'client_secret_post'
+                | 'none'
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }[]
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/oauth/clients': {
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $post:
         | {
             input: {
               json: {
                 clientName: string
-                redirectUris: string[]
                 clientType?: 'public' | 'confidential' | undefined
+                redirectUris: string[]
                 grantTypes?:
                   | (
-                      | 'password'
                       | 'authorization_code'
                       | 'client_credentials'
                       | 'refresh_token'
+                      | 'password'
                       | 'urn:ietf:params:oauth:grant-type:device_code'
                     )[]
                   | undefined
@@ -508,28 +505,57 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 tosUri?: string | undefined
                 contacts?: string[] | undefined
                 tokenEndpointAuthMethod?:
-                  | 'none'
                   | 'client_secret_basic'
                   | 'client_secret_post'
+                  | 'none'
                   | undefined
               }
             }
-            output: { code: string; message: string }
+            output: {
+              clientId: string
+              clientName: string
+              clientType: 'public' | 'confidential'
+              redirectUris?: string[] | undefined
+              grantTypes?:
+                | (
+                    | 'authorization_code'
+                    | 'client_credentials'
+                    | 'refresh_token'
+                    | 'password'
+                    | 'urn:ietf:params:oauth:grant-type:device_code'
+                  )[]
+                | undefined
+              responseTypes?: ('code' | 'token')[] | undefined
+              scope?: string | undefined
+              logoUri?: string | undefined
+              clientUri?: string | undefined
+              policyUri?: string | undefined
+              tosUri?: string | undefined
+              contacts?: string[] | undefined
+              tokenEndpointAuthMethod?:
+                | 'client_secret_basic'
+                | 'client_secret_post'
+                | 'none'
+                | undefined
+              createdAt: string
+              updatedAt?: string | undefined
+              clientSecret: string
+            }
             outputFormat: 'json'
-            status: 401
+            status: 201
           }
         | {
             input: {
               json: {
                 clientName: string
-                redirectUris: string[]
                 clientType?: 'public' | 'confidential' | undefined
+                redirectUris: string[]
                 grantTypes?:
                   | (
-                      | 'password'
                       | 'authorization_code'
                       | 'client_credentials'
                       | 'refresh_token'
+                      | 'password'
                       | 'urn:ietf:params:oauth:grant-type:device_code'
                     )[]
                   | undefined
@@ -541,9 +567,9 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 tosUri?: string | undefined
                 contacts?: string[] | undefined
                 tokenEndpointAuthMethod?:
-                  | 'none'
                   | 'client_secret_basic'
                   | 'client_secret_post'
+                  | 'none'
                   | undefined
               }
             }
@@ -555,14 +581,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: {
               json: {
                 clientName: string
-                redirectUris: string[]
                 clientType?: 'public' | 'confidential' | undefined
+                redirectUris: string[]
                 grantTypes?:
                   | (
-                      | 'password'
                       | 'authorization_code'
                       | 'client_credentials'
                       | 'refresh_token'
+                      | 'password'
                       | 'urn:ietf:params:oauth:grant-type:device_code'
                     )[]
                   | undefined
@@ -574,44 +600,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 tosUri?: string | undefined
                 contacts?: string[] | undefined
                 tokenEndpointAuthMethod?:
-                  | 'none'
                   | 'client_secret_basic'
                   | 'client_secret_post'
+                  | 'none'
                   | undefined
               }
             }
-            output: {
-              clientId: string
-              clientName: string
-              clientType: 'public' | 'confidential'
-              createdAt: string
-              redirectUris?: string[] | undefined
-              grantTypes?:
-                | (
-                    | 'password'
-                    | 'authorization_code'
-                    | 'client_credentials'
-                    | 'refresh_token'
-                    | 'urn:ietf:params:oauth:grant-type:device_code'
-                  )[]
-                | undefined
-              responseTypes?: ('code' | 'token')[] | undefined
-              scope?: string | undefined
-              logoUri?: string | undefined
-              clientUri?: string | undefined
-              policyUri?: string | undefined
-              tosUri?: string | undefined
-              contacts?: string[] | undefined
-              tokenEndpointAuthMethod?:
-                | 'none'
-                | 'client_secret_basic'
-                | 'client_secret_post'
-                | undefined
-              updatedAt?: string | undefined
-              clientSecret: string
-            }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 201
+            status: 401
           }
     }
   } & {
@@ -619,24 +616,17 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { param: { clientId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { clientId: string } }
             output: {
               clientId: string
               clientName: string
               clientType: 'public' | 'confidential'
-              createdAt: string
               redirectUris?: string[] | undefined
               grantTypes?:
                 | (
-                    | 'password'
                     | 'authorization_code'
                     | 'client_credentials'
                     | 'refresh_token'
+                    | 'password'
                     | 'urn:ietf:params:oauth:grant-type:device_code'
                   )[]
                 | undefined
@@ -648,10 +638,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               tosUri?: string | undefined
               contacts?: string[] | undefined
               tokenEndpointAuthMethod?:
-                | 'none'
                 | 'client_secret_basic'
                 | 'client_secret_post'
+                | 'none'
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
@@ -661,11 +652,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { clientId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { param: { clientId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/oauth/clients/:clientId': {
       $put:
         | {
             input: { param: { clientId: string } } & {
@@ -682,9 +676,37 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 contacts?: string[] | undefined
               }
             }
-            output: { code: string; message: string }
+            output: {
+              clientId: string
+              clientName: string
+              clientType: 'public' | 'confidential'
+              redirectUris?: string[] | undefined
+              grantTypes?:
+                | (
+                    | 'authorization_code'
+                    | 'client_credentials'
+                    | 'refresh_token'
+                    | 'password'
+                    | 'urn:ietf:params:oauth:grant-type:device_code'
+                  )[]
+                | undefined
+              responseTypes?: ('code' | 'token')[] | undefined
+              scope?: string | undefined
+              logoUri?: string | undefined
+              clientUri?: string | undefined
+              policyUri?: string | undefined
+              tosUri?: string | undefined
+              contacts?: string[] | undefined
+              tokenEndpointAuthMethod?:
+                | 'client_secret_basic'
+                | 'client_secret_post'
+                | 'none'
+                | undefined
+              createdAt: string
+              updatedAt?: string | undefined
+            }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: { param: { clientId: string } } & {
@@ -701,64 +723,33 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 contacts?: string[] | undefined
               }
             }
-            output: {
-              clientId: string
-              clientName: string
-              clientType: 'public' | 'confidential'
-              createdAt: string
-              redirectUris?: string[] | undefined
-              grantTypes?:
-                | (
-                    | 'password'
-                    | 'authorization_code'
-                    | 'client_credentials'
-                    | 'refresh_token'
-                    | 'urn:ietf:params:oauth:grant-type:device_code'
-                  )[]
-                | undefined
-              responseTypes?: ('code' | 'token')[] | undefined
-              scope?: string | undefined
-              logoUri?: string | undefined
-              clientUri?: string | undefined
-              policyUri?: string | undefined
-              tosUri?: string | undefined
-              contacts?: string[] | undefined
-              tokenEndpointAuthMethod?:
-                | 'none'
-                | 'client_secret_basic'
-                | 'client_secret_post'
-                | undefined
-              updatedAt?: string | undefined
-            }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 200
+            status: 401
           }
-    }
-  } & {
-    '/oauth/clients/:clientId': {
       $delete:
+        | { input: { param: { clientId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { clientId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { clientId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/oauth/clients/:clientId/secret': {
       $post:
         | {
             input: { param: { clientId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { clientId: string } }
             output: { clientSecret?: string | undefined }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { clientId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -766,34 +757,34 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               clientId: string
               clientName: string
+              clientLogoUri?: string | undefined
               scope: string
               grantedAt: string
-              clientLogoUri?: string | undefined
               lastUsedAt?: string | undefined
             }[]
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/oauth/consents/:clientId': {
       $delete:
+        | { input: { param: { clientId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { clientId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { clientId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   },
   '/'

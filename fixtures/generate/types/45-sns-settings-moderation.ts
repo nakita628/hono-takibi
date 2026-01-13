@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/settings/account': {
       $get:
@@ -25,9 +25,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 401
           }
-    }
-  } & {
-    '/settings/account': {
       $put:
         | {
             input: {
@@ -78,12 +75,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               protectedPosts?: boolean | undefined
               allowTagging?: 'everyone' | 'followers' | 'none' | undefined
@@ -97,9 +88,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/settings/privacy': {
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $put:
         | {
             input: {
@@ -114,9 +108,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 allowDataSharing?: boolean | undefined
               }
             }
-            output: { code: string; message: string }
+            output: {
+              protectedPosts?: boolean | undefined
+              allowTagging?: 'everyone' | 'followers' | 'none' | undefined
+              allowMentions?: 'everyone' | 'followers' | 'none' | undefined
+              discoverableByEmail?: boolean | undefined
+              discoverableByPhone?: boolean | undefined
+              showLocation?: boolean | undefined
+              personalizeAds?: boolean | undefined
+              allowDataSharing?: boolean | undefined
+            }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: {
@@ -131,18 +134,9 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 allowDataSharing?: boolean | undefined
               }
             }
-            output: {
-              protectedPosts?: boolean | undefined
-              allowTagging?: 'everyone' | 'followers' | 'none' | undefined
-              allowMentions?: 'everyone' | 'followers' | 'none' | undefined
-              discoverableByEmail?: boolean | undefined
-              discoverableByPhone?: boolean | undefined
-              showLocation?: boolean | undefined
-              personalizeAds?: boolean | undefined
-              allowDataSharing?: boolean | undefined
-            }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 200
+            status: 401
           }
     }
   } & {
@@ -150,15 +144,9 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               sensitiveContentFilter?: 'hide' | 'warn' | 'show' | undefined
-              autoplayVideos?: 'never' | 'always' | 'wifi' | undefined
+              autoplayVideos?: 'always' | 'wifi' | 'never' | undefined
               dataUsage?: 'default' | 'reduced' | undefined
               qualityFilter?: boolean | undefined
               hideViewCounts?: boolean | undefined
@@ -167,15 +155,40 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/settings/content-preferences': {
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $put:
         | {
             input: {
               json: {
                 sensitiveContentFilter?: 'hide' | 'warn' | 'show' | undefined
-                autoplayVideos?: 'never' | 'always' | 'wifi' | undefined
+                autoplayVideos?: 'always' | 'wifi' | 'never' | undefined
+                dataUsage?: 'default' | 'reduced' | undefined
+                qualityFilter?: boolean | undefined
+                hideViewCounts?: boolean | undefined
+                hideLikeCounts?: boolean | undefined
+              }
+            }
+            output: {
+              sensitiveContentFilter?: 'hide' | 'warn' | 'show' | undefined
+              autoplayVideos?: 'always' | 'wifi' | 'never' | undefined
+              dataUsage?: 'default' | 'reduced' | undefined
+              qualityFilter?: boolean | undefined
+              hideViewCounts?: boolean | undefined
+              hideLikeCounts?: boolean | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: {
+              json: {
+                sensitiveContentFilter?: 'hide' | 'warn' | 'show' | undefined
+                autoplayVideos?: 'always' | 'wifi' | 'never' | undefined
                 dataUsage?: 'default' | 'reduced' | undefined
                 qualityFilter?: boolean | undefined
                 hideViewCounts?: boolean | undefined
@@ -185,55 +198,30 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
-          }
-        | {
-            input: {
-              json: {
-                sensitiveContentFilter?: 'hide' | 'warn' | 'show' | undefined
-                autoplayVideos?: 'never' | 'always' | 'wifi' | undefined
-                dataUsage?: 'default' | 'reduced' | undefined
-                qualityFilter?: boolean | undefined
-                hideViewCounts?: boolean | undefined
-                hideLikeCounts?: boolean | undefined
-              }
-            }
-            output: {
-              sensitiveContentFilter?: 'hide' | 'warn' | 'show' | undefined
-              autoplayVideos?: 'never' | 'always' | 'wifi' | undefined
-              dataUsage?: 'default' | 'reduced' | undefined
-              qualityFilter?: boolean | undefined
-              hideViewCounts?: boolean | undefined
-              hideLikeCounts?: boolean | undefined
-            }
-            outputFormat: 'json'
-            status: 200
           }
     }
   } & {
     '/settings/muted-words': {
       $get:
-        | {
-            input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: {}
             output: {
               id: string
               word: string
-              createdAt: string
               matchWholeWord?: boolean | undefined
               expiresAt?: string | undefined
               scope?: 'all' | 'home_timeline' | 'notifications' | undefined
+              createdAt: string
             }[]
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/settings/muted-words': {
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $post:
         | {
             input: {
@@ -244,9 +232,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 scope?: 'all' | 'home_timeline' | 'notifications' | undefined
               }
             }
-            output: { code: string; message: string }
+            output: {
+              id: string
+              word: string
+              matchWholeWord?: boolean | undefined
+              expiresAt?: string | undefined
+              scope?: 'all' | 'home_timeline' | 'notifications' | undefined
+              createdAt: string
+            }
             outputFormat: 'json'
-            status: 401
+            status: 201
           }
         | {
             input: {
@@ -257,51 +252,36 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 scope?: 'all' | 'home_timeline' | 'notifications' | undefined
               }
             }
-            output: {
-              id: string
-              word: string
-              createdAt: string
-              matchWholeWord?: boolean | undefined
-              expiresAt?: string | undefined
-              scope?: 'all' | 'home_timeline' | 'notifications' | undefined
-            }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 201
+            status: 401
           }
     }
   } & {
     '/settings/muted-words/:wordId': {
       $delete:
+        | { input: { param: { wordId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { wordId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { wordId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/settings/sessions': {
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               id: string
+              isCurrent?: boolean | undefined
               device: {
                 type?: string | undefined
                 os?: string | undefined
                 browser?: string | undefined
                 name?: string | undefined
               }
-              createdAt: string
-              lastActiveAt: string
-              isCurrent?: boolean | undefined
               location?:
                 | {
                     country?: string | undefined
@@ -309,82 +289,84 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     ip?: string | undefined
                   }
                 | undefined
+              createdAt: string
+              lastActiveAt: string
             }[]
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
     '/settings/sessions/:sessionId': {
       $delete:
+        | { input: { param: { sessionId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { sessionId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { sessionId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/settings/connected-apps': {
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               id: string
               name: string
-              permissions: string[]
-              authorizedAt: string
               description?: string | undefined
               icon?: string | undefined
+              permissions: string[]
+              authorizedAt: string
               lastUsedAt?: string | undefined
             }[]
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/settings/connected-apps/:appId': {
       $delete:
+        | { input: { param: { appId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { appId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { appId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/settings/data-export': {
       $post:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: { requestId?: string | undefined; estimatedCompletionAt?: string | undefined }
             outputFormat: 'json'
             status: 202
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
     '/settings/data-export/:requestId': {
       $get:
-        | {
-            input: { param: { requestId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: { param: { requestId: string } }
             output: {
@@ -395,17 +377,23 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: { param: { requestId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/settings/deactivate': {
       $post:
+        | { input: { json: { password: string } }; output: {}; outputFormat: string; status: 200 }
         | {
             input: { json: { password: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { json: { password: string } }; output: {}; outputFormat: string; status: 200 }
     }
   } & {
     '/reports': {
@@ -413,7 +401,51 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | {
             input: {
               json: {
-                type: 'post' | 'message' | 'user'
+                type: 'post' | 'user' | 'message'
+                targetId: string
+                reason:
+                  | 'spam'
+                  | 'harassment'
+                  | 'hate_speech'
+                  | 'violence'
+                  | 'self_harm'
+                  | 'misinformation'
+                  | 'illegal_content'
+                  | 'copyright'
+                  | 'impersonation'
+                  | 'other'
+                description?: string | undefined
+                relatedPostIds?: string[] | undefined
+              }
+            }
+            output: {
+              id: string
+              type: 'post' | 'user' | 'message'
+              targetId?: string | undefined
+              reason:
+                | 'spam'
+                | 'harassment'
+                | 'hate_speech'
+                | 'violence'
+                | 'self_harm'
+                | 'misinformation'
+                | 'illegal_content'
+                | 'copyright'
+                | 'impersonation'
+                | 'other'
+              description?: string | undefined
+              status: 'pending' | 'in_review' | 'resolved' | 'dismissed'
+              resolution?: string | undefined
+              createdAt: string
+              resolvedAt?: string | undefined
+            }
+            outputFormat: 'json'
+            status: 201
+          }
+        | {
+            input: {
+              json: {
+                type: 'post' | 'user' | 'message'
                 targetId: string
                 reason:
                   | 'spam'
@@ -433,50 +465,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
-          }
-        | {
-            input: {
-              json: {
-                type: 'post' | 'message' | 'user'
-                targetId: string
-                reason:
-                  | 'spam'
-                  | 'harassment'
-                  | 'hate_speech'
-                  | 'violence'
-                  | 'self_harm'
-                  | 'misinformation'
-                  | 'illegal_content'
-                  | 'copyright'
-                  | 'impersonation'
-                  | 'other'
-                description?: string | undefined
-                relatedPostIds?: string[] | undefined
-              }
-            }
-            output: {
-              id: string
-              type: 'post' | 'message' | 'user'
-              reason:
-                | 'spam'
-                | 'harassment'
-                | 'hate_speech'
-                | 'violence'
-                | 'self_harm'
-                | 'misinformation'
-                | 'illegal_content'
-                | 'copyright'
-                | 'impersonation'
-                | 'other'
-              status: 'pending' | 'in_review' | 'resolved' | 'dismissed'
-              createdAt: string
-              targetId?: string | undefined
-              description?: string | undefined
-              resolution?: string | undefined
-              resolvedAt?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 201
           }
     }
   } & {
@@ -484,15 +472,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { param: { reportId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { reportId: string } }
             output: {
               id: string
-              type: 'post' | 'message' | 'user'
+              type: 'post' | 'user' | 'message'
+              targetId?: string | undefined
               reason:
                 | 'spam'
                 | 'harassment'
@@ -504,15 +487,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 | 'copyright'
                 | 'impersonation'
                 | 'other'
-              status: 'pending' | 'in_review' | 'resolved' | 'dismissed'
-              createdAt: string
-              targetId?: string | undefined
               description?: string | undefined
+              status: 'pending' | 'in_review' | 'resolved' | 'dismissed'
               resolution?: string | undefined
+              createdAt: string
               resolvedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { reportId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -522,20 +510,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: {
               query: {
                 status?: 'pending' | 'in_review' | 'resolved' | undefined
-                type?: 'post' | 'message' | 'user' | undefined
-                cursor?: string | undefined
-                limit?: number | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              query: {
-                status?: 'pending' | 'in_review' | 'resolved' | undefined
-                type?: 'post' | 'message' | 'user' | undefined
+                type?: 'post' | 'user' | 'message' | undefined
                 cursor?: string | undefined
                 limit?: number | undefined
               }
@@ -543,14 +518,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: {
               data: {
                 id: string
-                type: 'post' | 'message' | 'user'
-                status: 'pending' | 'in_review' | 'resolved'
-                createdAt: string
+                type: 'post' | 'user' | 'message'
                 targetId?: string | undefined
                 reports?:
                   | {
                       id: string
-                      type: 'post' | 'message' | 'user'
+                      type: 'post' | 'user' | 'message'
+                      targetId?: string | undefined
                       reason:
                         | 'spam'
                         | 'harassment'
@@ -562,20 +536,21 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         | 'copyright'
                         | 'impersonation'
                         | 'other'
-                      status: 'pending' | 'in_review' | 'resolved' | 'dismissed'
-                      createdAt: string
-                      targetId?: string | undefined
                       description?: string | undefined
+                      status: 'pending' | 'in_review' | 'resolved' | 'dismissed'
                       resolution?: string | undefined
+                      createdAt: string
                       resolvedAt?: string | undefined
                     }[]
                   | undefined
+                status: 'pending' | 'in_review' | 'resolved'
                 assignedTo?: string | undefined
                 priority?: 'low' | 'medium' | 'high' | 'urgent' | undefined
                 content?: {} | undefined
                 userHistory?:
                   | { previousViolations?: number | undefined; accountAge?: string | undefined }
                   | undefined
+                createdAt: string
               }[]
               nextCursor?: string | undefined
               stats?:
@@ -593,7 +568,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: {
               query: {
                 status?: 'pending' | 'in_review' | 'resolved' | undefined
-                type?: 'post' | 'message' | 'user' | undefined
+                type?: 'post' | 'user' | 'message' | undefined
+                cursor?: string | undefined
+                limit?: number | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: {
+              query: {
+                status?: 'pending' | 'in_review' | 'resolved' | undefined
+                type?: 'post' | 'user' | 'message' | undefined
                 cursor?: string | undefined
                 limit?: number | undefined
               }
@@ -608,28 +596,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { param: { itemId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { itemId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 403
-          }
-        | {
-            input: { param: { itemId: string } }
             output: {
               id: string
-              type: 'post' | 'message' | 'user'
-              status: 'pending' | 'in_review' | 'resolved'
-              createdAt: string
+              type: 'post' | 'user' | 'message'
               targetId?: string | undefined
               reports?:
                 | {
                     id: string
-                    type: 'post' | 'message' | 'user'
+                    type: 'post' | 'user' | 'message'
+                    targetId?: string | undefined
                     reason:
                       | 'spam'
                       | 'harassment'
@@ -641,23 +616,36 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | 'copyright'
                       | 'impersonation'
                       | 'other'
-                    status: 'pending' | 'in_review' | 'resolved' | 'dismissed'
-                    createdAt: string
-                    targetId?: string | undefined
                     description?: string | undefined
+                    status: 'pending' | 'in_review' | 'resolved' | 'dismissed'
                     resolution?: string | undefined
+                    createdAt: string
                     resolvedAt?: string | undefined
                   }[]
                 | undefined
+              status: 'pending' | 'in_review' | 'resolved'
               assignedTo?: string | undefined
               priority?: 'low' | 'medium' | 'high' | 'urgent' | undefined
               content?: {} | undefined
               userHistory?:
                 | { previousViolations?: number | undefined; accountAge?: string | undefined }
                 | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { itemId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { param: { itemId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 403
           }
     }
   } & {
@@ -672,42 +660,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 notifyUser?: boolean | undefined
               }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { itemId: string } } & {
-              json: {
-                action: 'approve' | 'remove_content' | 'warn_user' | 'suspend_user' | 'dismiss'
-                note?: string | undefined
-                suspensionDuration?: number | undefined
-                notifyUser?: boolean | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 403
-          }
-        | {
-            input: { param: { itemId: string } } & {
-              json: {
-                action: 'approve' | 'remove_content' | 'warn_user' | 'suspend_user' | 'dismiss'
-                note?: string | undefined
-                suspensionDuration?: number | undefined
-                notifyUser?: boolean | undefined
-              }
-            }
             output: {
               id: string
-              type: 'post' | 'message' | 'user'
-              status: 'pending' | 'in_review' | 'resolved'
-              createdAt: string
+              type: 'post' | 'user' | 'message'
               targetId?: string | undefined
               reports?:
                 | {
                     id: string
-                    type: 'post' | 'message' | 'user'
+                    type: 'post' | 'user' | 'message'
+                    targetId?: string | undefined
                     reason:
                       | 'spam'
                       | 'harassment'
@@ -719,28 +680,71 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | 'copyright'
                       | 'impersonation'
                       | 'other'
-                    status: 'pending' | 'in_review' | 'resolved' | 'dismissed'
-                    createdAt: string
-                    targetId?: string | undefined
                     description?: string | undefined
+                    status: 'pending' | 'in_review' | 'resolved' | 'dismissed'
                     resolution?: string | undefined
+                    createdAt: string
                     resolvedAt?: string | undefined
                   }[]
                 | undefined
+              status: 'pending' | 'in_review' | 'resolved'
               assignedTo?: string | undefined
               priority?: 'low' | 'medium' | 'high' | 'urgent' | undefined
               content?: {} | undefined
               userHistory?:
                 | { previousViolations?: number | undefined; accountAge?: string | undefined }
                 | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { itemId: string } } & {
+              json: {
+                action: 'approve' | 'remove_content' | 'warn_user' | 'suspend_user' | 'dismiss'
+                note?: string | undefined
+                suspensionDuration?: number | undefined
+                notifyUser?: boolean | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { param: { itemId: string } } & {
+              json: {
+                action: 'approve' | 'remove_content' | 'warn_user' | 'suspend_user' | 'dismiss'
+                note?: string | undefined
+                suspensionDuration?: number | undefined
+                notifyUser?: boolean | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 403
           }
     }
   } & {
     '/moderation/users/:userId/history': {
       $get:
+        | {
+            input: { param: { userId: string } }
+            output: {
+              id: string
+              action: string
+              targetType?: string | undefined
+              targetId?: string | undefined
+              reason?: string | undefined
+              note?: string | undefined
+              moderatorId?: string | undefined
+              createdAt: string
+              expiresAt?: string | undefined
+            }[]
+            outputFormat: 'json'
+            status: 200
+          }
         | {
             input: { param: { userId: string } }
             output: { code: string; message: string }
@@ -753,22 +757,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 403
           }
-        | {
-            input: { param: { userId: string } }
-            output: {
-              id: string
-              action: string
-              createdAt: string
-              targetType?: string | undefined
-              targetId?: string | undefined
-              reason?: string | undefined
-              note?: string | undefined
-              moderatorId?: string | undefined
-              expiresAt?: string | undefined
-            }[]
-            outputFormat: 'json'
-            status: 200
-          }
     }
   } & {
     '/moderation/users/:userId/suspend': {
@@ -777,17 +765,17 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { userId: string } } & {
               json: { reason: string; duration?: number | undefined; note?: string | undefined }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
+            output: {}
+            outputFormat: string
+            status: 200
           }
         | {
             input: { param: { userId: string } } & {
               json: { reason: string; duration?: number | undefined; note?: string | undefined }
             }
-            output: {}
-            outputFormat: string
-            status: 200
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
         | {
             input: { param: { userId: string } } & {
@@ -803,15 +791,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $post:
         | {
             input: { param: { userId: string } } & { json: { note?: string | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { userId: string } } & { json: { note?: string | undefined } }
             output: {}
             outputFormat: string
             status: 200
+          }
+        | {
+            input: { param: { userId: string } } & { json: { note?: string | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
         | {
             input: { param: { userId: string } } & { json: { note?: string | undefined } }
@@ -825,23 +813,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { param: { postId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { postId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 403
-          }
-        | {
-            input: { param: { postId: string } }
             output: {
               postId: string
               impressions: number
-              engagements: number
               reach?: number | undefined
+              engagements: number
               engagementRate?: number | undefined
               likes?: number | undefined
               reposts?: number | undefined
@@ -858,16 +834,22 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/analytics/account': {
-      $get:
         | {
-            input: { query: { period?: '7d' | '28d' | '90d' | undefined } }
+            input: { param: { postId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+        | {
+            input: { param: { postId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 403
+          }
+    }
+  } & {
+    '/analytics/account': {
+      $get:
         | {
             input: { query: { period?: '7d' | '28d' | '90d' | undefined } }
             output: {
@@ -889,16 +871,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/analytics/followers': {
-      $get:
         | {
             input: { query: { period?: '7d' | '28d' | '90d' | undefined } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/analytics/followers': {
+      $get:
         | {
             input: { query: { period?: '7d' | '28d' | '90d' | undefined } }
             output: {
@@ -938,22 +920,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/analytics/top-posts': {
-      $get:
         | {
-            input: {
-              query: {
-                period?: '7d' | '28d' | '90d' | undefined
-                metric?: 'impressions' | 'engagements' | 'likes' | 'reposts' | undefined
-                limit?: number | undefined
-              }
-            }
+            input: { query: { period?: '7d' | '28d' | '90d' | undefined } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/analytics/top-posts': {
+      $get:
         | {
             input: {
               query: {
@@ -970,8 +946,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 | {
                     postId: string
                     impressions: number
-                    engagements: number
                     reach?: number | undefined
+                    engagements: number
                     engagementRate?: number | undefined
                     likes?: number | undefined
                     reposts?: number | undefined
@@ -989,6 +965,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }[]
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {
+              query: {
+                period?: '7d' | '28d' | '90d' | undefined
+                metric?: 'impressions' | 'engagements' | 'likes' | 'reposts' | undefined
+                limit?: number | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   },

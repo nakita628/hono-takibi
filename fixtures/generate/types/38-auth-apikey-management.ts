@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/api-keys': {
       $get:
@@ -16,15 +16,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               data: {
                 id: string
                 name: string
+                description?: string | undefined
                 prefix: string
+                maskedKey?: string | undefined
                 status: 'active' | 'revoked' | 'expired'
                 environment: 'production' | 'staging' | 'development' | 'test'
-                createdAt: string
-                description?: string | undefined
-                maskedKey?: string | undefined
                 scopes?: string[] | undefined
                 expiresAt?: string | undefined
                 lastUsedAt?: string | undefined
+                createdAt: string
               }[]
               pagination: { page: number; limit: number; total: number; totalPages: number }
             }
@@ -44,30 +44,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 401
           }
-    }
-  } & {
-    '/api-keys': {
       $post:
         | {
             input: {
               json: {
                 name: string
-                environment: 'production' | 'staging' | 'development' | 'test'
                 description?: string | undefined
-                scopes?: string[] | undefined
-                expiresAt?: string | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              json: {
-                name: string
                 environment: 'production' | 'staging' | 'development' | 'test'
-                description?: string | undefined
                 scopes?: string[] | undefined
                 expiresAt?: string | undefined
               }
@@ -75,15 +58,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: {
               id: string
               name: string
+              description?: string | undefined
               prefix: string
+              maskedKey?: string | undefined
               status: 'active' | 'revoked' | 'expired'
               environment: 'production' | 'staging' | 'development' | 'test'
-              createdAt: string
-              description?: string | undefined
-              maskedKey?: string | undefined
               scopes?: string[] | undefined
               expiresAt?: string | undefined
               lastUsedAt?: string | undefined
+              createdAt: string
               secretKey: string
             }
             outputFormat: 'json'
@@ -93,8 +76,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: {
               json: {
                 name: string
-                environment: 'production' | 'staging' | 'development' | 'test'
                 description?: string | undefined
+                environment: 'production' | 'staging' | 'development' | 'test'
                 scopes?: string[] | undefined
                 expiresAt?: string | undefined
               }
@@ -103,30 +86,38 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 400
           }
+        | {
+            input: {
+              json: {
+                name: string
+                description?: string | undefined
+                environment: 'production' | 'staging' | 'development' | 'test'
+                scopes?: string[] | undefined
+                expiresAt?: string | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/api-keys/:keyId': {
       $get:
         | {
             input: { param: { keyId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { keyId: string } }
             output: {
               id: string
               name: string
+              description?: string | undefined
               prefix: string
+              maskedKey?: string | undefined
               status: 'active' | 'revoked' | 'expired'
               environment: 'production' | 'staging' | 'development' | 'test'
-              createdAt: string
-              description?: string | undefined
-              maskedKey?: string | undefined
               scopes?: string[] | undefined
               expiresAt?: string | undefined
               lastUsedAt?: string | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
@@ -135,11 +126,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { keyId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { param: { keyId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/api-keys/:keyId': {
       $patch:
         | {
             input: { param: { keyId: string } } & {
@@ -149,9 +143,21 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 scopes?: string[] | undefined
               }
             }
-            output: { code: string; message: string }
+            output: {
+              id: string
+              name: string
+              description?: string | undefined
+              prefix: string
+              maskedKey?: string | undefined
+              status: 'active' | 'revoked' | 'expired'
+              environment: 'production' | 'staging' | 'development' | 'test'
+              scopes?: string[] | undefined
+              expiresAt?: string | undefined
+              lastUsedAt?: string | undefined
+              createdAt: string
+            }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: { param: { keyId: string } } & {
@@ -161,60 +167,45 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 scopes?: string[] | undefined
               }
             }
-            output: {
-              id: string
-              name: string
-              prefix: string
-              status: 'active' | 'revoked' | 'expired'
-              environment: 'production' | 'staging' | 'development' | 'test'
-              createdAt: string
-              description?: string | undefined
-              maskedKey?: string | undefined
-              scopes?: string[] | undefined
-              expiresAt?: string | undefined
-              lastUsedAt?: string | undefined
-            }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 200
+            status: 401
           }
-    }
-  } & {
-    '/api-keys/:keyId': {
       $delete:
+        | { input: { param: { keyId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { keyId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { keyId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/api-keys/:keyId/revoke': {
       $post:
         | {
             input: { param: { keyId: string } } & { json: { reason?: string | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { keyId: string } } & { json: { reason?: string | undefined } }
             output: {
               id: string
               name: string
+              description?: string | undefined
               prefix: string
+              maskedKey?: string | undefined
               status: 'active' | 'revoked' | 'expired'
               environment: 'production' | 'staging' | 'development' | 'test'
-              createdAt: string
-              description?: string | undefined
-              maskedKey?: string | undefined
               scopes?: string[] | undefined
               expiresAt?: string | undefined
               lastUsedAt?: string | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { keyId: string } } & { json: { reason?: string | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -224,27 +215,19 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { keyId: string } } & {
               json: { gracePeriodHours?: number | undefined }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { keyId: string } } & {
-              json: { gracePeriodHours?: number | undefined }
-            }
             output: {
               newKey: {
                 id: string
                 name: string
+                description?: string | undefined
                 prefix: string
+                maskedKey?: string | undefined
                 status: 'active' | 'revoked' | 'expired'
                 environment: 'production' | 'staging' | 'development' | 'test'
-                createdAt: string
-                description?: string | undefined
-                maskedKey?: string | undefined
                 scopes?: string[] | undefined
                 expiresAt?: string | undefined
                 lastUsedAt?: string | undefined
+                createdAt: string
                 secretKey: string
               }
               oldKeyExpiresAt: string
@@ -252,22 +235,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/api-keys/:keyId/usage': {
-      $get:
         | {
             input: { param: { keyId: string } } & {
-              query: {
-                from: string
-                to: string
-                granularity?: 'hour' | 'day' | 'week' | 'month' | undefined
-              }
+              json: { gracePeriodHours?: number | undefined }
             }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/api-keys/:keyId/usage': {
+      $get:
         | {
             input: { param: { keyId: string } } & {
               query: {
@@ -290,16 +269,22 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/api-keys/:keyId/rate-limit/current': {
-      $get:
         | {
-            input: { param: { keyId: string } }
+            input: { param: { keyId: string } } & {
+              query: {
+                from: string
+                to: string
+                granularity?: 'hour' | 'day' | 'week' | 'month' | undefined
+              }
+            }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/api-keys/:keyId/rate-limit/current': {
+      $get:
         | {
             input: { param: { keyId: string } }
             output: {
@@ -311,16 +296,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: { param: { keyId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/api-keys/verify': {
       $post:
-        | {
-            input: { json: { apiKey: string; requiredScopes?: string[] | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 400
-          }
         | {
             input: { json: { apiKey: string; requiredScopes?: string[] | undefined } }
             output: {
@@ -334,21 +319,27 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: { json: { apiKey: string; requiredScopes?: string[] | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 400
+          }
     }
   } & {
     '/scopes': {
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: { name: string; description: string; category?: string | undefined }[]
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   },

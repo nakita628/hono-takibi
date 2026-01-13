@@ -1,17 +1,9 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/users': {
       $post: {
-        input: {
-          json: {
-            email: string
-            name?: string | undefined
-            password?:
-              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-              | undefined
-          }
-        }
+        input: { json: { email: string; name?: string | undefined; password?: File | undefined } }
         output: {}
         outputFormat: string
         status: 201
@@ -27,9 +19,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         outputFormat: string
         status: 200
       }
-    }
-  } & {
-    '/users/:userId': {
       $patch: {
         input: { param: { userId: string } } & {
           json: {
@@ -47,12 +36,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
     '/users/:userId/avatar': {
       $post: {
         input: { param: { userId: string } } & {
-          form:
-            | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-            | {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                description?: string | undefined
-              }
+          form: { file: File; description?: string | undefined }
         }
         output: {}
         outputFormat: string
@@ -64,20 +48,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $post: {
         input: {
           json:
-            | {
-                email: string
-                name?: string | undefined
-                password?:
-                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                  | undefined
-              }
-            | {
-                email: string
-                name?: string | undefined
-                password?:
-                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                  | undefined
-              }[]
+            | { email: string; name?: string | undefined; password?: File | undefined }[]
+            | { email: string; name?: string | undefined; password?: File | undefined }
         }
         output: {}
         outputFormat: string

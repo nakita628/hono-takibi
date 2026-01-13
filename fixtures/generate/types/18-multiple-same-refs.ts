@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/documents': {
       $get: {
@@ -122,9 +122,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/documents': {
       $post: {
         input: {
           json: {
@@ -426,11 +423,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             | {
                 id: string
                 action:
-                  | 'approved'
-                  | 'published'
                   | 'created'
                   | 'updated'
                   | 'reviewed'
+                  | 'approved'
+                  | 'published'
                   | 'shared'
                   | 'commented'
                 actor: {
@@ -466,9 +463,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/documents/:documentId': {
       $put: {
         input: { param: { documentId: string } } & {
           json: {
@@ -1375,6 +1369,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         output: {
           id: string
           name: string
+          description?: string | undefined
           content: {
             format?: 'markdown' | 'html' | 'plain' | 'rich' | undefined
             body?: string | undefined
@@ -1397,7 +1392,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 }[]
               | undefined
           }
-          description?: string | undefined
           defaultReviewers?:
             | {
                 id: string
@@ -1441,7 +1435,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
           variables?:
             | {
                 name: string
-                type: 'number' | 'date' | 'user' | 'text' | 'document'
+                type: 'text' | 'number' | 'date' | 'user' | 'document'
                 required?: boolean | undefined
                 defaultValue?: string | undefined
                 description?: string | undefined
@@ -1451,13 +1445,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/templates': {
       $post: {
         input: {
           json: {
             name: string
+            description?: string | undefined
             content: {
               format?: 'markdown' | 'html' | 'plain' | 'rich' | undefined
               body?: string | undefined
@@ -1480,7 +1472,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   }[]
                 | undefined
             }
-            description?: string | undefined
             defaultReviewers?: string[] | undefined
             defaultApprover?: string | undefined
             defaultTags?: { name: string; color?: string | undefined }[] | undefined
@@ -1488,7 +1479,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             variables?:
               | {
                   name: string
-                  type: 'number' | 'date' | 'user' | 'text' | 'document'
+                  type: 'text' | 'number' | 'date' | 'user' | 'document'
                   required?: boolean | undefined
                   defaultValue?: string | undefined
                   description?: string | undefined
@@ -1499,6 +1490,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         output: {
           id: string
           name: string
+          description?: string | undefined
           content: {
             format?: 'markdown' | 'html' | 'plain' | 'rich' | undefined
             body?: string | undefined
@@ -1521,7 +1513,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 }[]
               | undefined
           }
-          description?: string | undefined
           defaultReviewers?:
             | {
                 id: string
@@ -1565,7 +1556,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
           variables?:
             | {
                 name: string
-                type: 'number' | 'date' | 'user' | 'text' | 'document'
+                type: 'text' | 'number' | 'date' | 'user' | 'document'
                 required?: boolean | undefined
                 defaultValue?: string | undefined
                 description?: string | undefined
@@ -1582,9 +1573,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         input: {
           json: {
             name: string
+            description?: string | undefined
             steps: {
               name: string
-              type: 'custom' | 'review' | 'approval' | 'notification'
+              type: 'review' | 'approval' | 'notification' | 'custom'
               assignee?:
                 | {
                     id: string
@@ -1607,17 +1599,17 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   }
                 | undefined
             }[]
-            description?: string | undefined
-            defaultAssignees?: Record<string, string> | undefined
+            defaultAssignees?: { [x: string]: string } | undefined
           }
         }
         output: {
           id: string
           definition: {
             name: string
+            description?: string | undefined
             steps: {
               name: string
-              type: 'custom' | 'review' | 'approval' | 'notification'
+              type: 'review' | 'approval' | 'notification' | 'custom'
               assignee?:
                 | {
                     id: string
@@ -1640,7 +1632,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   }
                 | undefined
             }[]
-            description?: string | undefined
             defaultAssignees?: { [x: string]: string } | undefined
           }
           document: {
@@ -1652,7 +1643,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
           currentStep?:
             | {
                 name: string
-                type: 'custom' | 'review' | 'approval' | 'notification'
+                type: 'review' | 'approval' | 'notification' | 'custom'
                 assignee?:
                   | {
                       id: string
@@ -1681,7 +1672,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 step?:
                   | {
                       name: string
-                      type: 'custom' | 'review' | 'approval' | 'notification'
+                      type: 'review' | 'approval' | 'notification' | 'custom'
                       assignee?:
                         | {
                             id: string

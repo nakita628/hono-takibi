@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/social/authorize/:provider': {
       $get:
@@ -146,6 +146,32 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               }
             }
             output: {
+              user: {
+                id?: string | undefined
+                email?: string | undefined
+                name?: string | undefined
+                picture?: string | undefined
+              }
+              isNewUser: boolean
+              accessToken?: string | undefined
+              refreshToken?: string | undefined
+              expiresIn?: number | undefined
+              provider?: string | undefined
+              providerUserId?: string | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: {
+              json: {
+                provider: string
+                code: string
+                redirectUri: string
+                codeVerifier?: string | undefined
+              }
+            }
+            output: {
               error:
                 | 'invalid_request'
                 | 'access_denied'
@@ -163,32 +189,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 400
-          }
-        | {
-            input: {
-              json: {
-                provider: string
-                code: string
-                redirectUri: string
-                codeVerifier?: string | undefined
-              }
-            }
-            output: {
-              user: {
-                id?: string | undefined
-                email?: string | undefined
-                name?: string | undefined
-                picture?: string | undefined
-              }
-              isNewUser: boolean
-              accessToken?: string | undefined
-              refreshToken?: string | undefined
-              expiresIn?: number | undefined
-              provider?: string | undefined
-              providerUserId?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 200
           }
     }
   } & {
@@ -203,6 +203,31 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               }
             }
             output: {
+              user: {
+                id?: string | undefined
+                email?: string | undefined
+                name?: string | undefined
+                picture?: string | undefined
+              }
+              isNewUser: boolean
+              accessToken?: string | undefined
+              refreshToken?: string | undefined
+              expiresIn?: number | undefined
+              provider?: string | undefined
+              providerUserId?: string | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: {
+              json: {
+                provider: string
+                token: string
+                tokenType?: 'id_token' | 'access_token' | undefined
+              }
+            }
+            output: {
               error:
                 | 'invalid_request'
                 | 'access_denied'
@@ -220,31 +245,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 400
-          }
-        | {
-            input: {
-              json: {
-                provider: string
-                token: string
-                tokenType?: 'id_token' | 'access_token' | undefined
-              }
-            }
-            output: {
-              user: {
-                id?: string | undefined
-                email?: string | undefined
-                name?: string | undefined
-                picture?: string | undefined
-              }
-              isNewUser: boolean
-              accessToken?: string | undefined
-              refreshToken?: string | undefined
-              expiresIn?: number | undefined
-              provider?: string | undefined
-              providerUserId?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 200
           }
     }
   } & {
@@ -274,7 +274,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               name: string
               type: 'oauth2' | 'oidc' | 'saml'
               enabled: boolean
-              createdAt: string
               clientId?: string | undefined
               authorizationUrl?: string | undefined
               tokenUrl?: string | undefined
@@ -293,6 +292,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               autoLinkUser?: boolean | undefined
               icon?: string | undefined
               buttonColor?: string | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }[]
             outputFormat: 'json'
@@ -304,9 +304,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 401
           }
-    }
-  } & {
-    '/providers/admin': {
       $post:
         | {
             input: {
@@ -319,7 +316,55 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 tokenUrl?: string | undefined
                 userInfoUrl?: string | undefined
                 scopes?: string[] | undefined
-                attributeMapping?: Record<string, never> | undefined
+                attributeMapping?: {} | undefined
+                allowedDomains?: string[] | undefined
+                autoCreateUser?: boolean | undefined
+                autoLinkUser?: boolean | undefined
+                icon?: string | undefined
+                buttonColor?: string | undefined
+              }
+            }
+            output: {
+              id: string
+              name: string
+              type: 'oauth2' | 'oidc' | 'saml'
+              enabled: boolean
+              clientId?: string | undefined
+              authorizationUrl?: string | undefined
+              tokenUrl?: string | undefined
+              userInfoUrl?: string | undefined
+              scopes?: string[] | undefined
+              attributeMapping?:
+                | {
+                    id?: string | undefined
+                    email?: string | undefined
+                    name?: string | undefined
+                    picture?: string | undefined
+                  }
+                | undefined
+              allowedDomains?: string[] | undefined
+              autoCreateUser?: boolean | undefined
+              autoLinkUser?: boolean | undefined
+              icon?: string | undefined
+              buttonColor?: string | undefined
+              createdAt: string
+              updatedAt?: string | undefined
+            }
+            outputFormat: 'json'
+            status: 201
+          }
+        | {
+            input: {
+              json: {
+                name: string
+                type: 'oauth2' | 'oidc'
+                clientId: string
+                clientSecret: string
+                authorizationUrl?: string | undefined
+                tokenUrl?: string | undefined
+                userInfoUrl?: string | undefined
+                scopes?: string[] | undefined
+                attributeMapping?: {} | undefined
                 allowedDomains?: string[] | undefined
                 autoCreateUser?: boolean | undefined
                 autoLinkUser?: boolean | undefined
@@ -342,7 +387,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 tokenUrl?: string | undefined
                 userInfoUrl?: string | undefined
                 scopes?: string[] | undefined
-                attributeMapping?: Record<string, never> | undefined
+                attributeMapping?: {} | undefined
                 allowedDomains?: string[] | undefined
                 autoCreateUser?: boolean | undefined
                 autoLinkUser?: boolean | undefined
@@ -353,54 +398,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
-          }
-        | {
-            input: {
-              json: {
-                name: string
-                type: 'oauth2' | 'oidc'
-                clientId: string
-                clientSecret: string
-                authorizationUrl?: string | undefined
-                tokenUrl?: string | undefined
-                userInfoUrl?: string | undefined
-                scopes?: string[] | undefined
-                attributeMapping?: Record<string, never> | undefined
-                allowedDomains?: string[] | undefined
-                autoCreateUser?: boolean | undefined
-                autoLinkUser?: boolean | undefined
-                icon?: string | undefined
-                buttonColor?: string | undefined
-              }
-            }
-            output: {
-              id: string
-              name: string
-              type: 'oauth2' | 'oidc' | 'saml'
-              enabled: boolean
-              createdAt: string
-              clientId?: string | undefined
-              authorizationUrl?: string | undefined
-              tokenUrl?: string | undefined
-              userInfoUrl?: string | undefined
-              scopes?: string[] | undefined
-              attributeMapping?:
-                | {
-                    id?: string | undefined
-                    email?: string | undefined
-                    name?: string | undefined
-                    picture?: string | undefined
-                  }
-                | undefined
-              allowedDomains?: string[] | undefined
-              autoCreateUser?: boolean | undefined
-              autoLinkUser?: boolean | undefined
-              icon?: string | undefined
-              buttonColor?: string | undefined
-              updatedAt?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 201
           }
     }
   } & {
@@ -408,18 +405,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { param: { providerId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { providerId: string } }
             output: {
               id: string
               name: string
               type: 'oauth2' | 'oidc' | 'saml'
               enabled: boolean
-              createdAt: string
               clientId?: string | undefined
               authorizationUrl?: string | undefined
               tokenUrl?: string | undefined
@@ -438,6 +428,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               autoLinkUser?: boolean | undefined
               icon?: string | undefined
               buttonColor?: string | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
@@ -447,11 +438,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { providerId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { param: { providerId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/providers/:providerId': {
       $put:
         | {
             input: { param: { providerId: string } } & {
@@ -464,28 +458,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 tokenUrl?: string | undefined
                 userInfoUrl?: string | undefined
                 scopes?: string[] | undefined
-                attributeMapping?: Record<string, never> | undefined
-                allowedDomains?: string[] | undefined
-                autoCreateUser?: boolean | undefined
-                autoLinkUser?: boolean | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { providerId: string } } & {
-              json: {
-                name?: string | undefined
-                enabled?: boolean | undefined
-                clientId?: string | undefined
-                clientSecret?: string | undefined
-                authorizationUrl?: string | undefined
-                tokenUrl?: string | undefined
-                userInfoUrl?: string | undefined
-                scopes?: string[] | undefined
-                attributeMapping?: Record<string, never> | undefined
+                attributeMapping?: {} | undefined
                 allowedDomains?: string[] | undefined
                 autoCreateUser?: boolean | undefined
                 autoLinkUser?: boolean | undefined
@@ -496,7 +469,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               name: string
               type: 'oauth2' | 'oidc' | 'saml'
               enabled: boolean
-              createdAt: string
               clientId?: string | undefined
               authorizationUrl?: string | undefined
               tokenUrl?: string | undefined
@@ -515,37 +487,50 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               autoLinkUser?: boolean | undefined
               icon?: string | undefined
               buttonColor?: string | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/providers/:providerId': {
-      $delete:
         | {
-            input: { param: { providerId: string } }
+            input: { param: { providerId: string } } & {
+              json: {
+                name?: string | undefined
+                enabled?: boolean | undefined
+                clientId?: string | undefined
+                clientSecret?: string | undefined
+                authorizationUrl?: string | undefined
+                tokenUrl?: string | undefined
+                userInfoUrl?: string | undefined
+                scopes?: string[] | undefined
+                attributeMapping?: {} | undefined
+                allowedDomains?: string[] | undefined
+                autoCreateUser?: boolean | undefined
+                autoLinkUser?: boolean | undefined
+              }
+            }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+      $delete:
         | {
             input: { param: { providerId: string } }
             output: {}
             outputFormat: string
             status: 204
           }
-    }
-  } & {
-    '/providers/:providerId/test': {
-      $post:
         | {
             input: { param: { providerId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/providers/:providerId/test': {
+      $post:
         | {
             input: { param: { providerId: string } }
             output: {
@@ -556,30 +541,36 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: { param: { providerId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/account/linked': {
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               id: string
               provider: string
               providerUserId: string
-              createdAt: string
               providerEmail?: string | undefined
               providerName?: string | undefined
               providerPicture?: string | undefined
               lastUsedAt?: string | undefined
+              createdAt: string
             }[]
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -601,6 +592,35 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   | 'custom'
               }
             } & { json: { code: string; redirectUri: string } }
+            output: {
+              id: string
+              provider: string
+              providerUserId: string
+              providerEmail?: string | undefined
+              providerName?: string | undefined
+              providerPicture?: string | undefined
+              lastUsedAt?: string | undefined
+              createdAt: string
+            }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: {
+              param: {
+                provider:
+                  | 'google'
+                  | 'github'
+                  | 'microsoft'
+                  | 'apple'
+                  | 'facebook'
+                  | 'twitter'
+                  | 'linkedin'
+                  | 'slack'
+                  | 'discord'
+                  | 'custom'
+              }
+            } & { json: { code: string; redirectUri: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 400
@@ -624,35 +644,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
-          }
-        | {
-            input: {
-              param: {
-                provider:
-                  | 'google'
-                  | 'github'
-                  | 'microsoft'
-                  | 'apple'
-                  | 'facebook'
-                  | 'twitter'
-                  | 'linkedin'
-                  | 'slack'
-                  | 'discord'
-                  | 'custom'
-              }
-            } & { json: { code: string; redirectUri: string } }
-            output: {
-              id: string
-              provider: string
-              providerUserId: string
-              createdAt: string
-              providerEmail?: string | undefined
-              providerName?: string | undefined
-              providerPicture?: string | undefined
-              lastUsedAt?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 200
           }
         | {
             input: {
@@ -674,50 +665,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 409
           }
-    }
-  } & {
-    '/account/link/:provider': {
       $delete:
-        | {
-            input: {
-              param: {
-                provider:
-                  | 'google'
-                  | 'github'
-                  | 'microsoft'
-                  | 'apple'
-                  | 'facebook'
-                  | 'twitter'
-                  | 'linkedin'
-                  | 'slack'
-                  | 'discord'
-                  | 'custom'
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 400
-          }
-        | {
-            input: {
-              param: {
-                provider:
-                  | 'google'
-                  | 'github'
-                  | 'microsoft'
-                  | 'apple'
-                  | 'facebook'
-                  | 'twitter'
-                  | 'linkedin'
-                  | 'slack'
-                  | 'discord'
-                  | 'custom'
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: {
               param: {
@@ -738,25 +686,58 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: string
             status: 204
           }
+        | {
+            input: {
+              param: {
+                provider:
+                  | 'google'
+                  | 'github'
+                  | 'microsoft'
+                  | 'apple'
+                  | 'facebook'
+                  | 'twitter'
+                  | 'linkedin'
+                  | 'slack'
+                  | 'discord'
+                  | 'custom'
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 400
+          }
+        | {
+            input: {
+              param: {
+                provider:
+                  | 'google'
+                  | 'github'
+                  | 'microsoft'
+                  | 'apple'
+                  | 'facebook'
+                  | 'twitter'
+                  | 'linkedin'
+                  | 'slack'
+                  | 'discord'
+                  | 'custom'
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/enterprise/sso': {
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               id: string
               name: string
-              type: 'oidc' | 'saml'
+              type: 'saml' | 'oidc'
               domains: string[]
               enabled: boolean
-              createdAt: string
               samlConfig?:
                 | {
                     entityId?: string | undefined
@@ -797,20 +778,24 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     defaultRole?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }[]
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/enterprise/sso': {
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $post:
         | {
             input: {
               json: {
                 name: string
-                type: 'oidc' | 'saml'
+                type: 'saml' | 'oidc'
                 domains: string[]
                 samlConfig?:
                   | {
@@ -842,10 +827,104 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       userInfoEndpoint?: string | undefined
                       jwksUri?: string | undefined
                       scopes?: string[] | undefined
-                      attributeMapping?: Record<string, never> | undefined
+                      attributeMapping?: {} | undefined
                     }
                   | undefined
-                userProvisioning?: Record<string, never> | undefined
+                userProvisioning?: {} | undefined
+              }
+            }
+            output: {
+              id: string
+              name: string
+              type: 'saml' | 'oidc'
+              domains: string[]
+              enabled: boolean
+              samlConfig?:
+                | {
+                    entityId?: string | undefined
+                    ssoUrl?: string | undefined
+                    sloUrl?: string | undefined
+                    certificate?: string | undefined
+                    signRequest?: boolean | undefined
+                    signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512' | undefined
+                    digestAlgorithm?: 'SHA256' | 'SHA512' | undefined
+                    nameIdFormat?: string | undefined
+                    attributeMapping?:
+                      | {
+                          email?: string | undefined
+                          name?: string | undefined
+                          firstName?: string | undefined
+                          lastName?: string | undefined
+                          groups?: string | undefined
+                        }
+                      | undefined
+                  }
+                | undefined
+              oidcConfig?:
+                | {
+                    issuer?: string | undefined
+                    clientId?: string | undefined
+                    authorizationEndpoint?: string | undefined
+                    tokenEndpoint?: string | undefined
+                    userInfoEndpoint?: string | undefined
+                    jwksUri?: string | undefined
+                    scopes?: string[] | undefined
+                    attributeMapping?: {} | undefined
+                  }
+                | undefined
+              userProvisioning?:
+                | {
+                    autoCreate?: boolean | undefined
+                    autoUpdate?: boolean | undefined
+                    defaultRole?: string | undefined
+                  }
+                | undefined
+              createdAt: string
+              updatedAt?: string | undefined
+            }
+            outputFormat: 'json'
+            status: 201
+          }
+        | {
+            input: {
+              json: {
+                name: string
+                type: 'saml' | 'oidc'
+                domains: string[]
+                samlConfig?:
+                  | {
+                      entityId?: string | undefined
+                      ssoUrl?: string | undefined
+                      sloUrl?: string | undefined
+                      certificate?: string | undefined
+                      signRequest?: boolean | undefined
+                      signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512' | undefined
+                      digestAlgorithm?: 'SHA256' | 'SHA512' | undefined
+                      nameIdFormat?: string | undefined
+                      attributeMapping?:
+                        | {
+                            email?: string | undefined
+                            name?: string | undefined
+                            firstName?: string | undefined
+                            lastName?: string | undefined
+                            groups?: string | undefined
+                          }
+                        | undefined
+                    }
+                  | undefined
+                oidcConfig?:
+                  | {
+                      issuer?: string | undefined
+                      clientId?: string | undefined
+                      authorizationEndpoint?: string | undefined
+                      tokenEndpoint?: string | undefined
+                      userInfoEndpoint?: string | undefined
+                      jwksUri?: string | undefined
+                      scopes?: string[] | undefined
+                      attributeMapping?: {} | undefined
+                    }
+                  | undefined
+                userProvisioning?: {} | undefined
               }
             }
             output: { code: string; message: string }
@@ -856,7 +935,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: {
               json: {
                 name: string
-                type: 'oidc' | 'saml'
+                type: 'saml' | 'oidc'
                 domains: string[]
                 samlConfig?:
                   | {
@@ -888,65 +967,28 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       userInfoEndpoint?: string | undefined
                       jwksUri?: string | undefined
                       scopes?: string[] | undefined
-                      attributeMapping?: Record<string, never> | undefined
+                      attributeMapping?: {} | undefined
                     }
                   | undefined
-                userProvisioning?: Record<string, never> | undefined
+                userProvisioning?: {} | undefined
               }
             }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/enterprise/sso/:configId': {
+      $get:
         | {
-            input: {
-              json: {
-                name: string
-                type: 'oidc' | 'saml'
-                domains: string[]
-                samlConfig?:
-                  | {
-                      entityId?: string | undefined
-                      ssoUrl?: string | undefined
-                      sloUrl?: string | undefined
-                      certificate?: string | undefined
-                      signRequest?: boolean | undefined
-                      signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512' | undefined
-                      digestAlgorithm?: 'SHA256' | 'SHA512' | undefined
-                      nameIdFormat?: string | undefined
-                      attributeMapping?:
-                        | {
-                            email?: string | undefined
-                            name?: string | undefined
-                            firstName?: string | undefined
-                            lastName?: string | undefined
-                            groups?: string | undefined
-                          }
-                        | undefined
-                    }
-                  | undefined
-                oidcConfig?:
-                  | {
-                      issuer?: string | undefined
-                      clientId?: string | undefined
-                      authorizationEndpoint?: string | undefined
-                      tokenEndpoint?: string | undefined
-                      userInfoEndpoint?: string | undefined
-                      jwksUri?: string | undefined
-                      scopes?: string[] | undefined
-                      attributeMapping?: Record<string, never> | undefined
-                    }
-                  | undefined
-                userProvisioning?: Record<string, never> | undefined
-              }
-            }
+            input: { param: { configId: string } }
             output: {
               id: string
               name: string
-              type: 'oidc' | 'saml'
+              type: 'saml' | 'oidc'
               domains: string[]
               enabled: boolean
-              createdAt: string
               samlConfig?:
                 | {
                     entityId?: string | undefined
@@ -987,15 +1029,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     defaultRole?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
-            status: 201
+            status: 200
           }
-    }
-  } & {
-    '/enterprise/sso/:configId': {
-      $get:
         | {
             input: { param: { configId: string } }
             output: { code: string; message: string }
@@ -1008,63 +1047,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 404
           }
-        | {
-            input: { param: { configId: string } }
-            output: {
-              id: string
-              name: string
-              type: 'oidc' | 'saml'
-              domains: string[]
-              enabled: boolean
-              createdAt: string
-              samlConfig?:
-                | {
-                    entityId?: string | undefined
-                    ssoUrl?: string | undefined
-                    sloUrl?: string | undefined
-                    certificate?: string | undefined
-                    signRequest?: boolean | undefined
-                    signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512' | undefined
-                    digestAlgorithm?: 'SHA256' | 'SHA512' | undefined
-                    nameIdFormat?: string | undefined
-                    attributeMapping?:
-                      | {
-                          email?: string | undefined
-                          name?: string | undefined
-                          firstName?: string | undefined
-                          lastName?: string | undefined
-                          groups?: string | undefined
-                        }
-                      | undefined
-                  }
-                | undefined
-              oidcConfig?:
-                | {
-                    issuer?: string | undefined
-                    clientId?: string | undefined
-                    authorizationEndpoint?: string | undefined
-                    tokenEndpoint?: string | undefined
-                    userInfoEndpoint?: string | undefined
-                    jwksUri?: string | undefined
-                    scopes?: string[] | undefined
-                    attributeMapping?: {} | undefined
-                  }
-                | undefined
-              userProvisioning?:
-                | {
-                    autoCreate?: boolean | undefined
-                    autoUpdate?: boolean | undefined
-                    defaultRole?: string | undefined
-                  }
-                | undefined
-              updatedAt?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 200
-          }
-    }
-  } & {
-    '/enterprise/sso/:configId': {
       $put:
         | {
             input: { param: { configId: string } } & {
@@ -1102,15 +1084,63 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       userInfoEndpoint?: string | undefined
                       jwksUri?: string | undefined
                       scopes?: string[] | undefined
-                      attributeMapping?: Record<string, never> | undefined
+                      attributeMapping?: {} | undefined
                     }
                   | undefined
-                userProvisioning?: Record<string, never> | undefined
+                userProvisioning?: {} | undefined
               }
             }
-            output: { code: string; message: string }
+            output: {
+              id: string
+              name: string
+              type: 'saml' | 'oidc'
+              domains: string[]
+              enabled: boolean
+              samlConfig?:
+                | {
+                    entityId?: string | undefined
+                    ssoUrl?: string | undefined
+                    sloUrl?: string | undefined
+                    certificate?: string | undefined
+                    signRequest?: boolean | undefined
+                    signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512' | undefined
+                    digestAlgorithm?: 'SHA256' | 'SHA512' | undefined
+                    nameIdFormat?: string | undefined
+                    attributeMapping?:
+                      | {
+                          email?: string | undefined
+                          name?: string | undefined
+                          firstName?: string | undefined
+                          lastName?: string | undefined
+                          groups?: string | undefined
+                        }
+                      | undefined
+                  }
+                | undefined
+              oidcConfig?:
+                | {
+                    issuer?: string | undefined
+                    clientId?: string | undefined
+                    authorizationEndpoint?: string | undefined
+                    tokenEndpoint?: string | undefined
+                    userInfoEndpoint?: string | undefined
+                    jwksUri?: string | undefined
+                    scopes?: string[] | undefined
+                    attributeMapping?: {} | undefined
+                  }
+                | undefined
+              userProvisioning?:
+                | {
+                    autoCreate?: boolean | undefined
+                    autoUpdate?: boolean | undefined
+                    defaultRole?: string | undefined
+                  }
+                | undefined
+              createdAt: string
+              updatedAt?: string | undefined
+            }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: { param: { configId: string } } & {
@@ -1148,75 +1178,24 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       userInfoEndpoint?: string | undefined
                       jwksUri?: string | undefined
                       scopes?: string[] | undefined
-                      attributeMapping?: Record<string, never> | undefined
+                      attributeMapping?: {} | undefined
                     }
                   | undefined
-                userProvisioning?: Record<string, never> | undefined
+                userProvisioning?: {} | undefined
               }
             }
-            output: {
-              id: string
-              name: string
-              type: 'oidc' | 'saml'
-              domains: string[]
-              enabled: boolean
-              createdAt: string
-              samlConfig?:
-                | {
-                    entityId?: string | undefined
-                    ssoUrl?: string | undefined
-                    sloUrl?: string | undefined
-                    certificate?: string | undefined
-                    signRequest?: boolean | undefined
-                    signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512' | undefined
-                    digestAlgorithm?: 'SHA256' | 'SHA512' | undefined
-                    nameIdFormat?: string | undefined
-                    attributeMapping?:
-                      | {
-                          email?: string | undefined
-                          name?: string | undefined
-                          firstName?: string | undefined
-                          lastName?: string | undefined
-                          groups?: string | undefined
-                        }
-                      | undefined
-                  }
-                | undefined
-              oidcConfig?:
-                | {
-                    issuer?: string | undefined
-                    clientId?: string | undefined
-                    authorizationEndpoint?: string | undefined
-                    tokenEndpoint?: string | undefined
-                    userInfoEndpoint?: string | undefined
-                    jwksUri?: string | undefined
-                    scopes?: string[] | undefined
-                    attributeMapping?: {} | undefined
-                  }
-                | undefined
-              userProvisioning?:
-                | {
-                    autoCreate?: boolean | undefined
-                    autoUpdate?: boolean | undefined
-                    defaultRole?: string | undefined
-                  }
-                | undefined
-              updatedAt?: string | undefined
-            }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 200
+            status: 401
           }
-    }
-  } & {
-    '/enterprise/sso/:configId': {
       $delete:
+        | { input: { param: { configId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { configId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { configId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/enterprise/sso/domain-lookup': {
@@ -1226,10 +1205,9 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: {
               id: string
               name: string
-              type: 'oidc' | 'saml'
+              type: 'saml' | 'oidc'
               domains: string[]
               enabled: boolean
-              createdAt: string
               samlConfig?:
                 | {
                     entityId?: string | undefined
@@ -1270,6 +1248,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     defaultRole?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
@@ -1281,9 +1260,9 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
     '/enterprise/sso/:configId/metadata': {
       $get: {
         input: { param: { configId: string } }
-        output: Response
-        outputFormat: 'json'
-        status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').StatusCode
+        output: string
+        outputFormat: 'text'
+        status: 200
       }
     }
   },

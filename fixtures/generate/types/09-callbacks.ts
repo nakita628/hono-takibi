@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/webhooks': {
       $post: {
@@ -49,14 +49,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         input: {
           json: {
             type: 'export' | 'import' | 'process'
+            data?: { [x: string]: unknown } | undefined
             callbackUrl: string
-            data?: Record<string, never> | undefined
           }
         }
         output: {
           id: string
           type: string
-          status: 'failed' | 'queued' | 'running' | 'completed'
+          status: 'queued' | 'running' | 'completed' | 'failed'
           progress?: number | undefined
         }
         outputFormat: 'json'
