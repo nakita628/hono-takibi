@@ -6,10 +6,10 @@
  *
  * ```mermaid
  * flowchart TD
- *   A["type(openAPI, output)"] --> B["buildHonoSchemaType()"]
+ *   A["type(openAPI, output)"] --> B["makeHonoSchemaType()"]
  *   B --> C["For each path/method"]
- *   C --> D["buildInputType()"]
- *   C --> E["buildOutputTypes()"]
+ *   C --> D["makeInputType()"]
+ *   C --> E["makeOutputTypes()"]
  *   D --> F["Combine into Schema"]
  *   E --> F
  *   F --> G["Write declaration file"]
@@ -31,155 +31,12 @@ import type {
 } from '../../openapi/index.js'
 import { isHttpMethod } from '../../utils/index.js'
 
-type Result =
-  | { readonly ok: true; readonly value: string }
-  | { readonly ok: false; readonly error: string }
-
-/**
- * Generates TypeScript type declarations from OpenAPI specification.
- */
-export async function type(openAPI: OpenAPI, output: `${string}.ts`): Promise<Result> {
-  try {
-    const schemaType = buildHonoSchemaType(openAPI)
-    const dts = `declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${schemaType},'/'>\nexport default routes\n`
-    const coreResult = await core(dts, path.dirname(output), output)
-    if (!coreResult.ok) return { ok: false, error: coreResult.error }
-    return { ok: true, value: `Generated type code written to ${output}` }
-  } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : String(e) }
-  }
-}
-
-function buildHonoSchemaType(openAPI: OpenAPI): string {
-  const { paths, components } = openAPI
-  const pathMethodMap = new Map<string, Map<string, string>>()
-  for (const [openApiPath, pathItem] of Object.entries(paths)) {
-    const honoPath = convertPathToHono(openApiPath)
-    const pathLevelParams = pathItem.parameters ?? []
-    for (const [method, operation] of Object.entries(pathItem)) {
-      if (!isHttpMethod(method)) continue
-      if (!isOperation(operation)) continue
-      const methodType = buildMethodType(operation, openApiPath, components, pathLevelParams)
-      const methodMap = pathMethodMap.get(honoPath) ?? new Map<string, string>()
-      methodMap.set(`$${method}`, methodType)
-      pathMethodMap.set(honoPath, methodMap)
-    }
-  }
-  if (pathMethodMap.size === 0) return '{}'
-  const pathEntries = Array.from(pathMethodMap.entries()).map(([pathKey, methodMap]) => {
-    const methods = Array.from(methodMap.entries())
-      .map(([k, v]) => `${k}:${v}`)
-      .join(';')
-    return `{'${pathKey}':{${methods}}}`
-  })
-  return pathEntries.join('&')
-}
+// ============================================================================
+// Type Guards
+// ============================================================================
 
 function isOperation(op: unknown): op is Operation {
   return typeof op === 'object' && op !== null && 'responses' in op
-}
-
-function convertPathToHono(openApiPath: string): string {
-  return openApiPath.replace(/\{([^}]+)\}/g, ':$1')
-}
-
-function buildMethodType(
-  operation: Operation,
-  openApiPath: string,
-  components: Components | undefined,
-  pathLevelParams: readonly Parameter[] | readonly Reference[],
-): string {
-  const inputType = buildInputType(operation, openApiPath, components, pathLevelParams)
-  const outputTypes = buildOutputTypes(operation.responses, components)
-  if (outputTypes.length === 0)
-    return `{input:${inputType};output:{};outputFormat:string;status:200}`
-  if (outputTypes.length === 1) return outputTypes[0].replace('INPUT_PLACEHOLDER', inputType)
-  return outputTypes.map((t) => t.replace('INPUT_PLACEHOLDER', inputType)).join('|')
-}
-
-function buildInputType(
-  operation: Operation,
-  openApiPath: string,
-  components: Components | undefined,
-  pathLevelParams: readonly Parameter[] | readonly Reference[],
-): string {
-  const parts: string[] = []
-  const pathLevelResolved = pathLevelParams
-    .map((p) => makeResolvedParameter(p, components))
-    .filter((p): p is Parameter => p !== undefined)
-  const operationLevelResolved = operation.parameters
-    ? operation.parameters
-        .map((p) => makeResolvedParameter(p, components))
-        .filter((p): p is Parameter => p !== undefined)
-    : []
-  const operationParamNames = new Set(operationLevelResolved.map((p) => p.name))
-  const resolvedParams = [
-    ...operationLevelResolved,
-    ...pathLevelResolved.filter((p) => !operationParamNames.has(p.name)),
-  ]
-  const pathParams = extractPathParams(openApiPath)
-  if (pathParams.length > 0) {
-    const paramProps = resolvedParams
-      .filter((p) => p.in === 'path')
-      .map((p) => `${p.name}:${schemaToTypeString(getParameterSchema(p), components, new Set())}`)
-    if (paramProps.length > 0) parts.push(`{param:{${paramProps.join(';')}}}`)
-  }
-  const queryParams = resolvedParams.filter((p) => p.in === 'query')
-  if (queryParams.length > 0) {
-    const queryProps = queryParams.map((p) => {
-      const typeStr = schemaToTypeString(getParameterSchema(p), components, new Set())
-      return p.required ? `${p.name}:${typeStr}` : `${p.name}?:${typeStr}|undefined`
-    })
-    parts.push(`{query:{${queryProps.join(';')}}}`)
-  }
-  const headerParams = resolvedParams.filter((p) => p.in === 'header')
-  if (headerParams.length > 0) {
-    const headerProps = headerParams.map((p) => {
-      const typeStr = schemaToTypeString(getParameterSchema(p), components, new Set())
-      const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(p.name) ? p.name : `'${p.name}'`
-      return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
-    })
-    parts.push(`{header:{${headerProps.join(';')}}}`)
-  }
-  const cookieParams = resolvedParams.filter((p) => p.in === 'cookie')
-  if (cookieParams.length > 0) {
-    const cookieProps = cookieParams.map((p) => {
-      const typeStr = schemaToTypeString(getParameterSchema(p), components, new Set())
-      const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(p.name) ? p.name : `'${p.name}'`
-      return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
-    })
-    parts.push(`{cookie:{${cookieProps.join(';')}}}`)
-  }
-  const resolvedRequestBody = operation.requestBody
-    ? makeResolvedRequestBody(operation.requestBody, components)
-    : undefined
-  if (resolvedRequestBody?.content) {
-    const jsonTypes: string[] = []
-    const formTypes: string[] = []
-    for (const [mediaType, media] of Object.entries(resolvedRequestBody.content)) {
-      if (!isMedia(media)) continue
-      const typeStr = schemaToTypeString(media.schema, components, new Set())
-      if (mediaType.includes('form')) {
-        if (!formTypes.includes(typeStr)) formTypes.push(typeStr)
-      } else if (
-        mediaType.includes('json') ||
-        mediaType.startsWith('application/') ||
-        mediaType.startsWith('text/')
-      ) {
-        if (!jsonTypes.includes(typeStr)) jsonTypes.push(typeStr)
-      }
-    }
-    if (jsonTypes.length > 0) {
-      const jsonType = jsonTypes.length === 1 ? jsonTypes[0] : `(${jsonTypes.join('|')})`
-      parts.push(`{json:${jsonType}}`)
-    }
-    if (formTypes.length > 0) {
-      const formType = formTypes.length === 1 ? formTypes[0] : `(${formTypes.join('|')})`
-      parts.push(`{form:${formType}}`)
-    }
-  }
-  if (parts.length === 0) return '{}'
-  return parts.join('&')
 }
 
 function isParameter(p: unknown): p is Parameter {
@@ -192,96 +49,278 @@ function isParameter(p: unknown): p is Parameter {
   )
 }
 
-/**
- * Extracts schema from parameter (handles both schema and content-based parameters)
- */
-function getParameterSchema(p: Parameter): Schema {
-  if (p.schema) return p.schema
-  if (p.content) {
-    const firstKey = Object.keys(p.content)[0]
-    if (firstKey && p.content[firstKey]?.schema) {
-      return p.content[firstKey].schema
-    }
-  }
-  return {}
+function isRequestBody(rb: unknown): rb is RequestBody {
+  return (
+    typeof rb === 'object' &&
+    rb !== null &&
+    ('content' in rb || 'required' in rb || 'description' in rb)
+  )
+}
+
+function isMediaWithSchema(m: unknown): m is { schema: Schema } {
+  return typeof m === 'object' && m !== null && 'schema' in m
 }
 
 function hasStringRef(p: object): p is { $ref: string } {
   return '$ref' in p && typeof p.$ref === 'string'
 }
 
-function makeResolvedParameter(
-  p: unknown,
-  components: Components | undefined,
-): Parameter | undefined {
-  if (isParameter(p)) return p
-  if (typeof p === 'object' && p !== null && hasStringRef(p) && components?.parameters) {
-    const refName = p.$ref.split('/').at(-1)
-    if (refName) {
-      const resolved = components.parameters[refName]
-      if (resolved && isParameter(resolved)) return resolved
-    }
+function isSchemaArray(items: Schema | readonly Schema[]): items is readonly Schema[] {
+  return Array.isArray(items)
+}
+
+function isParameterArray(params: unknown): params is readonly Parameter[] | readonly Reference[] {
+  return Array.isArray(params)
+}
+
+// ============================================================================
+// Main Export
+// ============================================================================
+
+/**
+ * Generates TypeScript type declarations from OpenAPI specification.
+ */
+export async function type(
+  openAPI: OpenAPI,
+  output: `${string}.ts`,
+): Promise<
+  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
+> {
+  try {
+    const schemaType = makeHonoSchemaType(openAPI)
+    const dts = `declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${schemaType},'/'>\nexport default routes\n`
+    const coreResult = await core(dts, path.dirname(output), output)
+    return coreResult.ok
+      ? { ok: true, value: `Generated type code written to ${output}` }
+      : { ok: false, error: coreResult.error }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) }
   }
-  return undefined
 }
 
-function isRequestBody(rb: unknown): rb is RequestBody {
-  if (typeof rb !== 'object' || rb === null) return false
-  return 'content' in rb || 'required' in rb || 'description' in rb
+// ============================================================================
+// Schema Building
+// ============================================================================
+
+function makeHonoSchemaType(openAPI: OpenAPI): string {
+  const { paths, components } = openAPI
+  const pathEntries = Object.entries(paths).flatMap(([openApiPath, pathItem]) => {
+    const honoPath = makeHonoPath(openApiPath)
+    const pathLevelParams = isParameterArray(pathItem.parameters) ? pathItem.parameters : []
+    const methods = Object.entries(pathItem)
+      .filter((entry): entry is [string, Operation] => {
+        const [method, op] = entry
+        return isHttpMethod(method) && isOperation(op)
+      })
+      .map(([method, operation]) => ({
+        method: `$${method}`,
+        type: makeMethodType(operation, openApiPath, components, pathLevelParams),
+      }))
+    return methods.length > 0
+      ? [{ path: honoPath, methods: methods.map((m) => `${m.method}:${m.type}`).join(';') }]
+      : []
+  })
+  return pathEntries.length === 0
+    ? '{}'
+    : pathEntries.map(({ path: p, methods }) => `{'${p}':{${methods}}}`).join('&')
 }
 
-function makeResolvedRequestBody(
-  rb: unknown,
+function makeHonoPath(openApiPath: string): string {
+  return openApiPath.replace(/\{([^}]+)\}/g, ':$1')
+}
+
+function makeMethodType(
+  operation: Operation,
+  openApiPath: string,
   components: Components | undefined,
-): RequestBody | undefined {
-  if (!rb || typeof rb !== 'object') return undefined
-  if (isRequestBody(rb) && !hasStringRef(rb)) return rb
-  if (hasStringRef(rb) && components?.requestBodies) {
-    const refName = rb.$ref.split('/').at(-1)
-    if (refName) {
-      const resolved = components.requestBodies[refName]
-      if (resolved && isRequestBody(resolved)) return resolved
-    }
-  }
-  return undefined
+  pathLevelParams: readonly Parameter[] | readonly Reference[],
+): string {
+  const inputType = makeInputType(operation, openApiPath, components, pathLevelParams)
+  const outputTypes = makeOutputTypes(operation.responses, components)
+  return outputTypes.length === 0
+    ? `{input:${inputType};output:{};outputFormat:string;status:200}`
+    : outputTypes.length === 1
+      ? outputTypes[0].replace('INPUT_PLACEHOLDER', inputType)
+      : outputTypes.map((t) => t.replace('INPUT_PLACEHOLDER', inputType)).join('|')
 }
 
-function isMedia(m: unknown): m is { schema: Schema } {
-  return typeof m === 'object' && m !== null && 'schema' in m
+// ============================================================================
+// Input Type Building
+// ============================================================================
+
+function makeInputType(
+  operation: Operation,
+  openApiPath: string,
+  components: Components | undefined,
+  pathLevelParams: readonly Parameter[] | readonly Reference[],
+): string {
+  const pathLevelResolved = pathLevelParams
+    .map((p) => makeResolvedParameter(p, components))
+    .filter((p): p is Parameter => p !== undefined)
+  const operationLevelResolved = (operation.parameters ?? [])
+    .map((p) => makeResolvedParameter(p, components))
+    .filter((p): p is Parameter => p !== undefined)
+  const operationParamNames = new Set(operationLevelResolved.map((p) => p.name))
+  const resolvedParams = [
+    ...operationLevelResolved,
+    ...pathLevelResolved.filter((p) => !operationParamNames.has(p.name)),
+  ]
+
+  const pathParams = makePathParams(openApiPath)
+  const paramPart =
+    pathParams.length > 0
+      ? makeParamPart(
+          resolvedParams.filter((p) => p.in === 'path'),
+          components,
+        )
+      : undefined
+  const queryPart = makeQueryPart(
+    resolvedParams.filter((p) => p.in === 'query'),
+    components,
+  )
+  const headerPart = makeHeaderPart(
+    resolvedParams.filter((p) => p.in === 'header'),
+    components,
+  )
+  const cookiePart = makeCookiePart(
+    resolvedParams.filter((p) => p.in === 'cookie'),
+    components,
+  )
+  const bodyParts = makeBodyParts(operation.requestBody, components)
+
+  const parts = [paramPart, queryPart, headerPart, cookiePart, ...bodyParts].filter(
+    (p): p is string => p !== undefined,
+  )
+  return parts.length === 0 ? '{}' : parts.join('&')
 }
 
-function extractPathParams(openApiPath: string): readonly string[] {
+function makePathParams(openApiPath: string): readonly string[] {
   return Array.from(openApiPath.matchAll(/\{([^}]+)\}/g)).map((m) => m[1])
 }
 
-function parseStatusCode(statusCode: string): number {
-  if (statusCode === 'default') return 200
-  if (statusCode.toUpperCase().endsWith('XX')) return Number.parseInt(statusCode[0], 10) * 100
-  return Number.parseInt(statusCode, 10)
+function makeParamPart(
+  params: readonly Parameter[],
+  components: Components | undefined,
+): string | undefined {
+  const props = params.map(
+    (p) => `${p.name}:${makeSchemaTypeString(makeParameterSchema(p), components, new Set())}`,
+  )
+  return props.length > 0 ? `{param:{${props.join(';')}}}` : undefined
 }
 
-function buildOutputTypes(
+function makeQueryPart(
+  params: readonly Parameter[],
+  components: Components | undefined,
+): string | undefined {
+  const props = params.map((p) => {
+    const typeStr = makeSchemaTypeString(makeParameterSchema(p), components, new Set())
+    return p.required ? `${p.name}:${typeStr}` : `${p.name}?:${typeStr}|undefined`
+  })
+  return props.length > 0 ? `{query:{${props.join(';')}}}` : undefined
+}
+
+function makeHeaderPart(
+  params: readonly Parameter[],
+  components: Components | undefined,
+): string | undefined {
+  const props = params.map((p) => {
+    const typeStr = makeSchemaTypeString(makeParameterSchema(p), components, new Set())
+    const safeKey = makeSafeKey(p.name)
+    return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
+  })
+  return props.length > 0 ? `{header:{${props.join(';')}}}` : undefined
+}
+
+function makeCookiePart(
+  params: readonly Parameter[],
+  components: Components | undefined,
+): string | undefined {
+  const props = params.map((p) => {
+    const typeStr = makeSchemaTypeString(makeParameterSchema(p), components, new Set())
+    const safeKey = makeSafeKey(p.name)
+    return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
+  })
+  return props.length > 0 ? `{cookie:{${props.join(';')}}}` : undefined
+}
+
+function makeBodyParts(
+  requestBody: Operation['requestBody'],
+  components: Components | undefined,
+): readonly string[] {
+  const resolved = requestBody ? makeResolvedRequestBody(requestBody, components) : undefined
+  if (!resolved?.content) return []
+
+  const mediaEntries = Object.entries(resolved.content).filter(
+    (entry): entry is [string, { schema: Schema }] => isMediaWithSchema(entry[1]),
+  )
+
+  const classified = mediaEntries.reduce<{
+    readonly jsonTypes: readonly string[]
+    readonly formTypes: readonly string[]
+  }>(
+    (acc, [mediaType, media]) => {
+      const typeStr = makeSchemaTypeString(media.schema, components, new Set())
+      if (mediaType.includes('form')) {
+        return acc.formTypes.includes(typeStr)
+          ? acc
+          : { ...acc, formTypes: [...acc.formTypes, typeStr] }
+      }
+      if (
+        mediaType.includes('json') ||
+        mediaType.startsWith('application/') ||
+        mediaType.startsWith('text/')
+      ) {
+        return acc.jsonTypes.includes(typeStr)
+          ? acc
+          : { ...acc, jsonTypes: [...acc.jsonTypes, typeStr] }
+      }
+      return acc
+    },
+    { jsonTypes: [], formTypes: [] },
+  )
+
+  const jsonPart =
+    classified.jsonTypes.length > 0
+      ? `{json:${classified.jsonTypes.length === 1 ? classified.jsonTypes[0] : `(${classified.jsonTypes.join('|')})`}}`
+      : undefined
+  const formPart =
+    classified.formTypes.length > 0
+      ? `{form:${classified.formTypes.length === 1 ? classified.formTypes[0] : `(${classified.formTypes.join('|')})`}}`
+      : undefined
+
+  return [jsonPart, formPart].filter((p): p is string => p !== undefined)
+}
+
+// ============================================================================
+// Output Type Building
+// ============================================================================
+
+function makeOutputTypes(
   responses: Operation['responses'],
   components: Components | undefined,
 ): readonly string[] {
-  const results: string[] = []
-  for (const [statusCode, response] of Object.entries(responses)) {
-    const resolvedResponse = resolveResponse(response, components)
-    const status = parseStatusCode(statusCode)
+  return Object.entries(responses).flatMap(([statusCode, response]) => {
+    const resolvedResponse = makeResolvedResponse(response, components)
+    const status = makeStatusCode(statusCode)
     if (!resolvedResponse.content) {
-      results.push(`{input:INPUT_PLACEHOLDER;output:{};outputFormat:string;status:${status}}`)
-      continue
+      return [`{input:INPUT_PLACEHOLDER;output:{};outputFormat:string;status:${status}}`]
     }
-    for (const [mediaType, media] of Object.entries(resolvedResponse.content)) {
-      if (!isMedia(media)) continue
-      const outputType = schemaToTypeString(media.schema, components, new Set())
-      const outputFormat = isJsonMediaType(mediaType) ? "'json'" : "'text'"
-      results.push(
-        `{input:INPUT_PLACEHOLDER;output:${outputType};outputFormat:${outputFormat};status:${status}}`,
-      )
-    }
-  }
-  return results
+    return Object.entries(resolvedResponse.content)
+      .filter((entry): entry is [string, { schema: Schema }] => isMediaWithSchema(entry[1]))
+      .map(([mediaType, media]) => {
+        const outputType = makeSchemaTypeString(media.schema, components, new Set())
+        const outputFormat = isJsonMediaType(mediaType) ? "'json'" : "'text'"
+        return `{input:INPUT_PLACEHOLDER;output:${outputType};outputFormat:${outputFormat};status:${status}}`
+      })
+  })
+}
+
+function makeStatusCode(statusCode: string): number {
+  return statusCode === 'default'
+    ? 200
+    : statusCode.toUpperCase().endsWith('XX')
+      ? Number.parseInt(statusCode[0], 10) * 100
+      : Number.parseInt(statusCode, 10)
 }
 
 /**
@@ -292,39 +331,88 @@ function isJsonMediaType(mediaType: string): boolean {
   return mediaType === 'application/json' || mediaType.endsWith('+json')
 }
 
-function resolveResponse(response: Responses, components: Components | undefined): Responses {
+// ============================================================================
+// Resolution Helpers
+// ============================================================================
+
+function makeResolvedParameter(
+  p: unknown,
+  components: Components | undefined,
+): Parameter | undefined {
+  if (isParameter(p)) return p
+  if (typeof p === 'object' && p !== null && hasStringRef(p) && components?.parameters) {
+    const refName = p.$ref.split('/').at(-1)
+    const resolved = refName ? components.parameters[refName] : undefined
+    return resolved && isParameter(resolved) ? resolved : undefined
+  }
+  return undefined
+}
+
+function makeResolvedRequestBody(
+  rb: unknown,
+  components: Components | undefined,
+): RequestBody | undefined {
+  if (!rb || typeof rb !== 'object') return undefined
+  if (isRequestBody(rb) && !hasStringRef(rb)) return rb
+  if (hasStringRef(rb) && components?.requestBodies) {
+    const refName = rb.$ref.split('/').at(-1)
+    const resolved = refName ? components.requestBodies[refName] : undefined
+    return resolved && isRequestBody(resolved) ? resolved : undefined
+  }
+  return undefined
+}
+
+function makeResolvedResponse(response: Responses, components: Components | undefined): Responses {
   if (response.$ref && components?.responses) {
     const refName = response.$ref.split('/').at(-1)
-    if (refName) {
-      const resolved = components.responses[refName]
-      if (resolved) return resolved
-    }
+    const resolved = refName ? components.responses[refName] : undefined
+    return resolved ?? response
   }
   return response
 }
 
-function schemaToTypeString(
+function makeResolvedSchema(schema: Schema, components: Components | undefined): Schema {
+  if (schema.$ref && components) {
+    const refName = schema.$ref.split('/').at(-1)
+    return refName && components.schemas?.[refName] ? components.schemas[refName] : schema
+  }
+  return schema
+}
+
+function makeParameterSchema(p: Parameter): Schema {
+  // content takes precedence over schema (OpenAPI 3.0 spec)
+  if (p.content) {
+    const firstKey = Object.keys(p.content)[0]
+    if (firstKey && p.content[firstKey]?.schema) {
+      return p.content[firstKey].schema
+    }
+  }
+  return p.schema ?? {}
+}
+
+// ============================================================================
+// Schema Type String Generation
+// ============================================================================
+
+function makeSchemaTypeString(
   schema: Schema,
   components: Components | undefined,
   visited: Set<string>,
 ): string {
   if (!schema) return 'unknown'
   if (schema.$ref) {
-    if (visited.has(schema.$ref)) return 'unknown'
-    const newVisited = new Set(visited)
-    newVisited.add(schema.$ref)
-    return resolveRefType(schema.$ref, components, newVisited)
+    return visited.has(schema.$ref)
+      ? 'unknown'
+      : makeRefTypeString(schema.$ref, components, new Set([...visited, schema.$ref]))
   }
   if (schema.oneOf && schema.oneOf.length > 0) {
-    const types = schema.oneOf.map((s) => schemaToTypeString(s, components, visited))
-    return types.join('|')
+    return schema.oneOf.map((s) => makeSchemaTypeString(s, components, visited)).join('|')
   }
   if (schema.anyOf && schema.anyOf.length > 0) {
-    const types = schema.anyOf.map((s) => schemaToTypeString(s, components, visited))
-    return types.join('|')
+    return schema.anyOf.map((s) => makeSchemaTypeString(s, components, visited)).join('|')
   }
   if (schema.allOf && schema.allOf.length > 0) {
-    return buildAllOfType(schema.allOf, components, visited)
+    return makeAllOfTypeString(schema.allOf, components, visited)
   }
   if (schema.enum && schema.enum.length > 0) {
     return schema.enum.map((v) => (typeof v === 'string' ? `'${v}'` : String(v))).join('|')
@@ -332,152 +420,54 @@ function schemaToTypeString(
   if (schema.const !== undefined) {
     return typeof schema.const === 'string' ? `'${schema.const}'` : String(schema.const)
   }
-  const types = normalizeType(schema)
+  const types = makeNormalizedTypes(schema)
   const isNullable = schema.nullable === true || types.includes('null')
   const nonNullTypes = types.filter((t) => t !== 'null')
-  const baseType = buildBaseType(schema, nonNullTypes, components, visited)
+  const baseType = makeBaseTypeString(schema, nonNullTypes, components, visited)
   return isNullable ? `(${baseType}|null)` : baseType
 }
 
-function normalizeType(schema: Schema): readonly string[] {
-  if (!schema.type) return ['object']
-  return Array.isArray(schema.type) ? schema.type : [schema.type]
+function makeNormalizedTypes(schema: Schema): readonly string[] {
+  return schema.type ? (Array.isArray(schema.type) ? schema.type : [schema.type]) : ['object']
 }
 
-function buildBaseType(
+function makeBaseTypeString(
   schema: Schema,
   types: readonly string[],
   components: Components | undefined,
   visited: Set<string>,
 ): string {
-  if (types.length > 1)
-    return types.map((t) => buildSingleType(schema, t, components, visited)).join('|')
-  return buildSingleType(schema, types[0] ?? 'object', components, visited)
+  return types.length > 1
+    ? types.map((t) => makeSingleTypeString(schema, t, components, visited)).join('|')
+    : makeSingleTypeString(schema, types[0] ?? 'object', components, visited)
 }
 
-function buildSingleType(
+function makeSingleTypeString(
   schema: Schema,
   type: string,
   components: Components | undefined,
   visited: Set<string>,
 ): string {
-  if (type === 'string') {
-    if (schema.format === 'binary') return 'File'
-    return 'string'
-  }
-  if (type === 'number' || type === 'integer') {
-    if (schema.format === 'int64' || schema.format === 'bigint') return 'bigint'
-    return 'number'
-  }
-  if (type === 'boolean') return 'boolean'
-  if (type === 'null') return 'null'
-  if (type === 'array') return buildArrayType(schema, components, visited)
-  if (type === 'object') return buildObjectType(schema, components, visited)
-  return 'unknown'
-}
-
-function resolveSchema(schema: Schema, components: Components | undefined): Schema {
-  if (schema.$ref && components) {
-    const parts = schema.$ref.split('/')
-    const refName = parts.at(-1)
-    if (refName && components.schemas?.[refName]) {
-      return components.schemas[refName]
-    }
-  }
-  return schema
-}
-
-function collectAllProperties(
-  schema: Schema,
-  components: Components | undefined,
-  visited: Set<string>,
-  mergedProps: Map<string, { type: string; required: boolean }>,
-): void {
-  const resolved = resolveSchema(schema, components)
-  if (resolved.allOf && resolved.allOf.length > 0) {
-    for (const subSchema of resolved.allOf) {
-      collectAllProperties(subSchema, components, visited, mergedProps)
-    }
-  }
-  if (resolved.properties) {
-    const requiredSet = new Set(Array.isArray(resolved.required) ? resolved.required : [])
-    for (const [key, propSchema] of Object.entries(resolved.properties)) {
-      const propType = schemaToTypeString(propSchema, components, visited)
-      const existing = mergedProps.get(key)
-      const isRequired = requiredSet.has(key) || (existing?.required ?? false)
-      mergedProps.set(key, { type: propType, required: isRequired })
-    }
+  switch (type) {
+    case 'string':
+      return schema.format === 'binary' ? 'File' : 'string'
+    case 'number':
+    case 'integer':
+      return schema.format === 'int64' || schema.format === 'bigint' ? 'bigint' : 'number'
+    case 'boolean':
+      return 'boolean'
+    case 'null':
+      return 'null'
+    case 'array':
+      return makeArrayTypeString(schema, components, visited)
+    case 'object':
+      return makeObjectTypeString(schema, components, visited)
+    default:
+      return 'unknown'
   }
 }
 
-function buildAllOfType(
-  allOf: readonly Schema[],
-  components: Components | undefined,
-  visited: Set<string>,
-): string {
-  const mergedProps: Map<string, { type: string; required: boolean }> = new Map()
-  for (const subSchema of allOf) {
-    collectAllProperties(subSchema, components, visited, mergedProps)
-  }
-  if (mergedProps.size === 0) return '{}'
-  const propertyStrings = Array.from(mergedProps.entries()).map(([key, { type, required }]) => {
-    const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
-    return required ? `${safeKey}:${type}` : `${safeKey}?:${type}|undefined`
-  })
-  return `{${propertyStrings.join(';')}}`
-}
-
-function isSchemaArray(items: Schema | readonly Schema[]): items is readonly Schema[] {
-  return Array.isArray(items)
-}
-
-function wrapArrayItemType(typeStr: string): string {
-  return typeStr.includes('|') ? `(${typeStr})[]` : `${typeStr}[]`
-}
-
-function buildArrayType(
-  schema: Schema,
-  components: Components | undefined,
-  visited: Set<string>,
-): string {
-  if (!schema.items) return 'unknown[]'
-  const items = schema.items
-  if (isSchemaArray(items)) {
-    if (items.length > 1)
-      return `[${items.map((item) => schemaToTypeString(item, components, visited)).join(',')}]`
-    const firstItem = items[0]
-    return firstItem
-      ? wrapArrayItemType(schemaToTypeString(firstItem, components, visited))
-      : 'unknown[]'
-  }
-  return wrapArrayItemType(schemaToTypeString(items, components, visited))
-}
-
-function buildObjectType(
-  schema: Schema,
-  components: Components | undefined,
-  visited: Set<string>,
-): string {
-  const { properties, additionalProperties, required } = schema
-  if (!properties || Object.keys(properties).length === 0) {
-    if (additionalProperties === false) return '{}'
-    if (typeof additionalProperties === 'object') {
-      const valueType = schemaToTypeString(additionalProperties, components, visited)
-      return `{[x:string]:${valueType}}`
-    }
-    return '{[x:string]:unknown}'
-  }
-  const requiredSet = new Set(Array.isArray(required) ? required : [])
-  const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
-    const propType = schemaToTypeString(propSchema, components, visited)
-    const isRequired = requiredSet.has(key)
-    const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
-    return isRequired ? `${safeKey}:${propType}` : `${safeKey}?:${propType}|undefined`
-  })
-  return `{${propertyStrings.join(';')}}`
-}
-
-function resolveRefType(
+function makeRefTypeString(
   ref: string,
   components: Components | undefined,
   visited: Set<string>,
@@ -489,10 +479,114 @@ function resolveRefType(
   if (!refName) return 'unknown'
   if (componentType === 'schemas' && components.schemas) {
     const schema = components.schemas[refName]
-    if (schema) return schemaToTypeString(schema, components, visited)
+    return schema ? makeSchemaTypeString(schema, components, visited) : 'unknown'
   }
   return 'unknown'
 }
+
+// ============================================================================
+// Complex Type String Generation
+// ============================================================================
+
+function makeAllOfTypeString(
+  allOf: readonly Schema[],
+  components: Components | undefined,
+  visited: Set<string>,
+): string {
+  const mergedProps = allOf.reduce(
+    (acc, subSchema) => new Map([...acc, ...makePropertyMap(subSchema, components, visited)]),
+    new Map<string, { type: string; required: boolean }>(),
+  )
+  if (mergedProps.size === 0) return '{}'
+  const propertyStrings = Array.from(mergedProps.entries()).map(([key, { type, required }]) => {
+    const safeKey = makeSafeKey(key)
+    return required ? `${safeKey}:${type}` : `${safeKey}?:${type}|undefined`
+  })
+  return `{${propertyStrings.join(';')}}`
+}
+
+function makePropertyMap(
+  schema: Schema,
+  components: Components | undefined,
+  visited: Set<string>,
+): ReadonlyMap<string, { readonly type: string; readonly required: boolean }> {
+  const resolved = makeResolvedSchema(schema, components)
+  const fromAllOf =
+    resolved.allOf && resolved.allOf.length > 0
+      ? resolved.allOf.reduce(
+          (acc, subSchema) => new Map([...acc, ...makePropertyMap(subSchema, components, visited)]),
+          new Map<string, { type: string; required: boolean }>(),
+        )
+      : new Map<string, { type: string; required: boolean }>()
+
+  if (!resolved.properties) return fromAllOf
+
+  const requiredSet = new Set(Array.isArray(resolved.required) ? resolved.required : [])
+  const currentProps = new Map(
+    Object.entries(resolved.properties).map(([key, propSchema]) => {
+      const propType = makeSchemaTypeString(propSchema, components, visited)
+      const existing = fromAllOf.get(key)
+      const isRequired = requiredSet.has(key) || (existing?.required ?? false)
+      return [key, { type: propType, required: isRequired }] as const
+    }),
+  )
+  return new Map([...fromAllOf, ...currentProps])
+}
+
+function makeArrayTypeString(
+  schema: Schema,
+  components: Components | undefined,
+  visited: Set<string>,
+): string {
+  if (!schema.items) return 'unknown[]'
+  const items = schema.items
+  if (isSchemaArray(items)) {
+    return items.length > 1
+      ? `[${items.map((item) => makeSchemaTypeString(item, components, visited)).join(',')}]`
+      : items[0]
+        ? makeWrappedArrayType(makeSchemaTypeString(items[0], components, visited))
+        : 'unknown[]'
+  }
+  return makeWrappedArrayType(makeSchemaTypeString(items, components, visited))
+}
+
+function makeWrappedArrayType(typeStr: string): string {
+  return typeStr.includes('|') ? `(${typeStr})[]` : `${typeStr}[]`
+}
+
+function makeObjectTypeString(
+  schema: Schema,
+  components: Components | undefined,
+  visited: Set<string>,
+): string {
+  const { properties, additionalProperties, required } = schema
+  if (!properties || Object.keys(properties).length === 0) {
+    if (additionalProperties === false) return '{}'
+    if (typeof additionalProperties === 'object') {
+      return `{[x:string]:${makeSchemaTypeString(additionalProperties, components, visited)}}`
+    }
+    return '{[x:string]:unknown}'
+  }
+  const requiredSet = new Set(Array.isArray(required) ? required : [])
+  const propertyStrings = Object.entries(properties).map(([key, propSchema]) => {
+    const propType = makeSchemaTypeString(propSchema, components, visited)
+    const safeKey = makeSafeKey(key)
+    return requiredSet.has(key) ? `${safeKey}:${propType}` : `${safeKey}?:${propType}|undefined`
+  })
+  return `{${propertyStrings.join(';')}}`
+}
+
+// ============================================================================
+// Utility
+// ============================================================================
+
+function makeSafeKey(key: string): string {
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
+}
+
+// ============================================================================
+// Tests
+// ============================================================================
 
 // Test run
 // pnpm vitest run ./packages/hono-takibi/src/core/type/index.ts
@@ -502,34 +596,33 @@ if (import.meta.vitest) {
   const os = await import('node:os')
   const nodePath = await import('node:path')
 
-  const openapi = {
-    openapi: '3.0.0',
-    info: { title: 'Test API', version: '1.0.0' },
-    components: {
-      schemas: {
-        Test: {
-          type: 'object',
-          required: ['test'],
-          properties: { test: { type: 'string' } },
-        },
-      },
-    },
-    paths: {
-      '/test': {
-        post: {
-          summary: 'Test endpoint',
-          requestBody: {
-            required: true,
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/Test' } } },
-          },
-          responses: { '200': { description: 'Successful test' } },
-        },
-      },
-    },
-  } as OpenAPI
-
   describe('type', () => {
     it('should return ok and generate declaration file', { timeout: 10000 }, async () => {
+      const openapi: OpenAPI = {
+        openapi: '3.0.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        components: {
+          schemas: {
+            Test: {
+              type: 'object',
+              required: ['test'],
+              properties: { test: { type: 'string' } },
+            },
+          },
+        },
+        paths: {
+          '/test': {
+            post: {
+              summary: 'Test endpoint',
+              requestBody: {
+                required: true,
+                content: { 'application/json': { schema: { $ref: '#/components/schemas/Test' } } },
+              },
+              responses: { '200': { description: 'Successful test' } },
+            },
+          },
+        },
+      }
       const dir = fs.mkdtempSync(nodePath.join(os.tmpdir(), 'takibi-type-'))
       try {
         const out = nodePath.join(dir, 'index.d.ts') as `${string}.ts`
@@ -545,17 +638,17 @@ if (import.meta.vitest) {
     })
   })
 
-  describe('convertPathToHono', () => {
+  describe('makeHonoPath', () => {
     it.concurrent.each([
       ['/users', '/users'],
       ['/users/{id}', '/users/:id'],
       ['/users/{userId}/posts/{postId}', '/users/:userId/posts/:postId'],
-    ])('convertPathToHono(%s) -> %s', (input, expected) => {
-      expect(convertPathToHono(input)).toBe(expected)
+    ])('makeHonoPath(%s) -> %s', (input, expected) => {
+      expect(makeHonoPath(input)).toBe(expected)
     })
   })
 
-  describe('schemaToTypeString', () => {
+  describe('makeSchemaTypeString', () => {
     it.concurrent.each<[Schema, string]>([
       [{ type: 'string' }, 'string'],
       [{ type: 'number' }, 'number'],
@@ -577,12 +670,12 @@ if (import.meta.vitest) {
         },
         '{a:string;b?:number|undefined}',
       ],
-    ])('schemaToTypeString(%o) -> %s', (schema, expected) => {
-      expect(schemaToTypeString(schema, undefined, new Set())).toBe(expected)
+    ])('makeSchemaTypeString(%o) -> %s', (schema, expected) => {
+      expect(makeSchemaTypeString(schema, undefined, new Set())).toBe(expected)
     })
   })
 
-  describe('buildInputType with cookie parameters', () => {
+  describe('makeInputType with cookie parameters', () => {
     it('should include cookie parameters in input type', () => {
       const operation: Operation = {
         responses: { '200': { description: 'OK' } },
@@ -592,14 +685,14 @@ if (import.meta.vitest) {
           { name: 'queryParam', in: 'query', required: false, schema: { type: 'string' } },
         ],
       }
-      const result = buildInputType(operation, '/test', undefined, [])
+      const result = makeInputType(operation, '/test', undefined, [])
       expect(result).toBe(
         '{query:{queryParam?:string|undefined}}&{cookie:{session_id?:string|undefined;user_id:string}}',
       )
     })
   })
 
-  describe('buildInputType with content-based parameters', () => {
+  describe('makeInputType with content-based parameters', () => {
     it('should handle parameters with content instead of schema', () => {
       const operation: Operation = {
         responses: { '200': { description: 'OK' } },
@@ -607,6 +700,7 @@ if (import.meta.vitest) {
           {
             name: 'jsonFilter',
             in: 'query',
+            schema: {},
             content: {
               'application/json': {
                 schema: {
@@ -618,10 +712,11 @@ if (import.meta.vitest) {
                 },
               },
             },
-          } as unknown as Parameter,
+          },
           {
             name: 'X-Metadata',
             in: 'header',
+            schema: {},
             content: {
               'application/json': {
                 schema: {
@@ -633,10 +728,10 @@ if (import.meta.vitest) {
                 },
               },
             },
-          } as unknown as Parameter,
+          },
         ],
       }
-      const result = buildInputType(operation, '/test', undefined, [])
+      const result = makeInputType(operation, '/test', undefined, [])
       expect(result).toBe(
         "{query:{jsonFilter?:{field?:string|undefined;operator?:string|undefined}|undefined}}&{header:{'X-Metadata'?:{requestId?:string|undefined;source?:string|undefined}|undefined}}",
       )
