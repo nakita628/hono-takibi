@@ -254,30 +254,26 @@ function makeBodyParts(
     (entry): entry is [string, { schema: Schema }] => isMediaWithSchema(entry[1]),
   )
 
-  const classified = mediaEntries.reduce<{
-    readonly jsonTypes: readonly string[]
-    readonly formTypes: readonly string[]
-  }>(
-    (acc, [mediaType, media]) => {
-      const typeStr = makeSchemaTypeString(media.schema, components, new Set())
-      if (mediaType.includes('form')) {
-        return acc.formTypes.includes(typeStr)
-          ? acc
-          : { ...acc, formTypes: [...acc.formTypes, typeStr] }
-      }
-      if (
-        mediaType.includes('json') ||
-        mediaType.startsWith('application/') ||
-        mediaType.startsWith('text/')
-      ) {
-        return acc.jsonTypes.includes(typeStr)
-          ? acc
-          : { ...acc, jsonTypes: [...acc.jsonTypes, typeStr] }
-      }
-      return acc
-    },
-    { jsonTypes: [], formTypes: [] },
-  )
+  const jsonTypes = [
+    ...new Set(
+      mediaEntries
+        .filter(
+          ([mediaType]) =>
+            mediaType.includes('json') ||
+            mediaType.startsWith('application/') ||
+            mediaType.startsWith('text/'),
+        )
+        .map(([, media]) => makeSchemaTypeString(media.schema, components, new Set())),
+    ),
+  ]
+  const formTypes = [
+    ...new Set(
+      mediaEntries
+        .filter(([mediaType]) => mediaType.includes('form'))
+        .map(([, media]) => makeSchemaTypeString(media.schema, components, new Set())),
+    ),
+  ]
+  const classified = { jsonTypes, formTypes }
 
   const jsonPart =
     classified.jsonTypes.length > 0
@@ -516,13 +512,13 @@ function makePropertyMap(
   visited: Set<string>,
 ): ReadonlyMap<string, { readonly type: string; readonly required: boolean }> {
   const resolved = makeResolvedSchema(schema, components)
-  const fromAllOf =
+  const fromAllOf = new Map<string, { type: string; required: boolean }>(
     resolved.allOf && resolved.allOf.length > 0
-      ? resolved.allOf.reduce(
-          (acc, subSchema) => new Map([...acc, ...makePropertyMap(subSchema, components, visited)]),
-          new Map<string, { type: string; required: boolean }>(),
-        )
-      : new Map<string, { type: string; required: boolean }>()
+      ? resolved.allOf.flatMap((subSchema) => [
+          ...makePropertyMap(subSchema, components, visited).entries(),
+        ])
+      : [],
+  )
 
   if (!resolved.properties) return fromAllOf
 
