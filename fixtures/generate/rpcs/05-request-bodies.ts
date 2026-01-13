@@ -1,11 +1,11 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/05-request-bodies'
 
 /**
  * POST /users
  */
 export async function postUsers(
-  args: { json: { email: string; name?: string; password?: File } },
+  args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.users.$post(args, options)
@@ -15,10 +15,7 @@ export async function postUsers(
  * PUT /users/{userId}
  */
 export async function putUsersUserId(
-  args: {
-    param: { userId: string }
-    json: { email: string; name: string; role?: 'admin' | 'user' | 'guest' }
-  },
+  args: InferRequestType<(typeof client.users)[':userId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].$put(args, options)
@@ -28,12 +25,7 @@ export async function putUsersUserId(
  * PATCH /users/{userId}
  */
 export async function patchUsersUserId(
-  args: {
-    param: { userId: string }
-    json:
-      | { email?: string; name?: string; role?: 'admin' | 'user' | 'guest' }
-      | { email?: string; name?: string; role?: 'admin' | 'user' | 'guest' }
-  },
+  args: InferRequestType<(typeof client.users)[':userId']['$patch']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].$patch(args, options)
@@ -43,11 +35,7 @@ export async function patchUsersUserId(
  * POST /users/{userId}/avatar
  */
 export async function postUsersUserIdAvatar(
-  args: {
-    param: { userId: string }
-    form: { file: File; description?: string }
-    json: File | File
-  },
+  args: InferRequestType<(typeof client.users)[':userId']['avatar']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].avatar.$post(args, options)
@@ -57,11 +45,7 @@ export async function postUsersUserIdAvatar(
  * POST /bulk/users
  */
 export async function postBulkUsers(
-  args: {
-    json:
-      | { email: string; name?: string; password?: File }[]
-      | { email: string; name?: string; password?: File }
-  },
+  args: InferRequestType<typeof client.bulk.users.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.bulk.users.$post(args, options)

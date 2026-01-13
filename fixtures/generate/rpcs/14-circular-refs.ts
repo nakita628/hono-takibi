@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
 /**
@@ -12,15 +12,7 @@ export async function getTrees(options?: ClientRequestOptions) {
  * POST /trees
  */
 export async function postTrees(
-  args: {
-    json: {
-      id: string
-      value: string
-      parent?: unknown
-      children?: unknown[]
-      metadata?: { [key: string]: unknown }
-    }
-  },
+  args: InferRequestType<typeof client.trees.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.trees.$post(args, options)

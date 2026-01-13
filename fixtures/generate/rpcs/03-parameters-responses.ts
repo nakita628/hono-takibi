@@ -1,11 +1,11 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
 /**
  * GET /items
  */
 export async function getItems(
-  args: { query: { page?: number; limit?: number; sort?: string } },
+  args: InferRequestType<typeof client.items.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.items.$get(args, options)
@@ -15,7 +15,7 @@ export async function getItems(
  * GET /items/{itemId}
  */
 export async function getItemsItemId(
-  args: { param: { itemId: string } },
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.items[':itemId'].$get(args, options)
@@ -25,7 +25,7 @@ export async function getItemsItemId(
  * DELETE /items/{itemId}
  */
 export async function deleteItemsItemId(
-  args: { param: { itemId: string }; header: { 'If-Match'?: string } },
+  args: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.items[':itemId'].$delete(args, options)

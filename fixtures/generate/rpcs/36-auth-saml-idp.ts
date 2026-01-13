@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
 /**
@@ -9,9 +9,7 @@ import { client } from '../clients/36-auth-saml-idp'
  * HTTP-Redirect バインディングでのSSO処理
  */
 export async function getSamlSso(
-  args: {
-    query: { SAMLRequest: string; RelayState?: string; SigAlg?: string; Signature?: string }
-  },
+  args: InferRequestType<typeof client.saml.sso.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.saml.sso.$get(args, options)
@@ -25,7 +23,7 @@ export async function getSamlSso(
  * HTTP-POST バインディングでのSSO処理
  */
 export async function postSamlSso(
-  args: { form: { SAMLRequest: string; RelayState?: string } },
+  args: InferRequestType<typeof client.saml.sso.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.saml.sso.$post(args, options)
@@ -39,15 +37,7 @@ export async function postSamlSso(
  * HTTP-Redirect バインディングでのシングルログアウト
  */
 export async function getSamlSlo(
-  args: {
-    query: {
-      SAMLRequest?: string
-      SAMLResponse?: string
-      RelayState?: string
-      SigAlg?: string
-      Signature?: string
-    }
-  },
+  args: InferRequestType<typeof client.saml.slo.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.saml.slo.$get(args, options)
@@ -61,7 +51,7 @@ export async function getSamlSlo(
  * HTTP-POST バインディングでのシングルログアウト
  */
 export async function postSamlSlo(
-  args: { form: { SAMLRequest?: string; SAMLResponse?: string; RelayState?: string } },
+  args: InferRequestType<typeof client.saml.slo.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.saml.slo.$post(args, options)
@@ -75,7 +65,7 @@ export async function postSamlSlo(
  * SPからのSAMLレスポンスを処理（IdP-initiated の場合）
  */
 export async function postSamlAcs(
-  args: { form: { SAMLResponse: string; RelayState?: string } },
+  args: InferRequestType<typeof client.saml.acs.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.saml.acs.$post(args, options)
@@ -98,7 +88,7 @@ export async function getSamlMetadata(options?: ClientRequestOptions) {
  * SP一覧取得
  */
 export async function getServiceProviders(
-  args: { query: { search?: string; enabled?: string } },
+  args: InferRequestType<(typeof client)['service-providers']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client['service-providers'].$get(args, options)
@@ -110,36 +100,7 @@ export async function getServiceProviders(
  * SP登録
  */
 export async function postServiceProviders(
-  args: {
-    json:
-      | {
-          entityId: string
-          name: string
-          description?: string
-          metadataUrl?: string
-          assertionConsumerServices?: {
-            binding:
-              | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-              | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
-            location: string
-            index?: number
-            isDefault?: boolean
-          }[]
-          singleLogoutServices?: {
-            binding:
-              | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-              | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-            location: string
-            responseLocation?: string
-          }[]
-          nameIdFormat?: string
-          signAssertions?: boolean
-          encryptAssertions?: boolean
-          signingCertificate?: string
-          encryptionCertificate?: string
-        }
-      | string
-  },
+  args: InferRequestType<(typeof client)['service-providers']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client['service-providers'].$post(args, options)
@@ -151,7 +112,7 @@ export async function postServiceProviders(
  * SP詳細取得
  */
 export async function getServiceProvidersSpId(
-  args: { param: { spId: string } },
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client['service-providers'][':spId'].$get(args, options)
@@ -163,36 +124,7 @@ export async function getServiceProvidersSpId(
  * SP更新
  */
 export async function putServiceProvidersSpId(
-  args: {
-    param: { spId: string }
-    json: {
-      name?: string
-      description?: string
-      enabled?: boolean
-      assertionConsumerServices?: {
-        binding:
-          | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-          | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
-        location: string
-        index?: number
-        isDefault?: boolean
-      }[]
-      singleLogoutServices?: {
-        binding:
-          | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-          | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-        location: string
-        responseLocation?: string
-      }[]
-      nameIdFormat?: string
-      signAssertions?: boolean
-      signResponses?: boolean
-      encryptAssertions?: boolean
-      wantAuthnRequestsSigned?: boolean
-      defaultRelayState?: string
-      sessionDuration?: number
-    }
-  },
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client['service-providers'][':spId'].$put(args, options)
@@ -204,7 +136,7 @@ export async function putServiceProvidersSpId(
  * SP削除
  */
 export async function deleteServiceProvidersSpId(
-  args: { param: { spId: string } },
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client['service-providers'][':spId'].$delete(args, options)
@@ -216,7 +148,7 @@ export async function deleteServiceProvidersSpId(
  * SPメタデータ取得
  */
 export async function getServiceProvidersSpIdMetadata(
-  args: { param: { spId: string } },
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client['service-providers'][':spId'].metadata.$get(args, options)
@@ -228,7 +160,7 @@ export async function getServiceProvidersSpIdMetadata(
  * SPメタデータ更新
  */
 export async function putServiceProvidersSpIdMetadata(
-  args: { param: { spId: string }; form: { file?: File }; json: string },
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client['service-providers'][':spId'].metadata.$put(args, options)
@@ -240,7 +172,7 @@ export async function putServiceProvidersSpIdMetadata(
  * SP属性マッピング取得
  */
 export async function getServiceProvidersSpIdAttributes(
-  args: { param: { spId: string } },
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client['service-providers'][':spId'].attributes.$get(args, options)
@@ -252,21 +184,7 @@ export async function getServiceProvidersSpIdAttributes(
  * SP属性マッピング更新
  */
 export async function putServiceProvidersSpIdAttributes(
-  args: {
-    param: { spId: string }
-    json: {
-      id?: string
-      sourceAttribute: string
-      samlAttribute: string
-      samlAttributeNameFormat?:
-        | 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
-        | 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
-        | 'urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified'
-      friendlyName?: string
-      required?: boolean
-      transform?: string
-    }[]
-  },
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client['service-providers'][':spId'].attributes.$put(args, options)
@@ -296,14 +214,7 @@ export async function getCertificates(options?: ClientRequestOptions) {
  * 証明書アップロード
  */
 export async function postCertificates(
-  args: {
-    form: {
-      certificate: File
-      privateKey: File
-      passphrase?: string
-      purpose?: 'signing' | 'encryption' | 'both'
-    }
-  },
+  args: InferRequestType<typeof client.certificates.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.certificates.$post(args, options)
@@ -315,7 +226,7 @@ export async function postCertificates(
  * 証明書削除
  */
 export async function deleteCertificatesCertId(
-  args: { param: { certId: string } },
+  args: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.certificates[':certId'].$delete(args, options)
@@ -327,7 +238,7 @@ export async function deleteCertificatesCertId(
  * 証明書有効化
  */
 export async function postCertificatesCertIdActivate(
-  args: { param: { certId: string } },
+  args: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.certificates[':certId'].activate.$post(args, options)
@@ -339,7 +250,7 @@ export async function postCertificatesCertIdActivate(
  * アクティブセッション一覧
  */
 export async function getSessions(
-  args: { query: { userId?: string } },
+  args: InferRequestType<typeof client.sessions.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions.$get(args, options)
@@ -351,7 +262,7 @@ export async function getSessions(
  * セッション終了
  */
 export async function deleteSessionsSessionId(
-  args: { param: { sessionId: string } },
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions[':sessionId'].$delete(args, options)
@@ -363,17 +274,7 @@ export async function deleteSessionsSessionId(
  * SAML監査ログ取得
  */
 export async function getAuditLogs(
-  args: {
-    query: {
-      from?: string
-      to?: string
-      spId?: string
-      userId?: string
-      eventType?: 'sso_success' | 'sso_failure' | 'slo_success' | 'slo_failure'
-      page?: number
-      limit?: number
-    }
-  },
+  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client['audit-logs'].$get(args, options)

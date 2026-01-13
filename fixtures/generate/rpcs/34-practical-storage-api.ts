@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
 /**
@@ -7,22 +7,7 @@ import { client } from '../clients/34-practical-storage-api'
  * ファイル一覧取得
  */
 export async function getFiles(
-  args: {
-    query: {
-      folderId?: string
-      search?: string
-      type?: 'document' | 'image' | 'video' | 'audio' | 'archive' | 'other'
-      sort?:
-        | 'name:asc'
-        | 'name:desc'
-        | 'size:asc'
-        | 'size:desc'
-        | 'updatedAt:desc'
-        | 'updatedAt:asc'
-      page?: number
-      limit?: number
-    }
-  },
+  args: InferRequestType<typeof client.files.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.files.$get(args, options)
@@ -34,7 +19,7 @@ export async function getFiles(
  * ファイルアップロード
  */
 export async function postFilesUpload(
-  args: { form: { file: File; folderId?: string; name?: string; overwrite?: boolean } },
+  args: InferRequestType<typeof client.files.upload.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.files.upload.$post(args, options)
@@ -48,7 +33,7 @@ export async function postFilesUpload(
  * 大容量ファイルの分割アップロードを開始します
  */
 export async function postFilesUploadMultipartInit(
-  args: { json: { filename: string; size: number; folderId?: string; contentType?: string } },
+  args: InferRequestType<typeof client.files.upload.multipart.init.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.files.upload.multipart.init.$post(args, options)
@@ -60,7 +45,7 @@ export async function postFilesUploadMultipartInit(
  * パートアップロード
  */
 export async function postFilesUploadMultipartUploadIdPart(
-  args: { param: { uploadId: string }; query: { partNumber: number }; json: File },
+  args: InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files.upload.multipart[':uploadId'].part.$post(args, options)
@@ -72,7 +57,7 @@ export async function postFilesUploadMultipartUploadIdPart(
  * マルチパートアップロード完了
  */
 export async function postFilesUploadMultipartUploadIdComplete(
-  args: { param: { uploadId: string }; json: { parts: { partNumber: number; etag: string }[] } },
+  args: InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files.upload.multipart[':uploadId'].complete.$post(args, options)
@@ -84,7 +69,7 @@ export async function postFilesUploadMultipartUploadIdComplete(
  * ファイル情報取得
  */
 export async function getFilesFileId(
-  args: { param: { fileId: string } },
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].$get(args, options)
@@ -96,7 +81,7 @@ export async function getFilesFileId(
  * ファイル削除（ゴミ箱へ移動）
  */
 export async function deleteFilesFileId(
-  args: { param: { fileId: string } },
+  args: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].$delete(args, options)
@@ -108,7 +93,7 @@ export async function deleteFilesFileId(
  * ファイル情報更新
  */
 export async function patchFilesFileId(
-  args: { param: { fileId: string }; json: { name?: string; description?: string } },
+  args: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].$patch(args, options)
@@ -120,7 +105,7 @@ export async function patchFilesFileId(
  * ファイルダウンロード
  */
 export async function getFilesFileIdDownload(
-  args: { param: { fileId: string } },
+  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].download.$get(args, options)
@@ -132,7 +117,7 @@ export async function getFilesFileIdDownload(
  * 署名付きダウンロードURL取得
  */
 export async function getFilesFileIdDownloadUrl(
-  args: { param: { fileId: string }; query: { expiresIn?: number } },
+  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId']['download-url'].$get(args, options)
@@ -144,7 +129,7 @@ export async function getFilesFileIdDownloadUrl(
  * ファイルコピー
  */
 export async function postFilesFileIdCopy(
-  args: { param: { fileId: string }; json: { destinationFolderId: string; name?: string } },
+  args: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].copy.$post(args, options)
@@ -156,7 +141,7 @@ export async function postFilesFileIdCopy(
  * ファイル移動
  */
 export async function postFilesFileIdMove(
-  args: { param: { fileId: string }; json: { destinationFolderId: string } },
+  args: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].move.$post(args, options)
@@ -168,7 +153,7 @@ export async function postFilesFileIdMove(
  * サムネイル取得
  */
 export async function getFilesFileIdThumbnail(
-  args: { param: { fileId: string }; query: { size?: 'small' | 'medium' | 'large' } },
+  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].thumbnail.$get(args, options)
@@ -180,7 +165,7 @@ export async function getFilesFileIdThumbnail(
  * フォルダ作成
  */
 export async function postFolders(
-  args: { json: { name: string; parentId?: string; color?: string } },
+  args: InferRequestType<typeof client.folders.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.folders.$post(args, options)
@@ -192,7 +177,7 @@ export async function postFolders(
  * フォルダ情報取得
  */
 export async function getFoldersFolderId(
-  args: { param: { folderId: string } },
+  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.folders[':folderId'].$get(args, options)
@@ -204,7 +189,7 @@ export async function getFoldersFolderId(
  * フォルダ削除
  */
 export async function deleteFoldersFolderId(
-  args: { param: { folderId: string } },
+  args: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.folders[':folderId'].$delete(args, options)
@@ -216,7 +201,7 @@ export async function deleteFoldersFolderId(
  * フォルダ情報更新
  */
 export async function patchFoldersFolderId(
-  args: { param: { folderId: string }; json: { name?: string; color?: string } },
+  args: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
   options?: ClientRequestOptions,
 ) {
   return await client.folders[':folderId'].$patch(args, options)
@@ -228,7 +213,7 @@ export async function patchFoldersFolderId(
  * 共有設定取得
  */
 export async function getFilesFileIdShare(
-  args: { param: { fileId: string } },
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].share.$get(args, options)
@@ -240,14 +225,7 @@ export async function getFilesFileIdShare(
  * ファイル共有
  */
 export async function postFilesFileIdShare(
-  args: {
-    param: { fileId: string }
-    json: {
-      collaborators?: { email: string; permission: 'viewer' | 'editor' }[]
-      message?: string
-      notifyByEmail?: boolean
-    }
-  },
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].share.$post(args, options)
@@ -259,7 +237,7 @@ export async function postFilesFileIdShare(
  * 共有解除
  */
 export async function deleteFilesFileIdShare(
-  args: { param: { fileId: string } },
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].share.$delete(args, options)
@@ -271,10 +249,7 @@ export async function deleteFilesFileIdShare(
  * 共有リンク作成
  */
 export async function postFilesFileIdShareLink(
-  args: {
-    param: { fileId: string }
-    json: { password?: string; expiresAt?: string; allowDownload?: boolean }
-  },
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].share.link.$post(args, options)
@@ -286,7 +261,7 @@ export async function postFilesFileIdShareLink(
  * バージョン一覧取得
  */
 export async function getFilesFileIdVersions(
-  args: { param: { fileId: string } },
+  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].versions.$get(args, options)
@@ -298,7 +273,9 @@ export async function getFilesFileIdVersions(
  * バージョン復元
  */
 export async function postFilesFileIdVersionsVersionIdRestore(
-  args: { param: { fileId: string; versionId: string } },
+  args: InferRequestType<
+    (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+  >,
   options?: ClientRequestOptions,
 ) {
   return await client.files[':fileId'].versions[':versionId'].restore.$post(args, options)
@@ -310,7 +287,7 @@ export async function postFilesFileIdVersionsVersionIdRestore(
  * ゴミ箱一覧取得
  */
 export async function getTrash(
-  args: { query: { page?: number; limit?: number } },
+  args: InferRequestType<typeof client.trash.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.trash.$get(args, options)
@@ -331,7 +308,7 @@ export async function deleteTrash(options?: ClientRequestOptions) {
  * ゴミ箱から復元
  */
 export async function postTrashFileIdRestore(
-  args: { param: { fileId: string } },
+  args: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.trash[':fileId'].restore.$post(args, options)

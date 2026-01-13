@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/pet-store'
 
 /**
@@ -9,33 +9,7 @@ import { client } from '../clients/pet-store'
  * Update an existing pet by Id
  */
 export async function putPet(
-  args: {
-    form: {
-      id?: bigint
-      name: string
-      category?: { id?: bigint; name?: string }
-      photoUrls: string[]
-      tags?: { id?: bigint; name?: string }[]
-      status?: 'available' | 'pending' | 'sold'
-    }
-    json:
-      | {
-          id?: bigint
-          name: string
-          category?: { id?: bigint; name?: string }
-          photoUrls: string[]
-          tags?: { id?: bigint; name?: string }[]
-          status?: 'available' | 'pending' | 'sold'
-        }
-      | {
-          id?: bigint
-          name: string
-          category?: { id?: bigint; name?: string }
-          photoUrls: string[]
-          tags?: { id?: bigint; name?: string }[]
-          status?: 'available' | 'pending' | 'sold'
-        }
-  },
+  args: InferRequestType<typeof client.pet.$put>,
   options?: ClientRequestOptions,
 ) {
   return await client.pet.$put(args, options)
@@ -49,33 +23,7 @@ export async function putPet(
  * Add a new pet to the store
  */
 export async function postPet(
-  args: {
-    form: {
-      id?: bigint
-      name: string
-      category?: { id?: bigint; name?: string }
-      photoUrls: string[]
-      tags?: { id?: bigint; name?: string }[]
-      status?: 'available' | 'pending' | 'sold'
-    }
-    json:
-      | {
-          id?: bigint
-          name: string
-          category?: { id?: bigint; name?: string }
-          photoUrls: string[]
-          tags?: { id?: bigint; name?: string }[]
-          status?: 'available' | 'pending' | 'sold'
-        }
-      | {
-          id?: bigint
-          name: string
-          category?: { id?: bigint; name?: string }
-          photoUrls: string[]
-          tags?: { id?: bigint; name?: string }[]
-          status?: 'available' | 'pending' | 'sold'
-        }
-  },
+  args: InferRequestType<typeof client.pet.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.pet.$post(args, options)
@@ -89,7 +37,7 @@ export async function postPet(
  * Multiple status values can be provided with comma separated strings
  */
 export async function getPetFindByStatus(
-  args: { query: { status?: 'available' | 'pending' | 'sold' } },
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.pet.findByStatus.$get(args, options)
@@ -103,10 +51,10 @@ export async function getPetFindByStatus(
  * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
  */
 export async function getPetFindByTags(
-  args: { query: { tags?: string[] } },
+  args: InferRequestType<typeof client.pet.findByTags.$get>,
   options?: ClientRequestOptions,
 ) {
-  return await client.pet['findByTags'].$get(args, options)
+  return await client.pet.findByTags.$get(args, options)
 }
 
 /**
@@ -117,7 +65,7 @@ export async function getPetFindByTags(
  * Returns a single pet
  */
 export async function getPetPetId(
-  args: { param: { petId: bigint } },
+  args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.pet[':petId'].$get(args, options)
@@ -129,7 +77,7 @@ export async function getPetPetId(
  * Updates a pet in the store with form data
  */
 export async function postPetPetId(
-  args: { param: { petId: bigint }; query: { name?: string; status?: string } },
+  args: InferRequestType<(typeof client.pet)[':petId']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.pet[':petId'].$post(args, options)
@@ -143,7 +91,7 @@ export async function postPetPetId(
  * delete a pet
  */
 export async function deletePetPetId(
-  args: { param: { petId: bigint }; header: { api_key?: string } },
+  args: InferRequestType<(typeof client.pet)[':petId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.pet[':petId'].$delete(args, options)
@@ -155,7 +103,7 @@ export async function deletePetPetId(
  * uploads an image
  */
 export async function postPetPetIdUploadImage(
-  args: { param: { petId: bigint }; query: { additionalMetadata?: string }; json: File },
+  args: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.pet[':petId'].uploadImage.$post(args, options)
@@ -180,33 +128,7 @@ export async function getStoreInventory(options?: ClientRequestOptions) {
  * Place a new order in the store
  */
 export async function postStoreOrder(
-  args: {
-    form: {
-      id?: bigint
-      petId?: bigint
-      quantity?: number
-      shipDate?: string
-      status?: 'placed' | 'approved' | 'delivered'
-      complete?: boolean
-    }
-    json:
-      | {
-          id?: bigint
-          petId?: bigint
-          quantity?: number
-          shipDate?: string
-          status?: 'placed' | 'approved' | 'delivered'
-          complete?: boolean
-        }
-      | {
-          id?: bigint
-          petId?: bigint
-          quantity?: number
-          shipDate?: string
-          status?: 'placed' | 'approved' | 'delivered'
-          complete?: boolean
-        }
-  },
+  args: InferRequestType<typeof client.store.order.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.store.order.$post(args, options)
@@ -220,7 +142,7 @@ export async function postStoreOrder(
  * For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
  */
 export async function getStoreOrderOrderId(
-  args: { param: { orderId: bigint } },
+  args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.store.order[':orderId'].$get(args, options)
@@ -234,7 +156,7 @@ export async function getStoreOrderOrderId(
  * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  */
 export async function deleteStoreOrderOrderId(
-  args: { param: { orderId: bigint } },
+  args: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.store.order[':orderId'].$delete(args, options)
@@ -248,39 +170,7 @@ export async function deleteStoreOrderOrderId(
  * This can only be done by the logged in user.
  */
 export async function postUser(
-  args: {
-    form: {
-      id?: bigint
-      username?: string
-      firstName?: string
-      lastName?: string
-      email?: string
-      password?: string
-      phone?: string
-      userStatus?: number
-    }
-    json:
-      | {
-          id?: bigint
-          username?: string
-          firstName?: string
-          lastName?: string
-          email?: string
-          password?: string
-          phone?: string
-          userStatus?: number
-        }
-      | {
-          id?: bigint
-          username?: string
-          firstName?: string
-          lastName?: string
-          email?: string
-          password?: string
-          phone?: string
-          userStatus?: number
-        }
-  },
+  args: InferRequestType<typeof client.user.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.user.$post(args, options)
@@ -294,18 +184,7 @@ export async function postUser(
  * Creates list of users with given input array
  */
 export async function postUserCreateWithList(
-  args: {
-    json: {
-      id?: bigint
-      username?: string
-      firstName?: string
-      lastName?: string
-      email?: string
-      password?: string
-      phone?: string
-      userStatus?: number
-    }[]
-  },
+  args: InferRequestType<typeof client.user.createWithList.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.user.createWithList.$post(args, options)
@@ -317,7 +196,7 @@ export async function postUserCreateWithList(
  * Logs user into the system
  */
 export async function getUserLogin(
-  args: { query: { username?: string; password?: string } },
+  args: InferRequestType<typeof client.user.login.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.user.login.$get(args, options)
@@ -338,7 +217,7 @@ export async function getUserLogout(options?: ClientRequestOptions) {
  * Get user by user name
  */
 export async function getUserUsername(
-  args: { param: { username: string } },
+  args: InferRequestType<(typeof client.user)[':username']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.user[':username'].$get(args, options)
@@ -352,40 +231,7 @@ export async function getUserUsername(
  * This can only be done by the logged in user.
  */
 export async function putUserUsername(
-  args: {
-    param: { username: string }
-    form: {
-      id?: bigint
-      username?: string
-      firstName?: string
-      lastName?: string
-      email?: string
-      password?: string
-      phone?: string
-      userStatus?: number
-    }
-    json:
-      | {
-          id?: bigint
-          username?: string
-          firstName?: string
-          lastName?: string
-          email?: string
-          password?: string
-          phone?: string
-          userStatus?: number
-        }
-      | {
-          id?: bigint
-          username?: string
-          firstName?: string
-          lastName?: string
-          email?: string
-          password?: string
-          phone?: string
-          userStatus?: number
-        }
-  },
+  args: InferRequestType<(typeof client.user)[':username']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.user[':username'].$put(args, options)
@@ -399,7 +245,7 @@ export async function putUserUsername(
  * This can only be done by the logged in user.
  */
 export async function deleteUserUsername(
-  args: { param: { username: string } },
+  args: InferRequestType<(typeof client.user)[':username']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.user[':username'].$delete(args, options)

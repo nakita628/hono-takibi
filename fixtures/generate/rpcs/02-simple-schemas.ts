@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
 /**
@@ -12,7 +12,7 @@ export async function getUsers(options?: ClientRequestOptions) {
  * POST /users
  */
 export async function postUsers(
-  args: { json: { email: string; name?: string } },
+  args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.users.$post(args, options)
@@ -22,7 +22,7 @@ export async function postUsers(
  * GET /users/{userId}
  */
 export async function getUsersUserId(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].$get(args, options)

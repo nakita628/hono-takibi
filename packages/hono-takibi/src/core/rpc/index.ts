@@ -19,7 +19,7 @@
  */
 import path from 'node:path'
 import { core } from '../../helper/index.js'
-import type { OpenAPI, OpenAPIPaths, Schema } from '../../openapi/index.js'
+import type { OpenAPI, OpenAPIPaths } from '../../openapi/index.js'
 import { isRecord, methodPath } from '../../utils/index.js'
 
 /* ─────────────────────────────── Guards ─────────────────────────────── */
@@ -40,6 +40,20 @@ const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
 const isValidIdent = (s: string): boolean => /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(s)
 
 /**
+ * Format result containing paths for both runtime and type expressions.
+ */
+type FormatPathResult = {
+  /** Path for runtime calls (mixed notation is fine) */
+  runtimePath: string
+  /** Dot-only prefix for typeof expression (e.g., '.users') */
+  typeofPrefix: string
+  /** Bracket-only suffix for type expression (e.g., "[':id']['avatar']") */
+  bracketSuffix: string
+  /** Whether any segment requires bracket notation */
+  hasBracket: boolean
+}
+
+/**
  * Format path for Hono RPC access (both type and runtime).
  * Hono hc client uses PathToChain which splits paths by '/'.
  *
@@ -48,9 +62,22 @@ const isValidIdent = (s: string): boolean => /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(s
  * - Valid identifiers use dot notation: '/users' -> '.users'
  * - Invalid identifiers use bracket notation: '/:id' -> "[':id']"
  * - Path params converted: '/files/{fileId}' -> ".files[':fileId']"
+ *
+ * For InferRequestType, when bracket notation exists in the path,
+ * we need to wrap `typeof client.<prefix>` in parentheses and use
+ * all bracket notation after:
+ * - `/users/{id}` -> type: `(typeof client.users)[':id']['$get']`
+ * - `/users/{id}/avatar` -> type: `(typeof client.users)[':id']['avatar']['$post']`
  */
-const formatPath = (p: string): string => {
-  if (p === '/') return '.index'
+const formatPath = (p: string): FormatPathResult => {
+  if (p === '/') {
+    return {
+      runtimePath: '.index',
+      typeofPrefix: '.index',
+      bracketSuffix: '',
+      hasBracket: false,
+    }
+  }
 
   const segs = p.replace(/^\/+/, '').split('/').filter(Boolean)
 
@@ -59,8 +86,30 @@ const formatPath = (p: string): string => {
     seg.startsWith('{') && seg.endsWith('}') ? `:${seg.slice(1, -1)}` : seg,
   )
 
-  // Use dot notation for valid identifiers, bracket for others
-  return honoSegs.map((seg) => (isValidIdent(seg) ? `.${seg}` : `['${esc(seg)}']`)).join('')
+  // Find the first segment that needs bracket notation
+  const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))
+  const hasBracket = firstBracketIdx !== -1
+
+  // Runtime path: mixed notation (current behavior)
+  const runtimeParts = honoSegs.map((seg) => (isValidIdent(seg) ? `.${seg}` : `['${esc(seg)}']`))
+  const runtimePath = runtimeParts.join('')
+
+  // For type expression: split at first bracket
+  const typeofPrefix = hasBracket
+    ? honoSegs
+        .slice(0, firstBracketIdx)
+        .map((seg) => `.${seg}`)
+        .join('')
+    : runtimePath
+
+  const bracketSuffix = hasBracket
+    ? honoSegs
+        .slice(firstBracketIdx)
+        .map((seg) => `['${esc(seg)}']`)
+        .join('')
+    : ''
+
+  return { runtimePath, typeofPrefix, bracketSuffix, hasBracket }
 }
 
 /* ─────────────────────────────── Parameters ($ref) ─────────────────────────────── */
@@ -72,32 +121,12 @@ type ParameterLike = {
   name: string
   in: 'path' | 'query' | 'header' | 'cookie'
   required?: boolean
-  schema?: Schema
-  content?: Record<string, { schema?: Schema }>
 }
 const isParameterObject = (v: unknown): v is ParameterLike => {
   if (!isRecord(v)) return false
   if (typeof v.name !== 'string') return false
   const pos = v.in
   return pos === 'path' || pos === 'query' || pos === 'header' || pos === 'cookie'
-}
-
-/**
- * Extract schema from parameter (handles both schema and content properties)
- */
-const getParameterSchema = (p: ParameterLike): Schema | undefined => {
-  if (p.schema) return p.schema
-  // Handle content property (e.g., content: { application/json: { schema: ... } })
-  if (p.content) {
-    const jsonContent = p.content['application/json']
-    if (jsonContent?.schema) return jsonContent.schema
-    // Fallback to first content type
-    const firstKey = Object.keys(p.content)[0]
-    if (firstKey && p.content[firstKey]?.schema) {
-      return p.content[firstKey].schema
-    }
-  }
-  return undefined
 }
 
 const refParamName = (refLike: unknown): string | undefined => {
@@ -120,223 +149,6 @@ const createToParameterLikes =
   (resolveParam: (p: unknown) => ParameterLike | undefined) =>
   (arr?: unknown): ParameterLike[] =>
     Array.isArray(arr) ? arr.map((x) => resolveParam(x)).filter((param) => param !== undefined) : []
-
-/* ─────────────────────────────── Schema to TypeScript type ─────────────────────────────── */
-
-type SchemaToTsOptions = {
-  /** Query parameters use string for boolean (HTTP query params are always strings) */
-  isQueryParam?: boolean
-}
-
-/**
- * Converts OpenAPI Schema to TypeScript type string.
- * Used for generating argument types directly from OpenAPI instead of InferRequestType.
- */
-const schemaToTsType = (
-  schema: Schema | undefined,
-  componentsSchemas: Record<string, Schema>,
-  visited: Set<string> = new Set(),
-  options: SchemaToTsOptions = {},
-): string => {
-  if (!schema) return 'unknown'
-
-  // Handle $ref
-  if (schema.$ref) {
-    const refName = schema.$ref.replace(/^#\/components\/schemas\//, '')
-    // Prevent infinite recursion from circular references
-    if (visited.has(refName)) {
-      return 'unknown'
-    }
-    const refSchema = componentsSchemas[refName]
-    if (refSchema) {
-      const newVisited = new Set(visited)
-      newVisited.add(refName)
-      return schemaToTsType(refSchema, componentsSchemas, newVisited, options)
-    }
-    return 'unknown'
-  }
-
-  // Handle enum
-  if (schema.enum) {
-    if (schema.enum.length === 0) return 'never'
-    return schema.enum.map((v) => JSON.stringify(v)).join(' | ')
-  }
-
-  // Handle const
-  if (schema.const !== undefined) {
-    return JSON.stringify(schema.const)
-  }
-
-  // Handle nullable
-  const nullable = schema.nullable === true
-
-  // Handle allOf
-  if (schema.allOf) {
-    if (schema.allOf.length === 0) return nullable ? '(unknown | null)' : 'unknown'
-    const types = schema.allOf.map((s) => schemaToTsType(s, componentsSchemas, visited, options))
-    const result = types.length === 1 ? types[0] : `(${types.join(' & ')})`
-    return nullable ? `(${result} | null)` : result
-  }
-
-  // Handle oneOf/anyOf
-  if (schema.oneOf || schema.anyOf) {
-    const schemas = schema.oneOf || schema.anyOf || []
-    if (schemas.length === 0) return nullable ? '(never | null)' : 'never'
-    const types = schemas.map((s) => schemaToTsType(s, componentsSchemas, visited, options))
-    const result = types.join(' | ')
-    return nullable ? `(${result} | null)` : result
-  }
-
-  // Handle type
-  const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
-  const wrap = (t: string) => (nullable ? `(${t} | null)` : t)
-
-  if (type === 'null') return 'null'
-
-  if (type === 'string') {
-    return wrap(schema.format === 'binary' ? 'File' : 'string')
-  }
-
-  if (type === 'number' || type === 'integer') {
-    return wrap(schema.format === 'int64' ? 'bigint' : 'number')
-  }
-
-  if (type === 'boolean') {
-    return wrap(options.isQueryParam ? 'string' : 'boolean')
-  }
-
-  if (type === 'array') {
-    const itemType = schema.items
-      ? schemaToTsType(
-          Array.isArray(schema.items) ? schema.items[0] : schema.items,
-          componentsSchemas,
-          visited,
-          options,
-        )
-      : 'unknown'
-    const needsParens = itemType.includes(' | ') || itemType.includes(' & ')
-    return wrap(needsParens ? `(${itemType})[]` : `${itemType}[]`)
-  }
-
-  if (type === 'object') {
-    if (!schema.properties) {
-      if (schema.additionalProperties) {
-        const valueType =
-          typeof schema.additionalProperties === 'boolean'
-            ? 'unknown'
-            : schemaToTsType(schema.additionalProperties, componentsSchemas, visited, options)
-        return wrap(`{ [key: string]: ${valueType} }`)
-      }
-      return wrap('{}')
-    }
-    const required = new Set(schema.required || [])
-    const props = Object.entries(schema.properties)
-      .map(([key, propSchema]) => {
-        const propType = schemaToTsType(propSchema, componentsSchemas, visited, options)
-        const safeKey = isValidIdent(key) ? key : JSON.stringify(key)
-        return `${safeKey}${required.has(key) ? '' : '?'}: ${propType}`
-      })
-      .join('; ')
-    return wrap(`{ ${props} }`)
-  }
-
-  return 'unknown'
-}
-
-/** Body info with schema and content type */
-type BodyInfo = {
-  schema: Schema
-  contentType: string
-}
-
-/**
- * Generate Hono RPC argument type from OpenAPI parameters and request body.
- * Returns type string like "{ param: { id: string }; query: { limit?: number }; json: { name: string } }"
- */
-const generateArgType = (
-  pathParams: ParameterLike[],
-  queryParams: ParameterLike[],
-  headerParams: ParameterLike[],
-  cookieParams: ParameterLike[],
-  allBodyInfo: AllBodyInfo | undefined,
-  componentsSchemas: Record<string, Schema>,
-): string => {
-  const parts: string[] = []
-
-  // Path parameters
-  if (pathParams.length > 0) {
-    const props = pathParams
-      .map((p) => {
-        const schema = getParameterSchema(p)
-        const type = schemaToTsType(schema, componentsSchemas)
-        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(p.name) ? p.name : JSON.stringify(p.name)
-        return `${safeKey}: ${type}`
-      })
-      .join('; ')
-    parts.push(`param: { ${props} }`)
-  }
-
-  // Query parameters - use isQueryParam: true for HTTP query string semantics
-  if (queryParams.length > 0) {
-    const props = queryParams
-      .map((p) => {
-        const schema = getParameterSchema(p)
-        const type = schemaToTsType(schema, componentsSchemas, new Set(), { isQueryParam: true })
-        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(p.name) ? p.name : JSON.stringify(p.name)
-        const isRequired = p.required === true
-        return `${safeKey}${isRequired ? '' : '?'}: ${type}`
-      })
-      .join('; ')
-    parts.push(`query: { ${props} }`)
-  }
-
-  // Header parameters
-  if (headerParams.length > 0) {
-    const props = headerParams
-      .map((p) => {
-        const schema = getParameterSchema(p)
-        const type = schemaToTsType(schema, componentsSchemas)
-        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(p.name) ? p.name : JSON.stringify(p.name)
-        const isRequired = p.required === true
-        return `${safeKey}${isRequired ? '' : '?'}: ${type}`
-      })
-      .join('; ')
-    parts.push(`header: { ${props} }`)
-  }
-
-  // Cookie parameters
-  if (cookieParams.length > 0) {
-    const props = cookieParams
-      .map((p) => {
-        const schema = getParameterSchema(p)
-        const type = schemaToTsType(schema, componentsSchemas)
-        const safeKey = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(p.name) ? p.name : JSON.stringify(p.name)
-        const isRequired = p.required === true
-        return `${safeKey}${isRequired ? '' : '?'}: ${type}`
-      })
-      .join('; ')
-    parts.push(`cookie: { ${props} }`)
-  }
-
-  // Request body - handle multiple content types
-  if (allBodyInfo) {
-    const { form, json } = allBodyInfo
-    // Generate form types if present
-    if (form.length > 0) {
-      const types = form.map((info) => schemaToTsType(info.schema, componentsSchemas))
-      const unionType = types.length === 1 ? types[0] : types.join(' | ')
-      parts.push(`form: ${unionType}`)
-    }
-    // Generate json types if present
-    if (json.length > 0) {
-      const types = json.map((info) => schemaToTsType(info.schema, componentsSchemas))
-      const unionType = types.length === 1 ? types[0] : types.join(' | ')
-      parts.push(`json: ${unionType}`)
-    }
-  }
-
-  return parts.length > 0 ? `{ ${parts.join('; ')} }` : ''
-}
 
 /* ─────────────────────────────── RequestBody schema pick ─────────────────────────────── */
 
@@ -368,9 +180,13 @@ const HTTP_METHODS: readonly HttpMethod[] = [
 type OperationCode = {
   readonly funcName: string
   readonly code: string
+  readonly hasArgs: boolean
 }
 
 const hasSchemaProp = (v: unknown): v is { schema?: unknown } => isRecord(v) && 'schema' in v
+
+/** Body info for tracking request body presence */
+type BodyInfo = { contentType: string }
 
 /** Extract requestBody name from $ref like "#/components/requestBodies/CreateProduct" */
 const refRequestBodyName = (refLike: unknown): string | undefined => {
@@ -397,7 +213,7 @@ const pickAllBodyInfoFromContent = (content: unknown): AllBodyInfo | undefined =
   for (const [ct, mediaObj] of Object.entries(content)) {
     if (!(isRecord(mediaObj) && hasSchemaProp(mediaObj) && isRecord(mediaObj.schema))) continue
 
-    const info: BodyInfo = { schema: mediaObj.schema, contentType: ct }
+    const info: BodyInfo = { contentType: ct }
 
     // Extract base content type (before semicolon) for matching
     // e.g., "multipart/form-data; boundary=..." -> "multipart/form-data"
@@ -430,8 +246,7 @@ const createPickAllBodyInfo =
         return pickAllBodyInfoFromContent(resolved.content)
       }
       // If $ref exists but can't resolve content, still consider it has a body
-      if (resolved !== undefined)
-        return { form: [], json: [{ schema: {}, contentType: 'application/json' }] }
+      if (resolved !== undefined) return { form: [], json: [{ contentType: 'application/json' }] }
       return undefined
     }
 
@@ -441,6 +256,8 @@ const createPickAllBodyInfo =
 
 /* ─────────────────────────────── Single-operation generator ─────────────────────────────── */
 
+type GeneratedOperation = { code: string; hasArgs: boolean } | null
+
 const generateOperationCode = (
   pathStr: string,
   method: HttpMethod,
@@ -449,14 +266,13 @@ const generateOperationCode = (
     client: string
     toParameterLikes: (arr?: unknown) => ParameterLike[]
     pickAllBodyInfo: (op: OperationLike) => AllBodyInfo | undefined
-    componentsSchemas: Record<string, Schema>
   },
-): string => {
+): GeneratedOperation => {
   const op = item[method]
-  if (!isOperationLike(op)) return ''
+  if (!isOperationLike(op)) return null
 
   const funcName = methodPath(method, pathStr)
-  const pathAccess = formatPath(pathStr)
+  const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = formatPath(pathStr)
 
   const pathLevelParams = deps.toParameterLikes(item.parameters)
   const opParams = deps.toParameterLikes(op.parameters)
@@ -477,27 +293,22 @@ const generateOperationCode = (
     cookieParams.length > 0 ||
     hasBody
 
-  // Always use dot notation for method access
+  // For runtime calls, always use dot notation for method access
   const methodAccess = `.$${method}`
 
-  // Generate argument type directly from OpenAPI instead of using InferRequestType
-  const argType = generateArgType(
-    pathParams,
-    queryParams,
-    headerParams,
-    cookieParams,
-    allBodyInfo,
-    deps.componentsSchemas,
-  )
-  // options is always a separate parameter
-  // If there are required args (params, query, body, etc.), args is required
-  // If no args, omit args parameter entirely
+  // For InferRequestType, handle bracket notation properly:
+  // - No bracket: `typeof client.users.$get`
+  // - With bracket: `(typeof client.users)[':id']['avatar']['$post']`
+  const inferType = hasBracket
+    ? `InferRequestType<(typeof ${deps.client}${typeofPrefix})${bracketSuffix}['$${method}']>`
+    : `InferRequestType<typeof ${deps.client}${runtimePath}.$${method}>`
+
   const argSig = hasArgs
-    ? `args: ${argType}, options?: ClientRequestOptions`
-    : 'options?: ClientRequestOptions'
+    ? `args:${inferType},options?:ClientRequestOptions`
+    : 'options?:ClientRequestOptions'
   const call = hasArgs
-    ? `${deps.client}${pathAccess}${methodAccess}(args, options)`
-    : `${deps.client}${pathAccess}${methodAccess}(undefined, options)`
+    ? `${deps.client}${runtimePath}${methodAccess}(args,options)`
+    : `${deps.client}${runtimePath}${methodAccess}(undefined,options)`
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
@@ -511,7 +322,7 @@ const generateOperationCode = (
 
   const func = `export async function ${funcName}(${argSig}){return await ${call}}`
 
-  return `${docs}\n${func}`
+  return { code: `${docs}\n${func}`, hasArgs }
 }
 
 const buildOperationCodes = (
@@ -520,7 +331,6 @@ const buildOperationCodes = (
     client: string
     toParameterLikes: (arr?: unknown) => ParameterLike[]
     pickAllBodyInfo: (op: OperationLike) => AllBodyInfo | undefined
-    componentsSchemas: Record<string, Schema>
   },
 ): OperationCode[] =>
   Object.entries(paths)
@@ -539,8 +349,10 @@ const buildOperationCodes = (
       }
 
       return HTTP_METHODS.map((method) => {
-        const code = generateOperationCode(p, method, pathItem, deps)
-        return code ? { funcName: methodPath(method, p), code } : null
+        const result = generateOperationCode(p, method, pathItem, deps)
+        return result
+          ? { funcName: methodPath(method, p), code: result.code, hasArgs: result.hasArgs }
+          : null
       }).filter((item): item is OperationCode => item !== null)
     })
 
@@ -589,8 +401,11 @@ const resolveSplitOutDir = (output: string) => {
  * // Generates: src/rpc/getUsers.ts, src/rpc/postUsers.ts, src/rpc/index.ts
  * ```
  */
-const buildHeader = (importPath: string): string => {
-  return `import type{ClientRequestOptions}from'hono/client'\nimport{client}from'${importPath}'\n\n`
+const buildHeader = (importPath: string, needsInferRequestType: boolean): string => {
+  const typeImports = needsInferRequestType
+    ? 'InferRequestType,ClientRequestOptions'
+    : 'ClientRequestOptions'
+  return `import type{${typeImports}}from'hono/client'\nimport{client}from'${importPath}'\n\n`
 }
 
 export async function rpc(
@@ -610,7 +425,6 @@ export async function rpc(
 
   const componentsParameters = openAPI.components?.parameters ?? {}
   const componentsRequestBodies = openAPI.components?.requestBodies ?? {}
-  const componentsSchemas = (openAPI.components?.schemas ?? {}) as Record<string, Schema>
   const resolveParameter = createResolveParameter(componentsParameters)
   const toParameterLikes = createToParameterLikes(resolveParameter)
   const pickAllBodyInfo = createPickAllBodyInfo(componentsRequestBodies)
@@ -619,7 +433,6 @@ export async function rpc(
     client,
     toParameterLikes,
     pickAllBodyInfo,
-    componentsSchemas,
   }
 
   const operationCodes = buildOperationCodes(pathsMaybe, deps)
@@ -627,7 +440,8 @@ export async function rpc(
   // Non-split: write single file
   if (!split) {
     const body = operationCodes.map(({ code }) => code).join('\n\n')
-    const header = buildHeader(importPath)
+    const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
+    const header = buildHeader(importPath, needsInferRequestType)
     const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
     if (!coreResult.ok) return { ok: false, error: coreResult.error }
@@ -643,8 +457,8 @@ export async function rpc(
   const index = `${exportLines.join('\n')}\n`
 
   const allResults = await Promise.all([
-    ...operationCodes.map(({ funcName, code }) => {
-      const header = buildHeader(importPath)
+    ...operationCodes.map(({ funcName, code, hasArgs }) => {
+      const header = buildHeader(importPath, hasArgs)
       const fileSrc = `${header}${code}\n`
       const filePath = path.join(outDir, `${funcName}.ts`)
       return core(fileSrc, path.dirname(filePath), filePath)
@@ -1101,7 +915,7 @@ if (import.meta.vitest) {
         }
 
         const index = fs.readFileSync(out, 'utf-8')
-        const expected = `import type { ClientRequestOptions } from 'hono/client'
+        const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
 /**
@@ -1145,22 +959,7 @@ export async function getZodOpenapiHono(options?: ClientRequestOptions) {
  * List users with pagination and optional role filter.
  */
 export async function getUsers(
-  args: {
-    query: {
-      limit?: number
-      offset?: number
-      role?: (
-        | 'attendee'
-        | 'speaker'
-        | 'lt-speaker'
-        | 'staff'
-        | 'sponsor'
-        | 'mc'
-        | 'ghost-wifi-fixer'
-      )[]
-      q?: string
-    }
-  },
+  args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.users.$get(args, options)
@@ -1174,24 +973,7 @@ export async function getUsers(
  * Create a new user.
  */
 export async function postUsers(
-  args: {
-    json: {
-      displayName: string
-      email: string
-      roles?: (
-        | 'attendee'
-        | 'speaker'
-        | 'lt-speaker'
-        | 'staff'
-        | 'sponsor'
-        | 'mc'
-        | 'ghost-wifi-fixer'
-      )[]
-      isStudent?: boolean
-      pronouns?: string
-      affiliations?: string[]
-    }
-  },
+  args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.users.$post(args, options)
@@ -1204,7 +986,10 @@ export async function postUsers(
  *
  * Retrieve a single user by ID.
  */
-export async function getUsersId(args: { param: { id: string } }, options?: ClientRequestOptions) {
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
   return await client.users[':id'].$get(args, options)
 }
 
@@ -1216,25 +1001,7 @@ export async function getUsersId(args: { param: { id: string } }, options?: Clie
  * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
  */
 export async function putUsersId(
-  args: {
-    param: { id: string }
-    json: {
-      displayName: string
-      email: string
-      roles?: (
-        | 'attendee'
-        | 'speaker'
-        | 'lt-speaker'
-        | 'staff'
-        | 'sponsor'
-        | 'mc'
-        | 'ghost-wifi-fixer'
-      )[]
-      isStudent?: boolean
-      pronouns?: string
-      affiliations?: string[]
-    }
-  },
+  args: InferRequestType<(typeof client.users)[':id']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':id'].$put(args, options)
@@ -1248,7 +1015,7 @@ export async function putUsersId(
  * Delete a user by ID.
  */
 export async function deleteUsersId(
-  args: { param: { id: string } },
+  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':id'].$delete(args, options)
@@ -1262,25 +1029,7 @@ export async function deleteUsersId(
  * Partial update (PATCH). Only provided fields will be updated.
  */
 export async function patchUsersId(
-  args: {
-    param: { id: string }
-    json: {
-      displayName?: string
-      email?: string
-      roles?: (
-        | 'attendee'
-        | 'speaker'
-        | 'lt-speaker'
-        | 'staff'
-        | 'sponsor'
-        | 'mc'
-        | 'ghost-wifi-fixer'
-      )[]
-      isStudent?: boolean
-      pronouns?: string
-      affiliations?: string[]
-    }
-  },
+  args: InferRequestType<(typeof client.users)[':id']['$patch']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':id'].$patch(args, options)
@@ -1323,7 +1072,7 @@ export * from './patchUsersId'
         expect(index).toBe(indexExpected)
 
         const deleteUsersId = fs.readFileSync(path.join(dir, 'rpc', 'deleteUsersId.ts'), 'utf-8')
-        const deleteUsersIdExpected = `import type { ClientRequestOptions } from 'hono/client'
+        const deleteUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
 /**
@@ -1334,7 +1083,7 @@ import { client } from '../index.ts'
  * Delete a user by ID.
  */
 export async function deleteUsersId(
-  args: { param: { id: string } },
+  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':id'].$delete(args, options)
@@ -1381,7 +1130,7 @@ export async function getHonoX(options?: ClientRequestOptions) {
 
         const getUsers = fs.readFileSync(path.join(dir, 'rpc', 'getUsers.ts'), 'utf-8')
 
-        const expected = `import type { ClientRequestOptions } from 'hono/client'
+        const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
 /**
@@ -1392,22 +1141,7 @@ import { client } from '../index.ts'
  * List users with pagination and optional role filter.
  */
 export async function getUsers(
-  args: {
-    query: {
-      limit?: number
-      offset?: number
-      role?: (
-        | 'attendee'
-        | 'speaker'
-        | 'lt-speaker'
-        | 'staff'
-        | 'sponsor'
-        | 'mc'
-        | 'ghost-wifi-fixer'
-      )[]
-      q?: string
-    }
-  },
+  args: InferRequestType<typeof client.users.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.users.$get(args, options)
@@ -1418,7 +1152,7 @@ export async function getUsers(
 
         const getUsersId = fs.readFileSync(path.join(dir, 'rpc', 'getUsersId.ts'), 'utf-8')
 
-        const getUsersIdExpected = `import type { ClientRequestOptions } from 'hono/client'
+        const getUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
 /**
@@ -1428,7 +1162,10 @@ import { client } from '../index.ts'
  *
  * Retrieve a single user by ID.
  */
-export async function getUsersId(args: { param: { id: string } }, options?: ClientRequestOptions) {
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
   return await client.users[':id'].$get(args, options)
 }
 `
@@ -1457,7 +1194,7 @@ export async function getZodOpenapiHono(options?: ClientRequestOptions) {
 
         const patchUsersId = fs.readFileSync(path.join(dir, 'rpc', 'patchUsersId.ts'), 'utf-8')
 
-        const patchUsersIdExpected = `import type { ClientRequestOptions } from 'hono/client'
+        const patchUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
 /**
@@ -1468,25 +1205,7 @@ import { client } from '../index.ts'
  * Partial update (PATCH). Only provided fields will be updated.
  */
 export async function patchUsersId(
-  args: {
-    param: { id: string }
-    json: {
-      displayName?: string
-      email?: string
-      roles?: (
-        | 'attendee'
-        | 'speaker'
-        | 'lt-speaker'
-        | 'staff'
-        | 'sponsor'
-        | 'mc'
-        | 'ghost-wifi-fixer'
-      )[]
-      isStudent?: boolean
-      pronouns?: string
-      affiliations?: string[]
-    }
-  },
+  args: InferRequestType<(typeof client.users)[':id']['$patch']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':id'].$patch(args, options)
@@ -1495,7 +1214,7 @@ export async function patchUsersId(
         expect(patchUsersId).toBe(patchUsersIdExpected)
 
         const postUsers = fs.readFileSync(path.join(dir, 'rpc', 'postUsers.ts'), 'utf-8')
-        const postUsersExpected = `import type { ClientRequestOptions } from 'hono/client'
+        const postUsersExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
 /**
@@ -1506,24 +1225,7 @@ import { client } from '../index.ts'
  * Create a new user.
  */
 export async function postUsers(
-  args: {
-    json: {
-      displayName: string
-      email: string
-      roles?: (
-        | 'attendee'
-        | 'speaker'
-        | 'lt-speaker'
-        | 'staff'
-        | 'sponsor'
-        | 'mc'
-        | 'ghost-wifi-fixer'
-      )[]
-      isStudent?: boolean
-      pronouns?: string
-      affiliations?: string[]
-    }
-  },
+  args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.users.$post(args, options)
@@ -1533,7 +1235,7 @@ export async function postUsers(
 
         const putUsersId = fs.readFileSync(path.join(dir, 'rpc', 'putUsersId.ts'), 'utf-8')
 
-        const putUsersIdExpected = `import type { ClientRequestOptions } from 'hono/client'
+        const putUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../index.ts'
 
 /**
@@ -1544,25 +1246,7 @@ import { client } from '../index.ts'
  * Full replace (PUT). All required fields must be present. Unspecified fields are treated as empty.
  */
 export async function putUsersId(
-  args: {
-    param: { id: string }
-    json: {
-      displayName: string
-      email: string
-      roles?: (
-        | 'attendee'
-        | 'speaker'
-        | 'lt-speaker'
-        | 'staff'
-        | 'sponsor'
-        | 'mc'
-        | 'ghost-wifi-fixer'
-      )[]
-      isStudent?: boolean
-      pronouns?: string
-      affiliations?: string[]
-    }
-  },
+  args: InferRequestType<(typeof client.users)[':id']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':id'].$put(args, options)
@@ -1767,7 +1451,7 @@ export async function putUsersId(
 
         const generated = fs.readFileSync(out, 'utf-8')
 
-        const expected = `import type { ClientRequestOptions } from 'hono/client'
+        const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
 /**
@@ -1776,10 +1460,7 @@ import { client } from '../client'
  * List items with mixed required/optional params
  */
 export async function getItems(
-  args: {
-    query: { page: number; limit?: number; filter?: string }
-    header: { 'X-Request-ID': string; 'X-Correlation-ID'?: string }
-  },
+  args: InferRequestType<typeof client.items.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.items.$get(args, options)
@@ -1791,7 +1472,7 @@ export async function getItems(
  * Get item by ID
  */
 export async function getItemsId(
-  args: { param: { id: string }; query: { expand?: string } },
+  args: InferRequestType<(typeof client.items)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.items[':id'].$get(args, options)
@@ -1803,11 +1484,7 @@ export async function getItemsId(
  * All required params
  */
 export async function postAllRequired(
-  args: {
-    query: { tenant: string }
-    header: { Authorization: string }
-    json: { name: string; value: number }
-  },
+  args: InferRequestType<(typeof client)['all-required']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client['all-required'].$post(args, options)
@@ -1819,7 +1496,7 @@ export async function postAllRequired(
  * All optional params
  */
 export async function getAllOptional(
-  args: { query: { search?: string; sort?: string }; header: { 'X-Debug'?: boolean } },
+  args: InferRequestType<(typeof client)['all-optional']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client['all-optional'].$get(args, options)
@@ -1848,7 +1525,7 @@ export async function getAllOptional(
 
         // Check getItems.ts for mixed required/optional
         const getItems = fs.readFileSync(path.join(dir, 'rpc', 'getItems.ts'), 'utf-8')
-        const getItemsExpected = `import type { ClientRequestOptions } from 'hono/client'
+        const getItemsExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
 /**
@@ -1857,10 +1534,7 @@ import { client } from '../client'
  * List items with mixed required/optional params
  */
 export async function getItems(
-  args: {
-    query: { page: number; limit?: number; filter?: string }
-    header: { 'X-Request-ID': string; 'X-Correlation-ID'?: string }
-  },
+  args: InferRequestType<typeof client.items.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.items.$get(args, options)
@@ -1870,7 +1544,7 @@ export async function getItems(
 
         // Check getItemsId.ts for path param + optional query
         const getItemsId = fs.readFileSync(path.join(dir, 'rpc', 'getItemsId.ts'), 'utf-8')
-        const getItemsIdExpected = `import type { ClientRequestOptions } from 'hono/client'
+        const getItemsIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
 /**
@@ -1879,7 +1553,7 @@ import { client } from '../client'
  * Get item by ID
  */
 export async function getItemsId(
-  args: { param: { id: string }; query: { expand?: string } },
+  args: InferRequestType<(typeof client.items)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.items[':id'].$get(args, options)
@@ -1892,7 +1566,7 @@ export async function getItemsId(
           path.join(dir, 'rpc', 'postAllRequired.ts'),
           'utf-8',
         )
-        const postAllRequiredExpected = `import type { ClientRequestOptions } from 'hono/client'
+        const postAllRequiredExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
 /**
@@ -1901,11 +1575,7 @@ import { client } from '../client'
  * All required params
  */
 export async function postAllRequired(
-  args: {
-    query: { tenant: string }
-    header: { Authorization: string }
-    json: { name: string; value: number }
-  },
+  args: InferRequestType<(typeof client)['all-required']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client['all-required'].$post(args, options)
@@ -1915,7 +1585,7 @@ export async function postAllRequired(
 
         // Check getAllOptional.ts - all optional params
         const getAllOptional = fs.readFileSync(path.join(dir, 'rpc', 'getAllOptional.ts'), 'utf-8')
-        const getAllOptionalExpected = `import type { ClientRequestOptions } from 'hono/client'
+        const getAllOptionalExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../client'
 
 /**
@@ -1924,7 +1594,7 @@ import { client } from '../client'
  * All optional params
  */
 export async function getAllOptional(
-  args: { query: { search?: string; sort?: string }; header: { 'X-Debug'?: boolean } },
+  args: InferRequestType<(typeof client)['all-optional']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client['all-optional'].$get(args, options)

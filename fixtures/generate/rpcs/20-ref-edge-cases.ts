@@ -1,11 +1,11 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 
 /**
  * GET /test
  */
 export async function getTest(
-  args: { query: { refParam?: { id: string; name: string; value?: number } } },
+  args: InferRequestType<typeof client.test.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.test.$get(args, options)

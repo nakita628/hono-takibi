@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
 
 /**
@@ -9,28 +9,7 @@ import { client } from '../clients/41-auth-social-sso'
  * ソーシャルプロバイダーの認証画面にリダイレクト
  */
 export async function getSocialAuthorizeProvider(
-  args: {
-    param: {
-      provider:
-        | 'google'
-        | 'github'
-        | 'microsoft'
-        | 'apple'
-        | 'facebook'
-        | 'twitter'
-        | 'linkedin'
-        | 'slack'
-        | 'discord'
-        | 'custom'
-    }
-    query: {
-      redirect_uri: string
-      state?: string
-      scope?: string
-      login_hint?: string
-      prompt?: 'none' | 'consent' | 'select_account'
-    }
-  },
+  args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.social.authorize[':provider'].$get(args, options)
@@ -44,22 +23,7 @@ export async function getSocialAuthorizeProvider(
  * プロバイダーからのコールバックを処理
  */
 export async function getSocialCallbackProvider(
-  args: {
-    param: {
-      provider:
-        | 'google'
-        | 'github'
-        | 'microsoft'
-        | 'apple'
-        | 'facebook'
-        | 'twitter'
-        | 'linkedin'
-        | 'slack'
-        | 'discord'
-        | 'custom'
-    }
-    query: { code?: string; state?: string; error?: string; error_description?: string }
-  },
+  args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.social.callback[':provider'].$get(args, options)
@@ -73,7 +37,7 @@ export async function getSocialCallbackProvider(
  * 認可コードをアクセストークンに交換
  */
 export async function postSocialToken(
-  args: { json: { provider: string; code: string; redirectUri: string; codeVerifier?: string } },
+  args: InferRequestType<typeof client.social.token.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.social.token.$post(args, options)
@@ -87,7 +51,7 @@ export async function postSocialToken(
  * モバイルアプリから直接取得したトークンを検証
  */
 export async function postSocialTokenNative(
-  args: { json: { provider: string; token: string; tokenType?: 'id_token' | 'access_token' } },
+  args: InferRequestType<typeof client.social.token.native.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.social.token.native.$post(args, options)
@@ -117,24 +81,7 @@ export async function getProvidersAdmin(options?: ClientRequestOptions) {
  * プロバイダー追加
  */
 export async function postProvidersAdmin(
-  args: {
-    json: {
-      name: string
-      type: 'oauth2' | 'oidc'
-      clientId: string
-      clientSecret: string
-      authorizationUrl?: string
-      tokenUrl?: string
-      userInfoUrl?: string
-      scopes?: string[]
-      attributeMapping?: {}
-      allowedDomains?: string[]
-      autoCreateUser?: boolean
-      autoLinkUser?: boolean
-      icon?: string
-      buttonColor?: string
-    }
-  },
+  args: InferRequestType<typeof client.providers.admin.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.providers.admin.$post(args, options)
@@ -146,7 +93,7 @@ export async function postProvidersAdmin(
  * プロバイダー詳細取得
  */
 export async function getProvidersProviderId(
-  args: { param: { providerId: string } },
+  args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.providers[':providerId'].$get(args, options)
@@ -158,23 +105,7 @@ export async function getProvidersProviderId(
  * プロバイダー更新
  */
 export async function putProvidersProviderId(
-  args: {
-    param: { providerId: string }
-    json: {
-      name?: string
-      enabled?: boolean
-      clientId?: string
-      clientSecret?: string
-      authorizationUrl?: string
-      tokenUrl?: string
-      userInfoUrl?: string
-      scopes?: string[]
-      attributeMapping?: {}
-      allowedDomains?: string[]
-      autoCreateUser?: boolean
-      autoLinkUser?: boolean
-    }
-  },
+  args: InferRequestType<(typeof client.providers)[':providerId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.providers[':providerId'].$put(args, options)
@@ -186,7 +117,7 @@ export async function putProvidersProviderId(
  * プロバイダー削除
  */
 export async function deleteProvidersProviderId(
-  args: { param: { providerId: string } },
+  args: InferRequestType<(typeof client.providers)[':providerId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.providers[':providerId'].$delete(args, options)
@@ -198,7 +129,7 @@ export async function deleteProvidersProviderId(
  * プロバイダー接続テスト
  */
 export async function postProvidersProviderIdTest(
-  args: { param: { providerId: string } },
+  args: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.providers[':providerId'].test.$post(args, options)
@@ -221,22 +152,7 @@ export async function getAccountLinked(options?: ClientRequestOptions) {
  * 既存アカウントにソーシャルアカウントを連携
  */
 export async function postAccountLinkProvider(
-  args: {
-    param: {
-      provider:
-        | 'google'
-        | 'github'
-        | 'microsoft'
-        | 'apple'
-        | 'facebook'
-        | 'twitter'
-        | 'linkedin'
-        | 'slack'
-        | 'discord'
-        | 'custom'
-    }
-    json: { code: string; redirectUri: string }
-  },
+  args: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.account.link[':provider'].$post(args, options)
@@ -248,21 +164,7 @@ export async function postAccountLinkProvider(
  * アカウント連携解除
  */
 export async function deleteAccountLinkProvider(
-  args: {
-    param: {
-      provider:
-        | 'google'
-        | 'github'
-        | 'microsoft'
-        | 'apple'
-        | 'facebook'
-        | 'twitter'
-        | 'linkedin'
-        | 'slack'
-        | 'discord'
-        | 'custom'
-    }
-  },
+  args: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.account.link[':provider'].$delete(args, options)
@@ -283,41 +185,7 @@ export async function getEnterpriseSso(options?: ClientRequestOptions) {
  * エンタープライズSSO設定作成
  */
 export async function postEnterpriseSso(
-  args: {
-    json: {
-      name: string
-      type: 'saml' | 'oidc'
-      domains: string[]
-      samlConfig?: {
-        entityId?: string
-        ssoUrl?: string
-        sloUrl?: string
-        certificate?: string
-        signRequest?: boolean
-        signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512'
-        digestAlgorithm?: 'SHA256' | 'SHA512'
-        nameIdFormat?: string
-        attributeMapping?: {
-          email?: string
-          name?: string
-          firstName?: string
-          lastName?: string
-          groups?: string
-        }
-      }
-      oidcConfig?: {
-        issuer?: string
-        clientId?: string
-        authorizationEndpoint?: string
-        tokenEndpoint?: string
-        userInfoEndpoint?: string
-        jwksUri?: string
-        scopes?: string[]
-        attributeMapping?: {}
-      }
-      userProvisioning?: {}
-    }
-  },
+  args: InferRequestType<typeof client.enterprise.sso.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.enterprise.sso.$post(args, options)
@@ -329,7 +197,7 @@ export async function postEnterpriseSso(
  * エンタープライズSSO設定詳細
  */
 export async function getEnterpriseSsoConfigId(
-  args: { param: { configId: string } },
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.enterprise.sso[':configId'].$get(args, options)
@@ -341,42 +209,7 @@ export async function getEnterpriseSsoConfigId(
  * エンタープライズSSO設定更新
  */
 export async function putEnterpriseSsoConfigId(
-  args: {
-    param: { configId: string }
-    json: {
-      name?: string
-      enabled?: boolean
-      domains?: string[]
-      samlConfig?: {
-        entityId?: string
-        ssoUrl?: string
-        sloUrl?: string
-        certificate?: string
-        signRequest?: boolean
-        signatureAlgorithm?: 'RSA-SHA256' | 'RSA-SHA512'
-        digestAlgorithm?: 'SHA256' | 'SHA512'
-        nameIdFormat?: string
-        attributeMapping?: {
-          email?: string
-          name?: string
-          firstName?: string
-          lastName?: string
-          groups?: string
-        }
-      }
-      oidcConfig?: {
-        issuer?: string
-        clientId?: string
-        authorizationEndpoint?: string
-        tokenEndpoint?: string
-        userInfoEndpoint?: string
-        jwksUri?: string
-        scopes?: string[]
-        attributeMapping?: {}
-      }
-      userProvisioning?: {}
-    }
-  },
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.enterprise.sso[':configId'].$put(args, options)
@@ -388,7 +221,7 @@ export async function putEnterpriseSsoConfigId(
  * エンタープライズSSO設定削除
  */
 export async function deleteEnterpriseSsoConfigId(
-  args: { param: { configId: string } },
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.enterprise.sso[':configId'].$delete(args, options)
@@ -400,7 +233,7 @@ export async function deleteEnterpriseSsoConfigId(
  * ドメインからSSO設定を検索
  */
 export async function getEnterpriseSsoDomainLookup(
-  args: { query: { domain: string } },
+  args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.enterprise.sso['domain-lookup'].$get(args, options)
@@ -414,7 +247,7 @@ export async function getEnterpriseSsoDomainLookup(
  * SAML SP メタデータを XML 形式で取得
  */
 export async function getEnterpriseSsoConfigIdMetadata(
-  args: { param: { configId: string } },
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.enterprise.sso[':configId'].metadata.$get(args, options)

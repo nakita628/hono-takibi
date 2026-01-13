@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
 
 /**
@@ -7,24 +7,7 @@ import { client } from '../clients/30-practical-ecommerce-api'
  * 商品一覧取得
  */
 export async function getProducts(
-  args: {
-    query: {
-      page?: number
-      limit?: number
-      category?: string
-      minPrice?: number
-      maxPrice?: number
-      inStock?: string
-      search?: string
-      sort?:
-        | 'price:asc'
-        | 'price:desc'
-        | 'name:asc'
-        | 'name:desc'
-        | 'createdAt:desc'
-        | 'popularity:desc'
-    }
-  },
+  args: InferRequestType<typeof client.products.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.products.$get(args, options)
@@ -36,20 +19,7 @@ export async function getProducts(
  * 商品作成
  */
 export async function postProducts(
-  args: {
-    json: {
-      name: string
-      description?: string
-      price: number
-      compareAtPrice?: number
-      sku?: string
-      barcode?: string
-      categoryId?: string
-      status?: 'draft' | 'active'
-      attributes?: { [key: string]: string }
-      tags?: string[]
-    }
-  },
+  args: InferRequestType<typeof client.products.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.products.$post(args, options)
@@ -61,7 +31,7 @@ export async function postProducts(
  * 商品詳細取得
  */
 export async function getProductsProductId(
-  args: { param: { productId: string } },
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.products[':productId'].$get(args, options)
@@ -73,21 +43,7 @@ export async function getProductsProductId(
  * 商品更新
  */
 export async function putProductsProductId(
-  args: {
-    param: { productId: string }
-    json: {
-      name?: string
-      description?: string
-      price?: number
-      compareAtPrice?: number
-      sku?: string
-      barcode?: string
-      categoryId?: string
-      status?: 'draft' | 'active' | 'archived'
-      attributes?: { [key: string]: string }
-      tags?: string[]
-    }
-  },
+  args: InferRequestType<(typeof client.products)[':productId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.products[':productId'].$put(args, options)
@@ -99,7 +55,7 @@ export async function putProductsProductId(
  * 商品削除
  */
 export async function deleteProductsProductId(
-  args: { param: { productId: string } },
+  args: InferRequestType<(typeof client.products)[':productId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.products[':productId'].$delete(args, options)
@@ -111,7 +67,7 @@ export async function deleteProductsProductId(
  * 商品画像アップロード
  */
 export async function postProductsProductIdImages(
-  args: { param: { productId: string }; form: { file: File; isPrimary?: boolean } },
+  args: InferRequestType<(typeof client.products)[':productId']['images']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.products[':productId'].images.$post(args, options)
@@ -132,7 +88,7 @@ export async function getCategories(options?: ClientRequestOptions) {
  * カテゴリ作成
  */
 export async function postCategories(
-  args: { json: { name: string; slug?: string; description?: string; parentId?: string } },
+  args: InferRequestType<typeof client.categories.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.categories.$post(args, options)
@@ -162,7 +118,7 @@ export async function deleteCart(options?: ClientRequestOptions) {
  * カートに商品追加
  */
 export async function postCartItems(
-  args: { json: { productId: string; quantity: number } },
+  args: InferRequestType<typeof client.cart.items.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.cart.items.$post(args, options)
@@ -174,7 +130,7 @@ export async function postCartItems(
  * カートアイテム数量変更
  */
 export async function putCartItemsItemId(
-  args: { param: { itemId: string }; json: { quantity: number } },
+  args: InferRequestType<(typeof client.cart.items)[':itemId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.cart.items[':itemId'].$put(args, options)
@@ -186,7 +142,7 @@ export async function putCartItemsItemId(
  * カートから商品削除
  */
 export async function deleteCartItemsItemId(
-  args: { param: { itemId: string } },
+  args: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.cart.items[':itemId'].$delete(args, options)
@@ -198,13 +154,7 @@ export async function deleteCartItemsItemId(
  * 注文一覧取得
  */
 export async function getOrders(
-  args: {
-    query: {
-      page?: number
-      limit?: number
-      status?: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
-    }
-  },
+  args: InferRequestType<typeof client.orders.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.orders.$get(args, options)
@@ -218,31 +168,7 @@ export async function getOrders(
  * カートの内容から注文を作成します
  */
 export async function postOrders(
-  args: {
-    json: {
-      shippingAddress: {
-        name: string
-        postalCode: string
-        prefecture: string
-        city: string
-        address1: string
-        address2?: string
-        phone?: string
-      }
-      billingAddress?: {
-        name: string
-        postalCode: string
-        prefecture: string
-        city: string
-        address1: string
-        address2?: string
-        phone?: string
-      }
-      paymentMethod: 'credit_card' | 'bank_transfer' | 'convenience_store' | 'cod'
-      notes?: string
-      couponCode?: string
-    }
-  },
+  args: InferRequestType<typeof client.orders.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.orders.$post(args, options)
@@ -254,7 +180,7 @@ export async function postOrders(
  * 注文詳細取得
  */
 export async function getOrdersOrderId(
-  args: { param: { orderId: string } },
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.orders[':orderId'].$get(args, options)
@@ -266,7 +192,7 @@ export async function getOrdersOrderId(
  * 注文キャンセル
  */
 export async function postOrdersOrderIdCancel(
-  args: { param: { orderId: string }; json: { reason?: string } },
+  args: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.orders[':orderId'].cancel.$post(args, options)
@@ -278,7 +204,7 @@ export async function postOrdersOrderIdCancel(
  * 在庫情報取得
  */
 export async function getInventoryProductId(
-  args: { param: { productId: string } },
+  args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.inventory[':productId'].$get(args, options)
@@ -290,10 +216,7 @@ export async function getInventoryProductId(
  * 在庫更新
  */
 export async function putInventoryProductId(
-  args: {
-    param: { productId: string }
-    json: { quantity?: number; lowStockThreshold?: number; trackInventory?: boolean }
-  },
+  args: InferRequestType<(typeof client.inventory)[':productId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.inventory[':productId'].$put(args, options)
