@@ -1,73 +1,52 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/extreme-responses': {
       $get:
-        | {
-            input: {}
-            output: Response
-            outputFormat: 'json'
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').StatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').InfoStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').SuccessStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').RedirectStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ClientErrorStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ServerErrorStatusCode
-          }
         | { input: {}; output: {}; outputFormat: string; status: 100 }
         | { input: {}; output: {}; outputFormat: string; status: 101 }
         | { input: {}; output: {}; outputFormat: string; status: 102 }
         | { input: {}; output: {}; outputFormat: string; status: 103 }
-        | {
-            input: {}
-            output:
-              | string
-              | {}
-              | {
-                  readonly type: string
-                  readonly size: number
-                  readonly lastModified: number
-                  readonly name: string
-                  readonly webkitRelativePath: string
-                  slice: never
-                }
-            outputFormat: 'json'
-            status: 200
-          }
-        | {
-            input: {}
-            output:
-              | string
-              | Record<string, never>
-              | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-            outputFormat: 'text'
-            status: 200
-          }
+        | { input: {}; output: { [x: string]: unknown }; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: { [x: string]: unknown }; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: { [x: string]: unknown }; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: string; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: string; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: string; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: string; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: string; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: { [x: string]: unknown }; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: { [x: string]: unknown }; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: { [x: string]: unknown }; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: { [x: string]: unknown }; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: { [x: string]: unknown }; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: { [x: string]: unknown }; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: string; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: string; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: File; outputFormat: 'text'; status: 200 }
         | { input: {}; output: {}; outputFormat: string; status: 201 }
         | { input: {}; output: {}; outputFormat: string; status: 202 }
         | { input: {}; output: {}; outputFormat: string; status: 203 }
@@ -125,11 +104,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | { input: {}; output: {}; outputFormat: string; status: 508 }
         | { input: {}; output: {}; outputFormat: string; status: 510 }
         | { input: {}; output: {}; outputFormat: string; status: 511 }
+        | { input: {}; output: {}; outputFormat: string; status: 100 }
+        | { input: {}; output: {}; outputFormat: string; status: 200 }
+        | { input: {}; output: {}; outputFormat: string; status: 300 }
+        | { input: {}; output: {}; outputFormat: string; status: 400 }
+        | { input: {}; output: {}; outputFormat: string; status: 500 }
         | {
             input: {}
             output: { code?: number | undefined; message?: string | undefined }
             outputFormat: 'json'
-            status: -1
+            status: 200
           }
     }
   } & {
@@ -137,25 +121,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $post: {
         input: {
           form:
-            | Record<string, never>
-            | {
-                file?:
-                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                  | undefined
-                metadata?: string | undefined
-              }
-            | {
-                parts?:
-                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File[]
-                  | undefined
-              }
-            | {
-                root?: string | undefined
-                attachments?:
-                  | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File[]
-                  | undefined
-              }
-            | { text?: string | undefined; html?: string | undefined }
+            | { file?: File | undefined; metadata?: string | undefined }
             | { field1?: string | undefined; field2?: string[] | undefined }
         }
         output: {}
@@ -166,7 +132,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
   } & {
     '/charset-variations': {
       $post: {
-        input: { form: string | Record<string, never> } & { json: string | Record<string, never> }
+        input: { json: { [x: string]: unknown } | string } & { form: { [x: string]: unknown } }
         output: {}
         outputFormat: string
         status: 200
