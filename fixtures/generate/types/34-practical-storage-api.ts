@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/files': {
       $get:
@@ -26,11 +26,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 | {
                     id: string
                     name: string
+                    description?: string | undefined
                     type: 'document' | 'image' | 'video' | 'audio' | 'archive' | 'other'
                     size: number
                     mimeType: string
-                    createdAt: string
-                    description?: string | undefined
                     extension?: string | undefined
                     folderId?: string | undefined
                     path?: string | undefined
@@ -47,13 +46,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                           avatarUrl?: string | undefined
                         }
                       | undefined
+                    createdAt: string
                     updatedAt?: string | undefined
                     deletedAt?: string | undefined
                   }
                 | {
                     id: string
                     name: string
-                    createdAt: string
                     color?: string | undefined
                     parentId?: string | undefined
                     path?: string | undefined
@@ -69,6 +68,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                           avatarUrl?: string | undefined
                         }
                       | undefined
+                    createdAt: string
                     updatedAt?: string | undefined
                   }
               )[]
@@ -106,20 +106,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | {
             input: {
               form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                folderId?: string | undefined
-                name?: string | undefined
-                overwrite?: boolean | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
+                file: File
                 folderId?: string | undefined
                 name?: string | undefined
                 overwrite?: boolean | undefined
@@ -128,11 +115,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: {
               id: string
               name: string
+              description?: string | undefined
               type: 'document' | 'image' | 'video' | 'audio' | 'archive' | 'other'
               size: number
               mimeType: string
-              createdAt: string
-              description?: string | undefined
               extension?: string | undefined
               folderId?: string | undefined
               path?: string | undefined
@@ -149,6 +135,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     avatarUrl?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
               deletedAt?: string | undefined
             }
@@ -158,7 +145,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | {
             input: {
               form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
+                file: File
                 folderId?: string | undefined
                 name?: string | undefined
                 overwrite?: boolean | undefined
@@ -171,7 +158,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | {
             input: {
               form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
+                file: File
+                folderId?: string | undefined
+                name?: string | undefined
+                overwrite?: boolean | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: {
+              form: {
+                file: File
                 folderId?: string | undefined
                 name?: string | undefined
                 overwrite?: boolean | undefined
@@ -184,7 +184,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         | {
             input: {
               form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
+                file: File
                 folderId?: string | undefined
                 name?: string | undefined
                 overwrite?: boolean | undefined
@@ -207,9 +207,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 contentType?: string | undefined
               }
             }
-            output: { code: string; message: string }
+            output: {
+              uploadId?: string | undefined
+              partSize?: number | undefined
+              partCount?: number | undefined
+            }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: {
@@ -220,29 +224,29 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 contentType?: string | undefined
               }
             }
-            output: {
-              uploadId?: string | undefined
-              partSize?: number | undefined
-              partCount?: number | undefined
-            }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 200
+            status: 401
           }
     }
   } & {
     '/files/upload/multipart/:uploadId/part': {
       $post:
         | {
-            input: { param: { uploadId: string } } & { query: { partNumber: number } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { uploadId: string } } & { query: { partNumber: number } }
+            input: { param: { uploadId: string } } & { query: { partNumber: number } } & {
+              json: File
+            }
             output: { partNumber?: number | undefined; etag?: string | undefined }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { uploadId: string } } & { query: { partNumber: number } } & {
+              json: File
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -252,22 +256,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { uploadId: string } } & {
               json: { parts: { partNumber: number; etag: string }[] }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { uploadId: string } } & {
-              json: { parts: { partNumber: number; etag: string }[] }
-            }
             output: {
               id: string
               name: string
+              description?: string | undefined
               type: 'document' | 'image' | 'video' | 'audio' | 'archive' | 'other'
               size: number
               mimeType: string
-              createdAt: string
-              description?: string | undefined
               extension?: string | undefined
               folderId?: string | undefined
               path?: string | undefined
@@ -284,11 +279,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     avatarUrl?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
               deletedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 201
+          }
+        | {
+            input: { param: { uploadId: string } } & {
+              json: { parts: { partNumber: number; etag: string }[] }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -296,20 +300,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { param: { fileId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { fileId: string } }
             output: {
               id: string
               name: string
+              description?: string | undefined
               type: 'document' | 'image' | 'video' | 'audio' | 'archive' | 'other'
               size: number
               mimeType: string
-              createdAt: string
-              description?: string | undefined
               extension?: string | undefined
               folderId?: string | undefined
               path?: string | undefined
@@ -326,11 +323,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     avatarUrl?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
               deletedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { fileId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
         | {
             input: { param: { fileId: string } }
@@ -338,18 +342,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/files/:fileId': {
       $patch:
-        | {
-            input: { param: { fileId: string } } & {
-              json: { name?: string | undefined; description?: string | undefined }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: { param: { fileId: string } } & {
               json: { name?: string | undefined; description?: string | undefined }
@@ -357,11 +350,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             output: {
               id: string
               name: string
+              description?: string | undefined
               type: 'document' | 'image' | 'video' | 'audio' | 'archive' | 'other'
               size: number
               mimeType: string
-              createdAt: string
-              description?: string | undefined
               extension?: string | undefined
               folderId?: string | undefined
               path?: string | undefined
@@ -378,33 +370,34 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     avatarUrl?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
               deletedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/files/:fileId': {
+        | {
+            input: { param: { fileId: string } } & {
+              json: { name?: string | undefined; description?: string | undefined }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
+        | { input: { param: { fileId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { fileId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { fileId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/files/:fileId/download': {
       $get:
-        | {
-            input: { param: { fileId: string } }
-            output: Response
-            outputFormat: 'json'
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').StatusCode
-          }
+        | { input: { param: { fileId: string } }; output: File; outputFormat: 'text'; status: 200 }
         | {
             input: { param: { fileId: string } }
             output: { code: string; message: string }
@@ -423,15 +416,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { param: { fileId: string } } & { query: { expiresIn?: number | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { fileId: string } } & { query: { expiresIn?: number | undefined } }
             output: { url?: string | undefined; expiresAt?: string | undefined }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { fileId: string } } & { query: { expiresIn?: number | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -441,22 +434,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { fileId: string } } & {
               json: { destinationFolderId: string; name?: string | undefined }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { fileId: string } } & {
-              json: { destinationFolderId: string; name?: string | undefined }
-            }
             output: {
               id: string
               name: string
+              description?: string | undefined
               type: 'document' | 'image' | 'video' | 'audio' | 'archive' | 'other'
               size: number
               mimeType: string
-              createdAt: string
-              description?: string | undefined
               extension?: string | undefined
               folderId?: string | undefined
               path?: string | undefined
@@ -473,11 +457,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     avatarUrl?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
               deletedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 201
+          }
+        | {
+            input: { param: { fileId: string } } & {
+              json: { destinationFolderId: string; name?: string | undefined }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -485,20 +478,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $post:
         | {
             input: { param: { fileId: string } } & { json: { destinationFolderId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { fileId: string } } & { json: { destinationFolderId: string } }
             output: {
               id: string
               name: string
+              description?: string | undefined
               type: 'document' | 'image' | 'video' | 'audio' | 'archive' | 'other'
               size: number
               mimeType: string
-              createdAt: string
-              description?: string | undefined
               extension?: string | undefined
               folderId?: string | undefined
               path?: string | undefined
@@ -515,11 +501,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     avatarUrl?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
               deletedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { fileId: string } } & { json: { destinationFolderId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -529,9 +522,17 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { fileId: string } } & {
               query: { size?: 'small' | 'medium' | 'large' | undefined }
             }
-            output: Response
-            outputFormat: 'json'
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').StatusCode
+            output: File
+            outputFormat: 'text'
+            status: 200
+          }
+        | {
+            input: { param: { fileId: string } } & {
+              query: { size?: 'small' | 'medium' | 'large' | undefined }
+            }
+            output: File
+            outputFormat: 'text'
+            status: 200
           }
         | {
             input: { param: { fileId: string } } & {
@@ -557,18 +558,9 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: {
               json: { name: string; parentId?: string | undefined; color?: string | undefined }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              json: { name: string; parentId?: string | undefined; color?: string | undefined }
-            }
             output: {
               id: string
               name: string
-              createdAt: string
               color?: string | undefined
               parentId?: string | undefined
               path?: string | undefined
@@ -584,15 +576,50 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     avatarUrl?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 201
           }
+        | {
+            input: {
+              json: { name: string; parentId?: string | undefined; color?: string | undefined }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/folders/:folderId': {
       $get:
+        | {
+            input: { param: { folderId: string } }
+            output: {
+              id: string
+              name: string
+              color?: string | undefined
+              parentId?: string | undefined
+              path?: string | undefined
+              fileCount?: number | undefined
+              folderCount?: number | undefined
+              size?: number | undefined
+              isShared?: boolean | undefined
+              owner?:
+                | {
+                    id: string
+                    name: string
+                    email?: string | undefined
+                    avatarUrl?: string | undefined
+                  }
+                | undefined
+              createdAt: string
+              updatedAt?: string | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
         | {
             input: { param: { folderId: string } }
             output: { code: string; message: string }
@@ -605,52 +632,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 404
           }
-        | {
-            input: { param: { folderId: string } }
-            output: {
-              id: string
-              name: string
-              createdAt: string
-              color?: string | undefined
-              parentId?: string | undefined
-              path?: string | undefined
-              fileCount?: number | undefined
-              folderCount?: number | undefined
-              size?: number | undefined
-              isShared?: boolean | undefined
-              owner?:
-                | {
-                    id: string
-                    name: string
-                    email?: string | undefined
-                    avatarUrl?: string | undefined
-                  }
-                | undefined
-              updatedAt?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 200
-          }
-    }
-  } & {
-    '/folders/:folderId': {
       $patch:
         | {
             input: { param: { folderId: string } } & {
               json: { name?: string | undefined; color?: string | undefined }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { folderId: string } } & {
-              json: { name?: string | undefined; color?: string | undefined }
-            }
             output: {
               id: string
               name: string
-              createdAt: string
               color?: string | undefined
               parentId?: string | undefined
               path?: string | undefined
@@ -666,32 +655,32 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     avatarUrl?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/folders/:folderId': {
+        | {
+            input: { param: { folderId: string } } & {
+              json: { name?: string | undefined; color?: string | undefined }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
+        | { input: { param: { folderId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { folderId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { folderId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/files/:fileId/share': {
       $get:
-        | {
-            input: { param: { fileId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: { param: { fileId: string } }
             output: {
@@ -699,11 +688,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               publicLink?:
                 | {
                     url: string
-                    createdAt: string
                     password?: boolean | undefined
                     expiresAt?: string | undefined
                     allowDownload?: boolean | undefined
                     viewCount?: number | undefined
+                    createdAt: string
                   }
                 | undefined
               collaborators?:
@@ -714,7 +703,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       email?: string | undefined
                       avatarUrl?: string | undefined
                     }
-                    permission: 'owner' | 'viewer' | 'editor'
+                    permission: 'viewer' | 'editor' | 'owner'
                     addedAt?: string | undefined
                   }[]
                 | undefined
@@ -722,9 +711,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/files/:fileId/share': {
+        | {
+            input: { param: { fileId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $post:
         | {
             input: { param: { fileId: string } } & {
@@ -734,28 +726,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 notifyByEmail?: boolean | undefined
               }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { fileId: string } } & {
-              json: {
-                collaborators?: { email: string; permission: 'viewer' | 'editor' }[] | undefined
-                message?: string | undefined
-                notifyByEmail?: boolean | undefined
-              }
-            }
             output: {
               isPublic?: boolean | undefined
               publicLink?:
                 | {
                     url: string
-                    createdAt: string
                     password?: boolean | undefined
                     expiresAt?: string | undefined
                     allowDownload?: boolean | undefined
                     viewCount?: number | undefined
+                    createdAt: string
                   }
                 | undefined
               collaborators?:
@@ -766,7 +746,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       email?: string | undefined
                       avatarUrl?: string | undefined
                     }
-                    permission: 'owner' | 'viewer' | 'editor'
+                    permission: 'viewer' | 'editor' | 'owner'
                     addedAt?: string | undefined
                   }[]
                 | undefined
@@ -774,17 +754,26 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/files/:fileId/share': {
+        | {
+            input: { param: { fileId: string } } & {
+              json: {
+                collaborators?: { email: string; permission: 'viewer' | 'editor' }[] | undefined
+                message?: string | undefined
+                notifyByEmail?: boolean | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
+        | { input: { param: { fileId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { fileId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { fileId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/files/:fileId/share/link': {
@@ -797,9 +786,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 allowDownload?: boolean | undefined
               }
             }
-            output: { code: string; message: string }
+            output: {
+              url: string
+              password?: boolean | undefined
+              expiresAt?: string | undefined
+              allowDownload?: boolean | undefined
+              viewCount?: number | undefined
+              createdAt: string
+            }
             outputFormat: 'json'
-            status: 401
+            status: 201
           }
         | {
             input: { param: { fileId: string } } & {
@@ -809,16 +805,9 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 allowDownload?: boolean | undefined
               }
             }
-            output: {
-              url: string
-              createdAt: string
-              password?: boolean | undefined
-              expiresAt?: string | undefined
-              allowDownload?: boolean | undefined
-              viewCount?: number | undefined
-            }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 201
+            status: 401
           }
     }
   } & {
@@ -826,17 +815,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { param: { fileId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { fileId: string } }
             output: {
               id: string
               version: number
               size: number
-              createdAt: string
               modifiedBy?:
                 | {
                     id: string
@@ -845,9 +827,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     avatarUrl?: string | undefined
                   }
                 | undefined
+              createdAt: string
             }[]
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { fileId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -855,20 +844,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $post:
         | {
             input: { param: { fileId: string; versionId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { fileId: string; versionId: string } }
             output: {
               id: string
               name: string
+              description?: string | undefined
               type: 'document' | 'image' | 'video' | 'audio' | 'archive' | 'other'
               size: number
               mimeType: string
-              createdAt: string
-              description?: string | undefined
               extension?: string | undefined
               folderId?: string | undefined
               path?: string | undefined
@@ -885,11 +867,18 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     avatarUrl?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
               deletedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { fileId: string; versionId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -902,11 +891,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 | {
                     id: string
                     name: string
+                    description?: string | undefined
                     type: 'document' | 'image' | 'video' | 'audio' | 'archive' | 'other'
                     size: number
                     mimeType: string
-                    createdAt: string
-                    description?: string | undefined
                     extension?: string | undefined
                     folderId?: string | undefined
                     path?: string | undefined
@@ -923,13 +911,13 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                           avatarUrl?: string | undefined
                         }
                       | undefined
+                    createdAt: string
                     updatedAt?: string | undefined
                     deletedAt?: string | undefined
                   }
                 | {
                     id: string
                     name: string
-                    createdAt: string
                     color?: string | undefined
                     parentId?: string | undefined
                     path?: string | undefined
@@ -945,6 +933,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                           avatarUrl?: string | undefined
                         }
                       | undefined
+                    createdAt: string
                     updatedAt?: string | undefined
                   }
               )[]
@@ -959,37 +948,27 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 401
           }
-    }
-  } & {
-    '/trash': {
       $delete:
+        | { input: {}; output: {}; outputFormat: string; status: 204 }
         | {
             input: {}
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/trash/:fileId/restore': {
       $post:
         | {
             input: { param: { fileId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { fileId: string } }
             output: {
               id: string
               name: string
+              description?: string | undefined
               type: 'document' | 'image' | 'video' | 'audio' | 'archive' | 'other'
               size: number
               mimeType: string
-              createdAt: string
-              description?: string | undefined
               extension?: string | undefined
               folderId?: string | undefined
               path?: string | undefined
@@ -1006,22 +985,23 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     avatarUrl?: string | undefined
                   }
                 | undefined
+              createdAt: string
               updatedAt?: string | undefined
               deletedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/storage/usage': {
-      $get:
         | {
-            input: {}
+            input: { param: { fileId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/storage/usage': {
+      $get:
         | {
             input: {}
             output: {
@@ -1042,6 +1022,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   },

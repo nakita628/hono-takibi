@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/test': {
       $get: {
@@ -74,7 +74,138 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                                 | {
                                                     title?: string | undefined
                                                     G?:
-                                                      | { summary?: string | undefined; H?: any }
+                                                      | {
+                                                          summary?: string | undefined
+                                                          H?:
+                                                            | {
+                                                                info?: string | undefined
+                                                                I?:
+                                                                  | {
+                                                                      data?: string | undefined
+                                                                      J?:
+                                                                        | {
+                                                                            code?:
+                                                                              | string
+                                                                              | undefined
+                                                                            K?:
+                                                                              | {
+                                                                                  key?:
+                                                                                    | string
+                                                                                    | undefined
+                                                                                  L?:
+                                                                                    | {
+                                                                                        label?:
+                                                                                          | string
+                                                                                          | undefined
+                                                                                        M?:
+                                                                                          | {
+                                                                                              meta?:
+                                                                                                | string
+                                                                                                | undefined
+                                                                                              N?:
+                                                                                                | {
+                                                                                                    number?:
+                                                                                                      | number
+                                                                                                      | undefined
+                                                                                                    O?:
+                                                                                                      | {
+                                                                                                          option?:
+                                                                                                            | string
+                                                                                                            | undefined
+                                                                                                          P?:
+                                                                                                            | {
+                                                                                                                price?:
+                                                                                                                  | number
+                                                                                                                  | undefined
+                                                                                                                Q?:
+                                                                                                                  | {
+                                                                                                                      quantity?:
+                                                                                                                        | number
+                                                                                                                        | undefined
+                                                                                                                      R?:
+                                                                                                                        | {
+                                                                                                                            rating?:
+                                                                                                                              | number
+                                                                                                                              | undefined
+                                                                                                                            S?:
+                                                                                                                              | {
+                                                                                                                                  status?:
+                                                                                                                                    | string
+                                                                                                                                    | undefined
+                                                                                                                                  T?:
+                                                                                                                                    | {
+                                                                                                                                        time?:
+                                                                                                                                          | string
+                                                                                                                                          | undefined
+                                                                                                                                        U?:
+                                                                                                                                          | {
+                                                                                                                                              unit?:
+                                                                                                                                                | string
+                                                                                                                                                | undefined
+                                                                                                                                              V?:
+                                                                                                                                                | {
+                                                                                                                                                    volume?:
+                                                                                                                                                      | number
+                                                                                                                                                      | undefined
+                                                                                                                                                    W?:
+                                                                                                                                                      | {
+                                                                                                                                                          weight?:
+                                                                                                                                                            | number
+                                                                                                                                                            | undefined
+                                                                                                                                                          X?:
+                                                                                                                                                            | {
+                                                                                                                                                                xFactor?:
+                                                                                                                                                                  | string
+                                                                                                                                                                  | undefined
+                                                                                                                                                                Y?:
+                                                                                                                                                                  | {
+                                                                                                                                                                      yield?:
+                                                                                                                                                                        | string
+                                                                                                                                                                        | undefined
+                                                                                                                                                                      Z?:
+                                                                                                                                                                        | {
+                                                                                                                                                                            zone?:
+                                                                                                                                                                              | string
+                                                                                                                                                                              | undefined
+                                                                                                                                                                          }
+                                                                                                                                                                        | undefined
+                                                                                                                                                                    }
+                                                                                                                                                                  | undefined
+                                                                                                                                                              }
+                                                                                                                                                            | undefined
+                                                                                                                                                        }
+                                                                                                                                                      | undefined
+                                                                                                                                                  }
+                                                                                                                                                | undefined
+                                                                                                                                            }
+                                                                                                                                          | undefined
+                                                                                                                                      }
+                                                                                                                                    | undefined
+                                                                                                                                }
+                                                                                                                              | undefined
+                                                                                                                          }
+                                                                                                                        | undefined
+                                                                                                                    }
+                                                                                                                  | undefined
+                                                                                                              }
+                                                                                                            | undefined
+                                                                                                        }
+                                                                                                      | undefined
+                                                                                                  }
+                                                                                                | undefined
+                                                                                            }
+                                                                                          | undefined
+                                                                                      }
+                                                                                    | undefined
+                                                                                }
+                                                                              | undefined
+                                                                          }
+                                                                        | undefined
+                                                                    }
+                                                                  | undefined
+                                                              }
+                                                            | undefined
+                                                        }
                                                       | undefined
                                                   }
                                                 | undefined

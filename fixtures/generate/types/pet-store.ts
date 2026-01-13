@@ -370,7 +370,9 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
   } & {
     '/pet/:petId/uploadImage': {
       $post: {
-        input: { param: { petId: bigint } } & { query: { additionalMetadata?: string | undefined } }
+        input: { param: { petId: bigint } } & {
+          query: { additionalMetadata?: string | undefined }
+        } & { json: File }
         output: {
           code?: number | undefined
           type?: string | undefined

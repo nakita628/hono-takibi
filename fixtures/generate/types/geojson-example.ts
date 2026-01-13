@@ -10,100 +10,31 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
             output: {
               id: string
               polygon?:
-                | (
-                    | ((({
-                        type:
-                          | 'Feature'
-                          | 'FeatureCollection'
-                          | 'Point'
-                          | 'MultiPoint'
-                          | 'LineString'
-                          | 'MultiLineString'
-                          | 'Polygon'
-                          | 'MultiPolygon'
-                          | 'GeometryCollection'
-                        bbox?: number[] | undefined
-                      } & {
-                        type:
-                          | 'Point'
-                          | 'MultiPoint'
-                          | 'LineString'
-                          | 'MultiLineString'
-                          | 'Polygon'
-                          | 'MultiPolygon'
-                          | 'GeometryCollection'
-                      }) & {
-                        type:
-                          | 'Point'
-                          | 'MultiPoint'
-                          | 'LineString'
-                          | 'MultiLineString'
-                          | 'Polygon'
-                          | 'MultiPolygon'
-                      }) & { coordinates: number[][][][] })
-                    | ((({
-                        type:
-                          | 'Feature'
-                          | 'FeatureCollection'
-                          | 'Point'
-                          | 'MultiPoint'
-                          | 'LineString'
-                          | 'MultiLineString'
-                          | 'Polygon'
-                          | 'MultiPolygon'
-                          | 'GeometryCollection'
-                        bbox?: number[] | undefined
-                      } & {
-                        type:
-                          | 'Point'
-                          | 'MultiPoint'
-                          | 'LineString'
-                          | 'MultiLineString'
-                          | 'Polygon'
-                          | 'MultiPolygon'
-                          | 'GeometryCollection'
-                      }) & {
-                        type:
-                          | 'Point'
-                          | 'MultiPoint'
-                          | 'LineString'
-                          | 'MultiLineString'
-                          | 'Polygon'
-                          | 'MultiPolygon'
-                      }) & { coordinates: number[][][] })
-                  )
+                | {
+                    type:
+                      | 'Point'
+                      | 'MultiPoint'
+                      | 'LineString'
+                      | 'MultiLineString'
+                      | 'Polygon'
+                      | 'MultiPolygon'
+                    bbox?: number[] | undefined
+                    coordinates: number[][][][]
+                  }
+                | {
+                    type:
+                      | 'Point'
+                      | 'MultiPoint'
+                      | 'LineString'
+                      | 'MultiLineString'
+                      | 'Polygon'
+                      | 'MultiPolygon'
+                    bbox?: number[] | undefined
+                    coordinates: number[][][]
+                  }
                 | undefined
               centre?:
-                | ((({
-                    type:
-                      | 'Feature'
-                      | 'FeatureCollection'
-                      | 'Point'
-                      | 'MultiPoint'
-                      | 'LineString'
-                      | 'MultiLineString'
-                      | 'Polygon'
-                      | 'MultiPolygon'
-                      | 'GeometryCollection'
-                    bbox?: number[] | undefined
-                  } & {
-                    type:
-                      | 'Point'
-                      | 'MultiPoint'
-                      | 'LineString'
-                      | 'MultiLineString'
-                      | 'Polygon'
-                      | 'MultiPolygon'
-                      | 'GeometryCollection'
-                  }) & {
-                    type:
-                      | 'Point'
-                      | 'MultiPoint'
-                      | 'LineString'
-                      | 'MultiLineString'
-                      | 'Polygon'
-                      | 'MultiPolygon'
-                  }) & { type: 'Point'; coordinates: number[] })
+                | { type: 'Point'; bbox?: number[] | undefined; coordinates: number[] }
                 | undefined
               createdAt: string
               updatedAt: string

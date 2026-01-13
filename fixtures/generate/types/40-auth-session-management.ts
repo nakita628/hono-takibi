@@ -1,22 +1,20 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/sessions': {
       $get:
         | {
-            input: { query: { includeExpired?: string | undefined } }
+            input: { query: { includeExpired?: boolean | undefined } }
             output: {
               id: string
               userId: string
               status: 'active' | 'expired' | 'revoked'
-              createdAt: string
-              expiresAt: string
               isCurrent?: boolean | undefined
               device?:
                 | {
                     id?: string | undefined
                     fingerprint?: string | undefined
-                    type?: 'unknown' | 'desktop' | 'mobile' | 'tablet' | undefined
+                    type?: 'desktop' | 'mobile' | 'tablet' | 'unknown' | undefined
                     os?: string | undefined
                     osVersion?: string | undefined
                     browser?: string | undefined
@@ -54,6 +52,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               riskScore?: number | undefined
               lastActivityAt?: string | undefined
               idleTimeoutAt?: string | undefined
+              createdAt: string
+              expiresAt: string
               revokedAt?: string | undefined
               revokedReason?: string | undefined
             }[]
@@ -61,58 +61,28 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             status: 200
           }
         | {
-            input: { query: { includeExpired?: string | undefined } }
+            input: { query: { includeExpired?: boolean | undefined } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-    }
-  } & {
-    '/sessions': {
       $post:
         | {
             input: {
               json: {
                 grantType:
                   | 'password'
+                  | 'mfa_token'
+                  | 'sso_token'
                   | 'passkey'
                   | 'magic_link'
                   | 'social'
-                  | 'mfa_token'
-                  | 'sso_token'
                 username?: string | undefined
                 password?: string | undefined
                 mfaToken?: string | undefined
                 mfaCode?: string | undefined
                 ssoToken?: string | undefined
-                passkeyResponse?: Record<string, never> | undefined
-                magicLinkToken?: string | undefined
-                socialProvider?: string | undefined
-                socialToken?: string | undefined
-                deviceFingerprint?: string | undefined
-                rememberMe?: boolean | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              json: {
-                grantType:
-                  | 'password'
-                  | 'passkey'
-                  | 'magic_link'
-                  | 'social'
-                  | 'mfa_token'
-                  | 'sso_token'
-                username?: string | undefined
-                password?: string | undefined
-                mfaToken?: string | undefined
-                mfaCode?: string | undefined
-                ssoToken?: string | undefined
-                passkeyResponse?: Record<string, never> | undefined
+                passkeyResponse?: { [x: string]: unknown } | undefined
                 magicLinkToken?: string | undefined
                 socialProvider?: string | undefined
                 socialToken?: string | undefined
@@ -124,14 +94,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               id: string
               userId: string
               status: 'active' | 'expired' | 'revoked'
-              createdAt: string
-              expiresAt: string
               isCurrent?: boolean | undefined
               device?:
                 | {
                     id?: string | undefined
                     fingerprint?: string | undefined
-                    type?: 'unknown' | 'desktop' | 'mobile' | 'tablet' | undefined
+                    type?: 'desktop' | 'mobile' | 'tablet' | 'unknown' | undefined
                     os?: string | undefined
                     osVersion?: string | undefined
                     browser?: string | undefined
@@ -169,6 +137,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               riskScore?: number | undefined
               lastActivityAt?: string | undefined
               idleTimeoutAt?: string | undefined
+              createdAt: string
+              expiresAt: string
               revokedAt?: string | undefined
               revokedReason?: string | undefined
               accessToken: string
@@ -185,17 +155,17 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               json: {
                 grantType:
                   | 'password'
+                  | 'mfa_token'
+                  | 'sso_token'
                   | 'passkey'
                   | 'magic_link'
                   | 'social'
-                  | 'mfa_token'
-                  | 'sso_token'
                 username?: string | undefined
                 password?: string | undefined
                 mfaToken?: string | undefined
                 mfaCode?: string | undefined
                 ssoToken?: string | undefined
-                passkeyResponse?: Record<string, never> | undefined
+                passkeyResponse?: { [x: string]: unknown } | undefined
                 magicLinkToken?: string | undefined
                 socialProvider?: string | undefined
                 socialToken?: string | undefined
@@ -207,801 +177,49 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 400
           }
-    }
-  } & {
-    [x: string]: {
-      $get:
-        | { input: {}; output: {}; outputFormat: string; status: 100 }
-        | { input: {}; output: {}; outputFormat: string; status: 200 }
-        | { input: {}; output: {}; outputFormat: string; status: 401 }
         | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').InfoStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').SuccessStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').RedirectStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ClientErrorStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ServerErrorStatusCode
-          }
-        | { input: {}; output: {}; outputFormat: string; status: 101 }
-        | { input: {}; output: {}; outputFormat: string; status: 102 }
-        | { input: {}; output: {}; outputFormat: string; status: 103 }
-        | { input: {}; output: {}; outputFormat: string; status: 201 }
-        | { input: {}; output: {}; outputFormat: string; status: 202 }
-        | { input: {}; output: {}; outputFormat: string; status: 203 }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
-        | { input: {}; output: {}; outputFormat: string; status: 205 }
-        | { input: {}; output: {}; outputFormat: string; status: 206 }
-        | { input: {}; output: {}; outputFormat: string; status: 207 }
-        | { input: {}; output: {}; outputFormat: string; status: 208 }
-        | { input: {}; output: {}; outputFormat: string; status: 226 }
-        | { input: {}; output: {}; outputFormat: string; status: 300 }
-        | { input: {}; output: {}; outputFormat: string; status: 301 }
-        | { input: {}; output: {}; outputFormat: string; status: 302 }
-        | { input: {}; output: {}; outputFormat: string; status: 303 }
-        | { input: {}; output: {}; outputFormat: string; status: 304 }
-        | { input: {}; output: {}; outputFormat: string; status: 305 }
-        | { input: {}; output: {}; outputFormat: string; status: 306 }
-        | { input: {}; output: {}; outputFormat: string; status: 307 }
-        | { input: {}; output: {}; outputFormat: string; status: 308 }
-        | { input: {}; output: {}; outputFormat: string; status: 400 }
-        | { input: {}; output: {}; outputFormat: string; status: 402 }
-        | { input: {}; output: {}; outputFormat: string; status: 403 }
-        | { input: {}; output: {}; outputFormat: string; status: 404 }
-        | { input: {}; output: {}; outputFormat: string; status: 405 }
-        | { input: {}; output: {}; outputFormat: string; status: 406 }
-        | { input: {}; output: {}; outputFormat: string; status: 407 }
-        | { input: {}; output: {}; outputFormat: string; status: 408 }
-        | { input: {}; output: {}; outputFormat: string; status: 409 }
-        | { input: {}; output: {}; outputFormat: string; status: 410 }
-        | { input: {}; output: {}; outputFormat: string; status: 411 }
-        | { input: {}; output: {}; outputFormat: string; status: 412 }
-        | { input: {}; output: {}; outputFormat: string; status: 413 }
-        | { input: {}; output: {}; outputFormat: string; status: 414 }
-        | { input: {}; output: {}; outputFormat: string; status: 415 }
-        | { input: {}; output: {}; outputFormat: string; status: 416 }
-        | { input: {}; output: {}; outputFormat: string; status: 417 }
-        | { input: {}; output: {}; outputFormat: string; status: 418 }
-        | { input: {}; output: {}; outputFormat: string; status: 421 }
-        | { input: {}; output: {}; outputFormat: string; status: 422 }
-        | { input: {}; output: {}; outputFormat: string; status: 423 }
-        | { input: {}; output: {}; outputFormat: string; status: 424 }
-        | { input: {}; output: {}; outputFormat: string; status: 425 }
-        | { input: {}; output: {}; outputFormat: string; status: 426 }
-        | { input: {}; output: {}; outputFormat: string; status: 428 }
-        | { input: {}; output: {}; outputFormat: string; status: 429 }
-        | { input: {}; output: {}; outputFormat: string; status: 431 }
-        | { input: {}; output: {}; outputFormat: string; status: 451 }
-        | { input: {}; output: {}; outputFormat: string; status: 500 }
-        | { input: {}; output: {}; outputFormat: string; status: 501 }
-        | { input: {}; output: {}; outputFormat: string; status: 502 }
-        | { input: {}; output: {}; outputFormat: string; status: 503 }
-        | { input: {}; output: {}; outputFormat: string; status: 504 }
-        | { input: {}; output: {}; outputFormat: string; status: 505 }
-        | { input: {}; output: {}; outputFormat: string; status: 506 }
-        | { input: {}; output: {}; outputFormat: string; status: 507 }
-        | { input: {}; output: {}; outputFormat: string; status: 508 }
-        | { input: {}; output: {}; outputFormat: string; status: 510 }
-        | { input: {}; output: {}; outputFormat: string; status: 511 }
-        | { input: {}; output: {}; outputFormat: string; status: -1 }
-        | { input: {}; output: {}; outputFormat: string; status: never }
-      $post:
-        | { input: {}; output: {}; outputFormat: string; status: 100 }
-        | { input: {}; output: {}; outputFormat: string; status: 200 }
-        | { input: {}; output: {}; outputFormat: string; status: 401 }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').InfoStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').SuccessStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').RedirectStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ClientErrorStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ServerErrorStatusCode
-          }
-        | { input: {}; output: {}; outputFormat: string; status: 101 }
-        | { input: {}; output: {}; outputFormat: string; status: 102 }
-        | { input: {}; output: {}; outputFormat: string; status: 103 }
-        | { input: {}; output: {}; outputFormat: string; status: 201 }
-        | { input: {}; output: {}; outputFormat: string; status: 202 }
-        | { input: {}; output: {}; outputFormat: string; status: 203 }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
-        | { input: {}; output: {}; outputFormat: string; status: 205 }
-        | { input: {}; output: {}; outputFormat: string; status: 206 }
-        | { input: {}; output: {}; outputFormat: string; status: 207 }
-        | { input: {}; output: {}; outputFormat: string; status: 208 }
-        | { input: {}; output: {}; outputFormat: string; status: 226 }
-        | { input: {}; output: {}; outputFormat: string; status: 300 }
-        | { input: {}; output: {}; outputFormat: string; status: 301 }
-        | { input: {}; output: {}; outputFormat: string; status: 302 }
-        | { input: {}; output: {}; outputFormat: string; status: 303 }
-        | { input: {}; output: {}; outputFormat: string; status: 304 }
-        | { input: {}; output: {}; outputFormat: string; status: 305 }
-        | { input: {}; output: {}; outputFormat: string; status: 306 }
-        | { input: {}; output: {}; outputFormat: string; status: 307 }
-        | { input: {}; output: {}; outputFormat: string; status: 308 }
-        | { input: {}; output: {}; outputFormat: string; status: 400 }
-        | { input: {}; output: {}; outputFormat: string; status: 402 }
-        | { input: {}; output: {}; outputFormat: string; status: 403 }
-        | { input: {}; output: {}; outputFormat: string; status: 404 }
-        | { input: {}; output: {}; outputFormat: string; status: 405 }
-        | { input: {}; output: {}; outputFormat: string; status: 406 }
-        | { input: {}; output: {}; outputFormat: string; status: 407 }
-        | { input: {}; output: {}; outputFormat: string; status: 408 }
-        | { input: {}; output: {}; outputFormat: string; status: 409 }
-        | { input: {}; output: {}; outputFormat: string; status: 410 }
-        | { input: {}; output: {}; outputFormat: string; status: 411 }
-        | { input: {}; output: {}; outputFormat: string; status: 412 }
-        | { input: {}; output: {}; outputFormat: string; status: 413 }
-        | { input: {}; output: {}; outputFormat: string; status: 414 }
-        | { input: {}; output: {}; outputFormat: string; status: 415 }
-        | { input: {}; output: {}; outputFormat: string; status: 416 }
-        | { input: {}; output: {}; outputFormat: string; status: 417 }
-        | { input: {}; output: {}; outputFormat: string; status: 418 }
-        | { input: {}; output: {}; outputFormat: string; status: 421 }
-        | { input: {}; output: {}; outputFormat: string; status: 422 }
-        | { input: {}; output: {}; outputFormat: string; status: 423 }
-        | { input: {}; output: {}; outputFormat: string; status: 424 }
-        | { input: {}; output: {}; outputFormat: string; status: 425 }
-        | { input: {}; output: {}; outputFormat: string; status: 426 }
-        | { input: {}; output: {}; outputFormat: string; status: 428 }
-        | { input: {}; output: {}; outputFormat: string; status: 429 }
-        | { input: {}; output: {}; outputFormat: string; status: 431 }
-        | { input: {}; output: {}; outputFormat: string; status: 451 }
-        | { input: {}; output: {}; outputFormat: string; status: 500 }
-        | { input: {}; output: {}; outputFormat: string; status: 501 }
-        | { input: {}; output: {}; outputFormat: string; status: 502 }
-        | { input: {}; output: {}; outputFormat: string; status: 503 }
-        | { input: {}; output: {}; outputFormat: string; status: 504 }
-        | { input: {}; output: {}; outputFormat: string; status: 505 }
-        | { input: {}; output: {}; outputFormat: string; status: 506 }
-        | { input: {}; output: {}; outputFormat: string; status: 507 }
-        | { input: {}; output: {}; outputFormat: string; status: 508 }
-        | { input: {}; output: {}; outputFormat: string; status: 510 }
-        | { input: {}; output: {}; outputFormat: string; status: 511 }
-        | { input: {}; output: {}; outputFormat: string; status: -1 }
-        | { input: {}; output: {}; outputFormat: string; status: never }
-      $put:
-        | { input: {}; output: {}; outputFormat: string; status: 100 }
-        | { input: {}; output: {}; outputFormat: string; status: 200 }
-        | { input: {}; output: {}; outputFormat: string; status: 401 }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').InfoStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').SuccessStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').RedirectStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ClientErrorStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ServerErrorStatusCode
-          }
-        | { input: {}; output: {}; outputFormat: string; status: 101 }
-        | { input: {}; output: {}; outputFormat: string; status: 102 }
-        | { input: {}; output: {}; outputFormat: string; status: 103 }
-        | { input: {}; output: {}; outputFormat: string; status: 201 }
-        | { input: {}; output: {}; outputFormat: string; status: 202 }
-        | { input: {}; output: {}; outputFormat: string; status: 203 }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
-        | { input: {}; output: {}; outputFormat: string; status: 205 }
-        | { input: {}; output: {}; outputFormat: string; status: 206 }
-        | { input: {}; output: {}; outputFormat: string; status: 207 }
-        | { input: {}; output: {}; outputFormat: string; status: 208 }
-        | { input: {}; output: {}; outputFormat: string; status: 226 }
-        | { input: {}; output: {}; outputFormat: string; status: 300 }
-        | { input: {}; output: {}; outputFormat: string; status: 301 }
-        | { input: {}; output: {}; outputFormat: string; status: 302 }
-        | { input: {}; output: {}; outputFormat: string; status: 303 }
-        | { input: {}; output: {}; outputFormat: string; status: 304 }
-        | { input: {}; output: {}; outputFormat: string; status: 305 }
-        | { input: {}; output: {}; outputFormat: string; status: 306 }
-        | { input: {}; output: {}; outputFormat: string; status: 307 }
-        | { input: {}; output: {}; outputFormat: string; status: 308 }
-        | { input: {}; output: {}; outputFormat: string; status: 400 }
-        | { input: {}; output: {}; outputFormat: string; status: 402 }
-        | { input: {}; output: {}; outputFormat: string; status: 403 }
-        | { input: {}; output: {}; outputFormat: string; status: 404 }
-        | { input: {}; output: {}; outputFormat: string; status: 405 }
-        | { input: {}; output: {}; outputFormat: string; status: 406 }
-        | { input: {}; output: {}; outputFormat: string; status: 407 }
-        | { input: {}; output: {}; outputFormat: string; status: 408 }
-        | { input: {}; output: {}; outputFormat: string; status: 409 }
-        | { input: {}; output: {}; outputFormat: string; status: 410 }
-        | { input: {}; output: {}; outputFormat: string; status: 411 }
-        | { input: {}; output: {}; outputFormat: string; status: 412 }
-        | { input: {}; output: {}; outputFormat: string; status: 413 }
-        | { input: {}; output: {}; outputFormat: string; status: 414 }
-        | { input: {}; output: {}; outputFormat: string; status: 415 }
-        | { input: {}; output: {}; outputFormat: string; status: 416 }
-        | { input: {}; output: {}; outputFormat: string; status: 417 }
-        | { input: {}; output: {}; outputFormat: string; status: 418 }
-        | { input: {}; output: {}; outputFormat: string; status: 421 }
-        | { input: {}; output: {}; outputFormat: string; status: 422 }
-        | { input: {}; output: {}; outputFormat: string; status: 423 }
-        | { input: {}; output: {}; outputFormat: string; status: 424 }
-        | { input: {}; output: {}; outputFormat: string; status: 425 }
-        | { input: {}; output: {}; outputFormat: string; status: 426 }
-        | { input: {}; output: {}; outputFormat: string; status: 428 }
-        | { input: {}; output: {}; outputFormat: string; status: 429 }
-        | { input: {}; output: {}; outputFormat: string; status: 431 }
-        | { input: {}; output: {}; outputFormat: string; status: 451 }
-        | { input: {}; output: {}; outputFormat: string; status: 500 }
-        | { input: {}; output: {}; outputFormat: string; status: 501 }
-        | { input: {}; output: {}; outputFormat: string; status: 502 }
-        | { input: {}; output: {}; outputFormat: string; status: 503 }
-        | { input: {}; output: {}; outputFormat: string; status: 504 }
-        | { input: {}; output: {}; outputFormat: string; status: 505 }
-        | { input: {}; output: {}; outputFormat: string; status: 506 }
-        | { input: {}; output: {}; outputFormat: string; status: 507 }
-        | { input: {}; output: {}; outputFormat: string; status: 508 }
-        | { input: {}; output: {}; outputFormat: string; status: 510 }
-        | { input: {}; output: {}; outputFormat: string; status: 511 }
-        | { input: {}; output: {}; outputFormat: string; status: -1 }
-        | { input: {}; output: {}; outputFormat: string; status: never }
-      $delete:
-        | { input: {}; output: {}; outputFormat: string; status: 100 }
-        | { input: {}; output: {}; outputFormat: string; status: 200 }
-        | { input: {}; output: {}; outputFormat: string; status: 401 }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').InfoStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').SuccessStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').RedirectStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ClientErrorStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ServerErrorStatusCode
-          }
-        | { input: {}; output: {}; outputFormat: string; status: 101 }
-        | { input: {}; output: {}; outputFormat: string; status: 102 }
-        | { input: {}; output: {}; outputFormat: string; status: 103 }
-        | { input: {}; output: {}; outputFormat: string; status: 201 }
-        | { input: {}; output: {}; outputFormat: string; status: 202 }
-        | { input: {}; output: {}; outputFormat: string; status: 203 }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
-        | { input: {}; output: {}; outputFormat: string; status: 205 }
-        | { input: {}; output: {}; outputFormat: string; status: 206 }
-        | { input: {}; output: {}; outputFormat: string; status: 207 }
-        | { input: {}; output: {}; outputFormat: string; status: 208 }
-        | { input: {}; output: {}; outputFormat: string; status: 226 }
-        | { input: {}; output: {}; outputFormat: string; status: 300 }
-        | { input: {}; output: {}; outputFormat: string; status: 301 }
-        | { input: {}; output: {}; outputFormat: string; status: 302 }
-        | { input: {}; output: {}; outputFormat: string; status: 303 }
-        | { input: {}; output: {}; outputFormat: string; status: 304 }
-        | { input: {}; output: {}; outputFormat: string; status: 305 }
-        | { input: {}; output: {}; outputFormat: string; status: 306 }
-        | { input: {}; output: {}; outputFormat: string; status: 307 }
-        | { input: {}; output: {}; outputFormat: string; status: 308 }
-        | { input: {}; output: {}; outputFormat: string; status: 400 }
-        | { input: {}; output: {}; outputFormat: string; status: 402 }
-        | { input: {}; output: {}; outputFormat: string; status: 403 }
-        | { input: {}; output: {}; outputFormat: string; status: 404 }
-        | { input: {}; output: {}; outputFormat: string; status: 405 }
-        | { input: {}; output: {}; outputFormat: string; status: 406 }
-        | { input: {}; output: {}; outputFormat: string; status: 407 }
-        | { input: {}; output: {}; outputFormat: string; status: 408 }
-        | { input: {}; output: {}; outputFormat: string; status: 409 }
-        | { input: {}; output: {}; outputFormat: string; status: 410 }
-        | { input: {}; output: {}; outputFormat: string; status: 411 }
-        | { input: {}; output: {}; outputFormat: string; status: 412 }
-        | { input: {}; output: {}; outputFormat: string; status: 413 }
-        | { input: {}; output: {}; outputFormat: string; status: 414 }
-        | { input: {}; output: {}; outputFormat: string; status: 415 }
-        | { input: {}; output: {}; outputFormat: string; status: 416 }
-        | { input: {}; output: {}; outputFormat: string; status: 417 }
-        | { input: {}; output: {}; outputFormat: string; status: 418 }
-        | { input: {}; output: {}; outputFormat: string; status: 421 }
-        | { input: {}; output: {}; outputFormat: string; status: 422 }
-        | { input: {}; output: {}; outputFormat: string; status: 423 }
-        | { input: {}; output: {}; outputFormat: string; status: 424 }
-        | { input: {}; output: {}; outputFormat: string; status: 425 }
-        | { input: {}; output: {}; outputFormat: string; status: 426 }
-        | { input: {}; output: {}; outputFormat: string; status: 428 }
-        | { input: {}; output: {}; outputFormat: string; status: 429 }
-        | { input: {}; output: {}; outputFormat: string; status: 431 }
-        | { input: {}; output: {}; outputFormat: string; status: 451 }
-        | { input: {}; output: {}; outputFormat: string; status: 500 }
-        | { input: {}; output: {}; outputFormat: string; status: 501 }
-        | { input: {}; output: {}; outputFormat: string; status: 502 }
-        | { input: {}; output: {}; outputFormat: string; status: 503 }
-        | { input: {}; output: {}; outputFormat: string; status: 504 }
-        | { input: {}; output: {}; outputFormat: string; status: 505 }
-        | { input: {}; output: {}; outputFormat: string; status: 506 }
-        | { input: {}; output: {}; outputFormat: string; status: 507 }
-        | { input: {}; output: {}; outputFormat: string; status: 508 }
-        | { input: {}; output: {}; outputFormat: string; status: 510 }
-        | { input: {}; output: {}; outputFormat: string; status: 511 }
-        | { input: {}; output: {}; outputFormat: string; status: -1 }
-        | { input: {}; output: {}; outputFormat: string; status: never }
-      $patch:
-        | { input: {}; output: {}; outputFormat: string; status: 100 }
-        | { input: {}; output: {}; outputFormat: string; status: 200 }
-        | { input: {}; output: {}; outputFormat: string; status: 401 }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').InfoStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').SuccessStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').RedirectStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ClientErrorStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ServerErrorStatusCode
-          }
-        | { input: {}; output: {}; outputFormat: string; status: 101 }
-        | { input: {}; output: {}; outputFormat: string; status: 102 }
-        | { input: {}; output: {}; outputFormat: string; status: 103 }
-        | { input: {}; output: {}; outputFormat: string; status: 201 }
-        | { input: {}; output: {}; outputFormat: string; status: 202 }
-        | { input: {}; output: {}; outputFormat: string; status: 203 }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
-        | { input: {}; output: {}; outputFormat: string; status: 205 }
-        | { input: {}; output: {}; outputFormat: string; status: 206 }
-        | { input: {}; output: {}; outputFormat: string; status: 207 }
-        | { input: {}; output: {}; outputFormat: string; status: 208 }
-        | { input: {}; output: {}; outputFormat: string; status: 226 }
-        | { input: {}; output: {}; outputFormat: string; status: 300 }
-        | { input: {}; output: {}; outputFormat: string; status: 301 }
-        | { input: {}; output: {}; outputFormat: string; status: 302 }
-        | { input: {}; output: {}; outputFormat: string; status: 303 }
-        | { input: {}; output: {}; outputFormat: string; status: 304 }
-        | { input: {}; output: {}; outputFormat: string; status: 305 }
-        | { input: {}; output: {}; outputFormat: string; status: 306 }
-        | { input: {}; output: {}; outputFormat: string; status: 307 }
-        | { input: {}; output: {}; outputFormat: string; status: 308 }
-        | { input: {}; output: {}; outputFormat: string; status: 400 }
-        | { input: {}; output: {}; outputFormat: string; status: 402 }
-        | { input: {}; output: {}; outputFormat: string; status: 403 }
-        | { input: {}; output: {}; outputFormat: string; status: 404 }
-        | { input: {}; output: {}; outputFormat: string; status: 405 }
-        | { input: {}; output: {}; outputFormat: string; status: 406 }
-        | { input: {}; output: {}; outputFormat: string; status: 407 }
-        | { input: {}; output: {}; outputFormat: string; status: 408 }
-        | { input: {}; output: {}; outputFormat: string; status: 409 }
-        | { input: {}; output: {}; outputFormat: string; status: 410 }
-        | { input: {}; output: {}; outputFormat: string; status: 411 }
-        | { input: {}; output: {}; outputFormat: string; status: 412 }
-        | { input: {}; output: {}; outputFormat: string; status: 413 }
-        | { input: {}; output: {}; outputFormat: string; status: 414 }
-        | { input: {}; output: {}; outputFormat: string; status: 415 }
-        | { input: {}; output: {}; outputFormat: string; status: 416 }
-        | { input: {}; output: {}; outputFormat: string; status: 417 }
-        | { input: {}; output: {}; outputFormat: string; status: 418 }
-        | { input: {}; output: {}; outputFormat: string; status: 421 }
-        | { input: {}; output: {}; outputFormat: string; status: 422 }
-        | { input: {}; output: {}; outputFormat: string; status: 423 }
-        | { input: {}; output: {}; outputFormat: string; status: 424 }
-        | { input: {}; output: {}; outputFormat: string; status: 425 }
-        | { input: {}; output: {}; outputFormat: string; status: 426 }
-        | { input: {}; output: {}; outputFormat: string; status: 428 }
-        | { input: {}; output: {}; outputFormat: string; status: 429 }
-        | { input: {}; output: {}; outputFormat: string; status: 431 }
-        | { input: {}; output: {}; outputFormat: string; status: 451 }
-        | { input: {}; output: {}; outputFormat: string; status: 500 }
-        | { input: {}; output: {}; outputFormat: string; status: 501 }
-        | { input: {}; output: {}; outputFormat: string; status: 502 }
-        | { input: {}; output: {}; outputFormat: string; status: 503 }
-        | { input: {}; output: {}; outputFormat: string; status: 504 }
-        | { input: {}; output: {}; outputFormat: string; status: 505 }
-        | { input: {}; output: {}; outputFormat: string; status: 506 }
-        | { input: {}; output: {}; outputFormat: string; status: 507 }
-        | { input: {}; output: {}; outputFormat: string; status: 508 }
-        | { input: {}; output: {}; outputFormat: string; status: 510 }
-        | { input: {}; output: {}; outputFormat: string; status: 511 }
-        | { input: {}; output: {}; outputFormat: string; status: -1 }
-        | { input: {}; output: {}; outputFormat: string; status: never }
-      $head:
-        | { input: {}; output: {}; outputFormat: string; status: 100 }
-        | { input: {}; output: {}; outputFormat: string; status: 200 }
-        | { input: {}; output: {}; outputFormat: string; status: 401 }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').InfoStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').SuccessStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').RedirectStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ClientErrorStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ServerErrorStatusCode
-          }
-        | { input: {}; output: {}; outputFormat: string; status: 101 }
-        | { input: {}; output: {}; outputFormat: string; status: 102 }
-        | { input: {}; output: {}; outputFormat: string; status: 103 }
-        | { input: {}; output: {}; outputFormat: string; status: 201 }
-        | { input: {}; output: {}; outputFormat: string; status: 202 }
-        | { input: {}; output: {}; outputFormat: string; status: 203 }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
-        | { input: {}; output: {}; outputFormat: string; status: 205 }
-        | { input: {}; output: {}; outputFormat: string; status: 206 }
-        | { input: {}; output: {}; outputFormat: string; status: 207 }
-        | { input: {}; output: {}; outputFormat: string; status: 208 }
-        | { input: {}; output: {}; outputFormat: string; status: 226 }
-        | { input: {}; output: {}; outputFormat: string; status: 300 }
-        | { input: {}; output: {}; outputFormat: string; status: 301 }
-        | { input: {}; output: {}; outputFormat: string; status: 302 }
-        | { input: {}; output: {}; outputFormat: string; status: 303 }
-        | { input: {}; output: {}; outputFormat: string; status: 304 }
-        | { input: {}; output: {}; outputFormat: string; status: 305 }
-        | { input: {}; output: {}; outputFormat: string; status: 306 }
-        | { input: {}; output: {}; outputFormat: string; status: 307 }
-        | { input: {}; output: {}; outputFormat: string; status: 308 }
-        | { input: {}; output: {}; outputFormat: string; status: 400 }
-        | { input: {}; output: {}; outputFormat: string; status: 402 }
-        | { input: {}; output: {}; outputFormat: string; status: 403 }
-        | { input: {}; output: {}; outputFormat: string; status: 404 }
-        | { input: {}; output: {}; outputFormat: string; status: 405 }
-        | { input: {}; output: {}; outputFormat: string; status: 406 }
-        | { input: {}; output: {}; outputFormat: string; status: 407 }
-        | { input: {}; output: {}; outputFormat: string; status: 408 }
-        | { input: {}; output: {}; outputFormat: string; status: 409 }
-        | { input: {}; output: {}; outputFormat: string; status: 410 }
-        | { input: {}; output: {}; outputFormat: string; status: 411 }
-        | { input: {}; output: {}; outputFormat: string; status: 412 }
-        | { input: {}; output: {}; outputFormat: string; status: 413 }
-        | { input: {}; output: {}; outputFormat: string; status: 414 }
-        | { input: {}; output: {}; outputFormat: string; status: 415 }
-        | { input: {}; output: {}; outputFormat: string; status: 416 }
-        | { input: {}; output: {}; outputFormat: string; status: 417 }
-        | { input: {}; output: {}; outputFormat: string; status: 418 }
-        | { input: {}; output: {}; outputFormat: string; status: 421 }
-        | { input: {}; output: {}; outputFormat: string; status: 422 }
-        | { input: {}; output: {}; outputFormat: string; status: 423 }
-        | { input: {}; output: {}; outputFormat: string; status: 424 }
-        | { input: {}; output: {}; outputFormat: string; status: 425 }
-        | { input: {}; output: {}; outputFormat: string; status: 426 }
-        | { input: {}; output: {}; outputFormat: string; status: 428 }
-        | { input: {}; output: {}; outputFormat: string; status: 429 }
-        | { input: {}; output: {}; outputFormat: string; status: 431 }
-        | { input: {}; output: {}; outputFormat: string; status: 451 }
-        | { input: {}; output: {}; outputFormat: string; status: 500 }
-        | { input: {}; output: {}; outputFormat: string; status: 501 }
-        | { input: {}; output: {}; outputFormat: string; status: 502 }
-        | { input: {}; output: {}; outputFormat: string; status: 503 }
-        | { input: {}; output: {}; outputFormat: string; status: 504 }
-        | { input: {}; output: {}; outputFormat: string; status: 505 }
-        | { input: {}; output: {}; outputFormat: string; status: 506 }
-        | { input: {}; output: {}; outputFormat: string; status: 507 }
-        | { input: {}; output: {}; outputFormat: string; status: 508 }
-        | { input: {}; output: {}; outputFormat: string; status: 510 }
-        | { input: {}; output: {}; outputFormat: string; status: 511 }
-        | { input: {}; output: {}; outputFormat: string; status: -1 }
-        | { input: {}; output: {}; outputFormat: string; status: never }
-      $options:
-        | { input: {}; output: {}; outputFormat: string; status: 100 }
-        | { input: {}; output: {}; outputFormat: string; status: 200 }
-        | { input: {}; output: {}; outputFormat: string; status: 401 }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').InfoStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').SuccessStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').RedirectStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ClientErrorStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ServerErrorStatusCode
-          }
-        | { input: {}; output: {}; outputFormat: string; status: 101 }
-        | { input: {}; output: {}; outputFormat: string; status: 102 }
-        | { input: {}; output: {}; outputFormat: string; status: 103 }
-        | { input: {}; output: {}; outputFormat: string; status: 201 }
-        | { input: {}; output: {}; outputFormat: string; status: 202 }
-        | { input: {}; output: {}; outputFormat: string; status: 203 }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
-        | { input: {}; output: {}; outputFormat: string; status: 205 }
-        | { input: {}; output: {}; outputFormat: string; status: 206 }
-        | { input: {}; output: {}; outputFormat: string; status: 207 }
-        | { input: {}; output: {}; outputFormat: string; status: 208 }
-        | { input: {}; output: {}; outputFormat: string; status: 226 }
-        | { input: {}; output: {}; outputFormat: string; status: 300 }
-        | { input: {}; output: {}; outputFormat: string; status: 301 }
-        | { input: {}; output: {}; outputFormat: string; status: 302 }
-        | { input: {}; output: {}; outputFormat: string; status: 303 }
-        | { input: {}; output: {}; outputFormat: string; status: 304 }
-        | { input: {}; output: {}; outputFormat: string; status: 305 }
-        | { input: {}; output: {}; outputFormat: string; status: 306 }
-        | { input: {}; output: {}; outputFormat: string; status: 307 }
-        | { input: {}; output: {}; outputFormat: string; status: 308 }
-        | { input: {}; output: {}; outputFormat: string; status: 400 }
-        | { input: {}; output: {}; outputFormat: string; status: 402 }
-        | { input: {}; output: {}; outputFormat: string; status: 403 }
-        | { input: {}; output: {}; outputFormat: string; status: 404 }
-        | { input: {}; output: {}; outputFormat: string; status: 405 }
-        | { input: {}; output: {}; outputFormat: string; status: 406 }
-        | { input: {}; output: {}; outputFormat: string; status: 407 }
-        | { input: {}; output: {}; outputFormat: string; status: 408 }
-        | { input: {}; output: {}; outputFormat: string; status: 409 }
-        | { input: {}; output: {}; outputFormat: string; status: 410 }
-        | { input: {}; output: {}; outputFormat: string; status: 411 }
-        | { input: {}; output: {}; outputFormat: string; status: 412 }
-        | { input: {}; output: {}; outputFormat: string; status: 413 }
-        | { input: {}; output: {}; outputFormat: string; status: 414 }
-        | { input: {}; output: {}; outputFormat: string; status: 415 }
-        | { input: {}; output: {}; outputFormat: string; status: 416 }
-        | { input: {}; output: {}; outputFormat: string; status: 417 }
-        | { input: {}; output: {}; outputFormat: string; status: 418 }
-        | { input: {}; output: {}; outputFormat: string; status: 421 }
-        | { input: {}; output: {}; outputFormat: string; status: 422 }
-        | { input: {}; output: {}; outputFormat: string; status: 423 }
-        | { input: {}; output: {}; outputFormat: string; status: 424 }
-        | { input: {}; output: {}; outputFormat: string; status: 425 }
-        | { input: {}; output: {}; outputFormat: string; status: 426 }
-        | { input: {}; output: {}; outputFormat: string; status: 428 }
-        | { input: {}; output: {}; outputFormat: string; status: 429 }
-        | { input: {}; output: {}; outputFormat: string; status: 431 }
-        | { input: {}; output: {}; outputFormat: string; status: 451 }
-        | { input: {}; output: {}; outputFormat: string; status: 500 }
-        | { input: {}; output: {}; outputFormat: string; status: 501 }
-        | { input: {}; output: {}; outputFormat: string; status: 502 }
-        | { input: {}; output: {}; outputFormat: string; status: 503 }
-        | { input: {}; output: {}; outputFormat: string; status: 504 }
-        | { input: {}; output: {}; outputFormat: string; status: 505 }
-        | { input: {}; output: {}; outputFormat: string; status: 506 }
-        | { input: {}; output: {}; outputFormat: string; status: 507 }
-        | { input: {}; output: {}; outputFormat: string; status: 508 }
-        | { input: {}; output: {}; outputFormat: string; status: 510 }
-        | { input: {}; output: {}; outputFormat: string; status: 511 }
-        | { input: {}; output: {}; outputFormat: string; status: -1 }
-        | { input: {}; output: {}; outputFormat: string; status: never }
-      $trace:
-        | { input: {}; output: {}; outputFormat: string; status: 100 }
-        | { input: {}; output: {}; outputFormat: string; status: 200 }
-        | { input: {}; output: {}; outputFormat: string; status: 401 }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').InfoStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').SuccessStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').RedirectStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ClientErrorStatusCode
-          }
-        | {
-            input: {}
-            output: {}
-            outputFormat: string
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').ServerErrorStatusCode
-          }
-        | { input: {}; output: {}; outputFormat: string; status: 101 }
-        | { input: {}; output: {}; outputFormat: string; status: 102 }
-        | { input: {}; output: {}; outputFormat: string; status: 103 }
-        | { input: {}; output: {}; outputFormat: string; status: 201 }
-        | { input: {}; output: {}; outputFormat: string; status: 202 }
-        | { input: {}; output: {}; outputFormat: string; status: 203 }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
-        | { input: {}; output: {}; outputFormat: string; status: 205 }
-        | { input: {}; output: {}; outputFormat: string; status: 206 }
-        | { input: {}; output: {}; outputFormat: string; status: 207 }
-        | { input: {}; output: {}; outputFormat: string; status: 208 }
-        | { input: {}; output: {}; outputFormat: string; status: 226 }
-        | { input: {}; output: {}; outputFormat: string; status: 300 }
-        | { input: {}; output: {}; outputFormat: string; status: 301 }
-        | { input: {}; output: {}; outputFormat: string; status: 302 }
-        | { input: {}; output: {}; outputFormat: string; status: 303 }
-        | { input: {}; output: {}; outputFormat: string; status: 304 }
-        | { input: {}; output: {}; outputFormat: string; status: 305 }
-        | { input: {}; output: {}; outputFormat: string; status: 306 }
-        | { input: {}; output: {}; outputFormat: string; status: 307 }
-        | { input: {}; output: {}; outputFormat: string; status: 308 }
-        | { input: {}; output: {}; outputFormat: string; status: 400 }
-        | { input: {}; output: {}; outputFormat: string; status: 402 }
-        | { input: {}; output: {}; outputFormat: string; status: 403 }
-        | { input: {}; output: {}; outputFormat: string; status: 404 }
-        | { input: {}; output: {}; outputFormat: string; status: 405 }
-        | { input: {}; output: {}; outputFormat: string; status: 406 }
-        | { input: {}; output: {}; outputFormat: string; status: 407 }
-        | { input: {}; output: {}; outputFormat: string; status: 408 }
-        | { input: {}; output: {}; outputFormat: string; status: 409 }
-        | { input: {}; output: {}; outputFormat: string; status: 410 }
-        | { input: {}; output: {}; outputFormat: string; status: 411 }
-        | { input: {}; output: {}; outputFormat: string; status: 412 }
-        | { input: {}; output: {}; outputFormat: string; status: 413 }
-        | { input: {}; output: {}; outputFormat: string; status: 414 }
-        | { input: {}; output: {}; outputFormat: string; status: 415 }
-        | { input: {}; output: {}; outputFormat: string; status: 416 }
-        | { input: {}; output: {}; outputFormat: string; status: 417 }
-        | { input: {}; output: {}; outputFormat: string; status: 418 }
-        | { input: {}; output: {}; outputFormat: string; status: 421 }
-        | { input: {}; output: {}; outputFormat: string; status: 422 }
-        | { input: {}; output: {}; outputFormat: string; status: 423 }
-        | { input: {}; output: {}; outputFormat: string; status: 424 }
-        | { input: {}; output: {}; outputFormat: string; status: 425 }
-        | { input: {}; output: {}; outputFormat: string; status: 426 }
-        | { input: {}; output: {}; outputFormat: string; status: 428 }
-        | { input: {}; output: {}; outputFormat: string; status: 429 }
-        | { input: {}; output: {}; outputFormat: string; status: 431 }
-        | { input: {}; output: {}; outputFormat: string; status: 451 }
-        | { input: {}; output: {}; outputFormat: string; status: 500 }
-        | { input: {}; output: {}; outputFormat: string; status: 501 }
-        | { input: {}; output: {}; outputFormat: string; status: 502 }
-        | { input: {}; output: {}; outputFormat: string; status: 503 }
-        | { input: {}; output: {}; outputFormat: string; status: 504 }
-        | { input: {}; output: {}; outputFormat: string; status: 505 }
-        | { input: {}; output: {}; outputFormat: string; status: 506 }
-        | { input: {}; output: {}; outputFormat: string; status: 507 }
-        | { input: {}; output: {}; outputFormat: string; status: 508 }
-        | { input: {}; output: {}; outputFormat: string; status: 510 }
-        | { input: {}; output: {}; outputFormat: string; status: 511 }
-        | { input: {}; output: {}; outputFormat: string; status: -1 }
-        | { input: {}; output: {}; outputFormat: string; status: never }
-    }
-  } & {
-    '/sessions/current/refresh': {
-      $post:
-        | {
-            input: { json: { refreshToken: string } }
+            input: {
+              json: {
+                grantType:
+                  | 'password'
+                  | 'mfa_token'
+                  | 'sso_token'
+                  | 'passkey'
+                  | 'magic_link'
+                  | 'social'
+                username?: string | undefined
+                password?: string | undefined
+                mfaToken?: string | undefined
+                mfaCode?: string | undefined
+                ssoToken?: string | undefined
+                passkeyResponse?: { [x: string]: unknown } | undefined
+                magicLinkToken?: string | undefined
+                socialProvider?: string | undefined
+                socialToken?: string | undefined
+                deviceFingerprint?: string | undefined
+                rememberMe?: boolean | undefined
+              }
+            }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/sessions/current': {
+      $get:
         | {
-            input: { json: { refreshToken: string } }
+            input: {}
             output: {
               id: string
               userId: string
               status: 'active' | 'expired' | 'revoked'
-              createdAt: string
-              expiresAt: string
               isCurrent?: boolean | undefined
               device?:
                 | {
                     id?: string | undefined
                     fingerprint?: string | undefined
-                    type?: 'unknown' | 'desktop' | 'mobile' | 'tablet' | undefined
+                    type?: 'desktop' | 'mobile' | 'tablet' | 'unknown' | undefined
                     os?: string | undefined
                     osVersion?: string | undefined
                     browser?: string | undefined
@@ -1039,6 +257,83 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               riskScore?: number | undefined
               lastActivityAt?: string | undefined
               idleTimeoutAt?: string | undefined
+              createdAt: string
+              expiresAt: string
+              revokedAt?: string | undefined
+              revokedReason?: string | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+      $delete:
+        | { input: {}; output: {}; outputFormat: string; status: 204 }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+    }
+  } & {
+    '/sessions/current/refresh': {
+      $post:
+        | {
+            input: { json: { refreshToken: string } }
+            output: {
+              id: string
+              userId: string
+              status: 'active' | 'expired' | 'revoked'
+              isCurrent?: boolean | undefined
+              device?:
+                | {
+                    id?: string | undefined
+                    fingerprint?: string | undefined
+                    type?: 'desktop' | 'mobile' | 'tablet' | 'unknown' | undefined
+                    os?: string | undefined
+                    osVersion?: string | undefined
+                    browser?: string | undefined
+                    browserVersion?: string | undefined
+                    userAgent?: string | undefined
+                    isTrusted?: boolean | undefined
+                  }
+                | undefined
+              location?:
+                | {
+                    ipAddress?: string | undefined
+                    country?: string | undefined
+                    countryCode?: string | undefined
+                    region?: string | undefined
+                    city?: string | undefined
+                    latitude?: number | undefined
+                    longitude?: number | undefined
+                    timezone?: string | undefined
+                    isp?: string | undefined
+                    isVpn?: boolean | undefined
+                    isTor?: boolean | undefined
+                    isProxy?: boolean | undefined
+                  }
+                | undefined
+              authMethod?:
+                | 'password'
+                | 'mfa'
+                | 'sso'
+                | 'passkey'
+                | 'magic_link'
+                | 'social'
+                | undefined
+              authProvider?: string | undefined
+              mfaVerified?: boolean | undefined
+              riskScore?: number | undefined
+              lastActivityAt?: string | undefined
+              idleTimeoutAt?: string | undefined
+              createdAt: string
+              expiresAt: string
               revokedAt?: string | undefined
               revokedReason?: string | undefined
               accessToken: string
@@ -1050,30 +345,28 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/sessions/:sessionId': {
-      $get:
         | {
-            input: { param: { sessionId: string } }
+            input: { json: { refreshToken: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/sessions/current/extend': {
+      $post:
         | {
-            input: { param: { sessionId: string } }
+            input: { json: { duration?: number | undefined } }
             output: {
               id: string
               userId: string
               status: 'active' | 'expired' | 'revoked'
-              createdAt: string
-              expiresAt: string
               isCurrent?: boolean | undefined
               device?:
                 | {
                     id?: string | undefined
                     fingerprint?: string | undefined
-                    type?: 'unknown' | 'desktop' | 'mobile' | 'tablet' | undefined
+                    type?: 'desktop' | 'mobile' | 'tablet' | 'unknown' | undefined
                     os?: string | undefined
                     osVersion?: string | undefined
                     browser?: string | undefined
@@ -1111,6 +404,91 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               riskScore?: number | undefined
               lastActivityAt?: string | undefined
               idleTimeoutAt?: string | undefined
+              createdAt: string
+              expiresAt: string
+              revokedAt?: string | undefined
+              revokedReason?: string | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: { json: { duration?: number | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+    }
+  } & {
+    '/sessions/current/activity': {
+      $post:
+        | {
+            input: {}
+            output: { lastActivityAt?: string | undefined; idleTimeoutAt?: string | undefined }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+    }
+  } & {
+    '/sessions/:sessionId': {
+      $get:
+        | {
+            input: { param: { sessionId: string } }
+            output: {
+              id: string
+              userId: string
+              status: 'active' | 'expired' | 'revoked'
+              isCurrent?: boolean | undefined
+              device?:
+                | {
+                    id?: string | undefined
+                    fingerprint?: string | undefined
+                    type?: 'desktop' | 'mobile' | 'tablet' | 'unknown' | undefined
+                    os?: string | undefined
+                    osVersion?: string | undefined
+                    browser?: string | undefined
+                    browserVersion?: string | undefined
+                    userAgent?: string | undefined
+                    isTrusted?: boolean | undefined
+                  }
+                | undefined
+              location?:
+                | {
+                    ipAddress?: string | undefined
+                    country?: string | undefined
+                    countryCode?: string | undefined
+                    region?: string | undefined
+                    city?: string | undefined
+                    latitude?: number | undefined
+                    longitude?: number | undefined
+                    timezone?: string | undefined
+                    isp?: string | undefined
+                    isVpn?: boolean | undefined
+                    isTor?: boolean | undefined
+                    isProxy?: boolean | undefined
+                  }
+                | undefined
+              authMethod?:
+                | 'password'
+                | 'mfa'
+                | 'sso'
+                | 'passkey'
+                | 'magic_link'
+                | 'social'
+                | undefined
+              authProvider?: string | undefined
+              mfaVerified?: boolean | undefined
+              riskScore?: number | undefined
+              lastActivityAt?: string | undefined
+              idleTimeoutAt?: string | undefined
+              createdAt: string
+              expiresAt: string
               revokedAt?: string | undefined
               revokedReason?: string | undefined
             }
@@ -1121,19 +499,22 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { sessionId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { param: { sessionId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/sessions/:sessionId': {
       $delete:
+        | { input: { param: { sessionId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { sessionId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { sessionId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { sessionId: string } }
             output: { code: string; message: string }
@@ -1146,26 +527,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $post:
         | {
             input: { json: { includeCurrent?: boolean | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { json: { includeCurrent?: boolean | undefined } }
             output: { revokedCount?: number | undefined }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { json: { includeCurrent?: boolean | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
     '/sessions/validate': {
       $post:
-        | {
-            input: { json: { accessToken?: string | undefined; sessionId?: string | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 400
-          }
         | {
             input: { json: { accessToken?: string | undefined; sessionId?: string | undefined } }
             output: {
@@ -1175,14 +550,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     id: string
                     userId: string
                     status: 'active' | 'expired' | 'revoked'
-                    createdAt: string
-                    expiresAt: string
                     isCurrent?: boolean | undefined
                     device?:
                       | {
                           id?: string | undefined
                           fingerprint?: string | undefined
-                          type?: 'unknown' | 'desktop' | 'mobile' | 'tablet' | undefined
+                          type?: 'desktop' | 'mobile' | 'tablet' | 'unknown' | undefined
                           os?: string | undefined
                           osVersion?: string | undefined
                           browser?: string | undefined
@@ -1220,6 +593,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     riskScore?: number | undefined
                     lastActivityAt?: string | undefined
                     idleTimeoutAt?: string | undefined
+                    createdAt: string
+                    expiresAt: string
                     revokedAt?: string | undefined
                     revokedReason?: string | undefined
                   }
@@ -1228,6 +603,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { json: { accessToken?: string | undefined; sessionId?: string | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 400
           }
     }
   } & {
@@ -1242,37 +623,23 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 to?: string | undefined
               }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              query: {
-                page?: number | undefined
-                limit?: number | undefined
-                from?: string | undefined
-                to?: string | undefined
-              }
-            }
             output: {
               data: {
                 id: string
+                sessionId?: string | undefined
                 eventType:
-                  | 'expired'
-                  | 'revoked'
                   | 'created'
                   | 'refreshed'
                   | 'extended'
                   | 'activity'
+                  | 'expired'
+                  | 'revoked'
                   | 'logout'
-                timestamp: string
-                sessionId?: string | undefined
                 device?:
                   | {
                       id?: string | undefined
                       fingerprint?: string | undefined
-                      type?: 'unknown' | 'desktop' | 'mobile' | 'tablet' | undefined
+                      type?: 'desktop' | 'mobile' | 'tablet' | 'unknown' | undefined
                       os?: string | undefined
                       osVersion?: string | undefined
                       browser?: string | undefined
@@ -1297,28 +664,30 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       isProxy?: boolean | undefined
                     }
                   | undefined
+                timestamp: string
               }[]
               pagination: { page: number; limit: number; total: number; totalPages: number }
             }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/sessions/security-events': {
-      $get:
         | {
             input: {
               query: {
                 page?: number | undefined
                 limit?: number | undefined
-                severity?: 'low' | 'medium' | 'high' | 'critical' | undefined
+                from?: string | undefined
+                to?: string | undefined
               }
             }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/sessions/security-events': {
+      $get:
         | {
             input: {
               query: {
@@ -1341,13 +710,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   | 'password_spray'
                   | 'concurrent_sessions_exceeded'
                 severity: 'low' | 'medium' | 'high' | 'critical'
-                timestamp: string
                 description?: string | undefined
                 device?:
                   | {
                       id?: string | undefined
                       fingerprint?: string | undefined
-                      type?: 'unknown' | 'desktop' | 'mobile' | 'tablet' | undefined
+                      type?: 'desktop' | 'mobile' | 'tablet' | 'unknown' | undefined
                       os?: string | undefined
                       osVersion?: string | undefined
                       browser?: string | undefined
@@ -1381,22 +749,29 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   | 'alert_sent'
                   | undefined
                 resolved?: boolean | undefined
+                timestamp: string
               }[]
               pagination: { page: number; limit: number; total: number; totalPages: number }
             }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/sessions/policies': {
-      $get:
         | {
-            input: {}
+            input: {
+              query: {
+                page?: number | undefined
+                limit?: number | undefined
+                severity?: 'low' | 'medium' | 'high' | 'critical' | undefined
+              }
+            }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/sessions/policies': {
+      $get:
         | {
             input: {}
             output: {
@@ -1415,9 +790,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/sessions/policies': {
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $put:
         | {
             input: {
@@ -1433,24 +811,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 refreshTokenRotation?: boolean | undefined
               }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              json: {
-                sessionDuration?: number | undefined
-                idleTimeout?: number | undefined
-                maxConcurrentSessions?: number | undefined
-                concurrentSessionAction?: 'allow' | 'deny' | 'revoke_oldest' | undefined
-                requireMfaForNewDevice?: boolean | undefined
-                requireMfaForNewLocation?: boolean | undefined
-                allowRememberMe?: boolean | undefined
-                rememberMeDuration?: number | undefined
-                refreshTokenRotation?: boolean | undefined
-              }
-            }
             output: {
               sessionDuration?: number | undefined
               idleTimeout?: number | undefined
@@ -1467,24 +827,37 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: {
+              json: {
+                sessionDuration?: number | undefined
+                idleTimeout?: number | undefined
+                maxConcurrentSessions?: number | undefined
+                concurrentSessionAction?: 'allow' | 'deny' | 'revoke_oldest' | undefined
+                requireMfaForNewDevice?: boolean | undefined
+                requireMfaForNewLocation?: boolean | undefined
+                allowRememberMe?: boolean | undefined
+                rememberMeDuration?: number | undefined
+                refreshTokenRotation?: boolean | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/sessions/trusted-devices': {
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               id: string
+              name?: string | undefined
               device: {
                 id?: string | undefined
                 fingerprint?: string | undefined
-                type?: 'unknown' | 'desktop' | 'mobile' | 'tablet' | undefined
+                type?: 'desktop' | 'mobile' | 'tablet' | 'unknown' | undefined
                 os?: string | undefined
                 osVersion?: string | undefined
                 browser?: string | undefined
@@ -1492,32 +865,29 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 userAgent?: string | undefined
                 isTrusted?: boolean | undefined
               }
+              lastUsedAt?: string | undefined
               createdAt: string
               expiresAt: string
-              name?: string | undefined
-              lastUsedAt?: string | undefined
             }[]
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/sessions/trusted-devices': {
-      $post:
         | {
-            input: { json: { name?: string | undefined; trustDuration?: number | undefined } }
+            input: {}
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+      $post:
         | {
             input: { json: { name?: string | undefined; trustDuration?: number | undefined } }
             output: {
               id: string
+              name?: string | undefined
               device: {
                 id?: string | undefined
                 fingerprint?: string | undefined
-                type?: 'unknown' | 'desktop' | 'mobile' | 'tablet' | undefined
+                type?: 'desktop' | 'mobile' | 'tablet' | 'unknown' | undefined
                 os?: string | undefined
                 osVersion?: string | undefined
                 browser?: string | undefined
@@ -1525,25 +895,30 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 userAgent?: string | undefined
                 isTrusted?: boolean | undefined
               }
+              lastUsedAt?: string | undefined
               createdAt: string
               expiresAt: string
-              name?: string | undefined
-              lastUsedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 201
+          }
+        | {
+            input: { json: { name?: string | undefined; trustDuration?: number | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
     '/sessions/trusted-devices/:deviceId': {
       $delete:
+        | { input: { param: { deviceId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { deviceId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { deviceId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   },
   '/'

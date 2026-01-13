@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/posts': {
       $get: {
@@ -9,7 +9,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             limit?: number | undefined
             userId?: string | undefined
             hashtag?: string | undefined
-            mediaOnly?: string | undefined
+            mediaOnly?: boolean | undefined
           }
         }
         output: {
@@ -53,7 +53,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   viewerVote?: string | undefined
                 }
               | undefined
-            quotedPost?: any | undefined
+            quotedPost?: unknown | undefined
             replyTo?:
               | {
                   postId?: string | undefined
@@ -70,7 +70,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     | undefined
                 }
               | undefined
-            repostOf?: any | undefined
+            repostOf?: unknown | undefined
             hashtags?: string[] | undefined
             mentions?:
               | {
@@ -99,11 +99,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   description?: string | undefined
                   image?: string | undefined
                   siteName?: string | undefined
-                  type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                  type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                 }
               | undefined
             visibility?: 'public' | 'followers' | 'mentioned' | undefined
-            replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+            replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
             metrics: {
               likeCount: number
               repostCount: number
@@ -131,9 +131,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/posts': {
       $post:
         | {
             input: {
@@ -142,7 +139,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 mediaIds?: string[] | undefined
                 poll?: { options: string[]; duration: number } | undefined
                 visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                 quotedPostId?: string | undefined
               }
             }
@@ -186,7 +183,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     viewerVote?: string | undefined
                   }
                 | undefined
-              quotedPost?: any | undefined
+              quotedPost?: unknown | undefined
               replyTo?:
                 | {
                     postId?: string | undefined
@@ -203,7 +200,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | undefined
                   }
                 | undefined
-              repostOf?: any | undefined
+              repostOf?: unknown | undefined
               hashtags?: string[] | undefined
               mentions?:
                 | {
@@ -232,11 +229,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     description?: string | undefined
                     image?: string | undefined
                     siteName?: string | undefined
-                    type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                    type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                   }
                 | undefined
               visibility?: 'public' | 'followers' | 'mentioned' | undefined
-              replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+              replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
               metrics: {
                 likeCount: number
                 repostCount: number
@@ -270,7 +267,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 mediaIds?: string[] | undefined
                 poll?: { options: string[]; duration: number } | undefined
                 visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                 quotedPostId?: string | undefined
               }
             }
@@ -285,7 +282,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 mediaIds?: string[] | undefined
                 poll?: { options: string[]; duration: number } | undefined
                 visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                 quotedPostId?: string | undefined
               }
             }
@@ -339,7 +336,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     viewerVote?: string | undefined
                   }
                 | undefined
-              quotedPost?: any | undefined
+              quotedPost?: unknown | undefined
               replyTo?:
                 | {
                     postId?: string | undefined
@@ -356,7 +353,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | undefined
                   }
                 | undefined
-              repostOf?: any | undefined
+              repostOf?: unknown | undefined
               hashtags?: string[] | undefined
               mentions?:
                 | {
@@ -385,11 +382,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     description?: string | undefined
                     image?: string | undefined
                     siteName?: string | undefined
-                    type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                    type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                   }
                 | undefined
               visibility?: 'public' | 'followers' | 'mentioned' | undefined
-              replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+              replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
               metrics: {
                 likeCount: number
                 repostCount: number
@@ -422,17 +419,14 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/posts/:postId': {
       $delete:
+        | { input: { param: { postId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { postId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { postId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { postId: string } }
             output: { code: string; message: string }
@@ -443,12 +437,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
   } & {
     '/posts/:postId/thread': {
       $get:
-        | {
-            input: { param: { postId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 404
-          }
         | {
             input: { param: { postId: string } }
             output: {
@@ -492,7 +480,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       viewerVote?: string | undefined
                     }
                   | undefined
-                quotedPost?: any | undefined
+                quotedPost?: unknown | undefined
                 replyTo?:
                   | {
                       postId?: string | undefined
@@ -509,7 +497,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         | undefined
                     }
                   | undefined
-                repostOf?: any | undefined
+                repostOf?: unknown | undefined
                 hashtags?: string[] | undefined
                 mentions?:
                   | {
@@ -538,11 +526,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       description?: string | undefined
                       image?: string | undefined
                       siteName?: string | undefined
-                      type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                      type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                     }
                   | undefined
                 visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                 metrics: {
                   likeCount: number
                   repostCount: number
@@ -607,7 +595,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                           viewerVote?: string | undefined
                         }
                       | undefined
-                    quotedPost?: any | undefined
+                    quotedPost?: unknown | undefined
                     replyTo?:
                       | {
                           postId?: string | undefined
@@ -624,7 +612,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                             | undefined
                         }
                       | undefined
-                    repostOf?: any | undefined
+                    repostOf?: unknown | undefined
                     hashtags?: string[] | undefined
                     mentions?:
                       | {
@@ -653,11 +641,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                           description?: string | undefined
                           image?: string | undefined
                           siteName?: string | undefined
-                          type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                          type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                         }
                       | undefined
                     visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                    replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                    replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                     metrics: {
                       likeCount: number
                       repostCount: number
@@ -682,10 +670,16 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | undefined
                   }[]
                 | undefined
-              replies?: any[] | undefined
+              replies?: unknown[] | undefined
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { postId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 404
           }
     }
   } & {
@@ -734,7 +728,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       viewerVote?: string | undefined
                     }
                   | undefined
-                quotedPost?: any | undefined
+                quotedPost?: unknown | undefined
                 replyTo?:
                   | {
                       postId?: string | undefined
@@ -751,7 +745,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         | undefined
                     }
                   | undefined
-                repostOf?: any | undefined
+                repostOf?: unknown | undefined
                 hashtags?: string[] | undefined
                 mentions?:
                   | {
@@ -780,11 +774,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       description?: string | undefined
                       image?: string | undefined
                       siteName?: string | undefined
-                      type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                      type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                     }
                   | undefined
                 visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                 metrics: {
                   likeCount: number
                   repostCount: number
@@ -850,7 +844,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       viewerVote?: string | undefined
                     }
                   | undefined
-                quotedPost?: any | undefined
+                quotedPost?: unknown | undefined
                 replyTo?:
                   | {
                       postId?: string | undefined
@@ -867,7 +861,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         | undefined
                     }
                   | undefined
-                repostOf?: any | undefined
+                repostOf?: unknown | undefined
                 hashtags?: string[] | undefined
                 mentions?:
                   | {
@@ -896,11 +890,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       description?: string | undefined
                       image?: string | undefined
                       siteName?: string | undefined
-                      type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                      type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                     }
                   | undefined
                 visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                 metrics: {
                   likeCount: number
                   repostCount: number
@@ -966,7 +960,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       viewerVote?: string | undefined
                     }
                   | undefined
-                quotedPost?: any | undefined
+                quotedPost?: unknown | undefined
                 replyTo?:
                   | {
                       postId?: string | undefined
@@ -983,7 +977,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         | undefined
                     }
                   | undefined
-                repostOf?: any | undefined
+                repostOf?: unknown | undefined
                 hashtags?: string[] | undefined
                 mentions?:
                   | {
@@ -1012,11 +1006,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       description?: string | undefined
                       image?: string | undefined
                       siteName?: string | undefined
-                      type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                      type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                     }
                   | undefined
                 visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                 metrics: {
                   likeCount: number
                   repostCount: number
@@ -1054,21 +1048,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               query: {
                 cursor?: string | undefined
                 limit?: number | undefined
-                includeReplies?: string | undefined
-                includeReposts?: string | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              query: {
-                cursor?: string | undefined
-                limit?: number | undefined
-                includeReplies?: string | undefined
-                includeReposts?: string | undefined
+                includeReplies?: boolean | undefined
+                includeReposts?: boolean | undefined
               }
             }
             output: {
@@ -1114,7 +1095,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         viewerVote?: string | undefined
                       }
                     | undefined
-                  quotedPost?: any | undefined
+                  quotedPost?: unknown | undefined
                   replyTo?:
                     | {
                         postId?: string | undefined
@@ -1131,7 +1112,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                           | undefined
                       }
                     | undefined
-                  repostOf?: any | undefined
+                  repostOf?: unknown | undefined
                   hashtags?: string[] | undefined
                   mentions?:
                     | {
@@ -1160,11 +1141,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         description?: string | undefined
                         image?: string | undefined
                         siteName?: string | undefined
-                        type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                        type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                       }
                     | undefined
                   visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                  replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                  replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                   metrics: {
                     likeCount: number
                     repostCount: number
@@ -1206,6 +1187,19 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {
+              query: {
+                cursor?: string | undefined
+                limit?: number | undefined
+                includeReplies?: boolean | undefined
+                includeReposts?: boolean | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -1213,12 +1207,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { query: { cursor?: string | undefined; limit?: number | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { query: { cursor?: string | undefined; limit?: number | undefined } }
             output: {
               data: {
                 type: 'post' | 'repost' | 'reply' | 'quote' | 'promoted'
@@ -1262,7 +1250,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         viewerVote?: string | undefined
                       }
                     | undefined
-                  quotedPost?: any | undefined
+                  quotedPost?: unknown | undefined
                   replyTo?:
                     | {
                         postId?: string | undefined
@@ -1279,7 +1267,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                           | undefined
                       }
                     | undefined
-                  repostOf?: any | undefined
+                  repostOf?: unknown | undefined
                   hashtags?: string[] | undefined
                   mentions?:
                     | {
@@ -1308,11 +1296,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         description?: string | undefined
                         image?: string | undefined
                         siteName?: string | undefined
-                        type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                        type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                       }
                     | undefined
                   visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                  replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                  replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                   metrics: {
                     likeCount: number
                     repostCount: number
@@ -1354,6 +1342,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { query: { cursor?: string | undefined; limit?: number | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -1364,23 +1358,9 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               query: {
                 cursor?: string | undefined
                 limit?: number | undefined
-                includeReplies?: string | undefined
-                includeReposts?: string | undefined
-                mediaOnly?: string | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 404
-          }
-        | {
-            input: { param: { userId: string } } & {
-              query: {
-                cursor?: string | undefined
-                limit?: number | undefined
-                includeReplies?: string | undefined
-                includeReposts?: string | undefined
-                mediaOnly?: string | undefined
+                includeReplies?: boolean | undefined
+                includeReposts?: boolean | undefined
+                mediaOnly?: boolean | undefined
               }
             }
             output: {
@@ -1426,7 +1406,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         viewerVote?: string | undefined
                       }
                     | undefined
-                  quotedPost?: any | undefined
+                  quotedPost?: unknown | undefined
                   replyTo?:
                     | {
                         postId?: string | undefined
@@ -1443,7 +1423,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                           | undefined
                       }
                     | undefined
-                  repostOf?: any | undefined
+                  repostOf?: unknown | undefined
                   hashtags?: string[] | undefined
                   mentions?:
                     | {
@@ -1472,11 +1452,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         description?: string | undefined
                         image?: string | undefined
                         siteName?: string | undefined
-                        type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                        type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                       }
                     | undefined
                   visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                  replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                  replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                   metrics: {
                     likeCount: number
                     repostCount: number
@@ -1518,6 +1498,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { userId: string } } & {
+              query: {
+                cursor?: string | undefined
+                limit?: number | undefined
+                includeReplies?: boolean | undefined
+                includeReposts?: boolean | undefined
+                mediaOnly?: boolean | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 404
           }
     }
   } & {
@@ -1569,7 +1563,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     viewerVote?: string | undefined
                   }
                 | undefined
-              quotedPost?: any | undefined
+              quotedPost?: unknown | undefined
               replyTo?:
                 | {
                     postId?: string | undefined
@@ -1586,7 +1580,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | undefined
                   }
                 | undefined
-              repostOf?: any | undefined
+              repostOf?: unknown | undefined
               hashtags?: string[] | undefined
               mentions?:
                 | {
@@ -1615,11 +1609,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     description?: string | undefined
                     image?: string | undefined
                     siteName?: string | undefined
-                    type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                    type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                   }
                 | undefined
               visibility?: 'public' | 'followers' | 'mentioned' | undefined
-              replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+              replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
               metrics: {
                 likeCount: number
                 repostCount: number
@@ -1668,12 +1662,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $post:
         | {
             input: { param: { postId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { postId: string } }
             output: {
               id: string
               author: {
@@ -1714,7 +1702,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     viewerVote?: string | undefined
                   }
                 | undefined
-              quotedPost?: any | undefined
+              quotedPost?: unknown | undefined
               replyTo?:
                 | {
                     postId?: string | undefined
@@ -1731,7 +1719,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | undefined
                   }
                 | undefined
-              repostOf?: any | undefined
+              repostOf?: unknown | undefined
               hashtags?: string[] | undefined
               mentions?:
                 | {
@@ -1760,11 +1748,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     description?: string | undefined
                     image?: string | undefined
                     siteName?: string | undefined
-                    type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                    type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                   }
                 | undefined
               visibility?: 'public' | 'followers' | 'mentioned' | undefined
-              replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+              replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
               metrics: {
                 likeCount: number
                 repostCount: number
@@ -1791,18 +1779,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/posts/:postId/like': {
+        | {
+            input: { param: { postId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
         | {
             input: { param: { postId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { postId: string } }
             output: {
               id: string
               author: {
@@ -1843,7 +1828,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     viewerVote?: string | undefined
                   }
                 | undefined
-              quotedPost?: any | undefined
+              quotedPost?: unknown | undefined
               replyTo?:
                 | {
                     postId?: string | undefined
@@ -1860,7 +1845,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | undefined
                   }
                 | undefined
-              repostOf?: any | undefined
+              repostOf?: unknown | undefined
               hashtags?: string[] | undefined
               mentions?:
                 | {
@@ -1889,11 +1874,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     description?: string | undefined
                     image?: string | undefined
                     siteName?: string | undefined
-                    type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                    type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                   }
                 | undefined
               visibility?: 'public' | 'followers' | 'mentioned' | undefined
-              replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+              replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
               metrics: {
                 likeCount: number
                 repostCount: number
@@ -1919,6 +1904,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { postId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -1926,12 +1917,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $post:
         | {
             input: { param: { postId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { postId: string } }
             output: {
               id: string
               author: {
@@ -1972,7 +1957,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     viewerVote?: string | undefined
                   }
                 | undefined
-              quotedPost?: any | undefined
+              quotedPost?: unknown | undefined
               replyTo?:
                 | {
                     postId?: string | undefined
@@ -1989,7 +1974,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | undefined
                   }
                 | undefined
-              repostOf?: any | undefined
+              repostOf?: unknown | undefined
               hashtags?: string[] | undefined
               mentions?:
                 | {
@@ -2018,11 +2003,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     description?: string | undefined
                     image?: string | undefined
                     siteName?: string | undefined
-                    type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                    type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                   }
                 | undefined
               visibility?: 'public' | 'followers' | 'mentioned' | undefined
-              replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+              replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
               metrics: {
                 likeCount: number
                 repostCount: number
@@ -2049,18 +2034,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/posts/:postId/repost': {
+        | {
+            input: { param: { postId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
         | {
             input: { param: { postId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { postId: string } }
             output: {
               id: string
               author: {
@@ -2101,7 +2083,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     viewerVote?: string | undefined
                   }
                 | undefined
-              quotedPost?: any | undefined
+              quotedPost?: unknown | undefined
               replyTo?:
                 | {
                     postId?: string | undefined
@@ -2118,7 +2100,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | undefined
                   }
                 | undefined
-              repostOf?: any | undefined
+              repostOf?: unknown | undefined
               hashtags?: string[] | undefined
               mentions?:
                 | {
@@ -2147,11 +2129,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     description?: string | undefined
                     image?: string | undefined
                     siteName?: string | undefined
-                    type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                    type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                   }
                 | undefined
               visibility?: 'public' | 'followers' | 'mentioned' | undefined
-              replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+              replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
               metrics: {
                 likeCount: number
                 repostCount: number
@@ -2177,6 +2159,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { postId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -2226,7 +2214,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     viewerVote?: string | undefined
                   }
                 | undefined
-              quotedPost?: any | undefined
+              quotedPost?: unknown | undefined
               replyTo?:
                 | {
                     postId?: string | undefined
@@ -2243,7 +2231,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | undefined
                   }
                 | undefined
-              repostOf?: any | undefined
+              repostOf?: unknown | undefined
               hashtags?: string[] | undefined
               mentions?:
                 | {
@@ -2272,11 +2260,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     description?: string | undefined
                     image?: string | undefined
                     siteName?: string | undefined
-                    type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                    type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                   }
                 | undefined
               visibility?: 'public' | 'followers' | 'mentioned' | undefined
-              replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+              replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
               metrics: {
                 likeCount: number
                 repostCount: number
@@ -2315,24 +2303,21 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
   } & {
     '/posts/:postId/bookmark': {
       $post:
+        | { input: { param: { postId: string } }; output: {}; outputFormat: string; status: 200 }
         | {
             input: { param: { postId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { postId: string } }; output: {}; outputFormat: string; status: 200 }
-    }
-  } & {
-    '/posts/:postId/bookmark': {
       $delete:
+        | { input: { param: { postId: string } }; output: {}; outputFormat: string; status: 200 }
         | {
             input: { param: { postId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { postId: string } }; output: {}; outputFormat: string; status: 200 }
     }
   } & {
     '/bookmarks': {
@@ -2380,7 +2365,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       viewerVote?: string | undefined
                     }
                   | undefined
-                quotedPost?: any | undefined
+                quotedPost?: unknown | undefined
                 replyTo?:
                   | {
                       postId?: string | undefined
@@ -2397,7 +2382,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         | undefined
                     }
                   | undefined
-                repostOf?: any | undefined
+                repostOf?: unknown | undefined
                 hashtags?: string[] | undefined
                 mentions?:
                   | {
@@ -2426,11 +2411,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       description?: string | undefined
                       image?: string | undefined
                       siteName?: string | undefined
-                      type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                      type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                     }
                   | undefined
                 visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                 metrics: {
                   likeCount: number
                   repostCount: number
@@ -2558,7 +2543,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   viewerVote?: string | undefined
                 }
               | undefined
-            quotedPost?: any | undefined
+            quotedPost?: unknown | undefined
             replyTo?:
               | {
                   postId?: string | undefined
@@ -2575,7 +2560,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     | undefined
                 }
               | undefined
-            repostOf?: any | undefined
+            repostOf?: unknown | undefined
             hashtags?: string[] | undefined
             mentions?:
               | {
@@ -2604,11 +2589,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   description?: string | undefined
                   image?: string | undefined
                   siteName?: string | undefined
-                  type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                  type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                 }
               | undefined
             visibility?: 'public' | 'followers' | 'mentioned' | undefined
-            replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+            replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
             metrics: {
               likeCount: number
               repostCount: number
@@ -2688,7 +2673,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   viewerVote?: string | undefined
                 }
               | undefined
-            quotedPost?: any | undefined
+            quotedPost?: unknown | undefined
             replyTo?:
               | {
                   postId?: string | undefined
@@ -2705,7 +2690,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     | undefined
                 }
               | undefined
-            repostOf?: any | undefined
+            repostOf?: unknown | undefined
             hashtags?: string[] | undefined
             mentions?:
               | {
@@ -2734,11 +2719,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   description?: string | undefined
                   image?: string | undefined
                   siteName?: string | undefined
-                  type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                  type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                 }
               | undefined
             visibility?: 'public' | 'followers' | 'mentioned' | undefined
-            replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+            replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
             metrics: {
               likeCount: number
               repostCount: number
@@ -2766,9 +2751,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/posts/:postId/replies': {
       $post:
         | {
             input: { param: { postId: string } } & {
@@ -2777,7 +2759,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 mediaIds?: string[] | undefined
                 poll?: { options: string[]; duration: number } | undefined
                 visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                 quotedPostId?: string | undefined
               }
             }
@@ -2821,7 +2803,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     viewerVote?: string | undefined
                   }
                 | undefined
-              quotedPost?: any | undefined
+              quotedPost?: unknown | undefined
               replyTo?:
                 | {
                     postId?: string | undefined
@@ -2838,7 +2820,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       | undefined
                   }
                 | undefined
-              repostOf?: any | undefined
+              repostOf?: unknown | undefined
               hashtags?: string[] | undefined
               mentions?:
                 | {
@@ -2867,11 +2849,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     description?: string | undefined
                     image?: string | undefined
                     siteName?: string | undefined
-                    type?: 'link' | 'video' | 'photo' | 'rich' | undefined
+                    type?: 'link' | 'photo' | 'video' | 'rich' | undefined
                   }
                 | undefined
               visibility?: 'public' | 'followers' | 'mentioned' | undefined
-              replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+              replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
               metrics: {
                 likeCount: number
                 repostCount: number
@@ -2905,7 +2887,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 mediaIds?: string[] | undefined
                 poll?: { options: string[]; duration: number } | undefined
                 visibility?: 'public' | 'followers' | 'mentioned' | undefined
-                replySettings?: 'followers' | 'mentioned' | 'everyone' | undefined
+                replySettings?: 'everyone' | 'followers' | 'mentioned' | undefined
                 quotedPostId?: string | undefined
               }
             }
@@ -2918,34 +2900,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
     '/media/upload': {
       $post:
         | {
-            input: {
-              form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                alt?: string | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 400
-          }
-        | {
-            input: {
-              form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                alt?: string | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                alt?: string | undefined
-              }
-            }
+            input: { form: { file: File; alt?: string | undefined } }
             output: {
               id: string
               type: 'image' | 'gif' | 'video'
@@ -2961,12 +2916,19 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             status: 201
           }
         | {
-            input: {
-              form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                alt?: string | undefined
-              }
-            }
+            input: { form: { file: File; alt?: string | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 400
+          }
+        | {
+            input: { form: { file: File; alt?: string | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { form: { file: File; alt?: string | undefined } }
             output: {}
             outputFormat: string
             status: 413
@@ -2977,12 +2939,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { param: { mediaId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 404
-          }
-        | {
-            input: { param: { mediaId: string } }
             output: {
               id: string
               type: 'image' | 'gif' | 'video'
@@ -2997,31 +2953,34 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/media/:mediaId': {
+        | {
+            input: { param: { mediaId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 404
+          }
       $patch:
+        | {
+            input: { param: { mediaId: string } } & { json: { alt?: string | undefined } }
+            output: {
+              id: string
+              type: 'image' | 'gif' | 'video'
+              url: string
+              previewUrl?: string | undefined
+              alt?: string | undefined
+              width?: number | undefined
+              height?: number | undefined
+              duration?: number | undefined
+              blurhash?: string | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
         | {
             input: { param: { mediaId: string } } & { json: { alt?: string | undefined } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
-          }
-        | {
-            input: { param: { mediaId: string } } & { json: { alt?: string | undefined } }
-            output: {
-              id: string
-              type: 'image' | 'gif' | 'video'
-              url: string
-              previewUrl?: string | undefined
-              alt?: string | undefined
-              width?: number | undefined
-              height?: number | undefined
-              duration?: number | undefined
-              blurhash?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 200
           }
     }
   },

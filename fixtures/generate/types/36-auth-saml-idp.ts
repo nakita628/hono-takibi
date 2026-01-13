@@ -181,36 +181,38 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
       $post:
         | {
             input: {
-              json: {
-                entityId: string
-                name: string
-                description?: string | undefined
-                metadataUrl?: string | undefined
-                assertionConsumerServices?:
-                  | {
-                      binding:
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
-                      location: string
-                      index?: number | undefined
-                      isDefault?: boolean | undefined
-                    }[]
-                  | undefined
-                singleLogoutServices?:
-                  | {
-                      binding:
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                      location: string
-                      responseLocation?: string | undefined
-                    }[]
-                  | undefined
-                nameIdFormat?: string | undefined
-                signAssertions?: boolean | undefined
-                encryptAssertions?: boolean | undefined
-                signingCertificate?: string | undefined
-                encryptionCertificate?: string | undefined
-              }
+              json:
+                | {
+                    entityId: string
+                    name: string
+                    description?: string | undefined
+                    metadataUrl?: string | undefined
+                    assertionConsumerServices?:
+                      | {
+                          binding:
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
+                          location: string
+                          index?: number | undefined
+                          isDefault?: boolean | undefined
+                        }[]
+                      | undefined
+                    singleLogoutServices?:
+                      | {
+                          binding:
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                          location: string
+                          responseLocation?: string | undefined
+                        }[]
+                      | undefined
+                    nameIdFormat?: string | undefined
+                    signAssertions?: boolean | undefined
+                    encryptAssertions?: boolean | undefined
+                    signingCertificate?: string | undefined
+                    encryptionCertificate?: string | undefined
+                  }
+                | string
             }
             output: {
               id: string
@@ -259,36 +261,38 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
           }
         | {
             input: {
-              json: {
-                entityId: string
-                name: string
-                description?: string | undefined
-                metadataUrl?: string | undefined
-                assertionConsumerServices?:
-                  | {
-                      binding:
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
-                      location: string
-                      index?: number | undefined
-                      isDefault?: boolean | undefined
-                    }[]
-                  | undefined
-                singleLogoutServices?:
-                  | {
-                      binding:
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                      location: string
-                      responseLocation?: string | undefined
-                    }[]
-                  | undefined
-                nameIdFormat?: string | undefined
-                signAssertions?: boolean | undefined
-                encryptAssertions?: boolean | undefined
-                signingCertificate?: string | undefined
-                encryptionCertificate?: string | undefined
-              }
+              json:
+                | {
+                    entityId: string
+                    name: string
+                    description?: string | undefined
+                    metadataUrl?: string | undefined
+                    assertionConsumerServices?:
+                      | {
+                          binding:
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
+                          location: string
+                          index?: number | undefined
+                          isDefault?: boolean | undefined
+                        }[]
+                      | undefined
+                    singleLogoutServices?:
+                      | {
+                          binding:
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                          location: string
+                          responseLocation?: string | undefined
+                        }[]
+                      | undefined
+                    nameIdFormat?: string | undefined
+                    signAssertions?: boolean | undefined
+                    encryptAssertions?: boolean | undefined
+                    signingCertificate?: string | undefined
+                    encryptionCertificate?: string | undefined
+                  }
+                | string
             }
             output: { code: string; message: string }
             outputFormat: 'json'
@@ -296,36 +300,38 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
           }
         | {
             input: {
-              json: {
-                entityId: string
-                name: string
-                description?: string | undefined
-                metadataUrl?: string | undefined
-                assertionConsumerServices?:
-                  | {
-                      binding:
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
-                      location: string
-                      index?: number | undefined
-                      isDefault?: boolean | undefined
-                    }[]
-                  | undefined
-                singleLogoutServices?:
-                  | {
-                      binding:
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                      location: string
-                      responseLocation?: string | undefined
-                    }[]
-                  | undefined
-                nameIdFormat?: string | undefined
-                signAssertions?: boolean | undefined
-                encryptAssertions?: boolean | undefined
-                signingCertificate?: string | undefined
-                encryptionCertificate?: string | undefined
-              }
+              json:
+                | {
+                    entityId: string
+                    name: string
+                    description?: string | undefined
+                    metadataUrl?: string | undefined
+                    assertionConsumerServices?:
+                      | {
+                          binding:
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
+                          location: string
+                          index?: number | undefined
+                          isDefault?: boolean | undefined
+                        }[]
+                      | undefined
+                    singleLogoutServices?:
+                      | {
+                          binding:
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                          location: string
+                          responseLocation?: string | undefined
+                        }[]
+                      | undefined
+                    nameIdFormat?: string | undefined
+                    signAssertions?: boolean | undefined
+                    encryptAssertions?: boolean | undefined
+                    signingCertificate?: string | undefined
+                    encryptionCertificate?: string | undefined
+                  }
+                | string
             }
             output: { code: string; message: string }
             outputFormat: 'json'
@@ -533,7 +539,9 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
           }
       $put:
         | {
-            input: { param: { spId: string } } & { form: { file?: File | undefined } }
+            input: { param: { spId: string } } & { json: string } & {
+              form: { file?: File | undefined }
+            }
             output: {
               id: string
               entityId: string
@@ -580,13 +588,17 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
             status: 200
           }
         | {
-            input: { param: { spId: string } } & { form: { file?: File | undefined } }
+            input: { param: { spId: string } } & { json: string } & {
+              form: { file?: File | undefined }
+            }
             output: {}
             outputFormat: string
             status: 400
           }
         | {
-            input: { param: { spId: string } } & { form: { file?: File | undefined } }
+            input: { param: { spId: string } } & { json: string } & {
+              form: { file?: File | undefined }
+            }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401

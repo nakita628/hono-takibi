@@ -316,7 +316,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 tokenUrl?: string | undefined
                 userInfoUrl?: string | undefined
                 scopes?: string[] | undefined
-                attributeMapping?: {} | undefined
+                attributeMapping?: { [x: string]: unknown } | undefined
                 allowedDomains?: string[] | undefined
                 autoCreateUser?: boolean | undefined
                 autoLinkUser?: boolean | undefined
@@ -364,7 +364,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 tokenUrl?: string | undefined
                 userInfoUrl?: string | undefined
                 scopes?: string[] | undefined
-                attributeMapping?: {} | undefined
+                attributeMapping?: { [x: string]: unknown } | undefined
                 allowedDomains?: string[] | undefined
                 autoCreateUser?: boolean | undefined
                 autoLinkUser?: boolean | undefined
@@ -387,7 +387,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 tokenUrl?: string | undefined
                 userInfoUrl?: string | undefined
                 scopes?: string[] | undefined
-                attributeMapping?: {} | undefined
+                attributeMapping?: { [x: string]: unknown } | undefined
                 allowedDomains?: string[] | undefined
                 autoCreateUser?: boolean | undefined
                 autoLinkUser?: boolean | undefined
@@ -458,7 +458,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 tokenUrl?: string | undefined
                 userInfoUrl?: string | undefined
                 scopes?: string[] | undefined
-                attributeMapping?: {} | undefined
+                attributeMapping?: { [x: string]: unknown } | undefined
                 allowedDomains?: string[] | undefined
                 autoCreateUser?: boolean | undefined
                 autoLinkUser?: boolean | undefined
@@ -504,7 +504,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 tokenUrl?: string | undefined
                 userInfoUrl?: string | undefined
                 scopes?: string[] | undefined
-                attributeMapping?: {} | undefined
+                attributeMapping?: { [x: string]: unknown } | undefined
                 allowedDomains?: string[] | undefined
                 autoCreateUser?: boolean | undefined
                 autoLinkUser?: boolean | undefined
@@ -536,7 +536,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
             output: {
               success?: boolean | undefined
               message?: string | undefined
-              details?: {} | undefined
+              details?: { [x: string]: unknown } | undefined
             }
             outputFormat: 'json'
             status: 200
@@ -768,7 +768,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                     userInfoEndpoint?: string | undefined
                     jwksUri?: string | undefined
                     scopes?: string[] | undefined
-                    attributeMapping?: {} | undefined
+                    attributeMapping?: { [x: string]: unknown } | undefined
                   }
                 | undefined
               userProvisioning?:
@@ -827,10 +827,10 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                       userInfoEndpoint?: string | undefined
                       jwksUri?: string | undefined
                       scopes?: string[] | undefined
-                      attributeMapping?: {} | undefined
+                      attributeMapping?: { [x: string]: unknown } | undefined
                     }
                   | undefined
-                userProvisioning?: {} | undefined
+                userProvisioning?: { [x: string]: unknown } | undefined
               }
             }
             output: {
@@ -869,7 +869,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                     userInfoEndpoint?: string | undefined
                     jwksUri?: string | undefined
                     scopes?: string[] | undefined
-                    attributeMapping?: {} | undefined
+                    attributeMapping?: { [x: string]: unknown } | undefined
                   }
                 | undefined
               userProvisioning?:
@@ -921,10 +921,10 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                       userInfoEndpoint?: string | undefined
                       jwksUri?: string | undefined
                       scopes?: string[] | undefined
-                      attributeMapping?: {} | undefined
+                      attributeMapping?: { [x: string]: unknown } | undefined
                     }
                   | undefined
-                userProvisioning?: {} | undefined
+                userProvisioning?: { [x: string]: unknown } | undefined
               }
             }
             output: { code: string; message: string }
@@ -967,10 +967,10 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                       userInfoEndpoint?: string | undefined
                       jwksUri?: string | undefined
                       scopes?: string[] | undefined
-                      attributeMapping?: {} | undefined
+                      attributeMapping?: { [x: string]: unknown } | undefined
                     }
                   | undefined
-                userProvisioning?: {} | undefined
+                userProvisioning?: { [x: string]: unknown } | undefined
               }
             }
             output: { code: string; message: string }
@@ -1019,7 +1019,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                     userInfoEndpoint?: string | undefined
                     jwksUri?: string | undefined
                     scopes?: string[] | undefined
-                    attributeMapping?: {} | undefined
+                    attributeMapping?: { [x: string]: unknown } | undefined
                   }
                 | undefined
               userProvisioning?:
@@ -1084,10 +1084,10 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                       userInfoEndpoint?: string | undefined
                       jwksUri?: string | undefined
                       scopes?: string[] | undefined
-                      attributeMapping?: {} | undefined
+                      attributeMapping?: { [x: string]: unknown } | undefined
                     }
                   | undefined
-                userProvisioning?: {} | undefined
+                userProvisioning?: { [x: string]: unknown } | undefined
               }
             }
             output: {
@@ -1126,7 +1126,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                     userInfoEndpoint?: string | undefined
                     jwksUri?: string | undefined
                     scopes?: string[] | undefined
-                    attributeMapping?: {} | undefined
+                    attributeMapping?: { [x: string]: unknown } | undefined
                   }
                 | undefined
               userProvisioning?:
@@ -1178,10 +1178,10 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                       userInfoEndpoint?: string | undefined
                       jwksUri?: string | undefined
                       scopes?: string[] | undefined
-                      attributeMapping?: {} | undefined
+                      attributeMapping?: { [x: string]: unknown } | undefined
                     }
                   | undefined
-                userProvisioning?: {} | undefined
+                userProvisioning?: { [x: string]: unknown } | undefined
               }
             }
             output: { code: string; message: string }
@@ -1238,7 +1238,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                     userInfoEndpoint?: string | undefined
                     jwksUri?: string | undefined
                     scopes?: string[] | undefined
-                    attributeMapping?: {} | undefined
+                    attributeMapping?: { [x: string]: unknown } | undefined
                   }
                 | undefined
               userProvisioning?:

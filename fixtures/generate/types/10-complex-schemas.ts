@@ -5,36 +5,30 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
       $post: {
         input: {
           json:
-            | ({
+            | {
                 id: string
-                eventType: string
+                eventType: 'user.created' | 'user.updated' | 'user.deleted'
                 timestamp: string
                 metadata?: { [x: string]: unknown } | undefined
-              } & {
-                eventType?: 'user.created' | 'user.updated' | 'user.deleted' | undefined
                 userId: string
                 userData?: { email?: string | undefined; name?: string | undefined } | undefined
-              })
-            | ({
+              }
+            | {
                 id: string
-                eventType: string
+                eventType: 'order.placed' | 'order.shipped' | 'order.delivered'
                 timestamp: string
                 metadata?: { [x: string]: unknown } | undefined
-              } & {
-                eventType?: 'order.placed' | 'order.shipped' | 'order.delivered' | undefined
                 orderId: string
                 orderData?: { total?: number | undefined; items?: number | undefined } | undefined
-              })
-            | ({
+              }
+            | {
                 id: string
-                eventType: string
+                eventType: 'system.startup' | 'system.shutdown'
                 timestamp: string
                 metadata?: { [x: string]: unknown } | undefined
-              } & {
-                eventType?: 'system.startup' | 'system.shutdown' | undefined
                 component: string
                 details?: string | undefined
-              })
+              }
         }
         output: {}
         outputFormat: string
@@ -104,13 +98,17 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
     '/documents': {
       $post: {
         input: {
-          json: { id: string; title: string; description?: string | undefined } & {
+          json: {
+            id: string
+            title: string
+            description?: string | undefined
             createdAt?: string | undefined
             createdBy?: string | undefined
             updatedAt?: string | undefined
             updatedBy?: string | undefined
             version?: number | undefined
-          } & { tags?: string[] | undefined; categories?: string[] | undefined } & {
+            tags?: string[] | undefined
+            categories?: string[] | undefined
             content?: string | undefined
             format?: 'markdown' | 'html' | 'plain' | undefined
           }
@@ -126,8 +124,8 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
         input: {
           json: {
             value: string | number | boolean | unknown[] | { [x: string]: unknown }
-            notNull?: {} | undefined
-            restrictedValue?: (string & {}) | undefined
+            notNull?: { [x: string]: unknown } | undefined
+            restrictedValue?: {} | undefined
           }
         }
         output: {}

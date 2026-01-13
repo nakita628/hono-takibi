@@ -546,7 +546,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 status: 'pending' | 'in_review' | 'resolved'
                 assignedTo?: string | undefined
                 priority?: 'low' | 'medium' | 'high' | 'urgent' | undefined
-                content?: {} | undefined
+                content?: { [x: string]: unknown } | undefined
                 userHistory?:
                   | { previousViolations?: number | undefined; accountAge?: string | undefined }
                   | undefined
@@ -626,7 +626,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
               status: 'pending' | 'in_review' | 'resolved'
               assignedTo?: string | undefined
               priority?: 'low' | 'medium' | 'high' | 'urgent' | undefined
-              content?: {} | undefined
+              content?: { [x: string]: unknown } | undefined
               userHistory?:
                 | { previousViolations?: number | undefined; accountAge?: string | undefined }
                 | undefined
@@ -690,7 +690,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
               status: 'pending' | 'in_review' | 'resolved'
               assignedTo?: string | undefined
               priority?: 'low' | 'medium' | 'high' | 'urgent' | undefined
-              content?: {} | undefined
+              content?: { [x: string]: unknown } | undefined
               userHistory?:
                 | { previousViolations?: number | undefined; accountAge?: string | undefined }
                 | undefined

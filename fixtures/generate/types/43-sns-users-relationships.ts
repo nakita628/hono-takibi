@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/users/:userId': {
       $get:
@@ -9,7 +9,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               id: string
               username: string
               displayName: string
-              createdAt: string
               bio?: string | undefined
               location?: string | undefined
               website?: string | undefined
@@ -41,6 +40,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     followRequestReceived?: boolean | undefined
                   }
                 | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
@@ -61,7 +61,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               id: string
               username: string
               displayName: string
-              createdAt: string
               bio?: string | undefined
               location?: string | undefined
               website?: string | undefined
@@ -93,6 +92,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     followRequestReceived?: boolean | undefined
                   }
                 | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
@@ -113,7 +113,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             id: string
             username: string
             displayName: string
-            createdAt: string
             bio?: string | undefined
             location?: string | undefined
             website?: string | undefined
@@ -145,6 +144,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   followRequestReceived?: boolean | undefined
                 }
               | undefined
+            createdAt: string
           }[]
           nextCursor?: string | undefined
         }
@@ -160,7 +160,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
           id: string
           username: string
           displayName: string
-          createdAt: string
           bio?: string | undefined
           location?: string | undefined
           website?: string | undefined
@@ -192,6 +191,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 followRequestReceived?: boolean | undefined
               }
             | undefined
+          createdAt: string
         }[]
         outputFormat: 'json'
         status: 200
@@ -206,7 +206,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               id: string
               username: string
               displayName: string
-              createdAt: string
               bio?: string | undefined
               location?: string | undefined
               website?: string | undefined
@@ -238,6 +237,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     followRequestReceived?: boolean | undefined
                   }
                 | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
@@ -248,9 +248,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 401
           }
-    }
-  } & {
-    '/me': {
       $patch:
         | {
             input: {
@@ -268,7 +265,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               id: string
               username: string
               displayName: string
-              createdAt: string
               bio?: string | undefined
               location?: string | undefined
               website?: string | undefined
@@ -300,25 +296,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     followRequestReceived?: boolean | undefined
                   }
                 | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
-          }
-        | {
-            input: {
-              json: {
-                displayName?: string | undefined
-                bio?: string | undefined
-                location?: string | undefined
-                website?: string | undefined
-                birthDate?: string | undefined
-                isProtected?: boolean | undefined
-                pinnedPostId?: string | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
           }
         | {
             input: {
@@ -336,88 +317,76 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 400
           }
-    }
-  } & {
-    '/me/avatar': {
-      $post:
         | {
             input: {
-              form: {
-                image: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
+              json: {
+                displayName?: string | undefined
+                bio?: string | undefined
+                location?: string | undefined
+                website?: string | undefined
+                birthDate?: string | undefined
+                isProtected?: boolean | undefined
+                pinnedPostId?: string | undefined
               }
             }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/me/avatar': {
+      $post:
         | {
-            input: {
-              form: {
-                image: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-              }
-            }
+            input: { form: { image: File } }
             output: { avatarUrl?: string | undefined }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/me/avatar': {
+        | {
+            input: { form: { image: File } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
+        | { input: {}; output: {}; outputFormat: string; status: 204 }
         | {
             input: {}
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/me/banner': {
       $post:
         | {
-            input: {
-              form: {
-                image: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              form: {
-                image: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-              }
-            }
+            input: { form: { image: File } }
             output: { bannerUrl?: string | undefined }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/me/banner': {
+        | {
+            input: { form: { image: File } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
+        | { input: {}; output: {}; outputFormat: string; status: 204 }
         | {
             input: {}
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/users/:userId/follow': {
       $post:
         | {
             input: { param: { userId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { userId: string } }
             output: {
               userId: string
               following?: boolean | undefined
@@ -432,18 +401,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/users/:userId/follow': {
+        | {
+            input: { param: { userId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
         | {
             input: { param: { userId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { userId: string } }
             output: {
               userId: string
               following?: boolean | undefined
@@ -457,6 +423,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { userId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -466,20 +438,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { userId: string } } & {
               query: { cursor?: string | undefined; limit?: number | undefined }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 404
-          }
-        | {
-            input: { param: { userId: string } } & {
-              query: { cursor?: string | undefined; limit?: number | undefined }
-            }
             output: {
               data: {
                 id: string
                 username: string
                 displayName: string
-                createdAt: string
                 bio?: string | undefined
                 location?: string | undefined
                 website?: string | undefined
@@ -511,11 +474,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       followRequestReceived?: boolean | undefined
                     }
                   | undefined
+                createdAt: string
               }[]
               nextCursor?: string | undefined
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { userId: string } } & {
+              query: { cursor?: string | undefined; limit?: number | undefined }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 404
           }
     }
   } & {
@@ -525,20 +497,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { userId: string } } & {
               query: { cursor?: string | undefined; limit?: number | undefined }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 404
-          }
-        | {
-            input: { param: { userId: string } } & {
-              query: { cursor?: string | undefined; limit?: number | undefined }
-            }
             output: {
               data: {
                 id: string
                 username: string
                 displayName: string
-                createdAt: string
                 bio?: string | undefined
                 location?: string | undefined
                 website?: string | undefined
@@ -570,33 +533,36 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       followRequestReceived?: boolean | undefined
                     }
                   | undefined
+                createdAt: string
               }[]
               nextCursor?: string | undefined
             }
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: { param: { userId: string } } & {
+              query: { cursor?: string | undefined; limit?: number | undefined }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 404
+          }
     }
   } & {
     '/users/:userId/followers/remove': {
       $post:
+        | { input: { param: { userId: string } }; output: {}; outputFormat: string; status: 200 }
         | {
             input: { param: { userId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { userId: string } }; output: {}; outputFormat: string; status: 200 }
     }
   } & {
     '/relationships': {
       $get:
-        | {
-            input: { query: { userIds: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: { query: { userIds: string } }
             output: {
@@ -613,6 +579,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: { query: { userIds: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/follow-requests': {
@@ -624,7 +596,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 id: string
                 username: string
                 displayName: string
-                createdAt: string
                 bio?: string | undefined
                 location?: string | undefined
                 website?: string | undefined
@@ -656,6 +627,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       followRequestReceived?: boolean | undefined
                     }
                   | undefined
+                createdAt: string
               }[]
               nextCursor?: string | undefined
             }
@@ -672,36 +644,30 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
   } & {
     '/follow-requests/:userId/accept': {
       $post:
+        | { input: { param: { userId: string } }; output: {}; outputFormat: string; status: 200 }
         | {
             input: { param: { userId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { userId: string } }; output: {}; outputFormat: string; status: 200 }
     }
   } & {
     '/follow-requests/:userId/reject': {
       $post:
-        | {
-            input: { param: { userId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | { input: { param: { userId: string } }; output: {}; outputFormat: string; status: 200 }
+        | {
+            input: { param: { userId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/users/:userId/block': {
       $post:
         | {
             input: { param: { userId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { userId: string } }
             output: {
               userId: string
               following?: boolean | undefined
@@ -716,18 +682,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/users/:userId/block': {
+        | {
+            input: { param: { userId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
         | {
             input: { param: { userId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { userId: string } }
             output: {
               userId: string
               following?: boolean | undefined
@@ -741,6 +704,12 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { userId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -750,14 +719,31 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { userId: string } } & {
               json: { duration?: number | undefined; notifications?: boolean | undefined }
             }
-            output: { code: string; message: string }
+            output: {
+              userId: string
+              following?: boolean | undefined
+              followedBy?: boolean | undefined
+              blocking?: boolean | undefined
+              blockedBy?: boolean | undefined
+              muting?: boolean | undefined
+              mutingNotifications?: boolean | undefined
+              followRequestSent?: boolean | undefined
+              followRequestReceived?: boolean | undefined
+            }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: { param: { userId: string } } & {
               json: { duration?: number | undefined; notifications?: boolean | undefined }
             }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+      $delete:
+        | {
+            input: { param: { userId: string } }
             output: {
               userId: string
               following?: boolean | undefined
@@ -772,31 +758,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/users/:userId/mute': {
-      $delete:
         | {
             input: { param: { userId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
-          }
-        | {
-            input: { param: { userId: string } }
-            output: {
-              userId: string
-              following?: boolean | undefined
-              followedBy?: boolean | undefined
-              blocking?: boolean | undefined
-              blockedBy?: boolean | undefined
-              muting?: boolean | undefined
-              mutingNotifications?: boolean | undefined
-              followRequestSent?: boolean | undefined
-              followRequestReceived?: boolean | undefined
-            }
-            outputFormat: 'json'
-            status: 200
           }
     }
   } & {
@@ -809,7 +775,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 id: string
                 username: string
                 displayName: string
-                createdAt: string
                 bio?: string | undefined
                 location?: string | undefined
                 website?: string | undefined
@@ -841,6 +806,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       followRequestReceived?: boolean | undefined
                     }
                   | undefined
+                createdAt: string
               }[]
               nextCursor?: string | undefined
             }
@@ -864,7 +830,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 id: string
                 username: string
                 displayName: string
-                createdAt: string
                 bio?: string | undefined
                 location?: string | undefined
                 website?: string | undefined
@@ -896,6 +861,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                       followRequestReceived?: boolean | undefined
                     }
                   | undefined
+                createdAt: string
               }[]
               nextCursor?: string | undefined
             }
@@ -914,15 +880,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               id: string
               name: string
+              description?: string | undefined
+              isPrivate?: boolean | undefined
               owner: {
                 id: string
                 username: string
@@ -932,19 +894,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 isProtected?: boolean | undefined
               }
               memberCount: number
-              createdAt: string
-              description?: string | undefined
-              isPrivate?: boolean | undefined
               followerCount?: number | undefined
               isFollowing?: boolean | undefined
               isMember?: boolean | undefined
+              createdAt: string
             }[]
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/lists': {
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $post:
         | {
             input: {
@@ -954,9 +917,27 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 isPrivate?: boolean | undefined
               }
             }
-            output: { code: string; message: string }
+            output: {
+              id: string
+              name: string
+              description?: string | undefined
+              isPrivate?: boolean | undefined
+              owner: {
+                id: string
+                username: string
+                displayName: string
+                avatarUrl?: string | undefined
+                isVerified?: boolean | undefined
+                isProtected?: boolean | undefined
+              }
+              memberCount: number
+              followerCount?: number | undefined
+              isFollowing?: boolean | undefined
+              isMember?: boolean | undefined
+              createdAt: string
+            }
             outputFormat: 'json'
-            status: 401
+            status: 201
           }
         | {
             input: {
@@ -966,27 +947,9 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 isPrivate?: boolean | undefined
               }
             }
-            output: {
-              id: string
-              name: string
-              owner: {
-                id: string
-                username: string
-                displayName: string
-                avatarUrl?: string | undefined
-                isVerified?: boolean | undefined
-                isProtected?: boolean | undefined
-              }
-              memberCount: number
-              createdAt: string
-              description?: string | undefined
-              isPrivate?: boolean | undefined
-              followerCount?: number | undefined
-              isFollowing?: boolean | undefined
-              isMember?: boolean | undefined
-            }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 201
+            status: 401
           }
     }
   } & {
@@ -994,15 +957,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $get:
         | {
             input: { param: { listId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 404
-          }
-        | {
-            input: { param: { listId: string } }
             output: {
               id: string
               name: string
+              description?: string | undefined
+              isPrivate?: boolean | undefined
               owner: {
                 id: string
                 username: string
@@ -1012,19 +971,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 isProtected?: boolean | undefined
               }
               memberCount: number
-              createdAt: string
-              description?: string | undefined
-              isPrivate?: boolean | undefined
               followerCount?: number | undefined
               isFollowing?: boolean | undefined
               isMember?: boolean | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/lists/:listId': {
+        | {
+            input: { param: { listId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 404
+          }
       $put:
         | {
             input: { param: { listId: string } } & {
@@ -1034,21 +994,11 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 isPrivate?: boolean | undefined
               }
             }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { listId: string } } & {
-              json: {
-                name?: string | undefined
-                description?: string | undefined
-                isPrivate?: boolean | undefined
-              }
-            }
             output: {
               id: string
               name: string
+              description?: string | undefined
+              isPrivate?: boolean | undefined
               owner: {
                 id: string
                 username: string
@@ -1058,27 +1008,34 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 isProtected?: boolean | undefined
               }
               memberCount: number
-              createdAt: string
-              description?: string | undefined
-              isPrivate?: boolean | undefined
               followerCount?: number | undefined
               isFollowing?: boolean | undefined
               isMember?: boolean | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/lists/:listId': {
+        | {
+            input: { param: { listId: string } } & {
+              json: {
+                name?: string | undefined
+                description?: string | undefined
+                isPrivate?: boolean | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
+        | { input: { param: { listId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { listId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { listId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/lists/:listId/members': {
@@ -1091,7 +1048,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             id: string
             username: string
             displayName: string
-            createdAt: string
             bio?: string | undefined
             location?: string | undefined
             website?: string | undefined
@@ -1123,27 +1079,25 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   followRequestReceived?: boolean | undefined
                 }
               | undefined
+            createdAt: string
           }[]
           nextCursor?: string | undefined
         }
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/lists/:listId/members': {
       $post:
-        | {
-            input: { param: { listId: string } } & { json: { userId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: { param: { listId: string } } & { json: { userId: string } }
             output: {}
             outputFormat: string
             status: 200
+          }
+        | {
+            input: { param: { listId: string } } & { json: { userId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -1151,15 +1105,15 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $delete:
         | {
             input: { param: { listId: string; userId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { listId: string; userId: string } }
             output: {}
             outputFormat: string
             status: 204
+          }
+        | {
+            input: { param: { listId: string; userId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -1169,17 +1123,17 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             input: { param: { listId: string } } & {
               query: { cursor?: string | undefined; limit?: number | undefined }
             }
-            output: { code: string; message: string }
+            output: { data: { id?: string | undefined }[]; nextCursor?: string | undefined }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: { param: { listId: string } } & {
               query: { cursor?: string | undefined; limit?: number | undefined }
             }
-            output: { data: { id?: string | undefined }[]; nextCursor?: string | undefined }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 200
+            status: 401
           }
     }
   } & {
@@ -1191,6 +1145,8 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         output: {
           id: string
           name: string
+          description?: string | undefined
+          isPrivate?: boolean | undefined
           owner: {
             id: string
             username: string
@@ -1200,12 +1156,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
             isProtected?: boolean | undefined
           }
           memberCount: number
-          createdAt: string
-          description?: string | undefined
-          isPrivate?: boolean | undefined
           followerCount?: number | undefined
           isFollowing?: boolean | undefined
           isMember?: boolean | undefined
+          createdAt: string
         }[]
         outputFormat: 'json'
         status: 200

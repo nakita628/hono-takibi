@@ -148,7 +148,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 | 'not_allowed'
                 | 'unknown_error'
               message: string
-              details?: Record<string, unknown> | undefined
+              details?: { [x: string]: unknown } | undefined
             }
             outputFormat: 'json'
             status: 400
@@ -204,7 +204,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
               }[]
             | undefined
           userVerification?: 'discouraged' | 'preferred' | 'required' | undefined
-          extensions?: Record<string, unknown> | undefined
+          extensions?: { [x: string]: unknown } | undefined
         }
         outputFormat: 'json'
         status: 200
@@ -225,7 +225,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                   userHandle?: string | undefined
                 }
                 type: 'public-key'
-                clientExtensionResults?: Record<string, unknown> | undefined
+                clientExtensionResults?: { [x: string]: unknown } | undefined
                 authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
               }
             }
@@ -257,7 +257,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                   userHandle?: string | undefined
                 }
                 type: 'public-key'
-                clientExtensionResults?: Record<string, unknown> | undefined
+                clientExtensionResults?: { [x: string]: unknown } | undefined
                 authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
               }
             }
@@ -277,7 +277,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 | 'not_allowed'
                 | 'unknown_error'
               message: string
-              details?: Record<string, unknown> | undefined
+              details?: { [x: string]: unknown } | undefined
             }
             outputFormat: 'json'
             status: 400
@@ -294,7 +294,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                   userHandle?: string | undefined
                 }
                 type: 'public-key'
-                clientExtensionResults?: Record<string, unknown> | undefined
+                clientExtensionResults?: { [x: string]: unknown } | undefined
                 authenticatorAttachment?: 'platform' | 'cross-platform' | undefined
               }
             }
@@ -314,7 +314,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 | 'not_allowed'
                 | 'unknown_error'
               message: string
-              details?: Record<string, unknown> | undefined
+              details?: { [x: string]: unknown } | undefined
             }
             outputFormat: 'json'
             status: 401

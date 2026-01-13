@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/users': {
       $get: {
@@ -77,9 +77,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/users': {
       $post: {
         input: {
           json: {
@@ -90,11 +87,10 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   lastName?: string | undefined
                   avatar?: string | undefined
                   bio?: string | undefined
-                  social?: Record<string, string> | undefined
+                  social?: { [x: string]: string } | undefined
                 }
               | undefined
             password?: string | undefined
-          } & {
             invitationCode?: string | undefined
             preferences?:
               | {
@@ -388,20 +384,6 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         output: {
           order: {
             id: string
-            items: {
-              product: {
-                id: string
-                sku: string
-                name: string
-                attributes?: { [x: string]: string } | undefined
-                price?:
-                  | { amount: number; currency: string; formatted?: string | undefined }
-                  | undefined
-              }
-              quantity: number
-              price: { amount: number; currency: string; formatted?: string | undefined }
-            }[]
-            total: { amount: number; currency: string; formatted?: string | undefined }
             customer?:
               | {
                   id: string
@@ -451,6 +433,20 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                     | undefined
                 }
               | undefined
+            items: {
+              product: {
+                id: string
+                sku: string
+                name: string
+                attributes?: { [x: string]: string } | undefined
+                price?:
+                  | { amount: number; currency: string; formatted?: string | undefined }
+                  | undefined
+              }
+              quantity: number
+              price: { amount: number; currency: string; formatted?: string | undefined }
+            }[]
+            total: { amount: number; currency: string; formatted?: string | undefined }
             status?: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled' | undefined
             shippingAddress?:
               | {
@@ -522,7 +518,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                 formatted?: string | undefined
                 discounts?:
                   | {
-                      type: 'fixed' | 'percentage'
+                      type: 'percentage' | 'fixed'
                       value: number
                       code?: string | undefined
                       validUntil?: string | undefined
@@ -566,7 +562,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
       $post: {
         input: {
           json: {
-            reportType: 'custom' | 'sales' | 'inventory' | 'users'
+            reportType: 'sales' | 'inventory' | 'users' | 'custom'
             parameters:
               | {
                   dateRange: { from?: string | undefined; to?: string | undefined }
@@ -587,24 +583,24 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   query?: string | undefined
                   fields?: string[] | undefined
                   filters?:
-                    | Record<
-                        string,
-                        | string
-                        | number
-                        | {
-                            operator?:
-                              | 'in'
-                              | 'eq'
-                              | 'ne'
-                              | 'gt'
-                              | 'gte'
-                              | 'lt'
-                              | 'lte'
-                              | 'contains'
-                              | undefined
-                            value?: string | number | string[] | undefined
-                          }
-                      >
+                    | {
+                        [x: string]:
+                          | string
+                          | number
+                          | {
+                              operator?:
+                                | 'eq'
+                                | 'ne'
+                                | 'gt'
+                                | 'gte'
+                                | 'lt'
+                                | 'lte'
+                                | 'in'
+                                | 'contains'
+                                | undefined
+                              value?: string | number | string[] | undefined
+                            }
+                      }
                     | undefined
                 }
             format?:
@@ -615,7 +611,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               | undefined
             delivery?:
               | {
-                  method?: 'email' | 'download' | 'webhook' | undefined
+                  method?: 'download' | 'email' | 'webhook' | undefined
                   email?:
                     | {
                         recipients: string[]
@@ -626,7 +622,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   webhook?:
                     | {
                         url: string
-                        headers?: Record<string, string> | undefined
+                        headers?: { [x: string]: string } | undefined
                         retryPolicy?:
                           | {
                               maxRetries?: number | undefined
@@ -658,6 +654,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
         input: {
           json: {
             endpoint: string
+            headers?: { [x: string]: string } | undefined
             payload: {
               event?: { type: string; timestamp: string; version?: string | undefined } | undefined
               data?:
@@ -670,7 +667,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                           lastName?: string | undefined
                           avatar?: string | undefined
                           bio?: string | undefined
-                          social?: Record<string, string> | undefined
+                          social?: { [x: string]: string } | undefined
                         }
                       | undefined
                     settings?:
@@ -680,7 +677,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                 email?: boolean | undefined
                                 push?: boolean | undefined
                                 sms?: boolean | undefined
-                                channels?: Record<string, boolean> | undefined
+                                channels?: { [x: string]: boolean } | undefined
                               }
                             | undefined
                           privacy?:
@@ -710,6 +707,101 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   }
                 | {
                     id: string
+                    customer?:
+                      | {
+                          id: string
+                          email: string
+                          profile?:
+                            | {
+                                firstName?: string | undefined
+                                lastName?: string | undefined
+                                avatar?: string | undefined
+                                bio?: string | undefined
+                                social?: { [x: string]: string } | undefined
+                              }
+                            | undefined
+                          settings?:
+                            | {
+                                notifications?:
+                                  | {
+                                      email?: boolean | undefined
+                                      push?: boolean | undefined
+                                      sms?: boolean | undefined
+                                      channels?: { [x: string]: boolean } | undefined
+                                    }
+                                  | undefined
+                                privacy?:
+                                  | {
+                                      profileVisibility?:
+                                        | 'public'
+                                        | 'private'
+                                        | 'connections'
+                                        | undefined
+                                      showEmail?: boolean | undefined
+                                      showActivity?: boolean | undefined
+                                    }
+                                  | undefined
+                                preferences?:
+                                  | {
+                                      language?: string | undefined
+                                      timezone?: string | undefined
+                                      theme?: 'light' | 'dark' | 'system' | undefined
+                                      dateFormat?: string | undefined
+                                    }
+                                  | undefined
+                              }
+                            | undefined
+                          metadata?:
+                            | {
+                                createdAt?: string | undefined
+                                updatedAt?: string | undefined
+                                version?: number | undefined
+                              }
+                            | undefined
+                        }
+                      | undefined
+                    items: {
+                      product: {
+                        id: string
+                        sku: string
+                        name: string
+                        attributes?: { [x: string]: string } | undefined
+                        price?:
+                          | { amount: number; currency: string; formatted?: string | undefined }
+                          | undefined
+                      }
+                      quantity: number
+                      price: { amount: number; currency: string; formatted?: string | undefined }
+                    }[]
+                    total: { amount: number; currency: string; formatted?: string | undefined }
+                    status?:
+                      | 'pending'
+                      | 'confirmed'
+                      | 'shipped'
+                      | 'delivered'
+                      | 'cancelled'
+                      | undefined
+                    shippingAddress?:
+                      | {
+                          street?: string | undefined
+                          city?: string | undefined
+                          state?: string | undefined
+                          postalCode?: string | undefined
+                          country?: string | undefined
+                        }
+                      | undefined
+                    billingAddress?:
+                      | {
+                          street?: string | undefined
+                          city?: string | undefined
+                          state?: string | undefined
+                          postalCode?: string | undefined
+                          country?: string | undefined
+                        }
+                      | undefined
+                  }
+                | {
+                    id: string
                     name: string
                     description?: string | undefined
                     address?:
@@ -732,7 +824,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                   lastName?: string | undefined
                                   avatar?: string | undefined
                                   bio?: string | undefined
-                                  social?: Record<string, string> | undefined
+                                  social?: { [x: string]: string } | undefined
                                 }
                               | undefined
                             settings?:
@@ -742,7 +834,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                                         email?: boolean | undefined
                                         push?: boolean | undefined
                                         sms?: boolean | undefined
-                                        channels?: Record<string, boolean> | undefined
+                                        channels?: { [x: string]: boolean } | undefined
                                       }
                                     | undefined
                                   privacy?:
@@ -779,128 +871,34 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         }[]
                       | undefined
                   }
-                | Record<
-                    string,
-                    | string
-                    | number
-                    | boolean
-                    | {
-                        id?: string | undefined
-                        type?: string | undefined
-                        attributes?: { [x: string]: unknown } | undefined
-                      }[]
-                  >
                 | {
-                    id: string
-                    items: {
-                      product: {
-                        id: string
-                        sku: string
-                        name: string
-                        attributes?: Record<string, string> | undefined
-                        price?:
-                          | { amount: number; currency: string; formatted?: string | undefined }
-                          | undefined
-                      }
-                      quantity: number
-                      price: { amount: number; currency: string; formatted?: string | undefined }
-                    }[]
-                    total: { amount: number; currency: string; formatted?: string | undefined }
-                    customer?:
+                    [x: string]:
+                      | string
+                      | number
+                      | boolean
                       | {
-                          id: string
-                          email: string
-                          profile?:
-                            | {
-                                firstName?: string | undefined
-                                lastName?: string | undefined
-                                avatar?: string | undefined
-                                bio?: string | undefined
-                                social?: Record<string, string> | undefined
-                              }
-                            | undefined
-                          settings?:
-                            | {
-                                notifications?:
-                                  | {
-                                      email?: boolean | undefined
-                                      push?: boolean | undefined
-                                      sms?: boolean | undefined
-                                      channels?: Record<string, boolean> | undefined
-                                    }
-                                  | undefined
-                                privacy?:
-                                  | {
-                                      profileVisibility?:
-                                        | 'public'
-                                        | 'private'
-                                        | 'connections'
-                                        | undefined
-                                      showEmail?: boolean | undefined
-                                      showActivity?: boolean | undefined
-                                    }
-                                  | undefined
-                                preferences?:
-                                  | {
-                                      language?: string | undefined
-                                      timezone?: string | undefined
-                                      theme?: 'light' | 'dark' | 'system' | undefined
-                                      dateFormat?: string | undefined
-                                    }
-                                  | undefined
-                              }
-                            | undefined
-                          metadata?:
-                            | {
-                                createdAt?: string | undefined
-                                updatedAt?: string | undefined
-                                version?: number | undefined
-                              }
-                            | undefined
-                        }
-                      | undefined
-                    status?:
-                      | 'pending'
-                      | 'confirmed'
-                      | 'shipped'
-                      | 'delivered'
-                      | 'cancelled'
-                      | undefined
-                    shippingAddress?:
-                      | {
-                          street?: string | undefined
-                          city?: string | undefined
-                          state?: string | undefined
-                          postalCode?: string | undefined
-                          country?: string | undefined
-                        }
-                      | undefined
-                    billingAddress?:
-                      | {
-                          street?: string | undefined
-                          city?: string | undefined
-                          state?: string | undefined
-                          postalCode?: string | undefined
-                          country?: string | undefined
-                        }
-                      | undefined
+                          id?: string | undefined
+                          type?: string | undefined
+                          attributes?: { [x: string]: unknown } | undefined
+                        }[]
                   }
                 | undefined
               context?:
-                | ({
+                | {
                     requestId?: string | undefined
                     timestamp?: string | undefined
                     source?: string | undefined
                     userAgent?: string | undefined
-                  } & {
                     testMode?: boolean | undefined
                     mockResponses?:
-                      | { status?: number | undefined; body?: Record<string, never> | undefined }[]
+                      | {
+                          status?: number | undefined
+                          body?: { [x: string]: unknown } | undefined
+                        }[]
                       | undefined
-                  })
+                  }
                 | undefined
             }
-            headers?: Record<string, string> | undefined
             retryPolicy?:
               | {
                   maxRetries?: number | undefined
@@ -915,7 +913,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
           success: boolean
           statusCode?: number | undefined
           responseTime?: number | undefined
-          response?: {} | undefined
+          response?: { [x: string]: unknown } | undefined
           error?: string | undefined
         }
         outputFormat: 'json'
