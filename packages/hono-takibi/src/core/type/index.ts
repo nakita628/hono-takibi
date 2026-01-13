@@ -136,12 +136,12 @@ function makeMethodType(
   pathLevelParams: readonly Parameter[] | readonly Reference[],
 ): string {
   const inputType = makeInputType(operation, openApiPath, components, pathLevelParams)
-  const outputTypes = makeOutputTypes(operation.responses, components)
+  const outputTypes = makeOutputTypes(operation.responses, components, inputType)
   return outputTypes.length === 0
     ? `{input:${inputType};output:{};outputFormat:string;status:200}`
     : outputTypes.length === 1
-      ? outputTypes[0].replace('INPUT_PLACEHOLDER', inputType)
-      : outputTypes.map((t) => t.replace('INPUT_PLACEHOLDER', inputType)).join('|')
+      ? outputTypes[0]
+      : outputTypes.join('|')
 }
 
 // ============================================================================
@@ -298,19 +298,20 @@ function makeBodyParts(
 function makeOutputTypes(
   responses: Operation['responses'],
   components: Components | undefined,
+  inputType: string,
 ): readonly string[] {
   return Object.entries(responses).flatMap(([statusCode, response]) => {
     const resolvedResponse = makeResolvedResponse(response, components)
     const status = makeStatusCode(statusCode)
     if (!resolvedResponse.content) {
-      return [`{input:INPUT_PLACEHOLDER;output:{};outputFormat:string;status:${status}}`]
+      return [`{input:${inputType};output:{};outputFormat:string;status:${status}}`]
     }
     return Object.entries(resolvedResponse.content)
       .filter((entry): entry is [string, { schema: Schema }] => isMediaWithSchema(entry[1]))
       .map(([mediaType, media]) => {
         const outputType = makeSchemaTypeString(media.schema, components, new Set())
         const outputFormat = isJsonMediaType(mediaType) ? "'json'" : "'text'"
-        return `{input:INPUT_PLACEHOLDER;output:${outputType};outputFormat:${outputFormat};status:${status}}`
+        return `{input:${inputType};output:${outputType};outputFormat:${outputFormat};status:${status}}`
       })
   })
 }
@@ -442,29 +443,24 @@ function makeBaseTypeString(
     : makeSingleTypeString(schema, types[0] ?? 'object', components, visited)
 }
 
+const PRIMITIVE_TYPE_MAP: Readonly<Record<string, string>> = {
+  boolean: 'boolean',
+  null: 'null',
+}
+
 function makeSingleTypeString(
   schema: Schema,
   type: string,
   components: Components | undefined,
   visited: Set<string>,
 ): string {
-  switch (type) {
-    case 'string':
-      return schema.format === 'binary' ? 'File' : 'string'
-    case 'number':
-    case 'integer':
-      return schema.format === 'int64' || schema.format === 'bigint' ? 'bigint' : 'number'
-    case 'boolean':
-      return 'boolean'
-    case 'null':
-      return 'null'
-    case 'array':
-      return makeArrayTypeString(schema, components, visited)
-    case 'object':
-      return makeObjectTypeString(schema, components, visited)
-    default:
-      return 'unknown'
+  if (type === 'string') return schema.format === 'binary' ? 'File' : 'string'
+  if (type === 'number' || type === 'integer') {
+    return schema.format === 'int64' || schema.format === 'bigint' ? 'bigint' : 'number'
   }
+  if (type === 'array') return makeArrayTypeString(schema, components, visited)
+  if (type === 'object') return makeObjectTypeString(schema, components, visited)
+  return PRIMITIVE_TYPE_MAP[type] ?? 'unknown'
 }
 
 function makeRefTypeString(
