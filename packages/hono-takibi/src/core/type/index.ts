@@ -489,10 +489,19 @@ function makeAllOfTypeString(
   components: Components | undefined,
   visited: Set<string>,
 ): string {
-  const mergedProps = allOf.reduce(
-    (acc, subSchema) => new Map([...acc, ...makePropertyMap(subSchema, components, visited)]),
-    new Map<string, { type: string; required: boolean }>(),
-  )
+  const mergedProps = allOf.reduce((acc, subSchema) => {
+    const newProps = makePropertyMap(subSchema, components, visited)
+    const result = new Map(acc)
+    for (const [key, value] of newProps) {
+      const existing = result.get(key)
+      // Preserve required: true from either source (allOf merges required arrays)
+      result.set(key, {
+        type: value.type,
+        required: value.required || (existing?.required ?? false),
+      })
+    }
+    return result
+  }, new Map<string, { type: string; required: boolean }>())
   if (mergedProps.size === 0) return '{}'
   const propertyStrings = Array.from(mergedProps.entries()).map(([key, { type, required }]) => {
     const safeKey = makeSafeKey(key)

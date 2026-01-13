@@ -7,7 +7,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
           json:
             | {
                 id: string
-                eventType?: 'user.created' | 'user.updated' | 'user.deleted' | undefined
+                eventType: 'user.created' | 'user.updated' | 'user.deleted'
                 timestamp: string
                 metadata?: { [x: string]: unknown } | undefined
                 userId: string
@@ -15,7 +15,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
               }
             | {
                 id: string
-                eventType?: 'order.placed' | 'order.shipped' | 'order.delivered' | undefined
+                eventType: 'order.placed' | 'order.shipped' | 'order.delivered'
                 timestamp: string
                 metadata?: { [x: string]: unknown } | undefined
                 orderId: string
@@ -23,7 +23,7 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
               }
             | {
                 id: string
-                eventType?: 'system.startup' | 'system.shutdown' | undefined
+                eventType: 'system.startup' | 'system.shutdown'
                 timestamp: string
                 metadata?: { [x: string]: unknown } | undefined
                 component: string
