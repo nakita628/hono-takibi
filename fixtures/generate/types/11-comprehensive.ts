@@ -391,7 +391,8 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 tags?: string[] | undefined
                 inventory?: number | undefined
                 images?: string[] | undefined
-              } & { status?: 'draft' | 'active' | 'archived' | undefined }
+                status?: 'draft' | 'active' | 'archived' | undefined
+              }
             }
             output: {
               id: string
@@ -424,7 +425,8 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 tags?: string[] | undefined
                 inventory?: number | undefined
                 images?: string[] | undefined
-              } & { status?: 'draft' | 'active' | 'archived' | undefined }
+                status?: 'draft' | 'active' | 'archived' | undefined
+              }
             }
             output: {
               code: string
@@ -455,7 +457,8 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 tags?: string[] | undefined
                 inventory?: number | undefined
                 images?: string[] | undefined
-              } & { status?: 'draft' | 'active' | 'archived' | undefined }
+                status?: 'draft' | 'active' | 'archived' | undefined
+              }
             }
             output: {
               code: string
@@ -486,7 +489,8 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
                 tags?: string[] | undefined
                 inventory?: number | undefined
                 images?: string[] | undefined
-              } & { status?: 'draft' | 'active' | 'archived' | undefined }
+                status?: 'draft' | 'active' | 'archived' | undefined
+              }
             }
             output: {
               code: string
@@ -622,14 +626,15 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
         output: {
           id: string
           url: string
-          events:
+          events: (
             | 'product.created'
             | 'product.updated'
             | 'product.deleted'
             | 'order.created'
             | 'order.updated'
             | 'order.shipped'
-            | 'order.delivered'[]
+            | 'order.delivered'
+          )[]
           secret?: string | undefined
           status?: 'active' | 'inactive' | undefined
         }

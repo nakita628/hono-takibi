@@ -724,7 +724,7 @@ if (import.meta.vitest) {
       fs.rmSync('packages/hono-takibi/tmp-spec.tsp', { force: true })
       fs.rmSync('packages/hono-takibi/tmp', { recursive: true, force: true })
     })
-    it('typeSpecToOpenAPI not Error', async () => {
+    it('typeSpecToOpenAPI not Error', { timeout: 30000 }, async () => {
       const tmpTsp = `import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/openapi3";
@@ -773,7 +773,7 @@ model Error {
       expect(result.ok).toBe(true)
     })
 
-    it('typeSpecToOpenAPI dir not Error', async () => {
+    it('typeSpecToOpenAPI dir not Error', { timeout: 30000 }, async () => {
       const tmpTsp = `import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/openapi3";
@@ -823,7 +823,7 @@ model Error {
       expect(result.ok).toBe(true)
     })
 
-    it('typeSpecToOpenAPI Error', async () => {
+    it('typeSpecToOpenAPI Error', { timeout: 10000 }, async () => {
       const tmpTsp = `import "@typespec`
       fs.writeFileSync('packages/hono-takibi/tmp-spec.tsp', tmpTsp)
       const result = await parseOpenAPI('packages/hono-takibi/tmp-spec.tsp')

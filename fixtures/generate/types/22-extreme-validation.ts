@@ -1,5 +1,5 @@
-declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index').OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/validate': {
       $post: {
@@ -38,9 +38,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         regex?: string | undefined
                         uuid?: string | undefined
                         byte?: string | undefined
-                        binary?:
-                          | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                          | undefined
+                        binary?: File | undefined
                         password?: string | undefined
                       }
                     | undefined
@@ -66,22 +64,22 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
               | undefined
             extremeArrays?:
               | {
-                  emptyOnly?: any[] | undefined
+                  emptyOnly?: { [x: string]: unknown }[] | undefined
                   singleOnly?: string[] | undefined
                   hugeArray?: string[] | undefined
                   uniqueBooleans?: boolean[] | undefined
                   uniqueEnum?: ('a' | 'b' | 'c')[] | undefined
                   deeplyNested?: string[][][][] | undefined
                   uniqueNested?: number[][] | undefined
-                  largeTuple?: any[] | undefined
+                  largeTuple?: unknown[] | undefined
                   tupleWithAdditional?: boolean[] | undefined
-                  containsConstraint?: any[] | undefined
+                  containsConstraint?: unknown[] | undefined
                 }
               | undefined
             extremeObjects?:
               | {
-                  emptyOnly?: Record<string, never> | undefined
-                  singleProperty?: Record<string, string> | undefined
+                  emptyOnly?: {} | undefined
+                  singleProperty?: { [x: string]: string } | undefined
                   manyRequired?:
                     | {
                         prop1: string
@@ -106,7 +104,7 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                         prop20: string
                       }
                     | undefined
-                  patternProperties?: Record<string, never> | undefined
+                  patternProperties?: {} | undefined
                   dependentRequired?:
                     | {
                         billing_address?: string | undefined
@@ -117,11 +115,38 @@ declare const routes: import('/workspaces/hono-takibi/node_modules/.pnpm/@hono+z
                   dependentSchemas?:
                     | { credit_card?: string | undefined; billing_address?: string | undefined }
                     | undefined
-                  propertyNames?: Record<string, string> | undefined
+                  propertyNames?: { [x: string]: string } | undefined
                   unevaluatedProps?: { known?: string | undefined } | undefined
                 }
               | undefined
-            extremeCompositions?: unknown
+            extremeCompositions?:
+              | {
+                  manyOneOf?:
+                    | 'type1'
+                    | 'type2'
+                    | 'type3'
+                    | 'type4'
+                    | 'type5'
+                    | 'type6'
+                    | 'type7'
+                    | 'type8'
+                    | 'type9'
+                    | 'type10'
+                    | number
+                    | boolean
+                    | string[]
+                    | { [x: string]: unknown }
+                    | ({ [x: string]: unknown } | null)
+                    | undefined
+                  deeplyNestedComposition?: { e?: string | undefined } | undefined
+                  complexNot?: { value?: string | undefined } | undefined
+                  conditionalChain?: { [x: string]: unknown } | undefined
+                  conflictingAllOf?: { shared?: string | undefined } | undefined
+                  recursiveConstrained?:
+                    | { value?: string | undefined; children?: unknown[] | undefined }
+                    | undefined
+                }
+              | undefined
           }
         }
         output: {}
