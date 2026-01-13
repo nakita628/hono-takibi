@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/43-sns-users-relationships'
 
 /**
@@ -7,7 +7,7 @@ import { client } from '../clients/43-sns-users-relationships'
  * ユーザー情報取得
  */
 export async function getUsersUserId(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].$get(args, options)
@@ -19,7 +19,7 @@ export async function getUsersUserId(
  * ユーザー名でユーザー取得
  */
 export async function getUsersByUsernameUsername(
-  args: { param: { username: string } },
+  args: InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users.by.username[':username'].$get(args, options)
@@ -31,7 +31,7 @@ export async function getUsersByUsernameUsername(
  * ユーザー検索
  */
 export async function getUsersSearch(
-  args: { query: { q: string; cursor?: string; limit?: number } },
+  args: InferRequestType<typeof client.users.search.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.users.search.$get(args, options)
@@ -43,7 +43,7 @@ export async function getUsersSearch(
  * 複数ユーザー一括取得
  */
 export async function getUsersLookup(
-  args: { query: { ids?: string; usernames?: string } },
+  args: InferRequestType<typeof client.users.lookup.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.users.lookup.$get(args, options)
@@ -64,17 +64,7 @@ export async function getMe(options?: ClientRequestOptions) {
  * プロフィール更新
  */
 export async function patchMe(
-  args: {
-    json: {
-      displayName?: string
-      bio?: string
-      location?: string
-      website?: string
-      birthDate?: string
-      isProtected?: boolean
-      pinnedPostId?: string
-    }
-  },
+  args: InferRequestType<typeof client.me.$patch>,
   options?: ClientRequestOptions,
 ) {
   return await client.me.$patch(args, options)
@@ -86,7 +76,7 @@ export async function patchMe(
  * アバターアップロード
  */
 export async function postMeAvatar(
-  args: { form: { image: File } },
+  args: InferRequestType<typeof client.me.avatar.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.me.avatar.$post(args, options)
@@ -107,7 +97,7 @@ export async function deleteMeAvatar(options?: ClientRequestOptions) {
  * バナー画像アップロード
  */
 export async function postMeBanner(
-  args: { form: { image: File } },
+  args: InferRequestType<typeof client.me.banner.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.me.banner.$post(args, options)
@@ -128,7 +118,7 @@ export async function deleteMeBanner(options?: ClientRequestOptions) {
  * フォロー
  */
 export async function postUsersUserIdFollow(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].follow.$post(args, options)
@@ -140,7 +130,7 @@ export async function postUsersUserIdFollow(
  * フォロー解除
  */
 export async function deleteUsersUserIdFollow(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].follow.$delete(args, options)
@@ -152,7 +142,7 @@ export async function deleteUsersUserIdFollow(
  * フォロワー一覧取得
  */
 export async function getUsersUserIdFollowers(
-  args: { param: { userId: string }; query: { cursor?: string; limit?: number } },
+  args: InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].followers.$get(args, options)
@@ -164,7 +154,7 @@ export async function getUsersUserIdFollowers(
  * フォロー中一覧取得
  */
 export async function getUsersUserIdFollowing(
-  args: { param: { userId: string }; query: { cursor?: string; limit?: number } },
+  args: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].following.$get(args, options)
@@ -178,7 +168,7 @@ export async function getUsersUserIdFollowing(
  * 自分のフォロワーから削除
  */
 export async function postUsersUserIdFollowersRemove(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].followers.remove.$post(args, options)
@@ -190,7 +180,7 @@ export async function postUsersUserIdFollowersRemove(
  * 関係性一括取得
  */
 export async function getRelationships(
-  args: { query: { userIds: string } },
+  args: InferRequestType<typeof client.relationships.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.relationships.$get(args, options)
@@ -204,7 +194,7 @@ export async function getRelationships(
  * 非公開アカウントへのフォローリクエスト
  */
 export async function getFollowRequests(
-  args: { query: { cursor?: string; limit?: number } },
+  args: InferRequestType<(typeof client)['follow-requests']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client['follow-requests'].$get(args, options)
@@ -216,7 +206,7 @@ export async function getFollowRequests(
  * フォローリクエスト承認
  */
 export async function postFollowRequestsUserIdAccept(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client['follow-requests'][':userId'].accept.$post(args, options)
@@ -228,7 +218,7 @@ export async function postFollowRequestsUserIdAccept(
  * フォローリクエスト拒否
  */
 export async function postFollowRequestsUserIdReject(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client['follow-requests'][':userId'].reject.$post(args, options)
@@ -240,7 +230,7 @@ export async function postFollowRequestsUserIdReject(
  * ブロック
  */
 export async function postUsersUserIdBlock(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].block.$post(args, options)
@@ -252,7 +242,7 @@ export async function postUsersUserIdBlock(
  * ブロック解除
  */
 export async function deleteUsersUserIdBlock(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].block.$delete(args, options)
@@ -264,7 +254,7 @@ export async function deleteUsersUserIdBlock(
  * ミュート
  */
 export async function postUsersUserIdMute(
-  args: { param: { userId: string }; json: { duration?: number; notifications?: boolean } },
+  args: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].mute.$post(args, options)
@@ -276,7 +266,7 @@ export async function postUsersUserIdMute(
  * ミュート解除
  */
 export async function deleteUsersUserIdMute(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].mute.$delete(args, options)
@@ -288,7 +278,7 @@ export async function deleteUsersUserIdMute(
  * ブロックユーザー一覧
  */
 export async function getBlocks(
-  args: { query: { cursor?: string; limit?: number } },
+  args: InferRequestType<typeof client.blocks.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.blocks.$get(args, options)
@@ -300,7 +290,7 @@ export async function getBlocks(
  * ミュートユーザー一覧
  */
 export async function getMutes(
-  args: { query: { cursor?: string; limit?: number } },
+  args: InferRequestType<typeof client.mutes.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.mutes.$get(args, options)
@@ -321,7 +311,7 @@ export async function getLists(options?: ClientRequestOptions) {
  * リスト作成
  */
 export async function postLists(
-  args: { json: { name: string; description?: string; isPrivate?: boolean } },
+  args: InferRequestType<typeof client.lists.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.lists.$post(args, options)
@@ -333,7 +323,7 @@ export async function postLists(
  * リスト詳細取得
  */
 export async function getListsListId(
-  args: { param: { listId: string } },
+  args: InferRequestType<(typeof client.lists)[':listId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.lists[':listId'].$get(args, options)
@@ -345,10 +335,7 @@ export async function getListsListId(
  * リスト更新
  */
 export async function putListsListId(
-  args: {
-    param: { listId: string }
-    json: { name?: string; description?: string; isPrivate?: boolean }
-  },
+  args: InferRequestType<(typeof client.lists)[':listId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.lists[':listId'].$put(args, options)
@@ -360,7 +347,7 @@ export async function putListsListId(
  * リスト削除
  */
 export async function deleteListsListId(
-  args: { param: { listId: string } },
+  args: InferRequestType<(typeof client.lists)[':listId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.lists[':listId'].$delete(args, options)
@@ -372,7 +359,7 @@ export async function deleteListsListId(
  * リストメンバー一覧
  */
 export async function getListsListIdMembers(
-  args: { param: { listId: string }; query: { cursor?: string; limit?: number } },
+  args: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.lists[':listId'].members.$get(args, options)
@@ -384,7 +371,7 @@ export async function getListsListIdMembers(
  * リストにメンバー追加
  */
 export async function postListsListIdMembers(
-  args: { param: { listId: string }; json: { userId: string } },
+  args: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.lists[':listId'].members.$post(args, options)
@@ -396,7 +383,7 @@ export async function postListsListIdMembers(
  * リストからメンバー削除
  */
 export async function deleteListsListIdMembersUserId(
-  args: { param: { listId: string; userId: string } },
+  args: InferRequestType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.lists[':listId'].members[':userId'].$delete(args, options)
@@ -408,7 +395,7 @@ export async function deleteListsListIdMembersUserId(
  * リストタイムライン取得
  */
 export async function getListsListIdTimeline(
-  args: { param: { listId: string }; query: { cursor?: string; limit?: number } },
+  args: InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.lists[':listId'].timeline.$get(args, options)
@@ -420,7 +407,7 @@ export async function getListsListIdTimeline(
  * ユーザーが所属するリスト一覧
  */
 export async function getUsersUserIdLists(
-  args: { param: { userId: string }; query: { cursor?: string; limit?: number } },
+  args: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].lists.$get(args, options)

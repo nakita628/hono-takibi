@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
 /**
@@ -12,16 +12,7 @@ export async function getExtremeResponses(options?: ClientRequestOptions) {
  * POST /multipart-variations
  */
 export async function postMultipartVariations(
-  args: {
-    form: { file?: File; metadata?: string } | { field1?: string; field2?: string[] }
-    json:
-      | { parts?: File[] }
-      | { root?: string; attachments?: File[] }
-      | { text?: string; html?: string }
-      | {}
-      | {}
-      | {}
-  },
+  args: InferRequestType<(typeof client)['multipart-variations']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client['multipart-variations'].$post(args, options)
@@ -31,7 +22,7 @@ export async function postMultipartVariations(
  * POST /charset-variations
  */
 export async function postCharsetVariations(
-  args: { form: {}; json: {} | {} | {} | string | string | string },
+  args: InferRequestType<(typeof client)['charset-variations']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client['charset-variations'].$post(args, options)

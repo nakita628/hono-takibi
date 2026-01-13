@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/edge'
 
 /**
@@ -7,11 +7,7 @@ import { client } from '../clients/edge'
  * Polymorphic object with discriminator
  */
 export async function postPolymorphic(
-  args: {
-    json:
-      | ({ type: string } & { livesLeft?: number })
-      | ({ type: string } & { barkLevel?: 'quiet' | 'normal' | 'loud' })
-  },
+  args: InferRequestType<typeof client.polymorphic.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.polymorphic.$post(args, options)
@@ -23,7 +19,7 @@ export async function postPolymorphic(
  * Search with complex query
  */
 export async function getSearch(
-  args: { query: { q: string; filter?: string | string[]; exclude?: unknown } },
+  args: InferRequestType<typeof client.search.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.search.$get(args, options)
@@ -35,7 +31,7 @@ export async function getSearch(
  * Multi-step object definition using allOf
  */
 export async function putMultiStep(
-  args: { json: { id: string; metadata?: { [key: string]: string } | null } & { step?: number } },
+  args: InferRequestType<(typeof client)['multi-step']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client['multi-step'].$put(args, options)

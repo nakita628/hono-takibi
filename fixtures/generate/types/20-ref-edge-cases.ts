@@ -1,8 +1,5 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/test': {
       $get:
@@ -33,7 +30,21 @@ declare const routes: import(
                                                                 | {
                                                                     data?:
                                                                       | {
-                                                                          data?: any | undefined
+                                                                          data?:
+                                                                            | {
+                                                                                data?:
+                                                                                  | {
+                                                                                      value: string
+                                                                                      parent?:
+                                                                                        | unknown
+                                                                                        | undefined
+                                                                                    }
+                                                                                  | undefined
+                                                                                meta?:
+                                                                                  | string
+                                                                                  | undefined
+                                                                              }
+                                                                            | undefined
                                                                           meta?: string | undefined
                                                                         }
                                                                       | undefined
@@ -148,23 +159,11 @@ declare const routes: import(
   } & {
     '/empty-refs': {
       $get:
-        | {
-            input: {}
-            output: Response
-            outputFormat: 'json'
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').StatusCode
-          }
-        | { input: {}; output: {}; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: { [x: string]: unknown }; outputFormat: 'json'; status: 200 }
+        | { input: {}; output: { x?: string | undefined }; outputFormat: 'text'; status: 200 }
     }
   } & {
-    '/unicode-refs': {
-      $get: {
-        input: {}
-        output: { 名前?: string | undefined; 値?: number | undefined; 子要素?: any[] | undefined }
-        outputFormat: 'json'
-        status: 200
-      }
-    }
+    '/unicode-refs': { $get: { input: {}; output: unknown; outputFormat: 'json'; status: 200 } }
   } & {
     '/special-chars': {
       $get: {
@@ -250,7 +249,7 @@ declare const routes: import(
           itemTree?:
             | {
                 item?: { id: string; name: string; value?: number | undefined } | undefined
-                children?: any[] | undefined
+                children?: unknown[] | undefined
               }
             | undefined
         }

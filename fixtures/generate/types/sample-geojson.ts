@@ -1,8 +1,5 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/': { $get: { input: {}; output: { message: string }; outputFormat: 'json'; status: 200 } }
   } & {
@@ -12,8 +9,6 @@ declare const routes: import(
             input: { query: { chiban: string } }
             output: {
               id: string
-              createdAt: string
-              updatedAt: string
               polygon?:
                 | {
                     type:
@@ -41,6 +36,8 @@ declare const routes: import(
               centre?:
                 | { type: 'Point'; bbox?: number[] | undefined; coordinates: number[] }
                 | undefined
+              createdAt: string
+              updatedAt: string
             }[]
             outputFormat: 'json'
             status: 200

@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
 /**
@@ -61,7 +61,9 @@ export async function traceAllMethods(options?: ClientRequestOptions) {
  * GET /users/{userId}/posts/{postId}/comments/{commentId}
  */
 export async function getUsersUserIdPostsPostIdCommentsCommentId(
-  args: { param: { userId: string; postId: number; commentId: string } },
+  args: InferRequestType<
+    (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
+  >,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].posts[':postId'].comments[':commentId'].$get(args, options)
@@ -71,12 +73,7 @@ export async function getUsersUserIdPostsPostIdCommentsCommentId(
  * GET /params-test/{pathParam}
  */
 export async function getParamsTestPathParam(
-  args: {
-    param: { pathParam: string }
-    query: { queryParam?: string }
-    header: { 'X-Header-Param'?: string }
-    cookie: { session_id?: string }
-  },
+  args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client['params-test'][':pathParam'].$get(args, options)
@@ -100,10 +97,7 @@ export async function getMultiContent(options?: ClientRequestOptions) {
  * POST /multi-content
  */
 export async function postMultiContent(
-  args: {
-    form: { file?: File; metadata?: string } | { field1?: string; field2?: string }
-    json: { data?: {} }
-  },
+  args: InferRequestType<(typeof client)['multi-content']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client['multi-content'].$post(args, options)
@@ -137,7 +131,10 @@ export async function getNoOperationId(options?: ClientRequestOptions) {
 /**
  * POST /empty-body
  */
-export async function postEmptyBody(args: { json: {} }, options?: ClientRequestOptions) {
+export async function postEmptyBody(
+  args: InferRequestType<(typeof client)['empty-body']['$post']>,
+  options?: ClientRequestOptions,
+) {
   return await client['empty-body'].$post(args, options)
 }
 
@@ -159,7 +156,7 @@ export async function getDeepNesting(options?: ClientRequestOptions) {
  * GET /array-params
  */
 export async function getArrayParams(
-  args: { query: { ids?: string[]; tags?: string[]; values?: number[]; coords?: number[] } },
+  args: InferRequestType<(typeof client)['array-params']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client['array-params'].$get(args, options)
@@ -169,7 +166,7 @@ export async function getArrayParams(
  * GET /object-param
  */
 export async function getObjectParam(
-  args: { query: { filter?: { name?: string; minPrice?: number; maxPrice?: number } } },
+  args: InferRequestType<(typeof client)['object-param']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client['object-param'].$get(args, options)

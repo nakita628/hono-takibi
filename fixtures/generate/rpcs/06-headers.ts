@@ -1,11 +1,11 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/06-headers'
 
 /**
  * GET /resources
  */
 export async function getResources(
-  args: { header: { 'X-Request-ID'?: string } },
+  args: InferRequestType<typeof client.resources.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.resources.$get(args, options)
@@ -15,7 +15,7 @@ export async function getResources(
  * GET /resources/{id}
  */
 export async function getResourcesId(
-  args: { param: { id: string }; header: { 'If-None-Match'?: string } },
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.resources[':id'].$get(args, options)
@@ -25,11 +25,7 @@ export async function getResourcesId(
  * PUT /resources/{id}
  */
 export async function putResourcesId(
-  args: {
-    param: { id: string }
-    header: { 'If-Match': string }
-    json: { id?: string; name?: string; data?: {} }
-  },
+  args: InferRequestType<(typeof client.resources)[':id']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.resources[':id'].$put(args, options)
@@ -39,7 +35,7 @@ export async function putResourcesId(
  * GET /download/{id}
  */
 export async function getDownloadId(
-  args: { param: { id: string } },
+  args: InferRequestType<(typeof client.download)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.download[':id'].$get(args, options)

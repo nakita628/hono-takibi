@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/geojson-example'
 
 /**
@@ -20,7 +20,7 @@ export async function get(options?: ClientRequestOptions) {
  * Update the content of an existing post identified by its unique ID.
  */
 export async function getProjects(
-  args: { query: { chiban: string } },
+  args: InferRequestType<typeof client.projects.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects.$get(args, options)

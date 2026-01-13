@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
 /**
@@ -9,7 +9,7 @@ import { client } from '../clients/40-auth-session-management'
  * 現在のユーザーのアクティブなセッション一覧を取得
  */
 export async function getSessions(
-  args: { query: { includeExpired?: string } },
+  args: InferRequestType<typeof client.sessions.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions.$get(args, options)
@@ -23,22 +23,7 @@ export async function getSessions(
  * 認証成功後にセッションを作成
  */
 export async function postSessions(
-  args: {
-    json: {
-      grantType: 'password' | 'mfa_token' | 'sso_token' | 'passkey' | 'magic_link' | 'social'
-      username?: string
-      password?: string
-      mfaToken?: string
-      mfaCode?: string
-      ssoToken?: string
-      passkeyResponse?: {}
-      magicLinkToken?: string
-      socialProvider?: string
-      socialToken?: string
-      deviceFingerprint?: string
-      rememberMe?: boolean
-    }
-  },
+  args: InferRequestType<typeof client.sessions.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions.$post(args, options)
@@ -70,7 +55,7 @@ export async function deleteSessionsCurrent(options?: ClientRequestOptions) {
  * リフレッシュトークンを使用してセッションを更新
  */
 export async function postSessionsCurrentRefresh(
-  args: { json: { refreshToken: string } },
+  args: InferRequestType<typeof client.sessions.current.refresh.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions.current.refresh.$post(args, options)
@@ -84,7 +69,7 @@ export async function postSessionsCurrentRefresh(
  * アクティブなセッションの有効期限を延長
  */
 export async function postSessionsCurrentExtend(
-  args: { json: { duration?: number } },
+  args: InferRequestType<typeof client.sessions.current.extend.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions.current.extend.$post(args, options)
@@ -107,7 +92,7 @@ export async function postSessionsCurrentActivity(options?: ClientRequestOptions
  * セッション詳細取得
  */
 export async function getSessionsSessionId(
-  args: { param: { sessionId: string } },
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions[':sessionId'].$get(args, options)
@@ -121,7 +106,7 @@ export async function getSessionsSessionId(
  * 指定したセッションを強制的に終了
  */
 export async function deleteSessionsSessionId(
-  args: { param: { sessionId: string } },
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions[':sessionId'].$delete(args, options)
@@ -135,7 +120,7 @@ export async function deleteSessionsSessionId(
  * 現在のセッション以外の全セッションを無効化
  */
 export async function postSessionsRevokeAll(
-  args: { json: { includeCurrent?: boolean } },
+  args: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions['revoke-all'].$post(args, options)
@@ -149,7 +134,7 @@ export async function postSessionsRevokeAll(
  * セッショントークンの有効性を検証
  */
 export async function postSessionsValidate(
-  args: { json: { accessToken?: string; sessionId?: string } },
+  args: InferRequestType<typeof client.sessions.validate.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions.validate.$post(args, options)
@@ -161,7 +146,7 @@ export async function postSessionsValidate(
  * セッション履歴取得
  */
 export async function getSessionsHistory(
-  args: { query: { page?: number; limit?: number; from?: string; to?: string } },
+  args: InferRequestType<typeof client.sessions.history.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions.history.$get(args, options)
@@ -175,9 +160,7 @@ export async function getSessionsHistory(
  * 不審なログイン試行などのセキュリティイベントを取得
  */
 export async function getSessionsSecurityEvents(
-  args: {
-    query: { page?: number; limit?: number; severity?: 'low' | 'medium' | 'high' | 'critical' }
-  },
+  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions['security-events'].$get(args, options)
@@ -198,19 +181,7 @@ export async function getSessionsPolicies(options?: ClientRequestOptions) {
  * セッションポリシー更新
  */
 export async function putSessionsPolicies(
-  args: {
-    json: {
-      sessionDuration?: number
-      idleTimeout?: number
-      maxConcurrentSessions?: number
-      concurrentSessionAction?: 'allow' | 'deny' | 'revoke_oldest'
-      requireMfaForNewDevice?: boolean
-      requireMfaForNewLocation?: boolean
-      allowRememberMe?: boolean
-      rememberMeDuration?: number
-      refreshTokenRotation?: boolean
-    }
-  },
+  args: InferRequestType<typeof client.sessions.policies.$put>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions.policies.$put(args, options)
@@ -231,7 +202,7 @@ export async function getSessionsTrustedDevices(options?: ClientRequestOptions) 
  * 現在のデバイスを信頼
  */
 export async function postSessionsTrustedDevices(
-  args: { json: { name?: string; trustDuration?: number } },
+  args: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions['trusted-devices'].$post(args, options)
@@ -243,7 +214,7 @@ export async function postSessionsTrustedDevices(
  * 信頼済みデバイス削除
  */
 export async function deleteSessionsTrustedDevicesDeviceId(
-  args: { param: { deviceId: string } },
+  args: InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.sessions['trusted-devices'][':deviceId'].$delete(args, options)

@@ -1,11 +1,11 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/08-links'
 
 /**
  * POST /orders
  */
 export async function postOrders(
-  args: { json: { customerId: string; items: { productId: string; quantity: number }[] } },
+  args: InferRequestType<typeof client.orders.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.orders.$post(args, options)
@@ -15,7 +15,7 @@ export async function postOrders(
  * GET /orders/{orderId}
  */
 export async function getOrdersOrderId(
-  args: { param: { orderId: string } },
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.orders[':orderId'].$get(args, options)
@@ -25,7 +25,7 @@ export async function getOrdersOrderId(
  * DELETE /orders/{orderId}
  */
 export async function deleteOrdersOrderId(
-  args: { param: { orderId: string } },
+  args: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.orders[':orderId'].$delete(args, options)
@@ -35,7 +35,7 @@ export async function deleteOrdersOrderId(
  * GET /orders/{orderId}/items
  */
 export async function getOrdersOrderIdItems(
-  args: { param: { orderId: string } },
+  args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.orders[':orderId'].items.$get(args, options)
@@ -45,7 +45,7 @@ export async function getOrdersOrderIdItems(
  * GET /customers/{customerId}
  */
 export async function getCustomersCustomerId(
-  args: { param: { customerId: string } },
+  args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.customers[':customerId'].$get(args, options)
@@ -55,7 +55,7 @@ export async function getCustomersCustomerId(
  * GET /customers/{customerId}/orders
  */
 export async function getCustomersCustomerIdOrders(
-  args: { param: { customerId: string } },
+  args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.customers[':customerId'].orders.$get(args, options)
@@ -65,7 +65,7 @@ export async function getCustomersCustomerIdOrders(
  * GET /payments/{paymentId}
  */
 export async function getPaymentsPaymentId(
-  args: { param: { paymentId: string } },
+  args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.payments[':paymentId'].$get(args, options)

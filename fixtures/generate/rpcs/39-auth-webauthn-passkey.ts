@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
 /**
@@ -9,14 +9,7 @@ import { client } from '../clients/39-auth-webauthn-passkey'
  * パスキー登録のためのPublicKeyCredentialCreationOptionsを生成
  */
 export async function postWebauthnRegisterOptions(
-  args: {
-    json: {
-      authenticatorAttachment?: 'platform' | 'cross-platform'
-      residentKey?: 'discouraged' | 'preferred' | 'required'
-      userVerification?: 'discouraged' | 'preferred' | 'required'
-      attestation?: 'none' | 'indirect' | 'direct' | 'enterprise'
-    }
-  },
+  args: InferRequestType<typeof client.webauthn.register.options.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.webauthn.register.options.$post(args, options)
@@ -30,24 +23,7 @@ export async function postWebauthnRegisterOptions(
  * クライアントから送信された認証情報を検証し、パスキーを登録
  */
 export async function postWebauthnRegisterVerify(
-  args: {
-    json: {
-      id: string
-      rawId: string
-      response: {
-        clientDataJSON: string
-        attestationObject: string
-        transports?: ('usb' | 'nfc' | 'ble' | 'smart-card' | 'hybrid' | 'internal')[]
-        publicKeyAlgorithm?: number
-        publicKey?: string
-        authenticatorData?: string
-      }
-      type: 'public-key'
-      clientExtensionResults?: { credProps?: { rk?: boolean } }
-      authenticatorAttachment?: 'platform' | 'cross-platform'
-      name?: string
-    }
-  },
+  args: InferRequestType<typeof client.webauthn.register.verify.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.webauthn.register.verify.$post(args, options)
@@ -61,9 +37,7 @@ export async function postWebauthnRegisterVerify(
  * パスキー認証のためのPublicKeyCredentialRequestOptionsを生成
  */
 export async function postWebauthnAuthenticateOptions(
-  args: {
-    json: { username?: string; userVerification?: 'discouraged' | 'preferred' | 'required' }
-  },
+  args: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.webauthn.authenticate.options.$post(args, options)
@@ -77,21 +51,7 @@ export async function postWebauthnAuthenticateOptions(
  * クライアントから送信された認証レスポンスを検証
  */
 export async function postWebauthnAuthenticateVerify(
-  args: {
-    json: {
-      id: string
-      rawId: string
-      response: {
-        clientDataJSON: string
-        authenticatorData: string
-        signature: string
-        userHandle?: string
-      }
-      type: 'public-key'
-      clientExtensionResults?: {}
-      authenticatorAttachment?: 'platform' | 'cross-platform'
-    }
-  },
+  args: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.webauthn.authenticate.verify.$post(args, options)
@@ -114,7 +74,7 @@ export async function getWebauthnCredentials(options?: ClientRequestOptions) {
  * 認証情報詳細取得
  */
 export async function getWebauthnCredentialsCredentialId(
-  args: { param: { credentialId: string } },
+  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.webauthn.credentials[':credentialId'].$get(args, options)
@@ -128,7 +88,7 @@ export async function getWebauthnCredentialsCredentialId(
  * パスキーを削除（少なくとも1つは残す必要がある場合あり）
  */
 export async function deleteWebauthnCredentialsCredentialId(
-  args: { param: { credentialId: string } },
+  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.webauthn.credentials[':credentialId'].$delete(args, options)
@@ -142,7 +102,7 @@ export async function deleteWebauthnCredentialsCredentialId(
  * パスキーの名前などを更新
  */
 export async function patchWebauthnCredentialsCredentialId(
-  args: { param: { credentialId: string }; json: { name?: string } },
+  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
   options?: ClientRequestOptions,
 ) {
   return await client.webauthn.credentials[':credentialId'].$patch(args, options)
@@ -174,7 +134,7 @@ export async function getWebauthnSettingsRp(options?: ClientRequestOptions) {
  * リライングパーティ情報更新
  */
 export async function putWebauthnSettingsRp(
-  args: { json: { name?: string } },
+  args: InferRequestType<typeof client.webauthn.settings.rp.$put>,
   options?: ClientRequestOptions,
 ) {
   return await client.webauthn.settings.rp.$put(args, options)

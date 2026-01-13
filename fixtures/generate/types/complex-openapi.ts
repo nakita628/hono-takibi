@@ -1,8 +1,5 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/users': {
       $get: {
@@ -24,9 +21,6 @@ declare const routes: import(
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/users': {
       $post: {
         input: {
           json: {
@@ -94,9 +88,6 @@ declare const routes: import(
             status: 200
           }
         | { input: { param: { userId: string } }; output: {}; outputFormat: string; status: 404 }
-    }
-  } & {
-    '/users/:userId': {
       $put:
         | {
             input: { param: { userId: string } } & {
@@ -175,12 +166,9 @@ declare const routes: import(
             outputFormat: string
             status: 404
           }
-    }
-  } & {
-    '/users/:userId': {
       $delete:
-        | { input: { param: { userId: string } }; output: {}; outputFormat: string; status: 404 }
         | { input: { param: { userId: string } }; output: {}; outputFormat: string; status: 204 }
+        | { input: { param: { userId: string } }; output: {}; outputFormat: string; status: 404 }
     }
   } & {
     '/orders': {
@@ -220,9 +208,6 @@ declare const routes: import(
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/orders': {
       $post: {
         input: {
           json: {
@@ -230,12 +215,12 @@ declare const routes: import(
             items: { productId: string; quantity: number; price: number }[]
             paymentMethod?:
               | {
+                  method: 'credit_card'
                   cardNumber: string
                   cardHolder: string
                   expirationDate: string
-                  method?: 'credit_card' | undefined
                 }
-              | { email: string; method?: 'paypal' | undefined }
+              | { method: 'paypal'; email: string }
               | undefined
           }
         }

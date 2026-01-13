@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
 
 /**
@@ -9,15 +9,7 @@ import { client } from '../clients/11-comprehensive'
  * Retrieve a paginated list of products with optional filtering
  */
 export async function getProducts(
-  args: {
-    query: {
-      page?: number
-      limit?: number
-      q?: string
-      category?: 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'toys'
-    }
-    header: { 'Accept-Language'?: string }
-  },
+  args: InferRequestType<typeof client.products.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.products.$get(args, options)
@@ -29,18 +21,7 @@ export async function getProducts(
  * Create a new product
  */
 export async function postProducts(
-  args: {
-    json: {
-      sku?: string
-      name: string
-      description?: string
-      price: { amount: number; currency: string }
-      category: 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'toys'
-      tags?: string[]
-      inventory?: number
-      images?: string[]
-    }
-  },
+  args: InferRequestType<typeof client.products.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.products.$post(args, options)
@@ -52,7 +33,7 @@ export async function postProducts(
  * Get product by ID
  */
 export async function getProductsProductId(
-  args: { param: { productId: string }; header: { 'If-None-Match'?: string } },
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.products[':productId'].$get(args, options)
@@ -64,20 +45,7 @@ export async function getProductsProductId(
  * Update a product
  */
 export async function putProductsProductId(
-  args: {
-    param: { productId: string }
-    header: { 'If-Match'?: string }
-    json: {
-      sku?: string
-      name: string
-      description?: string
-      price: { amount: number; currency: string }
-      category: 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'toys'
-      tags?: string[]
-      inventory?: number
-      images?: string[]
-    } & { status?: 'draft' | 'active' | 'archived' }
-  },
+  args: InferRequestType<(typeof client.products)[':productId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.products[':productId'].$put(args, options)
@@ -89,7 +57,7 @@ export async function putProductsProductId(
  * Delete a product
  */
 export async function deleteProductsProductId(
-  args: { param: { productId: string }; header: { 'If-Match'?: string } },
+  args: InferRequestType<(typeof client.products)[':productId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.products[':productId'].$delete(args, options)
@@ -101,26 +69,7 @@ export async function deleteProductsProductId(
  * Create a new order
  */
 export async function postOrders(
-  args: {
-    json: {
-      items: { productId: string; quantity: number }[]
-      shippingAddress: {
-        street: string
-        city: string
-        state?: string
-        postalCode?: string
-        country: string
-      }
-      billingAddress?: {
-        street: string
-        city: string
-        state?: string
-        postalCode?: string
-        country: string
-      }
-      callbackUrl?: string
-    }
-  },
+  args: InferRequestType<typeof client.orders.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.orders.$post(args, options)
@@ -132,7 +81,7 @@ export async function postOrders(
  * Register a webhook endpoint
  */
 export async function postWebhooks(
-  args: { json: { url: string; events: string[]; secret?: string } },
+  args: InferRequestType<typeof client.webhooks.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.webhooks.$post(args, options)

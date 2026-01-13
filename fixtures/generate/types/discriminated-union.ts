@@ -1,12 +1,14 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/messages': {
       $post: {
-        input: { json: unknown }
+        input: {
+          json:
+            | { type: 'text'; text: string }
+            | { type: 'image'; url: string }
+            | { type: 'video'; url: string; duration: number }
+        }
         output:
           | { type: 'text'; text: string }
           | { type: 'image'; url: string }

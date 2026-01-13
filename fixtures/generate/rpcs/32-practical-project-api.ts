@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
 /**
@@ -7,14 +7,7 @@ import { client } from '../clients/32-practical-project-api'
  * プロジェクト一覧取得
  */
 export async function getProjects(
-  args: {
-    query: {
-      page?: number
-      limit?: number
-      status?: 'active' | 'on_hold' | 'completed' | 'archived'
-      search?: string
-    }
-  },
+  args: InferRequestType<typeof client.projects.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects.$get(args, options)
@@ -26,16 +19,7 @@ export async function getProjects(
  * プロジェクト作成
  */
 export async function postProjects(
-  args: {
-    json: {
-      name: string
-      description?: string
-      color?: string
-      teamId?: string
-      startDate?: string
-      endDate?: string
-    }
-  },
+  args: InferRequestType<typeof client.projects.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects.$post(args, options)
@@ -47,7 +31,7 @@ export async function postProjects(
  * プロジェクト詳細取得
  */
 export async function getProjectsProjectId(
-  args: { param: { projectId: string } },
+  args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects[':projectId'].$get(args, options)
@@ -59,17 +43,7 @@ export async function getProjectsProjectId(
  * プロジェクト更新
  */
 export async function putProjectsProjectId(
-  args: {
-    param: { projectId: string }
-    json: {
-      name?: string
-      description?: string
-      status?: 'active' | 'on_hold' | 'completed' | 'archived'
-      color?: string
-      startDate?: string
-      endDate?: string
-    }
-  },
+  args: InferRequestType<(typeof client.projects)[':projectId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects[':projectId'].$put(args, options)
@@ -81,7 +55,7 @@ export async function putProjectsProjectId(
  * プロジェクト削除
  */
 export async function deleteProjectsProjectId(
-  args: { param: { projectId: string } },
+  args: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects[':projectId'].$delete(args, options)
@@ -93,7 +67,7 @@ export async function deleteProjectsProjectId(
  * プロジェクトメンバー一覧
  */
 export async function getProjectsProjectIdMembers(
-  args: { param: { projectId: string } },
+  args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects[':projectId'].members.$get(args, options)
@@ -105,10 +79,7 @@ export async function getProjectsProjectIdMembers(
  * メンバー追加
  */
 export async function postProjectsProjectIdMembers(
-  args: {
-    param: { projectId: string }
-    json: { userId: string; role: 'admin' | 'member' | 'viewer' }
-  },
+  args: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects[':projectId'].members.$post(args, options)
@@ -120,16 +91,7 @@ export async function postProjectsProjectIdMembers(
  * プロジェクトのタスク一覧
  */
 export async function getProjectsProjectIdTasks(
-  args: {
-    param: { projectId: string }
-    query: {
-      page?: number
-      limit?: number
-      status?: 'todo' | 'in_progress' | 'in_review' | 'done' | 'cancelled'
-      assignee?: string
-      priority?: 'low' | 'medium' | 'high' | 'urgent'
-    }
-  },
+  args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects[':projectId'].tasks.$get(args, options)
@@ -141,21 +103,7 @@ export async function getProjectsProjectIdTasks(
  * タスク作成
  */
 export async function postProjectsProjectIdTasks(
-  args: {
-    param: { projectId: string }
-    json: {
-      title: string
-      description?: string
-      status?: 'todo' | 'in_progress' | 'in_review' | 'done'
-      priority?: 'low' | 'medium' | 'high' | 'urgent'
-      assigneeId?: string
-      milestoneId?: string
-      dueDate?: string
-      estimatedHours?: number
-      tags?: string[]
-      subtasks?: { title: string }[]
-    }
-  },
+  args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects[':projectId'].tasks.$post(args, options)
@@ -167,7 +115,7 @@ export async function postProjectsProjectIdTasks(
  * タスク詳細取得
  */
 export async function getTasksTaskId(
-  args: { param: { taskId: string } },
+  args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.tasks[':taskId'].$get(args, options)
@@ -179,20 +127,7 @@ export async function getTasksTaskId(
  * タスク更新
  */
 export async function putTasksTaskId(
-  args: {
-    param: { taskId: string }
-    json: {
-      title?: string
-      description?: string
-      status?: 'todo' | 'in_progress' | 'in_review' | 'done' | 'cancelled'
-      priority?: 'low' | 'medium' | 'high' | 'urgent'
-      assigneeId?: string
-      milestoneId?: string
-      dueDate?: string
-      estimatedHours?: number
-      tags?: string[]
-    }
-  },
+  args: InferRequestType<(typeof client.tasks)[':taskId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.tasks[':taskId'].$put(args, options)
@@ -204,7 +139,7 @@ export async function putTasksTaskId(
  * タスク削除
  */
 export async function deleteTasksTaskId(
-  args: { param: { taskId: string } },
+  args: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.tasks[':taskId'].$delete(args, options)
@@ -216,10 +151,7 @@ export async function deleteTasksTaskId(
  * タスクステータス更新
  */
 export async function patchTasksTaskIdStatus(
-  args: {
-    param: { taskId: string }
-    json: { status: 'todo' | 'in_progress' | 'in_review' | 'done' | 'cancelled' }
-  },
+  args: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
   options?: ClientRequestOptions,
 ) {
   return await client.tasks[':taskId'].status.$patch(args, options)
@@ -231,7 +163,7 @@ export async function patchTasksTaskIdStatus(
  * タスクコメント一覧
  */
 export async function getTasksTaskIdComments(
-  args: { param: { taskId: string } },
+  args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.tasks[':taskId'].comments.$get(args, options)
@@ -243,7 +175,7 @@ export async function getTasksTaskIdComments(
  * コメント追加
  */
 export async function postTasksTaskIdComments(
-  args: { param: { taskId: string }; json: { content: string } },
+  args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.tasks[':taskId'].comments.$post(args, options)
@@ -255,7 +187,7 @@ export async function postTasksTaskIdComments(
  * 時間記録一覧
  */
 export async function getTasksTaskIdTimeEntries(
-  args: { param: { taskId: string } },
+  args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.tasks[':taskId']['time-entries'].$get(args, options)
@@ -267,10 +199,7 @@ export async function getTasksTaskIdTimeEntries(
  * 時間記録作成
  */
 export async function postTasksTaskIdTimeEntries(
-  args: {
-    param: { taskId: string }
-    json: { description?: string; duration: number; date: string }
-  },
+  args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.tasks[':taskId']['time-entries'].$post(args, options)
@@ -282,7 +211,7 @@ export async function postTasksTaskIdTimeEntries(
  * マイルストーン一覧
  */
 export async function getProjectsProjectIdMilestones(
-  args: { param: { projectId: string } },
+  args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects[':projectId'].milestones.$get(args, options)
@@ -294,10 +223,7 @@ export async function getProjectsProjectIdMilestones(
  * マイルストーン作成
  */
 export async function postProjectsProjectIdMilestones(
-  args: {
-    param: { projectId: string }
-    json: { name: string; description?: string; dueDate?: string }
-  },
+  args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.projects[':projectId'].milestones.$post(args, options)
@@ -318,7 +244,7 @@ export async function getTeams(options?: ClientRequestOptions) {
  * チーム作成
  */
 export async function postTeams(
-  args: { json: { name: string; description?: string; memberIds?: string[] } },
+  args: InferRequestType<typeof client.teams.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.teams.$post(args, options)

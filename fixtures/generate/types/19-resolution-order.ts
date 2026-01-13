@@ -1,8 +1,5 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/entities': {
       $get: {
@@ -14,10 +11,10 @@ declare const routes: import(
             name?: string | undefined
             description?: string | undefined
             version?: string | undefined
-            status?: 'deprecated' | 'active' | 'inactive' | 'maintenance' | undefined
+            status?: 'active' | 'inactive' | 'maintenance' | 'deprecated' | undefined
             health?:
               | {
-                  status: 'unknown' | 'healthy' | 'degraded' | 'unhealthy'
+                  status: 'healthy' | 'degraded' | 'unhealthy' | 'unknown'
                   checks?:
                     | {
                         name: string
@@ -31,7 +28,7 @@ declare const routes: import(
                                 definition?:
                                   | {
                                       name: string
-                                      type: 'summary' | 'counter' | 'gauge' | 'histogram'
+                                      type: 'counter' | 'gauge' | 'histogram' | 'summary'
                                       unit?: string | undefined
                                       labels?:
                                         | {
@@ -74,7 +71,11 @@ declare const routes: import(
           }
           config?:
             | {
-                settings?: { [x: string]: any } | undefined
+                settings?:
+                  | {
+                      [x: string]: string | number | boolean | unknown[] | { [x: string]: unknown }
+                    }
+                  | undefined
                 secrets?:
                   | { name: string; source: string; version?: string | undefined }[]
                   | undefined
@@ -150,7 +151,7 @@ declare const routes: import(
                         | undefined
                     }
                   | undefined
-                dependencyType?: 'optional' | 'hard' | 'soft' | undefined
+                dependencyType?: 'hard' | 'soft' | 'optional' | undefined
                 criticality?: 'critical' | 'high' | 'medium' | 'low' | undefined
               }[]
             | undefined
@@ -162,7 +163,7 @@ declare const routes: import(
                   definition?:
                     | {
                         name: string
-                        type: 'summary' | 'counter' | 'gauge' | 'histogram'
+                        type: 'counter' | 'gauge' | 'histogram' | 'summary'
                         unit?: string | undefined
                         labels?:
                           | {
@@ -189,7 +190,7 @@ declare const routes: import(
                 metric?:
                   | {
                       name: string
-                      type: 'summary' | 'counter' | 'gauge' | 'histogram'
+                      type: 'counter' | 'gauge' | 'histogram' | 'summary'
                       unit?: string | undefined
                       labels?:
                         | {
@@ -232,7 +233,38 @@ declare const routes: import(
           json: {
             input: {
               data?:
-                | { schema?: unknown; records?: Record<string, never>[] | undefined }
+                | {
+                    schema?:
+                      | {
+                          name?: string | undefined
+                          fields?:
+                            | {
+                                name: string
+                                type: string
+                                nullable?: boolean | undefined
+                                default?:
+                                  | string
+                                  | number
+                                  | boolean
+                                  | unknown[]
+                                  | { [x: string]: unknown }
+                                  | undefined
+                                validation?:
+                                  | {
+                                      required?: boolean | undefined
+                                      pattern?: string | undefined
+                                      min?: number | undefined
+                                      max?: number | undefined
+                                      enum?: string[] | undefined
+                                    }
+                                  | undefined
+                              }[]
+                            | undefined
+                          nested?: { [x: string]: unknown } | undefined
+                        }
+                      | undefined
+                    records?: { [x: string]: unknown }[] | undefined
+                  }
                 | {
                     format?: string | undefined
                     content?: string | undefined
@@ -252,7 +284,13 @@ declare const routes: import(
                           host?: string | undefined
                           port?: number | undefined
                           database?: string | undefined
-                          options?: unknown
+                          options?:
+                            | string
+                            | number
+                            | boolean
+                            | unknown[]
+                            | { [x: string]: unknown }
+                            | undefined
                         }
                       | undefined
                     credentials?:
@@ -267,20 +305,55 @@ declare const routes: import(
                 | undefined
               validation?:
                 | {
-                    schema?: unknown
+                    schema?:
+                      | {
+                          name?: string | undefined
+                          fields?:
+                            | {
+                                name: string
+                                type: string
+                                nullable?: boolean | undefined
+                                default?:
+                                  | string
+                                  | number
+                                  | boolean
+                                  | unknown[]
+                                  | { [x: string]: unknown }
+                                  | undefined
+                                validation?:
+                                  | {
+                                      required?: boolean | undefined
+                                      pattern?: string | undefined
+                                      min?: number | undefined
+                                      max?: number | undefined
+                                      enum?: string[] | undefined
+                                    }
+                                  | undefined
+                              }[]
+                            | undefined
+                          nested?: { [x: string]: unknown } | undefined
+                        }
+                      | undefined
                     rules?:
                       | {
                           name?: string | undefined
-                          condition?: unknown
+                          condition?:
+                            | { field: string; operator: string; value: { [x: string]: unknown } }
+                            | {
+                                and?: unknown[] | undefined
+                                or?: unknown[] | undefined
+                                not?: unknown | undefined
+                              }
+                            | undefined
                           action?:
                             | {
-                                type?: 'transform' | 'default' | 'warn' | 'reject' | undefined
+                                type?: 'reject' | 'warn' | 'transform' | 'default' | undefined
                                 message?: string | undefined
                                 transform?:
                                   | {
                                       type?: string | undefined
                                       expression?: string | undefined
-                                      mapping?: Record<string, string> | undefined
+                                      mapping?: { [x: string]: string } | undefined
                                     }
                                   | undefined
                               }
@@ -291,21 +364,54 @@ declare const routes: import(
                 | undefined
             }
             pipeline: {
+              name?: string | undefined
               stages: {
                 name: string
                 type: string
-                config?: Record<string, unknown> | undefined
+                config?:
+                  | {
+                      [x: string]: string | number | boolean | unknown[] | { [x: string]: unknown }
+                    }
+                  | undefined
                 transform?:
                   | {
                       type?: string | undefined
                       expression?: string | undefined
-                      mapping?: Record<string, string> | undefined
+                      mapping?: { [x: string]: string } | undefined
                     }
                   | undefined
                 output?:
                   | {
                       format?: string | undefined
-                      schema?: unknown
+                      schema?:
+                        | {
+                            name?: string | undefined
+                            fields?:
+                              | {
+                                  name: string
+                                  type: string
+                                  nullable?: boolean | undefined
+                                  default?:
+                                    | string
+                                    | number
+                                    | boolean
+                                    | unknown[]
+                                    | { [x: string]: unknown }
+                                    | undefined
+                                  validation?:
+                                    | {
+                                        required?: boolean | undefined
+                                        pattern?: string | undefined
+                                        min?: number | undefined
+                                        max?: number | undefined
+                                        enum?: string[] | undefined
+                                      }
+                                    | undefined
+                                }[]
+                              | undefined
+                            nested?: { [x: string]: unknown } | undefined
+                          }
+                        | undefined
                       destination?:
                         | {
                             type?: string | undefined
@@ -314,7 +420,13 @@ declare const routes: import(
                                   host?: string | undefined
                                   port?: number | undefined
                                   database?: string | undefined
-                                  options?: unknown
+                                  options?:
+                                    | string
+                                    | number
+                                    | boolean
+                                    | unknown[]
+                                    | { [x: string]: unknown }
+                                    | undefined
                                 }
                               | undefined
                             credentials?:
@@ -334,7 +446,6 @@ declare const routes: import(
                     }
                   | undefined
               }[]
-              name?: string | undefined
             }
             options?:
               | {
@@ -366,7 +477,13 @@ declare const routes: import(
                             name: string
                             type: string
                             nullable?: boolean | undefined
-                            default?: any
+                            default?:
+                              | string
+                              | number
+                              | boolean
+                              | unknown[]
+                              | { [x: string]: unknown }
+                              | undefined
                             validation?:
                               | {
                                   required?: boolean | undefined
@@ -378,7 +495,7 @@ declare const routes: import(
                               | undefined
                           }[]
                         | undefined
-                      nested?: { [x: string]: any } | undefined
+                      nested?: { [x: string]: unknown } | undefined
                     }
                   | undefined
                 destination?:
@@ -389,7 +506,13 @@ declare const routes: import(
                             host?: string | undefined
                             port?: number | undefined
                             database?: string | undefined
-                            options?: any
+                            options?:
+                              | string
+                              | number
+                              | boolean
+                              | unknown[]
+                              | { [x: string]: unknown }
+                              | undefined
                           }
                         | undefined
                       credentials?:
@@ -412,7 +535,7 @@ declare const routes: import(
                   definition?:
                     | {
                         name: string
-                        type: 'summary' | 'counter' | 'gauge' | 'histogram'
+                        type: 'counter' | 'gauge' | 'histogram' | 'summary'
                         unit?: string | undefined
                         labels?:
                           | {
@@ -438,7 +561,7 @@ declare const routes: import(
             | {
                 stage?: string | undefined
                 message?: string | undefined
-                details?: {} | undefined
+                details?: { [x: string]: unknown } | undefined
               }[]
             | undefined
         }
@@ -461,10 +584,10 @@ declare const routes: import(
                     name?: string | undefined
                     description?: string | undefined
                     version?: string | undefined
-                    status?: 'deprecated' | 'active' | 'inactive' | 'maintenance' | undefined
+                    status?: 'active' | 'inactive' | 'maintenance' | 'deprecated' | undefined
                     health?:
                       | {
-                          status: 'unknown' | 'healthy' | 'degraded' | 'unhealthy'
+                          status: 'healthy' | 'degraded' | 'unhealthy' | 'unknown'
                           checks?:
                             | {
                                 name: string
@@ -478,7 +601,7 @@ declare const routes: import(
                                         definition?:
                                           | {
                                               name: string
-                                              type: 'summary' | 'counter' | 'gauge' | 'histogram'
+                                              type: 'counter' | 'gauge' | 'histogram' | 'summary'
                                               unit?: string | undefined
                                               labels?:
                                                 | {
@@ -521,7 +644,16 @@ declare const routes: import(
                   }
                   config?:
                     | {
-                        settings?: { [x: string]: any } | undefined
+                        settings?:
+                          | {
+                              [x: string]:
+                                | string
+                                | number
+                                | boolean
+                                | unknown[]
+                                | { [x: string]: unknown }
+                            }
+                          | undefined
                         secrets?:
                           | { name: string; source: string; version?: string | undefined }[]
                           | undefined
@@ -597,7 +729,7 @@ declare const routes: import(
                                 | undefined
                             }
                           | undefined
-                        dependencyType?: 'optional' | 'hard' | 'soft' | undefined
+                        dependencyType?: 'hard' | 'soft' | 'optional' | undefined
                         criticality?: 'critical' | 'high' | 'medium' | 'low' | undefined
                       }[]
                     | undefined
@@ -609,7 +741,7 @@ declare const routes: import(
                           definition?:
                             | {
                                 name: string
-                                type: 'summary' | 'counter' | 'gauge' | 'histogram'
+                                type: 'counter' | 'gauge' | 'histogram' | 'summary'
                                 unit?: string | undefined
                                 labels?:
                                   | {
@@ -643,7 +775,7 @@ declare const routes: import(
                         metric?:
                           | {
                               name: string
-                              type: 'summary' | 'counter' | 'gauge' | 'histogram'
+                              type: 'counter' | 'gauge' | 'histogram' | 'summary'
                               unit?: string | undefined
                               labels?:
                                 | {
@@ -686,9 +818,9 @@ declare const routes: import(
               | undefined
           }[]
           edges: {
+            id?: string | undefined
             source: string
             target: string
-            id?: string | undefined
             dependency?:
               | {
                   id: string
@@ -708,7 +840,7 @@ declare const routes: import(
                           | undefined
                       }
                     | undefined
-                  dependencyType?: 'optional' | 'hard' | 'soft' | undefined
+                  dependencyType?: 'hard' | 'soft' | 'optional' | undefined
                   criticality?: 'critical' | 'high' | 'medium' | 'low' | undefined
                 }
               | undefined
@@ -748,34 +880,65 @@ declare const routes: import(
             transforms: {
               type: string
               config?:
-                | (Record<string, unknown> & {
+                | {
                     errorHandling?:
                       | {
-                          type?: 'transform' | 'default' | 'warn' | 'reject' | undefined
+                          type?: 'reject' | 'warn' | 'transform' | 'default' | undefined
                           message?: string | undefined
                           transform?:
                             | {
                                 type?: string | undefined
                                 expression?: string | undefined
-                                mapping?: Record<string, string> | undefined
+                                mapping?: { [x: string]: string } | undefined
                               }
                             | undefined
                         }
                       | undefined
-                  })
+                  }
                 | undefined
               transform?:
                 | {
                     type?: string | undefined
                     expression?: string | undefined
-                    mapping?: Record<string, string> | undefined
+                    mapping?: { [x: string]: string } | undefined
                   }
                 | undefined
             }[]
             input?:
               | {
                   data?:
-                    | { schema?: unknown; records?: Record<string, never>[] | undefined }
+                    | {
+                        schema?:
+                          | {
+                              name?: string | undefined
+                              fields?:
+                                | {
+                                    name: string
+                                    type: string
+                                    nullable?: boolean | undefined
+                                    default?:
+                                      | string
+                                      | number
+                                      | boolean
+                                      | unknown[]
+                                      | { [x: string]: unknown }
+                                      | undefined
+                                    validation?:
+                                      | {
+                                          required?: boolean | undefined
+                                          pattern?: string | undefined
+                                          min?: number | undefined
+                                          max?: number | undefined
+                                          enum?: string[] | undefined
+                                        }
+                                      | undefined
+                                  }[]
+                                | undefined
+                              nested?: { [x: string]: unknown } | undefined
+                            }
+                          | undefined
+                        records?: { [x: string]: unknown }[] | undefined
+                      }
                     | {
                         format?: string | undefined
                         content?: string | undefined
@@ -795,7 +958,13 @@ declare const routes: import(
                               host?: string | undefined
                               port?: number | undefined
                               database?: string | undefined
-                              options?: unknown
+                              options?:
+                                | string
+                                | number
+                                | boolean
+                                | unknown[]
+                                | { [x: string]: unknown }
+                                | undefined
                             }
                           | undefined
                         credentials?:
@@ -810,20 +979,59 @@ declare const routes: import(
                     | undefined
                   validation?:
                     | {
-                        schema?: unknown
+                        schema?:
+                          | {
+                              name?: string | undefined
+                              fields?:
+                                | {
+                                    name: string
+                                    type: string
+                                    nullable?: boolean | undefined
+                                    default?:
+                                      | string
+                                      | number
+                                      | boolean
+                                      | unknown[]
+                                      | { [x: string]: unknown }
+                                      | undefined
+                                    validation?:
+                                      | {
+                                          required?: boolean | undefined
+                                          pattern?: string | undefined
+                                          min?: number | undefined
+                                          max?: number | undefined
+                                          enum?: string[] | undefined
+                                        }
+                                      | undefined
+                                  }[]
+                                | undefined
+                              nested?: { [x: string]: unknown } | undefined
+                            }
+                          | undefined
                         rules?:
                           | {
                               name?: string | undefined
-                              condition?: unknown
+                              condition?:
+                                | {
+                                    field: string
+                                    operator: string
+                                    value: { [x: string]: unknown }
+                                  }
+                                | {
+                                    and?: unknown[] | undefined
+                                    or?: unknown[] | undefined
+                                    not?: unknown | undefined
+                                  }
+                                | undefined
                               action?:
                                 | {
-                                    type?: 'transform' | 'default' | 'warn' | 'reject' | undefined
+                                    type?: 'reject' | 'warn' | 'transform' | 'default' | undefined
                                     message?: string | undefined
                                     transform?:
                                       | {
                                           type?: string | undefined
                                           expression?: string | undefined
-                                          mapping?: Record<string, string> | undefined
+                                          mapping?: { [x: string]: string } | undefined
                                         }
                                       | undefined
                                   }
@@ -849,7 +1057,13 @@ declare const routes: import(
                             name: string
                             type: string
                             nullable?: boolean | undefined
-                            default?: any
+                            default?:
+                              | string
+                              | number
+                              | boolean
+                              | unknown[]
+                              | { [x: string]: unknown }
+                              | undefined
                             validation?:
                               | {
                                   required?: boolean | undefined
@@ -861,7 +1075,7 @@ declare const routes: import(
                               | undefined
                           }[]
                         | undefined
-                      nested?: { [x: string]: any } | undefined
+                      nested?: { [x: string]: unknown } | undefined
                     }
                   | undefined
                 destination?:
@@ -872,7 +1086,13 @@ declare const routes: import(
                             host?: string | undefined
                             port?: number | undefined
                             database?: string | undefined
-                            options?: any
+                            options?:
+                              | string
+                              | number
+                              | boolean
+                              | unknown[]
+                              | { [x: string]: unknown }
+                              | undefined
                           }
                         | undefined
                       credentials?:
@@ -895,7 +1115,7 @@ declare const routes: import(
                   definition?:
                     | {
                         name: string
-                        type: 'summary' | 'counter' | 'gauge' | 'histogram'
+                        type: 'counter' | 'gauge' | 'histogram' | 'summary'
                         unit?: string | undefined
                         labels?:
                           | {
@@ -921,7 +1141,7 @@ declare const routes: import(
             | {
                 stage?: string | undefined
                 message?: string | undefined
-                details?: {} | undefined
+                details?: { [x: string]: unknown } | undefined
               }[]
             | undefined
           transformations?:

@@ -1,8 +1,5 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/products': {
       $get: {
@@ -11,9 +8,9 @@ declare const routes: import(
             page?: number | undefined
             limit?: number | undefined
             category?: string | undefined
-            minPrice?: unknown
-            maxPrice?: unknown
-            inStock?: string | undefined
+            minPrice?: number | undefined
+            maxPrice?: number | undefined
+            inStock?: boolean | undefined
             search?: string | undefined
             sort?:
               | 'price:asc'
@@ -29,9 +26,8 @@ declare const routes: import(
           data: {
             id: string
             name: string
-            price: number
-            status: 'draft' | 'active' | 'archived'
             description?: string | undefined
+            price: number
             compareAtPrice?: number | undefined
             sku?: string | undefined
             barcode?: string | undefined
@@ -55,11 +51,12 @@ declare const routes: import(
                   sortOrder?: number | undefined
                 }[]
               | undefined
+            status: 'draft' | 'active' | 'archived'
             inventory?:
               | {
                   quantity: number
-                  status: 'in_stock' | 'low_stock' | 'out_of_stock'
                   reservedQuantity?: number | undefined
+                  status: 'in_stock' | 'low_stock' | 'out_of_stock'
                   lowStockThreshold?: number | undefined
                   trackInventory?: boolean | undefined
                 }
@@ -74,31 +71,27 @@ declare const routes: import(
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/products': {
       $post:
         | {
             input: {
               json: {
                 name: string
-                price: number
                 description?: string | undefined
+                price: number
                 compareAtPrice?: number | undefined
                 sku?: string | undefined
                 barcode?: string | undefined
                 categoryId?: string | undefined
                 status?: 'draft' | 'active' | undefined
-                attributes?: Record<string, string> | undefined
+                attributes?: { [x: string]: string } | undefined
                 tags?: string[] | undefined
               }
             }
             output: {
               id: string
               name: string
-              price: number
-              status: 'draft' | 'active' | 'archived'
               description?: string | undefined
+              price: number
               compareAtPrice?: number | undefined
               sku?: string | undefined
               barcode?: string | undefined
@@ -122,11 +115,12 @@ declare const routes: import(
                     sortOrder?: number | undefined
                   }[]
                 | undefined
+              status: 'draft' | 'active' | 'archived'
               inventory?:
                 | {
                     quantity: number
-                    status: 'in_stock' | 'low_stock' | 'out_of_stock'
                     reservedQuantity?: number | undefined
+                    status: 'in_stock' | 'low_stock' | 'out_of_stock'
                     lowStockThreshold?: number | undefined
                     trackInventory?: boolean | undefined
                   }
@@ -143,14 +137,14 @@ declare const routes: import(
             input: {
               json: {
                 name: string
-                price: number
                 description?: string | undefined
+                price: number
                 compareAtPrice?: number | undefined
                 sku?: string | undefined
                 barcode?: string | undefined
                 categoryId?: string | undefined
                 status?: 'draft' | 'active' | undefined
-                attributes?: Record<string, string> | undefined
+                attributes?: { [x: string]: string } | undefined
                 tags?: string[] | undefined
               }
             }
@@ -166,14 +160,14 @@ declare const routes: import(
             input: {
               json: {
                 name: string
-                price: number
                 description?: string | undefined
+                price: number
                 compareAtPrice?: number | undefined
                 sku?: string | undefined
                 barcode?: string | undefined
                 categoryId?: string | undefined
                 status?: 'draft' | 'active' | undefined
-                attributes?: Record<string, string> | undefined
+                attributes?: { [x: string]: string } | undefined
                 tags?: string[] | undefined
               }
             }
@@ -194,9 +188,8 @@ declare const routes: import(
             output: {
               id: string
               name: string
-              price: number
-              status: 'draft' | 'active' | 'archived'
               description?: string | undefined
+              price: number
               compareAtPrice?: number | undefined
               sku?: string | undefined
               barcode?: string | undefined
@@ -220,11 +213,12 @@ declare const routes: import(
                     sortOrder?: number | undefined
                   }[]
                 | undefined
+              status: 'draft' | 'active' | 'archived'
               inventory?:
                 | {
                     quantity: number
-                    status: 'in_stock' | 'low_stock' | 'out_of_stock'
                     reservedQuantity?: number | undefined
+                    status: 'in_stock' | 'low_stock' | 'out_of_stock'
                     lowStockThreshold?: number | undefined
                     trackInventory?: boolean | undefined
                   }
@@ -247,9 +241,6 @@ declare const routes: import(
             outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/products/:productId': {
       $put:
         | {
             input: { param: { productId: string } } & {
@@ -262,39 +253,15 @@ declare const routes: import(
                 barcode?: string | undefined
                 categoryId?: string | undefined
                 status?: 'draft' | 'active' | 'archived' | undefined
-                attributes?: Record<string, string> | undefined
-                tags?: string[] | undefined
-              }
-            }
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { productId: string } } & {
-              json: {
-                name?: string | undefined
-                description?: string | undefined
-                price?: number | undefined
-                compareAtPrice?: number | undefined
-                sku?: string | undefined
-                barcode?: string | undefined
-                categoryId?: string | undefined
-                status?: 'draft' | 'active' | 'archived' | undefined
-                attributes?: Record<string, string> | undefined
+                attributes?: { [x: string]: string } | undefined
                 tags?: string[] | undefined
               }
             }
             output: {
               id: string
               name: string
-              price: number
-              status: 'draft' | 'active' | 'archived'
               description?: string | undefined
+              price: number
               compareAtPrice?: number | undefined
               sku?: string | undefined
               barcode?: string | undefined
@@ -318,11 +285,12 @@ declare const routes: import(
                     sortOrder?: number | undefined
                   }[]
                 | undefined
+              status: 'draft' | 'active' | 'archived'
               inventory?:
                 | {
                     quantity: number
-                    status: 'in_stock' | 'low_stock' | 'out_of_stock'
                     reservedQuantity?: number | undefined
+                    status: 'in_stock' | 'low_stock' | 'out_of_stock'
                     lowStockThreshold?: number | undefined
                     trackInventory?: boolean | undefined
                   }
@@ -346,7 +314,30 @@ declare const routes: import(
                 barcode?: string | undefined
                 categoryId?: string | undefined
                 status?: 'draft' | 'active' | 'archived' | undefined
-                attributes?: Record<string, string> | undefined
+                attributes?: { [x: string]: string } | undefined
+                tags?: string[] | undefined
+              }
+            }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { param: { productId: string } } & {
+              json: {
+                name?: string | undefined
+                description?: string | undefined
+                price?: number | undefined
+                compareAtPrice?: number | undefined
+                sku?: string | undefined
+                barcode?: string | undefined
+                categoryId?: string | undefined
+                status?: 'draft' | 'active' | 'archived' | undefined
+                attributes?: { [x: string]: string } | undefined
                 tags?: string[] | undefined
               }
             }
@@ -358,10 +349,8 @@ declare const routes: import(
             outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/products/:productId': {
       $delete:
+        | { input: { param: { productId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { productId: string } }
             output: {
@@ -382,32 +371,13 @@ declare const routes: import(
             outputFormat: 'json'
             status: 404
           }
-        | { input: { param: { productId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/products/:productId/images': {
       $post:
         | {
             input: { param: { productId: string } } & {
-              form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                isPrimary?: boolean | undefined
-              }
-            }
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { productId: string } } & {
-              form: {
-                file: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                isPrimary?: boolean | undefined
-              }
+              form: { file: File; isPrimary?: boolean | undefined }
             }
             output: {
               id: string
@@ -418,6 +388,18 @@ declare const routes: import(
             }
             outputFormat: 'json'
             status: 201
+          }
+        | {
+            input: { param: { productId: string } } & {
+              form: { file: File; isPrimary?: boolean | undefined }
+            }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -436,27 +418,7 @@ declare const routes: import(
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/categories': {
       $post:
-        | {
-            input: {
-              json: {
-                name: string
-                slug?: string | undefined
-                description?: string | undefined
-                parentId?: string | undefined
-              }
-            }
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: {
               json: {
@@ -478,356 +440,13 @@ declare const routes: import(
             outputFormat: 'json'
             status: 201
           }
-    }
-  } & {
-    '/cart': {
-      $get:
-        | {
-            input: {}
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
-            output: {
-              id: string
-              items: {
-                id: string
-                product: {
-                  id: string
-                  name: string
-                  price: number
-                  status: 'draft' | 'active' | 'archived'
-                  description?: string | undefined
-                  compareAtPrice?: number | undefined
-                  sku?: string | undefined
-                  barcode?: string | undefined
-                  category?:
-                    | {
-                        id: string
-                        name: string
-                        slug?: string | undefined
-                        description?: string | undefined
-                        parentId?: string | undefined
-                        imageUrl?: string | undefined
-                        productCount?: number | undefined
-                      }
-                    | undefined
-                  images?:
-                    | {
-                        id: string
-                        url: string
-                        altText?: string | undefined
-                        isPrimary?: boolean | undefined
-                        sortOrder?: number | undefined
-                      }[]
-                    | undefined
-                  inventory?:
-                    | {
-                        quantity: number
-                        status: 'in_stock' | 'low_stock' | 'out_of_stock'
-                        reservedQuantity?: number | undefined
-                        lowStockThreshold?: number | undefined
-                        trackInventory?: boolean | undefined
-                      }
-                    | undefined
-                  attributes?: { [x: string]: string } | undefined
-                  tags?: string[] | undefined
-                  createdAt?: string | undefined
-                  updatedAt?: string | undefined
-                }
-                quantity: number
-                price: number
-                total: number
-              }[]
-              subtotal: number
-              total: number
-              discount?: number | undefined
-              tax?: number | undefined
-              shipping?: number | undefined
-              itemCount?: number | undefined
-            }
-            outputFormat: 'json'
-            status: 200
-          }
-    }
-  } & {
-    '/cart': {
-      $delete:
-        | {
-            input: {}
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
-        | { input: {}; output: {}; outputFormat: string; status: 204 }
-    }
-  } & {
-    '/cart/items': {
-      $post:
-        | {
-            input: { json: { productId: string; quantity?: number | undefined } }
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 400
-          }
-        | {
-            input: { json: { productId: string; quantity?: number | undefined } }
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { json: { productId: string; quantity?: number | undefined } }
-            output: {
-              id: string
-              items: {
-                id: string
-                product: {
-                  id: string
-                  name: string
-                  price: number
-                  status: 'draft' | 'active' | 'archived'
-                  description?: string | undefined
-                  compareAtPrice?: number | undefined
-                  sku?: string | undefined
-                  barcode?: string | undefined
-                  category?:
-                    | {
-                        id: string
-                        name: string
-                        slug?: string | undefined
-                        description?: string | undefined
-                        parentId?: string | undefined
-                        imageUrl?: string | undefined
-                        productCount?: number | undefined
-                      }
-                    | undefined
-                  images?:
-                    | {
-                        id: string
-                        url: string
-                        altText?: string | undefined
-                        isPrimary?: boolean | undefined
-                        sortOrder?: number | undefined
-                      }[]
-                    | undefined
-                  inventory?:
-                    | {
-                        quantity: number
-                        status: 'in_stock' | 'low_stock' | 'out_of_stock'
-                        reservedQuantity?: number | undefined
-                        lowStockThreshold?: number | undefined
-                        trackInventory?: boolean | undefined
-                      }
-                    | undefined
-                  attributes?: { [x: string]: string } | undefined
-                  tags?: string[] | undefined
-                  createdAt?: string | undefined
-                  updatedAt?: string | undefined
-                }
-                quantity: number
-                price: number
-                total: number
-              }[]
-              subtotal: number
-              total: number
-              discount?: number | undefined
-              tax?: number | undefined
-              shipping?: number | undefined
-              itemCount?: number | undefined
-            }
-            outputFormat: 'json'
-            status: 200
-          }
-    }
-  } & {
-    '/cart/items/:itemId': {
-      $put:
-        | {
-            input: { param: { itemId: string } } & { json: { quantity: number } }
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { itemId: string } } & { json: { quantity: number } }
-            output: {
-              id: string
-              items: {
-                id: string
-                product: {
-                  id: string
-                  name: string
-                  price: number
-                  status: 'draft' | 'active' | 'archived'
-                  description?: string | undefined
-                  compareAtPrice?: number | undefined
-                  sku?: string | undefined
-                  barcode?: string | undefined
-                  category?:
-                    | {
-                        id: string
-                        name: string
-                        slug?: string | undefined
-                        description?: string | undefined
-                        parentId?: string | undefined
-                        imageUrl?: string | undefined
-                        productCount?: number | undefined
-                      }
-                    | undefined
-                  images?:
-                    | {
-                        id: string
-                        url: string
-                        altText?: string | undefined
-                        isPrimary?: boolean | undefined
-                        sortOrder?: number | undefined
-                      }[]
-                    | undefined
-                  inventory?:
-                    | {
-                        quantity: number
-                        status: 'in_stock' | 'low_stock' | 'out_of_stock'
-                        reservedQuantity?: number | undefined
-                        lowStockThreshold?: number | undefined
-                        trackInventory?: boolean | undefined
-                      }
-                    | undefined
-                  attributes?: { [x: string]: string } | undefined
-                  tags?: string[] | undefined
-                  createdAt?: string | undefined
-                  updatedAt?: string | undefined
-                }
-                quantity: number
-                price: number
-                total: number
-              }[]
-              subtotal: number
-              total: number
-              discount?: number | undefined
-              tax?: number | undefined
-              shipping?: number | undefined
-              itemCount?: number | undefined
-            }
-            outputFormat: 'json'
-            status: 200
-          }
-    }
-  } & {
-    '/cart/items/:itemId': {
-      $delete:
-        | {
-            input: { param: { itemId: string } }
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { itemId: string } }
-            output: {
-              id: string
-              items: {
-                id: string
-                product: {
-                  id: string
-                  name: string
-                  price: number
-                  status: 'draft' | 'active' | 'archived'
-                  description?: string | undefined
-                  compareAtPrice?: number | undefined
-                  sku?: string | undefined
-                  barcode?: string | undefined
-                  category?:
-                    | {
-                        id: string
-                        name: string
-                        slug?: string | undefined
-                        description?: string | undefined
-                        parentId?: string | undefined
-                        imageUrl?: string | undefined
-                        productCount?: number | undefined
-                      }
-                    | undefined
-                  images?:
-                    | {
-                        id: string
-                        url: string
-                        altText?: string | undefined
-                        isPrimary?: boolean | undefined
-                        sortOrder?: number | undefined
-                      }[]
-                    | undefined
-                  inventory?:
-                    | {
-                        quantity: number
-                        status: 'in_stock' | 'low_stock' | 'out_of_stock'
-                        reservedQuantity?: number | undefined
-                        lowStockThreshold?: number | undefined
-                        trackInventory?: boolean | undefined
-                      }
-                    | undefined
-                  attributes?: { [x: string]: string } | undefined
-                  tags?: string[] | undefined
-                  createdAt?: string | undefined
-                  updatedAt?: string | undefined
-                }
-                quantity: number
-                price: number
-                total: number
-              }[]
-              subtotal: number
-              total: number
-              discount?: number | undefined
-              tax?: number | undefined
-              shipping?: number | undefined
-              itemCount?: number | undefined
-            }
-            outputFormat: 'json'
-            status: 200
-          }
-    }
-  } & {
-    '/orders': {
-      $get:
         | {
             input: {
-              query: {
-                page?: number | undefined
-                limit?: number | undefined
-                status?:
-                  | 'pending'
-                  | 'confirmed'
-                  | 'processing'
-                  | 'shipped'
-                  | 'delivered'
-                  | 'cancelled'
-                  | undefined
+              json: {
+                name: string
+                slug?: string | undefined
+                description?: string | undefined
+                parentId?: string | undefined
               }
             }
             output: {
@@ -838,6 +457,337 @@ declare const routes: import(
             outputFormat: 'json'
             status: 401
           }
+    }
+  } & {
+    '/cart': {
+      $get:
+        | {
+            input: {}
+            output: {
+              id: string
+              items: {
+                id: string
+                product: {
+                  id: string
+                  name: string
+                  description?: string | undefined
+                  price: number
+                  compareAtPrice?: number | undefined
+                  sku?: string | undefined
+                  barcode?: string | undefined
+                  category?:
+                    | {
+                        id: string
+                        name: string
+                        slug?: string | undefined
+                        description?: string | undefined
+                        parentId?: string | undefined
+                        imageUrl?: string | undefined
+                        productCount?: number | undefined
+                      }
+                    | undefined
+                  images?:
+                    | {
+                        id: string
+                        url: string
+                        altText?: string | undefined
+                        isPrimary?: boolean | undefined
+                        sortOrder?: number | undefined
+                      }[]
+                    | undefined
+                  status: 'draft' | 'active' | 'archived'
+                  inventory?:
+                    | {
+                        quantity: number
+                        reservedQuantity?: number | undefined
+                        status: 'in_stock' | 'low_stock' | 'out_of_stock'
+                        lowStockThreshold?: number | undefined
+                        trackInventory?: boolean | undefined
+                      }
+                    | undefined
+                  attributes?: { [x: string]: string } | undefined
+                  tags?: string[] | undefined
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                }
+                quantity: number
+                price: number
+                total: number
+              }[]
+              subtotal: number
+              discount?: number | undefined
+              tax?: number | undefined
+              shipping?: number | undefined
+              total: number
+              itemCount?: number | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: {}
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 401
+          }
+      $delete:
+        | { input: {}; output: {}; outputFormat: string; status: 204 }
+        | {
+            input: {}
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 401
+          }
+    }
+  } & {
+    '/cart/items': {
+      $post:
+        | {
+            input: { json: { productId: string; quantity: number } }
+            output: {
+              id: string
+              items: {
+                id: string
+                product: {
+                  id: string
+                  name: string
+                  description?: string | undefined
+                  price: number
+                  compareAtPrice?: number | undefined
+                  sku?: string | undefined
+                  barcode?: string | undefined
+                  category?:
+                    | {
+                        id: string
+                        name: string
+                        slug?: string | undefined
+                        description?: string | undefined
+                        parentId?: string | undefined
+                        imageUrl?: string | undefined
+                        productCount?: number | undefined
+                      }
+                    | undefined
+                  images?:
+                    | {
+                        id: string
+                        url: string
+                        altText?: string | undefined
+                        isPrimary?: boolean | undefined
+                        sortOrder?: number | undefined
+                      }[]
+                    | undefined
+                  status: 'draft' | 'active' | 'archived'
+                  inventory?:
+                    | {
+                        quantity: number
+                        reservedQuantity?: number | undefined
+                        status: 'in_stock' | 'low_stock' | 'out_of_stock'
+                        lowStockThreshold?: number | undefined
+                        trackInventory?: boolean | undefined
+                      }
+                    | undefined
+                  attributes?: { [x: string]: string } | undefined
+                  tags?: string[] | undefined
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                }
+                quantity: number
+                price: number
+                total: number
+              }[]
+              subtotal: number
+              discount?: number | undefined
+              tax?: number | undefined
+              shipping?: number | undefined
+              total: number
+              itemCount?: number | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: { json: { productId: string; quantity: number } }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 400
+          }
+        | {
+            input: { json: { productId: string; quantity: number } }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 401
+          }
+    }
+  } & {
+    '/cart/items/:itemId': {
+      $put:
+        | {
+            input: { param: { itemId: string } } & { json: { quantity: number } }
+            output: {
+              id: string
+              items: {
+                id: string
+                product: {
+                  id: string
+                  name: string
+                  description?: string | undefined
+                  price: number
+                  compareAtPrice?: number | undefined
+                  sku?: string | undefined
+                  barcode?: string | undefined
+                  category?:
+                    | {
+                        id: string
+                        name: string
+                        slug?: string | undefined
+                        description?: string | undefined
+                        parentId?: string | undefined
+                        imageUrl?: string | undefined
+                        productCount?: number | undefined
+                      }
+                    | undefined
+                  images?:
+                    | {
+                        id: string
+                        url: string
+                        altText?: string | undefined
+                        isPrimary?: boolean | undefined
+                        sortOrder?: number | undefined
+                      }[]
+                    | undefined
+                  status: 'draft' | 'active' | 'archived'
+                  inventory?:
+                    | {
+                        quantity: number
+                        reservedQuantity?: number | undefined
+                        status: 'in_stock' | 'low_stock' | 'out_of_stock'
+                        lowStockThreshold?: number | undefined
+                        trackInventory?: boolean | undefined
+                      }
+                    | undefined
+                  attributes?: { [x: string]: string } | undefined
+                  tags?: string[] | undefined
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                }
+                quantity: number
+                price: number
+                total: number
+              }[]
+              subtotal: number
+              discount?: number | undefined
+              tax?: number | undefined
+              shipping?: number | undefined
+              total: number
+              itemCount?: number | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: { param: { itemId: string } } & { json: { quantity: number } }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 401
+          }
+      $delete:
+        | {
+            input: { param: { itemId: string } }
+            output: {
+              id: string
+              items: {
+                id: string
+                product: {
+                  id: string
+                  name: string
+                  description?: string | undefined
+                  price: number
+                  compareAtPrice?: number | undefined
+                  sku?: string | undefined
+                  barcode?: string | undefined
+                  category?:
+                    | {
+                        id: string
+                        name: string
+                        slug?: string | undefined
+                        description?: string | undefined
+                        parentId?: string | undefined
+                        imageUrl?: string | undefined
+                        productCount?: number | undefined
+                      }
+                    | undefined
+                  images?:
+                    | {
+                        id: string
+                        url: string
+                        altText?: string | undefined
+                        isPrimary?: boolean | undefined
+                        sortOrder?: number | undefined
+                      }[]
+                    | undefined
+                  status: 'draft' | 'active' | 'archived'
+                  inventory?:
+                    | {
+                        quantity: number
+                        reservedQuantity?: number | undefined
+                        status: 'in_stock' | 'low_stock' | 'out_of_stock'
+                        lowStockThreshold?: number | undefined
+                        trackInventory?: boolean | undefined
+                      }
+                    | undefined
+                  attributes?: { [x: string]: string } | undefined
+                  tags?: string[] | undefined
+                  createdAt?: string | undefined
+                  updatedAt?: string | undefined
+                }
+                quantity: number
+                price: number
+                total: number
+              }[]
+              subtotal: number
+              discount?: number | undefined
+              tax?: number | undefined
+              shipping?: number | undefined
+              total: number
+              itemCount?: number | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: { param: { itemId: string } }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 401
+          }
+    }
+  } & {
+    '/orders': {
+      $get:
         | {
             input: {
               query: {
@@ -868,18 +818,17 @@ declare const routes: import(
                   id: string
                   productId: string
                   productName: string
+                  sku?: string | undefined
                   quantity: number
                   price: number
                   total: number
-                  sku?: string | undefined
                   imageUrl?: string | undefined
                 }[]
-                total: number
-                createdAt: string
                 subtotal?: number | undefined
                 discount?: number | undefined
                 tax?: number | undefined
                 shipping?: number | undefined
+                total: number
                 shippingAddress?:
                   | {
                       name: string
@@ -906,6 +855,7 @@ declare const routes: import(
                 paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded' | undefined
                 notes?: string | undefined
                 trackingNumber?: string | undefined
+                createdAt: string
                 updatedAt?: string | undefined
               }[]
               pagination: { page: number; limit: number; total: number; totalPages: number }
@@ -913,9 +863,29 @@ declare const routes: import(
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/orders': {
+        | {
+            input: {
+              query: {
+                page?: number | undefined
+                limit?: number | undefined
+                status?:
+                  | 'pending'
+                  | 'confirmed'
+                  | 'processing'
+                  | 'shipped'
+                  | 'delivered'
+                  | 'cancelled'
+                  | undefined
+              }
+            }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 401
+          }
       $post:
         | {
             input: {
@@ -929,7 +899,6 @@ declare const routes: import(
                   address2?: string | undefined
                   phone?: string | undefined
                 }
-                paymentMethod: 'credit_card' | 'bank_transfer' | 'convenience_store' | 'cod'
                 billingAddress?:
                   | {
                       name: string
@@ -941,78 +910,7 @@ declare const routes: import(
                       phone?: string | undefined
                     }
                   | undefined
-                notes?: string | undefined
-                couponCode?: string | undefined
-              }
-            }
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 400
-          }
-        | {
-            input: {
-              json: {
-                shippingAddress: {
-                  name: string
-                  postalCode: string
-                  prefecture: string
-                  city: string
-                  address1: string
-                  address2?: string | undefined
-                  phone?: string | undefined
-                }
                 paymentMethod: 'credit_card' | 'bank_transfer' | 'convenience_store' | 'cod'
-                billingAddress?:
-                  | {
-                      name: string
-                      postalCode: string
-                      prefecture: string
-                      city: string
-                      address1: string
-                      address2?: string | undefined
-                      phone?: string | undefined
-                    }
-                  | undefined
-                notes?: string | undefined
-                couponCode?: string | undefined
-              }
-            }
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              json: {
-                shippingAddress: {
-                  name: string
-                  postalCode: string
-                  prefecture: string
-                  city: string
-                  address1: string
-                  address2?: string | undefined
-                  phone?: string | undefined
-                }
-                paymentMethod: 'credit_card' | 'bank_transfer' | 'convenience_store' | 'cod'
-                billingAddress?:
-                  | {
-                      name: string
-                      postalCode: string
-                      prefecture: string
-                      city: string
-                      address1: string
-                      address2?: string | undefined
-                      phone?: string | undefined
-                    }
-                  | undefined
                 notes?: string | undefined
                 couponCode?: string | undefined
               }
@@ -1025,18 +923,17 @@ declare const routes: import(
                 id: string
                 productId: string
                 productName: string
+                sku?: string | undefined
                 quantity: number
                 price: number
                 total: number
-                sku?: string | undefined
                 imageUrl?: string | undefined
               }[]
-              total: number
-              createdAt: string
               subtotal?: number | undefined
               discount?: number | undefined
               tax?: number | undefined
               shipping?: number | undefined
+              total: number
               shippingAddress?:
                 | {
                     name: string
@@ -1063,10 +960,83 @@ declare const routes: import(
               paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded' | undefined
               notes?: string | undefined
               trackingNumber?: string | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 201
+          }
+        | {
+            input: {
+              json: {
+                shippingAddress: {
+                  name: string
+                  postalCode: string
+                  prefecture: string
+                  city: string
+                  address1: string
+                  address2?: string | undefined
+                  phone?: string | undefined
+                }
+                billingAddress?:
+                  | {
+                      name: string
+                      postalCode: string
+                      prefecture: string
+                      city: string
+                      address1: string
+                      address2?: string | undefined
+                      phone?: string | undefined
+                    }
+                  | undefined
+                paymentMethod: 'credit_card' | 'bank_transfer' | 'convenience_store' | 'cod'
+                notes?: string | undefined
+                couponCode?: string | undefined
+              }
+            }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 400
+          }
+        | {
+            input: {
+              json: {
+                shippingAddress: {
+                  name: string
+                  postalCode: string
+                  prefecture: string
+                  city: string
+                  address1: string
+                  address2?: string | undefined
+                  phone?: string | undefined
+                }
+                billingAddress?:
+                  | {
+                      name: string
+                      postalCode: string
+                      prefecture: string
+                      city: string
+                      address1: string
+                      address2?: string | undefined
+                      phone?: string | undefined
+                    }
+                  | undefined
+                paymentMethod: 'credit_card' | 'bank_transfer' | 'convenience_store' | 'cod'
+                notes?: string | undefined
+                couponCode?: string | undefined
+              }
+            }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -1075,26 +1045,6 @@ declare const routes: import(
         | {
             input: { param: { orderId: string } }
             output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { orderId: string } }
-            output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
-            }
-            outputFormat: 'json'
-            status: 404
-          }
-        | {
-            input: { param: { orderId: string } }
-            output: {
               id: string
               orderNumber: string
               status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
@@ -1102,18 +1052,17 @@ declare const routes: import(
                 id: string
                 productId: string
                 productName: string
+                sku?: string | undefined
                 quantity: number
                 price: number
                 total: number
-                sku?: string | undefined
                 imageUrl?: string | undefined
               }[]
-              total: number
-              createdAt: string
               subtotal?: number | undefined
               discount?: number | undefined
               tax?: number | undefined
               shipping?: number | undefined
+              total: number
               shippingAddress?:
                 | {
                     name: string
@@ -1140,15 +1089,89 @@ declare const routes: import(
               paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded' | undefined
               notes?: string | undefined
               trackingNumber?: string | undefined
+              createdAt: string
               updatedAt?: string | undefined
             }
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: { param: { orderId: string } }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { param: { orderId: string } }
+            output: {
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+            }
+            outputFormat: 'json'
+            status: 404
+          }
     }
   } & {
     '/orders/:orderId/cancel': {
       $post:
+        | {
+            input: { param: { orderId: string } } & { json: { reason?: string | undefined } }
+            output: {
+              id: string
+              orderNumber: string
+              status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+              items: {
+                id: string
+                productId: string
+                productName: string
+                sku?: string | undefined
+                quantity: number
+                price: number
+                total: number
+                imageUrl?: string | undefined
+              }[]
+              subtotal?: number | undefined
+              discount?: number | undefined
+              tax?: number | undefined
+              shipping?: number | undefined
+              total: number
+              shippingAddress?:
+                | {
+                    name: string
+                    postalCode: string
+                    prefecture: string
+                    city: string
+                    address1: string
+                    address2?: string | undefined
+                    phone?: string | undefined
+                  }
+                | undefined
+              billingAddress?:
+                | {
+                    name: string
+                    postalCode: string
+                    prefecture: string
+                    city: string
+                    address1: string
+                    address2?: string | undefined
+                    phone?: string | undefined
+                  }
+                | undefined
+              paymentMethod?: string | undefined
+              paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded' | undefined
+              notes?: string | undefined
+              trackingNumber?: string | undefined
+              createdAt: string
+              updatedAt?: string | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
         | {
             input: { param: { orderId: string } } & { json: { reason?: string | undefined } }
             output: {
@@ -1169,63 +1192,22 @@ declare const routes: import(
             outputFormat: 'json'
             status: 401
           }
-        | {
-            input: { param: { orderId: string } } & { json: { reason?: string | undefined } }
-            output: {
-              id: string
-              orderNumber: string
-              status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
-              items: {
-                id: string
-                productId: string
-                productName: string
-                quantity: number
-                price: number
-                total: number
-                sku?: string | undefined
-                imageUrl?: string | undefined
-              }[]
-              total: number
-              createdAt: string
-              subtotal?: number | undefined
-              discount?: number | undefined
-              tax?: number | undefined
-              shipping?: number | undefined
-              shippingAddress?:
-                | {
-                    name: string
-                    postalCode: string
-                    prefecture: string
-                    city: string
-                    address1: string
-                    address2?: string | undefined
-                    phone?: string | undefined
-                  }
-                | undefined
-              billingAddress?:
-                | {
-                    name: string
-                    postalCode: string
-                    prefecture: string
-                    city: string
-                    address1: string
-                    address2?: string | undefined
-                    phone?: string | undefined
-                  }
-                | undefined
-              paymentMethod?: string | undefined
-              paymentStatus?: 'pending' | 'paid' | 'failed' | 'refunded' | undefined
-              notes?: string | undefined
-              trackingNumber?: string | undefined
-              updatedAt?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 200
-          }
     }
   } & {
     '/inventory/:productId': {
       $get:
+        | {
+            input: { param: { productId: string } }
+            output: {
+              quantity: number
+              reservedQuantity?: number | undefined
+              status: 'in_stock' | 'low_stock' | 'out_of_stock'
+              lowStockThreshold?: number | undefined
+              trackInventory?: boolean | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
         | {
             input: { param: { productId: string } }
             output: {
@@ -1246,21 +1228,6 @@ declare const routes: import(
             outputFormat: 'json'
             status: 404
           }
-        | {
-            input: { param: { productId: string } }
-            output: {
-              quantity: number
-              status: 'in_stock' | 'low_stock' | 'out_of_stock'
-              reservedQuantity?: number | undefined
-              lowStockThreshold?: number | undefined
-              trackInventory?: boolean | undefined
-            }
-            outputFormat: 'json'
-            status: 200
-          }
-    }
-  } & {
-    '/inventory/:productId': {
       $put:
         | {
             input: { param: { productId: string } } & {
@@ -1271,12 +1238,14 @@ declare const routes: import(
               }
             }
             output: {
-              code: string
-              message: string
-              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
+              quantity: number
+              reservedQuantity?: number | undefined
+              status: 'in_stock' | 'low_stock' | 'out_of_stock'
+              lowStockThreshold?: number | undefined
+              trackInventory?: boolean | undefined
             }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: { param: { productId: string } } & {
@@ -1287,14 +1256,12 @@ declare const routes: import(
               }
             }
             output: {
-              quantity: number
-              status: 'in_stock' | 'low_stock' | 'out_of_stock'
-              reservedQuantity?: number | undefined
-              lowStockThreshold?: number | undefined
-              trackInventory?: boolean | undefined
+              code: string
+              message: string
+              details?: { field?: string | undefined; message?: string | undefined }[] | undefined
             }
             outputFormat: 'json'
-            status: 200
+            status: 401
           }
     }
   },

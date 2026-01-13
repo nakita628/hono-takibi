@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
 /**
@@ -16,7 +16,7 @@ export async function getStream(options?: ClientRequestOptions) {
  * GraphQL endpoint
  */
 export async function postGraphql(
-  args: { json: string | { query?: string; variables?: {}; operationName?: string } },
+  args: InferRequestType<typeof client.graphql.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.graphql.$post(args, options)
@@ -27,7 +27,10 @@ export async function postGraphql(
  *
  * gRPC-Gateway endpoint
  */
-export async function postGrpcGateway(args: { json: File | File }, options?: ClientRequestOptions) {
+export async function postGrpcGateway(
+  args: InferRequestType<(typeof client)['grpc-gateway']['$post']>,
+  options?: ClientRequestOptions,
+) {
   return await client['grpc-gateway'].$post(args, options)
 }
 

@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
 /**
@@ -25,7 +25,7 @@ export async function getMfaMethods(options?: ClientRequestOptions) {
  * 優先MFA方式設定
  */
 export async function putMfaPreferred(
-  args: { json: { method: 'totp' | 'sms' | 'email' | 'webauthn'; methodId?: string } },
+  args: InferRequestType<typeof client.mfa.preferred.$put>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.preferred.$put(args, options)
@@ -39,7 +39,7 @@ export async function putMfaPreferred(
  * TOTP認証の設定を開始し、QRコードとシークレットを取得します
  */
 export async function postMfaTotpSetup(
-  args: { json: { issuer?: string } },
+  args: InferRequestType<typeof client.mfa.totp.setup.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.totp.setup.$post(args, options)
@@ -53,7 +53,7 @@ export async function postMfaTotpSetup(
  * TOTPコードを検証して設定を完了します
  */
 export async function postMfaTotpVerify(
-  args: { json: { code: string; secret: string } },
+  args: InferRequestType<typeof client.mfa.totp.verify.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.totp.verify.$post(args, options)
@@ -65,7 +65,7 @@ export async function postMfaTotpVerify(
  * TOTP無効化
  */
 export async function deleteMfaTotp(
-  args: { json: { code: string } },
+  args: InferRequestType<typeof client.mfa.totp.$delete>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.totp.$delete(args, options)
@@ -79,7 +79,7 @@ export async function deleteMfaTotp(
  * 電話番号を登録し、確認コードを送信します
  */
 export async function postMfaSmsSetup(
-  args: { json: { phoneNumber: string } },
+  args: InferRequestType<typeof client.mfa.sms.setup.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.sms.setup.$post(args, options)
@@ -91,7 +91,7 @@ export async function postMfaSmsSetup(
  * SMS認証設定確認
  */
 export async function postMfaSmsVerify(
-  args: { json: { challengeId: string; code: string } },
+  args: InferRequestType<typeof client.mfa.sms.verify.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.sms.verify.$post(args, options)
@@ -103,7 +103,7 @@ export async function postMfaSmsVerify(
  * SMS認証削除
  */
 export async function deleteMfaSmsMethodId(
-  args: { param: { methodId: string }; json: { verificationCode: string } },
+  args: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.sms[':methodId'].$delete(args, options)
@@ -115,7 +115,7 @@ export async function deleteMfaSmsMethodId(
  * メール認証設定開始
  */
 export async function postMfaEmailSetup(
-  args: { json: { email?: string } },
+  args: InferRequestType<typeof client.mfa.email.setup.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.email.setup.$post(args, options)
@@ -127,7 +127,7 @@ export async function postMfaEmailSetup(
  * メール認証設定確認
  */
 export async function postMfaEmailVerify(
-  args: { json: { challengeId: string; code: string } },
+  args: InferRequestType<typeof client.mfa.email.verify.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.email.verify.$post(args, options)
@@ -141,12 +141,7 @@ export async function postMfaEmailVerify(
  * WebAuthn認証器登録のためのオプションを取得します
  */
 export async function postMfaWebauthnRegisterOptions(
-  args: {
-    json: {
-      authenticatorType?: 'platform' | 'cross-platform' | 'any'
-      residentKey?: 'discouraged' | 'preferred' | 'required'
-    }
-  },
+  args: InferRequestType<typeof client.mfa.webauthn.register.options.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.webauthn.register.options.$post(args, options)
@@ -158,15 +153,7 @@ export async function postMfaWebauthnRegisterOptions(
  * WebAuthn登録検証
  */
 export async function postMfaWebauthnRegisterVerify(
-  args: {
-    json: {
-      id: string
-      rawId: string
-      response: { clientDataJSON?: string; attestationObject?: string; transports?: string[] }
-      type: string
-      name?: string
-    }
-  },
+  args: InferRequestType<typeof client.mfa.webauthn.register.verify.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.webauthn.register.verify.$post(args, options)
@@ -187,7 +174,7 @@ export async function getMfaWebauthnCredentials(options?: ClientRequestOptions) 
  * WebAuthn認証器削除
  */
 export async function deleteMfaWebauthnCredentialsCredentialId(
-  args: { param: { credentialId: string } },
+  args: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.webauthn.credentials[':credentialId'].$delete(args, options)
@@ -199,7 +186,7 @@ export async function deleteMfaWebauthnCredentialsCredentialId(
  * WebAuthn認証器更新
  */
 export async function patchMfaWebauthnCredentialsCredentialId(
-  args: { param: { credentialId: string }; json: { name?: string } },
+  args: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.webauthn.credentials[':credentialId'].$patch(args, options)
@@ -213,7 +200,7 @@ export async function patchMfaWebauthnCredentialsCredentialId(
  * 新しいバックアップコードを生成します（既存のコードは無効化されます）
  */
 export async function postMfaBackupCodesGenerate(
-  args: { json: { verificationCode: string; count?: number } },
+  args: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa['backup-codes'].generate.$post(args, options)
@@ -236,9 +223,7 @@ export async function getMfaBackupCodesStatus(options?: ClientRequestOptions) {
  * ログイン時などにMFA認証チャレンジを作成します
  */
 export async function postMfaChallenge(
-  args: {
-    json: { mfaToken: string; method?: 'totp' | 'sms' | 'email' | 'webauthn' | 'backup_code' }
-  },
+  args: InferRequestType<typeof client.mfa.challenge.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.challenge.$post(args, options)
@@ -252,7 +237,7 @@ export async function postMfaChallenge(
  * SMSまたはメールでMFAコードを送信します
  */
 export async function postMfaChallengeSend(
-  args: { json: { challengeId: string } },
+  args: InferRequestType<typeof client.mfa.challenge.send.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.challenge.send.$post(args, options)
@@ -266,27 +251,7 @@ export async function postMfaChallengeSend(
  * MFAコードを検証し、認証を完了します
  */
 export async function postMfaVerify(
-  args: {
-    json:
-      | { challengeId: string; method: 'totp'; code: string }
-      | { challengeId: string; method: 'sms' | 'email'; code: string }
-      | {
-          challengeId: string
-          method: 'webauthn'
-          credential: {
-            id: string
-            rawId: string
-            response: {
-              clientDataJSON?: string
-              authenticatorData?: string
-              signature?: string
-              userHandle?: string
-            }
-            type: string
-          }
-        }
-      | { challengeId: string; method: 'backup_code'; code: string }
-  },
+  args: InferRequestType<typeof client.mfa.verify.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.verify.$post(args, options)
@@ -298,7 +263,7 @@ export async function postMfaVerify(
  * WebAuthn認証オプション取得
  */
 export async function postMfaWebauthnAuthenticateOptions(
-  args: { json: { challengeId: string } },
+  args: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.webauthn.authenticate.options.$post(args, options)
@@ -312,7 +277,7 @@ export async function postMfaWebauthnAuthenticateOptions(
  * MFA認証器にアクセスできない場合のリカバリーを開始します
  */
 export async function postMfaRecovery(
-  args: { json: { email: string } },
+  args: InferRequestType<typeof client.mfa.recovery.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.recovery.$post(args, options)
@@ -324,9 +289,7 @@ export async function postMfaRecovery(
  * MFAリカバリー検証
  */
 export async function postMfaRecoveryVerify(
-  args: {
-    json: { token: string; identityVerification: { dateOfBirth?: string; lastFourDigits?: string } }
-  },
+  args: InferRequestType<typeof client.mfa.recovery.verify.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.mfa.recovery.verify.$post(args, options)

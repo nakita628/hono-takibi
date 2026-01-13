@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/complex-openapi'
 
 /**
@@ -16,14 +16,7 @@ export async function getUsers(options?: ClientRequestOptions) {
  * Create a new user
  */
 export async function postUsers(
-  args: {
-    json: {
-      name: string
-      email: string
-      address?: { street: string; city: string; state: string; postalCode: string; country: string }
-      profile?: { bio?: string; social?: { twitter?: string; linkedin?: string } }
-    }
-  },
+  args: InferRequestType<typeof client.users.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.users.$post(args, options)
@@ -35,7 +28,7 @@ export async function postUsers(
  * Retrieve a user by ID
  */
 export async function getUsersUserId(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].$get(args, options)
@@ -47,15 +40,7 @@ export async function getUsersUserId(
  * Update an existing user
  */
 export async function putUsersUserId(
-  args: {
-    param: { userId: string }
-    json: {
-      name?: string
-      email?: string
-      address?: { street: string; city: string; state: string; postalCode: string; country: string }
-      profile?: { bio?: string; social?: { twitter?: string; linkedin?: string } }
-    }
-  },
+  args: InferRequestType<(typeof client.users)[':userId']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].$put(args, options)
@@ -67,7 +52,7 @@ export async function putUsersUserId(
  * Delete a user
  */
 export async function deleteUsersUserId(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client.users)[':userId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':userId'].$delete(args, options)
@@ -88,15 +73,7 @@ export async function getOrders(options?: ClientRequestOptions) {
  * Create a new order
  */
 export async function postOrders(
-  args: {
-    json: {
-      userId: string
-      items: { productId: string; quantity: number; price: number }[]
-      paymentMethod?:
-        | { method: 'credit_card'; cardNumber: string; cardHolder: string; expirationDate: string }
-        | { method: 'paypal'; email: string }
-    }
-  },
+  args: InferRequestType<typeof client.orders.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.orders.$post(args, options)

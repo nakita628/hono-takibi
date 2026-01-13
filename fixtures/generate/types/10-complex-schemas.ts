@@ -1,11 +1,39 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/events': {
-      $post: { input: { json: unknown }; output: {}; outputFormat: string; status: 201 }
+      $post: {
+        input: {
+          json:
+            | {
+                id: string
+                eventType: 'user.created' | 'user.updated' | 'user.deleted'
+                timestamp: string
+                metadata?: { [x: string]: unknown } | undefined
+                userId: string
+                userData?: { email?: string | undefined; name?: string | undefined } | undefined
+              }
+            | {
+                id: string
+                eventType: 'order.placed' | 'order.shipped' | 'order.delivered'
+                timestamp: string
+                metadata?: { [x: string]: unknown } | undefined
+                orderId: string
+                orderData?: { total?: number | undefined; items?: number | undefined } | undefined
+              }
+            | {
+                id: string
+                eventType: 'system.startup' | 'system.shutdown'
+                timestamp: string
+                metadata?: { [x: string]: unknown } | undefined
+                component: string
+                details?: string | undefined
+              }
+        }
+        output: {}
+        outputFormat: string
+        status: 201
+      }
     }
   } & {
     '/notifications': {
@@ -68,10 +96,43 @@ declare const routes: import(
     }
   } & {
     '/documents': {
-      $post: { input: { json: unknown }; output: {}; outputFormat: string; status: 201 }
+      $post: {
+        input: {
+          json: {
+            id: string
+            title: string
+            description?: string | undefined
+            createdAt?: string | undefined
+            createdBy?: string | undefined
+            updatedAt?: string | undefined
+            updatedBy?: string | undefined
+            version?: number | undefined
+            tags?: string[] | undefined
+            categories?: string[] | undefined
+            content?: string | undefined
+            format?: 'markdown' | 'html' | 'plain' | undefined
+          }
+        }
+        output: {}
+        outputFormat: string
+        status: 201
+      }
     }
   } & {
-    '/mixed': { $post: { input: { json: unknown }; output: {}; outputFormat: string; status: 200 } }
+    '/mixed': {
+      $post: {
+        input: {
+          json: {
+            value: string | number | boolean | unknown[] | { [x: string]: unknown }
+            notNull?: { [x: string]: unknown } | undefined
+            restrictedValue?: {} | undefined
+          }
+        }
+        output: {}
+        outputFormat: string
+        status: 200
+      }
+    }
   },
   '/'
 >

@@ -392,7 +392,7 @@ export function parseConfig(
   return { ok: true, value: config }
 }
 
-export async function loadConfig(): Promise<
+export async function readConfig(): Promise<
   | {
       readonly ok: true
       readonly value: Config
@@ -469,7 +469,7 @@ export default {
 `
       fs.writeFileSync(p, c, 'utf-8')
 
-      await expect(loadConfig()).resolves.toStrictEqual({
+      await expect(readConfig()).resolves.toStrictEqual({
         ok: true,
         value: {
           input: 'openapi.yaml',
@@ -487,7 +487,7 @@ export default {
     })
 
     it('fails: config file missing', async () => {
-      const result = await loadConfig()
+      const result = await readConfig()
       expect(result.ok).toBe(false)
       if (!result.ok) {
         expect(result.error).toMatch(/Config not found:/)

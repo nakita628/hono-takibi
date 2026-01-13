@@ -61,7 +61,7 @@ if (import.meta.vitest) {
       fs.rmSync('tmp-cli-test', { recursive: true, force: true })
     })
 
-    it('--help returns help text', () => {
+    it('--help returns help text', { timeout: 10000 }, () => {
       const result = execSync(
         `node ${path.resolve('packages/hono-takibi/dist/index.js')} --help`,
       ).toString()

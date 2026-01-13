@@ -1,15 +1,32 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/entities': {
       $get:
         | {
             input: {
               query: {
-                filter?: unknown
+                filter?:
+                  | {
+                      field?: string | undefined
+                      operator?:
+                        | 'eq'
+                        | 'ne'
+                        | 'gt'
+                        | 'gte'
+                        | 'lt'
+                        | 'lte'
+                        | 'in'
+                        | 'nin'
+                        | 'contains'
+                        | 'startsWith'
+                        | 'endsWith'
+                        | undefined
+                      value?: string | number | boolean | string[] | undefined
+                      and?: unknown[] | undefined
+                      or?: unknown[] | undefined
+                    }
+                  | undefined
                 page?:
                   | {
                       page?: number | undefined
@@ -25,21 +42,15 @@ declare const routes: import(
             output: {
               data: {
                 id: string
-                type: 'user' | 'project' | 'organization' | 'resource'
+                type: 'user' | 'organization' | 'project' | 'resource'
                 attributes: {
-                  [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                   name?: string | undefined
                   description?: string | undefined
                   status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                   tags?: { key: string; value: string }[] | undefined
                   customFields?:
                     | {
-                        [x: string]:
-                          | string
-                          | number
-                          | boolean
-                          | string[]
-                          | { [x: string]: string | number | boolean | string[] | any }
+                        [x: string]: string | number | boolean | string[] | { [x: string]: unknown }
                       }
                     | undefined
                 }
@@ -49,7 +60,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -65,7 +76,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -81,7 +92,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -97,7 +108,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -138,9 +149,8 @@ declare const routes: import(
               included?:
                 | {
                     id: string
-                    type: 'user' | 'project' | 'organization' | 'resource'
+                    type: 'user' | 'organization' | 'project' | 'resource'
                     attributes: {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                       name?: string | undefined
                       description?: string | undefined
                       status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
@@ -152,7 +162,7 @@ declare const routes: import(
                               | number
                               | boolean
                               | string[]
-                              | { [x: string]: string | number | boolean | string[] | any }
+                              | { [x: string]: unknown }
                           }
                         | undefined
                     }
@@ -162,7 +172,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }
                                   | undefined
@@ -178,7 +188,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }[]
                                   | undefined
@@ -194,7 +204,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }
                                   | undefined
@@ -210,7 +220,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }[]
                                   | undefined
@@ -273,7 +283,27 @@ declare const routes: import(
         | {
             input: {
               query: {
-                filter?: unknown
+                filter?:
+                  | {
+                      field?: string | undefined
+                      operator?:
+                        | 'eq'
+                        | 'ne'
+                        | 'gt'
+                        | 'gte'
+                        | 'lt'
+                        | 'lte'
+                        | 'in'
+                        | 'nin'
+                        | 'contains'
+                        | 'startsWith'
+                        | 'endsWith'
+                        | undefined
+                      value?: string | number | boolean | string[] | undefined
+                      and?: unknown[] | undefined
+                      or?: unknown[] | undefined
+                    }
+                  | undefined
                 page?:
                   | {
                       page?: number | undefined
@@ -288,10 +318,10 @@ declare const routes: import(
             }
             output: {
               errors: {
+                id?: string | undefined
                 status: string
                 code: string
                 title: string
-                id?: string | undefined
                 detail?: string | undefined
                 source?:
                   | {
@@ -300,11 +330,7 @@ declare const routes: import(
                       header?: string | undefined
                     }
                   | undefined
-                meta?:
-                  | {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                    }
-                  | undefined
+                meta?: { [x: string]: unknown } | undefined
               }[]
               meta?:
                 | { requestId?: string | undefined; processingTime?: number | undefined }
@@ -316,7 +342,27 @@ declare const routes: import(
         | {
             input: {
               query: {
-                filter?: unknown
+                filter?:
+                  | {
+                      field?: string | undefined
+                      operator?:
+                        | 'eq'
+                        | 'ne'
+                        | 'gt'
+                        | 'gte'
+                        | 'lt'
+                        | 'lte'
+                        | 'in'
+                        | 'nin'
+                        | 'contains'
+                        | 'startsWith'
+                        | 'endsWith'
+                        | undefined
+                      value?: string | number | boolean | string[] | undefined
+                      and?: unknown[] | undefined
+                      or?: unknown[] | undefined
+                    }
+                  | undefined
                 page?:
                   | {
                       page?: number | undefined
@@ -331,10 +377,10 @@ declare const routes: import(
             }
             output: {
               errors: {
+                id?: string | undefined
                 status: string
                 code: string
                 title: string
-                id?: string | undefined
                 detail?: string | undefined
                 source?:
                   | {
@@ -343,11 +389,7 @@ declare const routes: import(
                       header?: string | undefined
                     }
                   | undefined
-                meta?:
-                  | {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                    }
-                  | undefined
+                meta?: { [x: string]: unknown } | undefined
               }[]
               meta?:
                 | { requestId?: string | undefined; processingTime?: number | undefined }
@@ -356,21 +398,21 @@ declare const routes: import(
             outputFormat: 'json'
             status: 401
           }
-    }
-  } & {
-    '/entities': {
       $post:
         | {
             input: { header: { 'Idempotency-Key'?: string | undefined } } & {
               json: {
-                type: 'user' | 'project' | 'organization' | 'resource'
+                type: 'user' | 'organization' | 'project' | 'resource'
                 attributes: {
-                  [x: string]: unknown
                   name?: string | undefined
                   description?: string | undefined
                   status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                   tags?: { key: string; value: string }[] | undefined
-                  customFields?: Record<string, unknown> | undefined
+                  customFields?:
+                    | {
+                        [x: string]: string | number | boolean | string[] | { [x: string]: unknown }
+                      }
+                    | undefined
                 }
                 relationships?:
                   | {
@@ -378,7 +420,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -394,7 +436,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -410,7 +452,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -426,116 +468,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
-                                  id: string
-                                }[]
-                              | undefined
-                            links?:
-                              | { self?: string | undefined; related?: string | undefined }
-                              | undefined
-                            meta?:
-                              | { count?: number | undefined; createdAt?: string | undefined }
-                              | undefined
-                          }
-                        | undefined
-                    }
-                  | undefined
-              }
-            }
-            output: {
-              errors: {
-                status: string
-                code: string
-                title: string
-                id?: string | undefined
-                detail?: string | undefined
-                source?:
-                  | {
-                      pointer?: string | undefined
-                      parameter?: string | undefined
-                      header?: string | undefined
-                    }
-                  | undefined
-                meta?:
-                  | {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                    }
-                  | undefined
-              }[]
-              meta?:
-                | { requestId?: string | undefined; processingTime?: number | undefined }
-                | undefined
-            }
-            outputFormat: 'json'
-            status: 400
-          }
-        | {
-            input: { header: { 'Idempotency-Key'?: string | undefined } } & {
-              json: {
-                type: 'user' | 'project' | 'organization' | 'resource'
-                attributes: {
-                  [x: string]: unknown
-                  name?: string | undefined
-                  description?: string | undefined
-                  status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
-                  tags?: { key: string; value: string }[] | undefined
-                  customFields?: Record<string, unknown> | undefined
-                }
-                relationships?:
-                  | {
-                      parent?:
-                        | {
-                            data?:
-                              | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
-                                  id: string
-                                }
-                              | undefined
-                            links?:
-                              | { self?: string | undefined; related?: string | undefined }
-                              | undefined
-                            meta?:
-                              | { count?: number | undefined; createdAt?: string | undefined }
-                              | undefined
-                          }
-                        | undefined
-                      children?:
-                        | {
-                            data?:
-                              | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
-                                  id: string
-                                }[]
-                              | undefined
-                            links?:
-                              | { self?: string | undefined; related?: string | undefined }
-                              | undefined
-                            meta?:
-                              | { count?: number | undefined; createdAt?: string | undefined }
-                              | undefined
-                          }
-                        | undefined
-                      owner?:
-                        | {
-                            data?:
-                              | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
-                                  id: string
-                                }
-                              | undefined
-                            links?:
-                              | { self?: string | undefined; related?: string | undefined }
-                              | undefined
-                            meta?:
-                              | { count?: number | undefined; createdAt?: string | undefined }
-                              | undefined
-                          }
-                        | undefined
-                      members?:
-                        | {
-                            data?:
-                              | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -554,21 +487,15 @@ declare const routes: import(
             output: {
               data: {
                 id: string
-                type: 'user' | 'project' | 'organization' | 'resource'
+                type: 'user' | 'organization' | 'project' | 'resource'
                 attributes: {
-                  [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                   name?: string | undefined
                   description?: string | undefined
                   status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                   tags?: { key: string; value: string }[] | undefined
                   customFields?:
                     | {
-                        [x: string]:
-                          | string
-                          | number
-                          | boolean
-                          | string[]
-                          | { [x: string]: string | number | boolean | string[] | any }
+                        [x: string]: string | number | boolean | string[] | { [x: string]: unknown }
                       }
                     | undefined
                 }
@@ -578,7 +505,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -594,7 +521,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -610,7 +537,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -626,7 +553,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -667,9 +594,8 @@ declare const routes: import(
               included?:
                 | {
                     id: string
-                    type: 'user' | 'project' | 'organization' | 'resource'
+                    type: 'user' | 'organization' | 'project' | 'resource'
                     attributes: {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                       name?: string | undefined
                       description?: string | undefined
                       status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
@@ -681,7 +607,7 @@ declare const routes: import(
                               | number
                               | boolean
                               | string[]
-                              | { [x: string]: string | number | boolean | string[] | any }
+                              | { [x: string]: unknown }
                           }
                         | undefined
                     }
@@ -691,7 +617,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }
                                   | undefined
@@ -707,7 +633,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }[]
                                   | undefined
@@ -723,7 +649,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }
                                   | undefined
@@ -739,7 +665,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }[]
                                   | undefined
@@ -788,14 +714,17 @@ declare const routes: import(
         | {
             input: { header: { 'Idempotency-Key'?: string | undefined } } & {
               json: {
-                type: 'user' | 'project' | 'organization' | 'resource'
+                type: 'user' | 'organization' | 'project' | 'resource'
                 attributes: {
-                  [x: string]: unknown
                   name?: string | undefined
                   description?: string | undefined
                   status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                   tags?: { key: string; value: string }[] | undefined
-                  customFields?: Record<string, unknown> | undefined
+                  customFields?:
+                    | {
+                        [x: string]: string | number | boolean | string[] | { [x: string]: unknown }
+                      }
+                    | undefined
                 }
                 relationships?:
                   | {
@@ -803,7 +732,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -819,7 +748,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -835,7 +764,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -851,7 +780,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -869,10 +798,10 @@ declare const routes: import(
             }
             output: {
               errors: {
+                id?: string | undefined
                 status: string
                 code: string
                 title: string
-                id?: string | undefined
                 detail?: string | undefined
                 source?:
                   | {
@@ -881,11 +810,115 @@ declare const routes: import(
                       header?: string | undefined
                     }
                   | undefined
-                meta?:
+                meta?: { [x: string]: unknown } | undefined
+              }[]
+              meta?:
+                | { requestId?: string | undefined; processingTime?: number | undefined }
+                | undefined
+            }
+            outputFormat: 'json'
+            status: 400
+          }
+        | {
+            input: { header: { 'Idempotency-Key'?: string | undefined } } & {
+              json: {
+                type: 'user' | 'organization' | 'project' | 'resource'
+                attributes: {
+                  name?: string | undefined
+                  description?: string | undefined
+                  status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
+                  tags?: { key: string; value: string }[] | undefined
+                  customFields?:
+                    | {
+                        [x: string]: string | number | boolean | string[] | { [x: string]: unknown }
+                      }
+                    | undefined
+                }
+                relationships?:
                   | {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
+                      parent?:
+                        | {
+                            data?:
+                              | {
+                                  type: 'user' | 'organization' | 'project' | 'resource'
+                                  id: string
+                                }
+                              | undefined
+                            links?:
+                              | { self?: string | undefined; related?: string | undefined }
+                              | undefined
+                            meta?:
+                              | { count?: number | undefined; createdAt?: string | undefined }
+                              | undefined
+                          }
+                        | undefined
+                      children?:
+                        | {
+                            data?:
+                              | {
+                                  type: 'user' | 'organization' | 'project' | 'resource'
+                                  id: string
+                                }[]
+                              | undefined
+                            links?:
+                              | { self?: string | undefined; related?: string | undefined }
+                              | undefined
+                            meta?:
+                              | { count?: number | undefined; createdAt?: string | undefined }
+                              | undefined
+                          }
+                        | undefined
+                      owner?:
+                        | {
+                            data?:
+                              | {
+                                  type: 'user' | 'organization' | 'project' | 'resource'
+                                  id: string
+                                }
+                              | undefined
+                            links?:
+                              | { self?: string | undefined; related?: string | undefined }
+                              | undefined
+                            meta?:
+                              | { count?: number | undefined; createdAt?: string | undefined }
+                              | undefined
+                          }
+                        | undefined
+                      members?:
+                        | {
+                            data?:
+                              | {
+                                  type: 'user' | 'organization' | 'project' | 'resource'
+                                  id: string
+                                }[]
+                              | undefined
+                            links?:
+                              | { self?: string | undefined; related?: string | undefined }
+                              | undefined
+                            meta?:
+                              | { count?: number | undefined; createdAt?: string | undefined }
+                              | undefined
+                          }
+                        | undefined
                     }
                   | undefined
+              }
+            }
+            output: {
+              errors: {
+                id?: string | undefined
+                status: string
+                code: string
+                title: string
+                detail?: string | undefined
+                source?:
+                  | {
+                      pointer?: string | undefined
+                      parameter?: string | undefined
+                      header?: string | undefined
+                    }
+                  | undefined
+                meta?: { [x: string]: unknown } | undefined
               }[]
               meta?:
                 | { requestId?: string | undefined; processingTime?: number | undefined }
@@ -905,21 +938,15 @@ declare const routes: import(
             output: {
               data: {
                 id: string
-                type: 'user' | 'project' | 'organization' | 'resource'
+                type: 'user' | 'organization' | 'project' | 'resource'
                 attributes: {
-                  [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                   name?: string | undefined
                   description?: string | undefined
                   status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                   tags?: { key: string; value: string }[] | undefined
                   customFields?:
                     | {
-                        [x: string]:
-                          | string
-                          | number
-                          | boolean
-                          | string[]
-                          | { [x: string]: string | number | boolean | string[] | any }
+                        [x: string]: string | number | boolean | string[] | { [x: string]: unknown }
                       }
                     | undefined
                 }
@@ -929,7 +956,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -945,7 +972,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -961,7 +988,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -977,7 +1004,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -1018,9 +1045,8 @@ declare const routes: import(
               included?:
                 | {
                     id: string
-                    type: 'user' | 'project' | 'organization' | 'resource'
+                    type: 'user' | 'organization' | 'project' | 'resource'
                     attributes: {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                       name?: string | undefined
                       description?: string | undefined
                       status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
@@ -1032,7 +1058,7 @@ declare const routes: import(
                               | number
                               | boolean
                               | string[]
-                              | { [x: string]: string | number | boolean | string[] | any }
+                              | { [x: string]: unknown }
                           }
                         | undefined
                     }
@@ -1042,7 +1068,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }
                                   | undefined
@@ -1058,7 +1084,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }[]
                                   | undefined
@@ -1074,7 +1100,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }
                                   | undefined
@@ -1090,7 +1116,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }[]
                                   | undefined
@@ -1150,10 +1176,10 @@ declare const routes: import(
             } & { header: { 'If-None-Match'?: string | undefined } }
             output: {
               errors: {
+                id?: string | undefined
                 status: string
                 code: string
                 title: string
-                id?: string | undefined
                 detail?: string | undefined
                 source?:
                   | {
@@ -1162,11 +1188,7 @@ declare const routes: import(
                       header?: string | undefined
                     }
                   | undefined
-                meta?:
-                  | {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                    }
-                  | undefined
+                meta?: { [x: string]: unknown } | undefined
               }[]
               meta?:
                 | { requestId?: string | undefined; processingTime?: number | undefined }
@@ -1175,9 +1197,6 @@ declare const routes: import(
             outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/entities/:entityId': {
       $put:
         | {
             input: { param: { entityId: string } } & {
@@ -1186,12 +1205,20 @@ declare const routes: import(
               json: {
                 attributes?:
                   | {
-                      [x: string]: unknown
                       name?: string | undefined
                       description?: string | undefined
                       status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                       tags?: { key: string; value: string }[] | undefined
-                      customFields?: Record<string, unknown> | undefined
+                      customFields?:
+                        | {
+                            [x: string]:
+                              | string
+                              | number
+                              | boolean
+                              | string[]
+                              | { [x: string]: unknown }
+                          }
+                        | undefined
                     }
                   | undefined
                 relationships?:
@@ -1200,7 +1227,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -1216,7 +1243,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -1232,7 +1259,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -1248,119 +1275,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
-                                  id: string
-                                }[]
-                              | undefined
-                            links?:
-                              | { self?: string | undefined; related?: string | undefined }
-                              | undefined
-                            meta?:
-                              | { count?: number | undefined; createdAt?: string | undefined }
-                              | undefined
-                          }
-                        | undefined
-                    }
-                  | undefined
-              }
-            }
-            output: {
-              errors: {
-                status: string
-                code: string
-                title: string
-                id?: string | undefined
-                detail?: string | undefined
-                source?:
-                  | {
-                      pointer?: string | undefined
-                      parameter?: string | undefined
-                      header?: string | undefined
-                    }
-                  | undefined
-                meta?:
-                  | {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                    }
-                  | undefined
-              }[]
-              meta?:
-                | { requestId?: string | undefined; processingTime?: number | undefined }
-                | undefined
-            }
-            outputFormat: 'json'
-            status: 409
-          }
-        | {
-            input: { param: { entityId: string } } & {
-              header: { 'If-Match'?: string | undefined }
-            } & {
-              json: {
-                attributes?:
-                  | {
-                      [x: string]: unknown
-                      name?: string | undefined
-                      description?: string | undefined
-                      status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
-                      tags?: { key: string; value: string }[] | undefined
-                      customFields?: Record<string, unknown> | undefined
-                    }
-                  | undefined
-                relationships?:
-                  | {
-                      parent?:
-                        | {
-                            data?:
-                              | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
-                                  id: string
-                                }
-                              | undefined
-                            links?:
-                              | { self?: string | undefined; related?: string | undefined }
-                              | undefined
-                            meta?:
-                              | { count?: number | undefined; createdAt?: string | undefined }
-                              | undefined
-                          }
-                        | undefined
-                      children?:
-                        | {
-                            data?:
-                              | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
-                                  id: string
-                                }[]
-                              | undefined
-                            links?:
-                              | { self?: string | undefined; related?: string | undefined }
-                              | undefined
-                            meta?:
-                              | { count?: number | undefined; createdAt?: string | undefined }
-                              | undefined
-                          }
-                        | undefined
-                      owner?:
-                        | {
-                            data?:
-                              | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
-                                  id: string
-                                }
-                              | undefined
-                            links?:
-                              | { self?: string | undefined; related?: string | undefined }
-                              | undefined
-                            meta?:
-                              | { count?: number | undefined; createdAt?: string | undefined }
-                              | undefined
-                          }
-                        | undefined
-                      members?:
-                        | {
-                            data?:
-                              | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -1379,21 +1294,15 @@ declare const routes: import(
             output: {
               data: {
                 id: string
-                type: 'user' | 'project' | 'organization' | 'resource'
+                type: 'user' | 'organization' | 'project' | 'resource'
                 attributes: {
-                  [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                   name?: string | undefined
                   description?: string | undefined
                   status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                   tags?: { key: string; value: string }[] | undefined
                   customFields?:
                     | {
-                        [x: string]:
-                          | string
-                          | number
-                          | boolean
-                          | string[]
-                          | { [x: string]: string | number | boolean | string[] | any }
+                        [x: string]: string | number | boolean | string[] | { [x: string]: unknown }
                       }
                     | undefined
                 }
@@ -1403,7 +1312,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -1419,7 +1328,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -1435,7 +1344,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -1451,7 +1360,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -1492,9 +1401,8 @@ declare const routes: import(
               included?:
                 | {
                     id: string
-                    type: 'user' | 'project' | 'organization' | 'resource'
+                    type: 'user' | 'organization' | 'project' | 'resource'
                     attributes: {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                       name?: string | undefined
                       description?: string | undefined
                       status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
@@ -1506,7 +1414,7 @@ declare const routes: import(
                               | number
                               | boolean
                               | string[]
-                              | { [x: string]: string | number | boolean | string[] | any }
+                              | { [x: string]: unknown }
                           }
                         | undefined
                     }
@@ -1516,7 +1424,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }
                                   | undefined
@@ -1532,7 +1440,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }[]
                                   | undefined
@@ -1548,7 +1456,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }
                                   | undefined
@@ -1564,7 +1472,7 @@ declare const routes: import(
                             | {
                                 data?:
                                   | {
-                                      type: 'user' | 'project' | 'organization' | 'resource'
+                                      type: 'user' | 'organization' | 'project' | 'resource'
                                       id: string
                                     }[]
                                   | undefined
@@ -1617,12 +1525,20 @@ declare const routes: import(
               json: {
                 attributes?:
                   | {
-                      [x: string]: unknown
                       name?: string | undefined
                       description?: string | undefined
                       status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                       tags?: { key: string; value: string }[] | undefined
-                      customFields?: Record<string, unknown> | undefined
+                      customFields?:
+                        | {
+                            [x: string]:
+                              | string
+                              | number
+                              | boolean
+                              | string[]
+                              | { [x: string]: unknown }
+                          }
+                        | undefined
                     }
                   | undefined
                 relationships?:
@@ -1631,7 +1547,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -1647,7 +1563,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -1663,7 +1579,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -1679,7 +1595,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -1697,10 +1613,10 @@ declare const routes: import(
             }
             output: {
               errors: {
+                id?: string | undefined
                 status: string
                 code: string
                 title: string
-                id?: string | undefined
                 detail?: string | undefined
                 source?:
                   | {
@@ -1709,11 +1625,7 @@ declare const routes: import(
                       header?: string | undefined
                     }
                   | undefined
-                meta?:
-                  | {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                    }
-                  | undefined
+                meta?: { [x: string]: unknown } | undefined
               }[]
               meta?:
                 | { requestId?: string | undefined; processingTime?: number | undefined }
@@ -1729,12 +1641,20 @@ declare const routes: import(
               json: {
                 attributes?:
                   | {
-                      [x: string]: unknown
                       name?: string | undefined
                       description?: string | undefined
                       status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                       tags?: { key: string; value: string }[] | undefined
-                      customFields?: Record<string, unknown> | undefined
+                      customFields?:
+                        | {
+                            [x: string]:
+                              | string
+                              | number
+                              | boolean
+                              | string[]
+                              | { [x: string]: unknown }
+                          }
+                        | undefined
                     }
                   | undefined
                 relationships?:
@@ -1743,7 +1663,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -1759,7 +1679,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -1775,7 +1695,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }
                               | undefined
@@ -1791,7 +1711,7 @@ declare const routes: import(
                         | {
                             data?:
                               | {
-                                  type: 'user' | 'project' | 'organization' | 'resource'
+                                  type: 'user' | 'organization' | 'project' | 'resource'
                                   id: string
                                 }[]
                               | undefined
@@ -1809,10 +1729,10 @@ declare const routes: import(
             }
             output: {
               errors: {
+                id?: string | undefined
                 status: string
                 code: string
                 title: string
-                id?: string | undefined
                 detail?: string | undefined
                 source?:
                   | {
@@ -1821,11 +1741,123 @@ declare const routes: import(
                       header?: string | undefined
                     }
                   | undefined
-                meta?:
+                meta?: { [x: string]: unknown } | undefined
+              }[]
+              meta?:
+                | { requestId?: string | undefined; processingTime?: number | undefined }
+                | undefined
+            }
+            outputFormat: 'json'
+            status: 409
+          }
+        | {
+            input: { param: { entityId: string } } & {
+              header: { 'If-Match'?: string | undefined }
+            } & {
+              json: {
+                attributes?:
                   | {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
+                      name?: string | undefined
+                      description?: string | undefined
+                      status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
+                      tags?: { key: string; value: string }[] | undefined
+                      customFields?:
+                        | {
+                            [x: string]:
+                              | string
+                              | number
+                              | boolean
+                              | string[]
+                              | { [x: string]: unknown }
+                          }
+                        | undefined
                     }
                   | undefined
+                relationships?:
+                  | {
+                      parent?:
+                        | {
+                            data?:
+                              | {
+                                  type: 'user' | 'organization' | 'project' | 'resource'
+                                  id: string
+                                }
+                              | undefined
+                            links?:
+                              | { self?: string | undefined; related?: string | undefined }
+                              | undefined
+                            meta?:
+                              | { count?: number | undefined; createdAt?: string | undefined }
+                              | undefined
+                          }
+                        | undefined
+                      children?:
+                        | {
+                            data?:
+                              | {
+                                  type: 'user' | 'organization' | 'project' | 'resource'
+                                  id: string
+                                }[]
+                              | undefined
+                            links?:
+                              | { self?: string | undefined; related?: string | undefined }
+                              | undefined
+                            meta?:
+                              | { count?: number | undefined; createdAt?: string | undefined }
+                              | undefined
+                          }
+                        | undefined
+                      owner?:
+                        | {
+                            data?:
+                              | {
+                                  type: 'user' | 'organization' | 'project' | 'resource'
+                                  id: string
+                                }
+                              | undefined
+                            links?:
+                              | { self?: string | undefined; related?: string | undefined }
+                              | undefined
+                            meta?:
+                              | { count?: number | undefined; createdAt?: string | undefined }
+                              | undefined
+                          }
+                        | undefined
+                      members?:
+                        | {
+                            data?:
+                              | {
+                                  type: 'user' | 'organization' | 'project' | 'resource'
+                                  id: string
+                                }[]
+                              | undefined
+                            links?:
+                              | { self?: string | undefined; related?: string | undefined }
+                              | undefined
+                            meta?:
+                              | { count?: number | undefined; createdAt?: string | undefined }
+                              | undefined
+                          }
+                        | undefined
+                    }
+                  | undefined
+              }
+            }
+            output: {
+              errors: {
+                id?: string | undefined
+                status: string
+                code: string
+                title: string
+                detail?: string | undefined
+                source?:
+                  | {
+                      pointer?: string | undefined
+                      parameter?: string | undefined
+                      header?: string | undefined
+                    }
+                  | undefined
+                meta?: { [x: string]: unknown } | undefined
               }[]
               meta?:
                 | { requestId?: string | undefined; processingTime?: number | undefined }
@@ -1834,18 +1866,21 @@ declare const routes: import(
             outputFormat: 'json'
             status: 412
           }
-    }
-  } & {
-    '/entities/:entityId': {
       $delete:
+        | {
+            input: { param: { entityId: string } } & { header: { 'If-Match'?: string | undefined } }
+            output: {}
+            outputFormat: string
+            status: 204
+          }
         | {
             input: { param: { entityId: string } } & { header: { 'If-Match'?: string | undefined } }
             output: {
               errors: {
+                id?: string | undefined
                 status: string
                 code: string
                 title: string
-                id?: string | undefined
                 detail?: string | undefined
                 source?:
                   | {
@@ -1854,11 +1889,7 @@ declare const routes: import(
                       header?: string | undefined
                     }
                   | undefined
-                meta?:
-                  | {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                    }
-                  | undefined
+                meta?: { [x: string]: unknown } | undefined
               }[]
               meta?:
                 | { requestId?: string | undefined; processingTime?: number | undefined }
@@ -1867,12 +1898,6 @@ declare const routes: import(
             outputFormat: 'json'
             status: 404
           }
-        | {
-            input: { param: { entityId: string } } & { header: { 'If-Match'?: string | undefined } }
-            output: {}
-            outputFormat: string
-            status: 204
-          }
     }
   } & {
     '/entities/:entityId/relationships': {
@@ -1880,7 +1905,7 @@ declare const routes: import(
         input: { param: { entityId: string } }
         output: {
           data?:
-            | { type: 'user' | 'project' | 'organization' | 'resource'; id: string }[]
+            | { type: 'user' | 'organization' | 'project' | 'resource'; id: string }[]
             | undefined
           links?: { self?: string | undefined; related?: string | undefined } | undefined
           meta?: { count?: number | undefined; createdAt?: string | undefined } | undefined
@@ -1888,9 +1913,6 @@ declare const routes: import(
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/entities/:entityId/relationships': {
       $post: {
         input: { param: { entityId: string } } & {
           json: {
@@ -1900,7 +1922,7 @@ declare const routes: import(
           }
         }
         output: {
-          data?: { type: 'user' | 'project' | 'organization' | 'resource'; id: string } | undefined
+          data?: { type: 'user' | 'organization' | 'project' | 'resource'; id: string } | undefined
           links?: { self?: string | undefined; related?: string | undefined } | undefined
           meta?: { count?: number | undefined; createdAt?: string | undefined } | undefined
         }
@@ -1915,20 +1937,28 @@ declare const routes: import(
             input: {
               json: {
                 operations: {
+                  id?: string | undefined
                   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
                   path: string
-                  id?: string | undefined
-                  headers?: Record<string, string> | undefined
+                  headers?: { [x: string]: string } | undefined
                   body?:
                     | {
-                        type: 'user' | 'project' | 'organization' | 'resource'
+                        type: 'user' | 'organization' | 'project' | 'resource'
                         attributes: {
-                          [x: string]: unknown
                           name?: string | undefined
                           description?: string | undefined
                           status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                           tags?: { key: string; value: string }[] | undefined
-                          customFields?: Record<string, unknown> | undefined
+                          customFields?:
+                            | {
+                                [x: string]:
+                                  | string
+                                  | number
+                                  | boolean
+                                  | string[]
+                                  | { [x: string]: unknown }
+                              }
+                            | undefined
                         }
                         relationships?:
                           | {
@@ -1936,7 +1966,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -1955,7 +1985,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -1974,7 +2004,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -1993,7 +2023,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -2014,12 +2044,20 @@ declare const routes: import(
                     | {
                         attributes?:
                           | {
-                              [x: string]: unknown
                               name?: string | undefined
                               description?: string | undefined
                               status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                               tags?: { key: string; value: string }[] | undefined
-                              customFields?: Record<string, unknown> | undefined
+                              customFields?:
+                                | {
+                                    [x: string]:
+                                      | string
+                                      | number
+                                      | boolean
+                                      | string[]
+                                      | { [x: string]: unknown }
+                                  }
+                                | undefined
                             }
                           | undefined
                         relationships?:
@@ -2028,7 +2066,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -2047,7 +2085,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -2066,7 +2104,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -2085,7 +2123,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -2114,35 +2152,10 @@ declare const routes: import(
                 headers?: { [x: string]: string } | undefined
                 body?:
                   | {
-                      errors: {
-                        status: string
-                        code: string
-                        title: string
-                        id?: string | undefined
-                        detail?: string | undefined
-                        source?:
-                          | {
-                              pointer?: string | undefined
-                              parameter?: string | undefined
-                              header?: string | undefined
-                            }
-                          | undefined
-                        meta?:
-                          | {
-                              [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                            }
-                          | undefined
-                      }[]
-                      meta?:
-                        | { requestId?: string | undefined; processingTime?: number | undefined }
-                        | undefined
-                    }
-                  | {
                       data: {
                         id: string
-                        type: 'user' | 'project' | 'organization' | 'resource'
+                        type: 'user' | 'organization' | 'project' | 'resource'
                         attributes: {
-                          [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                           name?: string | undefined
                           description?: string | undefined
                           status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
@@ -2154,7 +2167,7 @@ declare const routes: import(
                                   | number
                                   | boolean
                                   | string[]
-                                  | { [x: string]: string | number | boolean | string[] | any }
+                                  | { [x: string]: unknown }
                               }
                             | undefined
                         }
@@ -2164,7 +2177,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -2183,7 +2196,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -2202,7 +2215,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -2221,7 +2234,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -2265,9 +2278,8 @@ declare const routes: import(
                       included?:
                         | {
                             id: string
-                            type: 'user' | 'project' | 'organization' | 'resource'
+                            type: 'user' | 'organization' | 'project' | 'resource'
                             attributes: {
-                              [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                               name?: string | undefined
                               description?: string | undefined
                               status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
@@ -2279,7 +2291,7 @@ declare const routes: import(
                                       | number
                                       | boolean
                                       | string[]
-                                      | { [x: string]: string | number | boolean | string[] | any }
+                                      | { [x: string]: unknown }
                                   }
                                 | undefined
                             }
@@ -2289,7 +2301,7 @@ declare const routes: import(
                                     | {
                                         data?:
                                           | {
-                                              type: 'user' | 'project' | 'organization' | 'resource'
+                                              type: 'user' | 'organization' | 'project' | 'resource'
                                               id: string
                                             }
                                           | undefined
@@ -2311,7 +2323,7 @@ declare const routes: import(
                                     | {
                                         data?:
                                           | {
-                                              type: 'user' | 'project' | 'organization' | 'resource'
+                                              type: 'user' | 'organization' | 'project' | 'resource'
                                               id: string
                                             }[]
                                           | undefined
@@ -2333,7 +2345,7 @@ declare const routes: import(
                                     | {
                                         data?:
                                           | {
-                                              type: 'user' | 'project' | 'organization' | 'resource'
+                                              type: 'user' | 'organization' | 'project' | 'resource'
                                               id: string
                                             }
                                           | undefined
@@ -2355,7 +2367,7 @@ declare const routes: import(
                                     | {
                                         data?:
                                           | {
-                                              type: 'user' | 'project' | 'organization' | 'resource'
+                                              type: 'user' | 'organization' | 'project' | 'resource'
                                               id: string
                                             }[]
                                           | undefined
@@ -2400,6 +2412,26 @@ declare const routes: import(
                               | undefined
                           }[]
                         | undefined
+                      meta?:
+                        | { requestId?: string | undefined; processingTime?: number | undefined }
+                        | undefined
+                    }
+                  | {
+                      errors: {
+                        id?: string | undefined
+                        status: string
+                        code: string
+                        title: string
+                        detail?: string | undefined
+                        source?:
+                          | {
+                              pointer?: string | undefined
+                              parameter?: string | undefined
+                              header?: string | undefined
+                            }
+                          | undefined
+                        meta?: { [x: string]: unknown } | undefined
+                      }[]
                       meta?:
                         | { requestId?: string | undefined; processingTime?: number | undefined }
                         | undefined
@@ -2417,20 +2449,28 @@ declare const routes: import(
             input: {
               json: {
                 operations: {
+                  id?: string | undefined
                   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
                   path: string
-                  id?: string | undefined
-                  headers?: Record<string, string> | undefined
+                  headers?: { [x: string]: string } | undefined
                   body?:
                     | {
-                        type: 'user' | 'project' | 'organization' | 'resource'
+                        type: 'user' | 'organization' | 'project' | 'resource'
                         attributes: {
-                          [x: string]: unknown
                           name?: string | undefined
                           description?: string | undefined
                           status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                           tags?: { key: string; value: string }[] | undefined
-                          customFields?: Record<string, unknown> | undefined
+                          customFields?:
+                            | {
+                                [x: string]:
+                                  | string
+                                  | number
+                                  | boolean
+                                  | string[]
+                                  | { [x: string]: unknown }
+                              }
+                            | undefined
                         }
                         relationships?:
                           | {
@@ -2438,7 +2478,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -2457,7 +2497,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -2476,7 +2516,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -2495,7 +2535,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -2516,12 +2556,20 @@ declare const routes: import(
                     | {
                         attributes?:
                           | {
-                              [x: string]: unknown
                               name?: string | undefined
                               description?: string | undefined
                               status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
                               tags?: { key: string; value: string }[] | undefined
-                              customFields?: Record<string, unknown> | undefined
+                              customFields?:
+                                | {
+                                    [x: string]:
+                                      | string
+                                      | number
+                                      | boolean
+                                      | string[]
+                                      | { [x: string]: unknown }
+                                  }
+                                | undefined
                             }
                           | undefined
                         relationships?:
@@ -2530,7 +2578,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -2549,7 +2597,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -2568,7 +2616,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -2587,7 +2635,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -2616,35 +2664,10 @@ declare const routes: import(
                 headers?: { [x: string]: string } | undefined
                 body?:
                   | {
-                      errors: {
-                        status: string
-                        code: string
-                        title: string
-                        id?: string | undefined
-                        detail?: string | undefined
-                        source?:
-                          | {
-                              pointer?: string | undefined
-                              parameter?: string | undefined
-                              header?: string | undefined
-                            }
-                          | undefined
-                        meta?:
-                          | {
-                              [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                            }
-                          | undefined
-                      }[]
-                      meta?:
-                        | { requestId?: string | undefined; processingTime?: number | undefined }
-                        | undefined
-                    }
-                  | {
                       data: {
                         id: string
-                        type: 'user' | 'project' | 'organization' | 'resource'
+                        type: 'user' | 'organization' | 'project' | 'resource'
                         attributes: {
-                          [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                           name?: string | undefined
                           description?: string | undefined
                           status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
@@ -2656,7 +2679,7 @@ declare const routes: import(
                                   | number
                                   | boolean
                                   | string[]
-                                  | { [x: string]: string | number | boolean | string[] | any }
+                                  | { [x: string]: unknown }
                               }
                             | undefined
                         }
@@ -2666,7 +2689,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -2685,7 +2708,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -2704,7 +2727,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }
                                       | undefined
@@ -2723,7 +2746,7 @@ declare const routes: import(
                                 | {
                                     data?:
                                       | {
-                                          type: 'user' | 'project' | 'organization' | 'resource'
+                                          type: 'user' | 'organization' | 'project' | 'resource'
                                           id: string
                                         }[]
                                       | undefined
@@ -2767,9 +2790,8 @@ declare const routes: import(
                       included?:
                         | {
                             id: string
-                            type: 'user' | 'project' | 'organization' | 'resource'
+                            type: 'user' | 'organization' | 'project' | 'resource'
                             attributes: {
-                              [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
                               name?: string | undefined
                               description?: string | undefined
                               status?: 'active' | 'inactive' | 'pending' | 'archived' | undefined
@@ -2781,7 +2803,7 @@ declare const routes: import(
                                       | number
                                       | boolean
                                       | string[]
-                                      | { [x: string]: string | number | boolean | string[] | any }
+                                      | { [x: string]: unknown }
                                   }
                                 | undefined
                             }
@@ -2791,7 +2813,7 @@ declare const routes: import(
                                     | {
                                         data?:
                                           | {
-                                              type: 'user' | 'project' | 'organization' | 'resource'
+                                              type: 'user' | 'organization' | 'project' | 'resource'
                                               id: string
                                             }
                                           | undefined
@@ -2813,7 +2835,7 @@ declare const routes: import(
                                     | {
                                         data?:
                                           | {
-                                              type: 'user' | 'project' | 'organization' | 'resource'
+                                              type: 'user' | 'organization' | 'project' | 'resource'
                                               id: string
                                             }[]
                                           | undefined
@@ -2835,7 +2857,7 @@ declare const routes: import(
                                     | {
                                         data?:
                                           | {
-                                              type: 'user' | 'project' | 'organization' | 'resource'
+                                              type: 'user' | 'organization' | 'project' | 'resource'
                                               id: string
                                             }
                                           | undefined
@@ -2857,7 +2879,7 @@ declare const routes: import(
                                     | {
                                         data?:
                                           | {
-                                              type: 'user' | 'project' | 'organization' | 'resource'
+                                              type: 'user' | 'organization' | 'project' | 'resource'
                                               id: string
                                             }[]
                                           | undefined
@@ -2902,6 +2924,26 @@ declare const routes: import(
                               | undefined
                           }[]
                         | undefined
+                      meta?:
+                        | { requestId?: string | undefined; processingTime?: number | undefined }
+                        | undefined
+                    }
+                  | {
+                      errors: {
+                        id?: string | undefined
+                        status: string
+                        code: string
+                        title: string
+                        detail?: string | undefined
+                        source?:
+                          | {
+                              pointer?: string | undefined
+                              parameter?: string | undefined
+                              header?: string | undefined
+                            }
+                          | undefined
+                        meta?: { [x: string]: unknown } | undefined
+                      }[]
                       meta?:
                         | { requestId?: string | undefined; processingTime?: number | undefined }
                         | undefined

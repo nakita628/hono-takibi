@@ -2,14 +2,24 @@
  * Example component generation module.
  *
  * Handles generation of JSON exports from OpenAPI example components
- * with support for split mode.
+ * with support for split mode and $ref resolution.
  *
  * @module core/components/examples
  */
 import path from 'node:path'
 import { makeExportConst } from '../../helper/code.js'
-import { core, makeExports } from '../../helper/index.js'
+import { core, makeRef } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
+import { ensureSuffix, lowerFirst, toIdentifierPascalCase } from '../../utils/index.js'
+
+/**
+ * Type guard for $ref property.
+ *
+ * @param val - Value to check
+ * @returns True if value has $ref property
+ */
+const hasRef = (val: unknown): val is { readonly $ref: string } =>
+  typeof val === 'object' && val !== null && '$ref' in val && typeof val.$ref === 'string'
 
 /**
  * Generates example component files.
@@ -50,9 +60,43 @@ export async function examples(
   if (keys.length === 0) return { ok: true, value: 'No examples found' }
 
   if (split) {
-    const exportsResult = await makeExports(examples, 'Example', output)
-    if (!exportsResult.ok) return { ok: false, error: exportsResult.error }
-    return { ok: true, value: exportsResult.value }
+    const outDir = output.replace(/\.ts$/, '')
+
+    // Generate index.ts with sorted exports
+    const indexCode = `${keys
+      .sort()
+      .map((v) => `export * from './${lowerFirst(v)}.ts'`)
+      .join('\n')}\n`
+
+    const results = await Promise.all([
+      ...keys.map((key) => {
+        const v = examples[key]
+        const name = toIdentifierPascalCase(ensureSuffix(key, 'Example'))
+        const filePath = path.join(outDir, `${lowerFirst(key)}.ts`)
+
+        // Handle $ref references: generate import + re-export
+        if (hasRef(v)) {
+          const refName = makeRef(v.$ref)
+          const refKey = v.$ref.split('/').at(-1) ?? ''
+          const importPath = `./${lowerFirst(refKey)}.ts`
+          const body = `import { ${refName} } from '${importPath}'\n\nexport const ${name} = ${refName}\n`
+          return core(body, path.dirname(filePath), filePath)
+        }
+
+        // Inline value: generate JSON export
+        const body = `export const ${name} = ${JSON.stringify(v)}\n`
+        return core(body, path.dirname(filePath), filePath)
+      }),
+      core(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
+    ])
+
+    const firstError = results.find((r) => !r.ok)
+    if (firstError) return firstError
+
+    return {
+      ok: true,
+      value: `Generated Example code written to ${outDir}/*.ts (index.ts included)`,
+    }
   }
 
   const code = makeExportConst(examples, 'Example')

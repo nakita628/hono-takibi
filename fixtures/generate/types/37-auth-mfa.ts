@@ -1,8 +1,5 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/mfa/status': {
       $get:
@@ -10,17 +7,17 @@ declare const routes: import(
             input: {}
             output: {
               enabled: boolean
+              enforced?: boolean | undefined
+              preferredMethod?: 'totp' | 'sms' | 'email' | 'webauthn' | undefined
               methods: {
                 id: string
                 type: 'totp' | 'sms' | 'email' | 'webauthn'
                 enabled: boolean
-                createdAt: string
                 name?: string | undefined
                 maskedValue?: string | undefined
                 lastUsedAt?: string | undefined
+                createdAt: string
               }[]
-              enforced?: boolean | undefined
-              preferredMethod?: 'totp' | 'sms' | 'email' | 'webauthn' | undefined
               backupCodesRemaining?: number | undefined
             }
             outputFormat: 'json'
@@ -38,23 +35,23 @@ declare const routes: import(
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               id: string
               type: 'totp' | 'sms' | 'email' | 'webauthn'
               enabled: boolean
-              createdAt: string
               name?: string | undefined
               maskedValue?: string | undefined
               lastUsedAt?: string | undefined
+              createdAt: string
             }[]
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -66,17 +63,17 @@ declare const routes: import(
             }
             output: {
               enabled: boolean
+              enforced?: boolean | undefined
+              preferredMethod?: 'totp' | 'sms' | 'email' | 'webauthn' | undefined
               methods: {
                 id: string
                 type: 'totp' | 'sms' | 'email' | 'webauthn'
                 enabled: boolean
-                createdAt: string
                 name?: string | undefined
                 maskedValue?: string | undefined
                 lastUsedAt?: string | undefined
+                createdAt: string
               }[]
-              enforced?: boolean | undefined
-              preferredMethod?: 'totp' | 'sms' | 'email' | 'webauthn' | undefined
               backupCodesRemaining?: number | undefined
             }
             outputFormat: 'json'
@@ -104,15 +101,15 @@ declare const routes: import(
       $post:
         | {
             input: { json: { issuer?: string | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { json: { issuer?: string | undefined } }
             output: { secret: string; qrCode: string; otpauthUri: string }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { json: { issuer?: string | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
         | {
             input: { json: { issuer?: string | undefined } }
@@ -126,21 +123,15 @@ declare const routes: import(
       $post:
         | {
             input: { json: { code: string; secret: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { json: { code: string; secret: string } }
             output: {
               method: {
                 id: string
                 type: 'totp' | 'sms' | 'email' | 'webauthn'
                 enabled: boolean
-                createdAt: string
                 name?: string | undefined
                 maskedValue?: string | undefined
                 lastUsedAt?: string | undefined
+                createdAt: string
               }
               backupCodes: string[]
             }
@@ -164,34 +155,28 @@ declare const routes: import(
             outputFormat: 'json'
             status: 400
           }
+        | {
+            input: { json: { code: string; secret: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/mfa/totp': {
       $delete:
+        | { input: { json: { code: string } }; output: {}; outputFormat: string; status: 204 }
+        | { input: { json: { code: string } }; output: {}; outputFormat: string; status: 400 }
         | {
             input: { json: { code: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { json: { code: string } }; output: {}; outputFormat: string; status: 204 }
-        | { input: { json: { code: string } }; output: {}; outputFormat: string; status: 400 }
     }
   } & {
     '/mfa/sms/setup': {
       $post:
-        | {
-            input: { json: { phoneNumber: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { json: { phoneNumber: string } }
-            output: {}
-            outputFormat: string
-            status: 400
-          }
         | {
             input: { json: { phoneNumber: string } }
             output: {
@@ -206,6 +191,18 @@ declare const routes: import(
             input: { json: { phoneNumber: string } }
             output: {}
             outputFormat: string
+            status: 400
+          }
+        | {
+            input: { json: { phoneNumber: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
+        | {
+            input: { json: { phoneNumber: string } }
+            output: {}
+            outputFormat: string
             status: 429
           }
     }
@@ -214,21 +211,15 @@ declare const routes: import(
       $post:
         | {
             input: { json: { challengeId: string; code: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { json: { challengeId: string; code: string } }
             output: {
               method: {
                 id: string
                 type: 'totp' | 'sms' | 'email' | 'webauthn'
                 enabled: boolean
-                createdAt: string
                 name?: string | undefined
                 maskedValue?: string | undefined
                 lastUsedAt?: string | undefined
+                createdAt: string
               }
               backupCodes: string[]
             }
@@ -241,38 +232,32 @@ declare const routes: import(
             outputFormat: string
             status: 400
           }
+        | {
+            input: { json: { challengeId: string; code: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/mfa/sms/:methodId': {
       $delete:
         | {
             input: { param: { methodId: string } } & { json: { verificationCode: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { methodId: string } } & { json: { verificationCode: string } }
             output: {}
             outputFormat: string
             status: 204
+          }
+        | {
+            input: { param: { methodId: string } } & { json: { verificationCode: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
     '/mfa/email/setup': {
       $post:
-        | {
-            input: { json: { email?: string | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { json: { email?: string | undefined } }
-            output: {}
-            outputFormat: string
-            status: 429
-          }
         | {
             input: { json: { email?: string | undefined } }
             output: {
@@ -283,16 +268,22 @@ declare const routes: import(
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/mfa/email/verify': {
-      $post:
         | {
-            input: { json: { challengeId: string; code: string } }
+            input: { json: { email?: string | undefined } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+        | {
+            input: { json: { email?: string | undefined } }
+            output: {}
+            outputFormat: string
+            status: 429
+          }
+    }
+  } & {
+    '/mfa/email/verify': {
+      $post:
         | {
             input: { json: { challengeId: string; code: string } }
             output: {
@@ -300,10 +291,10 @@ declare const routes: import(
                 id: string
                 type: 'totp' | 'sms' | 'email' | 'webauthn'
                 enabled: boolean
-                createdAt: string
                 name?: string | undefined
                 maskedValue?: string | undefined
                 lastUsedAt?: string | undefined
+                createdAt: string
               }
               backupCodes: string[]
             }
@@ -316,6 +307,12 @@ declare const routes: import(
             outputFormat: string
             status: 400
           }
+        | {
+            input: { json: { challengeId: string; code: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/mfa/webauthn/register/options': {
@@ -323,19 +320,8 @@ declare const routes: import(
         | {
             input: {
               json: {
-                authenticatorType?: 'any' | 'platform' | 'cross-platform' | undefined
-                residentKey?: 'required' | 'discouraged' | 'preferred' | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              json: {
-                authenticatorType?: 'any' | 'platform' | 'cross-platform' | undefined
-                residentKey?: 'required' | 'discouraged' | 'preferred' | undefined
+                authenticatorType?: 'platform' | 'cross-platform' | 'any' | undefined
+                residentKey?: 'discouraged' | 'preferred' | 'required' | undefined
               }
             }
             output: {
@@ -367,6 +353,17 @@ declare const routes: import(
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: {
+              json: {
+                authenticatorType?: 'platform' | 'cross-platform' | 'any' | undefined
+                residentKey?: 'discouraged' | 'preferred' | 'required' | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/mfa/webauthn/register/verify': {
@@ -385,9 +382,19 @@ declare const routes: import(
                 name?: string | undefined
               }
             }
-            output: { code: string; message: string }
+            output: {
+              id: string
+              credentialId: string
+              name?: string | undefined
+              aaguid?: string | undefined
+              deviceType?: 'platform' | 'cross-platform' | undefined
+              transports?: string[] | undefined
+              signCount?: number | undefined
+              lastUsedAt?: string | undefined
+              createdAt: string
+            }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: {
@@ -421,19 +428,9 @@ declare const routes: import(
                 name?: string | undefined
               }
             }
-            output: {
-              id: string
-              credentialId: string
-              createdAt: string
-              name?: string | undefined
-              aaguid?: string | undefined
-              deviceType?: 'platform' | 'cross-platform' | undefined
-              transports?: string[] | undefined
-              signCount?: number | undefined
-              lastUsedAt?: string | undefined
-            }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 200
+            status: 401
           }
     }
   } & {
@@ -441,25 +438,25 @@ declare const routes: import(
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               id: string
               credentialId: string
-              createdAt: string
               name?: string | undefined
               aaguid?: string | undefined
               deviceType?: 'platform' | 'cross-platform' | undefined
               transports?: string[] | undefined
               signCount?: number | undefined
               lastUsedAt?: string | undefined
+              createdAt: string
             }[]
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -467,30 +464,33 @@ declare const routes: import(
       $patch:
         | {
             input: { param: { credentialId: string } } & { json: { name?: string | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { credentialId: string } } & { json: { name?: string | undefined } }
             output: {
               id: string
               credentialId: string
-              createdAt: string
               name?: string | undefined
               aaguid?: string | undefined
               deviceType?: 'platform' | 'cross-platform' | undefined
               transports?: string[] | undefined
               signCount?: number | undefined
               lastUsedAt?: string | undefined
+              createdAt: string
             }
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/mfa/webauthn/credentials/:credentialId': {
+        | {
+            input: { param: { credentialId: string } } & { json: { name?: string | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
+        | {
+            input: { param: { credentialId: string } }
+            output: {}
+            outputFormat: string
+            status: 204
+          }
         | {
             input: { param: { credentialId: string } }
             output: { code: string; message: string }
@@ -503,21 +503,15 @@ declare const routes: import(
             outputFormat: string
             status: 409
           }
-        | {
-            input: { param: { credentialId: string } }
-            output: {}
-            outputFormat: string
-            status: 204
-          }
     }
   } & {
     '/mfa/backup-codes/generate': {
       $post:
         | {
             input: { json: { verificationCode: string; count?: number | undefined } }
-            output: { code: string; message: string }
+            output: { codes: string[]; generatedAt: string; warning?: string | undefined }
             outputFormat: 'json'
-            status: 401
+            status: 200
           }
         | {
             input: { json: { verificationCode: string; count?: number | undefined } }
@@ -527,20 +521,14 @@ declare const routes: import(
           }
         | {
             input: { json: { verificationCode: string; count?: number | undefined } }
-            output: { codes: string[]; generatedAt: string; warning?: string | undefined }
+            output: { code: string; message: string }
             outputFormat: 'json'
-            status: 200
+            status: 401
           }
     }
   } & {
     '/mfa/backup-codes/status': {
       $get:
-        | {
-            input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: {}
             output: {
@@ -554,21 +542,16 @@ declare const routes: import(
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/mfa/challenge': {
       $post:
-        | {
-            input: {
-              json: {
-                mfaToken: string
-                method?: 'totp' | 'sms' | 'email' | 'webauthn' | 'backup_code' | undefined
-              }
-            }
-            output: {}
-            outputFormat: string
-            status: 400
-          }
         | {
             input: {
               json: {
@@ -586,16 +569,21 @@ declare const routes: import(
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: {
+              json: {
+                mfaToken: string
+                method?: 'totp' | 'sms' | 'email' | 'webauthn' | 'backup_code' | undefined
+              }
+            }
+            output: {}
+            outputFormat: string
+            status: 400
+          }
     }
   } & {
     '/mfa/challenge/send': {
       $post:
-        | {
-            input: { json: { challengeId: string } }
-            output: {}
-            outputFormat: string
-            status: 429
-          }
         | {
             input: { json: { challengeId: string } }
             output: {
@@ -606,47 +594,16 @@ declare const routes: import(
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: { json: { challengeId: string } }
+            output: {}
+            outputFormat: string
+            status: 429
+          }
     }
   } & {
     '/mfa/verify': {
       $post:
-        | {
-            input: {
-              json:
-                | { challengeId: string; method: 'totp'; code: string }
-                | { challengeId: string; method: 'sms' | 'email'; code: string }
-                | {
-                    challengeId: string
-                    method: 'webauthn'
-                    credential: {
-                      id: string
-                      rawId: string
-                      response: {
-                        clientDataJSON?: string | undefined
-                        authenticatorData?: string | undefined
-                        signature?: string | undefined
-                        userHandle?: string | undefined
-                      }
-                      type: string
-                    }
-                  }
-                | { challengeId: string; method: 'backup_code'; code: string }
-            }
-            output: {
-              error:
-                | 'invalid_code'
-                | 'expired_code'
-                | 'invalid_challenge'
-                | 'too_many_attempts'
-                | 'method_not_available'
-                | 'already_configured'
-              message: string
-              attemptsRemaining?: number | undefined
-              retryAfter?: number | undefined
-            }
-            outputFormat: 'json'
-            status: 400
-          }
         | {
             input: {
               json:
@@ -679,43 +636,80 @@ declare const routes: import(
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: {
+              json:
+                | { challengeId: string; method: 'totp'; code: string }
+                | { challengeId: string; method: 'sms' | 'email'; code: string }
+                | {
+                    challengeId: string
+                    method: 'webauthn'
+                    credential: {
+                      id: string
+                      rawId: string
+                      response: {
+                        clientDataJSON?: string | undefined
+                        authenticatorData?: string | undefined
+                        signature?: string | undefined
+                        userHandle?: string | undefined
+                      }
+                      type: string
+                    }
+                  }
+                | { challengeId: string; method: 'backup_code'; code: string }
+            }
+            output: {
+              error:
+                | 'invalid_code'
+                | 'expired_code'
+                | 'invalid_challenge'
+                | 'too_many_attempts'
+                | 'method_not_available'
+                | 'already_configured'
+              message: string
+              attemptsRemaining?: number | undefined
+              retryAfter?: number | undefined
+            }
+            outputFormat: 'json'
+            status: 400
+          }
     }
   } & {
     '/mfa/webauthn/authenticate/options': {
       $post:
         | {
             input: { json: { challengeId: string } }
-            output: {}
-            outputFormat: string
-            status: 400
-          }
-        | {
-            input: { json: { challengeId: string } }
             output: {
               challenge: string
+              timeout?: number | undefined
+              rpId?: string | undefined
               allowCredentials: {
                 type?: string | undefined
                 id?: string | undefined
                 transports?: string[] | undefined
               }[]
-              timeout?: number | undefined
-              rpId?: string | undefined
               userVerification?: string | undefined
             }
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: { json: { challengeId: string } }
+            output: {}
+            outputFormat: string
+            status: 400
+          }
     }
   } & {
     '/mfa/recovery': {
       $post:
-        | { input: { json: { email: string } }; output: {}; outputFormat: string; status: 404 }
         | {
             input: { json: { email: string } }
             output: { message?: string | undefined }
             outputFormat: 'json'
             status: 200
           }
+        | { input: { json: { email: string } }; output: {}; outputFormat: string; status: 404 }
     }
   } & {
     '/mfa/recovery/verify': {
@@ -730,9 +724,9 @@ declare const routes: import(
                 }
               }
             }
-            output: {}
-            outputFormat: string
-            status: 400
+            output: { temporaryToken?: string | undefined; expiresIn?: number | undefined }
+            outputFormat: 'json'
+            status: 200
           }
         | {
             input: {
@@ -744,9 +738,9 @@ declare const routes: import(
                 }
               }
             }
-            output: { temporaryToken?: string | undefined; expiresIn?: number | undefined }
-            outputFormat: 'json'
-            status: 200
+            output: {}
+            outputFormat: string
+            status: 400
           }
     }
   },

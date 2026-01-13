@@ -1,100 +1,4 @@
 /**
- * Parse raw CLI arguments into structured options.
- *
- * - Validates `<input>` ends with `.yaml`/`.json`/`.tsp`
- * - Requires `-o <output.ts>`
- * - Extracts boolean flags for component exports and templates/tests
- * - Extracts optional `--base-path <path>`
- *
- * ```mermaid
- * flowchart TD
- *   A["parseCli(args)"] --> B["Extract input & output (-o)"]
- *   B --> C{"input endsWith .yaml/.json/.tsp AND output endsWith .ts?"}
- *   C -->|No| D["return { ok:false, error:'Usage: hono-takibi ...' }"]
- *   C -->|Yes| E["Read flags (--export-schemas-types, --export-schemas, ..., --template, --test)"]
- *   E --> F["Read optional --base-path value"]
- *   F --> G["return { ok:true, value:{ input, output, flags... } }"]
- * ```
- *
- * @param args - Raw CLI arguments (e.g., `process.argv.slice(2)`).
- * @returns `{ ok:true, value }` on success; `{ ok:false, error }` on invalid usage.
- */
-export function parseCli(args: readonly string[]):
-  | {
-      readonly ok: true
-      readonly value: {
-        readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
-        readonly output: `${string}.ts`
-        readonly template: boolean
-        readonly test: boolean
-        readonly basePath: string
-        readonly componentsOptions: {
-          readonly exportSchemas: boolean
-          readonly exportSchemasTypes: boolean
-          readonly exportParameters: boolean
-          readonly exportParametersTypes: boolean
-          readonly exportSecuritySchemes: boolean
-          readonly exportRequestBodies: boolean
-          readonly exportResponses: boolean
-          readonly exportHeaders: boolean
-          readonly exportHeadersTypes: boolean
-          readonly exportExamples: boolean
-          readonly exportLinks: boolean
-          readonly exportCallbacks: boolean
-        }
-      }
-    }
-  | {
-      readonly ok: false
-      readonly error: string
-    } {
-  const input = args[0]
-  const oIdx = args.indexOf('-o')
-  const output = oIdx !== -1 ? args[oIdx + 1] : undefined
-  /** yaml or json or tsp */
-  const isYamlOrJsonOrTsp = (
-    i: string,
-  ): i is `${string}.yaml` | `${string}.json` | `${string}.tsp` =>
-    i.endsWith('.yaml') || i.endsWith('.json') || i.endsWith('.tsp')
-  const isTs = (o: string): o is `${string}.ts` => o.endsWith('.ts')
-  const getFlagValue = (args: readonly string[], flag: string): string | undefined => {
-    const idx = args.indexOf(flag)
-    if (idx !== -1 && args[idx + 1] && !args[idx + 1].startsWith('-')) return args[idx + 1]
-    return undefined
-  }
-  if (!(input && output && isYamlOrJsonOrTsp(input) && isTs(output))) {
-    return {
-      ok: false,
-      error: 'Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]',
-    }
-  }
-  return {
-    ok: true,
-    value: {
-      input,
-      output,
-      template: args.includes('--template'),
-      test: args.includes('--test'),
-      basePath: getFlagValue(args, '--base-path') ?? '/', // default: /
-      componentsOptions: {
-        exportSchemas: args.includes('--export-schemas') ?? false,
-        exportSchemasTypes: args.includes('--export-schemas-types') ?? false,
-        exportParameters: args.includes('--export-parameters') ?? false,
-        exportParametersTypes: args.includes('--export-parameters-types') ?? false,
-        exportSecuritySchemes: args.includes('--export-security-schemes') ?? false,
-        exportRequestBodies: args.includes('--export-request-bodies') ?? false,
-        exportResponses: args.includes('--export-responses') ?? false,
-        exportHeaders: args.includes('--export-headers') ?? false,
-        exportHeadersTypes: args.includes('--export-headers-types') ?? false,
-        exportExamples: args.includes('--export-examples') ?? false,
-        exportLinks: args.includes('--export-links') ?? false,
-        exportCallbacks: args.includes('--export-callbacks') ?? false,
-      },
-    },
-  }
-}
-
-/**
  * Normalize a JSON Schema `type` value into an array of type strings.
  *
  * @param t - JSON Schema `type` as a single value or an array of values.
@@ -192,44 +96,6 @@ export function isHttpMethod(
 }
 
 /**
- * Checks if all given content types share the same schema definition.
- *
- * @param contentTypes - Array of content type keys (e.g., ['application/json', 'application/xml']).
- * @param content - OpenAPI content object mapping content types to media objects.
- * @returns `true` if all specified content types refer to the same schema; otherwise `false`.
- *
- * @example
- * ```ts
- * isUniqueContentSchema(['application/json', 'application/xml'], {
- *   'application/json': { schema: { type: 'string' } },
- *   'application/xml': { schema: { type: 'string' } },
- * }) // true
- * ```
- */
-export function isUniqueContentSchema(
-  contentTypes: readonly string[],
-  content: {
-    readonly [key: string]: {
-      readonly schema: {
-        readonly $ref?:
-          | `#/components/schemas/${string}`
-          | `#/components/parameters/${string}`
-          | `#/components/securitySchemes/${string}`
-          | `#/components/requestBodies/${string}`
-          | `#/components/responses/${string}`
-          | `#/components/headers/${string}`
-          | `#/components/examples/${string}`
-          | `#/components/links/${string}`
-          | `#/components/callbacks/${string}`
-      }
-    }
-  },
-): boolean {
-  const schema = new Set(contentTypes.map((type) => JSON.stringify(content?.[type].schema)))
-  return schema.size === 1
-}
-
-/**
  * Generates a PascalCase route name from HTTP method and path.
  *
  * @param method - HTTP method (e.g., 'get', 'post').
@@ -280,23 +146,6 @@ export const requestParamsArray = (parameters: {
         .join(',')
       return `${name}:z.object({${fields}})`
     })
-
-/**
- * Escapes a string for safe use in TypeScript string literals.
- *
- * @param text - The input text to escape.
- * @returns The escaped string.
- */
-export function escapeStringLiteral(text: string): string {
-  return text
-    .replace(/[\n\t]/g, ' ')
-    .replace(/\u200B|\u200C|\u200D|\uFEFF/g, ' ')
-    .replace(/　/g, ' ')
-    .replace(/\s+/g, ' ')
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .trim()
-}
 
 /**
  * Converts a string to a safe TypeScript object key.
@@ -423,86 +272,6 @@ export function zodToOpenAPISchema(
 if (import.meta.vitest) {
   const { describe, it, expect } = import.meta.vitest
   describe('utils', () => {
-    // parseCli
-    describe('parseCli', () => {
-      it('parses minimal valid input', () => {
-        const args = ['input.yaml', '-o', 'output.ts']
-        const result = parseCli(args)
-        expect(result).toStrictEqual({
-          ok: true,
-          value: {
-            input: 'input.yaml',
-            output: 'output.ts',
-            template: false,
-            test: false,
-            basePath: '/',
-            componentsOptions: {
-              exportSchemasTypes: false,
-              exportSchemas: false,
-              exportParametersTypes: false,
-              exportParameters: false,
-              exportSecuritySchemes: false,
-              exportRequestBodies: false,
-              exportResponses: false,
-              exportHeadersTypes: false,
-              exportHeaders: false,
-              exportExamples: false,
-              exportLinks: false,
-              exportCallbacks: false,
-            },
-          },
-        })
-      })
-      it('parses full valid arguments correctly', () => {
-        const args = [
-          'input.yaml',
-          '-o',
-          'output.ts',
-          '--export-schemas-types',
-          '--export-schemas',
-          '--export-parameters-types',
-          '--export-parameters',
-          '--export-security-schemes',
-          '--export-request-bodies',
-          '--export-responses',
-          '--export-headers-types',
-          '--export-headers',
-          '--export-examples',
-          '--export-links',
-          '--export-callbacks',
-          '--template',
-          '--test',
-          '--base-path',
-          '/api/v1',
-        ]
-        const result = parseCli(args)
-
-        expect(result).toStrictEqual({
-          ok: true,
-          value: {
-            input: 'input.yaml',
-            output: 'output.ts',
-            template: true,
-            test: true,
-            basePath: '/api/v1',
-            componentsOptions: {
-              exportSchemasTypes: true,
-              exportSchemas: true,
-              exportParametersTypes: true,
-              exportParameters: true,
-              exportSecuritySchemes: true,
-              exportRequestBodies: true,
-              exportResponses: true,
-              exportHeadersTypes: true,
-              exportHeaders: true,
-              exportExamples: true,
-              exportLinks: true,
-              exportCallbacks: true,
-            },
-          },
-        })
-      })
-    })
     // normalizeTypes
     describe('normalizeTypes', () => {
       it('should return empty array if type is undefined', () => {
@@ -589,22 +358,6 @@ if (import.meta.vitest) {
         expect(isHttpMethod(method)).toBe(expected)
       })
     })
-    // isUniqueContentSchema
-    describe('isUniqueContentSchema Test', () => {
-      it.concurrent('isUniqueContentSchema -> true', () => {
-        const result = isUniqueContentSchema(['application/json'], {
-          'application/json': { schema: { $ref: '#/components/schemas/Test' } },
-        })
-        expect(result).toBe(true)
-      })
-      it.concurrent('isUniqueContentSchema -> false', () => {
-        const result = isUniqueContentSchema(['application/json', 'application/xml'], {
-          'application/json': { schema: { $ref: '#/components/schemas/Test' } },
-          'application/xml': { schema: { $ref: '#/components/schemas/Example' } },
-        })
-        expect(result).toBe(false)
-      })
-    })
     // methodPath
     describe('methodPath', () => {
       it.concurrent.each([
@@ -678,27 +431,6 @@ if (import.meta.vitest) {
         ],
       ])('requestParamsArray(%o) -> %o', (input, expected) => {
         expect(requestParamsArray(input)).toStrictEqual(expected)
-      })
-    })
-    // escapeStringLiteral
-    describe('escapeStringLiteral', () => {
-      it.concurrent.each([
-        ['', ''],
-        ["'", "\\'"],
-        ["'test", "\\'test"],
-        ["It's a test", "It\\'s a test"],
-        ['test "string" with quotes', 'test "string" with quotes'],
-        ["Retrieve Santa's wishlist for Christmas.", "Retrieve Santa\\'s wishlist for Christmas."],
-        ["Santa's wishlist.", "Santa\\'s wishlist."],
-        ['back\\slash', 'back\\\\slash'],
-        ['full width space', 'full width space'],
-        ['multi\nline\ntext', 'multi line text'],
-        ['\u200Bhidden', 'hidden'],
-        ['   trim me   ', 'trim me'],
-        ['\t tabbed', 'tabbed'],
-        ['a\nb\tc\u200Bd\uFEFF', 'a b c d'],
-      ])(`escapeStringLiteral('%s') -> '%s'`, (input, expected) => {
-        expect(escapeStringLiteral(input)).toBe(expected)
       })
     })
     // getToSafeIdentifier

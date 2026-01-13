@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
 /**
@@ -16,7 +16,7 @@ export async function getSettingsAccount(options?: ClientRequestOptions) {
  * アカウント設定更新
  */
 export async function putSettingsAccount(
-  args: { json: { language?: string; timezone?: string; country?: string } },
+  args: InferRequestType<typeof client.settings.account.$put>,
   options?: ClientRequestOptions,
 ) {
   return await client.settings.account.$put(args, options)
@@ -28,7 +28,7 @@ export async function putSettingsAccount(
  * ユーザー名利用可能確認
  */
 export async function getSettingsUsernameCheck(
-  args: { query: { username: string } },
+  args: InferRequestType<typeof client.settings.username.check.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.settings.username.check.$get(args, options)
@@ -49,18 +49,7 @@ export async function getSettingsPrivacy(options?: ClientRequestOptions) {
  * プライバシー設定更新
  */
 export async function putSettingsPrivacy(
-  args: {
-    json: {
-      protectedPosts?: boolean
-      allowTagging?: 'everyone' | 'followers' | 'none'
-      allowMentions?: 'everyone' | 'followers' | 'none'
-      discoverableByEmail?: boolean
-      discoverableByPhone?: boolean
-      showLocation?: boolean
-      personalizeAds?: boolean
-      allowDataSharing?: boolean
-    }
-  },
+  args: InferRequestType<typeof client.settings.privacy.$put>,
   options?: ClientRequestOptions,
 ) {
   return await client.settings.privacy.$put(args, options)
@@ -81,16 +70,7 @@ export async function getSettingsContentPreferences(options?: ClientRequestOptio
  * コンテンツ設定更新
  */
 export async function putSettingsContentPreferences(
-  args: {
-    json: {
-      sensitiveContentFilter?: 'hide' | 'warn' | 'show'
-      autoplayVideos?: 'always' | 'wifi' | 'never'
-      dataUsage?: 'default' | 'reduced'
-      qualityFilter?: boolean
-      hideViewCounts?: boolean
-      hideLikeCounts?: boolean
-    }
-  },
+  args: InferRequestType<(typeof client.settings)['content-preferences']['$put']>,
   options?: ClientRequestOptions,
 ) {
   return await client.settings['content-preferences'].$put(args, options)
@@ -111,14 +91,7 @@ export async function getSettingsMutedWords(options?: ClientRequestOptions) {
  * ミュートワード追加
  */
 export async function postSettingsMutedWords(
-  args: {
-    json: {
-      word: string
-      matchWholeWord?: boolean
-      duration?: number
-      scope?: 'all' | 'home_timeline' | 'notifications'
-    }
-  },
+  args: InferRequestType<(typeof client.settings)['muted-words']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.settings['muted-words'].$post(args, options)
@@ -130,7 +103,7 @@ export async function postSettingsMutedWords(
  * ミュートワード削除
  */
 export async function deleteSettingsMutedWordsWordId(
-  args: { param: { wordId: string } },
+  args: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.settings['muted-words'][':wordId'].$delete(args, options)
@@ -151,7 +124,7 @@ export async function getSettingsSessions(options?: ClientRequestOptions) {
  * セッション無効化
  */
 export async function deleteSettingsSessionsSessionId(
-  args: { param: { sessionId: string } },
+  args: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.settings.sessions[':sessionId'].$delete(args, options)
@@ -172,7 +145,7 @@ export async function getSettingsConnectedApps(options?: ClientRequestOptions) {
  * 連携アプリ解除
  */
 export async function deleteSettingsConnectedAppsAppId(
-  args: { param: { appId: string } },
+  args: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.settings['connected-apps'][':appId'].$delete(args, options)
@@ -193,7 +166,7 @@ export async function postSettingsDataExport(options?: ClientRequestOptions) {
  * データエクスポート状況確認
  */
 export async function getSettingsDataExportRequestId(
-  args: { param: { requestId: string } },
+  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.settings['data-export'][':requestId'].$get(args, options)
@@ -205,7 +178,7 @@ export async function getSettingsDataExportRequestId(
  * アカウント一時停止
  */
 export async function postSettingsDeactivate(
-  args: { json: { password: string } },
+  args: InferRequestType<typeof client.settings.deactivate.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.settings.deactivate.$post(args, options)
@@ -217,25 +190,7 @@ export async function postSettingsDeactivate(
  * 通報作成
  */
 export async function postReports(
-  args: {
-    json: {
-      type: 'post' | 'user' | 'message'
-      targetId: string
-      reason:
-        | 'spam'
-        | 'harassment'
-        | 'hate_speech'
-        | 'violence'
-        | 'self_harm'
-        | 'misinformation'
-        | 'illegal_content'
-        | 'copyright'
-        | 'impersonation'
-        | 'other'
-      description?: string
-      relatedPostIds?: string[]
-    }
-  },
+  args: InferRequestType<typeof client.reports.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.reports.$post(args, options)
@@ -247,7 +202,7 @@ export async function postReports(
  * 通報詳細取得
  */
 export async function getReportsReportId(
-  args: { param: { reportId: string } },
+  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.reports[':reportId'].$get(args, options)
@@ -261,14 +216,7 @@ export async function getReportsReportId(
  * モデレーター用
  */
 export async function getModerationQueue(
-  args: {
-    query: {
-      status?: 'pending' | 'in_review' | 'resolved'
-      type?: 'post' | 'user' | 'message'
-      cursor?: string
-      limit?: number
-    }
-  },
+  args: InferRequestType<typeof client.moderation.queue.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.moderation.queue.$get(args, options)
@@ -280,7 +228,7 @@ export async function getModerationQueue(
  * モデレーションアイテム詳細
  */
 export async function getModerationItemsItemId(
-  args: { param: { itemId: string } },
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.moderation.items[':itemId'].$get(args, options)
@@ -292,15 +240,7 @@ export async function getModerationItemsItemId(
  * モデレーションアクション実行
  */
 export async function postModerationItemsItemIdAction(
-  args: {
-    param: { itemId: string }
-    json: {
-      action: 'approve' | 'remove_content' | 'warn_user' | 'suspend_user' | 'dismiss'
-      note?: string
-      suspensionDuration?: number
-      notifyUser?: boolean
-    }
-  },
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.moderation.items[':itemId'].action.$post(args, options)
@@ -312,7 +252,7 @@ export async function postModerationItemsItemIdAction(
  * ユーザーのモデレーション履歴
  */
 export async function getModerationUsersUserIdHistory(
-  args: { param: { userId: string } },
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.moderation.users[':userId'].history.$get(args, options)
@@ -324,7 +264,7 @@ export async function getModerationUsersUserIdHistory(
  * ユーザー凍結
  */
 export async function postModerationUsersUserIdSuspend(
-  args: { param: { userId: string }; json: { reason: string; duration?: number; note?: string } },
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.moderation.users[':userId'].suspend.$post(args, options)
@@ -336,7 +276,7 @@ export async function postModerationUsersUserIdSuspend(
  * ユーザー凍結解除
  */
 export async function postModerationUsersUserIdUnsuspend(
-  args: { param: { userId: string }; json: { note?: string } },
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>,
   options?: ClientRequestOptions,
 ) {
   return await client.moderation.users[':userId'].unsuspend.$post(args, options)
@@ -348,7 +288,7 @@ export async function postModerationUsersUserIdUnsuspend(
  * 投稿分析取得
  */
 export async function getAnalyticsPostsPostId(
-  args: { param: { postId: string } },
+  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.analytics.posts[':postId'].$get(args, options)
@@ -360,7 +300,7 @@ export async function getAnalyticsPostsPostId(
  * アカウント分析取得
  */
 export async function getAnalyticsAccount(
-  args: { query: { period?: '7d' | '28d' | '90d' } },
+  args: InferRequestType<typeof client.analytics.account.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.analytics.account.$get(args, options)
@@ -372,7 +312,7 @@ export async function getAnalyticsAccount(
  * フォロワー分析取得
  */
 export async function getAnalyticsFollowers(
-  args: { query: { period?: '7d' | '28d' | '90d' } },
+  args: InferRequestType<typeof client.analytics.followers.$get>,
   options?: ClientRequestOptions,
 ) {
   return await client.analytics.followers.$get(args, options)
@@ -384,13 +324,7 @@ export async function getAnalyticsFollowers(
  * トップ投稿取得
  */
 export async function getAnalyticsTopPosts(
-  args: {
-    query: {
-      period?: '7d' | '28d' | '90d'
-      metric?: 'impressions' | 'engagements' | 'likes' | 'reposts'
-      limit?: number
-    }
-  },
+  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.analytics['top-posts'].$get(args, options)

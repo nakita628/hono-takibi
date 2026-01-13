@@ -1,22 +1,19 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/validate': {
       $post: {
         input: {
           json: {
-            notSpecificValue?: any
-            notString?: any
-            notNumber?: any
-            notNull?: any
-            notArray?: any
-            notObject?: any
-            notInList?: any
-            notBoolean?: any
-            notInteger?: any
+            notSpecificValue?: { [x: string]: unknown } | undefined
+            notString?: { [x: string]: unknown } | undefined
+            notNumber?: { [x: string]: unknown } | undefined
+            notNull?: { [x: string]: unknown } | undefined
+            notArray?: { [x: string]: unknown } | undefined
+            notObject?: { [x: string]: unknown } | undefined
+            notInList?: { [x: string]: unknown } | undefined
+            notBoolean?: { [x: string]: unknown } | undefined
+            notInteger?: { [x: string]: unknown } | undefined
           }
         }
         output: {}

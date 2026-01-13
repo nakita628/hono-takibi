@@ -1,8 +1,5 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10': {
       $get: {
@@ -151,21 +148,21 @@ declare const routes: import(
             fields?: string[] | undefined
             include?: string[] | undefined
             exclude?: string[] | undefined
-            filter?: Record<string, never> | undefined
+            filter?: { [x: string]: unknown } | undefined
             status?: string[] | undefined
             type?: string | undefined
             category?: string | undefined
             tags?: string[] | undefined
-            minPrice?: unknown
-            maxPrice?: unknown
+            minPrice?: number | undefined
+            maxPrice?: number | undefined
             minDate?: string | undefined
             maxDate?: string | undefined
-            active?: string | undefined
-            verified?: string | undefined
-            featured?: string | undefined
-            promoted?: string | undefined
-            archived?: string | undefined
-            deleted?: string | undefined
+            active?: boolean | undefined
+            verified?: boolean | undefined
+            featured?: boolean | undefined
+            promoted?: boolean | undefined
+            archived?: boolean | undefined
+            deleted?: boolean | undefined
             createdBy?: string | undefined
             updatedBy?: string | undefined
             ownerId?: string | undefined
@@ -179,16 +176,16 @@ declare const routes: import(
             currency?: string | undefined
             format?: string | undefined
             version?: string | undefined
-            beta?: string | undefined
-            debug?: string | undefined
-            trace?: string | undefined
-            verbose?: string | undefined
+            beta?: boolean | undefined
+            debug?: boolean | undefined
+            trace?: boolean | undefined
+            verbose?: boolean | undefined
             callback?: string | undefined
             jsonp?: string | undefined
-            envelope?: string | undefined
-            pretty?: string | undefined
-            compress?: string | undefined
-            cache?: string | undefined
+            envelope?: boolean | undefined
+            pretty?: boolean | undefined
+            compress?: boolean | undefined
+            cache?: boolean | undefined
             timeout?: number | undefined
           }
         }
@@ -212,7 +209,11 @@ declare const routes: import(
             complexQuery?:
               | {
                   filters?:
-                    | { field?: string | undefined; op?: string | undefined; val?: any }[]
+                    | {
+                        field?: string | undefined
+                        op?: string | undefined
+                        val?: { [x: string]: unknown } | undefined
+                      }[]
                     | undefined
                   logic?: 'and' | 'or' | undefined
                 }

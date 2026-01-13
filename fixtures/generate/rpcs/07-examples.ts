@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../clients/07-examples'
 
 /**
@@ -12,15 +12,7 @@ export async function getProducts(options?: ClientRequestOptions) {
  * POST /products
  */
 export async function postProducts(
-  args: {
-    json: {
-      name: string
-      description?: string
-      price: number
-      category: 'electronics' | 'clothing' | 'books' | 'home'
-      tags?: string[]
-    }
-  },
+  args: InferRequestType<typeof client.products.$post>,
   options?: ClientRequestOptions,
 ) {
   return await client.products.$post(args, options)
@@ -30,7 +22,7 @@ export async function postProducts(
  * GET /products/{productId}
  */
 export async function getProductsProductId(
-  args: { param: { productId: string } },
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: ClientRequestOptions,
 ) {
   return await client.products[':productId'].$get(args, options)

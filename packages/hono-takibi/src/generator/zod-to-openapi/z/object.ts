@@ -5,75 +5,47 @@ import { zodToOpenAPI } from '../index.js'
 /**
  * Generates a Zod object schema from an OpenAPI schema definition.
  *
+ * Handles the following OpenAPI object patterns:
+ * - Plain object: `z.object({...})`
+ * - additionalProperties: true → `z.looseObject({...})`
+ * - additionalProperties: false → `z.strictObject({...})`
+ * - additionalProperties: Schema → `z.record(z.string(), ...)`
+ *
  * @param schema - Schema definition.
  * @returns The Zod object schema string.
  */
 export function object(schema: Schema): string {
-  const propertiesSchema = (
-    properties: { readonly [k: string]: Schema },
-    required: readonly string[],
-  ) => {
-    const objectProperties = Object.entries(properties).map(([key, propSchema]) => {
-      const isRequired = required.includes(key)
-      const safeKey = getToSafeIdentifier(key)
-      const z = zodToOpenAPI(propSchema, isRequired ? undefined : { isOptional: true })
-      return `${safeKey}:${z}`
-    })
-    return `z.object({${objectProperties}})`
+  // Delegate combinators to zodToOpenAPI
+  if (schema.oneOf || schema.anyOf || schema.allOf || schema.not) {
+    return zodToOpenAPI(schema)
   }
 
-  // allOf, oneOf, anyOf, not
-  if (schema.oneOf) return zodToOpenAPI(schema)
-  if (schema.anyOf) return zodToOpenAPI(schema)
-  if (schema.allOf) return zodToOpenAPI(schema)
-  if (schema.not) return zodToOpenAPI(schema)
-  if (schema.additionalProperties) {
-    if (typeof schema.additionalProperties === 'boolean') {
-      if (schema.properties) {
-        const s = propertiesSchema(
-          schema.properties,
-          Array.isArray(schema.required) ? schema.required : [],
-        )
-        if (schema.additionalProperties === true) {
-          return s.replace('object', 'looseObject')
-        }
-        if (schema.additionalProperties === false) {
-          return s.replace('object', 'strictObject')
-        }
-        return s
-      }
-      const s = 'z.object({})'
-      if (schema.additionalProperties === true) {
-        return s.replace('object', 'looseObject')
-      }
-      if (schema.additionalProperties === false) {
-        return s.replace('object', 'strictObject')
-      }
-      return s
-    }
-    const s = zodToOpenAPI(schema.additionalProperties)
-    return `z.record(z.string(),${s})`
+  // additionalProperties as Schema → record type
+  if (typeof schema.additionalProperties === 'object') {
+    return `z.record(z.string(),${zodToOpenAPI(schema.additionalProperties)})`
   }
-  if (schema.properties) {
-    const s = propertiesSchema(
-      schema.properties,
-      Array.isArray(schema.required) ? schema.required : [],
-    )
-    if (schema.additionalProperties === false) {
-      return s.replace('object', 'strictObject')
-    }
-    if (schema.additionalProperties === true) {
-      return s.replace('object', 'looseObject')
-    }
-    return s
-  }
-  if (schema.additionalProperties === false) {
-    return 'z.strictObject({})'
-  }
-  if (schema.additionalProperties === true) {
-    return 'z.looseObject({})'
-  }
-  return 'z.object({})'
+
+  // Determine object type based on additionalProperties boolean
+  const objectType =
+    schema.additionalProperties === true
+      ? 'looseObject'
+      : schema.additionalProperties === false
+        ? 'strictObject'
+        : 'object'
+
+  // Build properties code if present
+  const propertiesCode = schema.properties
+    ? Object.entries(schema.properties)
+        .map(([key, propSchema]) => {
+          const isRequired = Array.isArray(schema.required) && schema.required.includes(key)
+          const safeKey = getToSafeIdentifier(key)
+          const z = zodToOpenAPI(propSchema, isRequired ? undefined : { isOptional: true })
+          return `${safeKey}:${z}`
+        })
+        .join(',')
+    : ''
+
+  return `z.${objectType}({${propertiesCode}})`
 }
 
 // Test run

@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { serve } from '@hono/node-server'
 import { swaggerUI } from '@hono/swagger-ui'
 import { OpenAPIHono } from '@hono/zod-openapi'
@@ -30,10 +31,11 @@ app
   })
   .get('/ui', swaggerUI({ url: '/doc' }))
 
-const port = 3000
-console.log(`Server is running on http://localhost:${port}`)
-
-serve({
-  fetch: app.fetch,
-  port,
-})
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const port = 3000
+  console.log(`Server is running on http://localhost:${port}`)
+  serve({
+    fetch: app.fetch,
+    port,
+  })
+}

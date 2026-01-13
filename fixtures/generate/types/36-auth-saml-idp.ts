@@ -1,8 +1,5 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/saml/sso': {
       $get:
@@ -43,24 +40,27 @@ declare const routes: import(
             outputFormat: 'json'
             status: 400
           }
-    }
-  } & {
-    '/saml/sso': {
       $post:
         | {
-            input: { form: { SAMLRequest: string; RelayState?: string | undefined } }
-            output: Response
-            outputFormat: 'json'
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').StatusCode
+            input: { json: { SAMLRequest: string; RelayState?: string | undefined } } & {
+              form: { SAMLRequest: string; RelayState?: string | undefined }
+            }
+            output: string
+            outputFormat: 'text'
+            status: 200
           }
         | {
-            input: { form: { SAMLRequest: string; RelayState?: string | undefined } }
+            input: { json: { SAMLRequest: string; RelayState?: string | undefined } } & {
+              form: { SAMLRequest: string; RelayState?: string | undefined }
+            }
             output: {}
             outputFormat: string
             status: 302
           }
         | {
-            input: { form: { SAMLRequest: string; RelayState?: string | undefined } }
+            input: { json: { SAMLRequest: string; RelayState?: string | undefined } } & {
+              form: { SAMLRequest: string; RelayState?: string | undefined }
+            }
             output: {
               error:
                 | 'invalid_request'
@@ -93,33 +93,40 @@ declare const routes: import(
         outputFormat: string
         status: 302
       }
-    }
-  } & {
-    '/saml/slo': {
       $post: {
         input: {
+          json: {
+            SAMLRequest?: string | undefined
+            SAMLResponse?: string | undefined
+            RelayState?: string | undefined
+          }
+        } & {
           form: {
             SAMLRequest?: string | undefined
             SAMLResponse?: string | undefined
             RelayState?: string | undefined
           }
         }
-        output: Response
-        outputFormat: 'json'
-        status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').StatusCode
+        output: string
+        outputFormat: 'text'
+        status: 200
       }
     }
   } & {
     '/saml/acs': {
       $post:
         | {
-            input: { form: { SAMLResponse: string; RelayState?: string | undefined } }
+            input: { json: { SAMLResponse: string; RelayState?: string | undefined } } & {
+              form: { SAMLResponse: string; RelayState?: string | undefined }
+            }
             output: {}
             outputFormat: string
             status: 302
           }
         | {
-            input: { form: { SAMLResponse: string; RelayState?: string | undefined } }
+            input: { json: { SAMLResponse: string; RelayState?: string | undefined } } & {
+              form: { SAMLResponse: string; RelayState?: string | undefined }
+            }
             output: {}
             outputFormat: string
             status: 400
@@ -127,24 +134,21 @@ declare const routes: import(
     }
   } & {
     '/saml/metadata': {
-      $get: {
-        input: {}
-        output: Response
-        outputFormat: 'json'
-        status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').StatusCode
-      }
+      $get:
+        | { input: {}; output: string; outputFormat: 'text'; status: 200 }
+        | { input: {}; output: string; outputFormat: 'text'; status: 200 }
     }
   } & {
     '/service-providers': {
       $get:
         | {
-            input: { query: { search?: string | undefined; enabled?: string | undefined } }
+            input: { query: { search?: string | undefined; enabled?: boolean | undefined } }
             output: {
               id: string
               entityId: string
               name: string
-              enabled: boolean
               description?: string | undefined
+              enabled: boolean
               assertionConsumerServices?:
                 | {
                     binding:
@@ -158,8 +162,8 @@ declare const routes: import(
               singleLogoutServices?:
                 | {
                     binding:
-                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                       | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                     location: string
                     responseLocation?: string | undefined
                   }[]
@@ -185,19 +189,15 @@ declare const routes: import(
             status: 200
           }
         | {
-            input: { query: { search?: string | undefined; enabled?: string | undefined } }
+            input: { query: { search?: string | undefined; enabled?: boolean | undefined } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-    }
-  } & {
-    '/service-providers': {
       $post:
         | {
             input: {
               json:
-                | string
                 | {
                     entityId: string
                     name: string
@@ -216,8 +216,8 @@ declare const routes: import(
                     singleLogoutServices?:
                       | {
                           binding:
-                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                             | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                           location: string
                           responseLocation?: string | undefined
                         }[]
@@ -228,91 +228,14 @@ declare const routes: import(
                     signingCertificate?: string | undefined
                     encryptionCertificate?: string | undefined
                   }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {
-              json:
                 | string
-                | {
-                    entityId: string
-                    name: string
-                    description?: string | undefined
-                    metadataUrl?: string | undefined
-                    assertionConsumerServices?:
-                      | {
-                          binding:
-                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
-                          location: string
-                          index?: number | undefined
-                          isDefault?: boolean | undefined
-                        }[]
-                      | undefined
-                    singleLogoutServices?:
-                      | {
-                          binding:
-                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-                          location: string
-                          responseLocation?: string | undefined
-                        }[]
-                      | undefined
-                    nameIdFormat?: string | undefined
-                    signAssertions?: boolean | undefined
-                    encryptAssertions?: boolean | undefined
-                    signingCertificate?: string | undefined
-                    encryptionCertificate?: string | undefined
-                  }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 400
-          }
-        | {
-            input: {
-              json:
-                | string
-                | {
-                    entityId: string
-                    name: string
-                    description?: string | undefined
-                    metadataUrl?: string | undefined
-                    assertionConsumerServices?:
-                      | {
-                          binding:
-                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
-                          location: string
-                          index?: number | undefined
-                          isDefault?: boolean | undefined
-                        }[]
-                      | undefined
-                    singleLogoutServices?:
-                      | {
-                          binding:
-                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-                          location: string
-                          responseLocation?: string | undefined
-                        }[]
-                      | undefined
-                    nameIdFormat?: string | undefined
-                    signAssertions?: boolean | undefined
-                    encryptAssertions?: boolean | undefined
-                    signingCertificate?: string | undefined
-                    encryptionCertificate?: string | undefined
-                  }
             }
             output: {
               id: string
               entityId: string
               name: string
-              enabled: boolean
               description?: string | undefined
+              enabled: boolean
               assertionConsumerServices?:
                 | {
                     binding:
@@ -326,8 +249,8 @@ declare const routes: import(
               singleLogoutServices?:
                 | {
                     binding:
-                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                       | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                     location: string
                     responseLocation?: string | undefined
                   }[]
@@ -352,24 +275,96 @@ declare const routes: import(
             outputFormat: 'json'
             status: 201
           }
+        | {
+            input: {
+              json:
+                | {
+                    entityId: string
+                    name: string
+                    description?: string | undefined
+                    metadataUrl?: string | undefined
+                    assertionConsumerServices?:
+                      | {
+                          binding:
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
+                          location: string
+                          index?: number | undefined
+                          isDefault?: boolean | undefined
+                        }[]
+                      | undefined
+                    singleLogoutServices?:
+                      | {
+                          binding:
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                          location: string
+                          responseLocation?: string | undefined
+                        }[]
+                      | undefined
+                    nameIdFormat?: string | undefined
+                    signAssertions?: boolean | undefined
+                    encryptAssertions?: boolean | undefined
+                    signingCertificate?: string | undefined
+                    encryptionCertificate?: string | undefined
+                  }
+                | string
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 400
+          }
+        | {
+            input: {
+              json:
+                | {
+                    entityId: string
+                    name: string
+                    description?: string | undefined
+                    metadataUrl?: string | undefined
+                    assertionConsumerServices?:
+                      | {
+                          binding:
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
+                          location: string
+                          index?: number | undefined
+                          isDefault?: boolean | undefined
+                        }[]
+                      | undefined
+                    singleLogoutServices?:
+                      | {
+                          binding:
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                            | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                          location: string
+                          responseLocation?: string | undefined
+                        }[]
+                      | undefined
+                    nameIdFormat?: string | undefined
+                    signAssertions?: boolean | undefined
+                    encryptAssertions?: boolean | undefined
+                    signingCertificate?: string | undefined
+                    encryptionCertificate?: string | undefined
+                  }
+                | string
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/service-providers/:spId': {
       $get:
         | {
             input: { param: { spId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { spId: string } }
             output: {
               id: string
               entityId: string
               name: string
-              enabled: boolean
               description?: string | undefined
+              enabled: boolean
               assertionConsumerServices?:
                 | {
                     binding:
@@ -383,8 +378,8 @@ declare const routes: import(
               singleLogoutServices?:
                 | {
                     binding:
-                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                       | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                     location: string
                     responseLocation?: string | undefined
                   }[]
@@ -408,6 +403,12 @@ declare const routes: import(
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: { param: { spId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
         | {
             input: { param: { spId: string } }
@@ -415,9 +416,6 @@ declare const routes: import(
             outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/service-providers/:spId': {
       $put:
         | {
             input: { param: { spId: string } } & {
@@ -438,46 +436,8 @@ declare const routes: import(
                 singleLogoutServices?:
                   | {
                       binding:
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                         | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-                      location: string
-                      responseLocation?: string | undefined
-                    }[]
-                  | undefined
-                nameIdFormat?: string | undefined
-                signAssertions?: boolean | undefined
-                signResponses?: boolean | undefined
-                encryptAssertions?: boolean | undefined
-                wantAuthnRequestsSigned?: boolean | undefined
-                defaultRelayState?: string | undefined
-                sessionDuration?: number | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { spId: string } } & {
-              json: {
-                name?: string | undefined
-                description?: string | undefined
-                enabled?: boolean | undefined
-                assertionConsumerServices?:
-                  | {
-                      binding:
                         | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
-                      location: string
-                      index?: number | undefined
-                      isDefault?: boolean | undefined
-                    }[]
-                  | undefined
-                singleLogoutServices?:
-                  | {
-                      binding:
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
                       location: string
                       responseLocation?: string | undefined
                     }[]
@@ -495,8 +455,8 @@ declare const routes: import(
               id: string
               entityId: string
               name: string
-              enabled: boolean
               description?: string | undefined
+              enabled: boolean
               assertionConsumerServices?:
                 | {
                     binding:
@@ -510,8 +470,8 @@ declare const routes: import(
               singleLogoutServices?:
                 | {
                     binding:
-                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                       | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
                     location: string
                     responseLocation?: string | undefined
                   }[]
@@ -536,119 +496,128 @@ declare const routes: import(
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/service-providers/:spId': {
+        | {
+            input: { param: { spId: string } } & {
+              json: {
+                name?: string | undefined
+                description?: string | undefined
+                enabled?: boolean | undefined
+                assertionConsumerServices?:
+                  | {
+                      binding:
+                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
+                      location: string
+                      index?: number | undefined
+                      isDefault?: boolean | undefined
+                    }[]
+                  | undefined
+                singleLogoutServices?:
+                  | {
+                      binding:
+                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                        | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                      location: string
+                      responseLocation?: string | undefined
+                    }[]
+                  | undefined
+                nameIdFormat?: string | undefined
+                signAssertions?: boolean | undefined
+                signResponses?: boolean | undefined
+                encryptAssertions?: boolean | undefined
+                wantAuthnRequestsSigned?: boolean | undefined
+                defaultRelayState?: string | undefined
+                sessionDuration?: number | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $delete:
+        | { input: { param: { spId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { spId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { spId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/service-providers/:spId/metadata': {
       $get:
-        | {
-            input: { param: { spId: string } }
-            output: Response
-            outputFormat: 'json'
-            status: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/http-status').StatusCode
-          }
+        | { input: { param: { spId: string } }; output: string; outputFormat: 'text'; status: 200 }
         | {
             input: { param: { spId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-    }
-  } & {
-    '/service-providers/:spId/metadata': {
       $put:
         | {
-            input: { param: { spId: string } } & {
-              form:
-                | string
+            input: { param: { spId: string } } & { json: string } & {
+              form: { file?: File | undefined }
+            }
+            output: {
+              id: string
+              entityId: string
+              name: string
+              description?: string | undefined
+              enabled: boolean
+              assertionConsumerServices?:
                 | {
-                    file?:
-                      | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                      | undefined
-                  }
+                    binding:
+                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
+                    location: string
+                    index?: number | undefined
+                    isDefault?: boolean | undefined
+                  }[]
+                | undefined
+              singleLogoutServices?:
+                | {
+                    binding:
+                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+                    location: string
+                    responseLocation?: string | undefined
+                  }[]
+                | undefined
+              nameIdFormat?:
+                | 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
+                | 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'
+                | 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'
+                | 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient'
+                | undefined
+              signAssertions?: boolean | undefined
+              signResponses?: boolean | undefined
+              encryptAssertions?: boolean | undefined
+              signingCertificate?: string | undefined
+              encryptionCertificate?: string | undefined
+              wantAuthnRequestsSigned?: boolean | undefined
+              defaultRelayState?: string | undefined
+              sessionDuration?: number | undefined
+              createdAt?: string | undefined
+              updatedAt?: string | undefined
+            }
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: { param: { spId: string } } & { json: string } & {
+              form: { file?: File | undefined }
             }
             output: {}
             outputFormat: string
             status: 400
           }
         | {
-            input: { param: { spId: string } } & {
-              form:
-                | string
-                | {
-                    file?:
-                      | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                      | undefined
-                  }
+            input: { param: { spId: string } } & { json: string } & {
+              form: { file?: File | undefined }
             }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
-          }
-        | {
-            input: { param: { spId: string } } & {
-              form:
-                | string
-                | {
-                    file?:
-                      | import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                      | undefined
-                  }
-            }
-            output: {
-              id: string
-              entityId: string
-              name: string
-              enabled: boolean
-              description?: string | undefined
-              assertionConsumerServices?:
-                | {
-                    binding:
-                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact'
-                    location: string
-                    index?: number | undefined
-                    isDefault?: boolean | undefined
-                  }[]
-                | undefined
-              singleLogoutServices?:
-                | {
-                    binding:
-                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-                      | 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-                    location: string
-                    responseLocation?: string | undefined
-                  }[]
-                | undefined
-              nameIdFormat?:
-                | 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
-                | 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'
-                | 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'
-                | 'urn:oasis:names:tc:SAML:2.0:nameid-format:transient'
-                | undefined
-              signAssertions?: boolean | undefined
-              signResponses?: boolean | undefined
-              encryptAssertions?: boolean | undefined
-              signingCertificate?: string | undefined
-              encryptionCertificate?: string | undefined
-              wantAuthnRequestsSigned?: boolean | undefined
-              defaultRelayState?: string | undefined
-              sessionDuration?: number | undefined
-              createdAt?: string | undefined
-              updatedAt?: string | undefined
-            }
-            outputFormat: 'json'
-            status: 200
           }
     }
   } & {
@@ -656,16 +625,10 @@ declare const routes: import(
       $get:
         | {
             input: { param: { spId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { spId: string } }
             output: {
+              id?: string | undefined
               sourceAttribute: string
               samlAttribute: string
-              id?: string | undefined
               samlAttributeNameFormat?:
                 | 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
                 | 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
@@ -678,16 +641,51 @@ declare const routes: import(
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/service-providers/:spId/attributes': {
+        | {
+            input: { param: { spId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
       $put:
         | {
             input: { param: { spId: string } } & {
               json: {
+                id?: string | undefined
                 sourceAttribute: string
                 samlAttribute: string
+                samlAttributeNameFormat?:
+                  | 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
+                  | 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
+                  | 'urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified'
+                  | undefined
+                friendlyName?: string | undefined
+                required?: boolean | undefined
+                transform?: string | undefined
+              }[]
+            }
+            output: {
+              id?: string | undefined
+              sourceAttribute: string
+              samlAttribute: string
+              samlAttributeNameFormat?:
+                | 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
+                | 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
+                | 'urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified'
+                | undefined
+              friendlyName?: string | undefined
+              required?: boolean | undefined
+              transform?: string | undefined
+            }[]
+            outputFormat: 'json'
+            status: 200
+          }
+        | {
+            input: { param: { spId: string } } & {
+              json: {
                 id?: string | undefined
+                sourceAttribute: string
+                samlAttribute: string
                 samlAttributeNameFormat?:
                   | 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
                   | 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
@@ -701,38 +699,6 @@ declare const routes: import(
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
-          }
-        | {
-            input: { param: { spId: string } } & {
-              json: {
-                sourceAttribute: string
-                samlAttribute: string
-                id?: string | undefined
-                samlAttributeNameFormat?:
-                  | 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
-                  | 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
-                  | 'urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified'
-                  | undefined
-                friendlyName?: string | undefined
-                required?: boolean | undefined
-                transform?: string | undefined
-              }[]
-            }
-            output: {
-              sourceAttribute: string
-              samlAttribute: string
-              id?: string | undefined
-              samlAttributeNameFormat?:
-                | 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
-                | 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri'
-                | 'urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified'
-                | undefined
-              friendlyName?: string | undefined
-              required?: boolean | undefined
-              transform?: string | undefined
-            }[]
-            outputFormat: 'json'
-            status: 200
           }
     }
   } & {
@@ -740,20 +706,20 @@ declare const routes: import(
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               name: string
-              type: 'string' | 'boolean' | 'integer' | 'string[]' | 'datetime'
+              type: 'string' | 'string[]' | 'boolean' | 'integer' | 'datetime'
               description?: string | undefined
-              source?: 'custom' | 'user' | 'group' | 'computed' | undefined
+              source?: 'user' | 'group' | 'custom' | 'computed' | undefined
             }[]
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {}
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   } & {
@@ -761,21 +727,15 @@ declare const routes: import(
       $get:
         | {
             input: {}
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: {}
             output: {
               id: string
               purpose: 'signing' | 'encryption' | 'both'
               isActive: boolean
-              notBefore: string
-              notAfter: string
               subject?: string | undefined
               issuer?: string | undefined
               serialNumber?: string | undefined
+              notBefore: string
+              notAfter: string
               fingerprint?: string | undefined
               fingerprintSha256?: string | undefined
               publicKey?: string | undefined
@@ -784,41 +744,18 @@ declare const routes: import(
             outputFormat: 'json'
             status: 200
           }
-    }
-  } & {
-    '/certificates': {
-      $post:
         | {
-            input: {
-              form: {
-                certificate: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                privateKey: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                passphrase?: string | undefined
-                purpose?: 'signing' | 'encryption' | 'both' | undefined
-              }
-            }
-            output: {}
-            outputFormat: string
-            status: 400
-          }
-        | {
-            input: {
-              form: {
-                certificate: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                privateKey: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                passphrase?: string | undefined
-                purpose?: 'signing' | 'encryption' | 'both' | undefined
-              }
-            }
+            input: {}
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
+      $post:
         | {
             input: {
               form: {
-                certificate: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
-                privateKey: import('/workspaces/hono-takibi/node_modules/.pnpm/zod@4.3.5/node_modules/zod/v4/core/schemas').File
+                certificate: File
+                privateKey: File
                 passphrase?: string | undefined
                 purpose?: 'signing' | 'encryption' | 'both' | undefined
               }
@@ -827,11 +764,11 @@ declare const routes: import(
               id: string
               purpose: 'signing' | 'encryption' | 'both'
               isActive: boolean
-              notBefore: string
-              notAfter: string
               subject?: string | undefined
               issuer?: string | undefined
               serialNumber?: string | undefined
+              notBefore: string
+              notAfter: string
               fingerprint?: string | undefined
               fingerprintSha256?: string | undefined
               publicKey?: string | undefined
@@ -840,17 +777,43 @@ declare const routes: import(
             outputFormat: 'json'
             status: 201
           }
+        | {
+            input: {
+              form: {
+                certificate: File
+                privateKey: File
+                passphrase?: string | undefined
+                purpose?: 'signing' | 'encryption' | 'both' | undefined
+              }
+            }
+            output: {}
+            outputFormat: string
+            status: 400
+          }
+        | {
+            input: {
+              form: {
+                certificate: File
+                privateKey: File
+                passphrase?: string | undefined
+                purpose?: 'signing' | 'encryption' | 'both' | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/certificates/:certId': {
       $delete:
+        | { input: { param: { certId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { certId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { certId: string } }; output: {}; outputFormat: string; status: 204 }
         | { input: { param: { certId: string } }; output: {}; outputFormat: string; status: 409 }
     }
   } & {
@@ -858,21 +821,15 @@ declare const routes: import(
       $post:
         | {
             input: { param: { certId: string } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { param: { certId: string } }
             output: {
               id: string
               purpose: 'signing' | 'encryption' | 'both'
               isActive: boolean
-              notBefore: string
-              notAfter: string
               subject?: string | undefined
               issuer?: string | undefined
               serialNumber?: string | undefined
+              notBefore: string
+              notAfter: string
               fingerprint?: string | undefined
               fingerprintSha256?: string | undefined
               publicKey?: string | undefined
@@ -881,22 +838,21 @@ declare const routes: import(
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: { param: { certId: string } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/sessions': {
       $get:
         | {
             input: { query: { userId?: string | undefined } }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
-        | {
-            input: { query: { userId?: string | undefined } }
             output: {
               sessionId: string
               userId: string
-              createdAt: string
               userName?: string | undefined
               serviceProviders?:
                 | {
@@ -908,48 +864,34 @@ declare const routes: import(
                 | undefined
               ipAddress?: string | undefined
               userAgent?: string | undefined
+              createdAt: string
               expiresAt?: string | undefined
               lastActivityAt?: string | undefined
             }[]
             outputFormat: 'json'
             status: 200
           }
+        | {
+            input: { query: { userId?: string | undefined } }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
+          }
     }
   } & {
     '/sessions/:sessionId': {
       $delete:
+        | { input: { param: { sessionId: string } }; output: {}; outputFormat: string; status: 204 }
         | {
             input: { param: { sessionId: string } }
             output: { code: string; message: string }
             outputFormat: 'json'
             status: 401
           }
-        | { input: { param: { sessionId: string } }; output: {}; outputFormat: string; status: 204 }
     }
   } & {
     '/audit-logs': {
       $get:
-        | {
-            input: {
-              query: {
-                from?: string | undefined
-                to?: string | undefined
-                spId?: string | undefined
-                userId?: string | undefined
-                eventType?:
-                  | 'sso_success'
-                  | 'sso_failure'
-                  | 'slo_success'
-                  | 'slo_failure'
-                  | undefined
-                page?: number | undefined
-                limit?: number | undefined
-              }
-            }
-            output: { code: string; message: string }
-            outputFormat: 'json'
-            status: 401
-          }
         | {
             input: {
               query: {
@@ -980,24 +922,41 @@ declare const routes: import(
                   | 'sp_deleted'
                   | 'certificate_uploaded'
                   | 'certificate_activated'
-                timestamp: string
                 userId?: string | undefined
                 userName?: string | undefined
                 spId?: string | undefined
                 spName?: string | undefined
                 ipAddress?: string | undefined
                 userAgent?: string | undefined
-                details?:
-                  | {
-                      [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                    }
-                  | undefined
+                details?: { [x: string]: unknown } | undefined
                 errorMessage?: string | undefined
+                timestamp: string
               }[]
               pagination: { page: number; limit: number; total: number; totalPages: number }
             }
             outputFormat: 'json'
             status: 200
+          }
+        | {
+            input: {
+              query: {
+                from?: string | undefined
+                to?: string | undefined
+                spId?: string | undefined
+                userId?: string | undefined
+                eventType?:
+                  | 'sso_success'
+                  | 'sso_failure'
+                  | 'slo_success'
+                  | 'slo_failure'
+                  | undefined
+                page?: number | undefined
+                limit?: number | undefined
+              }
+            }
+            output: { code: string; message: string }
+            outputFormat: 'json'
+            status: 401
           }
     }
   },

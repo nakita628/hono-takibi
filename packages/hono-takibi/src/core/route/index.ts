@@ -124,7 +124,7 @@ export async function route(
   ])
 
   const firstError = allResults.find((r) => !r.ok)
-  if (firstError && !firstError.ok) return { ok: false, error: firstError.error }
+  if (firstError) return firstError
 
   return { ok: true, value: `Generated route code written to ${outDir}/*.ts (index.ts included)` }
 }

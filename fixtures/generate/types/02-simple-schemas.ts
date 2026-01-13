@@ -1,22 +1,16 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/users': {
       $get: {
         input: {}
-        output: { id: string; email: string; createdAt: string; name?: string | undefined }[]
+        output: { id: string; email: string; name?: string | undefined; createdAt: string }[]
         outputFormat: 'json'
         status: 200
       }
-    }
-  } & {
-    '/users': {
       $post: {
         input: { json: { email: string; name?: string | undefined } }
-        output: { id: string; email: string; createdAt: string; name?: string | undefined }
+        output: { id: string; email: string; name?: string | undefined; createdAt: string }
         outputFormat: 'json'
         status: 201
       }
@@ -26,7 +20,7 @@ declare const routes: import(
       $get:
         | {
             input: { param: { userId: string } }
-            output: { id: string; email: string; createdAt: string; name?: string | undefined }
+            output: { id: string; email: string; name?: string | undefined; createdAt: string }
             outputFormat: 'json'
             status: 200
           }

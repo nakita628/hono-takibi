@@ -1,8 +1,5 @@
-declare const routes: import(
-  '/workspaces/hono-takibi/node_modules/.pnpm/@hono+zod-openapi@1.2.0_hono@4.11.3_zod@4.3.5/node_modules/@hono/zod-openapi/dist/index',
-  { with: { 'resolution-mode': 'import' } }
-).OpenAPIHono<
-  import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/types').Env,
+declare const routes: import('@hono/zod-openapi').OpenAPIHono<
+  import('hono/types').Env,
   {
     '/items': {
       $get:
@@ -22,7 +19,7 @@ declare const routes: import(
                 price?: number | undefined
                 tags?: string[] | undefined
               }[]
-              total: never
+              total: bigint
               page: number
               limit: number
             }
@@ -40,11 +37,7 @@ declare const routes: import(
             output: {
               code: string
               message: string
-              details?:
-                | {
-                    [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                  }
-                | undefined
+              details?: { [x: string]: unknown } | undefined
             }
             outputFormat: 'json'
             status: 400
@@ -60,11 +53,7 @@ declare const routes: import(
             output: {
               code: string
               message: string
-              details?:
-                | {
-                    [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                  }
-                | undefined
+              details?: { [x: string]: unknown } | undefined
             }
             outputFormat: 'json'
             status: 401
@@ -80,11 +69,7 @@ declare const routes: import(
             output: {
               code: string
               message: string
-              details?:
-                | {
-                    [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                  }
-                | undefined
+              details?: { [x: string]: unknown } | undefined
             }
             outputFormat: 'json'
             status: 500
@@ -110,33 +95,12 @@ declare const routes: import(
             output: {
               code: string
               message: string
-              details?:
-                | {
-                    [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                  }
-                | undefined
+              details?: { [x: string]: unknown } | undefined
             }
             outputFormat: 'json'
             status: 404
           }
-    }
-  } & {
-    '/items/:itemId': {
       $delete:
-        | {
-            input: { param: { itemId: string } } & { header: { 'If-Match'?: string | undefined } }
-            output: {
-              code: string
-              message: string
-              details?:
-                | {
-                    [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                  }
-                | undefined
-            }
-            outputFormat: 'json'
-            status: 404
-          }
         | {
             input: { param: { itemId: string } } & { header: { 'If-Match'?: string | undefined } }
             output: {}
@@ -148,11 +112,17 @@ declare const routes: import(
             output: {
               code: string
               message: string
-              details?:
-                | {
-                    [x: string]: import('/workspaces/hono-takibi/node_modules/.pnpm/hono@4.11.3/node_modules/hono/dist/types/utils/types').JSONValue
-                  }
-                | undefined
+              details?: { [x: string]: unknown } | undefined
+            }
+            outputFormat: 'json'
+            status: 404
+          }
+        | {
+            input: { param: { itemId: string } } & { header: { 'If-Match'?: string | undefined } }
+            output: {
+              code: string
+              message: string
+              details?: { [x: string]: unknown } | undefined
             }
             outputFormat: 'json'
             status: 412
