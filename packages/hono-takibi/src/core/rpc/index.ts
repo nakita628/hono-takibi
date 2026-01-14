@@ -310,11 +310,19 @@ const generateOperationCode = (
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
+  // Format multiline description with JSDoc prefix on each line
+  const formatJsDocLines = (text: string): string[] =>
+    text
+      .trimEnd()
+      .split('\n')
+      .map((line) => ` * ${line}`)
+  // Escape /* in path to avoid oxfmt regex parsing issue (/* looks like /regex/)
+  const safePathStr = pathStr.replace(/\/\*/g, '/[*]')
   const docs = [
     '/**',
-    ` * ${method.toUpperCase()} ${pathStr}`,
-    ...(summary ? [' *', ` * ${summary.trimEnd()}`] : []),
-    ...(description ? [' *', ` * ${description.trimEnd()}`] : []),
+    ` * ${method.toUpperCase()} ${safePathStr}`,
+    ...(summary ? [' *', ...formatJsDocLines(summary)] : []),
+    ...(description ? [' *', ...formatJsDocLines(description)] : []),
     ' */',
   ].join('\n')
 
