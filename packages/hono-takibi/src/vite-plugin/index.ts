@@ -226,16 +226,18 @@ const runAllWithConf = async (config: Conf): Promise<{ logs: string[] }> => {
   if (!openAPIResult.ok) return { logs: [`✗ parseOpenAPI: ${openAPIResult.error}`] }
   const openAPI = openAPIResult.value
 
-  const jobs: Array<Promise<string>> = []
-
-  // zod-openapi top-level output (non-split)
-  if (
-    config['zod-openapi'] &&
-    !(config['zod-openapi'].components?.schemas || config['zod-openapi'].routes) &&
-    config['zod-openapi'].output
-  ) {
+  // Job makers - each returns undefined if not applicable
+  const makeZodOpenAPIJob = (): Promise<string> | undefined => {
+    if (
+      !(
+        config['zod-openapi'] &&
+        !(config['zod-openapi'].components?.schemas || config['zod-openapi'].routes) &&
+        config['zod-openapi'].output
+      )
+    )
+      return undefined
     const out = toAbs(config['zod-openapi'].output)
-    const runZodOpenAPI = async () => {
+    return (async () => {
       if (!isTsFile(out)) return `✗ zod-openapi: Invalid output format: ${out}`
       const result = await takibi(openAPI, out, false, false, '/', {
         exportSchemasTypes: config['zod-openapi']?.exportSchemasTypes ?? false,
@@ -252,235 +254,239 @@ const runAllWithConf = async (config: Conf): Promise<{ logs: string[] }> => {
         exportCallbacks: config['zod-openapi']?.exportCallbacks ?? false,
       })
       return result.ok ? `✓ zod-openapi -> ${out}` : `✗ zod-openapi: ${result.error}`
-    }
-    jobs.push(runZodOpenAPI())
+    })()
   }
 
-  // components.schemas
-  if (config['zod-openapi']?.components?.schemas) {
-    const schemasConfig = config['zod-openapi'].components.schemas
-    const runSchema = async () => {
-      if (schemasConfig.split === true) {
-        const outDir = toAbs(schemasConfig.output)
+  const makeSchemaJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.schemas
+    if (!cfg) return undefined
+    return (async () => {
+      if (cfg.split === true) {
+        const outDir = toAbs(cfg.output)
         const removed = await deleteAllTsShallow(outDir)
         const schemaResult = await schemas(
           openAPI.components?.schemas,
           outDir,
           true,
-          schemasConfig.exportTypes === true,
+          cfg.exportTypes === true,
         )
         if (!schemaResult.ok) return `✗ schemas(split): ${schemaResult.error}`
         return removed.length > 0
           ? `✓ schemas(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
           : `✓ schemas(split) -> ${outDir}/*.ts`
       }
-      const out = toAbs(schemasConfig.output)
+      const out = toAbs(cfg.output)
       const schemaResult = await schemas(
         openAPI.components?.schemas,
         out,
         false,
-        schemasConfig.exportTypes === true,
+        cfg.exportTypes === true,
       )
       return schemaResult.ok ? `✓ schemas -> ${out}` : `✗ schemas: ${schemaResult.error}`
-    }
-    jobs.push(runSchema())
+    })()
   }
 
-  // components.parameters
-  if (config['zod-openapi']?.components?.parameters) {
-    const parametersConfig = config['zod-openapi'].components.parameters
-    const runParameters = async () => {
-      const outDir = toAbs(parametersConfig.output)
-      if (parametersConfig.split === true) await deleteAllTsShallow(outDir)
+  const makeParametersJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.parameters
+    if (!cfg) return undefined
+    return (async () => {
+      const outDir = toAbs(cfg.output)
+      if (cfg.split === true) await deleteAllTsShallow(outDir)
       const parameterResult = await parameters(
         openAPI.components?.parameters,
         outDir,
-        parametersConfig.split === true,
-        parametersConfig.exportTypes === true,
+        cfg.split === true,
+        cfg.exportTypes === true,
         config['zod-openapi']?.components,
       )
       return parameterResult.ok
-        ? `✓ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        ? `✓ parameters${cfg.split === true ? '(split)' : ''} -> ${outDir}`
         : `✗ parameters: ${parameterResult.error}`
-    }
-    jobs.push(runParameters())
+    })()
   }
 
-  // components.headers
-  if (config['zod-openapi']?.components?.headers) {
-    const headersConfig = config['zod-openapi'].components.headers
-    const runHeaders = async () => {
-      const outDir = toAbs(headersConfig.output)
-      if (headersConfig.split === true) await deleteAllTsShallow(outDir)
+  const makeHeadersJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.headers
+    if (!cfg) return undefined
+    return (async () => {
+      const outDir = toAbs(cfg.output)
+      if (cfg.split === true) await deleteAllTsShallow(outDir)
       const headersResult = await headers(
         openAPI.components?.headers,
         outDir,
-        headersConfig.split === true,
-        headersConfig.exportTypes === true,
+        cfg.split === true,
+        cfg.exportTypes === true,
         config['zod-openapi']?.components,
       )
       return headersResult.ok
-        ? `✓ headers${headersConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        ? `✓ headers${cfg.split === true ? '(split)' : ''} -> ${outDir}`
         : `✗ headers: ${headersResult.error}`
-    }
-    jobs.push(runHeaders())
+    })()
   }
 
-  // components.examples
-  if (config['zod-openapi']?.components?.examples) {
-    const examplesConfig = config['zod-openapi'].components.examples
-    const runExamples = async () => {
-      const outDir = toAbs(examplesConfig.output)
-      if (examplesConfig.split === true) await deleteAllTsShallow(outDir)
+  const makeExamplesJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.examples
+    if (!cfg) return undefined
+    return (async () => {
+      const outDir = toAbs(cfg.output)
+      if (cfg.split === true) await deleteAllTsShallow(outDir)
       const examplesResult = await examples(
         openAPI.components?.examples,
         outDir,
-        examplesConfig.split === true,
+        cfg.split === true,
       )
       return examplesResult.ok
-        ? `✓ examples${examplesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        ? `✓ examples${cfg.split === true ? '(split)' : ''} -> ${outDir}`
         : `✗ examples: ${examplesResult.error}`
-    }
-    jobs.push(runExamples())
+    })()
   }
 
-  // components.links
-  if (config['zod-openapi']?.components?.links) {
-    const linksConfig = config['zod-openapi'].components.links
-    const runLinks = async () => {
-      const outDir = toAbs(linksConfig.output)
-      if (linksConfig.split === true) await deleteAllTsShallow(outDir)
-      const linksResult = await links(openAPI.components?.links, outDir, linksConfig.split === true)
+  const makeLinksJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.links
+    if (!cfg) return undefined
+    return (async () => {
+      const outDir = toAbs(cfg.output)
+      if (cfg.split === true) await deleteAllTsShallow(outDir)
+      const linksResult = await links(openAPI.components?.links, outDir, cfg.split === true)
       return linksResult.ok
-        ? `✓ links${linksConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        ? `✓ links${cfg.split === true ? '(split)' : ''} -> ${outDir}`
         : `✗ links: ${linksResult.error}`
-    }
-    jobs.push(runLinks())
+    })()
   }
 
-  // components.callbacks
-  if (config['zod-openapi']?.components?.callbacks) {
-    const callbacksConfig = config['zod-openapi'].components.callbacks
-    const runCallbacks = async () => {
-      const outDir = toAbs(callbacksConfig.output)
-      if (callbacksConfig.split === true) await deleteAllTsShallow(outDir)
+  const makeCallbacksJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.callbacks
+    if (!cfg) return undefined
+    return (async () => {
+      const outDir = toAbs(cfg.output)
+      if (cfg.split === true) await deleteAllTsShallow(outDir)
       const callbacksResult = await callbacks(
         openAPI.components?.callbacks,
         outDir,
-        callbacksConfig.split === true,
+        cfg.split === true,
       )
       return callbacksResult.ok
-        ? `✓ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        ? `✓ callbacks${cfg.split === true ? '(split)' : ''} -> ${outDir}`
         : `✗ callbacks: ${callbacksResult.error}`
-    }
-    jobs.push(runCallbacks())
+    })()
   }
 
-  // components.securitySchemes
-  if (config['zod-openapi']?.components?.securitySchemes) {
-    const securitySchemesConfig = config['zod-openapi'].components.securitySchemes
-    const runSecuritySchemes = async () => {
-      const outDir = toAbs(securitySchemesConfig.output)
-      if (securitySchemesConfig.split === true) await deleteAllTsShallow(outDir)
+  const makeSecuritySchemesJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.securitySchemes
+    if (!cfg) return undefined
+    return (async () => {
+      const outDir = toAbs(cfg.output)
+      if (cfg.split === true) await deleteAllTsShallow(outDir)
       const securitySchemesResult = await securitySchemes(
         openAPI.components?.securitySchemes,
         outDir,
-        securitySchemesConfig.split === true,
+        cfg.split === true,
       )
       return securitySchemesResult.ok
-        ? `✓ securitySchemes${securitySchemesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        ? `✓ securitySchemes${cfg.split === true ? '(split)' : ''} -> ${outDir}`
         : `✗ securitySchemes: ${securitySchemesResult.error}`
-    }
-    jobs.push(runSecuritySchemes())
+    })()
   }
 
-  // components.requestBodies
-  if (config['zod-openapi']?.components?.requestBodies) {
-    const requestBodiesConfig = config['zod-openapi'].components.requestBodies
-    const runRequestBodies = async () => {
-      const outDir = toAbs(requestBodiesConfig.output)
-      if (requestBodiesConfig.split === true) await deleteAllTsShallow(outDir)
+  const makeRequestBodiesJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.requestBodies
+    if (!cfg) return undefined
+    return (async () => {
+      const outDir = toAbs(cfg.output)
+      if (cfg.split === true) await deleteAllTsShallow(outDir)
       const requestBodiesResult = await requestBodies(
         openAPI.components?.requestBodies,
         outDir,
-        requestBodiesConfig.split === true,
+        cfg.split === true,
         config['zod-openapi']?.components,
       )
       return requestBodiesResult.ok
-        ? `✓ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        ? `✓ requestBodies${cfg.split === true ? '(split)' : ''} -> ${outDir}`
         : `✗ requestBodies: ${requestBodiesResult.error}`
-    }
-    jobs.push(runRequestBodies())
+    })()
   }
 
-  // components.responses
-  if (config['zod-openapi']?.components?.responses) {
-    const responsesConfig = config['zod-openapi'].components.responses
-    const runResponses = async () => {
-      const outDir = toAbs(responsesConfig.output)
-      if (responsesConfig.split === true) await deleteAllTsShallow(outDir)
+  const makeResponsesJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.components?.responses
+    if (!cfg) return undefined
+    return (async () => {
+      const outDir = toAbs(cfg.output)
+      if (cfg.split === true) await deleteAllTsShallow(outDir)
       const responsesResult = await responses(
         openAPI.components?.responses,
         outDir,
-        responsesConfig.split === true,
+        cfg.split === true,
         config['zod-openapi']?.components,
       )
       return responsesResult.ok
-        ? `✓ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outDir}`
+        ? `✓ responses${cfg.split === true ? '(split)' : ''} -> ${outDir}`
         : `✗ responses: ${responsesResult.error}`
-    }
-    jobs.push(runResponses())
+    })()
   }
 
-  // zod-openapi.routes
-  if (config['zod-openapi']?.routes) {
-    const routesConfig = config['zod-openapi'].routes
-    const runRoutes = async () => {
-      const out = toAbs(routesConfig.output)
-      if (routesConfig.split === true) await deleteAllTsShallow(out)
+  const makeRoutesJob = (): Promise<string> | undefined => {
+    const cfg = config['zod-openapi']?.routes
+    if (!cfg) return undefined
+    return (async () => {
+      const out = toAbs(cfg.output)
+      if (cfg.split === true) await deleteAllTsShallow(out)
       const routeResult = await route(
         openAPI,
-        { output: out, split: routesConfig.split ?? false },
+        { output: out, split: cfg.split ?? false },
         config['zod-openapi']?.components,
       )
       return routeResult.ok
-        ? `✓ routes${routesConfig.split === true ? '(split)' : ''} -> ${out}`
+        ? `✓ routes${cfg.split === true ? '(split)' : ''} -> ${out}`
         : `✗ routes: ${routeResult.error}`
-    }
-    jobs.push(runRoutes())
+    })()
   }
 
-  // type
-  if (config.type) {
-    const typeConfig = config.type
-    const out = toAbs(typeConfig.output)
-    const runType = async () => {
+  const makeTypeJob = (): Promise<string> | undefined => {
+    const cfg = config.type
+    if (!cfg) return undefined
+    return (async () => {
+      const out = toAbs(cfg.output)
       if (!isTsFile(out)) return `✗ type: Invalid output format: ${out}`
       const typeResult = await type(openAPI, out)
       return typeResult.ok ? `✓ type -> ${out}` : `✗ type: ${typeResult.error}`
-    }
-    jobs.push(runType())
+    })()
   }
 
-  // rpc
-  if (config.rpc) {
-    const rpcConfig = config.rpc
-    const runRpc = async () => {
-      if (rpcConfig.split === true) {
-        const outDir = toAbs(rpcConfig.output)
+  const makeRpcJob = (): Promise<string> | undefined => {
+    const cfg = config.rpc
+    if (!cfg) return undefined
+    return (async () => {
+      if (cfg.split === true) {
+        const outDir = toAbs(cfg.output)
         const removed = await deleteAllTsShallow(outDir)
-        const rpcResult = await rpc(openAPI, outDir, rpcConfig.import, true)
+        const rpcResult = await rpc(openAPI, outDir, cfg.import, true)
         if (!rpcResult.ok) return `✗ rpc(split): ${rpcResult.error}`
         return removed.length > 0
           ? `✓ rpc(split) -> ${outDir}/*.ts (cleaned ${removed.length})`
           : `✓ rpc(split) -> ${outDir}/*.ts`
       }
-      const out = toAbs(rpcConfig.output)
-      const rpcResult = await rpc(openAPI, out, rpcConfig.import, false)
+      const out = toAbs(cfg.output)
+      const rpcResult = await rpc(openAPI, out, cfg.import, false)
       return rpcResult.ok ? `✓ rpc -> ${out}` : `✗ rpc: ${rpcResult.error}`
-    }
-    jobs.push(runRpc())
+    })()
   }
+
+  // Build jobs array immutably - filter out undefined
+  const jobs = [
+    makeZodOpenAPIJob(),
+    makeSchemaJob(),
+    makeParametersJob(),
+    makeHeadersJob(),
+    makeExamplesJob(),
+    makeLinksJob(),
+    makeCallbacksJob(),
+    makeSecuritySchemesJob(),
+    makeRequestBodiesJob(),
+    makeResponsesJob(),
+    makeRoutesJob(),
+    makeTypeJob(),
+    makeRpcJob(),
+  ].filter((job): job is Promise<string> => job !== undefined)
 
   return Promise.all(jobs).then((logs) => ({ logs }))
 }
@@ -554,9 +560,58 @@ const addInputGlobs = (server: DevServerLike, absInput: string) => {
  * })
  * ```
  */
+/**
+ * Extracts all output paths from a configuration.
+ */
+const extractOutputPaths = (conf: Conf): string[] =>
+  [
+    conf['zod-openapi']?.output,
+    conf['zod-openapi']?.components?.schemas?.output,
+    conf['zod-openapi']?.components?.parameters?.output,
+    conf['zod-openapi']?.components?.headers?.output,
+    conf['zod-openapi']?.components?.examples?.output,
+    conf['zod-openapi']?.components?.links?.output,
+    conf['zod-openapi']?.components?.callbacks?.output,
+    conf['zod-openapi']?.components?.securitySchemes?.output,
+    conf['zod-openapi']?.components?.requestBodies?.output,
+    conf['zod-openapi']?.components?.responses?.output,
+    conf['zod-openapi']?.routes?.output,
+    conf.type?.output,
+    conf.rpc?.output,
+  ]
+    .filter((p): p is string => p !== undefined)
+    .map(toAbs)
+
+/**
+ * Cleans up output paths that exist in previous config but not in current config.
+ */
+const cleanupStaleOutputs = async (prev: Conf, curr: Conf): Promise<string[]> => {
+  const prevPaths = new Set(extractOutputPaths(prev))
+  const currPaths = new Set(extractOutputPaths(curr))
+  const stalePaths = [...prevPaths].filter((p) => !currPaths.has(p))
+
+  const results = await Promise.all(
+    stalePaths.map(async (p): Promise<string | null> => {
+      const stat = await fsp.stat(p).catch(() => null)
+      if (!stat) return null
+
+      if (stat.isDirectory()) {
+        const removed = await deleteAllTsShallow(p)
+        return removed.length > 0 ? `${p}/*.ts (${removed.length} files)` : null
+      }
+      if (stat.isFile() && p.endsWith('.ts')) {
+        await fsp.unlink(p).catch(() => {})
+        return p
+      }
+      return null
+    }),
+  )
+  return results.filter((r): r is string => r !== null)
+}
+
 // biome-ignore lint: plugin returns any for Vite compatibility
 export function honoTakibiVite(): any {
-  const state: { current: Conf | null } = { current: null }
+  const state: { current: Conf | null; previous: Conf | null } = { current: null, previous: null }
   const absConfig = path.resolve(process.cwd(), 'hono-takibi.config.ts')
 
   const run = async () => {
@@ -576,6 +631,14 @@ export function honoTakibiVite(): any {
       console.error(`[hono-takibi] ✗ config: ${next.error}`)
       return
     }
+
+    // Cleanup stale outputs from previous config
+    if (state.current) {
+      const cleaned = await cleanupStaleOutputs(state.current, next.value)
+      for (const p of cleaned) console.log(`[hono-takibi] ✓ cleanup: ${p}`)
+    }
+
+    state.previous = state.current
     state.current = next.value
     addInputGlobs(server, toAbs(state.current.input))
     await runAndReload(server)
