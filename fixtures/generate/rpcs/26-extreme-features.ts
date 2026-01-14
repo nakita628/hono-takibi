@@ -40,8 +40,8 @@ export async function postGrpcGateway(
  * This endpoint is deprecated
  *
  * **DEPRECATED**: This endpoint will be removed in v3.
-
-Please use `/new-endpoint` instead.
+ *
+ * Please use `/new-endpoint` instead.
  */
 export async function getDeprecatedEndpoint(options?: ClientRequestOptions) {
   return await client['deprecated-endpoint'].$get(undefined, options)

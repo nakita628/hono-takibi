@@ -35,7 +35,7 @@ export async function getAlbumsId(
  * Get Album Tracks
  *
  * Get Spotify catalog information about an album’s tracks.
-Optional parameters can be used to limit the number of tracks returned.
+ * Optional parameters can be used to limit the number of tracks returned.
  */
 export async function getAlbumsIdTracks(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
@@ -148,7 +148,7 @@ export async function getAudioFeatures(
  * Get Track's Audio Features
  *
  * Get audio feature information for a single track identified by its unique
-Spotify ID.
+ * Spotify ID.
  */
 export async function getAudioFeaturesId(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
@@ -163,7 +163,7 @@ export async function getAudioFeaturesId(
  * Get Several Audiobooks
  *
  * Get Spotify catalog information for several audiobooks identified by their Spotify IDs.<br />
- **Note: Audiobooks are only available for the US, UK, Ireland, New Zealand and Australia markets.**
+ * **Note: Audiobooks are only available for the US, UK, Ireland, New Zealand and Australia markets.**
  */
 export async function getAudiobooks(
   args: InferRequestType<typeof client.audiobooks.$get>,
@@ -178,7 +178,7 @@ export async function getAudiobooks(
  * Get an Audiobook
  *
  * Get Spotify catalog information for a single audiobook.<br />
- **Note: Audiobooks are only available for the US, UK, Ireland, New Zealand and Australia markets.**
+ * **Note: Audiobooks are only available for the US, UK, Ireland, New Zealand and Australia markets.**
  */
 export async function getAudiobooksId(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
@@ -193,7 +193,7 @@ export async function getAudiobooksId(
  * Get Audiobook Chapters
  *
  * Get Spotify catalog information about an audiobook's chapters.<br />
- **Note: Audiobooks are only available for the US, UK, Ireland, New Zealand and Australia markets.**
+ * **Note: Audiobooks are only available for the US, UK, Ireland, New Zealand and Australia markets.**
  */
 export async function getAudiobooksIdChapters(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
@@ -278,7 +278,7 @@ export async function getBrowseNewReleases(
  * Get Several Chapters
  *
  * Get Spotify catalog information for several chapters identified by their Spotify IDs.<br />
- **Note: Chapters are only available for the US, UK, Ireland, New Zealand and Australia markets.**
+ * **Note: Chapters are only available for the US, UK, Ireland, New Zealand and Australia markets.**
  */
 export async function getChapters(
   args: InferRequestType<typeof client.chapters.$get>,
@@ -293,7 +293,7 @@ export async function getChapters(
  * Get a Chapter
  *
  * Get Spotify catalog information for a single chapter.<br />
- **Note: Chapters are only available for the US, UK, Ireland, New Zealand and Australia markets.**
+ * **Note: Chapters are only available for the US, UK, Ireland, New Zealand and Australia markets.**
  */
 export async function getChaptersId(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
@@ -322,7 +322,7 @@ export async function getEpisodes(
  * Get Episode
  *
  * Get Spotify catalog information for a single episode identified by its
-unique Spotify ID.
+ * unique Spotify ID.
  */
 export async function getEpisodesId(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
@@ -348,7 +348,7 @@ export async function getMarkets(options?: ClientRequestOptions) {
  * Get Current User's Profile
  *
  * Get detailed profile information about the current user (including the
-current user's username).
+ * current user's username).
  */
 export async function getMe(options?: ClientRequestOptions) {
   return await client.me.$get(undefined, options)
@@ -472,7 +472,7 @@ export async function getMeAudiobooksContains(
  * Get User's Saved Episodes
  *
  * Get a list of the episodes saved in the current Spotify user's library.<br/>
-This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
+ * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
 export async function getMeEpisodes(
   args: InferRequestType<typeof client.me.episodes.$get>,
@@ -487,7 +487,7 @@ export async function getMeEpisodes(
  * Save Episodes for Current User
  *
  * Save one or more episodes to the current user's library.<br/>
-This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
+ * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
 export async function putMeEpisodes(
   args: InferRequestType<typeof client.me.episodes.$put>,
@@ -502,7 +502,7 @@ export async function putMeEpisodes(
  * Remove User's Saved Episodes
  *
  * Remove one or more episodes from the current user's library.<br/>
-This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
+ * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
 export async function deleteMeEpisodes(
   args: InferRequestType<typeof client.me.episodes.$delete>,
@@ -517,7 +517,7 @@ export async function deleteMeEpisodes(
  * Check User's Saved Episodes
  *
  * Check if one or more episodes is already saved in the current Spotify user's 'Your Episodes' library.<br/>
-This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer)..
+ * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer)..
  */
 export async function getMeEpisodesContains(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
@@ -722,7 +722,7 @@ export async function postMePlayerQueue(
  * Get Recently Played Tracks
  *
  * Get tracks from the current user's recently played tracks.
-_**Note**: Currently doesn't support podcast episodes._
+ * _**Note**: Currently doesn't support podcast episodes._
  */
 export async function getMePlayerRecentlyPlayed(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
@@ -737,7 +737,7 @@ export async function getMePlayerRecentlyPlayed(
  * Set Repeat Mode
  *
  * Set the repeat mode for the user's playback. Options are repeat-track,
-repeat-context, and off.
+ * repeat-context, and off.
  */
 export async function putMePlayerRepeat(
   args: InferRequestType<typeof client.me.player.repeat.$put>,
@@ -794,7 +794,7 @@ export async function putMePlayerVolume(
  * Get Current User's Playlists
  *
  * Get a list of the playlists owned or followed by the current Spotify
-user.
+ * user.
  */
 export async function getMePlaylists(
   args: InferRequestType<typeof client.me.playlists.$get>,
@@ -949,7 +949,7 @@ export async function getPlaylistsPlaylistId(
  * Change Playlist Details
  *
  * Change a playlist's name and public/private state. (The user must, of
-course, own the playlist.)
+ * course, own the playlist.)
  */
 export async function putPlaylistsPlaylistId(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
@@ -1050,12 +1050,12 @@ export async function getPlaylistsPlaylistIdTracks(
  * Update Playlist Items
  *
  * Either reorder or replace items in a playlist depending on the request's parameters.
-To reorder items, include `range_start`, `insert_before`, `range_length` and `snapshot_id` in the request's body.
-To replace items, include `uris` as either a query parameter or in the request's body.
-Replacing items in a playlist will overwrite its existing items. This operation can be used for replacing or clearing items in a playlist.
-<br/>
-**Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters.
-These operations can't be applied together in a single request.
+ * To reorder items, include `range_start`, `insert_before`, `range_length` and `snapshot_id` in the request's body.
+ * To replace items, include `uris` as either a query parameter or in the request's body.
+ * Replacing items in a playlist will overwrite its existing items. This operation can be used for replacing or clearing items in a playlist.
+ * <br/>
+ * **Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters.
+ * These operations can't be applied together in a single request.
  */
 export async function putPlaylistsPlaylistIdTracks(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
@@ -1098,8 +1098,8 @@ export async function deletePlaylistsPlaylistIdTracks(
  * Get Recommendations
  *
  * Recommendations are generated based on the available information for a given seed entity and matched against similar artists and tracks. If there is sufficient information about the provided seeds, a list of tracks will be returned together with pool size details.
-
-For artists and tracks that are very new or obscure there might not be enough data to generate a list of tracks.
+ *
+ * For artists and tracks that are very new or obscure there might not be enough data to generate a list of tracks.
  */
 export async function getRecommendations(
   args: InferRequestType<typeof client.recommendations.$get>,
@@ -1125,8 +1125,8 @@ export async function getRecommendationsAvailableGenreSeeds(options?: ClientRequ
  * Search for Item
  *
  * Get Spotify catalog information about albums, artists, playlists, tracks, shows, episodes or audiobooks
-that match a keyword string.<br />
-**Note: Audiobooks are only available for the US, UK, Ireland, New Zealand and Australia markets.**
+ * that match a keyword string.<br />
+ * **Note: Audiobooks are only available for the US, UK, Ireland, New Zealand and Australia markets.**
  */
 export async function getSearch(
   args: InferRequestType<typeof client.search.$get>,
@@ -1155,7 +1155,7 @@ export async function getShows(
  * Get Show
  *
  * Get Spotify catalog information for a single show identified by its
-unique Spotify ID.
+ * unique Spotify ID.
  */
 export async function getShowsId(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
@@ -1198,7 +1198,7 @@ export async function getTracks(
  * Get Track
  *
  * Get Spotify catalog information for a single track identified by its
-unique Spotify ID.
+ * unique Spotify ID.
  */
 export async function getTracksId(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
@@ -1241,7 +1241,7 @@ export async function getUsersUserIdPlaylists(
  * Create Playlist
  *
  * Create a playlist for a Spotify user. (The playlist will be empty until
-you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).)
+ * you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).)
  */
 export async function postUsersUserIdPlaylists(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,

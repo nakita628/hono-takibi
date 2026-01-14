@@ -7,7 +7,7 @@ import { client } from '../clients/35-auth-oauth2-server'
  * 認可エンドポイント
  *
  * Authorization Code フローの認可リクエスト。
-ユーザーをログイン画面にリダイレクトし、認可後にコールバックURLへリダイレクトします。
+ * ユーザーをログイン画面にリダイレクトし、認可後にコールバックURLへリダイレクトします。
  */
 export async function getOauthAuthorize(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
@@ -22,7 +22,7 @@ export async function getOauthAuthorize(
  * トークンエンドポイント
  *
  * アクセストークンを発行します。
-Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。
+ * Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。
  */
 export async function postOauthToken(
   args: InferRequestType<typeof client.oauth.token.$post>,
