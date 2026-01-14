@@ -203,27 +203,22 @@ type AllBodyInfo = { form: BodyInfo[]; json: BodyInfo[] }
 const pickAllBodyInfoFromContent = (content: unknown): AllBodyInfo | undefined => {
   if (!isRecord(content)) return undefined
 
-  const formInfos: BodyInfo[] = []
-  const jsonInfos: BodyInfo[] = []
-
   const formContentTypes = ['multipart/form-data', 'application/x-www-form-urlencoded']
 
-  for (const [ct, mediaObj] of Object.entries(content)) {
-    if (!(isRecord(mediaObj) && hasSchemaProp(mediaObj) && isRecord(mediaObj.schema))) continue
+  const isFormContentType = (ct: string): boolean =>
+    formContentTypes.includes(ct.split(';')[0].trim())
 
-    const info: BodyInfo = { contentType: ct }
+  const validEntries = Object.entries(content).filter(
+    ([_, mediaObj]) => isRecord(mediaObj) && hasSchemaProp(mediaObj) && isRecord(mediaObj.schema),
+  )
 
-    // Extract base content type (before semicolon) for matching
-    // e.g., "multipart/form-data; boundary=..." -> "multipart/form-data"
-    const baseContentType = ct.split(';')[0].trim()
+  const formInfos = validEntries
+    .filter(([ct]) => isFormContentType(ct))
+    .map(([ct]): BodyInfo => ({ contentType: ct }))
 
-    if (formContentTypes.includes(baseContentType)) {
-      formInfos.push(info)
-    } else {
-      // All other content types go to json
-      jsonInfos.push(info)
-    }
-  }
+  const jsonInfos = validEntries
+    .filter(([ct]) => !isFormContentType(ct))
+    .map(([ct]): BodyInfo => ({ contentType: ct }))
 
   if (formInfos.length === 0 && jsonInfos.length === 0) return undefined
 
