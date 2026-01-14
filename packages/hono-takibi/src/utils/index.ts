@@ -106,14 +106,14 @@ export function isHttpMethod(
  * methodPath('get', '/users/{id}/posts') // 'getUsersIdPosts'
  */
 export function methodPath(method: string, path: string): string {
-  // 1. api_path: `/user/createWithList`
-  // 2. replace(/[\/{}-]/g, ' ') -> ` user createWithList`
-  // 3. trim() -> `user createWithList`
-  // 4. split(/\s+/) -> `['user', 'createWithList']`
+  // 1. api_path: `/user/createWithList` or `/applications/@me`
+  // 2. replace(/[^A-Za-z0-9]/g, ' ') -> ` user createWithList` or ` applications  me`
+  // 3. trim() -> `user createWithList` or `applications  me`
+  // 4. split(/\s+/) -> `['user', 'createWithList']` or `['applications', 'me']`
   // 5. map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`) -> `['User', 'CreateWithList']`
-  // 6. join('') -> `UserCreateWithList`
+  // 6. join('') -> `UserCreateWithList` or `ApplicationsMe`
   const apiPath = path
-    .replace(/[/{}._-]/g, ' ')
+    .replace(/[^A-Za-z0-9]/g, ' ')
     .trim()
     .split(/\s+/)
     .map((str) => `${str.charAt(0).toUpperCase()}${str.slice(1)}`)
