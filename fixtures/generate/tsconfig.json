@@ -15,6 +15,14 @@
   "exclude": [
     "routes/complex-schema-reference.ts",
     "routes/complex-schema-reference-random.ts",
+    "routes/twilio_api_v2010.ts",
+    "routes/discord-api-spec-openapi.ts",
+    "routes/discord-api-spec-openapi_preview.ts",
+    "routes/spotify.ts",
+    "rpcs/twilio_api_v2010.ts",
+    "rpcs/discord-api-spec-openapi.ts",
+    "rpcs/discord-api-spec-openapi_preview.ts",
+    "rpcs/spotify.ts",
     "types",
     "clients"
   ]

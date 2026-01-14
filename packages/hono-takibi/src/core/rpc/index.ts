@@ -81,10 +81,8 @@ const formatPath = (p: string): FormatPathResult => {
 
   const segs = p.replace(/^\/+/, '').split('/').filter(Boolean)
 
-  // Convert {param} to :param
-  const honoSegs = segs.map((seg) =>
-    seg.startsWith('{') && seg.endsWith('}') ? `:${seg.slice(1, -1)}` : seg,
-  )
+  // Convert {param} to :param (handles both full segments like {id} and partial like {Sid}.json)
+  const honoSegs = segs.map((seg) => seg.replace(/\{([^}]+)\}/g, ':$1'))
 
   // Find the first segment that needs bracket notation
   const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))
@@ -205,27 +203,22 @@ type AllBodyInfo = { form: BodyInfo[]; json: BodyInfo[] }
 const pickAllBodyInfoFromContent = (content: unknown): AllBodyInfo | undefined => {
   if (!isRecord(content)) return undefined
 
-  const formInfos: BodyInfo[] = []
-  const jsonInfos: BodyInfo[] = []
-
   const formContentTypes = ['multipart/form-data', 'application/x-www-form-urlencoded']
 
-  for (const [ct, mediaObj] of Object.entries(content)) {
-    if (!(isRecord(mediaObj) && hasSchemaProp(mediaObj) && isRecord(mediaObj.schema))) continue
+  const isFormContentType = (ct: string): boolean =>
+    formContentTypes.includes(ct.split(';')[0].trim())
 
-    const info: BodyInfo = { contentType: ct }
+  const validEntries = Object.entries(content).filter(
+    ([_, mediaObj]) => isRecord(mediaObj) && hasSchemaProp(mediaObj) && isRecord(mediaObj.schema),
+  )
 
-    // Extract base content type (before semicolon) for matching
-    // e.g., "multipart/form-data; boundary=..." -> "multipart/form-data"
-    const baseContentType = ct.split(';')[0].trim()
+  const formInfos = validEntries
+    .filter(([ct]) => isFormContentType(ct))
+    .map(([ct]): BodyInfo => ({ contentType: ct }))
 
-    if (formContentTypes.includes(baseContentType)) {
-      formInfos.push(info)
-    } else {
-      // All other content types go to json
-      jsonInfos.push(info)
-    }
-  }
+  const jsonInfos = validEntries
+    .filter(([ct]) => !isFormContentType(ct))
+    .map(([ct]): BodyInfo => ({ contentType: ct }))
 
   if (formInfos.length === 0 && jsonInfos.length === 0) return undefined
 
@@ -312,11 +305,19 @@ const generateOperationCode = (
 
   const summary = typeof op.summary === 'string' ? op.summary : ''
   const description = typeof op.description === 'string' ? op.description : ''
+  // Format multiline description with JSDoc prefix on each line
+  const formatJsDocLines = (text: string): string[] =>
+    text
+      .trimEnd()
+      .split('\n')
+      .map((line) => ` * ${line}`)
+  // Escape /* in path to avoid oxfmt regex parsing issue (/* looks like /regex/)
+  const safePathStr = pathStr.replace(/\/\*/g, '/[*]')
   const docs = [
     '/**',
-    ` * ${method.toUpperCase()} ${pathStr}`,
-    ...(summary ? [' *', ` * ${summary.trimEnd()}`] : []),
-    ...(description ? [' *', ` * ${description.trimEnd()}`] : []),
+    ` * ${method.toUpperCase()} ${safePathStr}`,
+    ...(summary ? [' *', ...formatJsDocLines(summary)] : []),
+    ...(description ? [' *', ...formatJsDocLines(description)] : []),
     ' */',
   ].join('\n')
 
