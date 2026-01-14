@@ -202,9 +202,10 @@ function makeParamPart(
   params: readonly Parameter[],
   components: Components | undefined,
 ): string | undefined {
-  const props = params.map(
-    (p) => `${p.name}:${makeSchemaTypeString(makeParameterSchema(p), components, new Set())}`,
-  )
+  const props = params.map((p) => {
+    const safeKey = makeSafeKey(p.name)
+    return `${safeKey}:${makeSchemaTypeString(makeParameterSchema(p), components, new Set())}`
+  })
   return props.length > 0 ? `{param:{${props.join(';')}}}` : undefined
 }
 
@@ -214,7 +215,8 @@ function makeQueryPart(
 ): string | undefined {
   const props = params.map((p) => {
     const typeStr = makeSchemaTypeString(makeParameterSchema(p), components, new Set())
-    return p.required ? `${p.name}:${typeStr}` : `${p.name}?:${typeStr}|undefined`
+    const safeKey = makeSafeKey(p.name)
+    return p.required ? `${safeKey}:${typeStr}` : `${safeKey}?:${typeStr}|undefined`
   })
   return props.length > 0 ? `{query:{${props.join(';')}}}` : undefined
 }

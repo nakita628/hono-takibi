@@ -81,10 +81,8 @@ const formatPath = (p: string): FormatPathResult => {
 
   const segs = p.replace(/^\/+/, '').split('/').filter(Boolean)
 
-  // Convert {param} to :param
-  const honoSegs = segs.map((seg) =>
-    seg.startsWith('{') && seg.endsWith('}') ? `:${seg.slice(1, -1)}` : seg,
-  )
+  // Convert {param} to :param (handles both full segments like {id} and partial like {Sid}.json)
+  const honoSegs = segs.map((seg) => seg.replace(/\{([^}]+)\}/g, ':$1'))
 
   // Find the first segment that needs bracket notation
   const firstBracketIdx = honoSegs.findIndex((seg) => !isValidIdent(seg))
