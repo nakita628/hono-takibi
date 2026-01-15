@@ -15,6 +15,7 @@
       "!**/rpcs",
       "!**/types",
       "!**/clients",
+      "!fixtures/generate/openapi",
       "!**/fixtures/vite/src/handlers",
       "!**/fixtures/vite/src/rpcs",
       "!**/fixtures/type/*.ts"

@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "dev": "vite --host",
-    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prepare": "cp .env.example .env",
     "takibi": "hono-takibi",
@@ -19,13 +18,11 @@
     "@typespec/http": "^1.7.0",
     "@typespec/openapi3": "^1.7.0",
     "@typespec/versioning": "^0.77.0",
-    "@vitest/coverage-v8": "^4.0.15",
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.31.8",
     "hono-takibi": "^0.9.61",
     "vite": "^7.2.7",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.15"
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "dependencies": {
     "@hono/zod-openapi": "^1.1.5",
