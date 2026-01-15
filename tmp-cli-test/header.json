@@ -1,1 +1,0 @@
-{"openapi":"3.0.3","info":{"title":"Header API","version":"1.0.0"},"paths":{"/users":{"get":{"operationId":"getUsers","responses":{"200":{"description":"Success","headers":{"X-Rate-Limit":{"$ref":"#/components/headers/RateLimit"}}}}}}},"components":{"headers":{"RateLimit":{"description":"Rate limit","schema":{"type":"integer"}}}}}

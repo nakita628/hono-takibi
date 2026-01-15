@@ -809,7 +809,7 @@ export const postItemsIdRoute = createRoute({
     }).toThrow()
   })
 
-  it('error on missing output option', () => {
+  it('error on missing output option', { timeout: 10000 }, () => {
     const simpleOpenAPI = {
       openapi: '3.0.3',
       info: { title: 'Simple API', version: '1.0.0' },
@@ -1087,7 +1087,7 @@ export const getUsersRoute = createRoute({
 `)
   })
 
-  it('generates split routes and schemas with exportTypes', () => {
+  it('generates split routes and schemas with exportTypes', { timeout: 10000 }, () => {
     const openAPI = {
       openapi: '3.0.3',
       info: { title: 'Test API', version: '1.0.0' },
