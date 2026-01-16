@@ -11,7 +11,6 @@
     "build": "pnpm -F hono-takibi build",
     "typecheck": "pnpm -F hono-takibi typecheck",
     "release": "pnpm -F hono-takibi release",
-    "takibis": "pnpm -F hono-takibi takibis",
     "fixtures": "pnpm -F @fixtures/generate dev",
     "fixtures-route": "pnpm -F @fixtures/generate route",
     "fixtures-type": "pnpm -F @fixtures/generate type",
