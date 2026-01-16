@@ -2417,4 +2417,115 @@ export const postMixedRoute = createRoute({
     expect(importLines[1]).toBe("import { MixedSchema } from '@/schemas'")
     expect(importLines[2]).toBe("import { MixedParamParamsSchema } from '@/parameters'")
   })
+
+  it('handles external file references ($ref to yaml files)', () => {
+    // Create main OpenAPI file with external $ref
+    const mainYaml = `openapi: 3.1.0
+info:
+  title: External Ref Example
+  version: 1.0.0
+paths:
+  /users:
+    $ref: './users.path.yaml'
+`
+    // Create external path file
+    const usersPathYaml = `get:
+  operationId: listUsers
+  summary: List users
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              required:
+                - id
+                - name
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+post:
+  operationId: createUser
+  summary: Create user
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+  responses:
+    '201':
+      description: Created
+`
+    fs.writeFileSync(path.join(testDir, 'openapi.yaml'), mainYaml)
+    fs.writeFileSync(path.join(testDir, 'users.path.yaml'), usersPathYaml)
+
+    const config = `export default {
+  input: 'openapi.yaml',
+  'zod-openapi': {
+    routes: { output: 'src/routes', split: true },
+  },
+}
+`
+    fs.writeFileSync(path.join(testDir, 'hono-takibi.config.ts'), config)
+
+    execSync(`node ${path.resolve('packages/hono-takibi/dist/index.js')}`, {
+      cwd: path.resolve(testDir),
+    })
+
+    const getUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/getUsers.ts'), 'utf-8')
+    const postUsersRoute = fs.readFileSync(path.join(testDir, 'src/routes/postUsers.ts'), 'utf-8')
+
+    expect(getUsersRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const getUsersRoute = createRoute({
+  method: 'get',
+  path: '/users',
+  summary: 'List users',
+  operationId: 'listUsers',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: z.array(
+            z.object({ id: z.uuid(), name: z.string() }).openapi({ required: ['id', 'name'] }),
+          ),
+        },
+      },
+    },
+  },
+})
+`)
+
+    expect(postUsersRoute).toBe(`import { createRoute, z } from '@hono/zod-openapi'
+
+export const postUsersRoute = createRoute({
+  method: 'post',
+  path: '/users',
+  summary: 'Create user',
+  operationId: 'createUser',
+  request: {
+    body: {
+      content: {
+        'application/json': {
+          schema: z.object({ name: z.string() }).openapi({ required: ['name'] }),
+        },
+      },
+    },
+  },
+  responses: { 201: { description: 'Created' } },
+})
+`)
+  })
 })
