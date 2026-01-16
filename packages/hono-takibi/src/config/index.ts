@@ -93,6 +93,12 @@ type Config = {
   }
 }
 
+/**
+ * Validates and parses a hono-takibi configuration object.
+ *
+ * @param config - The configuration object to validate
+ * @returns Result object with validated config or error message
+ */
 export function parseConfig(
   config: Config,
 ): { readonly ok: true; readonly value: Config } | { readonly ok: false; readonly error: string } {
@@ -392,6 +398,11 @@ export function parseConfig(
   return { ok: true, value: config }
 }
 
+/**
+ * Reads and validates the hono-takibi configuration from hono-takibi.config.ts.
+ *
+ * @returns Result object with validated config or error message
+ */
 export async function readConfig(): Promise<
   | {
       readonly ok: true
@@ -422,7 +433,8 @@ export async function readConfig(): Promise<
 /**
  * Helper to define a config with full type completion.
  *
- * @see config
+ * @param config - The configuration object
+ * @returns The same configuration object (identity function for type inference)
  */
 export function defineConfig(config: Config): Config {
   return config
