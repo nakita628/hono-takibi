@@ -6,6 +6,23 @@ import {
 } from '../../../../helper/index.js'
 import type { Components } from '../../../../openapi/index.js'
 
+/**
+ * Generates TypeScript code for OpenAPI component schemas.
+ *
+ * Converts OpenAPI schemas to Zod schemas with OpenAPI registration,
+ * handling circular references and type definitions.
+ *
+ * @param components - The OpenAPI components object.
+ * @param exportSchemas - Whether to export the Zod schema constants.
+ * @param exportSchemasTypes - Whether to export the inferred Zod types.
+ * @returns A string of TypeScript code with schema definitions.
+ *
+ * @example
+ * ```ts
+ * schemasCode(components, true, true)
+ * // → 'export const UserSchema = z.object({...}).openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
+ * ```
+ */
 export function schemasCode(
   components: Components,
   exportSchemas: boolean,

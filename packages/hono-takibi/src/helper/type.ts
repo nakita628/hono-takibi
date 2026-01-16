@@ -1,6 +1,26 @@
 import type { Schema } from '../openapi/index.js'
 import { toIdentifierPascalCase } from '../utils/index.js'
 
+/**
+ * Generates a TypeScript type string from an OpenAPI schema.
+ *
+ * Handles various schema constructs including $ref, oneOf, anyOf, allOf,
+ * enums, const values, and primitive/complex types.
+ *
+ * @param schema - The OpenAPI schema object.
+ * @param selfTypeName - The name of the current type (for self-reference detection).
+ * @param cyclicGroup - Optional set of type names in a cyclic dependency group.
+ * @returns A TypeScript type string representation.
+ *
+ * @example
+ * ```ts
+ * makeTypeString({ type: 'string' }, 'User')
+ * // → 'string'
+ *
+ * makeTypeString({ type: 'object', properties: { name: { type: 'string' } } }, 'User')
+ * // → '{name?:string}'
+ * ```
+ */
 export function makeTypeString(
   schema: Schema,
   selfTypeName: string,
@@ -192,6 +212,20 @@ function makeObjectTypeString(
   return `{${propertyStrings.join(';')}}`
 }
 
+/**
+ * Generates a TypeScript record type string from an OpenAPI schema.
+ *
+ * @param valueSchema - The OpenAPI schema for the record values.
+ * @param selfTypeName - The name of the current type (for self-reference detection).
+ * @param cyclicGroup - Optional set of type names in a cyclic dependency group.
+ * @returns A TypeScript record type string like `{[key:string]:ValueType}`.
+ *
+ * @example
+ * ```ts
+ * makeRecordTypeString({ type: 'string' }, 'Config')
+ * // → '{[key:string]:string}'
+ * ```
+ */
 export function makeRecordTypeString(
   valueSchema: Schema,
   selfTypeName: string,

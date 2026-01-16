@@ -166,6 +166,23 @@ export function getToSafeIdentifier(text: string): string {
   return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(text) ? text : JSON.stringify(text)
 }
 
+/**
+ * Converts a string to a valid PascalCase TypeScript identifier.
+ *
+ * Handles special characters, numbers at the start, and non-ASCII characters
+ * by sanitizing and transforming the input.
+ *
+ * @param text - The string to convert to a PascalCase identifier.
+ * @returns A valid PascalCase TypeScript identifier.
+ *
+ * @example
+ * ```ts
+ * toIdentifierPascalCase('user-name')     // → 'UserName'
+ * toIdentifierPascalCase('123_value')     // → '_123Value'
+ * toIdentifierPascalCase('hello_world')   // → 'HelloWorld'
+ * toIdentifierPascalCase('日本語')         // → 'Unnamed12345' (hash-based fallback)
+ * ```
+ */
 export function toIdentifierPascalCase(text: string): string {
   // Check if text contains non-ASCII characters (char code > 127)
   const hasNonAscii = Array.from(text).some((c) => c.charCodeAt(0) > 127)
@@ -204,8 +221,20 @@ export function renderNamedImport(names: readonly string[], spec: string): strin
 
 /**
  * Finds all schema tokens in the given code.
- * @param code - The code to search for schema tokens.
- * @returns
+ *
+ * Searches for identifiers ending with "Schema" (e.g., `UserSchema`, `PostSchema`).
+ *
+ * @param code - The code string to search for schema tokens.
+ * @returns An array of unique schema token names found in the code.
+ *
+ * @example
+ * ```ts
+ * findSchema('const UserSchema = z.object({})')
+ * // → ['UserSchema']
+ *
+ * findSchema('UserSchema, PostSchema, UserSchema')
+ * // → ['UserSchema', 'PostSchema']
+ * ```
  */
 export function findSchema(code: string): readonly string[] {
   return Array.from(
@@ -219,13 +248,35 @@ export function findSchema(code: string): readonly string[] {
 
 /**
  * Converts the first character of a string to lowercase.
- * @param text - The string to convert to lowercase.
- * @returns
+ *
+ * @param text - The string to convert.
+ * @returns The string with its first character lowercased.
+ *
+ * @example
+ * ```ts
+ * lowerFirst('Hello')  // → 'hello'
+ * lowerFirst('ABC')    // → 'aBC'
+ * lowerFirst('')       // → ''
+ * ```
  */
 export function lowerFirst(text: string): string {
   return text ? (text[0]?.toLowerCase() ?? '') + text.slice(1) : text
 }
 
+/**
+ * Ensures that a string ends with the specified suffix.
+ *
+ * @param text - The string to check and potentially modify.
+ * @param suffix - The suffix that the string should end with.
+ * @returns The original string if it already ends with the suffix, otherwise the string with the suffix appended.
+ *
+ * @example
+ * ```ts
+ * ensureSuffix('User', 'Schema')     // → 'UserSchema'
+ * ensureSuffix('UserSchema', 'Schema') // → 'UserSchema'
+ * ensureSuffix('file', '.ts')        // → 'file.ts'
+ * ```
+ */
 export function ensureSuffix(text: string, suffix: string): string {
   return text.endsWith(suffix) ? text : `${text}${suffix}`
 }

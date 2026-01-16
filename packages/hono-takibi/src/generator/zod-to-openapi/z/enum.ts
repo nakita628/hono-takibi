@@ -1,5 +1,34 @@
 import type { Schema } from '../../../openapi/index.js'
 
+/**
+ * Generates a Zod enum schema from an OpenAPI schema definition.
+ *
+ * Handles various enum types:
+ * - String enums → `z.enum([...])`
+ * - Number/integer enums → `z.union([z.literal(...), ...])`
+ * - Boolean enums → `z.union([z.literal(true), z.literal(false)])`
+ * - Array enums → `z.tuple([...])` or `z.union([...])`
+ * - Mixed enums → `z.union([z.literal(...), ...])`
+ * - Single value → `z.literal(...)`
+ *
+ * @param schema - The OpenAPI schema object with enum values.
+ * @returns The Zod schema string for the enum.
+ *
+ * @example
+ * ```ts
+ * // String enum
+ * _enum({ type: 'string', enum: ['active', 'inactive'] })
+ * // → 'z.enum(["active","inactive"])'
+ *
+ * // Number enum
+ * _enum({ type: 'number', enum: [1, 2, 3] })
+ * // → 'z.union([z.literal(1),z.literal(2),z.literal(3)])'
+ *
+ * // Single value
+ * _enum({ type: 'string', enum: ['only'] })
+ * // → "z.literal('only')"
+ * ```
+ */
 export function _enum(schema: Schema): string {
   /* ht */
   const ht = (t: string): boolean =>
