@@ -8,11 +8,16 @@ import { createRoute } from './create-route.js'
  * @returns Generated route code as string
  */
 export function routeCode(openapi: OpenAPI): string {
+  const isParameterRef = (r: string): r is `#/components/parameters/${string}` =>
+    r.startsWith('#/components/parameters/')
   const resolve = (p: Parameter | { readonly $ref?: string }): Parameter | undefined => {
     if ('name' in p && 'in' in p) return p
     const ref = '$ref' in p ? p.$ref : undefined
-    if (!ref?.startsWith('#/components/parameters/')) return undefined
-    return openapi.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
+    if (!ref || !isParameterRef(ref)) return undefined
+    const resolved = openapi.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
+    if (!resolved) return undefined
+    // Preserve original $ref in resolved parameter for schema reference generation
+    return { ...resolved, $ref: ref }
   }
 
   return Object.entries(openapi.paths)
