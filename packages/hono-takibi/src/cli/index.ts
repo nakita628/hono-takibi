@@ -205,8 +205,8 @@ export async function honoTakibi(): Promise<
   if (!existsSync(abs)) {
     const cliResult = parseCli(args)
     if (!cliResult.ok) return { ok: false, error: cliResult.error }
-    const cli = cliResult.value
-    const { input, output, template, test, basePath, componentsOptions } = cli
+    const value = cliResult.value
+    const { input, output, template, test, basePath, componentsOptions } = value
     const openAPIResult = await parseOpenAPI(input)
     if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }
     const openAPI = openAPIResult.value
@@ -215,9 +215,9 @@ export async function honoTakibi(): Promise<
     return { ok: true, value: takibiResult.value }
   }
 
-  const loadConfigResult = await readConfig()
-  if (!loadConfigResult.ok) return { ok: false, error: loadConfigResult.error }
-  const config = loadConfigResult.value
+  const readConfigResult = await readConfig()
+  if (!readConfigResult.ok) return { ok: false, error: readConfigResult.error }
+  const config = readConfigResult.value
 
   const openAPIResult = await parseOpenAPI(config.input)
   if (!openAPIResult.ok) return { ok: false, error: openAPIResult.error }

@@ -326,7 +326,17 @@ const generateOperationCode = (
   return { code: `${docs}\n${func}`, hasArgs }
 }
 
-const buildOperationCodes = (
+/**
+ * Builds operation codes from OpenAPI paths.
+ *
+ * Iterates through all HTTP methods for each path and generates
+ * typed RPC client wrapper functions.
+ *
+ * @param paths - OpenAPI paths object
+ * @param deps - Dependencies including client name and parameter utilities
+ * @returns Array of operation codes with function names and generated code
+ */
+const makeOperationCodes = (
   paths: OpenAPIPaths,
   deps: {
     client: string
@@ -402,7 +412,14 @@ const resolveSplitOutDir = (output: string) => {
  * // Generates: src/rpc/getUsers.ts, src/rpc/postUsers.ts, src/rpc/index.ts
  * ```
  */
-const buildHeader = (importPath: string, needsInferRequestType: boolean): string => {
+/**
+ * Generates the import header for RPC client files.
+ *
+ * @param importPath - The import path for the Hono client
+ * @param needsInferRequestType - Whether InferRequestType import is needed
+ * @returns Import header string
+ */
+const makeHeader = (importPath: string, needsInferRequestType: boolean): string => {
   const typeImports = needsInferRequestType
     ? 'InferRequestType,ClientRequestOptions'
     : 'ClientRequestOptions'
@@ -436,13 +453,13 @@ export async function rpc(
     pickAllBodyInfo,
   }
 
-  const operationCodes = buildOperationCodes(pathsMaybe, deps)
+  const operationCodes = makeOperationCodes(pathsMaybe, deps)
 
   // Non-split: write single file
   if (!split) {
     const body = operationCodes.map(({ code }) => code).join('\n\n')
     const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
-    const header = buildHeader(importPath, needsInferRequestType)
+    const header = makeHeader(importPath, needsInferRequestType)
     const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
     if (!coreResult.ok) return { ok: false, error: coreResult.error }
@@ -459,7 +476,7 @@ export async function rpc(
 
   const allResults = await Promise.all([
     ...operationCodes.map(({ funcName, code, hasArgs }) => {
-      const header = buildHeader(importPath, hasArgs)
+      const header = makeHeader(importPath, hasArgs)
       const fileSrc = `${header}${code}\n`
       const filePath = path.join(outDir, `${funcName}.ts`)
       return core(fileSrc, path.dirname(filePath), filePath)

@@ -94,17 +94,12 @@ async function main() {
         return { file, success: false, error: `RPC generation error: ${rpcResult.error}` }
       }
 
-      // Generate Client file with hcWithType pattern (Hono RPC best practice)
+      // Generate Client file with simple hc pattern
       const clientOutput = join(__dirname, '../clients', `${baseName}.ts`)
       const clientCode = `import { hc } from 'hono/client'
 import type routes from '../types/${baseName}'
 
-export type Client = ReturnType<typeof hc<typeof routes>>
-
-export const hcWithType = (...args: Parameters<typeof hc>): Client =>
-  hc<typeof routes>(...args)
-
-export const client = hcWithType('/')
+export const client = hc<typeof routes>('/')
 `
       await writeFile(clientOutput, clientCode)
 

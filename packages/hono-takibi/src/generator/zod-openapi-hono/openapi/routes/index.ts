@@ -1,51 +1,43 @@
-import type { OpenAPI, Operation, Parameter, Ref } from '../../../../openapi/index.js'
+import type { OpenAPI, Parameter } from '../../../../openapi/index.js'
 import { createRoute } from './create-route.js'
-
-const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const
-
-const isParameter = (p: unknown): p is Parameter => {
-  if (typeof p !== 'object' || p === null) return false
-  if (!('name' in p) || !('in' in p) || !('schema' in p)) return false
-  const { in: inValue } = p
-  return inValue === 'path' || inValue === 'query' || inValue === 'header' || inValue === 'cookie'
-}
-
-const isParameterRef = (ref: string): ref is `#/components/parameters/${string}` =>
-  ref.startsWith('#/components/parameters/')
-
-const resolveParameter = (
-  p: Parameter | { readonly $ref?: string },
-  components: OpenAPI['components'],
-): Parameter | undefined => {
-  if (isParameter(p)) return p
-  if ('$ref' in p && p.$ref && isParameterRef(p.$ref) && components?.parameters) {
-    const key = p.$ref.slice(p.$ref.lastIndexOf('/') + 1)
-    const resolved = components.parameters[key]
-    return resolved ? { ...resolved, $ref: p.$ref } : undefined
-  }
-  return undefined
-}
 
 /**
  * Generates TypeScript code for all valid Hono routes from OpenAPI paths.
+ *
+ * @param openapi - OpenAPI specification object
+ * @returns Generated route code as string
  */
 export function routeCode(openapi: OpenAPI): string {
-  const routes = Object.entries(openapi.paths).flatMap(([path, pathItem]) => {
-    if (!pathItem) return []
+  const isParameterRef = (r: string): r is `#/components/parameters/${string}` =>
+    r.startsWith('#/components/parameters/')
+  const resolve = (p: Parameter | { readonly $ref?: string }): Parameter | undefined => {
+    if ('name' in p && 'in' in p) return p
+    const ref = '$ref' in p ? p.$ref : undefined
+    if (!ref || !isParameterRef(ref)) return undefined
+    const resolved = openapi.components?.parameters?.[ref.slice(ref.lastIndexOf('/') + 1)]
+    if (!resolved) return undefined
+    // Preserve original $ref in resolved parameter for schema reference generation
+    return { ...resolved, $ref: ref }
+  }
 
-    return HTTP_METHODS.flatMap((method) => {
-      const operation = pathItem[method]
-      if (!operation?.responses) return []
-
-      const allParams = [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]
-      const params = allParams
-        .map((p) => resolveParameter(p, openapi.components))
-        .filter((p): p is Parameter => p !== undefined)
-
-      const op: Operation = params.length > 0 ? { ...operation, parameters: params } : operation
-      return createRoute(path, method, op)
-    })
-  })
-
-  return routes.filter(Boolean).join('\n\n')
+  return Object.entries(openapi.paths)
+    .flatMap(([path, pathItem]) =>
+      pathItem
+        ? (['get', 'put', 'post', 'delete', 'patch', 'options', 'head', 'trace'] as const)
+            .filter((m) => pathItem[m]?.responses)
+            .map((method) => {
+              const operation = pathItem[method]!
+              const params = [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])]
+                .map(resolve)
+                .filter((p) => p !== undefined)
+              return createRoute(
+                path,
+                method,
+                params.length > 0 ? { ...operation, parameters: params } : operation,
+              )
+            })
+        : [],
+    )
+    .filter(Boolean)
+    .join('\n\n')
 }

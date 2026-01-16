@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { readConfig } from './index.js'
+import { parseConfig, readConfig } from './index.js'
 
 describe('loadConfig()', () => {
   const origCwd = process.cwd()
@@ -60,5 +60,202 @@ export default {
     if (!result.ok) {
       expect(result.error).toMatch(/Config not found:/)
     }
+  })
+})
+
+describe('parseConfig()', () => {
+  describe('normalizes output path to /index.ts when split is false', () => {
+    it.concurrent('normalizes routes.output when split is undefined', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          routes: { output: 'routes' },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.routes?.output).toBe('routes/index.ts')
+      }
+    })
+
+    it.concurrent('normalizes routes.output when split is false', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          routes: { output: 'routes', split: false },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.routes?.output).toBe('routes/index.ts')
+      }
+    })
+
+    it.concurrent('keeps routes.output unchanged when already ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          routes: { output: 'routes/custom.ts' },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.routes?.output).toBe('routes/custom.ts')
+      }
+    })
+
+    it.concurrent('keeps routes.output as directory when split is true', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          routes: { output: 'routes', split: true },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.routes?.output).toBe('routes')
+      }
+    })
+
+    it.concurrent('normalizes rpc.output when split is undefined', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        rpc: { output: 'rpc', import: '../client' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.rpc?.output).toBe('rpc/index.ts')
+      }
+    })
+
+    it.concurrent('normalizes rpc.output when split is false', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        rpc: { output: 'rpc', import: '../client', split: false },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.rpc?.output).toBe('rpc/index.ts')
+      }
+    })
+
+    it.concurrent('keeps rpc.output as directory when split is true', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        rpc: { output: 'rpc', import: '../client', split: true },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.rpc?.output).toBe('rpc')
+      }
+    })
+
+    it.concurrent('normalizes components.schemas.output when split is undefined', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: {
+            schemas: { output: 'schemas' },
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.components?.schemas?.output).toBe('schemas/index.ts')
+      }
+    })
+
+    it.concurrent('normalizes components.parameters.output when split is false', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: {
+            parameters: { output: 'parameters', split: false },
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.components?.parameters?.output).toBe(
+          'parameters/index.ts',
+        )
+      }
+    })
+
+    it.concurrent('keeps components.schemas.output as directory when split is true', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: {
+            schemas: { output: 'schemas', split: true },
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.components?.schemas?.output).toBe('schemas')
+      }
+    })
+
+    it.concurrent('normalizes multiple components at once', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: {
+            schemas: { output: 'schemas' },
+            parameters: { output: 'parameters' },
+            responses: { output: 'responses/index.ts' },
+            headers: { output: 'headers', split: true },
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.components?.schemas?.output).toBe('schemas/index.ts')
+        expect(result.value['zod-openapi']?.components?.parameters?.output).toBe(
+          'parameters/index.ts',
+        )
+        expect(result.value['zod-openapi']?.components?.responses?.output).toBe(
+          'responses/index.ts',
+        )
+        expect(result.value['zod-openapi']?.components?.headers?.output).toBe('headers')
+      }
+    })
+  })
+
+  describe('validation errors', () => {
+    it.concurrent('fails when split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          routes: { output: 'routes/index.ts', split: true },
+        },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode.*must be a directory/)
+      }
+    })
+
+    it.concurrent('fails when rpc split is true but output ends with .ts', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        rpc: { output: 'rpc/index.ts', import: '../client', split: true },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/split mode.*must be a directory/)
+      }
+    })
+
+    it.concurrent('fails when input is not .yaml, .json, or .tsp', () => {
+      const result = parseConfig({
+        input: 'openapi.txt' as `${string}.yaml`,
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/Invalid input/)
+      }
+    })
   })
 })
