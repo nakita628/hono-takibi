@@ -5,23 +5,23 @@ import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { honoTakibiVite } from './index.js'
 
-type DevServerLike = {
+type ViteDevServer = {
   watcher: {
     add: (paths: string | readonly string[]) => void
-    on: (event: 'all', cb: (evt: string, file: string) => void) => void
+    on: (event: 'all', callback: (eventType: string, filePath: string) => void) => void
   }
-  ws: { send: (payload: { type: string; [k: string]: unknown }) => void }
-  pluginContainer: { resolveId: (id: string) => Promise<{ id: string } | null> }
+  ws: { send: (payload: { type: string; [key: string]: unknown }) => void }
+  pluginContainer: { resolveId: (moduleId: string) => Promise<{ id: string } | null> }
   moduleGraph: {
-    invalidateModule: (mod: { id?: string } | null) => void
+    invalidateModule: (module: { id?: string } | null) => void
     invalidateAll: () => void
-    getModuleById: (id: string) => { id?: string } | null
+    getModuleById: (moduleId: string) => { id?: string } | null
   }
-  ssrLoadModule: (id: string) => Promise<unknown>
+  ssrLoadModule: (moduleId: string) => Promise<unknown>
 }
 
 const createDeferred = <T = void>() => {
-  const box: {
+  const deferredBox: {
     resolve: (value: T | PromiseLike<T>) => void
     reject: (reason?: unknown) => void
   } = {
@@ -29,43 +29,42 @@ const createDeferred = <T = void>() => {
     reject: () => {},
   }
   const promise = new Promise<T>((resolve, reject) => {
-    box.resolve = resolve
-    box.reject = reject
+    deferredBox.resolve = resolve
+    deferredBox.reject = reject
   })
-  return { promise, resolve: box.resolve, reject: box.reject }
+  return { promise, resolve: deferredBox.resolve, reject: deferredBox.reject }
 }
 
-const exists = async (p: string) => !!(await fsp.stat(p).catch(() => null))
+const fileExists = async (filePath: string) => !!(await fsp.stat(filePath).catch(() => null))
 
-const makeDevServerMock = (conf: unknown) => {
-  const reloaded = createDeferred<void>()
+const createMockViteDevServer = (configuration: unknown) => {
+  const reloadedDeferred = createDeferred<void>()
 
-  const server: DevServerLike = {
+  const server: ViteDevServer = {
     watcher: {
       add: (_paths: string | readonly string[]) => {},
-      on: (_event: 'all', _cb: (evt: string, file: string) => void) => {},
+      on: (_event: 'all', _callback: (eventType: string, filePath: string) => void) => {},
     },
     ws: {
       send: (payload: { type: string }) => {
-        if (payload?.type === 'full-reload') reloaded.resolve()
+        if (payload?.type === 'full-reload') reloadedDeferred.resolve()
       },
     },
     pluginContainer: {
-      resolveId: async (_id: string) => ({ id: _id }),
+      resolveId: async (moduleId: string) => ({ id: moduleId }),
     },
     moduleGraph: {
-      invalidateModule: (_mod: { id?: string } | null) => {},
+      invalidateModule: (_module: { id?: string } | null) => {},
       invalidateAll: () => {},
-      getModuleById: (_id: string) => ({ id: _id }),
+      getModuleById: (moduleId: string) => ({ id: moduleId }),
     },
-    ssrLoadModule: async (_id: string) => ({ default: conf }),
+    ssrLoadModule: async (_moduleId: string) => ({ default: configuration }),
   }
 
-  return { server, reloaded: reloaded.promise }
+  return { server, reloaded: reloadedDeferred.promise }
 }
 
 vi.mock('../core/index.js', () => ({
-  // Component functions
   callbacks: vi.fn(async () => ({ ok: true, value: 'callbacks' })),
   examples: vi.fn(async () => ({ ok: true, value: 'examples' })),
   headers: vi.fn(async () => ({ ok: true, value: 'headers' })),
@@ -73,11 +72,34 @@ vi.mock('../core/index.js', () => ({
   parameters: vi.fn(async () => ({ ok: true, value: 'parameters' })),
   requestBodies: vi.fn(async () => ({ ok: true, value: 'requestBodies' })),
   responses: vi.fn(async () => ({ ok: true, value: 'responses' })),
-  schemas: vi.fn(async () => ({ ok: true, value: 'schemas' })),
+  schemas: vi.fn(async (_schemas: unknown, outputDir: string, split: boolean) => {
+    if (split) {
+      await fsp.mkdir(outputDir, { recursive: true })
+      await fsp.writeFile(path.join(outputDir, 'Pet.ts'), '// Pet', 'utf8')
+      await fsp.writeFile(path.join(outputDir, 'User.ts'), '// User', 'utf8')
+      await fsp.writeFile(path.join(outputDir, 'index.ts'), '// index', 'utf8')
+    }
+    return { ok: true, value: 'schemas' }
+  }),
   securitySchemes: vi.fn(async () => ({ ok: true, value: 'securitySchemes' })),
-  // Generation functions
-  route: vi.fn(async () => ({ ok: true, value: 'route' })),
-  rpc: vi.fn(async () => ({ ok: true, value: 'rpc' })),
+  route: vi.fn(async (_openAPI: unknown, config: { output: string; split: boolean }) => {
+    if (config.split) {
+      await fsp.mkdir(config.output, { recursive: true })
+      await fsp.writeFile(path.join(config.output, 'getPets.ts'), '// getPets', 'utf8')
+      await fsp.writeFile(path.join(config.output, 'postUsers.ts'), '// postUsers', 'utf8')
+      await fsp.writeFile(path.join(config.output, 'index.ts'), '// index', 'utf8')
+    }
+    return { ok: true, value: 'route' }
+  }),
+  rpc: vi.fn(async (_openAPI: unknown, outputDir: string, _importPath: string, split: boolean) => {
+    if (split) {
+      await fsp.mkdir(outputDir, { recursive: true })
+      await fsp.writeFile(path.join(outputDir, 'getPets.ts'), '// getPets', 'utf8')
+      await fsp.writeFile(path.join(outputDir, 'postUsers.ts'), '// postUsers', 'utf8')
+      await fsp.writeFile(path.join(outputDir, 'index.ts'), '// index', 'utf8')
+    }
+    return { ok: true, value: 'rpc' }
+  }),
   takibi: vi.fn(async () => ({ ok: true, value: 'takibi' })),
   type: vi.fn(async () => ({ ok: true, value: 'type' })),
 }))
@@ -96,22 +118,29 @@ vi.mock('../openapi/index.js', () => ({
 }))
 
 vi.mock('../format/index.js', () => ({
-  fmt: vi.fn(async (s: string) => ({ ok: true as const, value: String(s) })),
+  fmt: vi.fn(async (source: string) => ({ ok: true as const, value: String(source) })),
 }))
 vi.mock('../fsp/index.js', () => ({
   mkdir: vi.fn(async () => ({ ok: true })),
-  writeFile: vi.fn(async () => ({ ok: true })),
+  writeFile: vi.fn(async (filePath: string, content: string) => {
+    await fsp.mkdir(path.dirname(filePath), { recursive: true })
+    await fsp.writeFile(filePath, content, 'utf8')
+    return { ok: true }
+  }),
 }))
 
 const { route: routeMock } = await import('../core/index.js')
 
-const state: { cwdBefore: string; sandbox: string } = { cwdBefore: '', sandbox: '' }
+const testState: { previousWorkingDirectory: string; sandboxDirectory: string } = {
+  previousWorkingDirectory: '',
+  sandboxDirectory: '',
+}
 
 beforeEach(async () => {
   vi.clearAllMocks()
-  state.cwdBefore = process.cwd()
-  state.sandbox = await fsp.mkdtemp(path.join(os.tmpdir(), 'takibi-test-'))
-  process.chdir(state.sandbox)
+  testState.previousWorkingDirectory = process.cwd()
+  testState.sandboxDirectory = await fsp.mkdtemp(path.join(os.tmpdir(), 'takibi-test-'))
+  process.chdir(testState.sandboxDirectory)
 
   await fsp.mkdir('out/schema', { recursive: true })
   await fsp.mkdir('out/route', { recursive: true })
@@ -126,13 +155,13 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  process.chdir(state.cwdBefore)
-  await fsp.rm(state.sandbox, { recursive: true, force: true })
+  process.chdir(testState.previousWorkingDirectory)
+  await fsp.rm(testState.sandboxDirectory, { recursive: true, force: true })
 })
 
 describe('honoTakibiVite', () => {
   it('prunes stray .ts files in split outputs and preserves non-.ts files', async () => {
-    const conf = {
+    const configuration = {
       input: 'openapi.yaml',
       'zod-openapi': {
         components: {
@@ -143,19 +172,19 @@ describe('honoTakibiVite', () => {
       rpc: { output: 'out/rpc', split: true, import: '@rpc' },
     }
 
-    const { server, reloaded } = makeDevServerMock(conf)
+    const { server, reloaded } = createMockViteDevServer(configuration)
     const plugin = honoTakibiVite()
 
     plugin.configureServer(server)
     await reloaded
 
-    expect(await exists('out/schema/extra.ts')).toBe(false)
-    expect(await exists('out/route/extra.ts')).toBe(false)
-    expect(await exists('out/rpc/extra.ts')).toBe(false)
+    expect(await fileExists('out/schema/extra.ts')).toBe(false)
+    expect(await fileExists('out/route/extra.ts')).toBe(false)
+    expect(await fileExists('out/rpc/extra.ts')).toBe(false)
 
-    expect(await exists('out/schema/README.md')).toBe(true)
-    expect(await exists('out/route/README.md')).toBe(true)
-    expect(await exists('out/rpc/README.md')).toBe(true)
+    expect(await fileExists('out/schema/README.md')).toBe(true)
+    expect(await fileExists('out/route/README.md')).toBe(true)
+    expect(await fileExists('out/rpc/README.md')).toBe(true)
 
     expect(fs.existsSync('out/schema')).toBe(true)
     expect(fs.existsSync('out/route')).toBe(true)
@@ -163,14 +192,14 @@ describe('honoTakibiVite', () => {
   })
 
   it('runs routes even without schema outputs', async () => {
-    const conf = {
+    const configuration = {
       input: 'openapi.yaml',
       'zod-openapi': {
         routes: { output: 'out/route', split: true },
       },
     }
 
-    const { server, reloaded } = makeDevServerMock(conf)
+    const { server, reloaded } = createMockViteDevServer(configuration)
     const plugin = honoTakibiVite()
 
     plugin.configureServer(server)
@@ -192,5 +221,70 @@ describe('honoTakibiVite', () => {
   it('has configureServer method', () => {
     const plugin = honoTakibiVite()
     expect(typeof plugin.configureServer).toBe('function')
+  })
+
+  it('cleans up stale directories when config changes', async () => {
+    await fsp.mkdir('out/stale-schema', { recursive: true })
+    await fsp.writeFile('out/stale-schema/User.ts', '// stale', 'utf8')
+    await fsp.writeFile('out/stale-schema/Pet.ts', '// stale', 'utf8')
+
+    const initialConfiguration = {
+      input: 'openapi.yaml',
+      'zod-openapi': {
+        components: {
+          schemas: { output: 'out/stale-schema', split: true, exportTypes: true },
+        },
+        routes: { output: 'out/route', split: true },
+      },
+    }
+
+    const { server, reloaded } = createMockViteDevServer(initialConfiguration)
+    const plugin = honoTakibiVite()
+
+    plugin.configureServer(server)
+    await reloaded
+
+    expect(fs.existsSync('out/stale-schema')).toBe(true)
+
+    const newConfiguration = {
+      input: 'openapi.yaml',
+      'zod-openapi': {
+        routes: { output: 'out/route', split: true },
+      },
+    }
+
+    const { server: newServer, reloaded: newReloaded } = createMockViteDevServer(newConfiguration)
+    newServer.ssrLoadModule = async (_moduleId: string) => {
+      const callCount = (newServer as unknown as { callCount?: number }).callCount ?? 0
+      ;(newServer as unknown as { callCount: number }).callCount = callCount + 1
+      return callCount === 0 ? { default: initialConfiguration } : { default: newConfiguration }
+    }
+
+    const newPlugin = honoTakibiVite()
+    newPlugin.configureServer(newServer)
+    await newReloaded
+
+    const { server: changeServer, reloaded: changeReloaded } =
+      createMockViteDevServer(newConfiguration)
+
+    const moduleLoadState = { loadCount: 0 }
+    changeServer.ssrLoadModule = async (_moduleId: string) => {
+      moduleLoadState.loadCount++
+      return moduleLoadState.loadCount === 1
+        ? { default: initialConfiguration }
+        : { default: newConfiguration }
+    }
+
+    const changePlugin = honoTakibiVite()
+    changePlugin.configureServer(changeServer)
+    await changeReloaded
+
+    changeServer.ssrLoadModule = async (_moduleId: string) => ({ default: newConfiguration })
+
+    await changePlugin.handleHotUpdate({ file: 'hono-takibi.config.ts', server: changeServer })
+
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    expect(fs.existsSync('out/stale-schema')).toBe(false)
   })
 })

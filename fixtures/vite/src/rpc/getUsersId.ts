@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { client } from '../client'
 
 /**
@@ -8,6 +8,9 @@ import { client } from '../client'
  *
  * Retrieve a single user by ID.
  */
-export async function getUsersId(args: { param: { id: string } }, options?: ClientRequestOptions) {
+export async function getUsersId(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  options?: ClientRequestOptions,
+) {
   return await client.users[':id'].$get(args, options)
 }

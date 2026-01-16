@@ -59,6 +59,7 @@ export async function readdir(dir: string): Promise<
 
 /**
  * Writes UTF-8 text to a file, creating it if necessary.
+ * Skips writing if the file already exists with identical content.
  *
  * @param path - File path to write.
  * @param data - Text data to write.
@@ -78,6 +79,8 @@ export async function writeFile(
     }
 > {
   try {
+    const existing = await fsp.readFile(path, 'utf-8').catch(() => null)
+    if (existing === data) return { ok: true, value: undefined }
     await fsp.writeFile(path, data, 'utf-8')
     return { ok: true, value: undefined }
   } catch (e) {
