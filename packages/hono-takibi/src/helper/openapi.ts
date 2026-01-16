@@ -237,6 +237,12 @@ export function makeOperationResponses(responses: Operation['responses']) {
   return `{${result}}`
 }
 
+/**
+ * Generates a Zod object schema for response headers.
+ *
+ * @param headers - Object containing header definitions or references.
+ * @returns A Zod object schema string for the headers.
+ */
 export function makeHeaderResponses(headers: { readonly [k: string]: Header | Reference }) {
   const result = Object.entries(headers)
     .map(([k, header]) => `${JSON.stringify(k)}:${makeHeadersAndReferences(header)}`)
@@ -345,6 +351,12 @@ export function makeLinkOrReference(linkOrReference: Link | Reference) {
   return `{${result}}`
 }
 
+/**
+ * Generates callbacks code for an operation.
+ *
+ * @param callbacks - The callbacks object from an operation.
+ * @returns Callbacks code string or undefined if no callbacks.
+ */
 export function makeOperationCallbacks(callbacks: Operation['callbacks']) {
   if (!callbacks) return undefined
   const result = Object.entries(callbacks)
@@ -638,6 +650,12 @@ export function makeParameters(parameters: readonly Parameter[]): {
   }, {})
 }
 
+/**
+ * Generates request parameter code from OpenAPI parameters.
+ *
+ * @param parameters - Array of OpenAPI parameter objects.
+ * @returns Comma-separated parameter code string or undefined if empty.
+ */
 export function makeRequestParams(parameters: readonly Parameter[]) {
   const paramsObject = makeParameters(parameters)
   const paramsArray = requestParamsArray(paramsObject)

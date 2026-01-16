@@ -8,6 +8,24 @@ import {
 } from '../utils/index.js'
 import type { analyzeCircularSchemas } from './ast.js'
 
+/**
+ * Creates metadata for a single OpenAPI schema.
+ *
+ * Analyzes the schema to determine if it requires lazy evaluation (for circular references)
+ * or explicit type definitions.
+ *
+ * @param schemaName - The original name of the schema from OpenAPI spec.
+ * @param schema - The OpenAPI schema object.
+ * @param analysis - The result of circular dependency analysis.
+ * @returns An object containing schema metadata including variable names and lazy/type flags.
+ *
+ * @example
+ * ```ts
+ * const info = makeSchemaInfo('User', userSchema, analysis)
+ * // info.variableName → 'UserSchema'
+ * // info.needsLazy → true if circular
+ * ```
+ */
 export function makeSchemaInfo(
   schemaName: string,
   schema: Schema,
@@ -33,6 +51,20 @@ export function makeSchemaInfo(
   return { schemaName, schema, zSchema, safeSchemaName, variableName, needsLazy, needsTypeDef }
 }
 
+/**
+ * Creates metadata for multiple OpenAPI schemas.
+ *
+ * @param schemas - Record of schema name to OpenAPI schema objects.
+ * @param schemaNames - Array of schema names to process.
+ * @param analysis - The result of circular dependency analysis.
+ * @returns An array of schema metadata objects.
+ *
+ * @example
+ * ```ts
+ * const infos = makeSchemaInfos(schemas, ['User', 'Post'], analysis)
+ * // Returns array of schema info objects
+ * ```
+ */
 export function makeSchemaInfos(
   schemas: Record<string, Schema>,
   schemaNames: readonly string[],
@@ -41,6 +73,22 @@ export function makeSchemaInfos(
   return schemaNames.map((name) => makeSchemaInfo(name, schemas[name], analysis))
 }
 
+/**
+ * Generates Zod schema code from schema metadata.
+ *
+ * Produces a schema constant with optional lazy wrapping for circular references
+ * and optional type inference export.
+ *
+ * @param info - Schema metadata from `makeSchemaInfo`.
+ * @param options - Generation options including export keyword and type export flag.
+ * @returns The generated Zod schema code string.
+ *
+ * @example
+ * ```ts
+ * makeSchemaCode(info, { exportKeyword: 'export ', exportType: true })
+ * // → 'export const UserSchema = z.object({...}).openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
+ * ```
+ */
 export function makeSchemaCode(
   info: ReturnType<typeof makeSchemaInfo>,
   options: { readonly exportKeyword: string; readonly exportType: boolean },
@@ -56,6 +104,21 @@ export function makeSchemaCode(
   return `${schemaCode}${zodInferCode}`
 }
 
+/**
+ * Generates a TypeScript type definition for a schema.
+ *
+ * Used for schemas that require explicit type definitions (circular or extended cyclic).
+ *
+ * @param info - Schema metadata from `makeSchemaInfo`.
+ * @param cyclicGroupPascal - Set of PascalCase names for cyclic schemas.
+ * @returns The generated TypeScript type definition string.
+ *
+ * @example
+ * ```ts
+ * makeTypeDefinition(info, cyclicGroupPascal)
+ * // → 'type UserType = { name: string; posts: PostType[] }'
+ * ```
+ */
 export function makeTypeDefinition(
   info: ReturnType<typeof makeSchemaInfo>,
   cyclicGroupPascal: ReadonlySet<string>,
@@ -63,6 +126,23 @@ export function makeTypeDefinition(
   return zodType(info.schema, info.safeSchemaName, cyclicGroupPascal)
 }
 
+/**
+ * Generates TypeScript type definitions for multiple schemas.
+ *
+ * Includes initial type definitions for schemas that need them,
+ * plus additional definitions for any referenced types.
+ *
+ * @param infos - Array of schema metadata from `makeSchemaInfos`.
+ * @param schemas - Record of schema name to OpenAPI schema objects.
+ * @param cyclicGroupPascal - Set of PascalCase names for cyclic schemas.
+ * @returns An array of TypeScript type definition strings.
+ *
+ * @example
+ * ```ts
+ * makeTypeDefinitions(infos, schemas, cyclicGroupPascal)
+ * // → ['type UserType = {...}', 'type PostType = {...}']
+ * ```
+ */
 export function makeTypeDefinitions(
   infos: readonly ReturnType<typeof makeSchemaInfo>[],
   schemas: Record<string, Schema>,
@@ -95,6 +175,21 @@ export function makeTypeDefinitions(
   return [...initialTypeDefs, ...additionalTypeDefs]
 }
 
+/**
+ * Finds schema references in generated code, excluding self-references.
+ *
+ * Searches for patterns like `UserSchema` and extracts the base name (`User`).
+ *
+ * @param code - The generated code to search.
+ * @param selfName - The name of the current schema to exclude from results.
+ * @returns An array of unique schema base names referenced in the code.
+ *
+ * @example
+ * ```ts
+ * findSchemaRefs('UserSchema, PostSchema, UserSchema', 'User')
+ * // → ['Post']
+ * ```
+ */
 export function findSchemaRefs(code: string, selfName: string): readonly string[] {
   const re = /\b([A-Za-z_$][A-Za-z0-9_$]*)Schema\b/g
   const found = new Set<string>()
@@ -105,6 +200,25 @@ export function findSchemaRefs(code: string, selfName: string): readonly string[
   return [...found]
 }
 
+/**
+ * Generates a complete split schema file content.
+ *
+ * Creates a standalone TypeScript file with imports, type definitions (if needed),
+ * and the schema constant with OpenAPI registration.
+ *
+ * @param schemaName - The name of the schema.
+ * @param schema - The OpenAPI schema object.
+ * @param schemas - Record of all schemas for dependency resolution.
+ * @param analysis - The result of circular dependency analysis.
+ * @param exportType - Whether to export the inferred type alias.
+ * @returns The complete file content as a string.
+ *
+ * @example
+ * ```ts
+ * makeSplitSchemaFile('User', userSchema, schemas, analysis, true)
+ * // → "import { z } from '@hono/zod-openapi'\nimport { PostSchema } from './post'\n\nexport const UserSchema = z.object({...}).openapi('User')\n\nexport type User = z.infer<typeof UserSchema>"
+ * ```
+ */
 export function makeSplitSchemaFile(
   schemaName: string,
   schema: Schema,

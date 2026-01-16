@@ -16,6 +16,23 @@ export function makeModuleSpec(
   return noIndex === '' ? '.' : noIndex.startsWith('.') ? noIndex : `./${noIndex}`
 }
 
+/**
+ * Generates a const declaration prefix with optional export.
+ *
+ * @param exportVariable - Whether to add the export keyword.
+ * @param text - The base name for the constant.
+ * @param suffix - The suffix to append to the name.
+ * @returns A string like `export const UserSchema=` or `const UserSchema=`.
+ *
+ * @example
+ * ```ts
+ * makeConst(true, 'User', 'Schema')
+ * // → 'export const UserSchema='
+ *
+ * makeConst(false, 'post', 'Response')
+ * // → 'const PostResponse='
+ * ```
+ */
 export function makeConst(exportVariable: boolean, text: string, suffix: string): string {
   const prefix = exportVariable ? 'export const ' : 'const '
   return `${prefix}${toIdentifierPascalCase(ensureSuffix(text, suffix))}=`
