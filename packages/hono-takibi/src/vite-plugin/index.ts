@@ -159,24 +159,20 @@ const listTypeScriptFilesShallow = async (directoryPath: string): Promise<string
     .catch((): string[] => [])
 
 /**
- * Deletes all TypeScript files in a directory (shallow, non-recursive).
+ * Deletes specified TypeScript files.
  *
- * Used to clean up stale generated files before regeneration.
- *
- * @param directoryPath - Directory path to clean
+ * @param filePaths - Array of file paths to delete
  * @returns Promise resolving to array of deleted file paths
  */
-const deleteAllTypeScriptFilesShallow = async (directoryPath: string): Promise<string[]> =>
-  listTypeScriptFilesShallow(directoryPath).then((files) =>
-    Promise.all(
-      files.map((filePath) =>
-        fsp
-          .unlink(filePath)
-          .then(() => filePath)
-          .catch(() => null),
-      ),
-    ).then((results) => results.filter((result) => result !== null)),
-  )
+const deleteTypeScriptFiles = async (filePaths: string[]): Promise<string[]> =>
+  Promise.all(
+    filePaths.map((filePath) =>
+      fsp
+        .unlink(filePath)
+        .then(() => filePath)
+        .catch(() => null),
+    ),
+  ).then((results) => results.filter((result) => result !== null))
 
 /**
  * Creates a debounced version of a function.
@@ -267,7 +263,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     return (async () => {
       if (schemaConfig.split === true) {
         const outputDirectory = toAbsolutePath(schemaConfig.output)
-        const removedFiles = await deleteAllTypeScriptFilesShallow(outputDirectory)
+        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
+        await deleteTypeScriptFiles(beforeFiles)
         const schemaResult = await schemas(
           openAPI.components?.schemas,
           outputDirectory,
@@ -275,8 +272,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
           schemaConfig.exportTypes === true,
         )
         if (!schemaResult.ok) return `✗ schemas(split): ${schemaResult.error}`
-        return removedFiles.length > 0
-          ? `✓ schemas(split) -> ${outputDirectory}/*.ts (cleaned ${removedFiles.length})`
+        return beforeFiles.length > 0
+          ? `✓ schemas(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
           : `✓ schemas(split) -> ${outputDirectory}/*.ts`
       }
       const outputPath = toAbsolutePath(schemaConfig.output)
@@ -295,7 +292,9 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     if (!parametersConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(parametersConfig.output)
-      if (parametersConfig.split === true) await deleteAllTypeScriptFilesShallow(outputDirectory)
+      const beforeFiles =
+        parametersConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
+      if (parametersConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
       const parameterResult = await parameters(
         openAPI.components?.parameters,
         outputDirectory,
@@ -303,9 +302,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         parametersConfig.exportTypes === true,
         configuration['zod-openapi']?.components,
       )
-      return parameterResult.ok
-        ? `✓ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-        : `✗ parameters: ${parameterResult.error}`
+      if (!parameterResult.ok) return `✗ parameters: ${parameterResult.error}`
+      return `✓ parameters${parametersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -314,7 +312,9 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     if (!headersConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(headersConfig.output)
-      if (headersConfig.split === true) await deleteAllTypeScriptFilesShallow(outputDirectory)
+      const beforeFiles =
+        headersConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
+      if (headersConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
       const headersResult = await headers(
         openAPI.components?.headers,
         outputDirectory,
@@ -322,9 +322,8 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         headersConfig.exportTypes === true,
         configuration['zod-openapi']?.components,
       )
-      return headersResult.ok
-        ? `✓ headers${headersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-        : `✗ headers: ${headersResult.error}`
+      if (!headersResult.ok) return `✗ headers: ${headersResult.error}`
+      return `✓ headers${headersConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -333,15 +332,16 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     if (!examplesConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(examplesConfig.output)
-      if (examplesConfig.split === true) await deleteAllTypeScriptFilesShallow(outputDirectory)
+      const beforeFiles =
+        examplesConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
+      if (examplesConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
       const examplesResult = await examples(
         openAPI.components?.examples,
         outputDirectory,
         examplesConfig.split === true,
       )
-      return examplesResult.ok
-        ? `✓ examples${examplesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-        : `✗ examples: ${examplesResult.error}`
+      if (!examplesResult.ok) return `✗ examples: ${examplesResult.error}`
+      return `✓ examples${examplesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -350,15 +350,16 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     if (!linksConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(linksConfig.output)
-      if (linksConfig.split === true) await deleteAllTypeScriptFilesShallow(outputDirectory)
+      const beforeFiles =
+        linksConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
+      if (linksConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
       const linksResult = await links(
         openAPI.components?.links,
         outputDirectory,
         linksConfig.split === true,
       )
-      return linksResult.ok
-        ? `✓ links${linksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-        : `✗ links: ${linksResult.error}`
+      if (!linksResult.ok) return `✗ links: ${linksResult.error}`
+      return `✓ links${linksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -367,15 +368,16 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     if (!callbacksConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(callbacksConfig.output)
-      if (callbacksConfig.split === true) await deleteAllTypeScriptFilesShallow(outputDirectory)
+      const beforeFiles =
+        callbacksConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
+      if (callbacksConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
       const callbacksResult = await callbacks(
         openAPI.components?.callbacks,
         outputDirectory,
         callbacksConfig.split === true,
       )
-      return callbacksResult.ok
-        ? `✓ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-        : `✗ callbacks: ${callbacksResult.error}`
+      if (!callbacksResult.ok) return `✗ callbacks: ${callbacksResult.error}`
+      return `✓ callbacks${callbacksConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -384,16 +386,18 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     if (!securitySchemesConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(securitySchemesConfig.output)
-      if (securitySchemesConfig.split === true)
-        await deleteAllTypeScriptFilesShallow(outputDirectory)
+      const beforeFiles =
+        securitySchemesConfig.split === true
+          ? await listTypeScriptFilesShallow(outputDirectory)
+          : []
+      if (securitySchemesConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
       const securitySchemesResult = await securitySchemes(
         openAPI.components?.securitySchemes,
         outputDirectory,
         securitySchemesConfig.split === true,
       )
-      return securitySchemesResult.ok
-        ? `✓ securitySchemes${securitySchemesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-        : `✗ securitySchemes: ${securitySchemesResult.error}`
+      if (!securitySchemesResult.ok) return `✗ securitySchemes: ${securitySchemesResult.error}`
+      return `✓ securitySchemes${securitySchemesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -402,16 +406,17 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     if (!requestBodiesConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(requestBodiesConfig.output)
-      if (requestBodiesConfig.split === true) await deleteAllTypeScriptFilesShallow(outputDirectory)
+      const beforeFiles =
+        requestBodiesConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
+      if (requestBodiesConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
       const requestBodiesResult = await requestBodies(
         openAPI.components?.requestBodies,
         outputDirectory,
         requestBodiesConfig.split === true,
         configuration['zod-openapi']?.components,
       )
-      return requestBodiesResult.ok
-        ? `✓ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-        : `✗ requestBodies: ${requestBodiesResult.error}`
+      if (!requestBodiesResult.ok) return `✗ requestBodies: ${requestBodiesResult.error}`
+      return `✓ requestBodies${requestBodiesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -420,16 +425,17 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     if (!responsesConfig) return undefined
     return (async () => {
       const outputDirectory = toAbsolutePath(responsesConfig.output)
-      if (responsesConfig.split === true) await deleteAllTypeScriptFilesShallow(outputDirectory)
+      const beforeFiles =
+        responsesConfig.split === true ? await listTypeScriptFilesShallow(outputDirectory) : []
+      if (responsesConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
       const responsesResult = await responses(
         openAPI.components?.responses,
         outputDirectory,
         responsesConfig.split === true,
         configuration['zod-openapi']?.components,
       )
-      return responsesResult.ok
-        ? `✓ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
-        : `✗ responses: ${responsesResult.error}`
+      if (!responsesResult.ok) return `✗ responses: ${responsesResult.error}`
+      return `✓ responses${responsesConfig.split === true ? '(split)' : ''} -> ${outputDirectory}`
     })()
   }
 
@@ -438,15 +444,16 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     if (!routesConfig) return undefined
     return (async () => {
       const outputPath = toAbsolutePath(routesConfig.output)
-      if (routesConfig.split === true) await deleteAllTypeScriptFilesShallow(outputPath)
+      const beforeFiles =
+        routesConfig.split === true ? await listTypeScriptFilesShallow(outputPath) : []
+      if (routesConfig.split === true) await deleteTypeScriptFiles(beforeFiles)
       const routeResult = await route(
         openAPI,
         { output: outputPath, split: routesConfig.split ?? false },
         configuration['zod-openapi']?.components,
       )
-      return routeResult.ok
-        ? `✓ routes${routesConfig.split === true ? '(split)' : ''} -> ${outputPath}`
-        : `✗ routes: ${routeResult.error}`
+      if (!routeResult.ok) return `✗ routes: ${routeResult.error}`
+      return `✓ routes${routesConfig.split === true ? '(split)' : ''} -> ${outputPath}`
     })()
   }
 
@@ -467,11 +474,12 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     return (async () => {
       if (rpcConfig.split === true) {
         const outputDirectory = toAbsolutePath(rpcConfig.output)
-        const removedFiles = await deleteAllTypeScriptFilesShallow(outputDirectory)
+        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
+        await deleteTypeScriptFiles(beforeFiles)
         const rpcResult = await rpc(openAPI, outputDirectory, rpcConfig.import, true)
         if (!rpcResult.ok) return `✗ rpc(split): ${rpcResult.error}`
-        return removedFiles.length > 0
-          ? `✓ rpc(split) -> ${outputDirectory}/*.ts (cleaned ${removedFiles.length})`
+        return beforeFiles.length > 0
+          ? `✓ rpc(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
           : `✓ rpc(split) -> ${outputDirectory}/*.ts`
       }
       const outputPath = toAbsolutePath(rpcConfig.output)
@@ -504,6 +512,18 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
  * ────────────────────────────────────────────────────────────── */
 
 /**
+ * Checks if a file path matches input file patterns.
+ *
+ * @param filePath - Absolute path to check
+ * @param inputDirectory - Directory containing input files
+ * @returns True if the file is an input file (yaml/json/tsp)
+ */
+const isInputFile = (filePath: string, inputDirectory: string): boolean => {
+  if (!filePath.startsWith(inputDirectory)) return false
+  return filePath.endsWith('.yaml') || filePath.endsWith('.json') || filePath.endsWith('.tsp')
+}
+
+/**
  * Adds glob patterns to the Vite file watcher.
  *
  * Watches the input file and related files (.yaml, .json, .tsp) in the
@@ -511,8 +531,9 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
  *
  * @param server - Vite dev server instance
  * @param absoluteInputPath - Absolute path to the input OpenAPI file
+ * @returns The input directory path for use in change detection
  */
-const addInputGlobsToWatcher = (server: ViteDevServer, absoluteInputPath: string) => {
+const addInputGlobsToWatcher = (server: ViteDevServer, absoluteInputPath: string): string => {
   const inputDirectory = path.dirname(absoluteInputPath)
   const watchPatterns: string[] = [
     absoluteInputPath,
@@ -521,6 +542,7 @@ const addInputGlobsToWatcher = (server: ViteDevServer, absoluteInputPath: string
     path.join(inputDirectory, '**/*.tsp'),
   ]
   server.watcher.add(watchPatterns)
+  return inputDirectory
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -633,9 +655,14 @@ const cleanupStaleOutputs = async (
 
 // biome-ignore lint: plugin returns any for Vite compatibility
 export function honoTakibiVite(): any {
-  const pluginState: { current: Configuration | null; previous: Configuration | null } = {
+  const pluginState: {
+    current: Configuration | null
+    previous: Configuration | null
+    inputDirectory: string | null
+  } = {
     current: null,
     previous: null,
+    inputDirectory: null,
   }
   const absoluteConfigFilePath = path.resolve(process.cwd(), 'hono-takibi.config.ts')
 
@@ -664,7 +691,10 @@ export function honoTakibiVite(): any {
 
     pluginState.previous = pluginState.current
     pluginState.current = nextConfiguration.value
-    addInputGlobsToWatcher(server, toAbsolutePath(pluginState.current.input))
+    pluginState.inputDirectory = addInputGlobsToWatcher(
+      server,
+      toAbsolutePath(pluginState.current.input),
+    )
     await runGenerationAndReload(server)
   }
 
@@ -696,7 +726,10 @@ export function honoTakibiVite(): any {
         }
         pluginState.current = initialConfiguration.value
 
-        addInputGlobsToWatcher(server, toAbsolutePath(pluginState.current.input))
+        pluginState.inputDirectory = addInputGlobsToWatcher(
+          server,
+          toAbsolutePath(pluginState.current.input),
+        )
         server.watcher.add(absoluteConfigFilePath)
 
         const debouncedRunGeneration = debounce(200, () => void runGenerationAndReload(server))
@@ -708,7 +741,12 @@ export function honoTakibiVite(): any {
             await handleConfigurationChange(server)
             return
           }
-          debouncedRunGeneration()
+          if (
+            pluginState.inputDirectory &&
+            isInputFile(absoluteChangedPath, pluginState.inputDirectory)
+          ) {
+            debouncedRunGeneration()
+          }
         })
 
         await runGenerationAndReload(server)

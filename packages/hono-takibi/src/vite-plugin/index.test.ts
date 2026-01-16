@@ -72,10 +72,34 @@ vi.mock('../core/index.js', () => ({
   parameters: vi.fn(async () => ({ ok: true, value: 'parameters' })),
   requestBodies: vi.fn(async () => ({ ok: true, value: 'requestBodies' })),
   responses: vi.fn(async () => ({ ok: true, value: 'responses' })),
-  schemas: vi.fn(async () => ({ ok: true, value: 'schemas' })),
+  schemas: vi.fn(async (_schemas: unknown, outputDir: string, split: boolean) => {
+    if (split) {
+      await fsp.mkdir(outputDir, { recursive: true })
+      await fsp.writeFile(path.join(outputDir, 'Pet.ts'), '// Pet', 'utf8')
+      await fsp.writeFile(path.join(outputDir, 'User.ts'), '// User', 'utf8')
+      await fsp.writeFile(path.join(outputDir, 'index.ts'), '// index', 'utf8')
+    }
+    return { ok: true, value: 'schemas' }
+  }),
   securitySchemes: vi.fn(async () => ({ ok: true, value: 'securitySchemes' })),
-  route: vi.fn(async () => ({ ok: true, value: 'route' })),
-  rpc: vi.fn(async () => ({ ok: true, value: 'rpc' })),
+  route: vi.fn(async (_openAPI: unknown, config: { output: string; split: boolean }) => {
+    if (config.split) {
+      await fsp.mkdir(config.output, { recursive: true })
+      await fsp.writeFile(path.join(config.output, 'getPets.ts'), '// getPets', 'utf8')
+      await fsp.writeFile(path.join(config.output, 'postUsers.ts'), '// postUsers', 'utf8')
+      await fsp.writeFile(path.join(config.output, 'index.ts'), '// index', 'utf8')
+    }
+    return { ok: true, value: 'route' }
+  }),
+  rpc: vi.fn(async (_openAPI: unknown, outputDir: string, _importPath: string, split: boolean) => {
+    if (split) {
+      await fsp.mkdir(outputDir, { recursive: true })
+      await fsp.writeFile(path.join(outputDir, 'getPets.ts'), '// getPets', 'utf8')
+      await fsp.writeFile(path.join(outputDir, 'postUsers.ts'), '// postUsers', 'utf8')
+      await fsp.writeFile(path.join(outputDir, 'index.ts'), '// index', 'utf8')
+    }
+    return { ok: true, value: 'rpc' }
+  }),
   takibi: vi.fn(async () => ({ ok: true, value: 'takibi' })),
   type: vi.fn(async () => ({ ok: true, value: 'type' })),
 }))
@@ -98,7 +122,11 @@ vi.mock('../format/index.js', () => ({
 }))
 vi.mock('../fsp/index.js', () => ({
   mkdir: vi.fn(async () => ({ ok: true })),
-  writeFile: vi.fn(async () => ({ ok: true })),
+  writeFile: vi.fn(async (filePath: string, content: string) => {
+    await fsp.mkdir(path.dirname(filePath), { recursive: true })
+    await fsp.writeFile(filePath, content, 'utf8')
+    return { ok: true }
+  }),
 }))
 
 const { route: routeMock } = await import('../core/index.js')

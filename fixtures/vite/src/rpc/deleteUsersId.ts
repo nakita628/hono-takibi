@@ -1,4 +1,4 @@
-import type { ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { client } from '../client'
 
 /**
@@ -9,7 +9,7 @@ import { client } from '../client'
  * Delete a user by ID.
  */
 export async function deleteUsersId(
-  args: { param: { id: string } },
+  args: InferRequestType<(typeof client.users)[':id']['$delete']>,
   options?: ClientRequestOptions,
 ) {
   return await client.users[':id'].$delete(args, options)
