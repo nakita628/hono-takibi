@@ -1,8 +1,7 @@
-// vite.config.ts
-
+import devServer from '@hono/vite-dev-server'
 import { honoTakibiVite } from 'hono-takibi/vite-plugin'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [honoTakibiVite()],
+  plugins: [devServer({ entry: 'src/index.ts' }), honoTakibiVite()],
 })
