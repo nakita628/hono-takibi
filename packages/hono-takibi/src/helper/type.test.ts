@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { makeRecordTypeString, makeTypeString } from './type.js'
+import { makeTypeString } from './type.js'
 
 describe('makeTypeString', () => {
   describe('primitive types', () => {
@@ -320,23 +320,5 @@ describe('makeTypeString', () => {
       const result = makeTypeString({ type: ['string', 'number'] }, 'Test')
       expect(result).toBe('string|number')
     })
-  })
-})
-
-describe('makeRecordTypeString', () => {
-  it('should generate record type for string values', () => {
-    expect(makeRecordTypeString({ type: 'string' }, 'Test')).toBe('{[key:string]:string}')
-  })
-
-  it('should generate record type for complex values', () => {
-    expect(
-      makeRecordTypeString({ type: 'object', properties: { id: { type: 'integer' } } }, 'Test'),
-    ).toBe('{[key:string]:{id?:number}}')
-  })
-
-  it('should handle ref values', () => {
-    expect(makeRecordTypeString({ $ref: '#/components/schemas/User' }, 'Test')).toBe(
-      '{[key:string]:z.infer<typeof UserSchema>}',
-    )
   })
 })

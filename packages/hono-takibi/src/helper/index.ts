@@ -29,5 +29,5 @@ export {
   makeTypeDefinition,
   makeTypeDefinitions,
 } from './schema.js'
-export { makeRecordTypeString, makeTypeString } from './type.js'
+export { makeTypeString } from './type.js'
 export { wrap } from './wrap.js'
