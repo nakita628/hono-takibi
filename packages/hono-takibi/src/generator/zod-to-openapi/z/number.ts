@@ -2,10 +2,26 @@ import type { Schema } from '../../../openapi/index.js'
 
 /**
  * Generates a Zod schema for number types based on OpenAPI schema.
- * Supports float, float32, float64, and number formats.
+ *
+ * Supports float, float32, float64, and number formats with constraints.
  *
  * @param schema - The OpenAPI schema object
  * @returns The Zod schema string
+ *
+ * @example
+ * ```ts
+ * // Basic number
+ * number({ type: 'number' })
+ * // → 'z.number()'
+ *
+ * // Float with constraints
+ * number({ type: 'number', format: 'float', minimum: 0, maximum: 1.0 })
+ * // → 'z.float32().min(0).max(1)'
+ *
+ * // Positive number (exclusive minimum = 0)
+ * number({ type: 'number', minimum: 0, exclusiveMinimum: true })
+ * // → 'z.number().positive()'
+ * ```
  */
 export function number(schema: Schema): string {
   const base =
