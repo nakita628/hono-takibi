@@ -9,7 +9,6 @@ import {
   lowerFirst,
   methodPath,
   normalizeTypes,
-  registerComponent,
   requestParamsArray,
   toIdentifierPascalCase,
   zodToOpenAPISchema,
@@ -35,26 +34,6 @@ describe('utils', () => {
     })
     it('should handle mixed type array', () => {
       expect(normalizeTypes(['integer', 'null'])).toStrictEqual(['integer', 'null'])
-    })
-  })
-  // registerComponent
-  describe('registerComponent', () => {
-    it.concurrent('registerComponent success', () => {
-      const result = registerComponent({
-        jwt: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-        },
-      })
-      const expected = `app.openAPIRegistry.registerComponent('securitySchemes','jwt',${JSON.stringify(
-        {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-        },
-      )})`
-      expect(result).toBe(expected)
     })
   })
   // isRecord
