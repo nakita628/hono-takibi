@@ -11,8 +11,27 @@ import { zodToOpenAPI } from '../index.js'
  * - additionalProperties: false → `z.strictObject({...})`
  * - additionalProperties: Schema → `z.record(z.string(), ...)`
  *
- * @param schema - Schema definition.
- * @returns The Zod object schema string.
+ * @param schema - Schema definition
+ * @returns The Zod object schema string
+ *
+ * @example
+ * ```ts
+ * // Basic object with properties
+ * object({
+ *   type: 'object',
+ *   properties: { name: { type: 'string' } },
+ *   required: ['name']
+ * })
+ * // → 'z.object({name:z.string()})'
+ *
+ * // Strict object (no additional properties)
+ * object({ type: 'object', additionalProperties: false })
+ * // → 'z.strictObject({})'
+ *
+ * // Record type (dictionary)
+ * object({ type: 'object', additionalProperties: { type: 'number' } })
+ * // → 'z.record(z.string(),z.number())'
+ * ```
  */
 export function object(schema: Schema): string {
   // Delegate combinators to zodToOpenAPI

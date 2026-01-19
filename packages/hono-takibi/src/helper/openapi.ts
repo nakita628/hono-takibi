@@ -222,15 +222,28 @@ export function makeExamples(examples: {
 }
 
 /**
- * generates a responses code from the given responses object.
- * @param responses
- * @returns
+ * Generates response code for an operation's responses object.
+ *
+ * Converts OpenAPI operation responses into a TypeScript object literal string
+ * with status codes as keys and response definitions as values.
+ *
+ * @param responses - The responses object from an OpenAPI operation
+ * @returns Object literal string with status code keys and response values
+ *
+ * @example
+ * ```ts
+ * makeOperationResponses({
+ *   '200': { description: 'Success', content: {...} },
+ *   'default': { description: 'Error' }
+ * })
+ * // → '{200:{description:"Success",content:{...}},"default":{description:"Error"}}'
+ * ```
  */
 export function makeOperationResponses(responses: Operation['responses']) {
   const result = Object.entries(responses)
     .map(
-      ([StatusCode, res]) =>
-        `${/^\d+$/.test(StatusCode) ? StatusCode : `'${StatusCode}'`}:${makeResponses(res)}`,
+      ([statusCode, res]) =>
+        `${/^\d+$/.test(statusCode) ? statusCode : `'${statusCode}'`}:${makeResponses(res)}`,
     )
     // .map(([statusCode, res]) => `${JSON.stringify(statusCode)}:${makeResponses(res)}`)
     .join(',')
@@ -251,9 +264,24 @@ export function makeHeaderResponses(headers: { readonly [k: string]: Header | Re
 }
 
 /**
- * generates a response code from the given responses object.
- * @param responses
- * @returns
+ * Generates code for a single response object.
+ *
+ * Handles both $ref references and inline response definitions,
+ * including headers, content, and links.
+ *
+ * @param responses - OpenAPI response object or reference
+ * @returns TypeScript code string for the response
+ *
+ * @example
+ * ```ts
+ * // Reference
+ * makeResponses({ $ref: '#/components/responses/NotFound' })
+ * // → 'NotFoundResponse'
+ *
+ * // Inline
+ * makeResponses({ description: 'Success', content: {...} })
+ * // → '{description:"Success",content:{...}}'
+ * ```
  */
 export function makeResponses(responses: Responses) {
   if (responses.$ref) {
@@ -281,9 +309,24 @@ export function makeResponses(responses: Responses) {
 }
 
 /**
- * generates a header code from the given headers object.
- * @param headers Headers object
- * @returns
+ * Generates code for a header or header reference.
+ *
+ * Handles both $ref references and inline header definitions with
+ * all OpenAPI header properties (description, required, schema, etc.).
+ *
+ * @param headers - OpenAPI header object or reference
+ * @returns TypeScript code string for the header
+ *
+ * @example
+ * ```ts
+ * // Reference
+ * makeHeadersAndReferences({ $ref: '#/components/headers/XRequestId' })
+ * // → 'XRequestIdHeaderSchema'
+ *
+ * // Inline
+ * makeHeadersAndReferences({ schema: { type: 'string' }, required: true })
+ * // → '{required:true,schema:z.string()}'
+ * ```
  */
 export function makeHeadersAndReferences(headers: Header | Reference) {
   if ('$ref' in headers && headers.$ref) {
@@ -318,9 +361,22 @@ export function makeHeadersAndReferences(headers: Header | Reference) {
 }
 
 /**
- * generates a link or reference code from the given link or reference object.
- * @param linkOrReference
- * @returns
+ * Generates code for a link or link reference.
+ *
+ * Handles OpenAPI link objects with operationRef, operationId,
+ * parameters, requestBody, and other link properties.
+ *
+ * @param linkOrReference - OpenAPI link object or reference
+ * @returns TypeScript code string for the link
+ *
+ * @example
+ * ```ts
+ * makeLinkOrReference({
+ *   operationId: 'getUser',
+ *   parameters: { userId: '$response.body#/id' }
+ * })
+ * // → '{operationId:"getUser",parameters:{"userId":"$response.body#/id"}}'
+ * ```
  */
 export function makeLinkOrReference(linkOrReference: Link | Reference) {
   const result = [
@@ -380,9 +436,25 @@ export function makeOperationCallbacks(callbacks: Operation['callbacks']) {
 }
 
 /**
- * generates callbacks
- * @param callbacks
- * @returns
+ * Generates code for OpenAPI callbacks object.
+ *
+ * Converts callbacks with their path items and operations into
+ * TypeScript code. Handles $ref references to callback components.
+ *
+ * @param callbacks - OpenAPI callbacks object with path expressions
+ * @returns TypeScript code string for the callbacks
+ *
+ * @example
+ * ```ts
+ * makeCallbacks({
+ *   onPaymentComplete: {
+ *     '{$request.body#/callbackUrl}': {
+ *       post: { requestBody: {...}, responses: {...} }
+ *     }
+ *   }
+ * })
+ * // → '"onPaymentComplete":{post:{requestBody:{...},responses:{...}}}'
+ * ```
  */
 export function makeCallbacks(
   callbacks:
@@ -468,9 +540,22 @@ export function makeCallbacks(
 }
 
 /**
- * generates content
- * @param content
- * @returns
+ * Generates code for OpenAPI content object.
+ *
+ * Processes each media type in the content object and generates
+ * corresponding TypeScript code. Handles both $ref references
+ * and inline media definitions.
+ *
+ * @param content - OpenAPI content object with media types
+ * @returns Array of media type code strings
+ *
+ * @example
+ * ```ts
+ * makeContent({
+ *   'application/json': { schema: { type: 'object', properties: {...} } }
+ * })
+ * // → ["'application/json':{schema:z.object({...})}"]
+ * ```
  */
 export function makeContent(
   content: Content | { readonly [k: string]: Media | Reference },
@@ -496,9 +581,27 @@ export function makeContent(
 }
 
 /**
- * generates a request body code from the given request body object.
- * @param body RequestBody object
- * @returns
+ * Generates code for an OpenAPI request body.
+ *
+ * Handles both $ref references and inline request body definitions
+ * with description, content, and required properties.
+ *
+ * @param body - OpenAPI request body object or reference
+ * @returns TypeScript code string for the request body
+ *
+ * @example
+ * ```ts
+ * // Reference
+ * makeRequestBody({ $ref: '#/components/requestBodies/CreateUser' })
+ * // → 'CreateUserRequestBody'
+ *
+ * // Inline
+ * makeRequestBody({
+ *   content: { 'application/json': { schema: {...} } },
+ *   required: true
+ * })
+ * // → '{content:{"application/json":{schema:...}},required:true}'
+ * ```
  */
 export function makeRequestBody(body: RequestBody | Reference) {
   if ('$ref' in body && body.$ref) {
@@ -515,9 +618,22 @@ export function makeRequestBody(body: RequestBody | Reference) {
 }
 
 /**
- * generates a media code from the given media object.
- * @param media Media object
- * @returns
+ * Generates code for an OpenAPI media object.
+ *
+ * Converts media type definitions including schema, examples,
+ * and encoding into TypeScript code.
+ *
+ * @param media - OpenAPI media object
+ * @returns TypeScript code string for the media
+ *
+ * @example
+ * ```ts
+ * makeMedia({
+ *   schema: { type: 'object', properties: { name: { type: 'string' } } },
+ *   example: { name: 'John' }
+ * })
+ * // → '{schema:z.object({name:z.string()}),example:{"name":"John"}}'
+ * ```
  */
 export function makeMedia(media: Media) {
   const encodingCode = media.encoding
@@ -540,9 +656,22 @@ export function makeMedia(media: Media) {
 }
 
 /**
- * generates an encoding code from the given encoding object.
- * @param encoding
- * @returns
+ * Generates code for an OpenAPI encoding object.
+ *
+ * Handles encoding properties for multipart request bodies including
+ * contentType, headers, and nested encoding configurations.
+ *
+ * @param encoding - OpenAPI encoding object
+ * @returns TypeScript code string for the encoding
+ *
+ * @example
+ * ```ts
+ * makeEncoding({
+ *   contentType: 'image/png',
+ *   headers: { 'X-Custom': { schema: { type: 'string' } } }
+ * })
+ * // → 'contentType:"image/png",headers:{"X-Custom":{schema:z.string()}}'
+ * ```
  */
 export function makeEncoding(encoding: Encoding): string {
   const nestedEncoding = encoding.encoding

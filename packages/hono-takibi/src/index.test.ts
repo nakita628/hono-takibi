@@ -896,20 +896,13 @@ export const getUsersRoute = createRoute({
 
     // Verify app file (index.ts)
     const appFile = fs.readFileSync(path.join(testDir, 'src/index.ts'), 'utf-8')
-    expect(appFile).toBe(`import { swaggerUI } from '@hono/swagger-ui'
-import { OpenAPIHono } from '@hono/zod-openapi'
-import { getUsersRouteHandler } from './handlers'
+    expect(appFile).toBe(`import { OpenAPIHono } from '@hono/zod-openapi'
 import { getUsersRoute } from './routes'
+import { getUsersRouteHandler } from './handlers'
 
 const app = new OpenAPIHono()
 
 export const api = app.openapi(getUsersRoute, getUsersRouteHandler)
-
-if (process.env.NODE_ENV === 'development') {
-  app
-    .doc('/doc', { openapi: '3.0.3', info: { title: 'Template API', version: '1.0.0' } })
-    .get('/ui', swaggerUI({ url: '/doc' }))
-}
 
 export type AddType = typeof api
 

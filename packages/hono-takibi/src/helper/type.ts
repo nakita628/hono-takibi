@@ -211,26 +211,3 @@ function makeObjectTypeString(
 
   return `{${propertyStrings.join(';')}}`
 }
-
-/**
- * Generates a TypeScript record type string from an OpenAPI schema.
- *
- * @param valueSchema - The OpenAPI schema for the record values.
- * @param selfTypeName - The name of the current type (for self-reference detection).
- * @param cyclicGroup - Optional set of type names in a cyclic dependency group.
- * @returns A TypeScript record type string like `{[key:string]:ValueType}`.
- *
- * @example
- * ```ts
- * makeRecordTypeString({ type: 'string' }, 'Config')
- * // → '{[key:string]:string}'
- * ```
- */
-export function makeRecordTypeString(
-  valueSchema: Schema,
-  selfTypeName: string,
-  cyclicGroup?: ReadonlySet<string>,
-): string {
-  const valueType = makeTypeString(valueSchema, selfTypeName, cyclicGroup)
-  return `{[key:string]:${valueType}}`
-}

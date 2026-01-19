@@ -2,10 +2,26 @@ import type { Schema } from '../../../openapi/index.js'
 
 /**
  * Generates a Zod schema for integer types based on OpenAPI schema.
- * Supports int32, int64, and bigint formats.
+ *
+ * Supports int32, int64, and bigint formats with min/max constraints.
  *
  * @param schema - The OpenAPI schema object
  * @returns The Zod schema string
+ *
+ * @example
+ * ```ts
+ * // Basic integer
+ * integer({ type: 'integer' })
+ * // → 'z.int()'
+ *
+ * // int64 with constraints
+ * integer({ type: 'integer', format: 'int64', minimum: 0, maximum: 100 })
+ * // → 'z.int64().min(0n).max(100n)'
+ *
+ * // Exclusive minimum (greater than)
+ * integer({ type: 'integer', exclusiveMinimum: 0 })
+ * // → 'z.int().positive()'
+ * ```
  */
 export function integer(schema: Schema): string {
   const base =
@@ -34,14 +50,12 @@ export function integer(schema: Schema): string {
     if (value === 0 && schema.exclusiveMinimum === false) {
       return '.nonnegative()'
     }
-    // > value → .gt(...)
     if (
       (schema.exclusiveMinimum === true || schema.minimum === undefined) &&
       typeof value === 'number'
     ) {
       return `.gt(${lit(value)})`
     }
-    // >= value → .min(...)
     if (typeof schema.minimum === 'number') {
       return `.min(${lit(schema.minimum)})`
     }

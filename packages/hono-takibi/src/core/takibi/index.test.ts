@@ -379,20 +379,13 @@ describe('--template mode strict content tests', () => {
       })
 
       const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      const expectedIndex = `import { swaggerUI } from '@hono/swagger-ui'
-import { OpenAPIHono } from '@hono/zod-openapi'
-import { getTestRouteHandler } from './handlers'
+      const expectedIndex = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './route'
+import { getTestRouteHandler } from './handlers'
 
 const app = new OpenAPIHono()
 
 export const api = app.openapi(getTestRoute, getTestRouteHandler)
-
-if (process.env.NODE_ENV === 'development') {
-  app
-    .doc31('/doc', { openapi: '3.1.0', info: { title: 'Test', version: 'v1' } })
-    .get('/ui', swaggerUI({ url: '/doc' }))
-}
 
 export type AddType = typeof api
 
@@ -504,20 +497,13 @@ export const getTestRoute = createRoute({
       await runTakibi(simpleOpenapi, out, { template: true, test: false, basePath: '/api/v1' })
 
       const indexContent = fs.readFileSync(path.join(srcDir, 'index.ts'), 'utf-8')
-      const expectedIndex = `import { swaggerUI } from '@hono/swagger-ui'
-import { OpenAPIHono } from '@hono/zod-openapi'
-import { getTestRouteHandler } from './handlers'
+      const expectedIndex = `import { OpenAPIHono } from '@hono/zod-openapi'
 import { getTestRoute } from './route'
+import { getTestRouteHandler } from './handlers'
 
 const app = new OpenAPIHono().basePath('/api/v1')
 
 export const api = app.openapi(getTestRoute, getTestRouteHandler)
-
-if (process.env.NODE_ENV === 'development') {
-  app
-    .doc31('/doc', { openapi: '3.1.0', info: { title: 'Test', version: 'v1' } })
-    .get('/ui', swaggerUI({ url: '/api/v1/doc' }))
-}
 
 export type AddType = typeof api
 

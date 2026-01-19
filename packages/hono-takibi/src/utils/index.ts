@@ -23,20 +23,6 @@ export function normalizeTypes(
 }
 
 /**
- * Generates registration code for OpenAPI `securitySchemes`.
- *
- * @param securitySchemes - Record of scheme name to scheme properties.
- * @returns Multiline string of registration statements.
- */
-export function registerComponent(securitySchemes: Record<string, unknown>): string {
-  return Object.entries(securitySchemes)
-    .map(([name, scheme]) => {
-      return `app.openAPIRegistry.registerComponent('securitySchemes','${name}',${JSON.stringify(scheme)})`
-    })
-    .join('\n')
-}
-
-/**
  * Checks if a value is a non-null object (record-like).
  *
  * @param value - The value to check.
