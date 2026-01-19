@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Parameter } from '../openapi/index.js'
+import type { Header, Parameter, Schema } from '../openapi/index.js'
 import { wrap } from './wrap.js'
 
 describe('wrap', () => {
@@ -310,5 +310,229 @@ describe('wrap', () => {
     const expected =
       'z.object({}).exactOptional().openapi({param:{"name":"filter","in":"query","required":false,"schema":{"type":"object"},"content":{"application/json":{"schema":{"type":"object"},"examples":{"japanese":{value:{"name":"田中太郎","description":"参照地獄テスト"}}}}}}})'
     expect(result).toBe(expected)
+  })
+
+  describe('headers with required', () => {
+    it.concurrent('should not add .exactOptional() when header required is true', () => {
+      const testHeader: Header = {
+        description: 'Authorization header',
+        required: true,
+      }
+      const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
+      expect(result).toBe('z.string().openapi({description:"Authorization header"})')
+    })
+
+    it.concurrent('should add .exactOptional() when header required is false', () => {
+      const testHeader: Header = {
+        description: 'Optional header',
+        required: false,
+      }
+      const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
+      expect(result).toBe('z.string().exactOptional().openapi({description:"Optional header"})')
+    })
+
+    it.concurrent('should add .exactOptional() when header required is undefined', () => {
+      const testHeader: Header = {
+        description: 'Header without required',
+      }
+      const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
+      expect(result).toBe(
+        'z.string().exactOptional().openapi({description:"Header without required"})',
+      )
+    })
+
+    it.concurrent('should handle header with deprecated', () => {
+      const testHeader: Header = {
+        description: 'Deprecated header',
+        required: true,
+        deprecated: true,
+      }
+      const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
+      expect(result).toBe('z.string().openapi({description:"Deprecated header",deprecated:true})')
+    })
+
+    it.concurrent('should handle header with example', () => {
+      const testHeader: Header = {
+        description: 'Header with example',
+        required: false,
+        example: 'Bearer token123',
+      }
+      const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
+      expect(result).toBe(
+        'z.string().exactOptional().openapi({description:"Header with example",example:"Bearer token123"})',
+      )
+    })
+
+    it.concurrent('should handle header with no openapi props when required is true', () => {
+      const testHeader: Header = {
+        required: true,
+      }
+      const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
+      expect(result).toBe('z.string()')
+    })
+
+    it.concurrent('should handle header with no openapi props when required is false', () => {
+      const testHeader: Header = {
+        required: false,
+      }
+      const result = wrap('z.string()', { type: 'string' }, { headers: testHeader })
+      expect(result).toBe('z.string().exactOptional()')
+    })
+  })
+
+  describe('isOptional', () => {
+    it.concurrent('should add .exactOptional() when isOptional is true', () => {
+      const result = wrap('z.string()', { type: 'string' }, { isOptional: true })
+      expect(result).toBe('z.string().exactOptional()')
+    })
+
+    it.concurrent('should add .exactOptional() with openapi props when isOptional is true', () => {
+      const result = wrap(
+        'z.string()',
+        { type: 'string', description: 'Optional field' },
+        { isOptional: true },
+      )
+      expect(result).toBe('z.string().exactOptional().openapi({"description":"Optional field"})')
+    })
+
+    it.concurrent('should not add .exactOptional() when isOptional is false', () => {
+      const result = wrap('z.string()', { type: 'string' }, { isOptional: false })
+      expect(result).toBe('z.string()')
+    })
+
+    it.concurrent('should not add .exactOptional() when isOptional is undefined', () => {
+      const result = wrap('z.string()', { type: 'string' }, {})
+      expect(result).toBe('z.string()')
+    })
+
+    it.concurrent('should handle isOptional with default value', () => {
+      const result = wrap(
+        'z.string()',
+        { type: 'string', default: 'default-value' },
+        { isOptional: true },
+      )
+      expect(result).toBe('z.string().default("default-value").exactOptional()')
+    })
+
+    it.concurrent('should handle isOptional with nullable', () => {
+      const result = wrap('z.string()', { type: 'string', nullable: true }, { isOptional: true })
+      expect(result).toBe('z.string().nullable().exactOptional()')
+    })
+  })
+
+  describe('schema.required array', () => {
+    it.concurrent('should pass through required array of strings', () => {
+      const schema: Schema = {
+        type: 'object',
+        required: ['name', 'email'],
+        description: 'User object',
+      }
+      const result = wrap('z.object({})', schema)
+      expect(result).toBe(
+        'z.object({}).openapi({"required":["name","email"],"description":"User object"})',
+      )
+    })
+
+    it.concurrent('should convert non-string values in required array to strings', () => {
+      const schema = {
+        type: 'object',
+        // YAML may parse `null`, `true`, `false` as literal values in required array
+        required: ['name', null, true, false, 'email'],
+        description: 'Schema with mixed required values',
+      } as unknown as Schema
+      const result = wrap('z.object({})', schema)
+      expect(result).toBe(
+        'z.object({}).openapi({"required":["name","null","true","false","email"],"description":"Schema with mixed required values"})',
+      )
+    })
+
+    it.concurrent('should handle empty required array', () => {
+      const schema: Schema = {
+        type: 'object',
+        required: [],
+        description: 'Object with empty required',
+      }
+      const result = wrap('z.object({})', schema)
+      expect(result).toBe(
+        'z.object({}).openapi({"required":[],"description":"Object with empty required"})',
+      )
+    })
+
+    it.concurrent('should exclude boolean required from baseArgs', () => {
+      const schema = {
+        type: 'string',
+        required: true,
+        description: 'Field with boolean required',
+      } as unknown as Schema
+      const result = wrap('z.string()', schema)
+      // Boolean required should be filtered out, only description remains
+      expect(result).toBe('z.string().openapi({"description":"Field with boolean required"})')
+    })
+  })
+
+  describe('parameters required combinations', () => {
+    it.concurrent('should handle path parameter (always required implicitly)', () => {
+      const testParameter: Parameter = {
+        name: 'userId',
+        in: 'path',
+        required: true,
+        schema: { type: 'string' },
+      }
+      const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
+      expect(result).toBe(
+        'z.string().openapi({param:{"name":"userId","in":"path","required":true,"schema":{"type":"string"}}})',
+      )
+    })
+
+    it.concurrent('should handle query parameter with required true', () => {
+      const testParameter: Parameter = {
+        name: 'page',
+        in: 'query',
+        required: true,
+        schema: { type: 'integer' },
+      }
+      const result = wrap('z.number()', { type: 'integer' }, { parameters: testParameter })
+      expect(result).toBe(
+        'z.number().openapi({param:{"name":"page","in":"query","required":true,"schema":{"type":"integer"}}})',
+      )
+    })
+
+    it.concurrent('should handle query parameter with required false', () => {
+      const testParameter: Parameter = {
+        name: 'limit',
+        in: 'query',
+        required: false,
+        schema: { type: 'integer' },
+      }
+      const result = wrap('z.number()', { type: 'integer' }, { parameters: testParameter })
+      expect(result).toBe(
+        'z.number().exactOptional().openapi({param:{"name":"limit","in":"query","required":false,"schema":{"type":"integer"}}})',
+      )
+    })
+
+    it.concurrent('should handle cookie parameter without required', () => {
+      const testParameter: Parameter = {
+        name: 'sessionId',
+        in: 'cookie',
+        schema: { type: 'string' },
+      }
+      const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
+      expect(result).toBe(
+        'z.string().exactOptional().openapi({param:{"name":"sessionId","in":"cookie","schema":{"type":"string"}}})',
+      )
+    })
+
+    it.concurrent('should handle header parameter with required true', () => {
+      const testParameter: Parameter = {
+        name: 'X-Request-ID',
+        in: 'header',
+        required: true,
+        schema: { type: 'string' },
+      }
+      const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
+      expect(result).toBe(
+        'z.string().openapi({param:{"name":"X-Request-ID","in":"header","required":true,"schema":{"type":"string"}}})',
+      )
+    })
   })
 })
