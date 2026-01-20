@@ -46,6 +46,30 @@ import {
 } from '../utils/index.js'
 
 /**
+ * Maps OpenAPI component path prefixes to their corresponding suffixes.
+ *
+ * Used by `makeRef()` to determine the appropriate variable name suffix
+ * based on the component type in the $ref path.
+ *
+ * @see {@link https://swagger.io/docs/specification/v3_0/components/|OpenAPI Components}
+ */
+const COMPONENT_SUFFIX_MAP: ReadonlyArray<{ readonly prefix: string; readonly suffix: string }> = [
+  { prefix: '#/components/schemas/', suffix: 'Schema' },
+  { prefix: '#/components/parameters/', suffix: 'ParamsSchema' },
+  { prefix: '#/components/headers/', suffix: 'HeaderSchema' },
+  { prefix: '#/components/securitySchemes/', suffix: 'SecurityScheme' },
+  { prefix: '#/components/requestBodies/', suffix: 'RequestBody' },
+  { prefix: '#/components/responses/', suffix: 'Response' },
+  { prefix: '#/components/examples/', suffix: 'Example' },
+  { prefix: '#/components/links/', suffix: 'Link' },
+  { prefix: '#/components/callbacks/', suffix: 'Callback' },
+]
+
+/** Converts name to PascalCase variable name with suffix (helper-local function) */
+const toVariableName = (name: string, suffix: string): string =>
+  toIdentifierPascalCase(ensureSuffix(name, suffix))
+
+/**
  * Generates a schema reference variable name from an OpenAPI $ref string.
  *
  * Converts OpenAPI $ref paths to their corresponding schema variable names
@@ -72,47 +96,19 @@ import {
 export function makeRef($ref: string): string {
   // Handle nested property references (e.g., #/components/schemas/X/properties/Y)
   // These are self-referential and reference the parent schema with z.lazy()
-  // The OpenAPI $ref is preserved in the .openapi() metadata for runtime accuracy
   const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/)
   if (propertiesMatch) {
-    // Use the same transformation as definition side: ensureSuffix first, then toIdentifierPascalCase
-    const parentSchema = toIdentifierPascalCase(
-      ensureSuffix(decodeURIComponent(propertiesMatch[1]), 'Schema'),
-    )
+    const parentSchema = toVariableName(decodeURIComponent(propertiesMatch[1]), 'Schema')
     return `z.lazy(()=>${parentSchema})`
   }
+
   const rawRef = $ref.split('/').at(-1)
   if (!rawRef) return 'Schema'
   const decodedRef = decodeURIComponent(rawRef)
-  // Use the same transformation as definition side for each component type
-  if ($ref.startsWith('#/components/schemas/')) {
-    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Schema'))
-  }
-  if ($ref.startsWith('#/components/parameters/')) {
-    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'ParamsSchema'))
-  }
-  if ($ref.startsWith('#/components/headers/')) {
-    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'HeaderSchema'))
-  }
-  if ($ref.startsWith('#/components/securitySchemes/')) {
-    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'SecurityScheme'))
-  }
-  if ($ref.startsWith('#/components/requestBodies/')) {
-    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'RequestBody'))
-  }
-  if ($ref.startsWith('#/components/responses/')) {
-    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Response'))
-  }
-  if ($ref.startsWith('#/components/examples/')) {
-    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Example'))
-  }
-  if ($ref.startsWith('#/components/links/')) {
-    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Link'))
-  }
-  if ($ref.startsWith('#/components/callbacks/')) {
-    return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Callback'))
-  }
-  return toIdentifierPascalCase(ensureSuffix(decodedRef, 'Schema'))
+
+  // Find matching component type and apply corresponding suffix
+  const match = COMPONENT_SUFFIX_MAP.find(({ prefix }) => $ref.startsWith(prefix))
+  return toVariableName(decodedRef, match?.suffix ?? 'Schema')
 }
 
 /**

@@ -1,33 +1,6 @@
 import path from 'node:path'
 import { ensureSuffix, renderNamedImport, toIdentifierPascalCase } from '../utils/index.js'
 
-/** Valid JavaScript identifier pattern (e.g., `UserSchema`, `_private`, `$special`) */
-const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
-
-/**
- * Regex patterns for OpenAPI component types.
- *
- * Ordered per OpenAPI 3.0 specification.
- * Each pattern captures identifiers with specific suffixes to determine import sources.
- *
- * @see {@link https://swagger.io/docs/specification/v3_0/components/|OpenAPI Components}
- */
-const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
-  // Note: (?<!Params)(?<!Header) excludes ParamsSchema/HeaderSchema from generic Schema matches
-  { pattern: new RegExp(`\\b(${JS_IDENT}(?<!Params)(?<!Header)Schema)\\b`, 'g'), key: 'schemas' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}ParamsSchema)\\b`, 'g'), key: 'parameters' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}SecurityScheme)\\b`, 'g'), key: 'securitySchemes' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}RequestBody)\\b`, 'g'), key: 'requestBodies' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Response)\\b`, 'g'), key: 'responses' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}HeaderSchema)\\b`, 'g'), key: 'headers' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Example)\\b`, 'g'), key: 'examples' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Link)\\b`, 'g'), key: 'links' },
-  { pattern: new RegExp(`\\b(${JS_IDENT}Callback)\\b`, 'g'), key: 'callbacks' },
-]
-
-/** Pattern to find locally exported constants */
-const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
-
 /**
  * Builds a relative module specifier from `fromFile` to a configured output.
  *
@@ -196,6 +169,29 @@ export function makeImports(
     | undefined,
   split = false,
 ): string {
+  /** Valid JavaScript identifier pattern (e.g., `UserSchema`, `_private`, `$special`) */
+  const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
+
+  /**
+   * Regex patterns for OpenAPI component types.
+   * Ordered per OpenAPI 3.0 specification.
+   * Note: (?<!Params)(?<!Header) excludes ParamsSchema/HeaderSchema from generic Schema matches
+   */
+  const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
+    { pattern: new RegExp(`\\b(${JS_IDENT}(?<!Params)(?<!Header)Schema)\\b`, 'g'), key: 'schemas' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}ParamsSchema)\\b`, 'g'), key: 'parameters' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}SecurityScheme)\\b`, 'g'), key: 'securitySchemes' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}RequestBody)\\b`, 'g'), key: 'requestBodies' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}Response)\\b`, 'g'), key: 'responses' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}HeaderSchema)\\b`, 'g'), key: 'headers' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}Example)\\b`, 'g'), key: 'examples' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}Link)\\b`, 'g'), key: 'links' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}Callback)\\b`, 'g'), key: 'callbacks' },
+  ]
+
+  /** Pattern to find locally exported constants */
+  const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
+
   const fallbackPrefix = split ? '..' : '.'
 
   // Resolve import path for a component type

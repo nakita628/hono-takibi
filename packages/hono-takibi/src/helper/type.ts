@@ -37,7 +37,7 @@ export function makeTypeString(
   if (!schema) return 'unknown'
 
   if (schema.$ref) {
-    return makeRefTypeString(schema.$ref, selfTypeName, cyclicGroup)
+    return makeRefTypeString(schema.$ref, selfTypeName)
   }
 
   if (schema.oneOf && schema.oneOf.length > 0) {
@@ -68,11 +68,7 @@ export function makeTypeString(
   return isNullable ? `(${baseType}|null)` : baseType
 }
 
-function makeRefTypeString(
-  ref: string,
-  selfTypeName: string,
-  _cyclicGroup?: ReadonlySet<string>,
-): string {
+function makeRefTypeString(ref: string, selfTypeName: string): string {
   const propertiesMatch = ref.match(/^#\/components\/schemas\/([^/]+)\/properties\//)
   if (propertiesMatch) {
     const parentName = toIdentifierPascalCase(decodeURIComponent(propertiesMatch[1]))
