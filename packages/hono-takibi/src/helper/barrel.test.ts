@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { makeBarell } from './barell.js'
+import { makeBarrel } from './barrel.js'
 
-describe('barell helper', () => {
-  describe('makeBarell', () => {
+describe('barrel helper', () => {
+  describe('makeBarrel', () => {
     it.concurrent('generates single export statement', () => {
-      const result = makeBarell({ User: {} })
+      const result = makeBarrel({ User: {} })
       expect(result).toBe(`export * from './user'\n`)
     })
 
     it.concurrent('generates multiple export statements sorted alphabetically', () => {
-      const result = makeBarell({ User: {}, Admin: {}, Post: {} })
+      const result = makeBarrel({ User: {}, Admin: {}, Post: {} })
       expect(result).toBe(`export * from './admin'
 export * from './post'
 export * from './user'
@@ -17,17 +17,17 @@ export * from './user'
     })
 
     it.concurrent('handles PascalCase keys with lowerFirst', () => {
-      const result = makeBarell({ UserProfile: {} })
+      const result = makeBarrel({ UserProfile: {} })
       expect(result).toBe(`export * from './userProfile'\n`)
     })
 
     it.concurrent('returns only newline for empty object', () => {
-      const result = makeBarell({})
+      const result = makeBarrel({})
       expect(result).toBe('\n')
     })
 
     it.concurrent('handles single lowercase key', () => {
-      const result = makeBarell({ user: {} })
+      const result = makeBarrel({ user: {} })
       expect(result).toBe(`export * from './user'\n`)
     })
   })

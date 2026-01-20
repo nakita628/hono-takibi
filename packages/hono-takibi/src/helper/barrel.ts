@@ -8,19 +8,19 @@ import { lowerFirst } from '../utils/index.js'
  *
  * @example
  * ```ts
- * makeBarell({ User: {}, Post: {}, Comment: {} })
+ * makeBarrel({ User: {}, Post: {}, Comment: {} })
  * // Returns:
  * // "export * from './comment'\nexport * from './post'\nexport * from './user'\n"
  * ```
  *
  * @example
  * ```ts
- * makeBarell({ Schema: {} })
+ * makeBarrel({ Schema: {} })
  * // Returns:
  * // "export * from './schema'\n"
  * ```
  */
-export function makeBarell(value: { [k: string]: unknown }): string {
+export function makeBarrel(value: { readonly [k: string]: unknown }): string {
   return `${Object.keys(value)
     .sort()
     .map((k) => `export * from './${lowerFirst(k)}'`)

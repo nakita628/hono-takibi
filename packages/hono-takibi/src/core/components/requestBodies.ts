@@ -8,7 +8,7 @@
  */
 import path from 'node:path'
 import { requestBodiesCode } from '../../generator/zod-openapi-hono/openapi/components/request-bodies.js'
-import { core, makeBarell, makeImports } from '../../helper/index.js'
+import { core, makeBarrel, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { lowerFirst, renderNamedImport } from '../../utils/index.js'
 
@@ -73,7 +73,7 @@ export async function requestBodies(
         const filePath = path.join(outDir, `${lowerFirst(bodyName)}.ts`)
         return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
       }),
-      core(makeBarell(requestBodies), outDir, path.join(outDir, 'index.ts')),
+      core(makeBarrel(requestBodies), outDir, path.join(outDir, 'index.ts')),
     ])
 
     const firstError = allResults.find((r) => !r.ok)

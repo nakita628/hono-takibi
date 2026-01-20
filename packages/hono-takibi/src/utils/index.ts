@@ -41,26 +41,6 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Checks if a value is a non-null object (e.g., a potential `$ref` object).
- *
- * @param value - The value to check.
- * @returns `true` if the value is a non-null object.
- *
- * @example
- * ```ts
- * isRefObject({ $ref: '#/components/schemas/User' }) // true
- * isRefObject(null)                                  // false
- * isRefObject('text')                                // false
- * ```
- */
-export function isRefObject(value: unknown): value is {
-  readonly $ref?: string
-  readonly [key: string]: unknown
-} {
-  return typeof value === 'object' && value !== null
-}
-
-/**
  * Checks if a string is a valid HTTP method.
  *
  * @param method - The HTTP method to check.
@@ -203,33 +183,6 @@ export function toIdentifierPascalCase(text: string): string {
 export function renderNamedImport(names: readonly string[], spec: string): string {
   const unique = Array.from(new Set(names))
   return unique.length > 0 ? `import{${unique.join(',')}}from'${spec}'` : ''
-}
-
-/**
- * Finds all schema tokens in the given code.
- *
- * Searches for identifiers ending with "Schema" (e.g., `UserSchema`, `PostSchema`).
- *
- * @param code - The code string to search for schema tokens.
- * @returns An array of unique schema token names found in the code.
- *
- * @example
- * ```ts
- * findSchema('const UserSchema = z.object({})')
- * // → ['UserSchema']
- *
- * findSchema('UserSchema, PostSchema, UserSchema')
- * // → ['UserSchema', 'PostSchema']
- * ```
- */
-export function findSchema(code: string): readonly string[] {
-  return Array.from(
-    new Set(
-      Array.from(code.matchAll(/\b([A-Za-z_$][A-Za-z0-9_$]*Schema)\b/g))
-        .map((m) => m[1] ?? '')
-        .filter(Boolean),
-    ),
-  )
 }
 
 /**

@@ -12,7 +12,7 @@ import {
   analyzeCircularSchemas,
   ast,
   core,
-  makeBarell,
+  makeBarrel,
   makeSplitSchemaFile,
 } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
@@ -82,7 +82,7 @@ export async function schemas(
         const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
         return core(fileCode, path.dirname(filePath), filePath)
       }),
-      core(makeBarell(schemas), path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`),
+      core(makeBarrel(schemas), path.dirname(`${outDir}/index.ts`), `${outDir}/index.ts`),
     ])
 
     const firstError = allResults.find((r) => !r.ok)

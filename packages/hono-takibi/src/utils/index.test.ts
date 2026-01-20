@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   ensureSuffix,
-  findSchema,
   getToSafeIdentifier,
   isHttpMethod,
   isRecord,
-  isRefObject,
   lowerFirst,
   methodPath,
   normalizeTypes,
@@ -50,19 +48,6 @@ describe('utils', () => {
       [true, false],
     ])('isRecord(%j) -> %s', (input, expected) => {
       expect(isRecord(input)).toBe(expected)
-    })
-  })
-  // isRefObject
-  describe('isRefObject Test', () => {
-    it.concurrent.each([
-      [{ type: 'object' }, true],
-      [{ $ref: '#/components/schemas/Test' }, true],
-      ['string', false],
-      [1, false],
-      [true, false],
-      [false, false],
-    ])(`isRefObject('%s') -> %s`, (input, expected) => {
-      expect(isRefObject(input)).toBe(expected)
     })
   })
   // isHttpMethod
@@ -191,23 +176,6 @@ describe('utils', () => {
       ['123startWithNumber', '_123startWithNumber'],
     ])(`toIdentifierPascalCase('%s') -> '%s'`, (input, expected) => {
       expect(toIdentifierPascalCase(input)).toBe(expected)
-    })
-  })
-  // findSchema
-  describe('findSchema', () => {
-    it.concurrent('findSchema ErrorSchema', () => {
-      const result = findSchema(
-        'export const BadRequestResponse = {description:"Bad Request",content:{"application/json":{schema:ErrorSchema,examples:{"badRequestExample":BadRequestExample}}}}',
-      )
-      expect(result).toStrictEqual(['ErrorSchema'])
-    })
-
-    it.concurrent('findSchema LimitSchema', () => {
-      const result =
-        findSchema(`export const LimitSchema = z.int32().min(1).max(100).default(20).openapi({param:{in:"query",name:"limit",required:false}})
-
-export type Limit = z.infer<typeof LimitSchema>`)
-      expect(result).toStrictEqual(['LimitSchema'])
     })
   })
   // lowerFirst

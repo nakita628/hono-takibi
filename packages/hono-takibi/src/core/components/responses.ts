@@ -8,7 +8,7 @@
  */
 import path from 'node:path'
 import { responsesCode } from '../../generator/zod-openapi-hono/openapi/components/responses.js'
-import { core, makeBarell, makeImports } from '../../helper/index.js'
+import { core, makeBarrel, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { lowerFirst, renderNamedImport } from '../../utils/index.js'
 
@@ -73,7 +73,7 @@ export async function responses(
         const filePath = path.join(outDir, `${lowerFirst(responseName)}.ts`)
         return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
       }),
-      core(makeBarell(responses), outDir, path.join(outDir, 'index.ts')),
+      core(makeBarrel(responses), outDir, path.join(outDir, 'index.ts')),
     ])
 
     const firstError = allResults.find((r) => !r.ok)
