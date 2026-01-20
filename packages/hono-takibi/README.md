@@ -93,6 +93,7 @@ export const getRoute = createRoute({
 
 ```bash
 Options:
+  --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --export-schemas-types      export schemas types
   --export-schemas            export schemas
   --export-parameters-types   export parameters types
@@ -133,6 +134,7 @@ export default defineConfig({
   input: 'openapi.yaml',
   'zod-openapi': {
     output: './src/index.ts',
+    readonly: true,
     exportSchemas: true,
     exportSchemasTypes: true,
     exportParameters: true,

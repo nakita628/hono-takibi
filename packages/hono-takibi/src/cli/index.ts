@@ -42,7 +42,7 @@ import { parseOpenAPI } from '../openapi/index.js'
 const HELP_TEXT = `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --readonly                  add .readonly() to all schemas
+  --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --export-schemas-types      export schemas types
   --export-schemas            export schemas
   --export-parameters-types   export parameters types
