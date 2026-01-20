@@ -29,7 +29,7 @@ import type {
   Responses,
   Schema,
 } from '../../openapi/index.js'
-import { isHttpMethod } from '../../utils/index.js'
+import { isHttpMethod, makeSafeKey } from '../../utils/index.js'
 
 // ============================================================================
 // Type Guards
@@ -591,12 +591,4 @@ function makeObjectTypeString(
     return requiredSet.has(key) ? `${safeKey}:${propType}` : `${safeKey}?:${propType}|undefined`
   })
   return `{${propertyStrings.join(';')}}`
-}
-
-// ============================================================================
-// Utility
-// ============================================================================
-
-function makeSafeKey(key: string): string {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
 }
