@@ -17,7 +17,7 @@
  */
 import path from 'node:path'
 import { routeCode } from '../../generator/zod-openapi-hono/openapi/routes/index.js'
-import { core, makeBarell, makeImports } from '../../helper/index.js'
+import { core, makeBarrel, makeImports } from '../../helper/index.js'
 import type { OpenAPI } from '../../openapi/index.js'
 import { lowerFirst } from '../../utils/index.js'
 
@@ -47,6 +47,7 @@ import { lowerFirst } from '../../utils/index.js'
  * @param openAPI - Parsed OpenAPI specification
  * @param routes - Route output configuration
  * @param components - Component import configuration
+ * @param readonly - Whether to add `as const` assertion to route definitions
  * @returns Promise resolving to success message or error
  *
  * @example
@@ -72,13 +73,14 @@ export async function route(
       readonly import?: string
     }
   },
+  readonly?: boolean | undefined,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   if (!routes?.output) return { ok: false, error: 'routes.output is required' }
 
   const { output, split = false } = routes
-  const routesSrc = routeCode(openAPI)
+  const routesSrc = routeCode(openAPI, readonly)
 
   // Write a single route file
   const writeFile = async (filePath: string, src: string) => {
@@ -117,7 +119,7 @@ export async function route(
   const allResults = await Promise.all([
     ...blocks.map(({ name, block }) => writeFile(`${outDir}/${lowerFirst(name)}.ts`, block)),
     core(
-      makeBarell(Object.fromEntries(blocks.map((b) => [b.name, null]))),
+      makeBarrel(Object.fromEntries(blocks.map((b) => [b.name, null]))),
       outDir,
       `${outDir}/index.ts`,
     ),

@@ -223,6 +223,55 @@ describe('parseConfig()', () => {
     })
   })
 
+  describe('readonly option', () => {
+    it.concurrent('accepts readonly: true', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          readonly: true,
+          components: {
+            schemas: { output: 'schemas/index.ts' },
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.readonly).toBe(true)
+      }
+    })
+
+    it.concurrent('accepts readonly: false', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          readonly: false,
+          components: {
+            schemas: { output: 'schemas/index.ts' },
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.readonly).toBe(false)
+      }
+    })
+
+    it.concurrent('accepts undefined readonly (optional)', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        'zod-openapi': {
+          components: {
+            schemas: { output: 'schemas/index.ts' },
+          },
+        },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value['zod-openapi']?.readonly).toBeUndefined()
+      }
+    })
+  })
+
   describe('validation errors', () => {
     it.concurrent('fails when split is true but output ends with .ts', () => {
       const result = parseConfig({

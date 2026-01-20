@@ -99,6 +99,34 @@ describe('makeSchemaCode', () => {
       "const UserSchema=z.object({name:z.string().exactOptional()}).openapi('User')",
     )
   })
+
+  it.concurrent('should generate schema code with readonly modifier', () => {
+    const analysis = analyzeCircularSchemas(schemas, ['User'])
+    const info = makeSchemaInfo('User', schemas.User, analysis)
+    const code = makeSchemaCode(info, {
+      exportKeyword: 'export ',
+      exportType: false,
+      readonly: true,
+    })
+
+    expect(code).toBe(
+      "export const UserSchema=z.object({name:z.string().exactOptional()}).readonly().openapi('User')",
+    )
+  })
+
+  it.concurrent('should generate schema code with readonly and type export', () => {
+    const analysis = analyzeCircularSchemas(schemas, ['User'])
+    const info = makeSchemaInfo('User', schemas.User, analysis)
+    const code = makeSchemaCode(info, {
+      exportKeyword: 'export ',
+      exportType: true,
+      readonly: true,
+    })
+
+    expect(code).toBe(
+      "export const UserSchema=z.object({name:z.string().exactOptional()}).readonly().openapi('User')\n\nexport type User=z.infer<typeof UserSchema>",
+    )
+  })
 })
 
 describe('makeSplitSchemaFile', () => {
@@ -217,6 +245,16 @@ describe('makeSplitSchemaFile', () => {
 
       expect(result).toBe(
         "import{z}from'@hono/zod-openapi'\nimport{UserSchema}from'./user'\n\n\nexport const ProfileSchema=z.object({user:UserSchema.exactOptional()}).openapi('Profile')\n\nexport type Profile=z.infer<typeof ProfileSchema>",
+      )
+    })
+
+    it.concurrent('should generate schema with readonly modifier', () => {
+      const schemaNames = Object.keys(schemas)
+      const analysis = analyzeCircularSchemas(schemas, schemaNames)
+      const result = makeSplitSchemaFile('Profile', schemas.Profile, schemas, analysis, true, true)
+
+      expect(result).toBe(
+        "import{z}from'@hono/zod-openapi'\nimport{UserSchema}from'./user'\n\n\nexport const ProfileSchema=z.object({user:UserSchema.exactOptional()}).readonly().openapi('Profile')\n\nexport type Profile=z.infer<typeof ProfileSchema>",
       )
     })
   })

@@ -12,14 +12,29 @@ import { methodPath } from '../../../../utils/index.js'
  * @param path - The route path (e.g., `/users/{id}`).
  * @param method - The HTTP method (e.g., `get`, `post`).
  * @param operation - The OpenAPI Operation object.
+ * @param readonly - Whether to add `as const` to the route definition.
  * @returns A TypeScript code string defining the route via `createRoute`.
  *
  * @remarks
  * - Combines tags, method, path, operationId, summary, description, security, request, and response.
  * - Escapes all string literals.
  * - Produces a complete `.openapi()` route definition with validation.
+ *
+ * @example
+ * ```ts
+ * createRoute('/users', 'get', operation, false)
+ * // → 'export const getUsersRoute = createRoute({...})'
+ *
+ * createRoute('/users', 'get', operation, true)
+ * // → 'export const getUsersRoute = createRoute({...} as const)'
+ * ```
  */
-export function createRoute(path: string, method: string, operation: Operation): string {
+export function createRoute(
+  path: string,
+  method: string,
+  operation: Operation,
+  readonly?: boolean,
+): string {
   const properties = [
     `method:'${method}'`,
     `path:'${path}'`,
@@ -40,5 +55,6 @@ export function createRoute(path: string, method: string, operation: Operation):
     .filter((v) => v !== undefined)
     .join(',')
 
-  return `export const ${methodPath(method, path)}Route=createRoute({${properties}})`
+  const asConst = readonly ? ' as const' : ''
+  return `export const ${methodPath(method, path)}Route=createRoute({${properties}}${asConst})`
 }

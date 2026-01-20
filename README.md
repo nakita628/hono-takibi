@@ -105,6 +105,7 @@ Options:
   --export-examples           export examples
   --export-links              export links
   --export-callbacks          export callbacks
+  --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate empty *.test.ts files
   --base-path <path>          api prefix (default: /)
@@ -133,6 +134,7 @@ export default defineConfig({
   input: 'openapi.yaml',
   'zod-openapi': {
     output: './src/index.ts',
+    readonly: true,
     exportSchemas: true,
     exportSchemasTypes: true,
     exportParameters: true,

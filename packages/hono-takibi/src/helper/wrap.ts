@@ -145,7 +145,7 @@ export function wrap(
     return JSON.stringify(v)
   }
 
-  /* why schema.default !== undefined becasue schema.default === 0  // → falsy */
+  /* why schema.default !== undefined: because schema.default === 0 is falsy */
   const s = schema.default !== undefined ? `${zod}.default(${formatLiteral(schema.default)})` : zod
 
   const isNullable =

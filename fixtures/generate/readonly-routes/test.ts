@@ -1,0 +1,61 @@
+import { createRoute, z } from '@hono/zod-openapi'
+
+export const getHonoRoute = createRoute({
+  method: 'get',
+  path: '/hono',
+  tags: ['Hono'],
+  summary: 'Hono',
+  description: 'Hono',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: z
+            .object({ message: z.string().openapi({ example: 'Hono🔥' }) })
+            .openapi({ required: ['message'] }),
+        },
+      },
+    },
+  },
+} as const)
+
+export const getHonoXRoute = createRoute({
+  method: 'get',
+  path: '/hono-x',
+  tags: ['HonoX'],
+  summary: 'HonoX',
+  description: 'HonoX',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: z
+            .object({ message: z.string().openapi({ example: 'HonoX🔥' }) })
+            .openapi({ required: ['message'] }),
+        },
+      },
+    },
+  },
+} as const)
+
+export const getZodOpenapiHonoRoute = createRoute({
+  method: 'get',
+  path: '/zod-openapi-hono',
+  tags: ['ZodOpenAPIHono'],
+  summary: 'ZodOpenAPIHono',
+  description: 'ZodOpenAPIHono',
+  responses: {
+    200: {
+      description: 'OK',
+      content: {
+        'application/json': {
+          schema: z
+            .object({ message: z.string().openapi({ example: 'ZodOpenAPIHono🔥' }) })
+            .openapi({ required: ['message'] }),
+        },
+      },
+    },
+  },
+} as const)

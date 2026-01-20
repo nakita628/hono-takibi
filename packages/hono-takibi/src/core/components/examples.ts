@@ -27,6 +27,7 @@ const hasRef = (val: unknown): val is { readonly $ref: string } =>
  * @param examples - OpenAPI examples object
  * @param output - Output file path or directory
  * @param split - Whether to split into multiple files
+ * @param readonly - Whether to add `as const` assertion to the output.
  * @returns Promise resolving to success message or error
  *
  * @example
@@ -51,6 +52,7 @@ export async function examples(
   examples: Components['examples'],
   output: string,
   split: boolean,
+  readonly?: boolean | undefined,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -58,6 +60,8 @@ export async function examples(
 
   const keys = Object.keys(examples)
   if (keys.length === 0) return { ok: true, value: 'No examples found' }
+
+  const asConst = readonly ? ' as const' : ''
 
   if (split) {
     const outDir = output.replace(/\.ts$/, '')
@@ -84,7 +88,7 @@ export async function examples(
         }
 
         // Inline value: generate JSON export
-        const body = `export const ${name} = ${JSON.stringify(v)}\n`
+        const body = `export const ${name} = ${JSON.stringify(v)}${asConst}\n`
         return core(body, path.dirname(filePath), filePath)
       }),
       core(indexCode, path.dirname(path.join(outDir, 'index.ts')), path.join(outDir, 'index.ts')),
@@ -99,7 +103,7 @@ export async function examples(
     }
   }
 
-  const code = makeExportConst(examples, 'Example')
+  const code = makeExportConst(examples, 'Example', readonly)
   const coreResult = await core(code, path.dirname(output), output)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
   return { ok: true, value: `Generated examples code written to ${output}` }

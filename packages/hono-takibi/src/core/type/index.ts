@@ -29,7 +29,7 @@ import type {
   Responses,
   Schema,
 } from '../../openapi/index.js'
-import { isHttpMethod } from '../../utils/index.js'
+import { isHttpMethod, makeSafeKey } from '../../utils/index.js'
 
 // ============================================================================
 // Type Guards
@@ -78,17 +78,31 @@ function isParameterArray(params: unknown): params is readonly Parameter[] | rea
 // ============================================================================
 
 /**
+ * DeepReadonly utility type that recursively makes all properties readonly.
+ */
+const DEEP_READONLY_TYPE =
+  'type DeepReadonly<T>=T extends(infer R)[]?readonly DeepReadonly<R>[]:T extends object?{readonly[K in keyof T]:DeepReadonly<T[K]>}:T;'
+
+/**
  * Generates TypeScript type declarations from OpenAPI specification.
+ *
+ * @param openAPI - OpenAPI specification object
+ * @param output - Output file path (must end with .ts)
+ * @param readonly - If true, wraps the schema type with DeepReadonly for immutable types
+ * @returns Result with success message or error
  */
 export async function type(
   openAPI: OpenAPI,
   output: `${string}.ts`,
+  readonly?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   try {
     const schemaType = makeHonoSchemaType(openAPI)
-    const dts = `declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${schemaType},'/'>\nexport default routes\n`
+    const wrappedType = readonly ? `DeepReadonly<${schemaType}>` : schemaType
+    const typeDecl = readonly ? DEEP_READONLY_TYPE : ''
+    const dts = `${typeDecl}declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${wrappedType},'/'>\nexport default routes\n`
     const coreResult = await core(dts, path.dirname(output), output)
     return coreResult.ok
       ? { ok: true, value: `Generated type code written to ${output}` }
@@ -577,12 +591,4 @@ function makeObjectTypeString(
     return requiredSet.has(key) ? `${safeKey}:${propType}` : `${safeKey}?:${propType}|undefined`
   })
   return `{${propertyStrings.join(';')}}`
-}
-
-// ============================================================================
-// Utility
-// ============================================================================
-
-function makeSafeKey(key: string): string {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
 }

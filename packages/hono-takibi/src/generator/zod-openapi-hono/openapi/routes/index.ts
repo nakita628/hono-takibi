@@ -5,9 +5,19 @@ import { createRoute } from './create-route.js'
  * Generates TypeScript code for all valid Hono routes from OpenAPI paths.
  *
  * @param openapi - OpenAPI specification object
+ * @param readonly - Whether to add `as const` to route definitions
  * @returns Generated route code as string
+ *
+ * @example
+ * ```ts
+ * routeCode(openapi, false)
+ * // → 'export const getUsersRoute = createRoute({...})'
+ *
+ * routeCode(openapi, true)
+ * // → 'export const getUsersRoute = createRoute({...} as const)'
+ * ```
  */
-export function routeCode(openapi: OpenAPI): string {
+export function routeCode(openapi: OpenAPI, readonly?: boolean): string {
   const isParameterRef = (r: string): r is `#/components/parameters/${string}` =>
     r.startsWith('#/components/parameters/')
   const resolve = (p: Parameter | { readonly $ref?: string }): Parameter | undefined => {
@@ -34,6 +44,7 @@ export function routeCode(openapi: OpenAPI): string {
                 path,
                 method,
                 params.length > 0 ? { ...operation, parameters: params } : operation,
+                readonly,
               )
             })
         : [],

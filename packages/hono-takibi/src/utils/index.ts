@@ -41,26 +41,6 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Checks if a value is a non-null object (e.g., a potential `$ref` object).
- *
- * @param value - The value to check.
- * @returns `true` if the value is a non-null object.
- *
- * @example
- * ```ts
- * isRefObject({ $ref: '#/components/schemas/User' }) // true
- * isRefObject(null)                                  // false
- * isRefObject('text')                                // false
- * ```
- */
-export function isRefObject(value: unknown): value is {
-  readonly $ref?: string
-  readonly [key: string]: unknown
-} {
-  return typeof value === 'object' && value !== null
-}
-
-/**
  * Checks if a string is a valid HTTP method.
  *
  * @param method - The HTTP method to check.
@@ -153,6 +133,27 @@ export function getToSafeIdentifier(text: string): string {
 }
 
 /**
+ * Converts a string to a safe TypeScript object key with single quotes.
+ *
+ * Similar to `getToSafeIdentifier`, but uses single quotes instead of
+ * double quotes for invalid identifiers.
+ *
+ * @param key - The string to convert to a safe key.
+ * @returns A safe key string with single quotes if needed.
+ *
+ * @example
+ * ```ts
+ * makeSafeKey('user')        // → 'user'
+ * makeSafeKey('_id')         // → '_id'
+ * makeSafeKey('123key')      // → "'123key'"
+ * makeSafeKey('hello world') // → "'hello world'"
+ * ```
+ */
+export function makeSafeKey(key: string): string {
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
+}
+
+/**
  * Converts a string to a valid PascalCase TypeScript identifier.
  *
  * Handles special characters, numbers at the start, and non-ASCII characters
@@ -206,33 +207,6 @@ export function renderNamedImport(names: readonly string[], spec: string): strin
 }
 
 /**
- * Finds all schema tokens in the given code.
- *
- * Searches for identifiers ending with "Schema" (e.g., `UserSchema`, `PostSchema`).
- *
- * @param code - The code string to search for schema tokens.
- * @returns An array of unique schema token names found in the code.
- *
- * @example
- * ```ts
- * findSchema('const UserSchema = z.object({})')
- * // → ['UserSchema']
- *
- * findSchema('UserSchema, PostSchema, UserSchema')
- * // → ['UserSchema', 'PostSchema']
- * ```
- */
-export function findSchema(code: string): readonly string[] {
-  return Array.from(
-    new Set(
-      Array.from(code.matchAll(/\b([A-Za-z_$][A-Za-z0-9_$]*Schema)\b/g))
-        .map((m) => m[1] ?? '')
-        .filter(Boolean),
-    ),
-  )
-}
-
-/**
  * Converts the first character of a string to lowercase.
  *
  * @param text - The string to convert.
@@ -274,11 +248,17 @@ export function ensureSuffix(text: string, suffix: string): string {
  * @param zodSchema - The Zod schema string to assign
  * @param exportSchema - Whether to `export` the Zod schema constant
  * @param exportType - Whether to `export` the inferred type alias
+ * @param notComponentSchema - Whether to skip `.openapi()` suffix (for parameters/headers)
+ * @param readonly - Whether to add `.readonly()` modifier to the schema
  * @returns The generated code string containing the schema and optional type alias
  *
  * @example
  * zodToOpenAPISchema('User', 'z.object({name: z.string()})', true, true)
  * // → 'export const UserSchema = z.object({name: z.string()}).openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
+ *
+ * @example
+ * zodToOpenAPISchema('User', 'z.object({name: z.string()})', true, true, false, true)
+ * // → 'export const UserSchema = z.object({name: z.string()}).readonly().openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
  */
 export function zodToOpenAPISchema(
   schemaName: string,
@@ -286,15 +266,17 @@ export function zodToOpenAPISchema(
   exportSchema: boolean,
   exportType: boolean,
   notComponentSchema?: boolean,
+  readonly?: boolean | undefined,
 ): string {
+  const readonlyModifier = readonly ? '.readonly()' : ''
   const schemaCode = exportSchema
-    ? `export const ${schemaName}=${zodSchema}`
-    : `const ${schemaName}=${zodSchema}`
+    ? `export const ${schemaName}=${zodSchema}${readonlyModifier}`
+    : `const ${schemaName}=${zodSchema}${readonlyModifier}`
 
   // schema code
   const componentSchemaCode = exportSchema
-    ? `export const ${schemaName}=${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
-    : `const ${schemaName}=${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
+    ? `export const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${schemaName.replace('Schema', '')}')`
+    : `const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${schemaName.replace('Schema', '')}')`
   // zod infer code
   const zodInferCode = exportType
     ? `\n\nexport type ${schemaName.replace('Schema', '')}=z.infer<typeof ${schemaName}>`

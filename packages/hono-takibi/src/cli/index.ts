@@ -54,6 +54,7 @@ Options:
   --export-examples           export examples
   --export-links              export links
   --export-callbacks          export callbacks
+  --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate empty *.test.ts files
   --base-path <path>          api prefix (default: /)
@@ -127,6 +128,7 @@ function parseCli(args: readonly string[]):
         readonly test: boolean
         readonly basePath: string
         readonly componentsOptions: {
+          readonly readonly: boolean
           readonly exportSchemas: boolean
           readonly exportSchemasTypes: boolean
           readonly exportParameters: boolean
@@ -175,6 +177,7 @@ function parseCli(args: readonly string[]):
       test: args.includes('--test'),
       basePath: getFlagValue(args, '--base-path') ?? '/', // default: /
       componentsOptions: {
+        readonly: args.includes('--readonly'),
         exportSchemas: args.includes('--export-schemas'),
         exportSchemasTypes: args.includes('--export-schemas-types'),
         exportParameters: args.includes('--export-parameters'),
@@ -240,6 +243,7 @@ export async function honoTakibi(): Promise<
   ] = await Promise.all([
     config['zod-openapi']?.output
       ? takibi(openAPI, config['zod-openapi'].output, false, false, '/', {
+          readonly: config['zod-openapi'].readonly,
           exportSchemasTypes: config['zod-openapi'].exportSchemasTypes ?? false,
           exportSchemas: config['zod-openapi'].exportSchemas ?? false,
           exportParametersTypes: config['zod-openapi'].exportParametersTypes ?? false,
@@ -260,6 +264,7 @@ export async function honoTakibi(): Promise<
           config['zod-openapi']?.components?.schemas?.output,
           config['zod-openapi']?.components?.schemas?.split ?? false,
           config['zod-openapi']?.components?.schemas?.exportTypes ?? false,
+          config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.parameters
@@ -269,6 +274,7 @@ export async function honoTakibi(): Promise<
           config['zod-openapi']?.components?.parameters?.split ?? false,
           config['zod-openapi']?.components?.parameters?.exportTypes ?? false,
           config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.headers
@@ -278,6 +284,7 @@ export async function honoTakibi(): Promise<
           config['zod-openapi']?.components?.headers?.split ?? false,
           config['zod-openapi']?.components?.headers?.exportTypes ?? false,
           config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.examples
@@ -285,6 +292,7 @@ export async function honoTakibi(): Promise<
           openAPI.components?.examples,
           config['zod-openapi']?.components?.examples?.output,
           config['zod-openapi']?.components?.examples?.split ?? false,
+          config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.links
@@ -292,6 +300,7 @@ export async function honoTakibi(): Promise<
           openAPI.components?.links,
           config['zod-openapi']?.components?.links?.output,
           config['zod-openapi']?.components?.links?.split ?? false,
+          config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.callbacks
@@ -299,6 +308,7 @@ export async function honoTakibi(): Promise<
           openAPI.components?.callbacks,
           config['zod-openapi']?.components?.callbacks?.output,
           config['zod-openapi']?.components?.callbacks?.split ?? false,
+          config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.securitySchemes
@@ -306,6 +316,7 @@ export async function honoTakibi(): Promise<
           openAPI.components?.securitySchemes,
           config['zod-openapi']?.components?.securitySchemes?.output,
           config['zod-openapi']?.components?.securitySchemes?.split ?? false,
+          config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.requestBodies
@@ -314,6 +325,7 @@ export async function honoTakibi(): Promise<
           config['zod-openapi']?.components?.requestBodies?.output,
           config['zod-openapi']?.components?.requestBodies?.split ?? false,
           config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.components?.responses
@@ -322,12 +334,20 @@ export async function honoTakibi(): Promise<
           config['zod-openapi']?.components?.responses?.output,
           config['zod-openapi']?.components?.responses?.split ?? false,
           config['zod-openapi']?.components,
+          config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
     config['zod-openapi']?.routes
-      ? route(openAPI, config['zod-openapi'].routes, config['zod-openapi'].components)
+      ? route(
+          openAPI,
+          config['zod-openapi'].routes,
+          config['zod-openapi'].components,
+          config['zod-openapi']?.readonly,
+        )
       : Promise.resolve(undefined),
-    config.type ? type(openAPI, config.type.output) : Promise.resolve(undefined),
+    config.type
+      ? type(openAPI, config.type.output, config.type.readonly)
+      : Promise.resolve(undefined),
     config.rpc
       ? rpc(openAPI, config.rpc.output, config.rpc.import, config.rpc.split ?? false)
       : Promise.resolve(undefined),

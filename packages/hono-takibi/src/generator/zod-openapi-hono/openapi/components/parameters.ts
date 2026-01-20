@@ -20,14 +20,16 @@ const getSchemaFromContent = (content: Content | undefined): Schema | undefined 
  * Generates TypeScript code for OpenAPI component parameters.
  *
  * @param components - The OpenAPI components object.
- * @param exportSchema - Whether to export the Zod schema variables.
- * @param exportType - Whether to export the inferred Zod types.
+ * @param exportParameters - Whether to export the Zod schema variables.
+ * @param exportParametersTypes - Whether to export the inferred Zod types.
+ * @param readonly - Whether to add `.readonly()` modifier to parameter schemas.
  * @returns A string of TypeScript code with parameter definitions.
  */
 export function parametersCode(
   components: Components,
   exportParameters: boolean,
   exportParametersTypes: boolean,
+  readonly?: boolean | undefined,
 ): string {
   const { parameters } = components
   if (!parameters) return ''
@@ -49,6 +51,7 @@ export function parametersCode(
         exportParameters,
         exportParametersTypes,
         true,
+        readonly,
       )
     })
     .join('\n\n')

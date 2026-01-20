@@ -17,6 +17,7 @@ import type { Components } from '../../openapi/index.js'
  * @param callbacks - OpenAPI callbacks object
  * @param output - Output file path or directory
  * @param split - Whether to split into multiple files
+ * @param readonly - Whether to add `as const` assertion to the output.
  * @returns Promise resolving to success message or error
  *
  * @example
@@ -41,6 +42,7 @@ export async function callbacks(
   callbacks: Components['callbacks'],
   output: string,
   split: boolean,
+  readonly?: boolean | undefined,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -50,12 +52,12 @@ export async function callbacks(
   if (keys.length === 0) return { ok: true, value: 'No callbacks found' }
 
   if (split) {
-    const exportsResult = await makeExports(callbacks, 'Callback', output)
+    const exportsResult = await makeExports(callbacks, 'Callback', output, readonly)
     if (!exportsResult.ok) return { ok: false, error: exportsResult.error }
     return { ok: true, value: exportsResult.value }
   }
 
-  const code = makeExportConst(callbacks, 'Callback')
+  const code = makeExportConst(callbacks, 'Callback', readonly)
   const coreResult = await core(code, path.dirname(output), output)
   if (!coreResult.ok) return { ok: false, error: coreResult.error }
   return { ok: true, value: `Generated callbacks code written to ${output}` }

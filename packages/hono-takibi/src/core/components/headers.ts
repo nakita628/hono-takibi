@@ -8,7 +8,7 @@
  */
 import path from 'node:path'
 import { headersCode } from '../../generator/zod-openapi-hono/openapi/components/headers.js'
-import { core, makeBarell, makeImports } from '../../helper/index.js'
+import { core, makeBarrel, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { lowerFirst, renderNamedImport } from '../../utils/index.js'
 
@@ -19,7 +19,8 @@ import { lowerFirst, renderNamedImport } from '../../utils/index.js'
  * @param output - Output file path or directory
  * @param split - Whether to split into multiple files
  * @param exportType - Whether to export TypeScript types
- * @param imports - Schema import configuration for references
+ * @param components - Schema import configuration for references
+ * @param readonly - Whether to add `.readonly()` to Zod schemas
  * @returns Promise resolving to success message or error
  *
  * @example
@@ -54,6 +55,7 @@ export async function headers(
       readonly import?: string
     }
   },
+  readonly?: boolean | undefined,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -71,11 +73,11 @@ export async function headers(
     const allResults = await Promise.all([
       ...headerNames.map((headerName) => {
         const singleComponent = { headers: { [headerName]: headers[headerName] } }
-        const code = headersCode(singleComponent, true, exportType)
+        const code = headersCode(singleComponent, true, exportType, readonly)
         const filePath = path.join(outDir, `${lowerFirst(headerName)}.ts`)
         return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
       }),
-      core(makeBarell(headers), outDir, path.join(outDir, 'index.ts')),
+      core(makeBarrel(headers), outDir, path.join(outDir, 'index.ts')),
     ])
 
     const firstError = allResults.find((r) => !r.ok)
@@ -88,7 +90,7 @@ export async function headers(
   }
 
   const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
-  const headerDefinitions = headersCode({ headers }, true, exportType)
+  const headerDefinitions = headersCode({ headers }, true, exportType, readonly)
   const headerDefinitionsCode = `${importCode}\n\n${headerDefinitions}`
   const coreResult = await core(
     toFileCode(headerDefinitionsCode, output),

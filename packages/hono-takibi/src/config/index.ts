@@ -7,6 +7,7 @@ type Config = {
   readonly input: `${string}.yaml` | `${string}.json` | `${string}.tsp`
   readonly 'zod-openapi'?: {
     readonly output?: `${string}.ts`
+    readonly readonly?: boolean
     readonly exportSchemas?: boolean
     readonly exportSchemasTypes?: boolean
     readonly exportParameters?: boolean
@@ -84,6 +85,7 @@ type Config = {
     }
   }
   readonly type?: {
+    readonly readonly?: boolean
     readonly output: `${string}.ts`
   }
   readonly rpc?: {
@@ -184,6 +186,16 @@ export function parseConfig(
 
   // zod-openapi
   if (config['zod-openapi'] !== undefined) {
+    if (
+      config['zod-openapi'].readonly !== undefined &&
+      typeof config['zod-openapi'].readonly !== 'boolean'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid readonly format for zod-openapi: ${String(config['zod-openapi'].readonly)}`,
+      }
+    }
+
     if (
       config['zod-openapi'].exportSchemasTypes !== undefined &&
       typeof config['zod-openapi'].exportSchemasTypes !== 'boolean'

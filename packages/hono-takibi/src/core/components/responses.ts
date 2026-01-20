@@ -8,7 +8,7 @@
  */
 import path from 'node:path'
 import { responsesCode } from '../../generator/zod-openapi-hono/openapi/components/responses.js'
-import { core, makeBarell, makeImports } from '../../helper/index.js'
+import { core, makeBarrel, makeImports } from '../../helper/index.js'
 import type { Components } from '../../openapi/index.js'
 import { lowerFirst, renderNamedImport } from '../../utils/index.js'
 
@@ -18,7 +18,8 @@ import { lowerFirst, renderNamedImport } from '../../utils/index.js'
  * @param responses - OpenAPI responses object
  * @param output - Output file path or directory
  * @param split - Whether to split into multiple files
- * @param imports - Schema import configuration for references
+ * @param components - Schema import configuration for references
+ * @param readonly - Whether to add `as const` assertion to the output.
  * @returns Promise resolving to success message or error
  *
  * @example
@@ -50,6 +51,7 @@ export async function responses(
       readonly import?: string
     }
   },
+  readonly?: boolean | undefined,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -67,11 +69,11 @@ export async function responses(
     const allResults = await Promise.all([
       ...responseNames.map((responseName) => {
         const singleComponent = { responses: { [responseName]: responses[responseName] } }
-        const code = responsesCode(singleComponent, true)
+        const code = responsesCode(singleComponent, true, readonly)
         const filePath = path.join(outDir, `${lowerFirst(responseName)}.ts`)
         return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
       }),
-      core(makeBarell(responses), outDir, path.join(outDir, 'index.ts')),
+      core(makeBarrel(responses), outDir, path.join(outDir, 'index.ts')),
     ])
 
     const firstError = allResults.find((r) => !r.ok)
@@ -84,7 +86,7 @@ export async function responses(
   }
 
   const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
-  const responseDefinitions = responsesCode({ responses }, true)
+  const responseDefinitions = responsesCode({ responses }, true, readonly)
   const responseDefinitionsCode = `${importCode}\n\n${responseDefinitions}`
   const coreResult = await core(
     toFileCode(responseDefinitionsCode, output),

@@ -16,6 +16,7 @@ import { zodToOpenAPI } from '../../../zod-to-openapi/index.js'
  * @param components - The OpenAPI components object.
  * @param exportHeaders - Whether to export the Zod schema constants.
  * @param exportHeadersTypes - Whether to export the inferred Zod types.
+ * @param readonly - Whether to add `.readonly()` modifier to header schemas.
  * @returns A string of TypeScript code with header definitions.
  *
  * @example
@@ -28,6 +29,7 @@ export function headersCode(
   components: Components,
   exportHeaders: boolean,
   exportHeadersTypes: boolean,
+  readonly?: boolean | undefined,
 ) {
   const { headers } = components
   if (!headers) return ''
@@ -41,12 +43,26 @@ export function headersCode(
 
       if ('$ref' in header) {
         const refName = makeRef(header.$ref)
-        return zodToOpenAPISchema(schemaName, refName, exportHeaders, exportHeadersTypes, true)
+        return zodToOpenAPISchema(
+          schemaName,
+          refName,
+          exportHeaders,
+          exportHeadersTypes,
+          true,
+          readonly,
+        )
       }
       if (isHeader(header)) {
         if (header.schema) {
           const schema = zodToOpenAPI(header.schema, { headers: header })
-          return zodToOpenAPISchema(schemaName, schema, exportHeaders, exportHeadersTypes, true)
+          return zodToOpenAPISchema(
+            schemaName,
+            schema,
+            exportHeaders,
+            exportHeadersTypes,
+            true,
+            readonly,
+          )
         }
         if (header.content) {
           const content = makeContent(header.content)
@@ -56,6 +72,7 @@ export function headersCode(
             exportHeaders,
             exportHeadersTypes,
             true,
+            readonly,
           )
         }
       }

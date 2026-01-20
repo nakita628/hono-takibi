@@ -3,26 +3,54 @@ import { ensureSuffix, renderNamedImport, toIdentifierPascalCase } from '../util
 
 /**
  * Builds a relative module specifier from `fromFile` to a configured output.
+ *
+ * Computes the relative path from the directory of `fromFile` to the `target.output`,
+ * stripping `.ts` extension and `/index` suffix for clean ES module import paths.
+ *
+ * @param fromFile - The absolute path of the source file that will import the target.
+ * @param target - Configuration for the target module.
+ * @param target.output - The absolute path to the output file or directory.
+ * @param target.split - When true, treats output as a directory path rather than a file.
+ * @returns A relative module specifier (e.g., `'../schemas'`, `'./user'`, `'.'`).
+ *
+ * @example
+ * ```ts
+ * // File to directory (strips /index)
+ * makeModuleSpec('/src/routes/index.ts', { output: '/src/schemas/index.ts' })
+ * // → '../schemas'
+ *
+ * // File to file (strips .ts extension)
+ * makeModuleSpec('/src/routes/user.ts', { output: '/src/schemas/user.ts' })
+ * // → '../schemas/user'
+ *
+ * // Split mode: same directory
+ * makeModuleSpec('/src/routes/index.ts', { output: '/src/routes', split: true })
+ * // → '.'
+ *
+ * // Ensures dot-relative prefix
+ * makeModuleSpec('/src/index.ts', { output: '/src/schemas.ts' })
+ * // → './schemas'
+ * ```
  */
 export function makeModuleSpec(
   fromFile: string,
   target: { readonly output: string | `${string}.ts`; readonly split?: boolean },
 ): string {
-  const fromDir = path.dirname(fromFile)
-  const entry = target.split ? path.join(target.output) : target.output
-  const rel = path.relative(fromDir, entry).replace(/\\/g, '/')
-  const stripped = rel.endsWith('.ts') ? rel.slice(0, -3) : rel
-  const noIndex = stripped.endsWith('/index') ? stripped.slice(0, -6) : stripped
-  return noIndex === '' ? '.' : noIndex.startsWith('.') ? noIndex : `./${noIndex}`
+  const rel = path.relative(path.dirname(fromFile), target.output).replace(/\\/g, '/')
+  const stripped = rel.replace(/\.ts$/, '').replace(/\/index$/, '')
+  return stripped === '' ? '.' : stripped.startsWith('.') ? stripped : `./${stripped}`
 }
 
 /**
  * Generates a const declaration prefix with optional export.
  *
- * @param exportVariable - Whether to add the export keyword.
- * @param text - The base name for the constant.
- * @param suffix - The suffix to append to the name.
- * @returns A string like `export const UserSchema=` or `const UserSchema=`.
+ * Combines the text and suffix, converts to PascalCase, and prepends
+ * `export const ` or `const ` based on the `exportVariable` flag.
+ *
+ * @param exportVariable - Whether to add the `export` keyword.
+ * @param text - The base name for the constant (will be converted to PascalCase).
+ * @param suffix - The suffix to append to the name (added before PascalCase conversion).
+ * @returns A string like `'export const UserSchema='` or `'const UserSchema='`.
  *
  * @example
  * ```ts
@@ -31,30 +59,101 @@ export function makeModuleSpec(
  *
  * makeConst(false, 'post', 'Response')
  * // → 'const PostResponse='
+ *
+ * // Handles kebab-case input
+ * makeConst(true, 'user-profile', 'Schema')
+ * // → 'export const UserProfileSchema='
  * ```
  */
 export function makeConst(exportVariable: boolean, text: string, suffix: string): string {
-  const prefix = exportVariable ? 'export const ' : 'const '
-  return `${prefix}${toIdentifierPascalCase(ensureSuffix(text, suffix))}=`
+  return `${exportVariable ? 'export const ' : 'const '}${toIdentifierPascalCase(ensureSuffix(text, suffix))}=`
 }
 
 /**
  * Generates a string of export const statements for the given value.
+ *
+ * Iterates over the keys of `value`, converts each key to PascalCase with the suffix,
+ * and serializes the value as JSON. Multiple entries are separated by double newlines.
+ *
+ * @param value - Object containing values to export (keys become constant names).
+ * @param suffix - Suffix to append to each export name (before PascalCase conversion).
+ * @param readonly - Whether to add `as const` assertion for TypeScript readonly inference.
+ * @returns A string of TypeScript export const statements separated by `\n\n`.
+ *
+ * @example
+ * ```ts
+ * // Single export
+ * makeExportConst({ user: { id: 1 } }, 'Example')
+ * // → 'export const UserExample={"id":1}'
+ *
+ * // With as const assertion
+ * makeExportConst({ user: { id: 1 } }, 'Example', true)
+ * // → 'export const UserExample={"id":1} as const'
+ *
+ * // Multiple exports
+ * makeExportConst({ user: { id: 1 }, post: { title: 'Hello' } }, 'Data')
+ * // → 'export const UserData={"id":1}\n\nexport const PostData={"title":"Hello"}'
+ * ```
  */
-export function makeExportConst(value: { readonly [k: string]: unknown }, suffix: string): string {
+export function makeExportConst(
+  value: { readonly [k: string]: unknown },
+  suffix: string,
+  readonly?: boolean | undefined,
+): string {
+  const asConst = readonly ? ' as const' : ''
   return Object.keys(value)
     .map(
       (key) =>
-        `export const ${toIdentifierPascalCase(ensureSuffix(key, suffix))}=${JSON.stringify(value[key])}`,
+        `export const ${toIdentifierPascalCase(ensureSuffix(key, suffix))}=${JSON.stringify(value[key])}${asConst}`,
     )
     .join('\n\n')
 }
 
 /**
- * Universal import generator.
+ * Universal import generator for OpenAPI-based Hono route files.
  *
- * Automatically detects whether createRoute is needed by checking code content.
- * @param split - Whether in split mode (affects fallback path: '..' for split, '.' for single file)
+ * Analyzes the provided code to auto-detect required imports and generates
+ * import statements for `@hono/zod-openapi` and OpenAPI component references.
+ *
+ * **Import Detection Logic:**
+ * - Detects `z.` usage to import `z` from `@hono/zod-openapi`
+ * - Detects `createRoute(` usage to import `createRoute`
+ * - Scans for OpenAPI component references by suffix pattern (e.g., `*Schema`, `*Response`)
+ * - Excludes locally defined exports from import generation
+ *
+ * **OpenAPI Component Patterns** (ordered per OpenAPI 3.0 spec):
+ * | Suffix | Component Type | Example |
+ * |--------|---------------|---------|
+ * | `*Schema` | schemas | `UserSchema` |
+ * | `*ParamsSchema` | parameters | `IdParamsSchema` |
+ * | `*SecurityScheme` | securitySchemes | `BearerSecurityScheme` |
+ * | `*RequestBody` | requestBodies | `CreateUserRequestBody` |
+ * | `*Response` | responses | `UserResponse` |
+ * | `*HeaderSchema` | headers | `AuthHeaderSchema` |
+ * | `*Example` | examples | `UserExample` |
+ * | `*Link` | links | `GetUserLink` |
+ * | `*Callback` | callbacks | `WebhookCallback` |
+ *
+ * @param code - The TypeScript code to analyze and prepend imports to.
+ * @param fromFile - The absolute path of the file where code will be written.
+ * @param components - Configuration mapping OpenAPI component types to output locations.
+ * @param split - When true, uses `'..'` as fallback prefix; otherwise `'.'`.
+ * @returns The code with generated import statements prepended.
+ *
+ * @see {@link https://swagger.io/docs/specification/v3_0/components/|OpenAPI Components}
+ *
+ * @example
+ * ```ts
+ * // Basic usage with schema reference
+ * const code = 'const route = createRoute({ request: { body: UserSchema } })'
+ * makeImports(code, '/src/routes/user.ts', { schemas: { output: '/src/schemas.ts' } })
+ * // → "import{createRoute}from'@hono/zod-openapi'\nimport{UserSchema}from'../schemas'\n\n..."
+ *
+ * // With z usage
+ * const code2 = 'z.string()'
+ * makeImports(code2, '/src/routes/user.ts', undefined)
+ * // → "import{z}from'@hono/zod-openapi'\n\n..."
+ * ```
  */
 export function makeImports(
   code: string,
@@ -70,51 +169,58 @@ export function makeImports(
     | undefined,
   split = false,
 ): string {
-  // Regex patterns for each OpenAPI component type (ordered per OpenAPI spec)
-  // https://swagger.io/docs/specification/v3_0/components/
-  // Using negative lookbehind to exclude ParamsSchema and HeaderSchema from Schema matches
+  /** Valid JavaScript identifier pattern (e.g., `UserSchema`, `_private`, `$special`) */
+  const JS_IDENT = '[A-Za-z_$][A-Za-z0-9_$]*'
+
+  /**
+   * Regex patterns for OpenAPI component types.
+   * Ordered per OpenAPI 3.0 specification.
+   * Note: (?<!Params)(?<!Header) excludes ParamsSchema/HeaderSchema from generic Schema matches
+   */
   const IMPORT_PATTERNS: ReadonlyArray<{ readonly pattern: RegExp; readonly key: string }> = [
-    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*(?<!Params)(?<!Header)Schema)\b/g, key: 'schemas' },
-    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*ParamsSchema)\b/g, key: 'parameters' },
-    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*SecurityScheme)\b/g, key: 'securitySchemes' },
-    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*RequestBody)\b/g, key: 'requestBodies' },
-    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Response)\b/g, key: 'responses' },
-    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*HeaderSchema)\b/g, key: 'headers' },
-    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Example)\b/g, key: 'examples' },
-    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Link)\b/g, key: 'links' },
-    { pattern: /\b([A-Za-z_$][A-Za-z0-9_$]*Callback)\b/g, key: 'callbacks' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}(?<!Params)(?<!Header)Schema)\\b`, 'g'), key: 'schemas' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}ParamsSchema)\\b`, 'g'), key: 'parameters' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}SecurityScheme)\\b`, 'g'), key: 'securitySchemes' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}RequestBody)\\b`, 'g'), key: 'requestBodies' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}Response)\\b`, 'g'), key: 'responses' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}HeaderSchema)\\b`, 'g'), key: 'headers' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}Example)\\b`, 'g'), key: 'examples' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}Link)\\b`, 'g'), key: 'links' },
+    { pattern: new RegExp(`\\b(${JS_IDENT}Callback)\\b`, 'g'), key: 'callbacks' },
   ]
 
-  const prefix = split ? '..' : '.'
+  /** Pattern to find locally exported constants */
+  const EXPORT_CONST_PATTERN = new RegExp(`export\\s+const\\s+(${JS_IDENT})\\s*=`, 'g')
+
+  const fallbackPrefix = split ? '..' : '.'
+
+  // Resolve import path for a component type
   const resolvePath = (key: string): string => {
     const target = components?.[key]
-    return target?.import ?? (target ? makeModuleSpec(fromFile, target) : `${prefix}/${key}`)
+    return (
+      target?.import ?? (target ? makeModuleSpec(fromFile, target) : `${fallbackPrefix}/${key}`)
+    )
   }
 
   // Find locally defined exports to exclude from imports
   const defined = new Set(
-    Array.from(
-      code.matchAll(/export\s+const\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=/g),
-      (m) => m[1] ?? '',
-    ).filter(Boolean),
+    Array.from(code.matchAll(EXPORT_CONST_PATTERN), (m) => m[1]).filter(Boolean),
   )
 
-  // Build hono import - auto-detect createRoute usage
-  const needsZ = code.includes('z.')
+  // Build @hono/zod-openapi import
   const needsCreateRoute = code.includes('createRoute(')
-  const honoLine = needsCreateRoute
-    ? `import{createRoute${needsZ ? ',z' : ''}}from'@hono/zod-openapi'`
-    : needsZ
-      ? `import{z}from'@hono/zod-openapi'`
-      : ''
+  const needsZ = code.includes('z.')
+  const honoImports = [needsCreateRoute && 'createRoute', needsZ && 'z'].filter(Boolean)
+  const honoLine =
+    honoImports.length > 0 ? `import{${honoImports.join(',')}}from'@hono/zod-openapi'` : ''
 
-  // Build component imports in OpenAPI order using regex patterns
-  const imports = IMPORT_PATTERNS.map(({ pattern, key }) => {
-    const tokens = Array.from(new Set(Array.from(code.matchAll(pattern), (m) => m[1] ?? '')))
-      .filter((t) => t && !defined.has(t))
+  // Build component imports in OpenAPI order
+  const componentImports = IMPORT_PATTERNS.flatMap(({ pattern, key }) => {
+    const tokens = [...new Set(Array.from(code.matchAll(pattern), (m) => m[1]))]
+      .filter((t): t is string => Boolean(t) && !defined.has(t))
       .sort()
-    return tokens.length > 0 ? renderNamedImport(tokens, resolvePath(key)) : ''
-  }).filter(Boolean)
+    return tokens.length > 0 ? [renderNamedImport(tokens, resolvePath(key))] : []
+  })
 
-  return [honoLine, ...imports, '\n', code, ''].filter(Boolean).join('\n')
+  return [honoLine, ...componentImports, '\n', code, ''].filter(Boolean).join('\n')
 }
