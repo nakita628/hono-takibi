@@ -133,6 +133,27 @@ export function getToSafeIdentifier(text: string): string {
 }
 
 /**
+ * Converts a string to a safe TypeScript object key with single quotes.
+ *
+ * Similar to `getToSafeIdentifier`, but uses single quotes instead of
+ * double quotes for invalid identifiers.
+ *
+ * @param key - The string to convert to a safe key.
+ * @returns A safe key string with single quotes if needed.
+ *
+ * @example
+ * ```ts
+ * makeSafeKey('user')        // → 'user'
+ * makeSafeKey('_id')         // → '_id'
+ * makeSafeKey('123key')      // → "'123key'"
+ * makeSafeKey('hello world') // → "'hello world'"
+ * ```
+ */
+export function makeSafeKey(key: string): string {
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
+}
+
+/**
  * Converts a string to a valid PascalCase TypeScript identifier.
  *
  * Handles special characters, numbers at the start, and non-ASCII characters

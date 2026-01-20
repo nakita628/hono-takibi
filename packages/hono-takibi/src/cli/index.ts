@@ -345,7 +345,9 @@ export async function honoTakibi(): Promise<
           config['zod-openapi']?.readonly,
         )
       : Promise.resolve(undefined),
-    config.type ? type(openAPI, config.type.output) : Promise.resolve(undefined),
+    config.type
+      ? type(openAPI, config.type.output, config.type.readonly)
+      : Promise.resolve(undefined),
     config.rpc
       ? rpc(openAPI, config.rpc.output, config.rpc.import, config.rpc.split ?? false)
       : Promise.resolve(undefined),

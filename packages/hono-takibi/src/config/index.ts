@@ -85,6 +85,7 @@ type Config = {
     }
   }
   readonly type?: {
+    readonly readonly?: boolean
     readonly output: `${string}.ts`
   }
   readonly rpc?: {

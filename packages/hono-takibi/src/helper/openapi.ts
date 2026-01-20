@@ -46,30 +46,6 @@ import {
 } from '../utils/index.js'
 
 /**
- * Maps OpenAPI component path prefixes to their corresponding suffixes.
- *
- * Used by `makeRef()` to determine the appropriate variable name suffix
- * based on the component type in the $ref path.
- *
- * @see {@link https://swagger.io/docs/specification/v3_0/components/|OpenAPI Components}
- */
-const COMPONENT_SUFFIX_MAP: ReadonlyArray<{ readonly prefix: string; readonly suffix: string }> = [
-  { prefix: '#/components/schemas/', suffix: 'Schema' },
-  { prefix: '#/components/parameters/', suffix: 'ParamsSchema' },
-  { prefix: '#/components/headers/', suffix: 'HeaderSchema' },
-  { prefix: '#/components/securitySchemes/', suffix: 'SecurityScheme' },
-  { prefix: '#/components/requestBodies/', suffix: 'RequestBody' },
-  { prefix: '#/components/responses/', suffix: 'Response' },
-  { prefix: '#/components/examples/', suffix: 'Example' },
-  { prefix: '#/components/links/', suffix: 'Link' },
-  { prefix: '#/components/callbacks/', suffix: 'Callback' },
-]
-
-/** Converts name to PascalCase variable name with suffix (helper-local function) */
-const toVariableName = (name: string, suffix: string): string =>
-  toIdentifierPascalCase(ensureSuffix(name, suffix))
-
-/**
  * Generates a schema reference variable name from an OpenAPI $ref string.
  *
  * Converts OpenAPI $ref paths to their corresponding schema variable names
@@ -94,6 +70,29 @@ const toVariableName = (name: string, suffix: string): string =>
  * ```
  */
 export function makeRef($ref: string): string {
+  /**
+   * Maps OpenAPI component path prefixes to their corresponding suffixes.
+   * @see {@link https://swagger.io/docs/specification/v3_0/components/|OpenAPI Components}
+   */
+  const COMPONENT_SUFFIX_MAP: ReadonlyArray<{
+    readonly prefix: string
+    readonly suffix: string
+  }> = [
+    { prefix: '#/components/schemas/', suffix: 'Schema' },
+    { prefix: '#/components/parameters/', suffix: 'ParamsSchema' },
+    { prefix: '#/components/headers/', suffix: 'HeaderSchema' },
+    { prefix: '#/components/securitySchemes/', suffix: 'SecurityScheme' },
+    { prefix: '#/components/requestBodies/', suffix: 'RequestBody' },
+    { prefix: '#/components/responses/', suffix: 'Response' },
+    { prefix: '#/components/examples/', suffix: 'Example' },
+    { prefix: '#/components/links/', suffix: 'Link' },
+    { prefix: '#/components/callbacks/', suffix: 'Callback' },
+  ]
+
+  /** Converts name to PascalCase variable name with suffix */
+  const toVariableName = (name: string, suffix: string): string =>
+    toIdentifierPascalCase(ensureSuffix(name, suffix))
+
   // Handle nested property references (e.g., #/components/schemas/X/properties/Y)
   // These are self-referential and reference the parent schema with z.lazy()
   const propertiesMatch = $ref.match(/^#\/components\/schemas\/([^/]+)\/properties\/(.+)$/)

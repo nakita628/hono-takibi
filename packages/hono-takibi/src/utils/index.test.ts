@@ -5,6 +5,7 @@ import {
   isHttpMethod,
   isRecord,
   lowerFirst,
+  makeSafeKey,
   methodPath,
   normalizeTypes,
   requestParamsArray,
@@ -160,6 +161,27 @@ describe('utils', () => {
       ['-', '"-"'],
     ])(`getToSafeIdentifier('%s') -> '%s'`, (input, expected) => {
       expect(getToSafeIdentifier(input)).toBe(expected)
+    })
+  })
+  // makeSafeKey
+  describe('makeSafeKey', () => {
+    it.concurrent.each([
+      ['validName', 'validName'],
+      ['_underscore', '_underscore'],
+      ['$dollar', '$dollar'],
+      ['camelCase123', 'camelCase123'],
+      ['has space', "'has space'"],
+      ['invalid-name', "'invalid-name'"],
+      ['123startWithNumber', "'123startWithNumber'"],
+      ['has.dot', "'has.dot'"],
+      ['hyphen-ated', "'hyphen-ated'"],
+      ['class', 'class'],
+      ['function', 'function'],
+      ['', "''"],
+      [' ', "' '"],
+      ['-', "'-'"],
+    ])(`makeSafeKey('%s') -> '%s'`, (input, expected) => {
+      expect(makeSafeKey(input)).toBe(expected)
     })
   })
   // toIdentifierPascalCase

@@ -78,17 +78,31 @@ function isParameterArray(params: unknown): params is readonly Parameter[] | rea
 // ============================================================================
 
 /**
+ * DeepReadonly utility type that recursively makes all properties readonly.
+ */
+const DEEP_READONLY_TYPE =
+  'type DeepReadonly<T>=T extends(infer R)[]?readonly DeepReadonly<R>[]:T extends object?{readonly[K in keyof T]:DeepReadonly<T[K]>}:T;'
+
+/**
  * Generates TypeScript type declarations from OpenAPI specification.
+ *
+ * @param openAPI - OpenAPI specification object
+ * @param output - Output file path (must end with .ts)
+ * @param readonly - If true, wraps the schema type with DeepReadonly for immutable types
+ * @returns Result with success message or error
  */
 export async function type(
   openAPI: OpenAPI,
   output: `${string}.ts`,
+  readonly?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   try {
     const schemaType = makeHonoSchemaType(openAPI)
-    const dts = `declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${schemaType},'/'>\nexport default routes\n`
+    const wrappedType = readonly ? `DeepReadonly<${schemaType}>` : schemaType
+    const typeDecl = readonly ? DEEP_READONLY_TYPE : ''
+    const dts = `${typeDecl}declare const routes:import('@hono/zod-openapi').OpenAPIHono<import('hono/types').Env,${wrappedType},'/'>\nexport default routes\n`
     const coreResult = await core(dts, path.dirname(output), output)
     return coreResult.ok
       ? { ok: true, value: `Generated type code written to ${output}` }
