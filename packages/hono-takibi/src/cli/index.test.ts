@@ -189,7 +189,6 @@ describe('honoTakibi --help', () => {
       value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --export-schemas-types      export schemas types
   --export-schemas            export schemas
   --export-parameters-types   export parameters types
@@ -202,6 +201,7 @@ Options:
   --export-examples           export examples
   --export-links              export links
   --export-callbacks          export callbacks
+  --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate empty *.test.ts files
   --base-path <path>          api prefix (default: /)
@@ -222,7 +222,6 @@ describe('honoTakibi -h', () => {
       value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
-  --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --export-schemas-types      export schemas types
   --export-schemas            export schemas
   --export-parameters-types   export parameters types
@@ -235,6 +234,7 @@ Options:
   --export-examples           export examples
   --export-links              export links
   --export-callbacks          export callbacks
+  --readonly                  make schemas immutable (adds .readonly() and 'as const')
   --template                  generate app file and handler stubs
   --test                      generate empty *.test.ts files
   --base-path <path>          api prefix (default: /)
