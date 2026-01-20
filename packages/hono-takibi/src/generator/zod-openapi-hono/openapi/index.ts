@@ -60,6 +60,7 @@ import { routeCode } from './routes/index.js'
 export function zodOpenAPIHono(
   openapi: OpenAPI,
   options: {
+    readonly readonly?: boolean | undefined
     readonly exportSchemasTypes: boolean
     readonly exportSchemas: boolean
     readonly exportParametersTypes: boolean
@@ -75,5 +76,5 @@ export function zodOpenAPIHono(
   },
 ): string {
   const components = openapi.components ? componentsCode(openapi.components, options) : ''
-  return `import{createRoute,z}from'@hono/zod-openapi'\n\n${components}\n\n${routeCode(openapi)}`
+  return `import{createRoute,z}from'@hono/zod-openapi'\n\n${components}\n\n${routeCode(openapi, options.readonly)}`
 }

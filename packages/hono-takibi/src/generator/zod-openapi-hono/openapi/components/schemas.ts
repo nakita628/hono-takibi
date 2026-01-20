@@ -15,18 +15,23 @@ import type { Components } from '../../../../openapi/index.js'
  * @param components - The OpenAPI components object.
  * @param exportSchemas - Whether to export the Zod schema constants.
  * @param exportSchemasTypes - Whether to export the inferred Zod types.
+ * @param readonly - Whether to add `.readonly()` modifier to schemas.
  * @returns A string of TypeScript code with schema definitions.
  *
  * @example
  * ```ts
- * schemasCode(components, true, true)
+ * schemasCode(components, true, true, false)
  * // → 'export const UserSchema = z.object({...}).openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
+ *
+ * schemasCode(components, true, true, true)
+ * // → 'export const UserSchema = z.object({...}).readonly().openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
  * ```
  */
 export function schemasCode(
   components: Components,
   exportSchemas: boolean,
   exportSchemasTypes: boolean,
+  readonly?: boolean,
 ): string {
   const { schemas } = components
   if (!schemas) return ''
@@ -37,11 +42,12 @@ export function schemasCode(
   const analysis = analyzeCircularSchemas(schemas, schemaNames)
   const infos = makeSchemaInfos(schemas, schemaNames, analysis)
 
-  const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal)
+  const typeDefs = makeTypeDefinitions(infos, schemas, analysis.cyclicGroupPascal, readonly)
   const schemaBlocks = infos.map((info) =>
     makeSchemaCode(info, {
       exportKeyword: exportSchemas ? 'export ' : '',
       exportType: exportSchemasTypes,
+      readonly,
     }),
   )
 

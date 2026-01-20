@@ -40,12 +40,31 @@ export function makeConst(exportVariable: boolean, text: string, suffix: string)
 
 /**
  * Generates a string of export const statements for the given value.
+ *
+ * @param value - Object containing values to export.
+ * @param suffix - Suffix to append to each export name.
+ * @param readonly - Whether to add `as const` assertion to the output.
+ * @returns A string of TypeScript export const statements.
+ *
+ * @example
+ * ```ts
+ * makeExportConst({ user: { id: 1 } }, 'Example')
+ * // → 'export const UserExample={"id":1}'
+ *
+ * makeExportConst({ user: { id: 1 } }, 'Example', true)
+ * // → 'export const UserExample={"id":1} as const'
+ * ```
  */
-export function makeExportConst(value: { readonly [k: string]: unknown }, suffix: string): string {
+export function makeExportConst(
+  value: { readonly [k: string]: unknown },
+  suffix: string,
+  readonly?: boolean | undefined,
+): string {
+  const asConst = readonly ? ' as const' : ''
   return Object.keys(value)
     .map(
       (key) =>
-        `export const ${toIdentifierPascalCase(ensureSuffix(key, suffix))}=${JSON.stringify(value[key])}`,
+        `export const ${toIdentifierPascalCase(ensureSuffix(key, suffix))}=${JSON.stringify(value[key])}${asConst}`,
     )
     .join('\n\n')
 }

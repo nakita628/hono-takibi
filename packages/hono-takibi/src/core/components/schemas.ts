@@ -25,6 +25,7 @@ import { lowerFirst, renderNamedImport } from '../../utils/index.js'
  * @param output - Output file path or directory
  * @param split - Whether to split into multiple files
  * @param exportType - Whether to export TypeScript types
+ * @param readonly - Whether to add `.readonly()` modifier to schemas
  * @returns Promise resolving to success message or error
  *
  * @example
@@ -34,17 +35,20 @@ import { lowerFirst, renderNamedImport } from '../../utils/index.js'
  *   { User: { type: 'object', ... } },
  *   'src/schemas.ts',
  *   false,
- *   true
+ *   true,
+ *   false
  * )
  *
- * // Generate schemas in split mode
+ * // Generate schemas in split mode with readonly
  * await schemas(
  *   { User: {...}, Post: {...} },
  *   'src/schemas',
  *   true,
+ *   true,
  *   true
  * )
  * // Creates: src/schemas/user.ts, src/schemas/post.ts, src/schemas/index.ts
+ * // Each schema has .readonly() modifier
  * ```
  */
 export async function schemas(
@@ -52,6 +56,7 @@ export async function schemas(
   output: string,
   split: boolean,
   exportType: boolean,
+  readonly?: boolean,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -72,6 +77,7 @@ export async function schemas(
           schemas,
           analysis,
           exportType,
+          readonly,
         )
         const filePath = `${outDir}/${lowerFirst(schemaName)}.ts`
         return core(fileCode, path.dirname(filePath), filePath)
@@ -89,7 +95,7 @@ export async function schemas(
   }
 
   const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
-  const schemaDefinitions = schemasCode({ schemas }, true, exportType)
+  const schemaDefinitions = schemasCode({ schemas }, true, exportType, readonly)
   const sorted = ast(schemaDefinitions)
   const schemaDefinitionsCode = `${importCode}\n\n${sorted}`
   const coreResult = await core(schemaDefinitionsCode, path.dirname(output), output)

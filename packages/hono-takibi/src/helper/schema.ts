@@ -76,27 +76,35 @@ export function makeSchemaInfos(
 /**
  * Generates Zod schema code from schema metadata.
  *
- * Produces a schema constant with optional lazy wrapping for circular references
- * and optional type inference export.
+ * Produces a schema constant with optional lazy wrapping for circular references,
+ * optional readonly modifier, and optional type inference export.
  *
  * @param info - Schema metadata from `makeSchemaInfo`.
- * @param options - Generation options including export keyword and type export flag.
+ * @param options - Generation options including export keyword, type export flag, and readonly flag.
  * @returns The generated Zod schema code string.
  *
  * @example
  * ```ts
- * makeSchemaCode(info, { exportKeyword: 'export ', exportType: true })
+ * makeSchemaCode(info, { exportKeyword: 'export ', exportType: true, readonly: false })
  * // → 'export const UserSchema = z.object({...}).openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
+ *
+ * makeSchemaCode(info, { exportKeyword: 'export ', exportType: true, readonly: true })
+ * // → 'export const UserSchema = z.object({...}).readonly().openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
  * ```
  */
 export function makeSchemaCode(
   info: ReturnType<typeof makeSchemaInfo>,
-  options: { readonly exportKeyword: string; readonly exportType: boolean },
+  options: {
+    readonly exportKeyword: string
+    readonly exportType: boolean
+    readonly readonly?: boolean | undefined
+  },
 ): string {
   const zExpr = info.needsLazy ? `z.lazy(()=>${info.zSchema})` : info.zSchema
   const returnType = info.needsTypeDef ? `:z.ZodType<${info.safeSchemaName}Type>` : ''
+  const readonlyModifier = options.readonly ? '.readonly()' : ''
 
-  const schemaCode = `${options.exportKeyword}const ${info.variableName}${returnType}=${zExpr}.openapi('${info.safeSchemaName}')`
+  const schemaCode = `${options.exportKeyword}const ${info.variableName}${returnType}=${zExpr}${readonlyModifier}.openapi('${info.safeSchemaName}')`
   const zodInferCode = options.exportType
     ? `\n\nexport type ${info.safeSchemaName}=z.infer<typeof ${info.variableName}>`
     : ''
@@ -111,19 +119,24 @@ export function makeSchemaCode(
  *
  * @param info - Schema metadata from `makeSchemaInfo`.
  * @param cyclicGroupPascal - Set of PascalCase names for cyclic schemas.
+ * @param readonly - Whether to generate readonly array types.
  * @returns The generated TypeScript type definition string.
  *
  * @example
  * ```ts
  * makeTypeDefinition(info, cyclicGroupPascal)
  * // → 'type UserType = { name: string; posts: PostType[] }'
+ *
+ * makeTypeDefinition(info, cyclicGroupPascal, true)
+ * // → 'type UserType = { name: string; posts: readonly PostType[] }'
  * ```
  */
 export function makeTypeDefinition(
   info: ReturnType<typeof makeSchemaInfo>,
   cyclicGroupPascal: ReadonlySet<string>,
+  readonly?: boolean,
 ): string {
-  return zodType(info.schema, info.safeSchemaName, cyclicGroupPascal)
+  return zodType(info.schema, info.safeSchemaName, cyclicGroupPascal, readonly)
 }
 
 /**
@@ -135,6 +148,7 @@ export function makeTypeDefinition(
  * @param infos - Array of schema metadata from `makeSchemaInfos`.
  * @param schemas - Record of schema name to OpenAPI schema objects.
  * @param cyclicGroupPascal - Set of PascalCase names for cyclic schemas.
+ * @param readonly - Whether to generate readonly array types.
  * @returns An array of TypeScript type definition strings.
  *
  * @example
@@ -147,10 +161,11 @@ export function makeTypeDefinitions(
   infos: readonly ReturnType<typeof makeSchemaInfo>[],
   schemas: Record<string, Schema>,
   cyclicGroupPascal: ReadonlySet<string>,
+  readonly?: boolean,
 ): readonly string[] {
   const initialTypeDefs = infos
     .filter((info) => info.needsTypeDef)
-    .map((info) => makeTypeDefinition(info, cyclicGroupPascal))
+    .map((info) => makeTypeDefinition(info, cyclicGroupPascal, readonly))
 
   const generatedTypeNames = new Set(
     infos.filter((info) => info.needsTypeDef).map((info) => `${info.safeSchemaName}Type`),
@@ -169,7 +184,7 @@ export function makeTypeDefinitions(
     .flatMap((refType) => {
       const schemaName = refType.replace(/Type$/, '')
       const schema = schemas[schemaName]
-      return schema ? [zodType(schema, schemaName, cyclicGroupPascal)] : []
+      return schema ? [zodType(schema, schemaName, cyclicGroupPascal, readonly)] : []
     })
 
   return [...initialTypeDefs, ...additionalTypeDefs]
@@ -211,12 +226,16 @@ export function findSchemaRefs(code: string, selfName: string): readonly string[
  * @param schemas - Record of all schemas for dependency resolution.
  * @param analysis - The result of circular dependency analysis.
  * @param exportType - Whether to export the inferred type alias.
+ * @param readonly - Whether to add `.readonly()` modifier to the schema.
  * @returns The complete file content as a string.
  *
  * @example
  * ```ts
- * makeSplitSchemaFile('User', userSchema, schemas, analysis, true)
+ * makeSplitSchemaFile('User', userSchema, schemas, analysis, true, false)
  * // → "import { z } from '@hono/zod-openapi'\nimport { PostSchema } from './post'\n\nexport const UserSchema = z.object({...}).openapi('User')\n\nexport type User = z.infer<typeof UserSchema>"
+ *
+ * makeSplitSchemaFile('User', userSchema, schemas, analysis, true, true)
+ * // → "import { z } from '@hono/zod-openapi'\nimport { PostSchema } from './post'\n\nexport const UserSchema = z.object({...}).readonly().openapi('User')\n\nexport type User = z.infer<typeof UserSchema>"
  * ```
  */
 export function makeSplitSchemaFile(
@@ -225,14 +244,15 @@ export function makeSplitSchemaFile(
   schemas: Record<string, Schema>,
   analysis: ReturnType<typeof analyzeCircularSchemas>,
   exportType: boolean,
+  readonly?: boolean,
 ): string {
   const info = makeSchemaInfo(schemaName, schema, analysis)
 
   const typeDefinition = info.needsTypeDef
-    ? `${makeTypeDefinition(info, analysis.cyclicGroupPascal)}\n\n`
+    ? `${makeTypeDefinition(info, analysis.cyclicGroupPascal, readonly)}\n\n`
     : ''
 
-  const schemaCode = makeSchemaCode(info, { exportKeyword: 'export ', exportType })
+  const schemaCode = makeSchemaCode(info, { exportKeyword: 'export ', exportType, readonly })
   const content = `${typeDefinition}${schemaCode}`
 
   const deps = findSchemaRefs(content, schemaName).filter((d) => d in schemas)

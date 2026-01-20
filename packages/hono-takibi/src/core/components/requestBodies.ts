@@ -18,7 +18,8 @@ import { lowerFirst, renderNamedImport } from '../../utils/index.js'
  * @param requestBodies - OpenAPI requestBodies object
  * @param output - Output file path or directory
  * @param split - Whether to split into multiple files
- * @param imports - Schema import configuration for references
+ * @param components - Schema import configuration for references
+ * @param readonly - Whether to add `as const` assertion to the output.
  * @returns Promise resolving to success message or error
  *
  * @example
@@ -50,6 +51,7 @@ export async function requestBodies(
       readonly import?: string
     }
   },
+  readonly?: boolean | undefined,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -67,7 +69,7 @@ export async function requestBodies(
     const allResults = await Promise.all([
       ...bodyNames.map((bodyName) => {
         const singleComponent = { requestBodies: { [bodyName]: requestBodies[bodyName] } }
-        const code = requestBodiesCode(singleComponent, true)
+        const code = requestBodiesCode(singleComponent, true, readonly)
         const filePath = path.join(outDir, `${lowerFirst(bodyName)}.ts`)
         return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
       }),
@@ -84,7 +86,7 @@ export async function requestBodies(
   }
 
   const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
-  const bodyDefinitions = requestBodiesCode({ requestBodies }, true)
+  const bodyDefinitions = requestBodiesCode({ requestBodies }, true, readonly)
   const bodyDefinitionsCode = `${importCode}\n\n${bodyDefinitions}`
   const coreResult = await core(
     toFileCode(bodyDefinitionsCode, output),

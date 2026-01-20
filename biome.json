@@ -12,6 +12,7 @@
       "!**/dist",
       "!**/*.js",
       "!**/routes",
+      "!**/readonly-routes",
       "!**/rpcs",
       "!**/types",
       "!**/clients",

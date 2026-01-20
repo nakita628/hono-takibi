@@ -138,9 +138,14 @@ import type { Components } from '../../../../openapi/index.js'
  *
  * @param components - OpenAPI components object
  * @param exportExamples - Whether to export the example constants
+ * @param readonly - Whether to add `as const` assertion to example constants
  * @returns Generated TypeScript code string
  */
-export function examplesCode(components: Components, exportExamples: boolean): string {
+export function examplesCode(
+  components: Components,
+  exportExamples: boolean,
+  readonly?: boolean | undefined,
+): string {
   const { examples } = components
   if (!examples) return ''
 
@@ -241,8 +246,9 @@ export function examplesCode(components: Components, exportExamples: boolean): s
       //   - Type safety (direct variable reference)
       //
       // ===========================================================================
+      const asConst = readonly ? ' as const' : ''
       if (hasRef(example)) {
-        return `${makeConst(exportExamples, k, 'Example')}${makeRef(example.$ref)}`
+        return `${makeConst(exportExamples, k, 'Example')}${makeRef(example.$ref)}${asConst}`
       }
 
       // ===========================================================================
@@ -261,7 +267,7 @@ export function examplesCode(components: Components, exportExamples: boolean): s
       //   3. Final output: "export const UserMinimalExample = {"summary":"...","value":{...}}"
       //
       // ===========================================================================
-      return `${makeConst(exportExamples, k, 'Example')}${JSON.stringify(example)}`
+      return `${makeConst(exportExamples, k, 'Example')}${JSON.stringify(example)}${asConst}`
     })
     .join('\n\n')
 

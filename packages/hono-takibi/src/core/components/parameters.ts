@@ -19,7 +19,8 @@ import { lowerFirst, renderNamedImport } from '../../utils/index.js'
  * @param output - Output file path or directory
  * @param split - Whether to split into multiple files
  * @param exportType - Whether to export TypeScript types
- * @param imports - Schema import configuration for references
+ * @param components - Schema import configuration for references
+ * @param readonly - Whether to add `.readonly()` to Zod schemas
  * @returns Promise resolving to success message or error
  *
  * @example
@@ -54,6 +55,7 @@ export async function parameters(
       readonly import?: string
     }
   },
+  readonly?: boolean | undefined,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
@@ -71,7 +73,7 @@ export async function parameters(
     const allResults = await Promise.all([
       ...parameterNames.map((parameterName) => {
         const singleComponent = { parameters: { [parameterName]: parameters[parameterName] } }
-        const code = parametersCode(singleComponent, true, exportType)
+        const code = parametersCode(singleComponent, true, exportType, readonly)
         const filePath = path.join(outDir, `${lowerFirst(parameterName)}.ts`)
         return core(toFileCode(code, filePath), path.dirname(filePath), filePath)
       }),
@@ -88,7 +90,7 @@ export async function parameters(
   }
 
   const importCode = renderNamedImport(['z'], '@hono/zod-openapi')
-  const parameterDefinitions = parametersCode({ parameters }, true, exportType)
+  const parameterDefinitions = parametersCode({ parameters }, true, exportType, readonly)
   const parameterDefinitionsCode = `${importCode}\n\n${parameterDefinitions}`
   const coreResult = await core(
     toFileCode(parameterDefinitionsCode, output),

@@ -20,6 +20,7 @@ describe('CLI options test with string matching', () => {
     expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
+  --readonly                  add .readonly() to all schemas
   --export-schemas-types      export schemas types
   --export-schemas            export schemas
   --export-parameters-types   export parameters types
@@ -46,6 +47,7 @@ Options:
     expect(result).toBe(`Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
+  --readonly                  add .readonly() to all schemas
   --export-schemas-types      export schemas types
   --export-schemas            export schemas
   --export-parameters-types   export parameters types

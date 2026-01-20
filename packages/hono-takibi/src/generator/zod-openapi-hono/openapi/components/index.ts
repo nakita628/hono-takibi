@@ -26,6 +26,7 @@ import { securitySchemesCode } from './securitySchemes.js'
 export function componentsCode(
   components: Components,
   options: {
+    readonly readonly?: boolean | undefined
     readonly exportSchemasTypes: boolean
     readonly exportSchemas: boolean
     readonly exportParametersTypes: boolean
@@ -41,15 +42,20 @@ export function componentsCode(
   },
 ): string {
   const code = [
-    schemasCode(components, options.exportSchemas, options.exportSchemasTypes),
-    parametersCode(components, options.exportParameters, options.exportParametersTypes),
-    securitySchemesCode(components, options.exportSecuritySchemes),
-    requestBodiesCode(components, options.exportRequestBodies),
-    responsesCode(components, options.exportResponses),
-    headersCode(components, options.exportHeaders, options.exportHeadersTypes),
-    examplesCode(components, options.exportExamples),
-    linksCode(components, options.exportLinks),
-    callbacksCode(components, options.exportCallbacks),
+    schemasCode(components, options.exportSchemas, options.exportSchemasTypes, options.readonly),
+    parametersCode(
+      components,
+      options.exportParameters,
+      options.exportParametersTypes,
+      options.readonly,
+    ),
+    securitySchemesCode(components, options.exportSecuritySchemes, options.readonly),
+    requestBodiesCode(components, options.exportRequestBodies, options.readonly),
+    responsesCode(components, options.exportResponses, options.readonly),
+    headersCode(components, options.exportHeaders, options.exportHeadersTypes, options.readonly),
+    examplesCode(components, options.exportExamples, options.readonly),
+    linksCode(components, options.exportLinks, options.readonly),
+    callbacksCode(components, options.exportCallbacks, options.readonly),
   ]
     .filter(Boolean)
     .join('\n\n')

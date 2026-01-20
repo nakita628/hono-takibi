@@ -47,6 +47,7 @@ import { lowerFirst } from '../../utils/index.js'
  * @param openAPI - Parsed OpenAPI specification
  * @param routes - Route output configuration
  * @param components - Component import configuration
+ * @param readonly - Whether to add `as const` assertion to route definitions
  * @returns Promise resolving to success message or error
  *
  * @example
@@ -72,13 +73,14 @@ export async function route(
       readonly import?: string
     }
   },
+  readonly?: boolean | undefined,
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
   if (!routes?.output) return { ok: false, error: 'routes.output is required' }
 
   const { output, split = false } = routes
-  const routesSrc = routeCode(openAPI)
+  const routesSrc = routeCode(openAPI, readonly)
 
   // Write a single route file
   const writeFile = async (filePath: string, src: string) => {

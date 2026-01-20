@@ -274,11 +274,17 @@ export function ensureSuffix(text: string, suffix: string): string {
  * @param zodSchema - The Zod schema string to assign
  * @param exportSchema - Whether to `export` the Zod schema constant
  * @param exportType - Whether to `export` the inferred type alias
+ * @param notComponentSchema - Whether to skip `.openapi()` suffix (for parameters/headers)
+ * @param readonly - Whether to add `.readonly()` modifier to the schema
  * @returns The generated code string containing the schema and optional type alias
  *
  * @example
  * zodToOpenAPISchema('User', 'z.object({name: z.string()})', true, true)
  * // → 'export const UserSchema = z.object({name: z.string()}).openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
+ *
+ * @example
+ * zodToOpenAPISchema('User', 'z.object({name: z.string()})', true, true, false, true)
+ * // → 'export const UserSchema = z.object({name: z.string()}).readonly().openapi("User")\n\nexport type User = z.infer<typeof UserSchema>'
  */
 export function zodToOpenAPISchema(
   schemaName: string,
@@ -286,15 +292,17 @@ export function zodToOpenAPISchema(
   exportSchema: boolean,
   exportType: boolean,
   notComponentSchema?: boolean,
+  readonly?: boolean | undefined,
 ): string {
+  const readonlyModifier = readonly ? '.readonly()' : ''
   const schemaCode = exportSchema
-    ? `export const ${schemaName}=${zodSchema}`
-    : `const ${schemaName}=${zodSchema}`
+    ? `export const ${schemaName}=${zodSchema}${readonlyModifier}`
+    : `const ${schemaName}=${zodSchema}${readonlyModifier}`
 
   // schema code
   const componentSchemaCode = exportSchema
-    ? `export const ${schemaName}=${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
-    : `const ${schemaName}=${zodSchema}.openapi('${schemaName.replace('Schema', '')}')`
+    ? `export const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${schemaName.replace('Schema', '')}')`
+    : `const ${schemaName}=${zodSchema}${readonlyModifier}.openapi('${schemaName.replace('Schema', '')}')`
   // zod infer code
   const zodInferCode = exportType
     ? `\n\nexport type ${schemaName.replace('Schema', '')}=z.infer<typeof ${schemaName}>`

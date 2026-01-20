@@ -189,6 +189,7 @@ describe('honoTakibi --help', () => {
       value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
+  --readonly                  add .readonly() to all schemas
   --export-schemas-types      export schemas types
   --export-schemas            export schemas
   --export-parameters-types   export parameters types
@@ -221,6 +222,7 @@ describe('honoTakibi -h', () => {
       value: `Usage: hono-takibi <input.{yaml,json,tsp}> -o <routes.ts> [options]
 
 Options:
+  --readonly                  add .readonly() to all schemas
   --export-schemas-types      export schemas types
   --export-schemas            export schemas
   --export-parameters-types   export parameters types
