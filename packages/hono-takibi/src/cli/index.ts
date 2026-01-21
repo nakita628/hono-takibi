@@ -349,7 +349,13 @@ export async function honoTakibi(): Promise<
       ? type(openAPI, config.type.output, config.type.readonly)
       : Promise.resolve(undefined),
     config.rpc
-      ? rpc(openAPI, config.rpc.output, config.rpc.import, config.rpc.split ?? false)
+      ? rpc(
+          openAPI,
+          config.rpc.output,
+          config.rpc.import,
+          config.rpc.split ?? false,
+          config.rpc.client ?? 'client',
+        )
       : Promise.resolve(undefined),
   ])
 

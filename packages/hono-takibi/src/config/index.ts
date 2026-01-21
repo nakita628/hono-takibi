@@ -92,6 +92,7 @@ type Config = {
     readonly output: string | `${string}.ts`
     readonly import: string
     readonly split?: boolean
+    readonly client?: string
   }
 }
 
@@ -373,6 +374,9 @@ export function parseConfig(
     }
     if (config.rpc.split !== undefined && typeof config.rpc.split !== 'boolean') {
       return { ok: false, error: `Invalid split format for rpc: ${String(config.rpc.split)}` }
+    }
+    if (config.rpc.client !== undefined && typeof config.rpc.client !== 'string') {
+      return { ok: false, error: `Invalid client format for rpc: ${String(config.rpc.client)}` }
     }
     // split: true requires directory (no .ts)
     if (config.rpc.split === true && isTs(config.rpc.output)) {

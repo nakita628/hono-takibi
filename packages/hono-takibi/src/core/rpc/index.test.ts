@@ -1137,4 +1137,66 @@ export * from './getAllOptional'
       fs.rmSync(dir, { recursive: true, force: true })
     }
   })
+
+  it('should generate code with custom client name', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-client-'))
+    try {
+      const out = path.join(dir, 'index.ts')
+      const simpleOpenAPI: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/users': {
+            get: {
+              summary: 'Get users',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(simpleOpenAPI, out, '../api', false, 'authClient')
+
+      if (!result.ok) {
+        throw new Error(result.error)
+      }
+
+      const code = fs.readFileSync(out, 'utf-8')
+      expect(code).toContain("import { authClient } from '../api'")
+      expect(code).toContain('return await authClient.users.$get(undefined, options)')
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('should generate split files with custom client name', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'takibi-rpc-client-split-'))
+    try {
+      const out = path.join(dir, 'rpc')
+      const simpleOpenAPI: OpenAPI = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/admin/users': {
+            get: {
+              summary: 'Get admin users',
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+
+      const result = await rpc(simpleOpenAPI, out, '../api', true, 'adminClient')
+
+      if (!result.ok) {
+        throw new Error(result.error)
+      }
+
+      const code = fs.readFileSync(path.join(dir, 'rpc', 'getAdminUsers.ts'), 'utf-8')
+      expect(code).toContain("import { adminClient } from '../api'")
+      expect(code).toContain('return await adminClient.admin.users.$get(undefined, options)')
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
 })

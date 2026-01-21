@@ -1,0 +1,18 @@
+{
+  "name": "@fixtures/custom-client",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "takibi": "hono-takibi",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/zod-openapi": "^1.1.5",
+    "hono": "^4.10.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "typescript": "^5.9.3",
+    "hono-takibi": "workspace:^"
+  }
+}
