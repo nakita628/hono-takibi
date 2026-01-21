@@ -306,5 +306,27 @@ describe('parseConfig()', () => {
         expect(result.error).toMatch(/Invalid input/)
       }
     })
+
+    it.concurrent('accepts rpc with custom client name', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        rpc: { output: 'rpc/index.ts', import: '../api', client: 'authClient' },
+      })
+      expect(result.ok).toBe(true)
+      if (result.ok) {
+        expect(result.value.rpc?.client).toBe('authClient')
+      }
+    })
+
+    it.concurrent('fails when rpc client is not a string', () => {
+      const result = parseConfig({
+        input: 'openapi.yaml',
+        rpc: { output: 'rpc/index.ts', import: '../client', client: 123 as unknown as string },
+      })
+      expect(result.ok).toBe(false)
+      if (!result.ok) {
+        expect(result.error).toMatch(/Invalid client format for rpc/)
+      }
+    })
   })
 })

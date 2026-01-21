@@ -417,13 +417,18 @@ const resolveSplitOutDir = (output: string) => {
  *
  * @param importPath - The import path for the Hono client
  * @param needsInferRequestType - Whether InferRequestType import is needed
+ * @param clientName - The name of the client to import (default: 'client')
  * @returns Import header string
  */
-const makeHeader = (importPath: string, needsInferRequestType: boolean): string => {
+const makeHeader = (
+  importPath: string,
+  needsInferRequestType: boolean,
+  clientName: string,
+): string => {
   const typeImports = needsInferRequestType
     ? 'InferRequestType,ClientRequestOptions'
     : 'ClientRequestOptions'
-  return `import type{${typeImports}}from'hono/client'\nimport{client}from'${importPath}'\n\n`
+  return `import type{${typeImports}}from'hono/client'\nimport{${clientName}}from'${importPath}'\n\n`
 }
 
 export async function rpc(
@@ -431,10 +436,11 @@ export async function rpc(
   output: string | `${string}.ts`,
   importPath: string,
   split?: boolean,
+  clientName = 'client',
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  const client = 'client'
+  const client = clientName
 
   const pathsMaybe = openAPI.paths
   if (!isOpenAPIPaths(pathsMaybe)) {
@@ -459,7 +465,7 @@ export async function rpc(
   if (!split) {
     const body = operationCodes.map(({ code }) => code).join('\n\n')
     const needsInferRequestType = operationCodes.some(({ hasArgs }) => hasArgs)
-    const header = makeHeader(importPath, needsInferRequestType)
+    const header = makeHeader(importPath, needsInferRequestType, client)
     const code = `${header}${body}${operationCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
     if (!coreResult.ok) return { ok: false, error: coreResult.error }
@@ -476,7 +482,7 @@ export async function rpc(
 
   const allResults = await Promise.all([
     ...operationCodes.map(({ funcName, code, hasArgs }) => {
-      const header = makeHeader(importPath, hasArgs)
+      const header = makeHeader(importPath, hasArgs, client)
       const fileSrc = `${header}${code}\n`
       const filePath = path.join(outDir, `${funcName}.ts`)
       return core(fileSrc, path.dirname(filePath), filePath)

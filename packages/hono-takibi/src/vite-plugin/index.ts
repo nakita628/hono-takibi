@@ -476,14 +476,26 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
         const outputDirectory = toAbsolutePath(rpcConfig.output)
         const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
         await deleteTypeScriptFiles(beforeFiles)
-        const rpcResult = await rpc(openAPI, outputDirectory, rpcConfig.import, true)
+        const rpcResult = await rpc(
+          openAPI,
+          outputDirectory,
+          rpcConfig.import,
+          true,
+          rpcConfig.client ?? 'client',
+        )
         if (!rpcResult.ok) return `✗ rpc(split): ${rpcResult.error}`
         return beforeFiles.length > 0
           ? `✓ rpc(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
           : `✓ rpc(split) -> ${outputDirectory}/*.ts`
       }
       const outputPath = toAbsolutePath(rpcConfig.output)
-      const rpcResult = await rpc(openAPI, outputPath, rpcConfig.import, false)
+      const rpcResult = await rpc(
+        openAPI,
+        outputPath,
+        rpcConfig.import,
+        false,
+        rpcConfig.client ?? 'client',
+      )
       return rpcResult.ok ? `✓ rpc -> ${outputPath}` : `✗ rpc: ${rpcResult.error}`
     })()
   }

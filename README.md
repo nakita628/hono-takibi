@@ -75,7 +75,9 @@ export const getRoute = createRoute({
       description: 'OK',
       content: {
         'application/json': {
-          schema: z.object({ message: z.string().openapi({ example: 'Hono Takibi🔥' }) }),
+          schema: z
+            .object({ message: z.string().openapi({ example: 'Hono Takibi🔥' }) })
+            .openapi({ required: ['message'] }),
         },
       },
     },
