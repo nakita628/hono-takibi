@@ -8,7 +8,7 @@
     "takibi": "hono-takibi",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
-    "build": "rm -rf ./dist/* && tsgo",
+    "build": "vite build --mode client && vite build",
     "typecheck": "tsgo --noEmit"
   },
   "devDependencies": {

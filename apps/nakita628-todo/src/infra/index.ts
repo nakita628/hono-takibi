@@ -1,6 +1,6 @@
 import { createClient } from '@libsql/client'
 import { drizzle } from 'drizzle-orm/libsql'
-import * as table from '@/db/schema.ts'
+import * as table from '@/db/schema'
 import 'dotenv/config'
 
 if (process.env.DB_FILE_NAME === undefined) {

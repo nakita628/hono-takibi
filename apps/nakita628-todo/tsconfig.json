@@ -8,11 +8,11 @@
     "exactOptionalPropertyTypes": true,
     "rootDir": "./src",
     "outDir": "./dist",
-    "types": ["vite/client"],
+    "types": ["node", "vite/client"],
     "jsx": "react-jsx",
     "jsxImportSource": "react",
     "paths": {
-      "*": ["./*"], 
+      "*": ["./*"],
       "@/*": ["./src/*"]
     }
   }
