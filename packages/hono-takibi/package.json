@@ -1,6 +1,6 @@
 {
   "name": "hono-takibi",
-  "description": "Hono Takibi is a CLI tool that generates Hono routes from OpenAPI specifications.",
+  "description": "Hono Takibi is a code generator from OpenAPI to @hono/zod-openapi",
   "version": "0.9.77",
   "type": "module",
   "license": "MIT",
