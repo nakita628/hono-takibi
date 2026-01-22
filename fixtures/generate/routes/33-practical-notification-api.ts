@@ -312,7 +312,9 @@ const PageParamParamsSchema = z
   .min(1)
   .default(1)
   .exactOptional()
-  .openapi({ param: { name: 'page', in: 'query' } })
+  .openapi({
+    param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
+  })
 
 const LimitParamParamsSchema = z
   .int()
@@ -320,7 +322,13 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({ param: { name: 'limit', in: 'query' } })
+  .openapi({
+    param: {
+      name: 'limit',
+      in: 'query',
+      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+    },
+  })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -354,11 +362,25 @@ export const getNotificationsRoute = createRoute({
       read: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'read', in: 'query', description: '既読/未読でフィルタ' } }),
+        .openapi({
+          param: {
+            name: 'read',
+            in: 'query',
+            description: '既読/未読でフィルタ',
+            schema: { type: 'boolean' },
+          },
+        }),
       type: z
         .enum(['info', 'success', 'warning', 'error', 'system'])
         .exactOptional()
-        .openapi({ param: { name: 'type', in: 'query', description: '通知タイプでフィルタ' } }),
+        .openapi({
+          param: {
+            name: 'type',
+            in: 'query',
+            description: '通知タイプでフィルタ',
+            schema: { type: 'string', enum: ['info', 'success', 'warning', 'error', 'system'] },
+          },
+        }),
     }),
   },
   responses: {
@@ -381,7 +403,14 @@ export const getNotificationsNotificationIdRoute = createRoute({
     params: z.object({
       notificationId: z
         .uuid()
-        .openapi({ param: { name: 'notificationId', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'notificationId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -405,7 +434,14 @@ export const deleteNotificationsNotificationIdRoute = createRoute({
     params: z.object({
       notificationId: z
         .uuid()
-        .openapi({ param: { name: 'notificationId', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'notificationId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -422,7 +458,14 @@ export const postNotificationsNotificationIdReadRoute = createRoute({
     params: z.object({
       notificationId: z
         .uuid()
-        .openapi({ param: { name: 'notificationId', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'notificationId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -524,7 +567,16 @@ export const getMessagesMessageIdRoute = createRoute({
   operationId: 'getMessageStatus',
   request: {
     params: z.object({
-      messageId: z.uuid().openapi({ param: { name: 'messageId', in: 'path', required: true } }),
+      messageId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'messageId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -549,11 +601,17 @@ export const getTemplatesRoute = createRoute({
       channel: z
         .enum(['email', 'sms', 'push', 'in_app'])
         .exactOptional()
-        .openapi({ param: { name: 'channel', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'channel',
+            in: 'query',
+            schema: { type: 'string', enum: ['email', 'sms', 'push', 'in_app'] },
+          },
+        }),
       search: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'search', in: 'query' } }),
+        .openapi({ param: { name: 'search', in: 'query', schema: { type: 'string' } } }),
     }),
   },
   responses: {
@@ -594,7 +652,16 @@ export const getTemplatesTemplateIdRoute = createRoute({
   operationId: 'getTemplate',
   request: {
     params: z.object({
-      templateId: z.uuid().openapi({ param: { name: 'templateId', in: 'path', required: true } }),
+      templateId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'templateId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -616,7 +683,16 @@ export const putTemplatesTemplateIdRoute = createRoute({
   operationId: 'updateTemplate',
   request: {
     params: z.object({
-      templateId: z.uuid().openapi({ param: { name: 'templateId', in: 'path', required: true } }),
+      templateId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'templateId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: {
       content: { 'application/json': { schema: UpdateTemplateRequestSchema } },
@@ -638,7 +714,16 @@ export const deleteTemplatesTemplateIdRoute = createRoute({
   operationId: 'deleteTemplate',
   request: {
     params: z.object({
-      templateId: z.uuid().openapi({ param: { name: 'templateId', in: 'path', required: true } }),
+      templateId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'templateId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -653,7 +738,16 @@ export const postTemplatesTemplateIdPreviewRoute = createRoute({
   operationId: 'previewTemplate',
   request: {
     params: z.object({
-      templateId: z.uuid().openapi({ param: { name: 'templateId', in: 'path', required: true } }),
+      templateId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'templateId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: {
       content: {
@@ -763,7 +857,11 @@ export const deleteChannelsDevicesDeviceIdRoute = createRoute({
   operationId: 'unregisterDevice',
   request: {
     params: z.object({
-      deviceId: z.string().openapi({ param: { name: 'deviceId', in: 'path', required: true } }),
+      deviceId: z
+        .string()
+        .openapi({
+          param: { name: 'deviceId', in: 'path', required: true, schema: { type: 'string' } },
+        }),
     }),
   },
   responses: { 204: { description: '解除成功' }, 401: UnauthorizedResponse },
@@ -813,7 +911,16 @@ export const getWebhooksWebhookIdRoute = createRoute({
   operationId: 'getWebhook',
   request: {
     params: z.object({
-      webhookId: z.uuid().openapi({ param: { name: 'webhookId', in: 'path', required: true } }),
+      webhookId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'webhookId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -832,7 +939,16 @@ export const putWebhooksWebhookIdRoute = createRoute({
   operationId: 'updateWebhook',
   request: {
     params: z.object({
-      webhookId: z.uuid().openapi({ param: { name: 'webhookId', in: 'path', required: true } }),
+      webhookId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'webhookId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: {
       content: { 'application/json': { schema: UpdateWebhookRequestSchema } },
@@ -854,7 +970,16 @@ export const deleteWebhooksWebhookIdRoute = createRoute({
   operationId: 'deleteWebhook',
   request: {
     params: z.object({
-      webhookId: z.uuid().openapi({ param: { name: 'webhookId', in: 'path', required: true } }),
+      webhookId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'webhookId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -869,7 +994,16 @@ export const postWebhooksWebhookIdTestRoute = createRoute({
   operationId: 'testWebhook',
   request: {
     params: z.object({
-      webhookId: z.uuid().openapi({ param: { name: 'webhookId', in: 'path', required: true } }),
+      webhookId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'webhookId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {

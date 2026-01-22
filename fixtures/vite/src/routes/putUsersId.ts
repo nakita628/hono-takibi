@@ -11,7 +11,16 @@ export const putUsersIdRoute = createRoute({
   operationId: 'replaceUser',
   request: {
     params: z.object({
-      id: z.uuid().openapi({ param: { name: 'id', in: 'path', required: true } }),
+      id: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: {
       content: {

@@ -202,7 +202,7 @@ export const getItemsRoute = createRoute({
 
 export const ItemIdParamsSchema = z
   .string()
-  .openapi({ param: { name: 'id', in: 'path', required: true } })
+  .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } })
 
 export const getItemsIdRoute = createRoute({
   method: 'get',
@@ -245,7 +245,9 @@ export const getItemsIdRoute = createRoute({
     const result = fs.readFileSync('tmp-cli-test/output.ts', { encoding: 'utf-8' })
     expect(result).toBe(`import { createRoute, z } from '@hono/zod-openapi'
 
-const ItemIdParamsSchema = z.string().openapi({ param: { name: 'id', in: 'path', required: true } })
+const ItemIdParamsSchema = z
+  .string()
+  .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } })
 
 export type ItemIdParams = z.infer<typeof ItemIdParamsSchema>
 
@@ -589,7 +591,9 @@ export const getUsersIdRoute = createRoute({
   operationId: 'getUser',
   request: {
     params: z.object({
-      id: z.string().openapi({ param: { name: 'id', in: 'path', required: true } }),
+      id: z
+        .string()
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
     }),
   },
   responses: { 200: { description: 'Success', links: { GetUserPosts: GetUserPostsLink } } },
@@ -745,7 +749,7 @@ export type Item = z.infer<typeof ItemSchema>
 
 export const ItemIdParamsSchema = z
   .string()
-  .openapi({ param: { name: 'id', in: 'path', required: true } })
+  .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } })
 
 export type ItemIdParams = z.infer<typeof ItemIdParamsSchema>
 
@@ -917,7 +921,7 @@ export const getUsersRouteHandler: RouteHandler<typeof getUsersRoute> = async (c
 
     // Verify handler index file
     const handlerIndexFile = fs.readFileSync(path.join(testDir, 'src/handlers/index.ts'), 'utf-8')
-    expect(handlerIndexFile).toBe(`export * from './users'
+    expect(handlerIndexFile).toBe(`export * from './users.ts'
 `)
   })
 
@@ -1606,7 +1610,7 @@ export const getUsersRoute = createRoute({
     })
 
     const securityIndex = fs.readFileSync(path.join(testDir, 'src/security/index.ts'), 'utf-8')
-    expect(securityIndex).toBe(`export * from './bearerAuth'\n`)
+    expect(securityIndex).toBe(`export * from './bearerAuth.ts'\n`)
 
     const bearerAuthFile = fs.readFileSync(
       path.join(testDir, 'src/security/bearerAuth.ts'),
@@ -1750,7 +1754,7 @@ export const postUsersRoute = createRoute({
     })
 
     const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
-    expect(examplesIndex).toBe(`export * from './userExample'\n`)
+    expect(examplesIndex).toBe(`export * from './userExample.ts'\n`)
 
     const userExampleFile = fs.readFileSync(
       path.join(testDir, 'src/examples/userExample.ts'),
@@ -1840,9 +1844,9 @@ export const getUsersRoute = createRoute({
 
     // Check index.ts exports all examples
     const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
-    expect(examplesIndex).toBe(`export * from './aliasUser'
-export * from './baseUser'
-export * from './chainedUser'
+    expect(examplesIndex).toBe(`export * from './aliasUser.ts'
+export * from './baseUser.ts'
+export * from './chainedUser.ts'
 `)
 
     // Check BaseUser is exported as object (no import)
@@ -1855,7 +1859,7 @@ export * from './chainedUser'
 
     // Check AliasUser imports and references BaseUser
     const aliasUserFile = fs.readFileSync(path.join(testDir, 'src/examples/aliasUser.ts'), 'utf-8')
-    expect(aliasUserFile).toBe(`import { BaseUserExample } from './baseUser'
+    expect(aliasUserFile).toBe(`import { BaseUserExample } from './baseUser.ts'
 
 export const AliasUserExample = BaseUserExample
 `)
@@ -1866,7 +1870,7 @@ export const AliasUserExample = BaseUserExample
       path.join(testDir, 'src/examples/chainedUser.ts'),
       'utf-8',
     )
-    expect(chainedUserFile).toBe(`import { BaseUserExample } from './baseUser'
+    expect(chainedUserFile).toBe(`import { BaseUserExample } from './baseUser.ts'
 
 export const ChainedUserExample = BaseUserExample
 `)
@@ -1954,8 +1958,8 @@ export const getUsersRoute = createRoute({
 
     // Check index.ts exports all examples
     const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
-    expect(examplesIndex).toBe(`export * from './baseUser'
-export * from './extendedUser'
+    expect(examplesIndex).toBe(`export * from './baseUser.ts'
+export * from './extendedUser.ts'
 `)
 
     // Check BaseUser is exported with its own properties
@@ -1971,7 +1975,7 @@ export * from './extendedUser'
       path.join(testDir, 'src/examples/extendedUser.ts'),
       'utf-8',
     )
-    expect(extendedUserFile).toBe(`import { BaseUserExample } from './baseUser'
+    expect(extendedUserFile).toBe(`import { BaseUserExample } from './baseUser.ts'
 
 export const ExtendedUserExample = BaseUserExample
 `)
@@ -2060,8 +2064,8 @@ export const getUsersRoute = createRoute({
 
     // Check index.ts exports all examples
     const examplesIndex = fs.readFileSync(path.join(testDir, 'src/examples/index.ts'), 'utf-8')
-    expect(examplesIndex).toBe(`export * from './aliasJapanese'
-export * from './japaneseMessage'
+    expect(examplesIndex).toBe(`export * from './aliasJapanese.ts'
+export * from './japaneseMessage.ts'
 `)
 
     // Check JapaneseMessage is exported with Unicode content
@@ -2077,7 +2081,7 @@ export * from './japaneseMessage'
 
     // Check AliasJapanese imports and references JapaneseMessage
     const aliasFile = fs.readFileSync(path.join(testDir, 'src/examples/aliasJapanese.ts'), 'utf-8')
-    expect(aliasFile).toBe(`import { JapaneseMessageExample } from './japaneseMessage'
+    expect(aliasFile).toBe(`import { JapaneseMessageExample } from './japaneseMessage.ts'
 
 export const AliasJapaneseExample = JapaneseMessageExample
 `)
@@ -2155,7 +2159,7 @@ export const getMessagesRoute = createRoute({
     })
 
     const linksIndex = fs.readFileSync(path.join(testDir, 'src/links/index.ts'), 'utf-8')
-    expect(linksIndex).toBe(`export * from './getUserPosts'\n`)
+    expect(linksIndex).toBe(`export * from './getUserPosts.ts'\n`)
 
     const getUserPostsFile = fs.readFileSync(
       path.join(testDir, 'src/links/getUserPosts.ts'),
@@ -2177,7 +2181,9 @@ export const getUsersIdRoute = createRoute({
   operationId: 'getUser',
   request: {
     params: z.object({
-      id: z.string().openapi({ param: { name: 'id', in: 'path', required: true } }),
+      id: z
+        .string()
+        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
     }),
   },
   responses: { 200: { description: 'Success', links: { GetUserPosts: GetUserPostsLink } } },
@@ -2239,7 +2245,7 @@ export const getUsersIdRoute = createRoute({
     })
 
     const callbacksIndex = fs.readFileSync(path.join(testDir, 'src/callbacks/index.ts'), 'utf-8')
-    expect(callbacksIndex).toBe(`export * from './onEvent'\n`)
+    expect(callbacksIndex).toBe(`export * from './onEvent.ts'\n`)
 
     const onEventFile = fs.readFileSync(path.join(testDir, 'src/callbacks/onEvent.ts'), 'utf-8')
     expect(onEventFile).toBe(`export const OnEventCallback = {

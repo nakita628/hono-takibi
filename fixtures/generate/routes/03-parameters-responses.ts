@@ -27,7 +27,13 @@ const PageParamParamsSchema = z
   .default(1)
   .exactOptional()
   .openapi({
-    param: { name: 'page', in: 'query', description: 'Page number (1-indexed)', required: false },
+    param: {
+      name: 'page',
+      in: 'query',
+      description: 'Page number (1-indexed)',
+      required: false,
+      schema: { type: 'integer', format: 'int32', minimum: 1, default: 1 },
+    },
   })
 
 const LimitParamParamsSchema = z
@@ -37,7 +43,13 @@ const LimitParamParamsSchema = z
   .default(20)
   .exactOptional()
   .openapi({
-    param: { name: 'limit', in: 'query', description: 'Items per page', required: false },
+    param: {
+      name: 'limit',
+      in: 'query',
+      description: 'Items per page',
+      required: false,
+      schema: { type: 'integer', format: 'int32', minimum: 1, maximum: 100, default: 20 },
+    },
   })
 
 const SortParamParamsSchema = z
@@ -45,13 +57,25 @@ const SortParamParamsSchema = z
   .regex(/^[a-zA-Z_]+:(asc|desc)$/)
   .exactOptional()
   .openapi({
-    param: { name: 'sort', in: 'query', description: 'Sort field and direction', required: false },
+    param: {
+      name: 'sort',
+      in: 'query',
+      description: 'Sort field and direction',
+      required: false,
+      schema: { type: 'string', pattern: '^[a-zA-Z_]+:(asc|desc)$' },
+    },
   })
 
 const ItemIdPathParamsSchema = z
   .uuid()
   .openapi({
-    param: { name: 'itemId', in: 'path', description: 'Item identifier', required: true },
+    param: {
+      name: 'itemId',
+      in: 'path',
+      description: 'Item identifier',
+      required: true,
+      schema: { type: 'string', format: 'uuid' },
+    },
   })
 
 const IfMatchHeaderParamsSchema = z
@@ -63,6 +87,7 @@ const IfMatchHeaderParamsSchema = z
       in: 'header',
       description: 'ETag for optimistic locking',
       required: false,
+      schema: { type: 'string' },
     },
   })
 

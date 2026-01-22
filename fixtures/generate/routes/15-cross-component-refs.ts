@@ -340,6 +340,7 @@ const EntityIdPathParamsSchema = EntityIdSchema.openapi({
     in: 'path',
     required: true,
     description: 'Entity unique identifier',
+    schema: { $ref: '#/components/schemas/EntityId' },
     examples: { validUuid: EntityIdExample },
   },
 })
@@ -372,6 +373,7 @@ const FilterParamParamsSchema = FilterExpressionSchema.exactOptional().openapi({
     required: false,
     style: 'deepObject',
     explode: true,
+    schema: { $ref: '#/components/schemas/FilterExpression' },
     examples: { simpleFilter: SimpleFilterExample, complexFilter: ComplexFilterExample },
   },
 })
@@ -384,6 +386,7 @@ const PaginationParamParamsSchema = PaginationInputSchema.exactOptional().openap
     required: false,
     style: 'deepObject',
     explode: true,
+    schema: { $ref: '#/components/schemas/PaginationInput' },
   },
 })
 
@@ -398,6 +401,7 @@ const SortParamParamsSchema = z
       required: false,
       style: 'form',
       explode: true,
+      schema: { type: 'array', items: { $ref: '#/components/schemas/SortExpression' } },
     },
   })
 
@@ -412,6 +416,10 @@ const IncludeParamParamsSchema = z
           in: 'query',
           description: 'Related resources to include',
           required: false,
+          schema: {
+            type: 'array',
+            items: { type: 'string', enum: ['parent', 'children', 'owner', 'members'] },
+          },
           style: 'form',
           explode: false,
         },
@@ -424,6 +432,10 @@ const IncludeParamParamsSchema = z
       in: 'query',
       description: 'Related resources to include',
       required: false,
+      schema: {
+        type: 'array',
+        items: { type: 'string', enum: ['parent', 'children', 'owner', 'members'] },
+      },
       style: 'form',
       explode: false,
     },
@@ -440,6 +452,7 @@ const IfMatchHeaderParamsSchema = z
       in: 'header',
       description: 'ETag for optimistic locking',
       required: false,
+      schema: { type: 'string' },
       examples: { etag: EtagExample },
     },
   })
@@ -453,6 +466,7 @@ const IfNoneMatchHeaderParamsSchema = z
       in: 'header',
       description: 'ETag for cache validation',
       required: false,
+      schema: { type: 'string' },
     },
   })
 
@@ -470,6 +484,7 @@ const IdempotencyKeyHeaderParamsSchema = z
       in: 'header',
       description: 'Idempotency key for safe retries',
       required: false,
+      schema: { type: 'string', format: 'uuid' },
       examples: { idempotencyKey: IdempotencyKeyExample },
     },
   })

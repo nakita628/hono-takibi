@@ -333,7 +333,7 @@ const ErrorSchema = z
 const CursorParamParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({ param: { name: 'cursor', in: 'query' } })
+  .openapi({ param: { name: 'cursor', in: 'query', schema: { type: 'string' } } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -341,7 +341,13 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({ param: { name: 'limit', in: 'query' } })
+  .openapi({
+    param: {
+      name: 'limit',
+      in: 'query',
+      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+    },
+  })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -401,7 +407,11 @@ export const getSettingsUsernameCheckRoute = createRoute({
   operationId: 'checkUsernameAvailability',
   request: {
     query: z.object({
-      username: z.string().openapi({ param: { name: 'username', in: 'query', required: true } }),
+      username: z
+        .string()
+        .openapi({
+          param: { name: 'username', in: 'query', required: true, schema: { type: 'string' } },
+        }),
     }),
   },
   responses: {
@@ -532,7 +542,16 @@ export const deleteSettingsMutedWordsWordIdRoute = createRoute({
   operationId: 'removeMutedWord',
   request: {
     params: z.object({
-      wordId: z.uuid().openapi({ param: { name: 'wordId', in: 'path', required: true } }),
+      wordId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'wordId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -563,7 +582,16 @@ export const deleteSettingsSessionsSessionIdRoute = createRoute({
   operationId: 'revokeSession',
   request: {
     params: z.object({
-      sessionId: z.uuid().openapi({ param: { name: 'sessionId', in: 'path', required: true } }),
+      sessionId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'sessionId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 204: { description: '無効化成功' }, 401: UnauthorizedResponse },
@@ -594,7 +622,16 @@ export const deleteSettingsConnectedAppsAppIdRoute = createRoute({
   operationId: 'revokeConnectedApp',
   request: {
     params: z.object({
-      appId: z.uuid().openapi({ param: { name: 'appId', in: 'path', required: true } }),
+      appId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'appId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 204: { description: '解除成功' }, 401: UnauthorizedResponse },
@@ -632,7 +669,16 @@ export const getSettingsDataExportRequestIdRoute = createRoute({
   operationId: 'getDataExportStatus',
   request: {
     params: z.object({
-      requestId: z.uuid().openapi({ param: { name: 'requestId', in: 'path', required: true } }),
+      requestId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'requestId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -700,7 +746,16 @@ export const getReportsReportIdRoute = createRoute({
   operationId: 'getReport',
   request: {
     params: z.object({
-      reportId: z.uuid().openapi({ param: { name: 'reportId', in: 'path', required: true } }),
+      reportId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'reportId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -722,11 +777,23 @@ export const getModerationQueueRoute = createRoute({
       status: z
         .enum(['pending', 'in_review', 'resolved'])
         .exactOptional()
-        .openapi({ param: { name: 'status', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'status',
+            in: 'query',
+            schema: { type: 'string', enum: ['pending', 'in_review', 'resolved'] },
+          },
+        }),
       type: z
         .enum(['post', 'user', 'message'])
         .exactOptional()
-        .openapi({ param: { name: 'type', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'type',
+            in: 'query',
+            schema: { type: 'string', enum: ['post', 'user', 'message'] },
+          },
+        }),
       cursor: CursorParamParamsSchema,
       limit: LimitParamParamsSchema,
     }),
@@ -750,7 +817,16 @@ export const getModerationItemsItemIdRoute = createRoute({
   operationId: 'getModerationItem',
   request: {
     params: z.object({
-      itemId: z.uuid().openapi({ param: { name: 'itemId', in: 'path', required: true } }),
+      itemId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'itemId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -772,7 +848,16 @@ export const postModerationItemsItemIdActionRoute = createRoute({
   operationId: 'takeModerationAction',
   request: {
     params: z.object({
-      itemId: z.uuid().openapi({ param: { name: 'itemId', in: 'path', required: true } }),
+      itemId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'itemId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: {
       content: { 'application/json': { schema: ModerationActionRequestSchema } },
@@ -798,7 +883,16 @@ export const getModerationUsersUserIdHistoryRoute = createRoute({
   operationId: 'getUserModerationHistory',
   request: {
     params: z.object({
-      userId: z.uuid().openapi({ param: { name: 'userId', in: 'path', required: true } }),
+      userId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -820,7 +914,16 @@ export const postModerationUsersUserIdSuspendRoute = createRoute({
   operationId: 'suspendUser',
   request: {
     params: z.object({
-      userId: z.uuid().openapi({ param: { name: 'userId', in: 'path', required: true } }),
+      userId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: {
       content: {
@@ -856,7 +959,16 @@ export const postModerationUsersUserIdUnsuspendRoute = createRoute({
   operationId: 'unsuspendUser',
   request: {
     params: z.object({
-      userId: z.uuid().openapi({ param: { name: 'userId', in: 'path', required: true } }),
+      userId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: {
       content: { 'application/json': { schema: z.object({ note: z.string().exactOptional() }) } },
@@ -878,7 +990,16 @@ export const getAnalyticsPostsPostIdRoute = createRoute({
   operationId: 'getPostAnalytics',
   request: {
     params: z.object({
-      postId: z.uuid().openapi({ param: { name: 'postId', in: 'path', required: true } }),
+      postId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'postId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -904,7 +1025,13 @@ export const getAnalyticsAccountRoute = createRoute({
         .enum(['7d', '28d', '90d'])
         .default('28d')
         .exactOptional()
-        .openapi({ param: { name: 'period', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'period',
+            in: 'query',
+            schema: { type: 'string', enum: ['7d', '28d', '90d'], default: '28d' },
+          },
+        }),
     }),
   },
   responses: {
@@ -929,7 +1056,13 @@ export const getAnalyticsFollowersRoute = createRoute({
         .enum(['7d', '28d', '90d'])
         .default('28d')
         .exactOptional()
-        .openapi({ param: { name: 'period', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'period',
+            in: 'query',
+            schema: { type: 'string', enum: ['7d', '28d', '90d'], default: '28d' },
+          },
+        }),
     }),
   },
   responses: {
@@ -954,17 +1087,35 @@ export const getAnalyticsTopPostsRoute = createRoute({
         .enum(['7d', '28d', '90d'])
         .default('28d')
         .exactOptional()
-        .openapi({ param: { name: 'period', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'period',
+            in: 'query',
+            schema: { type: 'string', enum: ['7d', '28d', '90d'], default: '28d' },
+          },
+        }),
       metric: z
         .enum(['impressions', 'engagements', 'likes', 'reposts'])
         .default('impressions')
         .exactOptional()
-        .openapi({ param: { name: 'metric', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'metric',
+            in: 'query',
+            schema: {
+              type: 'string',
+              enum: ['impressions', 'engagements', 'likes', 'reposts'],
+              default: 'impressions',
+            },
+          },
+        }),
       limit: z
         .int()
         .default(10)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: { name: 'limit', in: 'query', schema: { type: 'integer', default: 10 } },
+        }),
     }),
   },
   responses: {

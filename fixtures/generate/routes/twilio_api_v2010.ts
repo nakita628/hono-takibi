@@ -7954,6 +7954,7 @@ export const get20100401AccountsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only return the Account resources with friendly names that exactly match this name.',
+            schema: { type: 'string' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 30 } },
             examples: {
               readEmpty: { value: 'friendly_name' },
@@ -7967,6 +7968,7 @@ export const get20100401AccountsJsonRoute = createRoute({
           in: 'query',
           description:
             'Only return Account resources with the given status. Can be `closed`, `suspended` or `active`.',
+          schema: { $ref: '#/components/schemas/account_enum_status' },
           examples: { readEmpty: { value: 'active' }, readFull: { value: 'active' } },
         },
       }),
@@ -7981,6 +7983,7 @@ export const get20100401AccountsJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -7992,6 +7995,7 @@ export const get20100401AccountsJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -8002,6 +8006,7 @@ export const get20100401AccountsJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -8322,6 +8327,12 @@ export const get20100401AccountsSidJsonRoute = createRoute({
             name: 'Sid',
             in: 'path',
             description: 'The Account Sid that uniquely identifies the account to fetch',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -8460,6 +8471,12 @@ export const post20100401AccountsSidJsonRoute = createRoute({
             name: 'Sid',
             in: 'path',
             description: 'The Account Sid that uniquely identifies the account to update',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -8664,6 +8681,12 @@ export const get20100401AccountsAccountSidAddressesJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that is responsible for the Address resource to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -8677,6 +8700,7 @@ export const get20100401AccountsAccountSidAddressesJsonRoute = createRoute({
             name: 'CustomerName',
             in: 'query',
             description: 'The `customer_name` of the Address resources to read.',
+            schema: { type: 'string' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 30 } },
             examples: {
               readFull: { value: 'customer_name' },
@@ -8692,6 +8716,7 @@ export const get20100401AccountsAccountSidAddressesJsonRoute = createRoute({
             name: 'FriendlyName',
             in: 'query',
             description: 'The string that identifies the Address resources to read.',
+            schema: { type: 'string' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 30 } },
             examples: {
               readFull: { value: 'friendly_name' },
@@ -8707,6 +8732,7 @@ export const get20100401AccountsAccountSidAddressesJsonRoute = createRoute({
             name: 'EmergencyEnabled',
             in: 'query',
             description: 'Whether the address can be associated to a number for emergency calling.',
+            schema: { type: 'boolean' },
           },
         }),
       IsoCountry: z
@@ -8717,6 +8743,7 @@ export const get20100401AccountsAccountSidAddressesJsonRoute = createRoute({
             name: 'IsoCountry',
             in: 'query',
             description: 'The ISO country code of the Address resources to read.',
+            schema: { type: 'string', format: 'iso-country-code' },
             examples: { readFull: { value: 'US' }, readEmpty: { value: 'US' } },
           },
         }),
@@ -8731,6 +8758,7 @@ export const get20100401AccountsAccountSidAddressesJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -8742,6 +8770,7 @@ export const get20100401AccountsAccountSidAddressesJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -8752,6 +8781,7 @@ export const get20100401AccountsAccountSidAddressesJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -8899,6 +8929,12 @@ export const post20100401AccountsAccountSidAddressesJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will be responsible for the new Address resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -9077,6 +9113,12 @@ export const get20100401AccountsAccountSidAddressesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that is responsible for the Address resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -9090,6 +9132,12 @@ export const get20100401AccountsAccountSidAddressesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Address resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AD[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -9199,6 +9247,12 @@ export const post20100401AccountsAccountSidAddressesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that is responsible for the Address resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -9212,6 +9266,12 @@ export const post20100401AccountsAccountSidAddressesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Address resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AD[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -9387,6 +9447,12 @@ export const delete20100401AccountsAccountSidAddressesSidJsonRoute = createRoute
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that is responsible for the Address resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -9400,6 +9466,12 @@ export const delete20100401AccountsAccountSidAddressesSidJsonRoute = createRoute
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Address resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AD[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -9430,6 +9502,12 @@ export const get20100401AccountsAccountSidApplicationsJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Application resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -9443,6 +9521,7 @@ export const get20100401AccountsAccountSidApplicationsJsonRoute = createRoute({
             name: 'FriendlyName',
             in: 'query',
             description: 'The string that identifies the Application resources to read.',
+            schema: { type: 'string' },
             examples: {
               readFull: { value: 'friendly_name' },
               readEmpty: { value: 'friendly_name' },
@@ -9460,6 +9539,7 @@ export const get20100401AccountsAccountSidApplicationsJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -9471,6 +9551,7 @@ export const get20100401AccountsAccountSidApplicationsJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -9481,6 +9562,7 @@ export const get20100401AccountsAccountSidApplicationsJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -9636,6 +9718,12 @@ export const post20100401AccountsAccountSidApplicationsJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -9895,6 +9983,12 @@ export const get20100401AccountsAccountSidApplicationsSidJsonRoute = createRoute
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Application resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -9908,6 +10002,12 @@ export const get20100401AccountsAccountSidApplicationsSidJsonRoute = createRoute
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Application resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AP[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -10024,6 +10124,12 @@ export const post20100401AccountsAccountSidApplicationsSidJsonRoute = createRout
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Application resources to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -10037,6 +10143,12 @@ export const post20100401AccountsAccountSidApplicationsSidJsonRoute = createRout
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Application resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AP[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -10296,6 +10408,12 @@ export const delete20100401AccountsAccountSidApplicationsSidJsonRoute = createRo
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Application resources to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -10309,6 +10427,12 @@ export const delete20100401AccountsAccountSidApplicationsSidJsonRoute = createRo
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Application resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AP[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -10338,6 +10462,12 @@ export const get20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJson
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the AuthorizedConnectApp resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -10350,6 +10480,12 @@ export const get20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJson
               name: 'ConnectAppSid',
               in: 'path',
               description: 'The SID of the Connect App to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CN[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -10456,6 +10592,12 @@ export const get20100401AccountsAccountSidAuthorizedConnectAppsJsonRoute = creat
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the AuthorizedConnectApp resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -10472,6 +10614,7 @@ export const get20100401AccountsAccountSidAuthorizedConnectAppsJsonRoute = creat
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -10483,6 +10626,7 @@ export const get20100401AccountsAccountSidAuthorizedConnectAppsJsonRoute = creat
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -10493,6 +10637,7 @@ export const get20100401AccountsAccountSidAuthorizedConnectAppsJsonRoute = creat
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -10636,6 +10781,12 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersJsonRoute = creat
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) requesting the available phone number Country resources.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -10652,6 +10803,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersJsonRoute = creat
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -10663,6 +10815,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersJsonRoute = creat
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -10673,6 +10826,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersJsonRoute = creat
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -10805,6 +10959,12 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonRo
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) requesting the available phone number Country resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -10816,6 +10976,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonRo
             in: 'path',
             description:
               'The [ISO-3166-1](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code of the country to fetch available phone number information about.',
+            schema: { type: 'string', format: 'iso-country-code' },
             required: true,
           },
         }),
@@ -10920,6 +11081,12 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) requesting the AvailablePhoneNumber resources.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -10931,6 +11098,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'path',
               description:
                 'The [ISO-3166-1](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code of the country from which to read phone numbers.',
+              schema: { type: 'string', format: 'iso-country-code' },
               required: true,
             },
           }),
@@ -10945,6 +11113,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'The area code of the phone numbers to read. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         Contains: z
@@ -10956,6 +11125,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 "Matching pattern to identify phone numbers. This pattern can be between 2 and 16 characters long and allows all digits (0-9) and all non-diacritic latin alphabet letters (a-z, A-Z). It accepts four meta-characters: `*`, `%`, `+`, `$`. The `*` and `%` meta-characters can appear multiple times in the pattern. To match wildcards at the beginning or end of the pattern, use `*` to match any single character or `%` to match a sequence of characters. If you use the wildcard patterns, it must include at least two non-meta-characters, and wildcards cannot be used between non-meta-characters. To match the beginning of a pattern, start the pattern with `+`. To match the end of the pattern, append the pattern with `$`. These meta-characters can't be adjacent to each other.",
+              schema: { type: 'string' },
             },
           }),
         SmsEnabled: z
@@ -10967,6 +11137,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Whether the phone numbers can receive text messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         MmsEnabled: z
@@ -10978,6 +11149,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Whether the phone numbers can receive MMS messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         VoiceEnabled: z
@@ -10989,6 +11161,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Whether the phone numbers can receive calls. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeAllAddressRequired: z
@@ -11000,6 +11173,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require an [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeLocalAddressRequired: z
@@ -11011,6 +11185,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a local [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeForeignAddressRequired: z
@@ -11022,6 +11197,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a foreign [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         Beta: z
@@ -11033,6 +11209,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Whether to read phone numbers that are new to the Twilio platform. Can be: `true` or `false` and the default is `true`.',
+              schema: { type: 'boolean' },
               examples: { readFull: { value: 'true' }, readEmpty: { value: 'true' } },
             },
           }),
@@ -11045,6 +11222,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Given a phone number, find a geographically close number within `distance` miles. Distance defaults to 25 miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string', format: 'phone-number' },
             },
           }),
         NearLatLong: z
@@ -11056,6 +11234,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Given a latitude/longitude pair `lat,long` find geographically close numbers within `distance` miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         Distance: z
@@ -11067,6 +11246,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'The search radius, in miles, for a `near_` query.  Can be up to `500` and the default is `25`. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         InPostalCode: z
@@ -11078,6 +11258,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Limit results to a particular postal code. Given a phone number, search within the same postal code as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRegion: z
@@ -11089,6 +11270,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Limit results to a particular region, state, or province. Given a phone number, search within the same region as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRateCenter: z
@@ -11100,6 +11282,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Limit results to a specific rate center, or given a phone number search within the same rate center as that number. Requires `in_lata` to be set as well. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLata: z
@@ -11111,6 +11294,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Limit results to a specific local access and transport area ([LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area)). Given a phone number, search within the same [LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area) as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLocality: z
@@ -11122,6 +11306,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Limit results to a particular locality or city. Given a phone number, search within the same Locality as that number.',
+              schema: { type: 'string' },
             },
           }),
         FaxEnabled: z
@@ -11133,6 +11318,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'Whether the phone numbers can receive faxes. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         PageSize: z
@@ -11146,6 +11332,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -11157,6 +11344,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -11167,6 +11355,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJ
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -11298,6 +11487,12 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) requesting the AvailablePhoneNumber resources.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -11309,6 +11504,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'path',
               description:
                 'The [ISO-3166-1](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code of the country from which to read phone numbers.',
+              schema: { type: 'string', format: 'iso-country-code' },
               required: true,
             },
           }),
@@ -11323,6 +11519,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'The area code of the phone numbers to read. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         Contains: z
@@ -11334,6 +11531,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 "Matching pattern to identify phone numbers. This pattern can be between 2 and 16 characters long and allows all digits (0-9) and all non-diacritic latin alphabet letters (a-z, A-Z). It accepts four meta-characters: `*`, `%`, `+`, `$`. The `*` and `%` meta-characters can appear multiple times in the pattern. To match wildcards at the beginning or end of the pattern, use `*` to match any single character or `%` to match a sequence of characters. If you use the wildcard patterns, it must include at least two non-meta-characters, and wildcards cannot be used between non-meta-characters. To match the beginning of a pattern, start the pattern with `+`. To match the end of the pattern, append the pattern with `$`. These meta-characters can't be adjacent to each other.",
+              schema: { type: 'string' },
             },
           }),
         SmsEnabled: z
@@ -11345,6 +11543,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Whether the phone numbers can receive text messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         MmsEnabled: z
@@ -11356,6 +11555,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Whether the phone numbers can receive MMS messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         VoiceEnabled: z
@@ -11367,6 +11567,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Whether the phone numbers can receive calls. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeAllAddressRequired: z
@@ -11378,6 +11579,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require an [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeLocalAddressRequired: z
@@ -11389,6 +11591,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a local [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeForeignAddressRequired: z
@@ -11400,6 +11603,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a foreign [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         Beta: z
@@ -11411,6 +11615,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Whether to read phone numbers that are new to the Twilio platform. Can be: `true` or `false` and the default is `true`.',
+              schema: { type: 'boolean' },
               examples: { readFull: { value: 'true' }, readEmpty: { value: 'true' } },
             },
           }),
@@ -11423,6 +11628,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Given a phone number, find a geographically close number within `distance` miles. Distance defaults to 25 miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string', format: 'phone-number' },
             },
           }),
         NearLatLong: z
@@ -11434,6 +11640,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Given a latitude/longitude pair `lat,long` find geographically close numbers within `distance` miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         Distance: z
@@ -11445,6 +11652,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'The search radius, in miles, for a `near_` query.  Can be up to `500` and the default is `25`. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         InPostalCode: z
@@ -11456,6 +11664,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Limit results to a particular postal code. Given a phone number, search within the same postal code as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRegion: z
@@ -11467,6 +11676,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Limit results to a particular region, state, or province. Given a phone number, search within the same region as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRateCenter: z
@@ -11478,6 +11688,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Limit results to a specific rate center, or given a phone number search within the same rate center as that number. Requires `in_lata` to be set as well. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLata: z
@@ -11489,6 +11700,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Limit results to a specific local access and transport area ([LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area)). Given a phone number, search within the same [LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area) as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLocality: z
@@ -11500,6 +11712,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Limit results to a particular locality or city. Given a phone number, search within the same Locality as that number.',
+              schema: { type: 'string' },
             },
           }),
         FaxEnabled: z
@@ -11511,6 +11724,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'Whether the phone numbers can receive faxes. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         PageSize: z
@@ -11524,6 +11738,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -11535,6 +11750,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -11545,6 +11761,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachin
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -11678,6 +11895,12 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) requesting the AvailablePhoneNumber resources.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -11689,6 +11912,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'path',
               description:
                 'The [ISO-3166-1](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code of the country from which to read phone numbers.',
+              schema: { type: 'string', format: 'iso-country-code' },
               required: true,
             },
           }),
@@ -11703,6 +11927,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'The area code of the phone numbers to read. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         Contains: z
@@ -11714,6 +11939,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 "Matching pattern to identify phone numbers. This pattern can be between 2 and 16 characters long and allows all digits (0-9) and all non-diacritic latin alphabet letters (a-z, A-Z). It accepts four meta-characters: `*`, `%`, `+`, `$`. The `*` and `%` meta-characters can appear multiple times in the pattern. To match wildcards at the beginning or end of the pattern, use `*` to match any single character or `%` to match a sequence of characters. If you use the wildcard patterns, it must include at least two non-meta-characters, and wildcards cannot be used between non-meta-characters. To match the beginning of a pattern, start the pattern with `+`. To match the end of the pattern, append the pattern with `$`. These meta-characters can't be adjacent to each other.",
+              schema: { type: 'string' },
             },
           }),
         SmsEnabled: z
@@ -11725,6 +11951,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Whether the phone numbers can receive text messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         MmsEnabled: z
@@ -11736,6 +11963,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Whether the phone numbers can receive MMS messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         VoiceEnabled: z
@@ -11747,6 +11975,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Whether the phone numbers can receive calls. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeAllAddressRequired: z
@@ -11758,6 +11987,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require an [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeLocalAddressRequired: z
@@ -11769,6 +11999,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a local [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeForeignAddressRequired: z
@@ -11780,6 +12011,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a foreign [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         Beta: z
@@ -11791,6 +12023,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Whether to read phone numbers that are new to the Twilio platform. Can be: `true` or `false` and the default is `true`.',
+              schema: { type: 'boolean' },
               examples: { readFull: { value: 'true' }, readEmpty: { value: 'true' } },
             },
           }),
@@ -11803,6 +12036,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Given a phone number, find a geographically close number within `distance` miles. Distance defaults to 25 miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string', format: 'phone-number' },
             },
           }),
         NearLatLong: z
@@ -11814,6 +12048,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Given a latitude/longitude pair `lat,long` find geographically close numbers within `distance` miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         Distance: z
@@ -11825,6 +12060,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'The search radius, in miles, for a `near_` query.  Can be up to `500` and the default is `25`. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         InPostalCode: z
@@ -11836,6 +12072,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Limit results to a particular postal code. Given a phone number, search within the same postal code as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRegion: z
@@ -11847,6 +12084,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Limit results to a particular region, state, or province. Given a phone number, search within the same region as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRateCenter: z
@@ -11858,6 +12096,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Limit results to a specific rate center, or given a phone number search within the same rate center as that number. Requires `in_lata` to be set as well. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLata: z
@@ -11869,6 +12108,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Limit results to a specific local access and transport area ([LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area)). Given a phone number, search within the same [LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area) as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLocality: z
@@ -11880,6 +12120,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Limit results to a particular locality or city. Given a phone number, search within the same Locality as that number.',
+              schema: { type: 'string' },
             },
           }),
         FaxEnabled: z
@@ -11891,6 +12132,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'Whether the phone numbers can receive faxes. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         PageSize: z
@@ -11904,6 +12146,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -11915,6 +12158,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -11925,6 +12169,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobile
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -12056,6 +12301,12 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) requesting the AvailablePhoneNumber resources.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -12067,6 +12318,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'path',
               description:
                 'The [ISO-3166-1](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code of the country from which to read phone numbers.',
+              schema: { type: 'string', format: 'iso-country-code' },
               required: true,
             },
           }),
@@ -12081,6 +12333,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'The area code of the phone numbers to read. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         Contains: z
@@ -12092,6 +12345,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 "Matching pattern to identify phone numbers. This pattern can be between 2 and 16 characters long and allows all digits (0-9) and all non-diacritic latin alphabet letters (a-z, A-Z). It accepts four meta-characters: `*`, `%`, `+`, `$`. The `*` and `%` meta-characters can appear multiple times in the pattern. To match wildcards at the beginning or end of the pattern, use `*` to match any single character or `%` to match a sequence of characters. If you use the wildcard patterns, it must include at least two non-meta-characters, and wildcards cannot be used between non-meta-characters. To match the beginning of a pattern, start the pattern with `+`. To match the end of the pattern, append the pattern with `$`. These meta-characters can't be adjacent to each other.",
+              schema: { type: 'string' },
             },
           }),
         SmsEnabled: z
@@ -12103,6 +12357,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Whether the phone numbers can receive text messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         MmsEnabled: z
@@ -12114,6 +12369,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Whether the phone numbers can receive MMS messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         VoiceEnabled: z
@@ -12125,6 +12381,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Whether the phone numbers can receive calls. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeAllAddressRequired: z
@@ -12136,6 +12393,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require an [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeLocalAddressRequired: z
@@ -12147,6 +12405,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a local [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeForeignAddressRequired: z
@@ -12158,6 +12417,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a foreign [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         Beta: z
@@ -12169,6 +12429,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Whether to read phone numbers that are new to the Twilio platform. Can be: `true` or `false` and the default is `true`.',
+              schema: { type: 'boolean' },
               examples: { readFull: { value: 'true' }, readEmpty: { value: 'true' } },
             },
           }),
@@ -12181,6 +12442,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Given a phone number, find a geographically close number within `distance` miles. Distance defaults to 25 miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string', format: 'phone-number' },
             },
           }),
         NearLatLong: z
@@ -12192,6 +12454,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Given a latitude/longitude pair `lat,long` find geographically close numbers within `distance` miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         Distance: z
@@ -12203,6 +12466,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'The search radius, in miles, for a `near_` query.  Can be up to `500` and the default is `25`. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         InPostalCode: z
@@ -12214,6 +12478,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Limit results to a particular postal code. Given a phone number, search within the same postal code as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRegion: z
@@ -12225,6 +12490,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Limit results to a particular region, state, or province. Given a phone number, search within the same region as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRateCenter: z
@@ -12236,6 +12502,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Limit results to a specific rate center, or given a phone number search within the same rate center as that number. Requires `in_lata` to be set as well. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLata: z
@@ -12247,6 +12514,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Limit results to a specific local access and transport area ([LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area)). Given a phone number, search within the same [LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area) as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLocality: z
@@ -12258,6 +12526,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Limit results to a particular locality or city. Given a phone number, search within the same Locality as that number.',
+              schema: { type: 'string' },
             },
           }),
         FaxEnabled: z
@@ -12269,6 +12538,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'Whether the phone numbers can receive faxes. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         PageSize: z
@@ -12282,6 +12552,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -12293,6 +12564,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -12303,6 +12575,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNation
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -12436,6 +12709,12 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) requesting the AvailablePhoneNumber resources.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -12447,6 +12726,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'path',
               description:
                 'The [ISO-3166-1](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code of the country from which to read phone numbers.',
+              schema: { type: 'string', format: 'iso-country-code' },
               required: true,
             },
           }),
@@ -12461,6 +12741,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'The area code of the phone numbers to read. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         Contains: z
@@ -12472,6 +12753,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 "Matching pattern to identify phone numbers. This pattern can be between 2 and 16 characters long and allows all digits (0-9) and all non-diacritic latin alphabet letters (a-z, A-Z). It accepts four meta-characters: `*`, `%`, `+`, `$`. The `*` and `%` meta-characters can appear multiple times in the pattern. To match wildcards at the beginning or end of the pattern, use `*` to match any single character or `%` to match a sequence of characters. If you use the wildcard patterns, it must include at least two non-meta-characters, and wildcards cannot be used between non-meta-characters. To match the beginning of a pattern, start the pattern with `+`. To match the end of the pattern, append the pattern with `$`. These meta-characters can't be adjacent to each other.",
+              schema: { type: 'string' },
             },
           }),
         SmsEnabled: z
@@ -12483,6 +12765,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Whether the phone numbers can receive text messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         MmsEnabled: z
@@ -12494,6 +12777,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Whether the phone numbers can receive MMS messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         VoiceEnabled: z
@@ -12505,6 +12789,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Whether the phone numbers can receive calls. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeAllAddressRequired: z
@@ -12516,6 +12801,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require an [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeLocalAddressRequired: z
@@ -12527,6 +12813,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a local [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeForeignAddressRequired: z
@@ -12538,6 +12825,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a foreign [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         Beta: z
@@ -12549,6 +12837,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Whether to read phone numbers that are new to the Twilio platform. Can be: `true` or `false` and the default is `true`.',
+              schema: { type: 'boolean' },
               examples: { readFull: { value: 'true' }, readEmpty: { value: 'true' } },
             },
           }),
@@ -12561,6 +12850,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Given a phone number, find a geographically close number within `distance` miles. Distance defaults to 25 miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string', format: 'phone-number' },
             },
           }),
         NearLatLong: z
@@ -12572,6 +12862,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Given a latitude/longitude pair `lat,long` find geographically close numbers within `distance` miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         Distance: z
@@ -12583,6 +12874,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'The search radius, in miles, for a `near_` query.  Can be up to `500` and the default is `25`. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         InPostalCode: z
@@ -12594,6 +12886,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Limit results to a particular postal code. Given a phone number, search within the same postal code as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRegion: z
@@ -12605,6 +12898,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Limit results to a particular region, state, or province. Given a phone number, search within the same region as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRateCenter: z
@@ -12616,6 +12910,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Limit results to a specific rate center, or given a phone number search within the same rate center as that number. Requires `in_lata` to be set as well. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLata: z
@@ -12627,6 +12922,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Limit results to a specific local access and transport area ([LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area)). Given a phone number, search within the same [LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area) as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLocality: z
@@ -12638,6 +12934,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Limit results to a particular locality or city. Given a phone number, search within the same Locality as that number.',
+              schema: { type: 'string' },
             },
           }),
         FaxEnabled: z
@@ -12649,6 +12946,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'Whether the phone numbers can receive faxes. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         PageSize: z
@@ -12662,6 +12960,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -12673,6 +12972,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -12683,6 +12983,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeShared
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -12816,6 +13117,12 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) requesting the AvailablePhoneNumber resources.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -12827,6 +13134,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'path',
               description:
                 'The [ISO-3166-1](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code of the country from which to read phone numbers.',
+              schema: { type: 'string', format: 'iso-country-code' },
               required: true,
             },
           }),
@@ -12841,6 +13149,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'The area code of the phone numbers to read. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         Contains: z
@@ -12852,6 +13161,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 "Matching pattern to identify phone numbers. This pattern can be between 2 and 16 characters long and allows all digits (0-9) and all non-diacritic latin alphabet letters (a-z, A-Z). It accepts four meta-characters: `*`, `%`, `+`, `$`. The `*` and `%` meta-characters can appear multiple times in the pattern. To match wildcards at the beginning or end of the pattern, use `*` to match any single character or `%` to match a sequence of characters. If you use the wildcard patterns, it must include at least two non-meta-characters, and wildcards cannot be used between non-meta-characters. To match the beginning of a pattern, start the pattern with `+`. To match the end of the pattern, append the pattern with `$`. These meta-characters can't be adjacent to each other.",
+              schema: { type: 'string' },
             },
           }),
         SmsEnabled: z
@@ -12863,6 +13173,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Whether the phone numbers can receive text messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         MmsEnabled: z
@@ -12874,6 +13185,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Whether the phone numbers can receive MMS messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         VoiceEnabled: z
@@ -12885,6 +13197,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Whether the phone numbers can receive calls. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeAllAddressRequired: z
@@ -12896,6 +13209,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require an [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeLocalAddressRequired: z
@@ -12907,6 +13221,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a local [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeForeignAddressRequired: z
@@ -12918,6 +13233,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a foreign [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         Beta: z
@@ -12929,6 +13245,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Whether to read phone numbers that are new to the Twilio platform. Can be: `true` or `false` and the default is `true`.',
+              schema: { type: 'boolean' },
               examples: { readFull: { value: 'true' }, readEmpty: { value: 'true' } },
             },
           }),
@@ -12941,6 +13258,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Given a phone number, find a geographically close number within `distance` miles. Distance defaults to 25 miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string', format: 'phone-number' },
             },
           }),
         NearLatLong: z
@@ -12952,6 +13270,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Given a latitude/longitude pair `lat,long` find geographically close numbers within `distance` miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         Distance: z
@@ -12963,6 +13282,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'The search radius, in miles, for a `near_` query.  Can be up to `500` and the default is `25`. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         InPostalCode: z
@@ -12974,6 +13294,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Limit results to a particular postal code. Given a phone number, search within the same postal code as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRegion: z
@@ -12985,6 +13306,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Limit results to a particular region, state, or province. Given a phone number, search within the same region as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRateCenter: z
@@ -12996,6 +13318,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Limit results to a specific rate center, or given a phone number search within the same rate center as that number. Requires `in_lata` to be set as well. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLata: z
@@ -13007,6 +13330,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Limit results to a specific local access and transport area ([LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area)). Given a phone number, search within the same [LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area) as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLocality: z
@@ -13018,6 +13342,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Limit results to a particular locality or city. Given a phone number, search within the same Locality as that number.',
+              schema: { type: 'string' },
             },
           }),
         FaxEnabled: z
@@ -13029,6 +13354,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'Whether the phone numbers can receive faxes. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         PageSize: z
@@ -13042,6 +13368,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -13053,6 +13380,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -13063,6 +13391,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFr
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -13196,6 +13525,12 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) requesting the AvailablePhoneNumber resources.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -13207,6 +13542,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'path',
               description:
                 'The [ISO-3166-1](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) country code of the country from which to read phone numbers.',
+              schema: { type: 'string', format: 'iso-country-code' },
               required: true,
             },
           }),
@@ -13221,6 +13557,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'The area code of the phone numbers to read. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         Contains: z
@@ -13232,6 +13569,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 "Matching pattern to identify phone numbers. This pattern can be between 2 and 16 characters long and allows all digits (0-9) and all non-diacritic latin alphabet letters (a-z, A-Z). It accepts four meta-characters: `*`, `%`, `+`, `$`. The `*` and `%` meta-characters can appear multiple times in the pattern. To match wildcards at the beginning or end of the pattern, use `*` to match any single character or `%` to match a sequence of characters. If you use the wildcard patterns, it must include at least two non-meta-characters, and wildcards cannot be used between non-meta-characters. To match the beginning of a pattern, start the pattern with `+`. To match the end of the pattern, append the pattern with `$`. These meta-characters can't be adjacent to each other.",
+              schema: { type: 'string' },
             },
           }),
         SmsEnabled: z
@@ -13243,6 +13581,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Whether the phone numbers can receive text messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         MmsEnabled: z
@@ -13254,6 +13593,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Whether the phone numbers can receive MMS messages. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         VoiceEnabled: z
@@ -13265,6 +13605,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Whether the phone numbers can receive calls. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeAllAddressRequired: z
@@ -13276,6 +13617,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require an [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeLocalAddressRequired: z
@@ -13287,6 +13629,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a local [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         ExcludeForeignAddressRequired: z
@@ -13298,6 +13641,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Whether to exclude phone numbers that require a foreign [Address](https://www.twilio.com/docs/usage/api/address). Can be: `true` or `false` and the default is `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         Beta: z
@@ -13309,6 +13653,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Whether to read phone numbers that are new to the Twilio platform. Can be: `true` or `false` and the default is `true`.',
+              schema: { type: 'boolean' },
               examples: { readFull: { value: 'true' }, readEmpty: { value: 'true' } },
             },
           }),
@@ -13321,6 +13666,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Given a phone number, find a geographically close number within `distance` miles. Distance defaults to 25 miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string', format: 'phone-number' },
             },
           }),
         NearLatLong: z
@@ -13332,6 +13678,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Given a latitude/longitude pair `lat,long` find geographically close numbers within `distance` miles. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         Distance: z
@@ -13343,6 +13690,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'The search radius, in miles, for a `near_` query.  Can be up to `500` and the default is `25`. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'integer' },
             },
           }),
         InPostalCode: z
@@ -13354,6 +13702,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Limit results to a particular postal code. Given a phone number, search within the same postal code as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRegion: z
@@ -13365,6 +13714,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Limit results to a particular region, state, or province. Given a phone number, search within the same region as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InRateCenter: z
@@ -13376,6 +13726,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Limit results to a specific rate center, or given a phone number search within the same rate center as that number. Requires `in_lata` to be set as well. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLata: z
@@ -13387,6 +13738,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Limit results to a specific local access and transport area ([LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area)). Given a phone number, search within the same [LATA](https://en.wikipedia.org/wiki/Local_access_and_transport_area) as that number. Applies to only phone numbers in the US and Canada.',
+              schema: { type: 'string' },
             },
           }),
         InLocality: z
@@ -13398,6 +13750,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Limit results to a particular locality or city. Given a phone number, search within the same Locality as that number.',
+              schema: { type: 'string' },
             },
           }),
         FaxEnabled: z
@@ -13409,6 +13762,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'Whether the phone numbers can receive faxes. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         PageSize: z
@@ -13422,6 +13776,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -13433,6 +13788,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -13443,6 +13799,7 @@ export const get20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJs
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -13576,6 +13933,12 @@ export const get20100401AccountsAccountSidBalanceJsonRoute = createRoute({
             name: 'AccountSid',
             in: 'path',
             description: 'The unique SID identifier of the Account.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -13674,6 +14037,12 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Call resource(s) to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -13688,6 +14057,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only show calls made to this phone number, SIP address, Client identifier or SIM SID.',
+            schema: { type: 'string', format: 'phone-number' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 120 } },
             examples: {
               readFullPage1: { value: '+123456789' },
@@ -13707,6 +14077,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include calls from this phone number, SIP address, Client identifier or SIM SID.',
+            schema: { type: 'string', format: 'phone-number' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 120 } },
             examples: {
               readFullPage1: { value: '+987654321' },
@@ -13727,6 +14098,12 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             name: 'ParentCallSid',
             in: 'query',
             description: 'Only include calls spawned by calls with this SID.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             examples: {
               readFullPage1: { value: 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' },
               readFullPage2: { value: 'CAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' },
@@ -13742,6 +14119,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
           in: 'query',
           description:
             'The status of the calls to include. Can be: `queued`, `ringing`, `in-progress`, `canceled`, `completed`, `failed`, `busy`, or `no-answer`.',
+          schema: { $ref: '#/components/schemas/call_enum_status' },
           examples: {
             readFullPage1: { value: 'completed' },
             readFullPage2: { value: 'completed' },
@@ -13760,6 +14138,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
             examples: {
               readFullPage1: { value: '2008-01-02' },
               readFullPage2: { value: '2008-01-02' },
@@ -13775,6 +14154,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
             examples: {
               readEmptyDatesLess: { value: '2008-01-02' },
               readEmptyDateFunDateFormats: { value: '06/11/2019 22:05:25 MST' },
@@ -13790,6 +14170,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include calls that started on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that started on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read calls that started on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read calls that started on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
             examples: { readEmptyDatesGreater: { value: '2008-01-02' } },
           },
         }),
@@ -13802,6 +14183,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
             examples: {
               readFullPage1: { value: '2009-01-02' },
               readFullPage2: { value: '2009-01-02' },
@@ -13817,6 +14199,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
             examples: {
               readEmptyDatesLess: { value: '2009-01-02' },
               readEmptyDateFunDateFormats: { value: '2019-06-11 22:05:25.000' },
@@ -13832,6 +14215,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include calls that ended on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only calls that ended on this date. You can also specify an inequality, such as `EndTime<=YYYY-MM-DD`, to read calls that ended on or before midnight of this date, and `EndTime>=YYYY-MM-DD` to read calls that ended on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
             examples: { readEmptyDatesGreater: { value: '2009-01-02' } },
           },
         }),
@@ -13846,6 +14230,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -13857,6 +14242,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -13867,6 +14253,7 @@ export const get20100401AccountsAccountSidCallsJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -14242,6 +14629,12 @@ export const post20100401AccountsAccountSidCallsJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -14764,6 +15157,12 @@ export const get20100401AccountsAccountSidCallsSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Call resource(s) to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -14776,6 +15175,12 @@ export const get20100401AccountsAccountSidCallsSidJsonRoute = createRoute({
             name: 'Sid',
             in: 'path',
             description: 'The SID of the Call resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -14918,6 +15323,12 @@ export const post20100401AccountsAccountSidCallsSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Call resource(s) to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -14931,6 +15342,12 @@ export const post20100401AccountsAccountSidCallsSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Call resource to update',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15332,6 +15749,12 @@ export const delete20100401AccountsAccountSidCallsSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Call resource(s) to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15345,6 +15768,12 @@ export const delete20100401AccountsAccountSidCallsSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided Call SID that uniquely identifies the Call resource to delete',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15372,6 +15801,12 @@ export const get20100401AccountsAccountSidCallsCallSidEventsJsonRoute = createRo
             name: 'AccountSid',
             in: 'path',
             description: 'The unique SID identifier of the Account.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15384,6 +15819,12 @@ export const get20100401AccountsAccountSidCallsCallSidEventsJsonRoute = createRo
             name: 'CallSid',
             in: 'path',
             description: 'The unique SID identifier of the Call.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15400,6 +15841,7 @@ export const get20100401AccountsAccountSidCallsCallSidEventsJsonRoute = createRo
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -15411,6 +15853,7 @@ export const get20100401AccountsAccountSidCallsCallSidEventsJsonRoute = createRo
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -15421,6 +15864,7 @@ export const get20100401AccountsAccountSidCallsCallSidEventsJsonRoute = createRo
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -15574,6 +16018,12 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsSidJsonRoute 
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Call Notification resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15587,6 +16037,12 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsSidJsonRoute 
             in: 'path',
             description:
               'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID of the Call Notification resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15600,6 +16056,12 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsSidJsonRoute 
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Call Notification resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^NO[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15711,6 +16173,12 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsJsonRoute = c
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Call Notification resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15724,6 +16192,12 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsJsonRoute = c
             in: 'path',
             description:
               'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID of the Call Notification resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15738,6 +16212,7 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsJsonRoute = c
             in: 'query',
             description:
               'Only read notifications of the specified log level. Can be:  `0` to read only ERROR notifications or `1` to read only WARNING notifications. By default, all notifications are read.',
+            schema: { type: 'integer' },
             examples: { readFull: { value: 1 }, readEmpty: { value: 1 } },
           },
         }),
@@ -15750,6 +16225,7 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsJsonRoute = c
             in: 'query',
             description:
               'Only show notifications for the specified date, formatted as `YYYY-MM-DD`. You can also specify an inequality, such as `<=YYYY-MM-DD` for messages logged at or before midnight on a date, or `>=YYYY-MM-DD` for messages logged at or after midnight on a date.',
+            schema: { type: 'string', format: 'date' },
             examples: { readFull: { value: '2008-01-02' }, readEmpty: { value: '2008-01-02' } },
           },
         }),
@@ -15762,6 +16238,7 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsJsonRoute = c
             in: 'query',
             description:
               'Only show notifications for the specified date, formatted as `YYYY-MM-DD`. You can also specify an inequality, such as `<=YYYY-MM-DD` for messages logged at or before midnight on a date, or `>=YYYY-MM-DD` for messages logged at or after midnight on a date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       'MessageDate>': z.iso
@@ -15773,6 +16250,7 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsJsonRoute = c
             in: 'query',
             description:
               'Only show notifications for the specified date, formatted as `YYYY-MM-DD`. You can also specify an inequality, such as `<=YYYY-MM-DD` for messages logged at or before midnight on a date, or `>=YYYY-MM-DD` for messages logged at or after midnight on a date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       PageSize: z
@@ -15786,6 +16264,7 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsJsonRoute = c
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -15797,6 +16276,7 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsJsonRoute = c
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -15807,6 +16287,7 @@ export const get20100401AccountsAccountSidCallsCallSidNotificationsJsonRoute = c
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -15955,6 +16436,12 @@ export const get20100401AccountsAccountSidCallsCallSidRecordingsJsonRoute = crea
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15968,6 +16455,12 @@ export const get20100401AccountsAccountSidCallsCallSidRecordingsJsonRoute = crea
             in: 'path',
             description:
               'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID of the resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -15982,6 +16475,7 @@ export const get20100401AccountsAccountSidCallsCallSidRecordingsJsonRoute = crea
             in: 'query',
             description:
               'The `date_created` value, specified as `YYYY-MM-DD`, of the resources to read. You can also specify inequality: `DateCreated<=YYYY-MM-DD` will return recordings generated at or before midnight on a given date, and `DateCreated>=YYYY-MM-DD` returns recordings generated at or after midnight on a date.',
+            schema: { type: 'string', format: 'date' },
             examples: { readFull: { value: '2008-01-02' }, readEmpty: { value: '2008-01-02' } },
           },
         }),
@@ -15994,6 +16488,7 @@ export const get20100401AccountsAccountSidCallsCallSidRecordingsJsonRoute = crea
             in: 'query',
             description:
               'The `date_created` value, specified as `YYYY-MM-DD`, of the resources to read. You can also specify inequality: `DateCreated<=YYYY-MM-DD` will return recordings generated at or before midnight on a given date, and `DateCreated>=YYYY-MM-DD` returns recordings generated at or after midnight on a date.',
+            schema: { type: 'string', format: 'date' },
             examples: { readFull: { value: '2008-01-01' }, readEmpty: { value: '2008-01-01' } },
           },
         }),
@@ -16006,6 +16501,7 @@ export const get20100401AccountsAccountSidCallsCallSidRecordingsJsonRoute = crea
             in: 'query',
             description:
               'The `date_created` value, specified as `YYYY-MM-DD`, of the resources to read. You can also specify inequality: `DateCreated<=YYYY-MM-DD` will return recordings generated at or before midnight on a given date, and `DateCreated>=YYYY-MM-DD` returns recordings generated at or after midnight on a date.',
+            schema: { type: 'string', format: 'date' },
             examples: { readFull: { value: '2008-01-03' }, readEmpty: { value: '2008-01-03' } },
           },
         }),
@@ -16020,6 +16516,7 @@ export const get20100401AccountsAccountSidCallsCallSidRecordingsJsonRoute = crea
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -16031,6 +16528,7 @@ export const get20100401AccountsAccountSidCallsCallSidRecordingsJsonRoute = crea
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -16041,6 +16539,7 @@ export const get20100401AccountsAccountSidCallsCallSidRecordingsJsonRoute = crea
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -16197,6 +16696,12 @@ export const post20100401AccountsAccountSidCallsCallSidRecordingsJsonRoute = cre
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -16210,6 +16715,12 @@ export const post20100401AccountsAccountSidCallsCallSidRecordingsJsonRoute = cre
             in: 'path',
             description:
               'The SID of the [Call](https://www.twilio.com/docs/voice/api/call-resource) to associate the resource with.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -16487,6 +16998,12 @@ export const get20100401AccountsAccountSidCallsCallSidRecordingsSidJsonRoute = c
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -16500,6 +17017,12 @@ export const get20100401AccountsAccountSidCallsCallSidRecordingsSidJsonRoute = c
             in: 'path',
             description:
               'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID of the resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -16513,6 +17036,12 @@ export const get20100401AccountsAccountSidCallsCallSidRecordingsSidJsonRoute = c
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Recording resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^RE[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -16633,6 +17162,12 @@ export const post20100401AccountsAccountSidCallsCallSidRecordingsSidJsonRoute = 
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -16646,6 +17181,12 @@ export const post20100401AccountsAccountSidCallsCallSidRecordingsSidJsonRoute = 
             in: 'path',
             description:
               'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID of the resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -16657,6 +17198,7 @@ export const post20100401AccountsAccountSidCallsCallSidRecordingsSidJsonRoute = 
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Recording resource to update.',
+            schema: { type: 'string' },
             required: true,
           },
         }),
@@ -16791,6 +17333,12 @@ export const delete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonRoute 
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording resources to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -16804,6 +17352,12 @@ export const delete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonRoute 
             in: 'path',
             description:
               'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID of the resources to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -16817,6 +17371,12 @@ export const delete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonRoute 
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Recording resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^RE[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -16845,6 +17405,12 @@ export const get20100401AccountsAccountSidConferencesSidJsonRoute = createRoute(
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Conference resource(s) to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -16858,6 +17424,12 @@ export const get20100401AccountsAccountSidConferencesSidJsonRoute = createRoute(
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Conference resource to fetch',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CF[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -17031,6 +17603,12 @@ export const post20100401AccountsAccountSidConferencesSidJsonRoute = createRoute
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Conference resource(s) to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -17042,6 +17620,7 @@ export const post20100401AccountsAccountSidConferencesSidJsonRoute = createRoute
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Conference resource to update',
+            schema: { type: 'string' },
             required: true,
           },
         }),
@@ -17204,6 +17783,12 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Conference resource(s) to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -17218,6 +17803,7 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include conferences that were created on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only conferences that were created on this date. You can also specify an inequality, such as `DateCreated<=YYYY-MM-DD`, to read conferences that were created on or before midnight of this date, and `DateCreated>=YYYY-MM-DD` to read conferences that were created on or after midnight of this date.',
+            schema: { type: 'string', format: 'date' },
             examples: {
               readEmpty: { value: '2008-01-03' },
               readNext: { value: '2008-01-03' },
@@ -17235,6 +17821,7 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include conferences that were created on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only conferences that were created on this date. You can also specify an inequality, such as `DateCreated<=YYYY-MM-DD`, to read conferences that were created on or before midnight of this date, and `DateCreated>=YYYY-MM-DD` to read conferences that were created on or after midnight of this date.',
+            schema: { type: 'string', format: 'date' },
             examples: {
               readEmpty: { value: '2008-01-01' },
               readNext: { value: '2008-01-01' },
@@ -17251,6 +17838,7 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include conferences that were created on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only conferences that were created on this date. You can also specify an inequality, such as `DateCreated<=YYYY-MM-DD`, to read conferences that were created on or before midnight of this date, and `DateCreated>=YYYY-MM-DD` to read conferences that were created on or after midnight of this date.',
+            schema: { type: 'string', format: 'date' },
             examples: {
               readEmpty: { value: '2008-01-02' },
               readNext: { value: '2008-01-02' },
@@ -17268,6 +17856,7 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include conferences that were last updated on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only conferences that were last updated on this date. You can also specify an inequality, such as `DateUpdated<=YYYY-MM-DD`, to read conferences that were last updated on or before midnight of this date, and `DateUpdated>=YYYY-MM-DD` to read conferences that were last updated on or after midnight of this date.',
+            schema: { type: 'string', format: 'date' },
             examples: {
               readEmpty: { value: '2018-11-13' },
               readNext: { value: '2018-11-13' },
@@ -17284,6 +17873,7 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include conferences that were last updated on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only conferences that were last updated on this date. You can also specify an inequality, such as `DateUpdated<=YYYY-MM-DD`, to read conferences that were last updated on or before midnight of this date, and `DateUpdated>=YYYY-MM-DD` to read conferences that were last updated on or after midnight of this date.',
+            schema: { type: 'string', format: 'date' },
             examples: {
               readEmpty: { value: '2018-11-11' },
               readNext: { value: '2018-11-11' },
@@ -17300,6 +17890,7 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include conferences that were last updated on this date. Specify a date as `YYYY-MM-DD` in UTC, for example: `2009-07-06`, to read only conferences that were last updated on this date. You can also specify an inequality, such as `DateUpdated<=YYYY-MM-DD`, to read conferences that were last updated on or before midnight of this date, and `DateUpdated>=YYYY-MM-DD` to read conferences that were last updated on or after midnight of this date.',
+            schema: { type: 'string', format: 'date' },
             examples: {
               readEmpty: { value: '2018-11-12' },
               readNext: { value: '2018-11-12' },
@@ -17315,6 +17906,7 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
             name: 'FriendlyName',
             in: 'query',
             description: 'The string that identifies the Conference resources to read.',
+            schema: { type: 'string' },
             examples: {
               readEmpty: { value: 'friendly_name' },
               readNext: { value: 'friendly_name' },
@@ -17329,6 +17921,7 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
           in: 'query',
           description:
             'The status of the resources to read. Can be: `init`, `in-progress`, or `completed`.',
+          schema: { $ref: '#/components/schemas/conference_enum_status' },
           examples: {
             readEmpty: { value: 'init' },
             readNext: { value: 'in-progress' },
@@ -17348,6 +17941,7 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -17359,6 +17953,7 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -17369,6 +17964,7 @@ export const get20100401AccountsAccountSidConferencesJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -17923,6 +18519,12 @@ export const get20100401AccountsAccountSidConferencesConferenceSidRecordingsJson
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Conference Recording resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -17936,6 +18538,12 @@ export const get20100401AccountsAccountSidConferencesConferenceSidRecordingsJson
               in: 'path',
               description:
                 'The Conference SID that identifies the conference associated with the recording to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CF[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -17950,6 +18558,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidRecordingsJson
               in: 'query',
               description:
                 'The `date_created` value, specified as `YYYY-MM-DD`, of the resources to read. You can also specify inequality: `DateCreated<=YYYY-MM-DD` will return recordings generated at or before midnight on a given date, and `DateCreated>=YYYY-MM-DD` returns recordings generated at or after midnight on a date.',
+              schema: { type: 'string', format: 'date' },
               examples: { readFull: { value: '2008-01-02' }, readEmpty: { value: '2008-01-02' } },
             },
           }),
@@ -17962,6 +18571,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidRecordingsJson
               in: 'query',
               description:
                 'The `date_created` value, specified as `YYYY-MM-DD`, of the resources to read. You can also specify inequality: `DateCreated<=YYYY-MM-DD` will return recordings generated at or before midnight on a given date, and `DateCreated>=YYYY-MM-DD` returns recordings generated at or after midnight on a date.',
+              schema: { type: 'string', format: 'date' },
               examples: { readFull: { value: '2008-01-01' }, readEmpty: { value: '2008-01-01' } },
             },
           }),
@@ -17974,6 +18584,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidRecordingsJson
               in: 'query',
               description:
                 'The `date_created` value, specified as `YYYY-MM-DD`, of the resources to read. You can also specify inequality: `DateCreated<=YYYY-MM-DD` will return recordings generated at or before midnight on a given date, and `DateCreated>=YYYY-MM-DD` returns recordings generated at or after midnight on a date.',
+              schema: { type: 'string', format: 'date' },
               examples: { readFull: { value: '2008-01-03' }, readEmpty: { value: '2008-01-03' } },
             },
           }),
@@ -17988,6 +18599,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidRecordingsJson
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -17999,6 +18611,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidRecordingsJson
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -18009,6 +18622,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidRecordingsJson
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -18168,6 +18782,12 @@ export const get20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJ
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Conference Recording resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -18181,6 +18801,12 @@ export const get20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJ
               in: 'path',
               description:
                 'The Conference SID that identifies the conference associated with the recording to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CF[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -18194,6 +18820,12 @@ export const get20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJ
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the Conference Recording resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -18314,6 +18946,12 @@ export const post20100401AccountsAccountSidConferencesConferenceSidRecordingsSid
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Conference Recording resource to update.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -18327,6 +18965,12 @@ export const post20100401AccountsAccountSidConferencesConferenceSidRecordingsSid
               in: 'path',
               description:
                 'The Conference SID that identifies the conference associated with the recording to update.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CF[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -18338,6 +18982,7 @@ export const post20100401AccountsAccountSidConferencesConferenceSidRecordingsSid
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the Conference Recording resource to update. Use `Twilio.CURRENT` to reference the current active recording.',
+              schema: { type: 'string' },
               required: true,
             },
           }),
@@ -18472,6 +19117,12 @@ export const delete20100401AccountsAccountSidConferencesConferenceSidRecordingsS
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Conference Recording resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -18485,6 +19136,12 @@ export const delete20100401AccountsAccountSidConferencesConferenceSidRecordingsS
               in: 'path',
               description:
                 'The Conference SID that identifies the conference associated with the recording to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CF[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -18498,6 +19155,12 @@ export const delete20100401AccountsAccountSidConferencesConferenceSidRecordingsS
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the Conference Recording resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -18526,6 +19189,12 @@ export const get20100401AccountsAccountSidConnectAppsSidJsonRoute = createRoute(
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the ConnectApp resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -18539,6 +19208,12 @@ export const get20100401AccountsAccountSidConnectAppsSidJsonRoute = createRoute(
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the ConnectApp resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CN[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -18645,6 +19320,12 @@ export const post20100401AccountsAccountSidConnectAppsSidJsonRoute = createRoute
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the ConnectApp resources to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -18658,6 +19339,12 @@ export const post20100401AccountsAccountSidConnectAppsSidJsonRoute = createRoute
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the ConnectApp resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CN[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -18837,6 +19524,12 @@ export const delete20100401AccountsAccountSidConnectAppsSidJsonRoute = createRou
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the ConnectApp resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -18850,6 +19543,12 @@ export const delete20100401AccountsAccountSidConnectAppsSidJsonRoute = createRou
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the ConnectApp resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CN[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -18878,6 +19577,12 @@ export const get20100401AccountsAccountSidConnectAppsJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the ConnectApp resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -18894,6 +19599,7 @@ export const get20100401AccountsAccountSidConnectAppsJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -18905,6 +19611,7 @@ export const get20100401AccountsAccountSidConnectAppsJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -18915,6 +19622,7 @@ export const get20100401AccountsAccountSidConnectAppsJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -19058,6 +19766,12 @@ export const get20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbe
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the DependentPhoneNumber resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -19070,6 +19784,12 @@ export const get20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbe
               name: 'AddressSid',
               in: 'path',
               description: 'The SID of the Address resource associated with the phone number.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -19086,6 +19806,7 @@ export const get20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbe
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -19097,6 +19818,7 @@ export const get20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbe
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -19107,6 +19829,7 @@ export const get20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbe
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -19268,6 +19991,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersSidJsonRoute = cre
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the IncomingPhoneNumber resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -19281,6 +20010,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersSidJsonRoute = cre
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the IncomingPhoneNumber resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^PN[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -19410,6 +20145,12 @@ export const post20100401AccountsAccountSidIncomingPhoneNumbersSidJsonRoute = cr
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the IncomingPhoneNumber resource to update.  For more information, see [Exchanging Numbers Between Subaccounts](https://www.twilio.com/docs/iam/api/subaccounts#exchanging-numbers).',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -19423,6 +20164,12 @@ export const post20100401AccountsAccountSidIncomingPhoneNumbersSidJsonRoute = cr
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the IncomingPhoneNumber resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^PN[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -19755,6 +20502,12 @@ export const delete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonRoute = 
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the IncomingPhoneNumber resources to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -19768,6 +20521,12 @@ export const delete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonRoute = 
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the IncomingPhoneNumber resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^PN[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -19798,6 +20557,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersJsonRoute = create
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the IncomingPhoneNumber resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -19812,6 +20577,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersJsonRoute = create
             in: 'query',
             description:
               'Whether to include phone numbers new to the Twilio platform. Can be: `true` or `false` and the default is `true`.',
+            schema: { type: 'boolean' },
             examples: { readFull: { value: 'true' }, readEmpty: { value: 'true' } },
           },
         }),
@@ -19823,6 +20589,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersJsonRoute = create
             name: 'FriendlyName',
             in: 'query',
             description: 'A string that identifies the IncomingPhoneNumber resources to read.',
+            schema: { type: 'string' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 30 } },
             examples: {
               readFull: { value: 'friendly_name' },
@@ -19839,6 +20606,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersJsonRoute = create
             in: 'query',
             description:
               "The phone numbers of the IncomingPhoneNumber resources to read. You can specify partial numbers and use '*' as a wildcard for any digit.",
+            schema: { type: 'string', format: 'phone-number' },
             examples: { readFull: { value: '+19876543210' }, readEmpty: { value: '+19876543210' } },
           },
         }),
@@ -19851,6 +20619,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersJsonRoute = create
             in: 'query',
             description:
               'Whether to include phone numbers based on their origin. Can be: `twilio` or `hosted`. By default, phone numbers of all origin are included.',
+            schema: { type: 'string' },
           },
         }),
       PageSize: z
@@ -19864,6 +20633,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersJsonRoute = create
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -19875,6 +20645,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersJsonRoute = create
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -19885,6 +20656,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersJsonRoute = create
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -20054,6 +20826,12 @@ export const post20100401AccountsAccountSidIncomingPhoneNumbersJsonRoute = creat
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -20392,6 +21170,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20404,6 +21188,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               name: 'ResourceSid',
               in: 'path',
               description: 'The SID of the Phone Number to which the Add-on is assigned.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^PN[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20417,6 +21207,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20527,6 +21323,12 @@ export const delete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssi
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20539,6 +21341,12 @@ export const delete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssi
               name: 'ResourceSid',
               in: 'path',
               description: 'The SID of the Phone Number to which the Add-on is assigned.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^PN[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20552,6 +21360,12 @@ export const delete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssi
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20581,6 +21395,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20593,6 +21413,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               name: 'ResourceSid',
               in: 'path',
               description: 'The SID of the Phone Number to which the Add-on is assigned.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^PN[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20609,6 +21435,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -20620,6 +21447,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -20630,6 +21458,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -20780,6 +21609,12 @@ export const post20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssign
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20792,6 +21627,12 @@ export const post20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssign
               name: 'ResourceSid',
               in: 'path',
               description: 'The SID of the Phone Number to assign the Add-on.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^PN[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20923,6 +21764,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20935,6 +21782,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               name: 'ResourceSid',
               in: 'path',
               description: 'The SID of the Phone Number to which the Add-on is assigned.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^PN[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20947,6 +21800,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               name: 'AssignedAddOnSid',
               in: 'path',
               description: 'The SID that uniquely identifies the assigned Add-on installation.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -20960,6 +21819,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XF[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -21066,6 +21931,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -21078,6 +21949,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               name: 'ResourceSid',
               in: 'path',
               description: 'The SID of the Phone Number to which the Add-on is assigned.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^PN[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -21090,6 +21967,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               name: 'AssignedAddOnSid',
               in: 'path',
               description: 'The SID that uniquely identifies the assigned Add-on installation.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -21106,6 +21989,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -21117,6 +22001,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -21127,6 +22012,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssigne
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -21271,6 +22157,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonRoute = c
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -21285,6 +22177,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonRoute = c
             in: 'query',
             description:
               'Whether to include phone numbers new to the Twilio platform. Can be: `true` or `false` and the default is `true`.',
+            schema: { type: 'boolean' },
             examples: { readFull: { value: 'true' }, readEmpty: { value: 'true' } },
           },
         }),
@@ -21296,6 +22189,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonRoute = c
             name: 'FriendlyName',
             in: 'query',
             description: 'A string that identifies the resources to read.',
+            schema: { type: 'string' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 30 } },
             examples: {
               readFull: { value: 'friendly_name' },
@@ -21312,6 +22206,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonRoute = c
             in: 'query',
             description:
               "The phone numbers of the IncomingPhoneNumber resources to read. You can specify partial numbers and use '*' as a wildcard for any digit.",
+            schema: { type: 'string', format: 'phone-number' },
             examples: { readFull: { value: '+19876543210' }, readEmpty: { value: '+19876543210' } },
           },
         }),
@@ -21324,6 +22219,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonRoute = c
             in: 'query',
             description:
               'Whether to include phone numbers based on their origin. Can be: `twilio` or `hosted`. By default, phone numbers of all origin are included.',
+            schema: { type: 'string' },
           },
         }),
       PageSize: z
@@ -21337,6 +22233,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonRoute = c
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -21348,6 +22245,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonRoute = c
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -21358,6 +22256,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonRoute = c
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -21525,6 +22424,12 @@ export const post20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonRoute = 
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -21851,6 +22756,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonRoute = 
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -21865,6 +22776,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonRoute = 
             in: 'query',
             description:
               'Whether to include phone numbers new to the Twilio platform. Can be: `true` or `false` and the default is `true`.',
+            schema: { type: 'boolean' },
             examples: { readFull: { value: 'true' }, readEmpty: { value: 'true' } },
           },
         }),
@@ -21876,6 +22788,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonRoute = 
             name: 'FriendlyName',
             in: 'query',
             description: 'A string that identifies the resources to read.',
+            schema: { type: 'string' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 30 } },
             examples: {
               readFull: { value: 'friendly_name' },
@@ -21892,6 +22805,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonRoute = 
             in: 'query',
             description:
               "The phone numbers of the IncomingPhoneNumber resources to read. You can specify partial numbers and use '*' as a wildcard for any digit.",
+            schema: { type: 'string', format: 'phone-number' },
             examples: { readFull: { value: '+19876543210' }, readEmpty: { value: '+19876543210' } },
           },
         }),
@@ -21904,6 +22818,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonRoute = 
             in: 'query',
             description:
               'Whether to include phone numbers based on their origin. Can be: `twilio` or `hosted`. By default, phone numbers of all origin are included.',
+            schema: { type: 'string' },
           },
         }),
       PageSize: z
@@ -21917,6 +22832,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonRoute = 
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -21928,6 +22844,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonRoute = 
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -21938,6 +22855,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonRoute = 
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -22105,6 +23023,12 @@ export const post20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonRoute =
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -22434,6 +23358,12 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonRoute 
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -22448,6 +23378,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonRoute 
             in: 'query',
             description:
               'Whether to include phone numbers new to the Twilio platform. Can be: `true` or `false` and the default is `true`.',
+            schema: { type: 'boolean' },
             examples: { readFull: { value: 'true' }, readEmpty: { value: 'true' } },
           },
         }),
@@ -22459,6 +23390,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonRoute 
             name: 'FriendlyName',
             in: 'query',
             description: 'A string that identifies the resources to read.',
+            schema: { type: 'string' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 30 } },
             examples: {
               readFull: { value: 'friendly_name' },
@@ -22475,6 +23407,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonRoute 
             in: 'query',
             description:
               "The phone numbers of the IncomingPhoneNumber resources to read. You can specify partial numbers and use '*' as a wildcard for any digit.",
+            schema: { type: 'string', format: 'phone-number' },
             examples: { readFull: { value: '+19876543210' }, readEmpty: { value: '+19876543210' } },
           },
         }),
@@ -22487,6 +23420,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonRoute 
             in: 'query',
             description:
               'Whether to include phone numbers based on their origin. Can be: `twilio` or `hosted`. By default, phone numbers of all origin are included.',
+            schema: { type: 'string' },
           },
         }),
       PageSize: z
@@ -22500,6 +23434,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonRoute 
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -22511,6 +23446,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonRoute 
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -22521,6 +23457,7 @@ export const get20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonRoute 
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -22688,6 +23625,12 @@ export const post20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonRoute
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23018,6 +23961,12 @@ export const get20100401AccountsAccountSidKeysSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Key resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23031,6 +23980,12 @@ export const get20100401AccountsAccountSidKeysSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Key resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^SK[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23128,6 +24083,12 @@ export const post20100401AccountsAccountSidKeysSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Key resources to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23141,6 +24102,12 @@ export const post20100401AccountsAccountSidKeysSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Key resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^SK[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23256,6 +24223,12 @@ export const delete20100401AccountsAccountSidKeysSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Key resources to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23269,6 +24242,12 @@ export const delete20100401AccountsAccountSidKeysSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Key resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^SK[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23295,6 +24274,12 @@ export const get20100401AccountsAccountSidKeysJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Key resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23311,6 +24296,7 @@ export const get20100401AccountsAccountSidKeysJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -23322,6 +24308,7 @@ export const get20100401AccountsAccountSidKeysJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -23332,6 +24319,7 @@ export const get20100401AccountsAccountSidKeysJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -23467,6 +24455,12 @@ export const post20100401AccountsAccountSidKeysJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will be responsible for the new Key resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23585,6 +24579,12 @@ export const get20100401AccountsAccountSidMessagesMessageSidMediaSidJsonRoute = 
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) associated with the Media resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23598,6 +24598,12 @@ export const get20100401AccountsAccountSidMessagesMessageSidMediaSidJsonRoute = 
             in: 'path',
             description:
               'The SID of the Message resource that is associated with the Media resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^(SM|MM)[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23611,6 +24617,12 @@ export const get20100401AccountsAccountSidMessagesMessageSidMediaSidJsonRoute = 
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Media resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^ME[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23713,6 +24725,12 @@ export const delete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonRoute
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that is associated with the Media resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23726,6 +24744,12 @@ export const delete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonRoute
             in: 'path',
             description:
               'The SID of the Message resource that is associated with the Media resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^(SM|MM)[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23738,6 +24762,12 @@ export const delete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonRoute
             name: 'Sid',
             in: 'path',
             description: 'The unique identifier of the to-be-deleted Media resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^ME[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23766,6 +24796,12 @@ export const get20100401AccountsAccountSidMessagesMessageSidMediaJsonRoute = cre
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that is associated with the Media resources.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23779,6 +24815,12 @@ export const get20100401AccountsAccountSidMessagesMessageSidMediaJsonRoute = cre
             in: 'path',
             description:
               'The SID of the Message resource that is associated with the Media resources.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^(SM|MM)[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -23793,6 +24835,7 @@ export const get20100401AccountsAccountSidMessagesMessageSidMediaJsonRoute = cre
             in: 'query',
             description:
               'Only include Media resources that were created on this date. Specify a date as `YYYY-MM-DD` in GMT, for example: `2009-07-06`, to read Media that were created on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read Media that were created on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read Media that were created on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
           },
         }),
       'DateCreated<': z.iso
@@ -23804,6 +24847,7 @@ export const get20100401AccountsAccountSidMessagesMessageSidMediaJsonRoute = cre
             in: 'query',
             description:
               'Only include Media resources that were created on this date. Specify a date as `YYYY-MM-DD` in GMT, for example: `2009-07-06`, to read Media that were created on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read Media that were created on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read Media that were created on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
             examples: { readEmptyDatecreatedLess: { value: '2008-01-02' } },
           },
         }),
@@ -23816,6 +24860,7 @@ export const get20100401AccountsAccountSidMessagesMessageSidMediaJsonRoute = cre
             in: 'query',
             description:
               'Only include Media resources that were created on this date. Specify a date as `YYYY-MM-DD` in GMT, for example: `2009-07-06`, to read Media that were created on this date. You can also specify an inequality, such as `StartTime<=YYYY-MM-DD`, to read Media that were created on or before midnight of this date, and `StartTime>=YYYY-MM-DD` to read Media that were created on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
             examples: { readFull: { value: '2008-01-02' } },
           },
         }),
@@ -23830,6 +24875,7 @@ export const get20100401AccountsAccountSidMessagesMessageSidMediaJsonRoute = cre
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -23841,6 +24887,7 @@ export const get20100401AccountsAccountSidMessagesMessageSidMediaJsonRoute = cre
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -23851,6 +24898,7 @@ export const get20100401AccountsAccountSidMessagesMessageSidMediaJsonRoute = cre
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -23991,6 +25039,12 @@ export const get20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonRoute 
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Member resource(s) to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -24003,6 +25057,12 @@ export const get20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonRoute 
             name: 'QueueSid',
             in: 'path',
             description: 'The SID of the Queue in which to find the members to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^QU[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -24014,6 +25074,7 @@ export const get20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonRoute 
             in: 'path',
             description:
               'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID of the resource(s) to fetch.',
+            schema: { type: 'string' },
             required: true,
           },
         }),
@@ -24127,6 +25188,12 @@ export const post20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonRoute
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Member resource(s) to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -24139,6 +25206,12 @@ export const post20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonRoute
             name: 'QueueSid',
             in: 'path',
             description: 'The SID of the Queue in which to find the members to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^QU[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -24150,6 +25223,7 @@ export const post20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonRoute
             in: 'path',
             description:
               'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID of the resource(s) to update.',
+            schema: { type: 'string' },
             required: true,
           },
         }),
@@ -24283,6 +25357,12 @@ export const get20100401AccountsAccountSidQueuesQueueSidMembersJsonRoute = creat
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Member resource(s) to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -24295,6 +25375,12 @@ export const get20100401AccountsAccountSidQueuesQueueSidMembersJsonRoute = creat
             name: 'QueueSid',
             in: 'path',
             description: 'The SID of the Queue in which to find the members',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^QU[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -24311,6 +25397,7 @@ export const get20100401AccountsAccountSidQueuesQueueSidMembersJsonRoute = creat
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -24322,6 +25409,7 @@ export const get20100401AccountsAccountSidQueuesQueueSidMembersJsonRoute = creat
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -24332,6 +25420,7 @@ export const get20100401AccountsAccountSidQueuesQueueSidMembersJsonRoute = creat
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -24471,6 +25560,12 @@ export const get20100401AccountsAccountSidMessagesJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) associated with the Message resources.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -24485,6 +25580,7 @@ export const get20100401AccountsAccountSidMessagesJsonRoute = createRoute({
             in: 'query',
             description:
               'Filter by recipient. For example: Set this parameter to `+15558881111` to retrieve a list of Message resources sent to `+15558881111`.',
+            schema: { type: 'string', format: 'phone-number' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 120 } },
             examples: {
               readFullPage1: { value: '+123456789' },
@@ -24506,6 +25602,7 @@ export const get20100401AccountsAccountSidMessagesJsonRoute = createRoute({
             in: 'query',
             description:
               'Filter by sender. For example: Set this parameter to `+15552229999` to retrieve a list of Message resources sent by `+15552229999`.',
+            schema: { type: 'string', format: 'phone-number' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 120 } },
             examples: {
               readFullPage1: { value: '+987654321' },
@@ -24527,6 +25624,7 @@ export const get20100401AccountsAccountSidMessagesJsonRoute = createRoute({
             in: 'query',
             description:
               'Filter by Message `sent_date`. Accepts GMT dates in the following formats: `YYYY-MM-DD` (to find Messages with a specific `sent_date`), `<=YYYY-MM-DD` (to find Messages with `sent_date`s on and before a specific date), and `>=YYYY-MM-DD` (to find Messages with `sent_dates` on and after a specific date).',
+            schema: { type: 'string', format: 'date-time' },
             examples: { readEmptySentdateEquals: { value: '2008-01-02' } },
           },
         }),
@@ -24539,6 +25637,7 @@ export const get20100401AccountsAccountSidMessagesJsonRoute = createRoute({
             in: 'query',
             description:
               'Filter by Message `sent_date`. Accepts GMT dates in the following formats: `YYYY-MM-DD` (to find Messages with a specific `sent_date`), `<=YYYY-MM-DD` (to find Messages with `sent_date`s on and before a specific date), and `>=YYYY-MM-DD` (to find Messages with `sent_dates` on and after a specific date).',
+            schema: { type: 'string', format: 'date-time' },
             examples: { readEmptySentdateLess: { value: '2008-01-02' } },
           },
         }),
@@ -24551,6 +25650,7 @@ export const get20100401AccountsAccountSidMessagesJsonRoute = createRoute({
             in: 'query',
             description:
               'Filter by Message `sent_date`. Accepts GMT dates in the following formats: `YYYY-MM-DD` (to find Messages with a specific `sent_date`), `<=YYYY-MM-DD` (to find Messages with `sent_date`s on and before a specific date), and `>=YYYY-MM-DD` (to find Messages with `sent_dates` on and after a specific date).',
+            schema: { type: 'string', format: 'date-time' },
             examples: {
               readFullPage1: { value: '2008-01-02' },
               readEmptySentdateGreater: { value: '2008-01-02' },
@@ -24571,6 +25671,7 @@ export const get20100401AccountsAccountSidMessagesJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -24582,6 +25683,7 @@ export const get20100401AccountsAccountSidMessagesJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -24592,6 +25694,7 @@ export const get20100401AccountsAccountSidMessagesJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -24848,6 +25951,12 @@ export const post20100401AccountsAccountSidMessagesJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) creating the Message resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -25351,6 +26460,12 @@ export const get20100401AccountsAccountSidMessagesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) associated with the Message resource',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -25363,6 +26478,12 @@ export const get20100401AccountsAccountSidMessagesSidJsonRoute = createRoute({
             name: 'Sid',
             in: 'path',
             description: 'The SID of the Message resource to be fetched',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^(SM|MM)[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -25485,6 +26606,12 @@ export const post20100401AccountsAccountSidMessagesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Message resources to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -25497,6 +26624,12 @@ export const post20100401AccountsAccountSidMessagesSidJsonRoute = createRoute({
             name: 'Sid',
             in: 'path',
             description: 'The SID of the Message resource to be updated',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^(SM|MM)[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -25668,6 +26801,12 @@ export const delete20100401AccountsAccountSidMessagesSidJsonRoute = createRoute(
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) associated with the Message resource',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -25680,6 +26819,12 @@ export const delete20100401AccountsAccountSidMessagesSidJsonRoute = createRoute(
             name: 'Sid',
             in: 'path',
             description: 'The SID of the Message resource you wish to delete',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^(SM|MM)[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -25710,6 +26855,12 @@ export const post20100401AccountsAccountSidMessagesMessageSidFeedbackJsonRoute =
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) associated with the Message resource for which to create MessageFeedback.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -25722,6 +26873,12 @@ export const post20100401AccountsAccountSidMessagesMessageSidFeedbackJsonRoute =
             name: 'MessageSid',
             in: 'path',
             description: 'The SID of the Message resource for which to create MessageFeedback.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^(SM|MM)[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -25825,7 +26982,20 @@ export const get20100401AccountsAccountSidSigningKeysJsonRoute = createRoute({
         .string()
         .regex(/^AC[0-9a-fA-F]{32}$/)
         .length(34)
-        .openapi({ param: { name: 'AccountSid', in: 'path', description: '', required: true } }),
+        .openapi({
+          param: {
+            name: 'AccountSid',
+            in: 'path',
+            description: '',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
+            required: true,
+          },
+        }),
     }),
     query: z.object({
       PageSize: z
@@ -25839,6 +27009,7 @@ export const get20100401AccountsAccountSidSigningKeysJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -25850,6 +27021,7 @@ export const get20100401AccountsAccountSidSigningKeysJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -25860,6 +27032,7 @@ export const get20100401AccountsAccountSidSigningKeysJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -25997,6 +27170,12 @@ export const post20100401AccountsAccountSidSigningKeysJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will be responsible for the new Key resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -26115,6 +27294,12 @@ export const get20100401AccountsAccountSidNotificationsSidJsonRoute = createRout
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Notification resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -26128,6 +27313,12 @@ export const get20100401AccountsAccountSidNotificationsSidJsonRoute = createRout
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Notification resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^NO[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -26243,6 +27434,12 @@ export const get20100401AccountsAccountSidNotificationsJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Notification resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -26257,6 +27454,7 @@ export const get20100401AccountsAccountSidNotificationsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only read notifications of the specified log level. Can be:  `0` to read only ERROR notifications or `1` to read only WARNING notifications. By default, all notifications are read.',
+            schema: { type: 'integer' },
             examples: { readFull: { value: 1 }, readEmpty: { value: 1 } },
           },
         }),
@@ -26269,6 +27467,7 @@ export const get20100401AccountsAccountSidNotificationsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only show notifications for the specified date, formatted as `YYYY-MM-DD`. You can also specify an inequality, such as `<=YYYY-MM-DD` for messages logged at or before midnight on a date, or `>=YYYY-MM-DD` for messages logged at or after midnight on a date.',
+            schema: { type: 'string', format: 'date' },
             examples: { readFull: { value: '2008-01-02' }, readEmpty: { value: '2008-01-02' } },
           },
         }),
@@ -26281,6 +27480,7 @@ export const get20100401AccountsAccountSidNotificationsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only show notifications for the specified date, formatted as `YYYY-MM-DD`. You can also specify an inequality, such as `<=YYYY-MM-DD` for messages logged at or before midnight on a date, or `>=YYYY-MM-DD` for messages logged at or after midnight on a date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       'MessageDate>': z.iso
@@ -26292,6 +27492,7 @@ export const get20100401AccountsAccountSidNotificationsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only show notifications for the specified date, formatted as `YYYY-MM-DD`. You can also specify an inequality, such as `<=YYYY-MM-DD` for messages logged at or before midnight on a date, or `>=YYYY-MM-DD` for messages logged at or after midnight on a date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       PageSize: z
@@ -26305,6 +27506,7 @@ export const get20100401AccountsAccountSidNotificationsJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -26316,6 +27518,7 @@ export const get20100401AccountsAccountSidNotificationsJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -26326,6 +27529,7 @@ export const get20100401AccountsAccountSidNotificationsJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -26474,6 +27678,12 @@ export const get20100401AccountsAccountSidOutgoingCallerIdsSidJsonRoute = create
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the OutgoingCallerId resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -26487,6 +27697,12 @@ export const get20100401AccountsAccountSidOutgoingCallerIdsSidJsonRoute = create
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the OutgoingCallerId resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^PN[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -26589,6 +27805,12 @@ export const post20100401AccountsAccountSidOutgoingCallerIdsSidJsonRoute = creat
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the OutgoingCallerId resources to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -26602,6 +27824,12 @@ export const post20100401AccountsAccountSidOutgoingCallerIdsSidJsonRoute = creat
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the OutgoingCallerId resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^PN[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -26722,6 +27950,12 @@ export const delete20100401AccountsAccountSidOutgoingCallerIdsSidJsonRoute = cre
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the OutgoingCallerId resources to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -26735,6 +27969,12 @@ export const delete20100401AccountsAccountSidOutgoingCallerIdsSidJsonRoute = cre
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the OutgoingCallerId resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^PN[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -26765,6 +28005,12 @@ export const get20100401AccountsAccountSidOutgoingCallerIdsJsonRoute = createRou
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the OutgoingCallerId resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -26778,6 +28024,7 @@ export const get20100401AccountsAccountSidOutgoingCallerIdsJsonRoute = createRou
             name: 'PhoneNumber',
             in: 'query',
             description: 'The phone number of the OutgoingCallerId resources to read.',
+            schema: { type: 'string', format: 'phone-number' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 30 } },
           },
         }),
@@ -26789,6 +28036,7 @@ export const get20100401AccountsAccountSidOutgoingCallerIdsJsonRoute = createRou
             name: 'FriendlyName',
             in: 'query',
             description: 'The string that identifies the OutgoingCallerId resources to read.',
+            schema: { type: 'string' },
             'x-twilio': { pii: { handling: 'standard', deleteSla: 30 } },
           },
         }),
@@ -26803,6 +28051,7 @@ export const get20100401AccountsAccountSidOutgoingCallerIdsJsonRoute = createRou
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -26814,6 +28063,7 @@ export const get20100401AccountsAccountSidOutgoingCallerIdsJsonRoute = createRou
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -26824,6 +28074,7 @@ export const get20100401AccountsAccountSidOutgoingCallerIdsJsonRoute = createRou
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -26962,6 +28213,12 @@ export const post20100401AccountsAccountSidOutgoingCallerIdsJsonRoute = createRo
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for the new caller ID resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -27125,6 +28382,12 @@ export const get20100401AccountsAccountSidConferencesConferenceSidParticipantsCa
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Participant resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -27137,6 +28400,12 @@ export const get20100401AccountsAccountSidConferencesConferenceSidParticipantsCa
               name: 'ConferenceSid',
               in: 'path',
               description: 'The SID of the conference with the participant to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CF[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -27148,6 +28417,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidParticipantsCa
               in: 'path',
               description:
                 'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID or label of the participant to fetch. Non URL safe characters in a label must be percent encoded, for example, a space character is represented as %20.',
+              schema: { type: 'string' },
               required: true,
             },
           }),
@@ -27278,6 +28548,12 @@ export const post20100401AccountsAccountSidConferencesConferenceSidParticipantsC
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Participant resources to update.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -27290,6 +28566,12 @@ export const post20100401AccountsAccountSidConferencesConferenceSidParticipantsC
               name: 'ConferenceSid',
               in: 'path',
               description: 'The SID of the conference with the participant to update.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CF[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -27301,6 +28583,7 @@ export const post20100401AccountsAccountSidConferencesConferenceSidParticipantsC
               in: 'path',
               description:
                 'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID or label of the participant to update. Non URL safe characters in a label must be percent encoded, for example, a space character is represented as %20.',
+              schema: { type: 'string' },
               required: true,
             },
           }),
@@ -27617,6 +28900,12 @@ export const delete20100401AccountsAccountSidConferencesConferenceSidParticipant
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Participant resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -27629,6 +28918,12 @@ export const delete20100401AccountsAccountSidConferencesConferenceSidParticipant
               name: 'ConferenceSid',
               in: 'path',
               description: 'The SID of the conference with the participants to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CF[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -27640,6 +28935,7 @@ export const delete20100401AccountsAccountSidConferencesConferenceSidParticipant
               in: 'path',
               description:
                 'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID or label of the participant to delete. Non URL safe characters in a label must be percent encoded, for example, a space character is represented as %20.',
+              schema: { type: 'string' },
               required: true,
             },
           }),
@@ -27670,6 +28966,12 @@ export const get20100401AccountsAccountSidConferencesConferenceSidParticipantsJs
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Participant resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -27682,6 +28984,12 @@ export const get20100401AccountsAccountSidConferencesConferenceSidParticipantsJs
               name: 'ConferenceSid',
               in: 'path',
               description: 'The SID of the conference with the participants to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CF[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -27696,6 +29004,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidParticipantsJs
               in: 'query',
               description:
                 'Whether to return only participants that are muted. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
               examples: {
                 readFull: { value: 'true' },
                 readNext: { value: 'true' },
@@ -27712,6 +29021,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidParticipantsJs
               in: 'query',
               description:
                 'Whether to return only participants that are on hold. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
               examples: { readEmpty: { value: 'true' } },
             },
           }),
@@ -27724,6 +29034,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidParticipantsJs
               in: 'query',
               description:
                 'Whether to return only participants who are coaching another call. Can be: `true` or `false`.',
+              schema: { type: 'boolean' },
             },
           }),
         PageSize: z
@@ -27737,6 +29048,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidParticipantsJs
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -27748,6 +29060,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidParticipantsJs
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -27758,6 +29071,7 @@ export const get20100401AccountsAccountSidConferencesConferenceSidParticipantsJs
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -28024,6 +29338,12 @@ export const post20100401AccountsAccountSidConferencesConferenceSidParticipantsJ
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -28034,6 +29354,7 @@ export const post20100401AccountsAccountSidConferencesConferenceSidParticipantsJ
               name: 'ConferenceSid',
               in: 'path',
               description: "The SID of the participant's conference.",
+              schema: { type: 'string' },
               required: true,
             },
           }),
@@ -28911,6 +30232,12 @@ export const post20100401AccountsAccountSidCallsCallSidPaymentsJsonRoute = creat
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -28924,6 +30251,12 @@ export const post20100401AccountsAccountSidCallsCallSidPaymentsJsonRoute = creat
             in: 'path',
             description:
               'The SID of the call that will create the resource. Call leg associated with this sid is expected to provide payment information thru DTMF.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29148,6 +30481,12 @@ export const post20100401AccountsAccountSidCallsCallSidPaymentsSidJsonRoute = cr
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will update the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29161,6 +30500,12 @@ export const post20100401AccountsAccountSidCallsCallSidPaymentsSidJsonRoute = cr
             in: 'path',
             description:
               'The SID of the call that will update the resource. This should be the same call sid that was used to create payments resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29173,6 +30518,12 @@ export const post20100401AccountsAccountSidCallsCallSidPaymentsSidJsonRoute = cr
             name: 'Sid',
             in: 'path',
             description: 'The SID of Payments session that needs to be updated.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^PK[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29344,6 +30695,12 @@ export const get20100401AccountsAccountSidQueuesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Queue resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29357,6 +30714,12 @@ export const get20100401AccountsAccountSidQueuesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Queue resource to fetch',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^QU[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29461,6 +30824,12 @@ export const post20100401AccountsAccountSidQueuesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Queue resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29474,6 +30843,12 @@ export const post20100401AccountsAccountSidQueuesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Queue resource to update',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^QU[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29603,6 +30978,12 @@ export const delete20100401AccountsAccountSidQueuesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Queue resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29616,6 +30997,12 @@ export const delete20100401AccountsAccountSidQueuesSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Queue resource to delete',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^QU[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29644,6 +31031,12 @@ export const get20100401AccountsAccountSidQueuesJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Queue resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29660,6 +31053,7 @@ export const get20100401AccountsAccountSidQueuesJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -29671,6 +31065,7 @@ export const get20100401AccountsAccountSidQueuesJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -29681,6 +31076,7 @@ export const get20100401AccountsAccountSidQueuesJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -29824,6 +31220,12 @@ export const post20100401AccountsAccountSidQueuesJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29952,6 +31354,12 @@ export const post20100401AccountsAccountSidCallsCallSidTranscriptionsJsonRoute =
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created this Transcription resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -29965,6 +31373,12 @@ export const post20100401AccountsAccountSidCallsCallSidTranscriptionsJsonRoute =
             in: 'path',
             description:
               'The SID of the [Call](https://www.twilio.com/docs/voice/api/call-resource) the Transcription resource is associated with.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -30191,6 +31605,12 @@ export const post20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonRout
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created this Transcription resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -30204,6 +31624,12 @@ export const post20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonRout
             in: 'path',
             description:
               'The SID of the [Call](https://www.twilio.com/docs/voice/api/call-resource) the Transcription resource is associated with.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -30215,6 +31641,7 @@ export const post20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonRout
             in: 'path',
             description:
               'The SID of the Transcription resource, or the `name` used when creating the resource',
+            schema: { type: 'string' },
             required: true,
           },
         }),
@@ -30341,6 +31768,12 @@ export const get20100401AccountsAccountSidRecordingsSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -30354,6 +31787,12 @@ export const get20100401AccountsAccountSidRecordingsSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Recording resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^RE[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -30368,6 +31807,7 @@ export const get20100401AccountsAccountSidRecordingsSidJsonRoute = createRoute({
             in: 'query',
             description:
               'A boolean parameter indicating whether to retrieve soft deleted recordings or not. Recordings metadata are kept after deletion for a retention period of 40 days.',
+            schema: { type: 'boolean' },
             examples: { fetchIncludeSoftDeleted: { value: true } },
           },
         }),
@@ -30527,6 +31967,12 @@ export const delete20100401AccountsAccountSidRecordingsSidJsonRoute = createRout
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording resources to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -30540,6 +31986,12 @@ export const delete20100401AccountsAccountSidRecordingsSidJsonRoute = createRout
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Recording resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^RE[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -30568,6 +32020,12 @@ export const get20100401AccountsAccountSidRecordingsJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -30582,6 +32040,7 @@ export const get20100401AccountsAccountSidRecordingsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include recordings that were created on this date. Specify a date as `YYYY-MM-DD` in GMT, for example: `2009-07-06`, to read recordings that were created on this date. You can also specify an inequality, such as `DateCreated<=YYYY-MM-DD`, to read recordings that were created on or before midnight of this date, and `DateCreated>=YYYY-MM-DD` to read recordings that were created on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
             examples: {
               readFull: { value: '2008-01-02' },
               readEmpty: { value: '2008-01-02' },
@@ -30598,6 +32057,7 @@ export const get20100401AccountsAccountSidRecordingsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include recordings that were created on this date. Specify a date as `YYYY-MM-DD` in GMT, for example: `2009-07-06`, to read recordings that were created on this date. You can also specify an inequality, such as `DateCreated<=YYYY-MM-DD`, to read recordings that were created on or before midnight of this date, and `DateCreated>=YYYY-MM-DD` to read recordings that were created on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
             examples: {
               readFull: { value: '2008-01-01' },
               readEmpty: { value: '2008-01-01' },
@@ -30614,6 +32074,7 @@ export const get20100401AccountsAccountSidRecordingsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include recordings that were created on this date. Specify a date as `YYYY-MM-DD` in GMT, for example: `2009-07-06`, to read recordings that were created on this date. You can also specify an inequality, such as `DateCreated<=YYYY-MM-DD`, to read recordings that were created on or before midnight of this date, and `DateCreated>=YYYY-MM-DD` to read recordings that were created on or after midnight of this date.',
+            schema: { type: 'string', format: 'date-time' },
             examples: {
               readFull: { value: '2008-01-03' },
               readEmpty: { value: '2008-01-03' },
@@ -30632,6 +32093,12 @@ export const get20100401AccountsAccountSidRecordingsJsonRoute = createRoute({
             in: 'query',
             description:
               'The [Call](https://www.twilio.com/docs/voice/api/call-resource) SID of the resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
           },
         }),
       ConferenceSid: z
@@ -30645,6 +32112,12 @@ export const get20100401AccountsAccountSidRecordingsJsonRoute = createRoute({
             in: 'query',
             description:
               'The Conference SID that identifies the conference associated with the recording to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CF[0-9a-fA-F]{32}$',
+            },
           },
         }),
       IncludeSoftDeleted: z
@@ -30656,6 +32129,7 @@ export const get20100401AccountsAccountSidRecordingsJsonRoute = createRoute({
             in: 'query',
             description:
               'A boolean parameter indicating whether to retrieve soft deleted recordings or not. Recordings metadata are kept after deletion for a retention period of 40 days.',
+            schema: { type: 'boolean' },
             examples: { readIncludeSoftDeleted: { value: true } },
           },
         }),
@@ -30670,6 +32144,7 @@ export const get20100401AccountsAccountSidRecordingsJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -30681,6 +32156,7 @@ export const get20100401AccountsAccountSidRecordingsJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -30691,6 +32167,7 @@ export const get20100401AccountsAccountSidRecordingsJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -30934,6 +32411,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJ
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording AddOnResult resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -30946,6 +32429,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJ
               name: 'ReferenceSid',
               in: 'path',
               description: 'The SID of the recording to which the result to fetch belongs.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -30959,6 +32448,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJ
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the Recording AddOnResult resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XR[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31068,6 +32563,12 @@ export const delete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsS
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording AddOnResult resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31080,6 +32581,12 @@ export const delete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsS
               name: 'ReferenceSid',
               in: 'path',
               description: 'The SID of the recording to which the result to delete belongs.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31093,6 +32600,12 @@ export const delete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsS
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the Recording AddOnResult resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XR[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31122,6 +32635,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJson
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording AddOnResult resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31134,6 +32653,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJson
               name: 'ReferenceSid',
               in: 'path',
               description: 'The SID of the recording to which the result to read belongs.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31150,6 +32675,7 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJson
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -31161,6 +32687,7 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJson
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -31171,6 +32698,7 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJson
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -31321,6 +32849,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording AddOnResult Payload resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31334,6 +32868,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               in: 'path',
               description:
                 'The SID of the recording to which the AddOnResult resource that contains the payload to fetch belongs.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31346,6 +32886,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               name: 'AddOnResultSid',
               in: 'path',
               description: 'The SID of the AddOnResult to which the payload to fetch belongs.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XR[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31359,6 +32905,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the Recording AddOnResult Payload resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XH[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31468,6 +33020,12 @@ export const delete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsA
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording AddOnResult Payload resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31481,6 +33039,12 @@ export const delete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsA
               in: 'path',
               description:
                 'The SID of the recording to which the AddOnResult resource that contains the payloads to delete belongs.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31493,6 +33057,12 @@ export const delete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsA
               name: 'AddOnResultSid',
               in: 'path',
               description: 'The SID of the AddOnResult to which the payloads to delete belongs.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XR[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31506,6 +33076,12 @@ export const delete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsA
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the Recording AddOnResult Payload resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XH[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31535,6 +33111,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording AddOnResult Payload resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31548,6 +33130,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               in: 'path',
               description:
                 'The SID of the recording to which the AddOnResult resource that contains the payloads to read belongs.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31560,6 +33148,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               name: 'AddOnResultSid',
               in: 'path',
               description: 'The SID of the AddOnResult to which the payloads to read belongs.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XR[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31576,6 +33170,7 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -31587,6 +33182,7 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -31597,6 +33193,7 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -31748,6 +33345,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Recording AddOnResult Payload resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31761,6 +33364,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               in: 'path',
               description:
                 'The SID of the recording to which the AddOnResult resource that contains the payload to fetch belongs.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31773,6 +33382,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               name: 'AddOnResultSid',
               in: 'path',
               description: 'The SID of the AddOnResult to which the payload to fetch belongs.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XR[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31786,6 +33401,12 @@ export const get20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddO
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the Recording AddOnResult Payload resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^XH[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31876,6 +33497,12 @@ export const get20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSi
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Transcription resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31889,6 +33516,12 @@ export const get20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSi
               in: 'path',
               description:
                 'The SID of the [Recording](https://www.twilio.com/docs/voice/api/recording) that created the transcription to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -31902,6 +33535,12 @@ export const get20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSi
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the Transcription resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^TR[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -32009,6 +33648,12 @@ export const delete20100401AccountsAccountSidRecordingsRecordingSidTranscription
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Transcription resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -32022,6 +33667,12 @@ export const delete20100401AccountsAccountSidRecordingsRecordingSidTranscription
               in: 'path',
               description:
                 'The SID of the [Recording](https://www.twilio.com/docs/voice/api/recording) that created the transcription to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -32035,6 +33686,12 @@ export const delete20100401AccountsAccountSidRecordingsRecordingSidTranscription
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the Transcription resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^TR[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -32062,6 +33719,12 @@ export const get20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJs
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Transcription resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -32075,6 +33738,12 @@ export const get20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJs
               in: 'path',
               description:
                 'The SID of the [Recording](https://www.twilio.com/docs/voice/api/recording) that created the transcriptions to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^RE[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -32091,6 +33760,7 @@ export const get20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJs
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -32102,6 +33772,7 @@ export const get20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJs
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -32112,6 +33783,7 @@ export const get20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJs
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -32260,6 +33932,12 @@ export const get20100401AccountsAccountSidSMSShortCodesSidJsonRoute = createRout
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the ShortCode resource(s) to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -32273,6 +33951,12 @@ export const get20100401AccountsAccountSidSMSShortCodesSidJsonRoute = createRout
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the ShortCode resource to fetch',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^SC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -32380,6 +34064,12 @@ export const post20100401AccountsAccountSidSMSShortCodesSidJsonRoute = createRou
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the ShortCode resource(s) to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -32393,6 +34083,12 @@ export const post20100401AccountsAccountSidSMSShortCodesSidJsonRoute = createRou
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the ShortCode resource to update',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^SC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -32564,6 +34260,12 @@ export const get20100401AccountsAccountSidSMSShortCodesJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the ShortCode resource(s) to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -32577,6 +34279,7 @@ export const get20100401AccountsAccountSidSMSShortCodesJsonRoute = createRoute({
             name: 'FriendlyName',
             in: 'query',
             description: 'The string that identifies the ShortCode resources to read.',
+            schema: { type: 'string' },
             examples: {
               readFull: { value: 'friendly_name' },
               readEmpty: { value: 'friendly_name' },
@@ -32592,6 +34295,7 @@ export const get20100401AccountsAccountSidSMSShortCodesJsonRoute = createRoute({
             in: 'query',
             description:
               "Only show the ShortCode resources that match this pattern. You can specify partial numbers and use '*' as a wildcard for any digit.",
+            schema: { type: 'string' },
             examples: { readFull: { value: 'short_code' }, readEmpty: { value: 'short_code' } },
           },
         }),
@@ -32606,6 +34310,7 @@ export const get20100401AccountsAccountSidSMSShortCodesJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -32617,6 +34322,7 @@ export const get20100401AccountsAccountSidSMSShortCodesJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -32627,6 +34333,7 @@ export const get20100401AccountsAccountSidSMSShortCodesJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -32764,12 +34471,38 @@ export const get20100401AccountsAccountSidSigningKeysSidJsonRoute = createRoute(
         .string()
         .regex(/^AC[0-9a-fA-F]{32}$/)
         .length(34)
-        .openapi({ param: { name: 'AccountSid', in: 'path', description: '', required: true } }),
+        .openapi({
+          param: {
+            name: 'AccountSid',
+            in: 'path',
+            description: '',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
+            required: true,
+          },
+        }),
       Sid: z
         .string()
         .regex(/^SK[0-9a-fA-F]{32}$/)
         .length(34)
-        .openapi({ param: { name: 'Sid', in: 'path', description: '', required: true } }),
+        .openapi({
+          param: {
+            name: 'Sid',
+            in: 'path',
+            description: '',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^SK[0-9a-fA-F]{32}$',
+            },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -32858,12 +34591,38 @@ export const post20100401AccountsAccountSidSigningKeysSidJsonRoute = createRoute
         .string()
         .regex(/^AC[0-9a-fA-F]{32}$/)
         .length(34)
-        .openapi({ param: { name: 'AccountSid', in: 'path', description: '', required: true } }),
+        .openapi({
+          param: {
+            name: 'AccountSid',
+            in: 'path',
+            description: '',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
+            required: true,
+          },
+        }),
       Sid: z
         .string()
         .regex(/^SK[0-9a-fA-F]{32}$/)
         .length(34)
-        .openapi({ param: { name: 'Sid', in: 'path', description: '', required: true } }),
+        .openapi({
+          param: {
+            name: 'Sid',
+            in: 'path',
+            description: '',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^SK[0-9a-fA-F]{32}$',
+            },
+            required: true,
+          },
+        }),
     }),
     body: {
       content: {
@@ -32962,12 +34721,38 @@ export const delete20100401AccountsAccountSidSigningKeysSidJsonRoute = createRou
         .string()
         .regex(/^AC[0-9a-fA-F]{32}$/)
         .length(34)
-        .openapi({ param: { name: 'AccountSid', in: 'path', description: '', required: true } }),
+        .openapi({
+          param: {
+            name: 'AccountSid',
+            in: 'path',
+            description: '',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
+            required: true,
+          },
+        }),
       Sid: z
         .string()
         .regex(/^SK[0-9a-fA-F]{32}$/)
         .length(34)
-        .openapi({ param: { name: 'Sid', in: 'path', description: '', required: true } }),
+        .openapi({
+          param: {
+            name: 'Sid',
+            in: 'path',
+            description: '',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^SK[0-9a-fA-F]{32}$',
+            },
+            required: true,
+          },
+        }),
     }),
   },
   responses: { 204: { description: 'The resource was deleted successfully.' } },
@@ -32996,6 +34781,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredential
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the CredentialListMapping resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33008,6 +34799,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredential
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that contains the resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33024,6 +34821,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredential
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -33035,6 +34833,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredential
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -33045,6 +34844,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredential
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -33188,6 +34988,12 @@ export const post20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentia
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33200,6 +35006,12 @@ export const post20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentia
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that will contain the new resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33325,6 +35137,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredential
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the CredentialListMapping resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33337,6 +35155,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredential
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that contains the resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33350,6 +35174,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredential
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the CredentialListMapping resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33452,6 +35282,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredent
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the CredentialListMapping resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33464,6 +35300,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredent
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that contains the resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33477,6 +35319,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredent
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the CredentialListMapping resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33508,6 +35356,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessCo
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the IpAccessControlListMapping resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33520,6 +35374,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessCo
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that contains the resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33536,6 +35396,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessCo
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -33547,6 +35408,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessCo
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -33557,6 +35419,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessCo
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -33700,6 +35563,12 @@ export const post20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessC
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33712,6 +35581,12 @@ export const post20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessC
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that will contain the new resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33838,6 +35713,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessCo
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the IpAccessControlListMapping resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33850,6 +35731,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessCo
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that contains the resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33863,6 +35750,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessCo
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the IpAccessControlListMapping resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33965,6 +35858,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAcces
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the IpAccessControlListMapping resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33977,6 +35876,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAcces
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that contains the resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -33990,6 +35895,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAcces
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the IpAccessControlListMapping resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34021,6 +35932,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCr
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the CredentialListMapping resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34033,6 +35950,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCr
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that contains the resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34049,6 +35972,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCr
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -34060,6 +35984,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCr
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -34070,6 +35995,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCr
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -34213,6 +36139,12 @@ export const post20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsC
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34225,6 +36157,12 @@ export const post20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsC
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that will contain the new resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34350,6 +36288,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCr
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the CredentialListMapping resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34362,6 +36306,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCr
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that contains the resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34375,6 +36325,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCr
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the CredentialListMapping resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34477,6 +36433,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistration
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the CredentialListMapping resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34489,6 +36451,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistration
               name: 'DomainSid',
               in: 'path',
               description: 'The SID of the SIP domain that contains the resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34502,6 +36470,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistration
               in: 'path',
               description:
                 'The Twilio-provided string that uniquely identifies the CredentialListMapping resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34530,6 +36504,12 @@ export const get20100401AccountsAccountSidSIPCredentialListsCredentialListSidCre
               name: 'AccountSid',
               in: 'path',
               description: 'The unique id of the Account that is responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34543,6 +36523,12 @@ export const get20100401AccountsAccountSidSIPCredentialListsCredentialListSidCre
               in: 'path',
               description:
                 'The unique id that identifies the credential list that contains the desired credentials.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34559,6 +36545,7 @@ export const get20100401AccountsAccountSidSIPCredentialListsCredentialListSidCre
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -34570,6 +36557,7 @@ export const get20100401AccountsAccountSidSIPCredentialListsCredentialListSidCre
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -34580,6 +36568,7 @@ export const get20100401AccountsAccountSidSIPCredentialListsCredentialListSidCre
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -34722,6 +36711,12 @@ export const post20100401AccountsAccountSidSIPCredentialListsCredentialListSidCr
               name: 'AccountSid',
               in: 'path',
               description: 'The unique id of the Account that is responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34735,6 +36730,12 @@ export const post20100401AccountsAccountSidSIPCredentialListsCredentialListSidCr
               in: 'path',
               description:
                 'The unique id that identifies the credential list to include the created credential.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34860,6 +36861,12 @@ export const get20100401AccountsAccountSidSIPCredentialListsCredentialListSidCre
               name: 'AccountSid',
               in: 'path',
               description: 'The unique id of the Account that is responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34873,6 +36880,12 @@ export const get20100401AccountsAccountSidSIPCredentialListsCredentialListSidCre
               in: 'path',
               description:
                 'The unique id that identifies the credential list that contains the desired credential.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34885,6 +36898,12 @@ export const get20100401AccountsAccountSidSIPCredentialListsCredentialListSidCre
               name: 'Sid',
               in: 'path',
               description: 'The unique id that identifies the resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CR[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -34987,6 +37006,12 @@ export const post20100401AccountsAccountSidSIPCredentialListsCredentialListSidCr
               name: 'AccountSid',
               in: 'path',
               description: 'The unique id of the Account that is responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -35000,6 +37025,12 @@ export const post20100401AccountsAccountSidSIPCredentialListsCredentialListSidCr
               in: 'path',
               description:
                 'The unique id that identifies the credential list that includes this credential.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -35012,6 +37043,12 @@ export const post20100401AccountsAccountSidSIPCredentialListsCredentialListSidCr
               name: 'Sid',
               in: 'path',
               description: 'The unique id that identifies the resource to update.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CR[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -35132,6 +37169,12 @@ export const delete20100401AccountsAccountSidSIPCredentialListsCredentialListSid
               name: 'AccountSid',
               in: 'path',
               description: 'The unique id of the Account that is responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -35145,6 +37188,12 @@ export const delete20100401AccountsAccountSidSIPCredentialListsCredentialListSid
               in: 'path',
               description:
                 'The unique id that identifies the credential list that contains the desired credentials.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -35157,6 +37206,12 @@ export const delete20100401AccountsAccountSidSIPCredentialListsCredentialListSid
               name: 'Sid',
               in: 'path',
               description: 'The unique id that identifies the resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CR[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -35184,6 +37239,12 @@ export const get20100401AccountsAccountSidSIPCredentialListsJsonRoute = createRo
             name: 'AccountSid',
             in: 'path',
             description: 'The unique id of the Account that is responsible for this resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -35200,6 +37261,7 @@ export const get20100401AccountsAccountSidSIPCredentialListsJsonRoute = createRo
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -35211,6 +37273,7 @@ export const get20100401AccountsAccountSidSIPCredentialListsJsonRoute = createRo
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -35221,6 +37284,7 @@ export const get20100401AccountsAccountSidSIPCredentialListsJsonRoute = createRo
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -35363,6 +37427,12 @@ export const post20100401AccountsAccountSidSIPCredentialListsJsonRoute = createR
             name: 'AccountSid',
             in: 'path',
             description: 'The unique id of the Account that is responsible for this resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -35484,6 +37554,12 @@ export const get20100401AccountsAccountSidSIPCredentialListsSidJsonRoute = creat
             name: 'AccountSid',
             in: 'path',
             description: 'The unique id of the Account that is responsible for this resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -35496,6 +37572,12 @@ export const get20100401AccountsAccountSidSIPCredentialListsSidJsonRoute = creat
             name: 'Sid',
             in: 'path',
             description: 'The credential list Sid that uniquely identifies this resource',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CL[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -35600,6 +37682,12 @@ export const post20100401AccountsAccountSidSIPCredentialListsSidJsonRoute = crea
             name: 'AccountSid',
             in: 'path',
             description: 'The unique id of the Account that is responsible for this resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -35612,6 +37700,12 @@ export const post20100401AccountsAccountSidSIPCredentialListsSidJsonRoute = crea
             name: 'Sid',
             in: 'path',
             description: 'The credential list Sid that uniquely identifies this resource',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CL[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -35733,6 +37827,12 @@ export const delete20100401AccountsAccountSidSIPCredentialListsSidJsonRoute = cr
             name: 'AccountSid',
             in: 'path',
             description: 'The unique id of the Account that is responsible for this resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -35745,6 +37845,12 @@ export const delete20100401AccountsAccountSidSIPCredentialListsSidJsonRoute = cr
             name: 'Sid',
             in: 'path',
             description: 'The credential list Sid that uniquely identifies this resource',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CL[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -35774,6 +37880,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappi
               in: 'path',
               description:
                 'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -35787,6 +37899,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappi
               in: 'path',
               description:
                 'A 34 character string that uniquely identifies the SIP Domain that includes the resource to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -35803,6 +37921,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappi
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -35814,6 +37933,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappi
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -35824,6 +37944,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappi
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -35967,6 +38088,12 @@ export const post20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMapp
               in: 'path',
               description:
                 'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -35980,6 +38107,12 @@ export const post20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMapp
               in: 'path',
               description:
                 'A 34 character string that uniquely identifies the SIP Domain for which the CredentialList resource will be mapped.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -36107,6 +38240,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappi
               in: 'path',
               description:
                 'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -36120,6 +38259,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappi
               in: 'path',
               description:
                 'A 34 character string that uniquely identifies the SIP Domain that includes the resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -36132,6 +38277,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappi
               name: 'Sid',
               in: 'path',
               description: 'A 34 character string that uniquely identifies the resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -36235,6 +38386,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMa
               in: 'path',
               description:
                 'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -36248,6 +38405,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMa
               in: 'path',
               description:
                 'A 34 character string that uniquely identifies the SIP Domain that includes the resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -36260,6 +38423,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMa
               name: 'Sid',
               in: 'path',
               description: 'A 34 character string that uniquely identifies the resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -36288,6 +38457,12 @@ export const get20100401AccountsAccountSidSIPDomainsJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the SipDomain resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -36304,6 +38479,7 @@ export const get20100401AccountsAccountSidSIPDomainsJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -36315,6 +38491,7 @@ export const get20100401AccountsAccountSidSIPDomainsJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -36325,6 +38502,7 @@ export const get20100401AccountsAccountSidSIPDomainsJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -36484,6 +38662,12 @@ export const post20100401AccountsAccountSidSIPDomainsJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -36725,6 +38909,12 @@ export const get20100401AccountsAccountSidSIPDomainsSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the SipDomain resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -36738,6 +38928,12 @@ export const get20100401AccountsAccountSidSIPDomainsSidJsonRoute = createRoute({
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the SipDomain resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^SD[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -36859,6 +39055,12 @@ export const post20100401AccountsAccountSidSIPDomainsSidJsonRoute = createRoute(
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the SipDomain resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -36872,6 +39074,12 @@ export const post20100401AccountsAccountSidSIPDomainsSidJsonRoute = createRoute(
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the SipDomain resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^SD[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -37113,6 +39321,12 @@ export const delete20100401AccountsAccountSidSIPDomainsSidJsonRoute = createRout
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the SipDomain resources to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -37126,6 +39340,12 @@ export const delete20100401AccountsAccountSidSIPDomainsSidJsonRoute = createRout
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the SipDomain resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^SD[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -37156,6 +39376,12 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsJsonRoute = cre
             in: 'path',
             description:
               'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -37172,6 +39398,7 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsJsonRoute = cre
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -37183,6 +39410,7 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsJsonRoute = cre
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -37193,6 +39421,7 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsJsonRoute = cre
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -37338,6 +39567,12 @@ export const post20100401AccountsAccountSidSIPIpAccessControlListsJsonRoute = cr
             in: 'path',
             description:
               'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -37460,6 +39695,12 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsSidJsonRoute = 
             in: 'path',
             description:
               'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -37472,6 +39713,12 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsSidJsonRoute = 
             name: 'Sid',
             in: 'path',
             description: 'A 34 character string that uniquely identifies the resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AL[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -37577,6 +39824,12 @@ export const post20100401AccountsAccountSidSIPIpAccessControlListsSidJsonRoute =
             in: 'path',
             description:
               'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -37589,6 +39842,12 @@ export const post20100401AccountsAccountSidSIPIpAccessControlListsSidJsonRoute =
             name: 'Sid',
             in: 'path',
             description: 'A 34 character string that uniquely identifies the resource to udpate.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AL[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -37710,6 +39969,12 @@ export const delete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonRoute
             in: 'path',
             description:
               'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -37722,6 +39987,12 @@ export const delete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonRoute
             name: 'Sid',
             in: 'path',
             description: 'A 34 character string that uniquely identifies the resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AL[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -37750,6 +40021,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlList
               name: 'AccountSid',
               in: 'path',
               description: 'The unique id of the Account that is responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -37762,6 +40039,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlList
               name: 'DomainSid',
               in: 'path',
               description: 'A 34 character string that uniquely identifies the SIP domain.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -37774,6 +40057,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlList
               name: 'Sid',
               in: 'path',
               description: 'A 34 character string that uniquely identifies the resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -37876,6 +40165,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlL
               name: 'AccountSid',
               in: 'path',
               description: 'The unique id of the Account that is responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -37888,6 +40183,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlL
               name: 'DomainSid',
               in: 'path',
               description: 'A 34 character string that uniquely identifies the SIP domain.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -37900,6 +40201,12 @@ export const delete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlL
               name: 'Sid',
               in: 'path',
               description: 'A 34 character string that uniquely identifies the resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -37928,6 +40235,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlList
               name: 'AccountSid',
               in: 'path',
               description: 'The unique id of the Account that is responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -37940,6 +40253,12 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlList
               name: 'DomainSid',
               in: 'path',
               description: 'A 34 character string that uniquely identifies the SIP domain.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -37956,6 +40275,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlList
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -37967,6 +40287,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlList
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -37977,6 +40298,7 @@ export const get20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlList
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -38119,6 +40441,12 @@ export const post20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlLis
               name: 'AccountSid',
               in: 'path',
               description: 'The unique id of the Account that is responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38131,6 +40459,12 @@ export const post20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlLis
               name: 'DomainSid',
               in: 'path',
               description: 'A 34 character string that uniquely identifies the SIP domain.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^SD[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38258,6 +40592,12 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControl
               in: 'path',
               description:
                 'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38271,6 +40611,12 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControl
               in: 'path',
               description:
                 'The IpAccessControlList Sid that identifies the IpAddress resources to read.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38287,6 +40633,7 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControl
               in: 'query',
               description:
                 'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+              schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
             },
           }),
         Page: z
@@ -38298,6 +40645,7 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControl
               name: 'Page',
               in: 'query',
               description: 'The page index. This value is simply for client state.',
+              schema: { type: 'integer', minimum: 0 },
             },
           }),
         PageToken: z
@@ -38308,6 +40656,7 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControl
               name: 'PageToken',
               in: 'query',
               description: 'The page token. This is provided by the API.',
+              schema: { type: 'string' },
             },
           }),
       }),
@@ -38453,6 +40802,12 @@ export const post20100401AccountsAccountSidSIPIpAccessControlListsIpAccessContro
               in: 'path',
               description:
                 'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38466,6 +40821,12 @@ export const post20100401AccountsAccountSidSIPIpAccessControlListsIpAccessContro
               in: 'path',
               description:
                 'The IpAccessControlList Sid with which to associate the created IpAddress resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38612,6 +40973,12 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControl
               in: 'path',
               description:
                 'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38625,6 +40992,12 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControl
               in: 'path',
               description:
                 'The IpAccessControlList Sid that identifies the IpAddress resources to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38638,6 +41011,12 @@ export const get20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControl
               in: 'path',
               description:
                 'A 34 character string that uniquely identifies the IpAddress resource to fetch.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^IP[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38743,6 +41122,12 @@ export const post20100401AccountsAccountSidSIPIpAccessControlListsIpAccessContro
               in: 'path',
               description:
                 'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38756,6 +41141,12 @@ export const post20100401AccountsAccountSidSIPIpAccessControlListsIpAccessContro
               in: 'path',
               description:
                 'The IpAccessControlList Sid that identifies the IpAddress resources to update.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38769,6 +41160,12 @@ export const post20100401AccountsAccountSidSIPIpAccessControlListsIpAccessContro
               in: 'path',
               description:
                 'A 34 character string that identifies the IpAddress resource to update.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^IP[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38914,6 +41311,12 @@ export const delete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessCont
               in: 'path',
               description:
                 'The unique id of the [Account](https://www.twilio.com/docs/iam/api/account) responsible for this resource.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38927,6 +41330,12 @@ export const delete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessCont
               in: 'path',
               description:
                 'The IpAccessControlList Sid that identifies the IpAddress resources to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AL[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38939,6 +41348,12 @@ export const delete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessCont
               name: 'Sid',
               in: 'path',
               description: 'A 34 character string that uniquely identifies the resource to delete.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^IP[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -38967,6 +41382,12 @@ export const post20100401AccountsAccountSidCallsCallSidSiprecJsonRoute = createR
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created this Siprec resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -38980,6 +41401,12 @@ export const post20100401AccountsAccountSidCallsCallSidSiprecJsonRoute = createR
             in: 'path',
             description:
               'The SID of the [Call](https://www.twilio.com/docs/voice/api/call-resource) the Siprec resource is associated with.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -39940,6 +42367,12 @@ export const post20100401AccountsAccountSidCallsCallSidSiprecSidJsonRoute = crea
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created this Siprec resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -39953,6 +42386,12 @@ export const post20100401AccountsAccountSidCallsCallSidSiprecSidJsonRoute = crea
             in: 'path',
             description:
               'The SID of the [Call](https://www.twilio.com/docs/voice/api/call-resource) the Siprec resource is associated with.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -39964,6 +42403,7 @@ export const post20100401AccountsAccountSidCallsCallSidSiprecSidJsonRoute = crea
             in: 'path',
             description:
               'The SID of the Siprec resource, or the `name` used when creating the resource',
+            schema: { type: 'string' },
             required: true,
           },
         }),
@@ -40090,6 +42530,12 @@ export const post20100401AccountsAccountSidCallsCallSidStreamsJsonRoute = create
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created this Stream resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -40103,6 +42549,12 @@ export const post20100401AccountsAccountSidCallsCallSidStreamsJsonRoute = create
             in: 'path',
             description:
               'The SID of the [Call](https://www.twilio.com/docs/voice/api/call-resource) the Stream resource is associated with.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -41065,6 +43517,12 @@ export const post20100401AccountsAccountSidCallsCallSidStreamsSidJsonRoute = cre
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created this Stream resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -41078,6 +43536,12 @@ export const post20100401AccountsAccountSidCallsCallSidStreamsSidJsonRoute = cre
             in: 'path',
             description:
               'The SID of the [Call](https://www.twilio.com/docs/voice/api/call-resource) the Stream resource is associated with.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -41088,6 +43552,7 @@ export const post20100401AccountsAccountSidCallsCallSidStreamsSidJsonRoute = cre
             name: 'Sid',
             in: 'path',
             description: 'The SID or the `name` of the Stream resource to be stopped',
+            schema: { type: 'string' },
             required: true,
           },
         }),
@@ -41214,6 +43679,12 @@ export const post20100401AccountsAccountSidTokensJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -41351,6 +43822,12 @@ export const get20100401AccountsAccountSidTranscriptionsSidJsonRoute = createRou
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Transcription resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -41364,6 +43841,12 @@ export const get20100401AccountsAccountSidTranscriptionsSidJsonRoute = createRou
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Transcription resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^TR[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -41472,6 +43955,12 @@ export const delete20100401AccountsAccountSidTranscriptionsSidJsonRoute = create
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Transcription resources to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -41485,6 +43974,12 @@ export const delete20100401AccountsAccountSidTranscriptionsSidJsonRoute = create
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the Transcription resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^TR[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -41514,6 +44009,12 @@ export const get20100401AccountsAccountSidTranscriptionsJsonRoute = createRoute(
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the Transcription resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -41530,6 +44031,7 @@ export const get20100401AccountsAccountSidTranscriptionsJsonRoute = createRoute(
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -41541,6 +44043,7 @@ export const get20100401AccountsAccountSidTranscriptionsJsonRoute = createRoute(
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -41551,6 +44054,7 @@ export const get20100401AccountsAccountSidTranscriptionsJsonRoute = createRoute(
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -41697,6 +44201,12 @@ export const get20100401AccountsAccountSidUsageRecordsJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageRecord resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -41711,6 +44221,7 @@ export const get20100401AccountsAccountSidUsageRecordsJsonRoute = createRoute({
             in: 'query',
             description:
               'The [usage category](https://www.twilio.com/docs/usage/api/usage-record#usage-categories) of the UsageRecord resources to read. Only UsageRecord resources in the specified category are retrieved.',
+            schema: { type: 'string' },
             examples: {
               readFull: { value: 'calleridlookups' },
               readEmpty: { value: 'calleridlookups' },
@@ -41726,6 +44237,7 @@ export const get20100401AccountsAccountSidUsageRecordsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include usage that has occurred on or after this date. Specify the date in GMT and format as `YYYY-MM-DD`. You can also specify offsets from the current date, such as: `-30days`, which will set the start date to be 30 days before the current date.',
+            schema: { type: 'string', format: 'date' },
             examples: { readFull: { value: '2008-01-02' }, readEmpty: { value: '2008-01-02' } },
           },
         }),
@@ -41738,6 +44250,7 @@ export const get20100401AccountsAccountSidUsageRecordsJsonRoute = createRoute({
             in: 'query',
             description:
               'Only include usage that occurred on or before this date. Specify the date in GMT and format as `YYYY-MM-DD`.  You can also specify offsets from the current date, such as: `+30days`, which will set the end date to 30 days from the current date.',
+            schema: { type: 'string', format: 'date' },
             examples: { readFull: { value: '2008-01-02' }, readEmpty: { value: '2008-01-02' } },
           },
         }),
@@ -41750,6 +44263,7 @@ export const get20100401AccountsAccountSidUsageRecordsJsonRoute = createRoute({
             in: 'query',
             description:
               'Whether to include usage from the master account and all its subaccounts. Can be: `true` (the default) to include usage from the master account and all subaccounts or `false` to retrieve usage from only the specified account.',
+            schema: { type: 'boolean' },
           },
         }),
       PageSize: z
@@ -41763,6 +44277,7 @@ export const get20100401AccountsAccountSidUsageRecordsJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -41774,6 +44289,7 @@ export const get20100401AccountsAccountSidUsageRecordsJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -41784,6 +44300,7 @@ export const get20100401AccountsAccountSidUsageRecordsJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -41948,6 +44465,12 @@ export const get20100401AccountsAccountSidUsageRecordsAllTimeJsonRoute = createR
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageRecord resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -41962,6 +44485,7 @@ export const get20100401AccountsAccountSidUsageRecordsAllTimeJsonRoute = createR
             in: 'query',
             description:
               'The [usage category](https://www.twilio.com/docs/usage/api/usage-record#usage-categories) of the UsageRecord resources to read. Only UsageRecord resources in the specified category are retrieved.',
+            schema: { type: 'string' },
           },
         }),
       StartDate: z.iso
@@ -41973,6 +44497,7 @@ export const get20100401AccountsAccountSidUsageRecordsAllTimeJsonRoute = createR
             in: 'query',
             description:
               'Only include usage that has occurred on or after this date. Specify the date in GMT and format as `YYYY-MM-DD`. You can also specify offsets from the current date, such as: `-30days`, which will set the start date to be 30 days before the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       EndDate: z.iso
@@ -41984,6 +44509,7 @@ export const get20100401AccountsAccountSidUsageRecordsAllTimeJsonRoute = createR
             in: 'query',
             description:
               'Only include usage that occurred on or before this date. Specify the date in GMT and format as `YYYY-MM-DD`.  You can also specify offsets from the current date, such as: `+30days`, which will set the end date to 30 days from the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       IncludeSubaccounts: z
@@ -41995,6 +44521,7 @@ export const get20100401AccountsAccountSidUsageRecordsAllTimeJsonRoute = createR
             in: 'query',
             description:
               'Whether to include usage from the master account and all its subaccounts. Can be: `true` (the default) to include usage from the master account and all subaccounts or `false` to retrieve usage from only the specified account.',
+            schema: { type: 'boolean' },
           },
         }),
       PageSize: z
@@ -42008,6 +44535,7 @@ export const get20100401AccountsAccountSidUsageRecordsAllTimeJsonRoute = createR
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -42019,6 +44547,7 @@ export const get20100401AccountsAccountSidUsageRecordsAllTimeJsonRoute = createR
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -42029,6 +44558,7 @@ export const get20100401AccountsAccountSidUsageRecordsAllTimeJsonRoute = createR
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -42194,6 +44724,12 @@ export const get20100401AccountsAccountSidUsageRecordsDailyJsonRoute = createRou
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageRecord resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -42208,6 +44744,7 @@ export const get20100401AccountsAccountSidUsageRecordsDailyJsonRoute = createRou
             in: 'query',
             description:
               'The [usage category](https://www.twilio.com/docs/usage/api/usage-record#usage-categories) of the UsageRecord resources to read. Only UsageRecord resources in the specified category are retrieved.',
+            schema: { type: 'string' },
           },
         }),
       StartDate: z.iso
@@ -42219,6 +44756,7 @@ export const get20100401AccountsAccountSidUsageRecordsDailyJsonRoute = createRou
             in: 'query',
             description:
               'Only include usage that has occurred on or after this date. Specify the date in GMT and format as `YYYY-MM-DD`. You can also specify offsets from the current date, such as: `-30days`, which will set the start date to be 30 days before the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       EndDate: z.iso
@@ -42230,6 +44768,7 @@ export const get20100401AccountsAccountSidUsageRecordsDailyJsonRoute = createRou
             in: 'query',
             description:
               'Only include usage that occurred on or before this date. Specify the date in GMT and format as `YYYY-MM-DD`.  You can also specify offsets from the current date, such as: `+30days`, which will set the end date to 30 days from the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       IncludeSubaccounts: z
@@ -42241,6 +44780,7 @@ export const get20100401AccountsAccountSidUsageRecordsDailyJsonRoute = createRou
             in: 'query',
             description:
               'Whether to include usage from the master account and all its subaccounts. Can be: `true` (the default) to include usage from the master account and all subaccounts or `false` to retrieve usage from only the specified account.',
+            schema: { type: 'boolean' },
           },
         }),
       PageSize: z
@@ -42254,6 +44794,7 @@ export const get20100401AccountsAccountSidUsageRecordsDailyJsonRoute = createRou
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -42265,6 +44806,7 @@ export const get20100401AccountsAccountSidUsageRecordsDailyJsonRoute = createRou
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -42275,6 +44817,7 @@ export const get20100401AccountsAccountSidUsageRecordsDailyJsonRoute = createRou
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -42440,6 +44983,12 @@ export const get20100401AccountsAccountSidUsageRecordsLastMonthJsonRoute = creat
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageRecord resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -42454,6 +45003,7 @@ export const get20100401AccountsAccountSidUsageRecordsLastMonthJsonRoute = creat
             in: 'query',
             description:
               'The [usage category](https://www.twilio.com/docs/usage/api/usage-record#usage-categories) of the UsageRecord resources to read. Only UsageRecord resources in the specified category are retrieved.',
+            schema: { type: 'string' },
           },
         }),
       StartDate: z.iso
@@ -42465,6 +45015,7 @@ export const get20100401AccountsAccountSidUsageRecordsLastMonthJsonRoute = creat
             in: 'query',
             description:
               'Only include usage that has occurred on or after this date. Specify the date in GMT and format as `YYYY-MM-DD`. You can also specify offsets from the current date, such as: `-30days`, which will set the start date to be 30 days before the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       EndDate: z.iso
@@ -42476,6 +45027,7 @@ export const get20100401AccountsAccountSidUsageRecordsLastMonthJsonRoute = creat
             in: 'query',
             description:
               'Only include usage that occurred on or before this date. Specify the date in GMT and format as `YYYY-MM-DD`.  You can also specify offsets from the current date, such as: `+30days`, which will set the end date to 30 days from the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       IncludeSubaccounts: z
@@ -42487,6 +45039,7 @@ export const get20100401AccountsAccountSidUsageRecordsLastMonthJsonRoute = creat
             in: 'query',
             description:
               'Whether to include usage from the master account and all its subaccounts. Can be: `true` (the default) to include usage from the master account and all subaccounts or `false` to retrieve usage from only the specified account.',
+            schema: { type: 'boolean' },
           },
         }),
       PageSize: z
@@ -42500,6 +45053,7 @@ export const get20100401AccountsAccountSidUsageRecordsLastMonthJsonRoute = creat
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -42511,6 +45065,7 @@ export const get20100401AccountsAccountSidUsageRecordsLastMonthJsonRoute = creat
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -42521,6 +45076,7 @@ export const get20100401AccountsAccountSidUsageRecordsLastMonthJsonRoute = creat
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -42686,6 +45242,12 @@ export const get20100401AccountsAccountSidUsageRecordsMonthlyJsonRoute = createR
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageRecord resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -42700,6 +45262,7 @@ export const get20100401AccountsAccountSidUsageRecordsMonthlyJsonRoute = createR
             in: 'query',
             description:
               'The [usage category](https://www.twilio.com/docs/usage/api/usage-record#usage-categories) of the UsageRecord resources to read. Only UsageRecord resources in the specified category are retrieved.',
+            schema: { type: 'string' },
           },
         }),
       StartDate: z.iso
@@ -42711,6 +45274,7 @@ export const get20100401AccountsAccountSidUsageRecordsMonthlyJsonRoute = createR
             in: 'query',
             description:
               'Only include usage that has occurred on or after this date. Specify the date in GMT and format as `YYYY-MM-DD`. You can also specify offsets from the current date, such as: `-30days`, which will set the start date to be 30 days before the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       EndDate: z.iso
@@ -42722,6 +45286,7 @@ export const get20100401AccountsAccountSidUsageRecordsMonthlyJsonRoute = createR
             in: 'query',
             description:
               'Only include usage that occurred on or before this date. Specify the date in GMT and format as `YYYY-MM-DD`.  You can also specify offsets from the current date, such as: `+30days`, which will set the end date to 30 days from the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       IncludeSubaccounts: z
@@ -42733,6 +45298,7 @@ export const get20100401AccountsAccountSidUsageRecordsMonthlyJsonRoute = createR
             in: 'query',
             description:
               'Whether to include usage from the master account and all its subaccounts. Can be: `true` (the default) to include usage from the master account and all subaccounts or `false` to retrieve usage from only the specified account.',
+            schema: { type: 'boolean' },
           },
         }),
       PageSize: z
@@ -42746,6 +45312,7 @@ export const get20100401AccountsAccountSidUsageRecordsMonthlyJsonRoute = createR
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -42757,6 +45324,7 @@ export const get20100401AccountsAccountSidUsageRecordsMonthlyJsonRoute = createR
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -42767,6 +45335,7 @@ export const get20100401AccountsAccountSidUsageRecordsMonthlyJsonRoute = createR
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -42932,6 +45501,12 @@ export const get20100401AccountsAccountSidUsageRecordsThisMonthJsonRoute = creat
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageRecord resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -42946,6 +45521,7 @@ export const get20100401AccountsAccountSidUsageRecordsThisMonthJsonRoute = creat
             in: 'query',
             description:
               'The [usage category](https://www.twilio.com/docs/usage/api/usage-record#usage-categories) of the UsageRecord resources to read. Only UsageRecord resources in the specified category are retrieved.',
+            schema: { type: 'string' },
           },
         }),
       StartDate: z.iso
@@ -42957,6 +45533,7 @@ export const get20100401AccountsAccountSidUsageRecordsThisMonthJsonRoute = creat
             in: 'query',
             description:
               'Only include usage that has occurred on or after this date. Specify the date in GMT and format as `YYYY-MM-DD`. You can also specify offsets from the current date, such as: `-30days`, which will set the start date to be 30 days before the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       EndDate: z.iso
@@ -42968,6 +45545,7 @@ export const get20100401AccountsAccountSidUsageRecordsThisMonthJsonRoute = creat
             in: 'query',
             description:
               'Only include usage that occurred on or before this date. Specify the date in GMT and format as `YYYY-MM-DD`.  You can also specify offsets from the current date, such as: `+30days`, which will set the end date to 30 days from the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       IncludeSubaccounts: z
@@ -42979,6 +45557,7 @@ export const get20100401AccountsAccountSidUsageRecordsThisMonthJsonRoute = creat
             in: 'query',
             description:
               'Whether to include usage from the master account and all its subaccounts. Can be: `true` (the default) to include usage from the master account and all subaccounts or `false` to retrieve usage from only the specified account.',
+            schema: { type: 'boolean' },
           },
         }),
       PageSize: z
@@ -42992,6 +45571,7 @@ export const get20100401AccountsAccountSidUsageRecordsThisMonthJsonRoute = creat
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -43003,6 +45583,7 @@ export const get20100401AccountsAccountSidUsageRecordsThisMonthJsonRoute = creat
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -43013,6 +45594,7 @@ export const get20100401AccountsAccountSidUsageRecordsThisMonthJsonRoute = creat
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -43178,6 +45760,12 @@ export const get20100401AccountsAccountSidUsageRecordsTodayJsonRoute = createRou
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageRecord resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -43192,6 +45780,7 @@ export const get20100401AccountsAccountSidUsageRecordsTodayJsonRoute = createRou
             in: 'query',
             description:
               'The [usage category](https://www.twilio.com/docs/usage/api/usage-record#usage-categories) of the UsageRecord resources to read. Only UsageRecord resources in the specified category are retrieved.',
+            schema: { type: 'string' },
           },
         }),
       StartDate: z.iso
@@ -43203,6 +45792,7 @@ export const get20100401AccountsAccountSidUsageRecordsTodayJsonRoute = createRou
             in: 'query',
             description:
               'Only include usage that has occurred on or after this date. Specify the date in GMT and format as `YYYY-MM-DD`. You can also specify offsets from the current date, such as: `-30days`, which will set the start date to be 30 days before the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       EndDate: z.iso
@@ -43214,6 +45804,7 @@ export const get20100401AccountsAccountSidUsageRecordsTodayJsonRoute = createRou
             in: 'query',
             description:
               'Only include usage that occurred on or before this date. Specify the date in GMT and format as `YYYY-MM-DD`.  You can also specify offsets from the current date, such as: `+30days`, which will set the end date to 30 days from the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       IncludeSubaccounts: z
@@ -43225,6 +45816,7 @@ export const get20100401AccountsAccountSidUsageRecordsTodayJsonRoute = createRou
             in: 'query',
             description:
               'Whether to include usage from the master account and all its subaccounts. Can be: `true` (the default) to include usage from the master account and all subaccounts or `false` to retrieve usage from only the specified account.',
+            schema: { type: 'boolean' },
           },
         }),
       PageSize: z
@@ -43238,6 +45830,7 @@ export const get20100401AccountsAccountSidUsageRecordsTodayJsonRoute = createRou
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -43249,6 +45842,7 @@ export const get20100401AccountsAccountSidUsageRecordsTodayJsonRoute = createRou
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -43259,6 +45853,7 @@ export const get20100401AccountsAccountSidUsageRecordsTodayJsonRoute = createRou
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -43424,6 +46019,12 @@ export const get20100401AccountsAccountSidUsageRecordsYearlyJsonRoute = createRo
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageRecord resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -43438,6 +46039,7 @@ export const get20100401AccountsAccountSidUsageRecordsYearlyJsonRoute = createRo
             in: 'query',
             description:
               'The [usage category](https://www.twilio.com/docs/usage/api/usage-record#usage-categories) of the UsageRecord resources to read. Only UsageRecord resources in the specified category are retrieved.',
+            schema: { type: 'string' },
           },
         }),
       StartDate: z.iso
@@ -43449,6 +46051,7 @@ export const get20100401AccountsAccountSidUsageRecordsYearlyJsonRoute = createRo
             in: 'query',
             description:
               'Only include usage that has occurred on or after this date. Specify the date in GMT and format as `YYYY-MM-DD`. You can also specify offsets from the current date, such as: `-30days`, which will set the start date to be 30 days before the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       EndDate: z.iso
@@ -43460,6 +46063,7 @@ export const get20100401AccountsAccountSidUsageRecordsYearlyJsonRoute = createRo
             in: 'query',
             description:
               'Only include usage that occurred on or before this date. Specify the date in GMT and format as `YYYY-MM-DD`.  You can also specify offsets from the current date, such as: `+30days`, which will set the end date to 30 days from the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       IncludeSubaccounts: z
@@ -43471,6 +46075,7 @@ export const get20100401AccountsAccountSidUsageRecordsYearlyJsonRoute = createRo
             in: 'query',
             description:
               'Whether to include usage from the master account and all its subaccounts. Can be: `true` (the default) to include usage from the master account and all subaccounts or `false` to retrieve usage from only the specified account.',
+            schema: { type: 'boolean' },
           },
         }),
       PageSize: z
@@ -43484,6 +46089,7 @@ export const get20100401AccountsAccountSidUsageRecordsYearlyJsonRoute = createRo
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -43495,6 +46101,7 @@ export const get20100401AccountsAccountSidUsageRecordsYearlyJsonRoute = createRo
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -43505,6 +46112,7 @@ export const get20100401AccountsAccountSidUsageRecordsYearlyJsonRoute = createRo
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -43670,6 +46278,12 @@ export const get20100401AccountsAccountSidUsageRecordsYesterdayJsonRoute = creat
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageRecord resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -43684,6 +46298,7 @@ export const get20100401AccountsAccountSidUsageRecordsYesterdayJsonRoute = creat
             in: 'query',
             description:
               'The [usage category](https://www.twilio.com/docs/usage/api/usage-record#usage-categories) of the UsageRecord resources to read. Only UsageRecord resources in the specified category are retrieved.',
+            schema: { type: 'string' },
           },
         }),
       StartDate: z.iso
@@ -43695,6 +46310,7 @@ export const get20100401AccountsAccountSidUsageRecordsYesterdayJsonRoute = creat
             in: 'query',
             description:
               'Only include usage that has occurred on or after this date. Specify the date in GMT and format as `YYYY-MM-DD`. You can also specify offsets from the current date, such as: `-30days`, which will set the start date to be 30 days before the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       EndDate: z.iso
@@ -43706,6 +46322,7 @@ export const get20100401AccountsAccountSidUsageRecordsYesterdayJsonRoute = creat
             in: 'query',
             description:
               'Only include usage that occurred on or before this date. Specify the date in GMT and format as `YYYY-MM-DD`.  You can also specify offsets from the current date, such as: `+30days`, which will set the end date to 30 days from the current date.',
+            schema: { type: 'string', format: 'date' },
           },
         }),
       IncludeSubaccounts: z
@@ -43717,6 +46334,7 @@ export const get20100401AccountsAccountSidUsageRecordsYesterdayJsonRoute = creat
             in: 'query',
             description:
               'Whether to include usage from the master account and all its subaccounts. Can be: `true` (the default) to include usage from the master account and all subaccounts or `false` to retrieve usage from only the specified account.',
+            schema: { type: 'boolean' },
           },
         }),
       PageSize: z
@@ -43730,6 +46348,7 @@ export const get20100401AccountsAccountSidUsageRecordsYesterdayJsonRoute = creat
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -43741,6 +46360,7 @@ export const get20100401AccountsAccountSidUsageRecordsYesterdayJsonRoute = creat
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -43751,6 +46371,7 @@ export const get20100401AccountsAccountSidUsageRecordsYesterdayJsonRoute = creat
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -43918,6 +46539,12 @@ export const get20100401AccountsAccountSidUsageTriggersSidJsonRoute = createRout
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageTrigger resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -43931,6 +46558,12 @@ export const get20100401AccountsAccountSidUsageTriggersSidJsonRoute = createRout
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the UsageTrigger resource to fetch.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^UT[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -44043,6 +46676,12 @@ export const post20100401AccountsAccountSidUsageTriggersSidJsonRoute = createRou
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageTrigger resources to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -44056,6 +46695,12 @@ export const post20100401AccountsAccountSidUsageTriggersSidJsonRoute = createRou
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the UsageTrigger resource to update.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^UT[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -44206,6 +46851,12 @@ export const delete20100401AccountsAccountSidUsageTriggersSidJsonRoute = createR
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageTrigger resources to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -44219,6 +46870,12 @@ export const delete20100401AccountsAccountSidUsageTriggersSidJsonRoute = createR
             in: 'path',
             description:
               'The Twilio-provided string that uniquely identifies the UsageTrigger resource to delete.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^UT[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -44248,6 +46905,12 @@ export const get20100401AccountsAccountSidUsageTriggersJsonRoute = createRoute({
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created the UsageTrigger resources to read.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -44259,6 +46922,7 @@ export const get20100401AccountsAccountSidUsageTriggersJsonRoute = createRoute({
           in: 'query',
           description:
             'The frequency of recurring UsageTriggers to read. Can be: `daily`, `monthly`, or `yearly` to read recurring UsageTriggers. An empty value or a value of `alltime` reads non-recurring UsageTriggers.',
+          schema: { $ref: '#/components/schemas/usage_trigger_enum_recurring' },
           examples: { readFull: { value: 'daily' }, readEmpty: { value: 'daily' } },
         },
       }),
@@ -44268,6 +46932,7 @@ export const get20100401AccountsAccountSidUsageTriggersJsonRoute = createRoute({
           in: 'query',
           description:
             'The trigger field of the UsageTriggers to read.  Can be: `count`, `usage`, or `price` as described in the [UsageRecords documentation](https://www.twilio.com/docs/usage/api/usage-record#usage-count-price).',
+          schema: { $ref: '#/components/schemas/usage_trigger_enum_trigger_field' },
           examples: { readFull: { value: 'count' }, readEmpty: { value: 'count' } },
         },
       }),
@@ -44280,6 +46945,7 @@ export const get20100401AccountsAccountSidUsageTriggersJsonRoute = createRoute({
             in: 'query',
             description:
               'The usage category of the UsageTriggers to read. Must be a supported [usage categories](https://www.twilio.com/docs/usage/api/usage-record#usage-categories).',
+            schema: { type: 'string' },
             examples: {
               readFull: { value: 'calleridlookups' },
               readEmpty: { value: 'calleridlookups' },
@@ -44297,6 +46963,7 @@ export const get20100401AccountsAccountSidUsageTriggersJsonRoute = createRoute({
             in: 'query',
             description:
               'How many resources to return in each list page. The default is 50, and the maximum is 1000.',
+            schema: { type: 'integer', format: 'int64', minimum: 1, maximum: 1000 },
           },
         }),
       Page: z
@@ -44308,6 +46975,7 @@ export const get20100401AccountsAccountSidUsageTriggersJsonRoute = createRoute({
             name: 'Page',
             in: 'query',
             description: 'The page index. This value is simply for client state.',
+            schema: { type: 'integer', minimum: 0 },
           },
         }),
       PageToken: z
@@ -44318,6 +46986,7 @@ export const get20100401AccountsAccountSidUsageTriggersJsonRoute = createRoute({
             name: 'PageToken',
             in: 'query',
             description: 'The page token. This is provided by the API.',
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -44469,6 +47138,12 @@ export const post20100401AccountsAccountSidUsageTriggersJsonRoute = createRoute(
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that will create the resource.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -44641,6 +47316,12 @@ export const post20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonRo
             in: 'path',
             description:
               'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that created User Defined Message.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^AC[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -44654,6 +47335,12 @@ export const post20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonRo
             in: 'path',
             description:
               'The SID of the [Call](https://www.twilio.com/docs/voice/api/call-resource) the User Defined Message is associated with.',
+            schema: {
+              type: 'string',
+              minLength: 34,
+              maxLength: 34,
+              pattern: '^CA[0-9a-fA-F]{32}$',
+            },
             required: true,
           },
         }),
@@ -44777,6 +47464,12 @@ export const post20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscri
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that subscribed to the User Defined Messages.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -44790,6 +47483,12 @@ export const post20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscri
               in: 'path',
               description:
                 'The SID of the [Call](https://www.twilio.com/docs/voice/api/call-resource) the User Defined Messages subscription is associated with. This refers to the Call SID that is producing the user defined messages.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CA[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -44929,6 +47628,12 @@ export const delete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubsc
               in: 'path',
               description:
                 'The SID of the [Account](https://www.twilio.com/docs/iam/api/account) that subscribed to the User Defined Messages.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^AC[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -44942,6 +47647,12 @@ export const delete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubsc
               in: 'path',
               description:
                 'The SID of the [Call](https://www.twilio.com/docs/voice/api/call-resource) the User Defined Message Subscription is associated with. This refers to the Call SID that is producing the User Defined Messages.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^CA[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),
@@ -44955,6 +47666,12 @@ export const delete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubsc
               in: 'path',
               description:
                 'The SID that uniquely identifies this User Defined Message Subscription.',
+              schema: {
+                type: 'string',
+                minLength: 34,
+                maxLength: 34,
+                pattern: '^ZY[0-9a-fA-F]{32}$',
+              },
               required: true,
             },
           }),

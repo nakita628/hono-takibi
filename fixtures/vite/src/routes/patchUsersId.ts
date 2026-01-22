@@ -10,7 +10,16 @@ export const patchUsersIdRoute = createRoute({
   operationId: 'updateUser',
   request: {
     params: z.object({
-      id: z.uuid().openapi({ param: { name: 'id', in: 'path', required: true } }),
+      id: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: {
       content: {

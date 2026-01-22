@@ -237,14 +237,23 @@ const ErrorSchema = z
 
 const SessionIdParamParamsSchema = z
   .uuid()
-  .openapi({ param: { name: 'sessionId', in: 'path', required: true } })
+  .openapi({
+    param: {
+      name: 'sessionId',
+      in: 'path',
+      required: true,
+      schema: { type: 'string', format: 'uuid' },
+    },
+  })
 
 const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
   .exactOptional()
-  .openapi({ param: { name: 'page', in: 'query' } })
+  .openapi({
+    param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
+  })
 
 const LimitParamParamsSchema = z
   .int()
@@ -252,7 +261,13 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({ param: { name: 'limit', in: 'query' } })
+  .openapi({
+    param: {
+      name: 'limit',
+      in: 'query',
+      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+    },
+  })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -287,7 +302,12 @@ export const getSessionsRoute = createRoute({
         .default(false)
         .exactOptional()
         .openapi({
-          param: { name: 'includeExpired', in: 'query', description: '期限切れセッションも含める' },
+          param: {
+            name: 'includeExpired',
+            in: 'query',
+            description: '期限切れセッションも含める',
+            schema: { type: 'boolean', default: false },
+          },
         }),
     }),
   },
@@ -560,11 +580,15 @@ export const getSessionsHistoryRoute = createRoute({
       from: z.iso
         .datetime()
         .exactOptional()
-        .openapi({ param: { name: 'from', in: 'query' } }),
+        .openapi({
+          param: { name: 'from', in: 'query', schema: { type: 'string', format: 'date-time' } },
+        }),
       to: z.iso
         .datetime()
         .exactOptional()
-        .openapi({ param: { name: 'to', in: 'query' } }),
+        .openapi({
+          param: { name: 'to', in: 'query', schema: { type: 'string', format: 'date-time' } },
+        }),
     }),
   },
   responses: {
@@ -591,7 +615,13 @@ export const getSessionsSecurityEventsRoute = createRoute({
       severity: z
         .enum(['low', 'medium', 'high', 'critical'])
         .exactOptional()
-        .openapi({ param: { name: 'severity', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'severity',
+            in: 'query',
+            schema: { type: 'string', enum: ['low', 'medium', 'high', 'critical'] },
+          },
+        }),
     }),
   },
   responses: {
@@ -699,7 +729,16 @@ export const deleteSessionsTrustedDevicesDeviceIdRoute = createRoute({
   operationId: 'removeTrustedDevice',
   request: {
     params: z.object({
-      deviceId: z.uuid().openapi({ param: { name: 'deviceId', in: 'path', required: true } }),
+      deviceId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'deviceId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },

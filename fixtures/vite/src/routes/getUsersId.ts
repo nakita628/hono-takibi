@@ -13,7 +13,13 @@ export const getUsersIdRoute = createRoute({
       id: z
         .uuid()
         .openapi({
-          param: { name: 'id', in: 'path', required: true, description: 'User ID (UUID).' },
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            description: 'User ID (UUID).',
+            schema: { type: 'string', format: 'uuid' },
+          },
         }),
     }),
   },
