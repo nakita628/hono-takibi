@@ -1,26 +1,9 @@
-import { renderToString } from 'react-dom/server'
-import app from './api'
+import { createRoot } from 'react-dom/client'
+import App from './app'
 
-app.get('*', (c) => {
-  return c.html(
-    renderToString(
-      <html lang='en'>
-        <head>
-          <meta charSet='utf-8' />
-          <meta content='width=device-width, initial-scale=1' name='viewport' />
-          <title>Hono🔥 React</title>
-          {import.meta.env.PROD ? (
-            <script type='module' src='/static/main.js'></script>
-          ) : (
-            <script type='module' src='/src/main.tsx'></script>
-          )}
-        </head>
-        <body>
-          <div id='root' />
-        </body>
-      </html>,
-    ),
-  )
-})
+const rootElement = document.getElementById('root')
+const root = rootElement ? createRoot(rootElement) : console.error('Root element not found')
 
-export default app
+if (root) {
+  root.render(<App />)
+}

@@ -1,22 +1,9 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const CreatedSchema = z
-  .object({ message: z.string() })
-  .openapi({ example: { status: 201, message: 'Created' } })
-  .openapi('Created')
-
-const InternalServerErrorSchema = z.object({ message: z.string() }).openapi('InternalServerError')
-
-const NotFoundSchema = z.object({ message: z.string() }).openapi('NotFound')
-
 const OKSchema = z
   .object({ message: z.string() })
-  .openapi({ example: { status: 200, message: 'OK' } })
+  .openapi({ required: ['message'], example: { status: 200, message: 'OK' } })
   .openapi('OK')
-
-const ServiceUnavailableSchema = z
-  .object({ message: z.string(), retryAfter: z.string().optional() })
-  .openapi('ServiceUnavailable')
 
 const TodoSchema = z
   .object({
@@ -26,6 +13,7 @@ const TodoSchema = z
     updatedAt: z.iso.datetime(),
   })
   .openapi({
+    required: ['id', 'content', 'createdAt', 'updatedAt'],
     example: {
       id: 'c6c0f743-01fa-4c23-80d6-1b358512e213',
       content: 'Hono',
@@ -35,14 +23,37 @@ const TodoSchema = z
   })
   .openapi('Todo')
 
-const UnprocessableContentSchema = z.object({ message: z.string() }).openapi('UnprocessableContent')
+const NotFoundSchema = z
+  .object({ message: z.string() })
+  .openapi({ required: ['message'] })
+  .openapi('NotFound')
+
+const UnprocessableContentSchema = z
+  .object({ message: z.string() })
+  .openapi({ required: ['message'] })
+  .openapi('UnprocessableContent')
+
+const InternalServerErrorSchema = z
+  .object({ message: z.string() })
+  .openapi({ required: ['message'] })
+  .openapi('InternalServerError')
+
+const ServiceUnavailableSchema = z
+  .object({ message: z.string(), retryAfter: z.string().exactOptional() })
+  .openapi({ required: ['message'] })
+  .openapi('ServiceUnavailable')
+
+const CreatedSchema = z
+  .object({ message: z.string() })
+  .openapi({ required: ['message'], example: { status: 201, message: 'Created' } })
+  .openapi('Created')
 
 export const getRoute = createRoute({
-  tags: ['Health'],
   method: 'get',
   path: '/',
-  operationId: 'Health_list',
+  tags: ['Health'],
   summary: 'Health Check',
+  operationId: 'Health_list',
   responses: {
     200: {
       description: 'The request has succeeded.',
@@ -52,21 +63,37 @@ export const getRoute = createRoute({
 })
 
 export const getTodoRoute = createRoute({
-  tags: ['Todos'],
   method: 'get',
   path: '/todo',
-  operationId: 'Todos_list',
+  tags: ['Todos'],
   summary: 'Retrieve a list of posts',
+  operationId: 'Todos_list',
   request: {
     query: z.object({
       limit: z.coerce
         .number()
-        .openapi({ param: { in: 'query', name: 'limit', required: false } })
-        .optional(),
+        .exactOptional()
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            required: false,
+            schema: { type: 'number' },
+            explode: false,
+          },
+        }),
       offset: z.coerce
         .number()
-        .openapi({ param: { in: 'query', name: 'offset', required: false } })
-        .optional(),
+        .exactOptional()
+        .openapi({
+          param: {
+            name: 'offset',
+            in: 'query',
+            required: false,
+            schema: { type: 'number' },
+            explode: false,
+          },
+        }),
     }),
   },
   responses: {
@@ -94,17 +121,21 @@ export const getTodoRoute = createRoute({
 })
 
 export const postTodoRoute = createRoute({
-  tags: ['Todos'],
   method: 'post',
   path: '/todo',
-  operationId: 'Todos_create',
+  tags: ['Todos'],
   summary: 'Create a new post',
+  operationId: 'Todos_create',
   request: {
     body: {
-      required: true,
       content: {
-        'application/json': { schema: z.object({ content: z.string().min(1).max(140) }) },
+        'application/json': {
+          schema: z
+            .object({ content: z.string().min(1).max(140) })
+            .openapi({ required: ['content'] }),
+        },
       },
+      required: true,
     },
   },
   responses: {
@@ -128,14 +159,23 @@ export const postTodoRoute = createRoute({
 })
 
 export const getTodoIdRoute = createRoute({
-  tags: ['Todos'],
   method: 'get',
   path: '/todo/{id}',
-  operationId: 'Todos_update',
+  tags: ['Todos'],
   summary: 'Update an existing post',
+  operationId: 'Todos_update',
   request: {
     params: z.object({
-      id: z.uuid().openapi({ param: { in: 'path', name: 'id', required: true } }),
+      id: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
@@ -163,25 +203,38 @@ export const getTodoIdRoute = createRoute({
 })
 
 export const putTodoIdRoute = createRoute({
-  tags: ['Todos'],
   method: 'put',
   path: '/todo/{id}',
-  operationId: 'Todos_delete',
+  tags: ['Todos'],
   summary: 'Delete an existing post identified by its unique ID.',
+  operationId: 'Todos_delete',
   request: {
-    body: {
-      required: true,
-      content: {
-        'application/json': { schema: z.object({ content: z.string().min(1).max(140) }) },
-      },
-    },
     params: z.object({
-      id: z.uuid().openapi({ param: { in: 'path', name: 'id', required: true } }),
+      id: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
+    body: {
+      content: {
+        'application/json': {
+          schema: z
+            .object({ content: z.string().min(1).max(140) })
+            .openapi({ required: ['content'] }),
+        },
+      },
+      required: true,
+    },
   },
   responses: {
     204: {
-      description: 'There is no content to send for this request, but the headers may be useful.',
+      description: 'There is no content to send for this request, but the headers may be useful. ',
     },
     404: {
       description: 'The server cannot find the requested resource.',
@@ -203,19 +256,28 @@ export const putTodoIdRoute = createRoute({
 })
 
 export const deleteTodoIdRoute = createRoute({
-  tags: ['Todos'],
   method: 'delete',
   path: '/todo/{id}',
-  operationId: 'Todos_post',
+  tags: ['Todos'],
   summary: 'Post successfully deleted.',
+  operationId: 'Todos_post',
   request: {
     params: z.object({
-      id: z.uuid().openapi({ param: { in: 'path', name: 'id', required: true } }),
+      id: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: {
     204: {
-      description: 'There is no content to send for this request, but the headers may be useful.',
+      description: 'There is no content to send for this request, but the headers may be useful. ',
     },
     404: {
       description: 'The server cannot find the requested resource.',

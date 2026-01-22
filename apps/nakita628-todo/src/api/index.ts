@@ -1,57 +1,30 @@
-import { swaggerUI } from '@hono/swagger-ui'
-import { OpenAPIHono, z } from '@hono/zod-openapi'
-import { customError } from '../custom-error'
-import {
-  deleteTodoIdRouteHandler,
-  getHandler,
-  getTodoIdRouteHandler,
-  getTodoRouteHandler,
-  postTodoRouteHandler,
-  putTodoIdRouteHandler,
-} from '../handlers'
-import {
-  deleteTodoIdRoute,
-  getRoute,
-  getTodoIdRoute,
-  getTodoRoute,
-  postTodoRoute,
-  putTodoIdRoute,
-} from '../routes'
+import { createRoute, OpenAPIHono, RouteHandler, z } from '@hono/zod-openapi'
 
-const app = new OpenAPIHono({
-  defaultHook: (result, c) => {
-    if (!result.success) {
-      return c.json(
-        {
-          ok: false,
-          errors: z.treeifyError(result.error),
+const app = new OpenAPIHono()
+
+const get = createRoute({
+  tags: ['Hono'],
+  method: 'get',
+  path: '/',
+  description: 'Hono🔥 React',
+  responses: {
+    200: {
+      description: 'Hono🔥',
+      content: {
+        'application/json': {
+          schema: z.object({
+            message: z.string(),
+          }),
         },
-        422,
-      )
-    }
+      },
+    },
   },
 })
 
-const api = app
-  .openapi(getRoute, getHandler)
-  .openapi(getTodoRoute, getTodoRouteHandler)
-  .openapi(postTodoRoute, postTodoRouteHandler)
-  .openapi(getTodoIdRoute, getTodoIdRouteHandler)
-  .openapi(putTodoIdRoute, putTodoIdRouteHandler)
-  .openapi(deleteTodoIdRoute, deleteTodoIdRouteHandler)
-
-customError()
-
-if (process.env.NODE_ENV === 'development') {
-  app
-    .doc('/doc', {
-      openapi: '3.0.0',
-      info: { title: 'Hono Todo API', version: '0.0.0' },
-      tags: [{ name: 'Health' }, { name: 'Todos' }],
-    })
-    .get('/ui', swaggerUI({ url: '/doc' }))
+export const getHandler: RouteHandler<typeof get> = async (c) => {
+  return c.json({ message: 'Hono🔥 React' })
 }
 
-export type AddType = typeof api
+export const api = app.basePath('/api').openapi(get, getHandler)
 
 export default app
