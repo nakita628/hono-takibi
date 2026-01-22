@@ -25,12 +25,12 @@ interface Todos {
   @summary("Create a new post")
   @post create(@body body: { content: Todo.content} ): Created | UnprocessableContent | InternalServerError | ServiceUnavailable;
 
-  @summary("Update an existing post")
-  @get update(@path id: Todo.id): Todo | NotFound | UnprocessableContent| InternalServerError | ServiceUnavailable;
+  @summary("Get a single todo")
+  @get read(@path id: Todo.id): Todo | NotFound | UnprocessableContent| InternalServerError | ServiceUnavailable;
 
-  @summary("Delete an existing post identified by its unique ID.")
-  @put delete(@path id: Todo.id, @body body: { content: Todo.content} ): void | NotFound | UnprocessableContent | InternalServerError | ServiceUnavailable;
+  @summary("Update an existing todo")
+  @put update(@path id: Todo.id, @body body: { content?: Todo.content, completed?: Todo.completed } ): void | NotFound | UnprocessableContent | InternalServerError | ServiceUnavailable;
 
-  @summary("Post successfully deleted.")
-  @delete post(@path id: Todo.id): void | NotFound | UnprocessableContent | InternalServerError | ServiceUnavailable;  
+  @summary("Delete a todo")
+  @delete delete(@path id: Todo.id): void | NotFound | UnprocessableContent | InternalServerError | ServiceUnavailable;  
 }

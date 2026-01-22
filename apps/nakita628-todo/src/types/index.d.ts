@@ -7,7 +7,13 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
       $get:
         | {
             input: { query: { limit?: number | undefined; offset?: number | undefined } }
-            output: { id: string; content: string; createdAt: string; updatedAt: string }[]
+            output: {
+              id: string
+              content: string
+              completed: number
+              createdAt: string
+              updatedAt: string
+            }[]
             outputFormat: 'json'
             status: 200
           }
@@ -66,7 +72,13 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
       $get:
         | {
             input: { param: { id: string } }
-            output: { id: string; content: string; createdAt: string; updatedAt: string }
+            output: {
+              id: string
+              content: string
+              completed: number
+              createdAt: string
+              updatedAt: string
+            }
             outputFormat: 'json'
             status: 200
           }
@@ -96,31 +108,41 @@ declare const routes: import('@hono/zod-openapi').OpenAPIHono<
           }
       $put:
         | {
-            input: { param: { id: string } } & { json: { content: string } }
+            input: { param: { id: string } } & {
+              json: { content?: string | undefined; completed?: number | undefined }
+            }
             output: {}
             outputFormat: string
             status: 204
           }
         | {
-            input: { param: { id: string } } & { json: { content: string } }
+            input: { param: { id: string } } & {
+              json: { content?: string | undefined; completed?: number | undefined }
+            }
             output: { message: string }
             outputFormat: 'json'
             status: 404
           }
         | {
-            input: { param: { id: string } } & { json: { content: string } }
+            input: { param: { id: string } } & {
+              json: { content?: string | undefined; completed?: number | undefined }
+            }
             output: { message: string }
             outputFormat: 'json'
             status: 422
           }
         | {
-            input: { param: { id: string } } & { json: { content: string } }
+            input: { param: { id: string } } & {
+              json: { content?: string | undefined; completed?: number | undefined }
+            }
             output: { message: string }
             outputFormat: 'json'
             status: 500
           }
         | {
-            input: { param: { id: string } } & { json: { content: string } }
+            input: { param: { id: string } } & {
+              json: { content?: string | undefined; completed?: number | undefined }
+            }
             output: { message: string; retryAfter?: string | undefined }
             outputFormat: 'json'
             status: 503

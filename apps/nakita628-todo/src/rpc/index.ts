@@ -7,7 +7,7 @@ import { client } from '../lib'
  * Health Check
  */
 export async function get(options?: ClientRequestOptions) {
-  return await client.index.$get(undefined, options)
+  return await client.$get(undefined, options)
 }
 
 /**
@@ -37,7 +37,7 @@ export async function postTodo(
 /**
  * GET /todo/{id}
  *
- * Update an existing post
+ * Get a single todo
  */
 export async function getTodoId(
   args: InferRequestType<(typeof client.todo)[':id']['$get']>,
@@ -49,7 +49,7 @@ export async function getTodoId(
 /**
  * PUT /todo/{id}
  *
- * Delete an existing post identified by its unique ID.
+ * Update an existing todo
  */
 export async function putTodoId(
   args: InferRequestType<(typeof client.todo)[':id']['$put']>,
@@ -61,7 +61,7 @@ export async function putTodoId(
 /**
  * DELETE /todo/{id}
  *
- * Post successfully deleted.
+ * Delete a todo
  */
 export async function deleteTodoId(
   args: InferRequestType<(typeof client.todo)[':id']['$delete']>,

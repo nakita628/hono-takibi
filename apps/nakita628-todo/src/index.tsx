@@ -1,10 +1,5 @@
-import { Hono } from 'hono'
 import { renderToString } from 'react-dom/server'
-import api from './api'
-
-const app = new Hono()
-
-app.route('/api', api)
+import app from '@/api'
 
 app.get('*', (c) => {
   return c.html(
@@ -13,11 +8,17 @@ app.get('*', (c) => {
         <head>
           <meta charSet='utf-8' />
           <meta content='width=device-width, initial-scale=1' name='viewport' />
-          <title>Hono🔥 React</title>
+          <title>Todo App</title>
           {import.meta.env.PROD ? (
-            <script type='module' src='/static/main.js'></script>
+            <>
+              <link rel='stylesheet' href='/static/main.css' />
+              <script type='module' src='/static/main.js' />
+            </>
           ) : (
-            <script type='module' src='/src/main.tsx'></script>
+            <>
+              <link rel='stylesheet' href='/src/index.css' />
+              <script type='module' src='/src/main.tsx' />
+            </>
           )}
         </head>
         <body>

@@ -9,11 +9,10 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-
-    // "jsxImportSource": "hono/jsx",
-    "types": [
-      // "@cloudflare/workers-types",
-      "vite/client"
-    ]
-  }
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["vite/client", "./worker-configuration.d.ts"]
+  },
+  "exclude": ["vite.config.ts"]
 }
