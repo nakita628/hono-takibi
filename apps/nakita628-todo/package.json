@@ -7,12 +7,11 @@
     "dev": "wrangler dev",
     "build": "rm -rf dist && rm -rf server-build && vite build --mode client && vite build",
     "preview": "wrangler dev",
-    "deploy": "wrangler deploy --minify",
+    "deploy": "pnpm build && wrangler deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "takibi": "hono-takibi",
     "typecheck": "tsgo --noEmit",
-    "docs": "typedoc",
-    "docs:watch": "typedoc --watch"
+    "docs": "typedoc"
   },
   "dependencies": {
     "@hono/zod-openapi": "^1.2.0",

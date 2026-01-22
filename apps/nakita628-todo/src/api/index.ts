@@ -8,11 +8,7 @@ import {
   postApiTodoRouteHandler,
   putApiTodoIdRouteHandler,
 } from '@/api/handlers/todo'
-import {
-  configureCustomErrors,
-  makeProblemDetails,
-  makeZodErrors,
-} from '@/api/lib/error-config'
+import { configureCustomErrors, makeProblemDetails, makeZodErrors } from '@/api/lib/error-config'
 import {
   deleteApiTodoIdRoute,
   getApiRoute,
