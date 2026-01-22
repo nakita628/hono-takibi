@@ -7,9 +7,5 @@ export default defineConfig({
     alias: {
       '@/': `${path.resolve(__dirname, 'apps/nakita628-todo/src')}/`,
     },
-    env: {
-      DB_FILE_NAME: 'file:local.db',
-      DATABASE_URL: 'file:./dev.db',
-    },
   },
 })

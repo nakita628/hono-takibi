@@ -1,16 +1,55 @@
-# Todo API
+# nakita628-todo
 
-Todo API.
+Todo app built with Hono + React + Cloudflare Workers
 
-## Tech Stack
+## Setup
 
-- [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi)
-- [hono-takibi](https://github.com/nakita628/hono-takibi)
-- [TypeSpec](https://typespec.io/)
-- [Drizzle](https://orm.drizzle.team/)
-- [neverthrow](https://github.com/supermacro/neverthrow)
+```bash
+pnpm install
+```
 
+## Local Development
 
-## Created By
+```bash
+pnpm wrangler d1 execute DB --local --file=./db/schema.sql
 
-- [nakita628](https://github.com/nakita628)
+pnpm build
+
+pnpm preview
+```
+
+- http://localhost:8787
+
+## Production Deploy
+
+```bash
+pnpm wrangler d1 execute DB --remote --file=./db/schema.sql
+
+pnpm run deploy
+```
+
+## wrangler.jsonc Example
+
+```jsonc
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "***",
+  "main": "server-build/index.js",
+  "assets": {
+    "directory": "./dist"
+  },
+  "compatibility_date": "****-**-**",
+  "dev": {
+    "ip": "0.0.0.0",
+    "port": 8787,
+    "local_protocol": "http"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "***",
+      "database_id": "***"
+    }
+  ]
+}
+```

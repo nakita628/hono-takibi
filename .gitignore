@@ -21,3 +21,9 @@ tsp-output
 .claude
 CLAUDE.md
 logs
+wrangler.jsonc
+server-build
+.agents
+nakita628-todo-docs
+server-build
+worker-configuration.d.ts
