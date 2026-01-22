@@ -251,18 +251,34 @@ const ErrorSchema = z
 
 const ProjectIdParamParamsSchema = z
   .uuid()
-  .openapi({ param: { name: 'projectId', in: 'path', required: true } })
+  .openapi({
+    param: {
+      name: 'projectId',
+      in: 'path',
+      required: true,
+      schema: { type: 'string', format: 'uuid' },
+    },
+  })
 
 const TaskIdParamParamsSchema = z
   .uuid()
-  .openapi({ param: { name: 'taskId', in: 'path', required: true } })
+  .openapi({
+    param: {
+      name: 'taskId',
+      in: 'path',
+      required: true,
+      schema: { type: 'string', format: 'uuid' },
+    },
+  })
 
 const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
   .exactOptional()
-  .openapi({ param: { name: 'page', in: 'query' } })
+  .openapi({
+    param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
+  })
 
 const LimitParamParamsSchema = z
   .int()
@@ -270,7 +286,13 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({ param: { name: 'limit', in: 'query' } })
+  .openapi({
+    param: {
+      name: 'limit',
+      in: 'query',
+      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+    },
+  })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -302,11 +324,17 @@ export const getProjectsRoute = createRoute({
       status: z
         .enum(['active', 'on_hold', 'completed', 'archived'])
         .exactOptional()
-        .openapi({ param: { name: 'status', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'status',
+            in: 'query',
+            schema: { type: 'string', enum: ['active', 'on_hold', 'completed', 'archived'] },
+          },
+        }),
       search: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'search', in: 'query' } }),
+        .openapi({ param: { name: 'search', in: 'query', schema: { type: 'string' } } }),
     }),
   },
   responses: {
@@ -440,15 +468,32 @@ export const getProjectsProjectIdTasksRoute = createRoute({
       status: z
         .enum(['todo', 'in_progress', 'in_review', 'done', 'cancelled'])
         .exactOptional()
-        .openapi({ param: { name: 'status', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'status',
+            in: 'query',
+            schema: {
+              type: 'string',
+              enum: ['todo', 'in_progress', 'in_review', 'done', 'cancelled'],
+            },
+          },
+        }),
       assignee: z
         .uuid()
         .exactOptional()
-        .openapi({ param: { name: 'assignee', in: 'query' } }),
+        .openapi({
+          param: { name: 'assignee', in: 'query', schema: { type: 'string', format: 'uuid' } },
+        }),
       priority: z
         .enum(['low', 'medium', 'high', 'urgent'])
         .exactOptional()
-        .openapi({ param: { name: 'priority', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'priority',
+            in: 'query',
+            schema: { type: 'string', enum: ['low', 'medium', 'high', 'urgent'] },
+          },
+        }),
     }),
   },
   responses: {

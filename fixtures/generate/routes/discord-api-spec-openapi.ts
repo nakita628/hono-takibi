@@ -7828,7 +7828,12 @@ export const getApplicationsApplicationIdRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -7857,7 +7862,12 @@ export const patchApplicationsApplicationIdRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -7890,12 +7900,24 @@ export const getApplicationsApplicationIdActivityInstancesInstanceIdRoute = crea
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       instance_id: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'instance_id', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'instance_id',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -7923,7 +7945,12 @@ export const postApplicationsApplicationIdAttachmentRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -8000,14 +8027,21 @@ export const getApplicationsApplicationIdCommandsRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       with_localizations: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_localizations', in: 'query' } }),
+        .openapi({
+          param: { name: 'with_localizations', in: 'query', schema: { type: 'boolean' } },
+        }),
     }),
   },
   responses: {
@@ -8037,7 +8071,12 @@ export const putApplicationsApplicationIdCommandsRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -8076,7 +8115,12 @@ export const postApplicationsApplicationIdCommandsRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -8120,10 +8164,20 @@ export const getApplicationsApplicationIdCommandsCommandIdRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       command_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'command_id', in: 'path', required: true },
+        param: {
+          name: 'command_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8152,10 +8206,20 @@ export const deleteApplicationsApplicationIdCommandsCommandIdRoute = createRoute
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       command_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'command_id', in: 'path', required: true },
+        param: {
+          name: 'command_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8183,10 +8247,20 @@ export const patchApplicationsApplicationIdCommandsCommandIdRoute = createRoute(
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       command_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'command_id', in: 'path', required: true },
+        param: {
+          name: 'command_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -8219,7 +8293,12 @@ export const getApplicationsApplicationIdEmojisRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8248,7 +8327,12 @@ export const postApplicationsApplicationIdEmojisRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -8287,10 +8371,20 @@ export const getApplicationsApplicationIdEmojisEmojiIdRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       emoji_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'emoji_id', in: 'path', required: true },
+        param: {
+          name: 'emoji_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8319,10 +8413,20 @@ export const deleteApplicationsApplicationIdEmojisEmojiIdRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       emoji_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'emoji_id', in: 'path', required: true },
+        param: {
+          name: 'emoji_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8350,10 +8454,20 @@ export const patchApplicationsApplicationIdEmojisEmojiIdRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       emoji_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'emoji_id', in: 'path', required: true },
+        param: {
+          name: 'emoji_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -8390,19 +8504,46 @@ export const getApplicationsApplicationIdEntitlementsRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       user_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'user_id', in: 'query' },
+        param: {
+          name: 'user_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
       sku_ids: z
         .xor([
           z
             .string()
             .exactOptional()
-            .openapi({ param: { name: 'sku_ids', in: 'query' } }),
+            .openapi({
+              param: {
+                name: 'sku_ids',
+                in: 'query',
+                schema: {
+                  oneOf: [
+                    { type: 'string' },
+                    {
+                      type: 'array',
+                      items: {
+                        oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/SnowflakeType' }],
+                      },
+                      maxItems: 100,
+                      uniqueItems: true,
+                    },
+                  ],
+                },
+              },
+            }),
           z
             .array(
               z
@@ -8411,43 +8552,141 @@ export const getApplicationsApplicationIdEntitlementsRoute = createRoute({
                     .null()
                     .nullable()
                     .exactOptional()
-                    .openapi({ param: { name: 'sku_ids', in: 'query' } }),
+                    .openapi({
+                      param: {
+                        name: 'sku_ids',
+                        in: 'query',
+                        schema: {
+                          oneOf: [
+                            { type: 'string' },
+                            {
+                              type: 'array',
+                              items: {
+                                oneOf: [
+                                  { type: 'null' },
+                                  { $ref: '#/components/schemas/SnowflakeType' },
+                                ],
+                              },
+                              maxItems: 100,
+                              uniqueItems: true,
+                            },
+                          ],
+                        },
+                      },
+                    }),
                   SnowflakeTypeSchema,
                 ])
                 .exactOptional()
-                .openapi({ param: { name: 'sku_ids', in: 'query' } }),
+                .openapi({
+                  param: {
+                    name: 'sku_ids',
+                    in: 'query',
+                    schema: {
+                      oneOf: [
+                        { type: 'string' },
+                        {
+                          type: 'array',
+                          items: {
+                            oneOf: [
+                              { type: 'null' },
+                              { $ref: '#/components/schemas/SnowflakeType' },
+                            ],
+                          },
+                          maxItems: 100,
+                          uniqueItems: true,
+                        },
+                      ],
+                    },
+                  },
+                }),
             )
             .max(100)
             .exactOptional()
-            .openapi({ param: { name: 'sku_ids', in: 'query' } }),
+            .openapi({
+              param: {
+                name: 'sku_ids',
+                in: 'query',
+                schema: {
+                  oneOf: [
+                    { type: 'string' },
+                    {
+                      type: 'array',
+                      items: {
+                        oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/SnowflakeType' }],
+                      },
+                      maxItems: 100,
+                      uniqueItems: true,
+                    },
+                  ],
+                },
+              },
+            }),
         ])
         .exactOptional()
-        .openapi({ param: { name: 'sku_ids', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'sku_ids',
+            in: 'query',
+            schema: {
+              oneOf: [
+                { type: 'string' },
+                {
+                  type: 'array',
+                  items: {
+                    oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/SnowflakeType' }],
+                  },
+                  maxItems: 100,
+                  uniqueItems: true,
+                },
+              ],
+            },
+          },
+        }),
       guild_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'guild_id', in: 'query' },
+        param: {
+          name: 'guild_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
       before: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'before', in: 'query' },
+        param: {
+          name: 'before',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
-      after: SnowflakeTypeSchema.exactOptional().openapi({ param: { name: 'after', in: 'query' } }),
+      after: SnowflakeTypeSchema.exactOptional().openapi({
+        param: {
+          name: 'after',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
+      }),
       limit: z
         .int()
         .min(1)
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        }),
       exclude_ended: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'exclude_ended', in: 'query' } }),
+        .openapi({ param: { name: 'exclude_ended', in: 'query', schema: { type: 'boolean' } } }),
       exclude_deleted: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'exclude_deleted', in: 'query' } }),
+        .openapi({ param: { name: 'exclude_deleted', in: 'query', schema: { type: 'boolean' } } }),
       only_active: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'only_active', in: 'query' } }),
+        .openapi({ param: { name: 'only_active', in: 'query', schema: { type: 'boolean' } } }),
     }),
   },
   responses: {
@@ -8479,7 +8718,12 @@ export const postApplicationsApplicationIdEntitlementsRoute = createRoute({
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -8512,10 +8756,20 @@ export const getApplicationsApplicationIdEntitlementsEntitlementIdRoute = create
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       entitlement_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'entitlement_id', in: 'path', required: true },
+        param: {
+          name: 'entitlement_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8544,10 +8798,20 @@ export const deleteApplicationsApplicationIdEntitlementsEntitlementIdRoute = cre
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       entitlement_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'entitlement_id', in: 'path', required: true },
+        param: {
+          name: 'entitlement_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8575,10 +8839,20 @@ export const postApplicationsApplicationIdEntitlementsEntitlementIdConsumeRoute 
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       entitlement_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'entitlement_id', in: 'path', required: true },
+        param: {
+          name: 'entitlement_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8606,17 +8880,29 @@ export const getApplicationsApplicationIdGuildsGuildIdCommandsRoute = createRout
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       with_localizations: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_localizations', in: 'query' } }),
+        .openapi({
+          param: { name: 'with_localizations', in: 'query', schema: { type: 'boolean' } },
+        }),
     }),
   },
   responses: {
@@ -8646,10 +8932,20 @@ export const putApplicationsApplicationIdGuildsGuildIdCommandsRoute = createRout
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -8688,10 +8984,20 @@ export const postApplicationsApplicationIdGuildsGuildIdCommandsRoute = createRou
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -8735,10 +9041,20 @@ export const getApplicationsApplicationIdGuildsGuildIdCommandsPermissionsRoute =
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8767,13 +9083,28 @@ export const getApplicationsApplicationIdGuildsGuildIdCommandsCommandIdRoute = c
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       command_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'command_id', in: 'path', required: true },
+        param: {
+          name: 'command_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8802,13 +9133,28 @@ export const deleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdRoute 
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       command_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'command_id', in: 'path', required: true },
+        param: {
+          name: 'command_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8836,13 +9182,28 @@ export const patchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdRoute =
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       command_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'command_id', in: 'path', required: true },
+        param: {
+          name: 'command_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -8876,13 +9237,28 @@ export const getApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissio
     request: {
       params: z.object({
         application_id: SnowflakeTypeSchema.openapi({
-          param: { name: 'application_id', in: 'path', required: true },
+          param: {
+            name: 'application_id',
+            in: 'path',
+            schema: { $ref: '#/components/schemas/SnowflakeType' },
+            required: true,
+          },
         }),
         guild_id: SnowflakeTypeSchema.openapi({
-          param: { name: 'guild_id', in: 'path', required: true },
+          param: {
+            name: 'guild_id',
+            in: 'path',
+            schema: { $ref: '#/components/schemas/SnowflakeType' },
+            required: true,
+          },
         }),
         command_id: SnowflakeTypeSchema.openapi({
-          param: { name: 'command_id', in: 'path', required: true },
+          param: {
+            name: 'command_id',
+            in: 'path',
+            schema: { $ref: '#/components/schemas/SnowflakeType' },
+            required: true,
+          },
         }),
       }),
     },
@@ -8912,13 +9288,28 @@ export const putApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissio
     request: {
       params: z.object({
         application_id: SnowflakeTypeSchema.openapi({
-          param: { name: 'application_id', in: 'path', required: true },
+          param: {
+            name: 'application_id',
+            in: 'path',
+            schema: { $ref: '#/components/schemas/SnowflakeType' },
+            required: true,
+          },
         }),
         guild_id: SnowflakeTypeSchema.openapi({
-          param: { name: 'guild_id', in: 'path', required: true },
+          param: {
+            name: 'guild_id',
+            in: 'path',
+            schema: { $ref: '#/components/schemas/SnowflakeType' },
+            required: true,
+          },
         }),
         command_id: SnowflakeTypeSchema.openapi({
-          param: { name: 'command_id', in: 'path', required: true },
+          param: {
+            name: 'command_id',
+            in: 'path',
+            schema: { $ref: '#/components/schemas/SnowflakeType' },
+            required: true,
+          },
         }),
       }),
       body: {
@@ -8961,7 +9352,12 @@ export const getApplicationsApplicationIdRoleConnectionsMetadataRoute = createRo
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -8994,7 +9390,12 @@ export const putApplicationsApplicationIdRoleConnectionsMetadataRoute = createRo
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -9035,7 +9436,12 @@ export const getChannelsChannelIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -9073,7 +9479,12 @@ export const deleteChannelsChannelIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -9111,7 +9522,12 @@ export const patchChannelsChannelIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -9164,7 +9580,12 @@ export const postChannelsChannelIdFollowersRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -9203,7 +9624,12 @@ export const getChannelsChannelIdInvitesRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -9245,7 +9671,12 @@ export const postChannelsChannelIdInvitesRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -9313,23 +9744,48 @@ export const getChannelsChannelIdMessagesRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       around: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'around', in: 'query' },
+        param: {
+          name: 'around',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
       before: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'before', in: 'query' },
+        param: {
+          name: 'before',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
-      after: SnowflakeTypeSchema.exactOptional().openapi({ param: { name: 'after', in: 'query' } }),
+      after: SnowflakeTypeSchema.exactOptional().openapi({
+        param: {
+          name: 'after',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
+      }),
       limit: z
         .int()
         .min(1)
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        }),
     }),
   },
   responses: {
@@ -9357,7 +9813,12 @@ export const postChannelsChannelIdMessagesRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -9409,7 +9870,12 @@ export const postChannelsChannelIdMessagesBulkDeleteRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -9447,20 +9913,33 @@ export const getChannelsChannelIdMessagesPinsRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       before: z.iso
         .datetime()
         .exactOptional()
-        .openapi({ param: { name: 'before', in: 'query' } }),
+        .openapi({
+          param: { name: 'before', in: 'query', schema: { type: 'string', format: 'date-time' } },
+        }),
       limit: z
         .int()
         .min(1)
         .max(50)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 50 },
+          },
+        }),
     }),
   },
   responses: {
@@ -9488,10 +9967,20 @@ export const putChannelsChannelIdMessagesPinsMessageIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -9519,10 +10008,20 @@ export const deleteChannelsChannelIdMessagesPinsMessageIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -9550,10 +10049,20 @@ export const getChannelsChannelIdMessagesMessageIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -9582,10 +10091,20 @@ export const deleteChannelsChannelIdMessagesMessageIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -9613,10 +10132,20 @@ export const patchChannelsChannelIdMessagesMessageIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -9668,10 +10197,20 @@ export const postChannelsChannelIdMessagesMessageIdCrosspostRoute = createRoute(
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -9700,10 +10239,20 @@ export const deleteChannelsChannelIdMessagesMessageIdReactionsRoute = createRout
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -9731,25 +10280,60 @@ export const getChannelsChannelIdMessagesMessageIdReactionsEmojiNameRoute = crea
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       emoji_name: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'emoji_name', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'emoji_name',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
     query: z.object({
-      after: SnowflakeTypeSchema.exactOptional().openapi({ param: { name: 'after', in: 'query' } }),
+      after: SnowflakeTypeSchema.exactOptional().openapi({
+        param: {
+          name: 'after',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
+      }),
       limit: z
         .int()
         .min(1)
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
-      type: ReactionTypesSchema.exactOptional().openapi({ param: { name: 'type', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        }),
+      type: ReactionTypesSchema.exactOptional().openapi({
+        param: {
+          name: 'type',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/ReactionTypes' },
+        },
+      }),
     }),
   },
   responses: {
@@ -9777,15 +10361,32 @@ export const deleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameRoute = c
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       emoji_name: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'emoji_name', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'emoji_name',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -9812,15 +10413,32 @@ export const putChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeRoute = cr
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       emoji_name: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'emoji_name', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'emoji_name',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -9847,15 +10465,32 @@ export const deleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeRoute =
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       emoji_name: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'emoji_name', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'emoji_name',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -9882,17 +10517,39 @@ export const deleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdRou
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       emoji_name: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'emoji_name', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'emoji_name',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -9920,10 +10577,20 @@ export const postChannelsChannelIdMessagesMessageIdThreadsRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -9956,10 +10623,20 @@ export const putChannelsChannelIdPermissionsOverwriteIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       overwrite_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'overwrite_id', in: 'path', required: true },
+        param: {
+          name: 'overwrite_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -9999,10 +10676,20 @@ export const deleteChannelsChannelIdPermissionsOverwriteIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       overwrite_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'overwrite_id', in: 'path', required: true },
+        param: {
+          name: 'overwrite_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10030,7 +10717,12 @@ export const getChannelsChannelIdPinsRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10059,10 +10751,20 @@ export const putChannelsChannelIdPinsMessageIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10090,10 +10792,20 @@ export const deleteChannelsChannelIdPinsMessageIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10121,25 +10833,54 @@ export const getChannelsChannelIdPollsMessageIdAnswersAnswerIdRoute = createRout
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       answer_id: z
         .int32()
         .min(1)
         .max(10)
-        .openapi({ param: { name: 'answer_id', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'answer_id',
+            in: 'path',
+            schema: { type: 'integer', minimum: 1, maximum: 10, format: 'int32' },
+            required: true,
+          },
+        }),
     }),
     query: z.object({
-      after: SnowflakeTypeSchema.exactOptional().openapi({ param: { name: 'after', in: 'query' } }),
+      after: SnowflakeTypeSchema.exactOptional().openapi({
+        param: {
+          name: 'after',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
+      }),
       limit: z
         .int()
         .min(1)
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        }),
     }),
   },
   responses: {
@@ -10167,10 +10908,20 @@ export const postChannelsChannelIdPollsMessageIdExpireRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10199,10 +10950,20 @@ export const putChannelsChannelIdRecipientsUserIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -10256,10 +11017,20 @@ export const deleteChannelsChannelIdRecipientsUserIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10287,7 +11058,12 @@ export const postChannelsChannelIdSendSoundboardSoundRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -10319,21 +11095,38 @@ export const getChannelsChannelIdThreadMembersRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       with_member: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_member', in: 'query' } }),
+        .openapi({ param: { name: 'with_member', in: 'query', schema: { type: 'boolean' } } }),
       limit: z
         .int()
         .min(1)
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
-      after: SnowflakeTypeSchema.exactOptional().openapi({ param: { name: 'after', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        }),
+      after: SnowflakeTypeSchema.exactOptional().openapi({
+        param: {
+          name: 'after',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
+      }),
     }),
   },
   responses: {
@@ -10361,7 +11154,12 @@ export const putChannelsChannelIdThreadMembersMeRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10389,7 +11187,12 @@ export const deleteChannelsChannelIdThreadMembersMeRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10417,17 +11220,27 @@ export const getChannelsChannelIdThreadMembersUserIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       with_member: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_member', in: 'query' } }),
+        .openapi({ param: { name: 'with_member', in: 'query', schema: { type: 'boolean' } } }),
     }),
   },
   responses: {
@@ -10455,10 +11268,20 @@ export const putChannelsChannelIdThreadMembersUserIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10486,10 +11309,20 @@ export const deleteChannelsChannelIdThreadMembersUserIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10517,7 +11350,12 @@ export const postChannelsChannelIdThreadsRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -10566,20 +11404,33 @@ export const getChannelsChannelIdThreadsArchivedPrivateRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       before: z.iso
         .datetime()
         .exactOptional()
-        .openapi({ param: { name: 'before', in: 'query' } }),
+        .openapi({
+          param: { name: 'before', in: 'query', schema: { type: 'string', format: 'date-time' } },
+        }),
       limit: z
         .int()
         .min(2)
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 2, maximum: 100 },
+          },
+        }),
     }),
   },
   responses: {
@@ -10607,20 +11458,33 @@ export const getChannelsChannelIdThreadsArchivedPublicRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       before: z.iso
         .datetime()
         .exactOptional()
-        .openapi({ param: { name: 'before', in: 'query' } }),
+        .openapi({
+          param: { name: 'before', in: 'query', schema: { type: 'string', format: 'date-time' } },
+        }),
       limit: z
         .int()
         .min(2)
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 2, maximum: 100 },
+          },
+        }),
     }),
   },
   responses: {
@@ -10648,7 +11512,12 @@ export const getChannelsChannelIdThreadsSearchRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
@@ -10656,58 +11525,146 @@ export const getChannelsChannelIdThreadsSearchRoute = createRoute({
         .string()
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'name', in: 'query' } }),
+        .openapi({
+          param: { name: 'name', in: 'query', schema: { type: 'string', maxLength: 100 } },
+        }),
       slop: z
         .int()
         .min(0)
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'slop', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'slop',
+            in: 'query',
+            schema: { type: 'integer', minimum: 0, maximum: 100 },
+          },
+        }),
       min_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'min_id', in: 'query' },
+        param: {
+          name: 'min_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
       max_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'max_id', in: 'query' },
+        param: {
+          name: 'max_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
       tag: z
         .xor([
           z
             .string()
             .exactOptional()
-            .openapi({ param: { name: 'tag', in: 'query' } }),
+            .openapi({
+              param: {
+                name: 'tag',
+                in: 'query',
+                schema: {
+                  oneOf: [
+                    { type: 'string' },
+                    {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/SnowflakeType' },
+                      maxItems: 20,
+                      uniqueItems: true,
+                    },
+                  ],
+                },
+              },
+            }),
           z
             .array(SnowflakeTypeSchema)
             .max(20)
             .exactOptional()
-            .openapi({ param: { name: 'tag', in: 'query' } }),
+            .openapi({
+              param: {
+                name: 'tag',
+                in: 'query',
+                schema: {
+                  oneOf: [
+                    { type: 'string' },
+                    {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/SnowflakeType' },
+                      maxItems: 20,
+                      uniqueItems: true,
+                    },
+                  ],
+                },
+              },
+            }),
         ])
         .exactOptional()
-        .openapi({ param: { name: 'tag', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'tag',
+            in: 'query',
+            schema: {
+              oneOf: [
+                { type: 'string' },
+                {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/SnowflakeType' },
+                  maxItems: 20,
+                  uniqueItems: true,
+                },
+              ],
+            },
+          },
+        }),
       tag_setting: ThreadSearchTagSettingSchema.exactOptional().openapi({
-        param: { name: 'tag_setting', in: 'query' },
+        param: {
+          name: 'tag_setting',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/ThreadSearchTagSetting' },
+        },
       }),
       archived: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'archived', in: 'query' } }),
+        .openapi({ param: { name: 'archived', in: 'query', schema: { type: 'boolean' } } }),
       sort_by: ThreadSortingModeSchema.exactOptional().openapi({
-        param: { name: 'sort_by', in: 'query' },
+        param: {
+          name: 'sort_by',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/ThreadSortingMode' },
+        },
       }),
       sort_order: SortingOrderSchema.exactOptional().openapi({
-        param: { name: 'sort_order', in: 'query' },
+        param: {
+          name: 'sort_order',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SortingOrder' },
+        },
       }),
       limit: z
         .int()
         .min(1)
         .max(25)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 25 },
+          },
+        }),
       offset: z
         .int()
         .min(0)
         .max(9975)
         .exactOptional()
-        .openapi({ param: { name: 'offset', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'offset',
+            in: 'query',
+            schema: { type: 'integer', minimum: 0, maximum: 9975 },
+          },
+        }),
     }),
   },
   responses: {
@@ -10735,7 +11692,12 @@ export const postChannelsChannelIdTypingRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10774,19 +11736,34 @@ export const getChannelsChannelIdUsersMeThreadsArchivedPrivateRoute = createRout
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       before: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'before', in: 'query' },
+        param: {
+          name: 'before',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
       limit: z
         .int()
         .min(2)
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 2, maximum: 100 },
+          },
+        }),
     }),
   },
   responses: {
@@ -10814,7 +11791,12 @@ export const getChannelsChannelIdWebhooksRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -10855,7 +11837,12 @@ export const postChannelsChannelIdWebhooksRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -10943,7 +11930,14 @@ export const getGuildsTemplatesCodeRoute = createRoute({
       code: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'code', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'code',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -10971,14 +11965,19 @@ export const getGuildsGuildIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       with_counts: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_counts', in: 'query' } }),
+        .openapi({ param: { name: 'with_counts', in: 'query', schema: { type: 'boolean' } } }),
     }),
   },
   responses: {
@@ -11006,7 +12005,12 @@ export const patchGuildsGuildIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -11039,29 +12043,62 @@ export const getGuildsGuildIdAuditLogsRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       user_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'user_id', in: 'query' },
+        param: {
+          name: 'user_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
       target_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'target_id', in: 'query' },
+        param: {
+          name: 'target_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
       action_type: AuditLogActionTypesSchema.exactOptional().openapi({
-        param: { name: 'action_type', in: 'query' },
+        param: {
+          name: 'action_type',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/AuditLogActionTypes' },
+        },
       }),
       before: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'before', in: 'query' },
+        param: {
+          name: 'before',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
-      after: SnowflakeTypeSchema.exactOptional().openapi({ param: { name: 'after', in: 'query' } }),
+      after: SnowflakeTypeSchema.exactOptional().openapi({
+        param: {
+          name: 'after',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
+      }),
       limit: z
         .int()
         .min(1)
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        }),
     }),
   },
   responses: {
@@ -11089,7 +12126,12 @@ export const getGuildsGuildIdAutoModerationRulesRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -11133,7 +12175,12 @@ export const postGuildsGuildIdAutoModerationRulesRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -11185,10 +12232,20 @@ export const getGuildsGuildIdAutoModerationRulesRuleIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       rule_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'rule_id', in: 'path', required: true },
+        param: {
+          name: 'rule_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -11227,10 +12284,20 @@ export const deleteGuildsGuildIdAutoModerationRulesRuleIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       rule_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'rule_id', in: 'path', required: true },
+        param: {
+          name: 'rule_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -11258,10 +12325,20 @@ export const patchGuildsGuildIdAutoModerationRulesRuleIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       rule_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'rule_id', in: 'path', required: true },
+        param: {
+          name: 'rule_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -11315,7 +12392,12 @@ export const getGuildsGuildIdBansRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
@@ -11324,11 +12406,27 @@ export const getGuildsGuildIdBansRoute = createRoute({
         .min(1)
         .max(1000)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 1000 },
+          },
+        }),
       before: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'before', in: 'query' },
+        param: {
+          name: 'before',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
-      after: SnowflakeTypeSchema.exactOptional().openapi({ param: { name: 'after', in: 'query' } }),
+      after: SnowflakeTypeSchema.exactOptional().openapi({
+        param: {
+          name: 'after',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
+      }),
     }),
   },
   responses: {
@@ -11356,10 +12454,20 @@ export const getGuildsGuildIdBansUserIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -11388,10 +12496,20 @@ export const putGuildsGuildIdBansUserIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -11423,10 +12541,20 @@ export const deleteGuildsGuildIdBansUserIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -11458,7 +12586,12 @@ export const postGuildsGuildIdBulkBanRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -11491,7 +12624,12 @@ export const getGuildsGuildIdChannelsRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -11533,7 +12671,12 @@ export const postGuildsGuildIdChannelsRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -11566,7 +12709,12 @@ export const patchGuildsGuildIdChannelsRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -11609,7 +12757,12 @@ export const getGuildsGuildIdEmojisRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -11638,7 +12791,12 @@ export const postGuildsGuildIdEmojisRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -11685,10 +12843,20 @@ export const getGuildsGuildIdEmojisEmojiIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       emoji_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'emoji_id', in: 'path', required: true },
+        param: {
+          name: 'emoji_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -11717,10 +12885,20 @@ export const deleteGuildsGuildIdEmojisEmojiIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       emoji_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'emoji_id', in: 'path', required: true },
+        param: {
+          name: 'emoji_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -11748,10 +12926,20 @@ export const patchGuildsGuildIdEmojisEmojiIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       emoji_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'emoji_id', in: 'path', required: true },
+        param: {
+          name: 'emoji_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -11795,7 +12983,12 @@ export const getGuildsGuildIdIntegrationsRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -11836,10 +13029,20 @@ export const deleteGuildsGuildIdIntegrationsIntegrationIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       integration_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'integration_id', in: 'path', required: true },
+        param: {
+          name: 'integration_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -11867,7 +13070,12 @@ export const getGuildsGuildIdInvitesRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -11909,7 +13117,12 @@ export const getGuildsGuildIdMembersRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
@@ -11918,12 +13131,20 @@ export const getGuildsGuildIdMembersRoute = createRoute({
         .min(1)
         .max(1000)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 1000 },
+          },
+        }),
       after: z
         .int()
         .min(0)
         .exactOptional()
-        .openapi({ param: { name: 'after', in: 'query' } }),
+        .openapi({
+          param: { name: 'after', in: 'query', schema: { type: 'integer', minimum: 0 } },
+        }),
     }),
   },
   responses: {
@@ -11951,7 +13172,12 @@ export const patchGuildsGuildIdMembersMeRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -11988,7 +13214,12 @@ export const getGuildsGuildIdMembersSearchRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
@@ -11997,12 +13228,25 @@ export const getGuildsGuildIdMembersSearchRoute = createRoute({
         .min(1)
         .max(1000)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 1000 },
+          },
+        }),
       query: z
         .string()
         .min(1)
         .max(100)
-        .openapi({ param: { name: 'query', in: 'query', required: true } }),
+        .openapi({
+          param: {
+            name: 'query',
+            in: 'query',
+            schema: { type: 'string', minLength: 1, maxLength: 100 },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -12030,10 +13274,20 @@ export const getGuildsGuildIdMembersUserIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12062,10 +13316,20 @@ export const putGuildsGuildIdMembersUserIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -12108,10 +13372,20 @@ export const deleteGuildsGuildIdMembersUserIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12139,10 +13413,20 @@ export const patchGuildsGuildIdMembersUserIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -12201,13 +13485,28 @@ export const putGuildsGuildIdMembersUserIdRolesRoleIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       role_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'role_id', in: 'path', required: true },
+        param: {
+          name: 'role_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12235,13 +13534,28 @@ export const deleteGuildsGuildIdMembersUserIdRolesRoleIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       role_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'role_id', in: 'path', required: true },
+        param: {
+          name: 'role_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12269,7 +13583,12 @@ export const getGuildsGuildIdNewMemberWelcomeRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12308,7 +13627,12 @@ export const getGuildsGuildIdOnboardingRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12337,7 +13661,12 @@ export const putGuildsGuildIdOnboardingRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -12370,7 +13699,12 @@ export const getGuildsGuildIdPreviewRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12399,7 +13733,12 @@ export const getGuildsGuildIdPruneRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
@@ -12408,13 +13747,37 @@ export const getGuildsGuildIdPruneRoute = createRoute({
         .min(1)
         .max(30)
         .exactOptional()
-        .openapi({ param: { name: 'days', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'days',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 30 },
+          },
+        }),
       include_roles: z
         .xor([
           z
             .string()
             .exactOptional()
-            .openapi({ param: { name: 'include_roles', in: 'query' } }),
+            .openapi({
+              param: {
+                name: 'include_roles',
+                in: 'query',
+                schema: {
+                  oneOf: [
+                    { type: 'string' },
+                    {
+                      type: 'array',
+                      items: {
+                        oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/SnowflakeType' }],
+                      },
+                      maxItems: 100,
+                      uniqueItems: true,
+                    },
+                  ],
+                },
+              },
+            }),
           z
             .array(
               z
@@ -12423,18 +13786,96 @@ export const getGuildsGuildIdPruneRoute = createRoute({
                     .null()
                     .nullable()
                     .exactOptional()
-                    .openapi({ param: { name: 'include_roles', in: 'query' } }),
+                    .openapi({
+                      param: {
+                        name: 'include_roles',
+                        in: 'query',
+                        schema: {
+                          oneOf: [
+                            { type: 'string' },
+                            {
+                              type: 'array',
+                              items: {
+                                oneOf: [
+                                  { type: 'null' },
+                                  { $ref: '#/components/schemas/SnowflakeType' },
+                                ],
+                              },
+                              maxItems: 100,
+                              uniqueItems: true,
+                            },
+                          ],
+                        },
+                      },
+                    }),
                   SnowflakeTypeSchema,
                 ])
                 .exactOptional()
-                .openapi({ param: { name: 'include_roles', in: 'query' } }),
+                .openapi({
+                  param: {
+                    name: 'include_roles',
+                    in: 'query',
+                    schema: {
+                      oneOf: [
+                        { type: 'string' },
+                        {
+                          type: 'array',
+                          items: {
+                            oneOf: [
+                              { type: 'null' },
+                              { $ref: '#/components/schemas/SnowflakeType' },
+                            ],
+                          },
+                          maxItems: 100,
+                          uniqueItems: true,
+                        },
+                      ],
+                    },
+                  },
+                }),
             )
             .max(100)
             .exactOptional()
-            .openapi({ param: { name: 'include_roles', in: 'query' } }),
+            .openapi({
+              param: {
+                name: 'include_roles',
+                in: 'query',
+                schema: {
+                  oneOf: [
+                    { type: 'string' },
+                    {
+                      type: 'array',
+                      items: {
+                        oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/SnowflakeType' }],
+                      },
+                      maxItems: 100,
+                      uniqueItems: true,
+                    },
+                  ],
+                },
+              },
+            }),
         ])
         .exactOptional()
-        .openapi({ param: { name: 'include_roles', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'include_roles',
+            in: 'query',
+            schema: {
+              oneOf: [
+                { type: 'string' },
+                {
+                  type: 'array',
+                  items: {
+                    oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/SnowflakeType' }],
+                  },
+                  maxItems: 100,
+                  uniqueItems: true,
+                },
+              ],
+            },
+          },
+        }),
     }),
   },
   responses: {
@@ -12462,7 +13903,12 @@ export const postGuildsGuildIdPruneRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: { content: { 'application/json': { schema: PruneGuildRequestSchema } }, required: true },
@@ -12492,7 +13938,12 @@ export const getGuildsGuildIdRegionsRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12521,7 +13972,12 @@ export const getGuildsGuildIdRolesRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12550,7 +14006,12 @@ export const postGuildsGuildIdRolesRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: { content: { 'application/json': { schema: CreateRoleRequestSchema } }, required: true },
@@ -12580,7 +14041,12 @@ export const patchGuildsGuildIdRolesRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -12613,10 +14079,20 @@ export const getGuildsGuildIdRolesRoleIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       role_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'role_id', in: 'path', required: true },
+        param: {
+          name: 'role_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12645,10 +14121,20 @@ export const deleteGuildsGuildIdRolesRoleIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       role_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'role_id', in: 'path', required: true },
+        param: {
+          name: 'role_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12676,10 +14162,20 @@ export const patchGuildsGuildIdRolesRoleIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       role_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'role_id', in: 'path', required: true },
+        param: {
+          name: 'role_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -12712,14 +14208,19 @@ export const getGuildsGuildIdScheduledEventsRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       with_user_count: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_user_count', in: 'query' } }),
+        .openapi({ param: { name: 'with_user_count', in: 'query', schema: { type: 'boolean' } } }),
     }),
   },
   responses: {
@@ -12759,7 +14260,12 @@ export const postGuildsGuildIdScheduledEventsRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -12808,17 +14314,27 @@ export const getGuildsGuildIdScheduledEventsGuildScheduledEventIdRoute = createR
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       guild_scheduled_event_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_scheduled_event_id', in: 'path', required: true },
+        param: {
+          name: 'guild_scheduled_event_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       with_user_count: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_user_count', in: 'query' } }),
+        .openapi({ param: { name: 'with_user_count', in: 'query', schema: { type: 'boolean' } } }),
     }),
   },
   responses: {
@@ -12854,10 +14370,20 @@ export const deleteGuildsGuildIdScheduledEventsGuildScheduledEventIdRoute = crea
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       guild_scheduled_event_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_scheduled_event_id', in: 'path', required: true },
+        param: {
+          name: 'guild_scheduled_event_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -12885,10 +14411,20 @@ export const patchGuildsGuildIdScheduledEventsGuildScheduledEventIdRoute = creat
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       guild_scheduled_event_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_scheduled_event_id', in: 'path', required: true },
+        param: {
+          name: 'guild_scheduled_event_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -12939,27 +14475,53 @@ export const getGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersRoute = cr
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       guild_scheduled_event_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_scheduled_event_id', in: 'path', required: true },
+        param: {
+          name: 'guild_scheduled_event_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       with_member: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_member', in: 'query' } }),
+        .openapi({ param: { name: 'with_member', in: 'query', schema: { type: 'boolean' } } }),
       limit: z
         .int()
         .min(1)
         .max(100)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        }),
       before: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'before', in: 'query' },
+        param: {
+          name: 'before',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
-      after: SnowflakeTypeSchema.exactOptional().openapi({ param: { name: 'after', in: 'query' } }),
+      after: SnowflakeTypeSchema.exactOptional().openapi({
+        param: {
+          name: 'after',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
+      }),
     }),
   },
   responses: {
@@ -12989,7 +14551,12 @@ export const getGuildsGuildIdSoundboardSoundsRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13018,7 +14585,12 @@ export const postGuildsGuildIdSoundboardSoundsRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -13051,10 +14623,20 @@ export const getGuildsGuildIdSoundboardSoundsSoundIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       sound_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'sound_id', in: 'path', required: true },
+        param: {
+          name: 'sound_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13083,10 +14665,20 @@ export const deleteGuildsGuildIdSoundboardSoundsSoundIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       sound_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'sound_id', in: 'path', required: true },
+        param: {
+          name: 'sound_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13114,10 +14706,20 @@ export const patchGuildsGuildIdSoundboardSoundsSoundIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       sound_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'sound_id', in: 'path', required: true },
+        param: {
+          name: 'sound_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -13150,7 +14752,12 @@ export const getGuildsGuildIdStickersRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13179,7 +14786,12 @@ export const postGuildsGuildIdStickersRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -13223,10 +14835,20 @@ export const getGuildsGuildIdStickersStickerIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       sticker_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'sticker_id', in: 'path', required: true },
+        param: {
+          name: 'sticker_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13255,10 +14877,20 @@ export const deleteGuildsGuildIdStickersStickerIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       sticker_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'sticker_id', in: 'path', required: true },
+        param: {
+          name: 'sticker_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13286,10 +14918,20 @@ export const patchGuildsGuildIdStickersStickerIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       sticker_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'sticker_id', in: 'path', required: true },
+        param: {
+          name: 'sticker_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -13330,7 +14972,12 @@ export const getGuildsGuildIdTemplatesRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13359,7 +15006,12 @@ export const postGuildsGuildIdTemplatesRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -13401,12 +15053,24 @@ export const putGuildsGuildIdTemplatesCodeRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       code: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'code', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'code',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -13434,12 +15098,24 @@ export const deleteGuildsGuildIdTemplatesCodeRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       code: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'code', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'code',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -13467,12 +15143,24 @@ export const patchGuildsGuildIdTemplatesCodeRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       code: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'code', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'code',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
     body: {
       content: {
@@ -13511,7 +15199,12 @@ export const getGuildsGuildIdThreadsActiveRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13540,7 +15233,12 @@ export const getGuildsGuildIdVanityUrlRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13569,7 +15267,12 @@ export const getGuildsGuildIdVoiceStatesMeRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13598,7 +15301,12 @@ export const patchGuildsGuildIdVoiceStatesMeRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -13630,10 +15338,20 @@ export const getGuildsGuildIdVoiceStatesUserIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13662,10 +15380,20 @@ export const patchGuildsGuildIdVoiceStatesUserIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -13697,7 +15425,12 @@ export const getGuildsGuildIdWebhooksRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13738,7 +15471,12 @@ export const getGuildsGuildIdWelcomeScreenRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13767,7 +15505,12 @@ export const patchGuildsGuildIdWelcomeScreenRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -13800,7 +15543,12 @@ export const getGuildsGuildIdWidgetRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13829,7 +15577,12 @@ export const patchGuildsGuildIdWidgetRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -13869,7 +15622,12 @@ export const getGuildsGuildIdWidgetJsonRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -13898,12 +15656,21 @@ export const getGuildsGuildIdWidgetPngRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       style: WidgetImageStylesSchema.exactOptional().openapi({
-        param: { name: 'style', in: 'query' },
+        param: {
+          name: 'style',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/WidgetImageStyles' },
+        },
       }),
     }),
   },
@@ -13932,18 +15699,30 @@ export const postInteractionsInteractionIdInteractionTokenCallbackRoute = create
   request: {
     params: z.object({
       interaction_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'interaction_id', in: 'path', required: true },
+        param: {
+          name: 'interaction_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       interaction_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'interaction_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'interaction_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
     query: z.object({
       with_response: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_response', in: 'query' } }),
+        .openapi({ param: { name: 'with_response', in: 'query', schema: { type: 'boolean' } } }),
     }),
     body: {
       content: {
@@ -14024,15 +15803,26 @@ export const getInvitesCodeRoute = createRoute({
       code: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'code', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'code',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
     query: z.object({
       with_counts: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_counts', in: 'query' } }),
+        .openapi({ param: { name: 'with_counts', in: 'query', schema: { type: 'boolean' } } }),
       guild_scheduled_event_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'guild_scheduled_event_id', in: 'query' },
+        param: {
+          name: 'guild_scheduled_event_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
     }),
   },
@@ -14071,7 +15861,14 @@ export const deleteInvitesCodeRoute = createRoute({
       code: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'code', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'code',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -14197,7 +15994,12 @@ export const getLobbiesLobbyIdRoute = createRoute({
   request: {
     params: z.object({
       lobby_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'lobby_id', in: 'path', required: true },
+        param: {
+          name: 'lobby_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -14226,7 +16028,12 @@ export const patchLobbiesLobbyIdRoute = createRoute({
   request: {
     params: z.object({
       lobby_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'lobby_id', in: 'path', required: true },
+        param: {
+          name: 'lobby_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -14273,7 +16080,12 @@ export const patchLobbiesLobbyIdChannelLinkingRoute = createRoute({
   request: {
     params: z.object({
       lobby_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'lobby_id', in: 'path', required: true },
+        param: {
+          name: 'lobby_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -14312,7 +16124,12 @@ export const deleteLobbiesLobbyIdMembersMeRoute = createRoute({
   request: {
     params: z.object({
       lobby_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'lobby_id', in: 'path', required: true },
+        param: {
+          name: 'lobby_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -14340,7 +16157,12 @@ export const postLobbiesLobbyIdMembersMeInvitesRoute = createRoute({
   request: {
     params: z.object({
       lobby_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'lobby_id', in: 'path', required: true },
+        param: {
+          name: 'lobby_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -14369,7 +16191,12 @@ export const postLobbiesLobbyIdMembersBulkRoute = createRoute({
   request: {
     params: z.object({
       lobby_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'lobby_id', in: 'path', required: true },
+        param: {
+          name: 'lobby_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -14406,10 +16233,20 @@ export const putLobbiesLobbyIdMembersUserIdRoute = createRoute({
   request: {
     params: z.object({
       lobby_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'lobby_id', in: 'path', required: true },
+        param: {
+          name: 'lobby_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -14453,10 +16290,20 @@ export const deleteLobbiesLobbyIdMembersUserIdRoute = createRoute({
   request: {
     params: z.object({
       lobby_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'lobby_id', in: 'path', required: true },
+        param: {
+          name: 'lobby_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -14484,10 +16331,20 @@ export const postLobbiesLobbyIdMembersUserIdInvitesRoute = createRoute({
   request: {
     params: z.object({
       lobby_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'lobby_id', in: 'path', required: true },
+        param: {
+          name: 'lobby_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -14516,7 +16373,12 @@ export const getLobbiesLobbyIdMessagesRoute = createRoute({
   request: {
     params: z.object({
       lobby_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'lobby_id', in: 'path', required: true },
+        param: {
+          name: 'lobby_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
@@ -14525,7 +16387,13 @@ export const getLobbiesLobbyIdMessagesRoute = createRoute({
         .min(1)
         .max(200)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 200 },
+          },
+        }),
     }),
   },
   responses: {
@@ -14553,7 +16421,12 @@ export const postLobbiesLobbyIdMessagesRoute = createRoute({
   request: {
     params: z.object({
       lobby_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'lobby_id', in: 'path', required: true },
+        param: {
+          name: 'lobby_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -14931,7 +16804,12 @@ export const getStageInstancesChannelIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -14960,7 +16838,12 @@ export const deleteStageInstancesChannelIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -14988,7 +16871,12 @@ export const patchStageInstancesChannelIdRoute = createRoute({
   request: {
     params: z.object({
       channel_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'channel_id', in: 'path', required: true },
+        param: {
+          name: 'channel_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -15050,7 +16938,12 @@ export const getStickerPacksPackIdRoute = createRoute({
   request: {
     params: z.object({
       pack_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'pack_id', in: 'path', required: true },
+        param: {
+          name: 'pack_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -15079,7 +16972,12 @@ export const getStickersStickerIdRoute = createRoute({
   request: {
     params: z.object({
       sticker_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'sticker_id', in: 'path', required: true },
+        param: {
+          name: 'sticker_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -15162,7 +17060,12 @@ export const getUsersMeApplicationsApplicationIdEntitlementsRoute = createRoute(
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
@@ -15171,7 +17074,25 @@ export const getUsersMeApplicationsApplicationIdEntitlementsRoute = createRoute(
           z
             .string()
             .exactOptional()
-            .openapi({ param: { name: 'sku_ids', in: 'query' } }),
+            .openapi({
+              param: {
+                name: 'sku_ids',
+                in: 'query',
+                schema: {
+                  oneOf: [
+                    { type: 'string' },
+                    {
+                      type: 'array',
+                      items: {
+                        oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/SnowflakeType' }],
+                      },
+                      maxItems: 100,
+                      uniqueItems: true,
+                    },
+                  ],
+                },
+              },
+            }),
           z
             .array(
               z
@@ -15180,22 +17101,100 @@ export const getUsersMeApplicationsApplicationIdEntitlementsRoute = createRoute(
                     .null()
                     .nullable()
                     .exactOptional()
-                    .openapi({ param: { name: 'sku_ids', in: 'query' } }),
+                    .openapi({
+                      param: {
+                        name: 'sku_ids',
+                        in: 'query',
+                        schema: {
+                          oneOf: [
+                            { type: 'string' },
+                            {
+                              type: 'array',
+                              items: {
+                                oneOf: [
+                                  { type: 'null' },
+                                  { $ref: '#/components/schemas/SnowflakeType' },
+                                ],
+                              },
+                              maxItems: 100,
+                              uniqueItems: true,
+                            },
+                          ],
+                        },
+                      },
+                    }),
                   SnowflakeTypeSchema,
                 ])
                 .exactOptional()
-                .openapi({ param: { name: 'sku_ids', in: 'query' } }),
+                .openapi({
+                  param: {
+                    name: 'sku_ids',
+                    in: 'query',
+                    schema: {
+                      oneOf: [
+                        { type: 'string' },
+                        {
+                          type: 'array',
+                          items: {
+                            oneOf: [
+                              { type: 'null' },
+                              { $ref: '#/components/schemas/SnowflakeType' },
+                            ],
+                          },
+                          maxItems: 100,
+                          uniqueItems: true,
+                        },
+                      ],
+                    },
+                  },
+                }),
             )
             .max(100)
             .exactOptional()
-            .openapi({ param: { name: 'sku_ids', in: 'query' } }),
+            .openapi({
+              param: {
+                name: 'sku_ids',
+                in: 'query',
+                schema: {
+                  oneOf: [
+                    { type: 'string' },
+                    {
+                      type: 'array',
+                      items: {
+                        oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/SnowflakeType' }],
+                      },
+                      maxItems: 100,
+                      uniqueItems: true,
+                    },
+                  ],
+                },
+              },
+            }),
         ])
         .exactOptional()
-        .openapi({ param: { name: 'sku_ids', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'sku_ids',
+            in: 'query',
+            schema: {
+              oneOf: [
+                { type: 'string' },
+                {
+                  type: 'array',
+                  items: {
+                    oneOf: [{ type: 'null' }, { $ref: '#/components/schemas/SnowflakeType' }],
+                  },
+                  maxItems: 100,
+                  uniqueItems: true,
+                },
+              ],
+            },
+          },
+        }),
       exclude_consumed: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'exclude_consumed', in: 'query' } }),
+        .openapi({ param: { name: 'exclude_consumed', in: 'query', schema: { type: 'boolean' } } }),
     }),
   },
   responses: {
@@ -15266,7 +17265,12 @@ export const getUsersMeApplicationsApplicationIdRoleConnectionRoute = createRout
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -15295,7 +17299,12 @@ export const putUsersMeApplicationsApplicationIdRoleConnectionRoute = createRout
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -15328,7 +17337,12 @@ export const deleteUsersMeApplicationsApplicationIdRoleConnectionRoute = createR
   request: {
     params: z.object({
       application_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'application_id', in: 'path', required: true },
+        param: {
+          name: 'application_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -15412,19 +17426,35 @@ export const getUsersMeGuildsRoute = createRoute({
   request: {
     query: z.object({
       before: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'before', in: 'query' },
+        param: {
+          name: 'before',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
-      after: SnowflakeTypeSchema.exactOptional().openapi({ param: { name: 'after', in: 'query' } }),
+      after: SnowflakeTypeSchema.exactOptional().openapi({
+        param: {
+          name: 'after',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
+      }),
       limit: z
         .int()
         .min(1)
         .max(200)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', minimum: 1, maximum: 200 },
+          },
+        }),
       with_counts: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_counts', in: 'query' } }),
+        .openapi({ param: { name: 'with_counts', in: 'query', schema: { type: 'boolean' } } }),
     }),
   },
   responses: {
@@ -15452,7 +17482,12 @@ export const deleteUsersMeGuildsGuildIdRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -15480,7 +17515,12 @@ export const getUsersMeGuildsGuildIdMemberRoute = createRoute({
   request: {
     params: z.object({
       guild_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'guild_id', in: 'path', required: true },
+        param: {
+          name: 'guild_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -15509,7 +17549,12 @@ export const getUsersUserIdRoute = createRoute({
   request: {
     params: z.object({
       user_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'user_id', in: 'path', required: true },
+        param: {
+          name: 'user_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -15560,7 +17605,12 @@ export const getWebhooksWebhookIdRoute = createRoute({
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -15597,7 +17647,12 @@ export const deleteWebhooksWebhookIdRoute = createRoute({
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
   },
@@ -15625,7 +17680,12 @@ export const patchWebhooksWebhookIdRoute = createRoute({
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     body: {
@@ -15674,12 +17734,24 @@ export const getWebhooksWebhookIdWebhookTokenRoute = createRoute({
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -15715,25 +17787,41 @@ export const postWebhooksWebhookIdWebhookTokenRoute = createRoute({
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
     query: z.object({
       wait: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'wait', in: 'query' } }),
+        .openapi({ param: { name: 'wait', in: 'query', schema: { type: 'boolean' } } }),
       thread_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'thread_id', in: 'query' },
+        param: {
+          name: 'thread_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
       with_components: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_components', in: 'query' } }),
+        .openapi({ param: { name: 'with_components', in: 'query', schema: { type: 'boolean' } } }),
     }),
     body: {
       content: {
@@ -15791,12 +17879,24 @@ export const deleteWebhooksWebhookIdWebhookTokenRoute = createRoute({
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
   },
   responses: {
@@ -15823,12 +17923,24 @@ export const patchWebhooksWebhookIdWebhookTokenRoute = createRoute({
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
     body: {
       content: {
@@ -15875,20 +17987,36 @@ export const postWebhooksWebhookIdWebhookTokenGithubRoute = createRoute({
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
     query: z.object({
       wait: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'wait', in: 'query' } }),
+        .openapi({ param: { name: 'wait', in: 'query', schema: { type: 'boolean' } } }),
       thread_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'thread_id', in: 'query' },
+        param: {
+          name: 'thread_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
     }),
     body: { content: { 'application/json': { schema: GithubWebhookSchema } }, required: true },
@@ -15917,16 +18045,32 @@ export const getWebhooksWebhookIdWebhookTokenMessagesOriginalRoute = createRoute
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
     query: z.object({
       thread_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'thread_id', in: 'query' },
+        param: {
+          name: 'thread_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
     }),
   },
@@ -15955,16 +18099,32 @@ export const deleteWebhooksWebhookIdWebhookTokenMessagesOriginalRoute = createRo
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
     query: z.object({
       thread_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'thread_id', in: 'query' },
+        param: {
+          name: 'thread_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
     }),
   },
@@ -15992,21 +18152,37 @@ export const patchWebhooksWebhookIdWebhookTokenMessagesOriginalRoute = createRou
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
     query: z.object({
       thread_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'thread_id', in: 'query' },
+        param: {
+          name: 'thread_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
       with_components: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_components', in: 'query' } }),
+        .openapi({ param: { name: 'with_components', in: 'query', schema: { type: 'boolean' } } }),
     }),
     body: {
       content: {
@@ -16057,19 +18233,40 @@ export const getWebhooksWebhookIdWebhookTokenMessagesMessageIdRoute = createRout
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       thread_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'thread_id', in: 'query' },
+        param: {
+          name: 'thread_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
     }),
   },
@@ -16098,19 +18295,40 @@ export const deleteWebhooksWebhookIdWebhookTokenMessagesMessageIdRoute = createR
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       thread_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'thread_id', in: 'query' },
+        param: {
+          name: 'thread_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
     }),
   },
@@ -16138,24 +18356,45 @@ export const patchWebhooksWebhookIdWebhookTokenMessagesMessageIdRoute = createRo
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
       message_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'message_id', in: 'path', required: true },
+        param: {
+          name: 'message_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
     }),
     query: z.object({
       thread_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'thread_id', in: 'query' },
+        param: {
+          name: 'thread_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
       with_components: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'with_components', in: 'query' } }),
+        .openapi({ param: { name: 'with_components', in: 'query', schema: { type: 'boolean' } } }),
     }),
     body: {
       content: {
@@ -16206,20 +18445,36 @@ export const postWebhooksWebhookIdWebhookTokenSlackRoute = createRoute({
   request: {
     params: z.object({
       webhook_id: SnowflakeTypeSchema.openapi({
-        param: { name: 'webhook_id', in: 'path', required: true },
+        param: {
+          name: 'webhook_id',
+          in: 'path',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+          required: true,
+        },
       }),
       webhook_token: z
         .string()
         .max(152133)
-        .openapi({ param: { name: 'webhook_token', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'webhook_token',
+            in: 'path',
+            schema: { type: 'string', maxLength: 152133 },
+            required: true,
+          },
+        }),
     }),
     query: z.object({
       wait: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'wait', in: 'query' } }),
+        .openapi({ param: { name: 'wait', in: 'query', schema: { type: 'boolean' } } }),
       thread_id: SnowflakeTypeSchema.exactOptional().openapi({
-        param: { name: 'thread_id', in: 'query' },
+        param: {
+          name: 'thread_id',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/SnowflakeType' },
+        },
       }),
     }),
     body: {

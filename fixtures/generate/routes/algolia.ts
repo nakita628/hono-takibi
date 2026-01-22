@@ -3215,6 +3215,7 @@ const PathInPathParamsSchema = z
       in: 'path',
       description: 'Path of the endpoint, for example `1/newFeature`.',
       required: true,
+      schema: { type: 'string', example: '/keys' },
     },
     example: '/keys',
   })
@@ -3227,6 +3228,7 @@ const ParametersParamsSchema = z
       name: 'parameters',
       in: 'query',
       description: 'Query parameters to apply to the current query.',
+      schema: { type: 'object', additionalProperties: true },
     },
   })
 
@@ -3238,12 +3240,19 @@ const IndexNameParamsSchema = z
       in: 'path',
       description: 'Name of the index on which to perform the operation.',
       required: true,
+      schema: { type: 'string', example: 'ALGOLIA_INDEX_NAME' },
     },
     example: 'ALGOLIA_INDEX_NAME',
   })
 
 const ObjectIDParamsSchema = ObjectIDSchema.openapi({
-  param: { name: 'objectID', in: 'path', description: 'Unique record identifier.', required: true },
+  param: {
+    name: 'objectID',
+    in: 'path',
+    description: 'Unique record identifier.',
+    required: true,
+    schema: { $ref: '#/components/schemas/objectID' },
+  },
 })
 
 const GetVersionParamsSchema = z
@@ -3256,6 +3265,7 @@ const GetVersionParamsSchema = z
       description:
         'When set to 2, the endpoint will not include `synonyms` in the response. This parameter is here for backward compatibility.',
       in: 'query',
+      schema: { type: 'integer', default: 1 },
     },
   })
 
@@ -3268,6 +3278,7 @@ const ForwardToReplicasParamsSchema = z
       name: 'forwardToReplicas',
       required: false,
       description: 'Whether changes are applied to replica indices.',
+      schema: { type: 'boolean' },
     },
   })
 
@@ -3279,6 +3290,7 @@ const ParametersObjectIDParamsSchema = z
       in: 'path',
       description: 'Unique identifier of a synonym object.',
       required: true,
+      schema: { type: 'string', example: 'synonymID' },
     },
     example: 'synonymID',
   })
@@ -3290,6 +3302,7 @@ const ReplaceExistingSynonymsParamsSchema = z
     param: {
       in: 'query',
       name: 'replaceExistingSynonyms',
+      schema: { type: 'boolean' },
       description:
         'Whether to replace all synonyms in the index with the ones sent with this request.',
     },
@@ -3298,7 +3311,13 @@ const ReplaceExistingSynonymsParamsSchema = z
 const KeyStringParamsSchema = z
   .string()
   .openapi({
-    param: { in: 'path', name: 'key', required: true, description: 'API key.' },
+    param: {
+      in: 'path',
+      name: 'key',
+      required: true,
+      schema: { type: 'string', example: 'ALGOLIA_API_KEY' },
+      description: 'API key.',
+    },
     example: 'ALGOLIA_API_KEY',
   })
 
@@ -3308,6 +3327,7 @@ const ObjectIDRuleParamsSchema = RuleIDSchema.openapi({
     name: 'objectID',
     description: 'Unique identifier of a rule object.',
     required: true,
+    schema: { $ref: '#/components/schemas/ruleID' },
   },
 })
 
@@ -3319,6 +3339,7 @@ const ClearExistingRulesParamsSchema = z
       in: 'query',
       name: 'clearExistingRules',
       required: false,
+      schema: { type: 'boolean' },
       description: 'Whether existing rules should be deleted before adding this batch.',
     },
   })
@@ -3329,6 +3350,7 @@ const DictionaryNameParamsSchema = DictionaryTypeSchema.openapi({
     name: 'dictionaryName',
     description: 'Dictionary type in which to search.',
     required: true,
+    schema: { $ref: '#/components/schemas/dictionaryType' },
   },
 })
 
@@ -3345,6 +3367,7 @@ const PageParamsSchema = z
           description:
             'Requested page of the API response.\nIf `null`, the API response is not paginated.\n',
           required: false,
+          schema: { oneOf: [{ type: 'integer', minimum: 0 }, { type: 'null' }], default: null },
         },
       }),
     z
@@ -3358,6 +3381,7 @@ const PageParamsSchema = z
           description:
             'Requested page of the API response.\nIf `null`, the API response is not paginated.\n',
           required: false,
+          schema: { oneOf: [{ type: 'integer', minimum: 0 }, { type: 'null' }], default: null },
         },
       }),
   ])
@@ -3370,6 +3394,7 @@ const PageParamsSchema = z
       description:
         'Requested page of the API response.\nIf `null`, the API response is not paginated.\n',
       required: false,
+      schema: { oneOf: [{ type: 'integer', minimum: 0 }, { type: 'null' }], default: null },
     },
   })
 
@@ -3383,6 +3408,7 @@ const HitsPerPageParamsSchema = z
       name: 'hitsPerPage',
       description: 'Number of hits per page.',
       required: false,
+      schema: { type: 'integer', default: 100 },
     },
   })
 
@@ -3392,6 +3418,7 @@ const UserIDInHeaderParamsSchema = UserIDSchema.openapi({
     description: 'Unique identifier of the user who makes the search request.',
     in: 'header',
     required: true,
+    schema: { $ref: '#/components/schemas/userID' },
   },
 })
 
@@ -3401,6 +3428,7 @@ const UserIDInPathParamsSchema = UserIDSchema.openapi({
     description: 'Unique identifier of the user who makes the search request.',
     in: 'path',
     required: true,
+    schema: { $ref: '#/components/schemas/userID' },
   },
 })
 
@@ -3674,6 +3702,7 @@ export const post1IndexesIndexNameFacetsFacetNameQueryRoute = createRoute({
               'Facet attribute in which to search for values.\n\nThis attribute must be included in the `attributesForFaceting` index setting with the `searchable()` modifier.\n',
             in: 'path',
             required: true,
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -3815,6 +3844,7 @@ export const get1IndexesIndexNameObjectIDRoute = createRoute({
                 in: 'query',
                 description:
                   "Attributes to include with the records in the response.\nThis is useful to reduce the size of the API response.\nBy default, all retrievable attributes are returned.\n\n`objectID` is always retrieved.\n\nAttributes included in `unretrievableAttributes`\nwon't be retrieved unless the request is authenticated with the admin API key.\n",
+                schema: { type: 'array', items: { type: 'string' } },
               },
             }),
         )
@@ -3825,6 +3855,7 @@ export const get1IndexesIndexNameObjectIDRoute = createRoute({
             in: 'query',
             description:
               "Attributes to include with the records in the response.\nThis is useful to reduce the size of the API response.\nBy default, all retrievable attributes are returned.\n\n`objectID` is always retrieved.\n\nAttributes included in `unretrievableAttributes`\nwon't be retrieved unless the request is authenticated with the admin API key.\n",
+            schema: { type: 'array', items: { type: 'string' } },
           },
         }),
     }),
@@ -3964,6 +3995,7 @@ export const post1IndexesIndexNameObjectIDPartialRoute = createRoute({
             name: 'createIfNotExists',
             description: "Whether to create a new record if it doesn't exist.",
             in: 'query',
+            schema: { type: 'boolean', default: true },
           },
         }),
     }),
@@ -5251,6 +5283,7 @@ export const get1ClustersMappingPendingRoute = createRoute({
             in: 'query',
             name: 'getClusters',
             description: "Whether to include the cluster's pending mapping state in the response.",
+            schema: { type: 'boolean' },
           },
         }),
     }),
@@ -5375,6 +5408,7 @@ export const delete1SecuritySourcesSourceRoute = createRoute({
             in: 'path',
             required: true,
             description: 'IP address range of the source.',
+            schema: { type: 'string', example: '10.0.0.1/32' },
           },
           example: '10.0.0.1/32',
         }),
@@ -5417,6 +5451,7 @@ export const get1LogsRoute = createRoute({
             name: 'offset',
             in: 'query',
             description: 'First log entry to retrieve. The most recent entries are listed first.',
+            schema: { type: 'integer', default: 0 },
           },
         }),
       length: z
@@ -5429,6 +5464,7 @@ export const get1LogsRoute = createRoute({
             name: 'length',
             in: 'query',
             description: 'Maximum number of entries to retrieve.',
+            schema: { type: 'integer', default: 10, maximum: 1000 },
           },
         }),
       indexName: z
@@ -5443,6 +5479,7 @@ export const get1LogsRoute = createRoute({
                 description:
                   'Index for which to retrieve log entries.\nBy default, log entries are retrieved for all indices.\n',
                 example: 'products',
+                schema: { oneOf: [{ type: 'string' }, { type: 'null' }] },
               },
             }),
           z
@@ -5456,6 +5493,7 @@ export const get1LogsRoute = createRoute({
                 description:
                   'Index for which to retrieve log entries.\nBy default, log entries are retrieved for all indices.\n',
                 example: 'products',
+                schema: { oneOf: [{ type: 'string' }, { type: 'null' }] },
               },
             }),
         ])
@@ -5467,6 +5505,7 @@ export const get1LogsRoute = createRoute({
             description:
               'Index for which to retrieve log entries.\nBy default, log entries are retrieved for all indices.\n',
             example: 'products',
+            schema: { oneOf: [{ type: 'string' }, { type: 'null' }] },
           },
         }),
       type: LogTypeSchema.exactOptional().openapi({
@@ -5475,6 +5514,7 @@ export const get1LogsRoute = createRoute({
           in: 'query',
           description:
             'Type of log entries to retrieve.\nBy default, all log entries are retrieved.\n',
+          schema: { $ref: '#/components/schemas/logType' },
         },
       }),
     }),
@@ -5650,6 +5690,7 @@ export const get1TaskTaskIDRoute = createRoute({
             in: 'path',
             description: 'Unique task identifier.',
             required: true,
+            schema: { type: 'integer', format: 'int64', example: 1506303845001 },
           },
           example: 1506303845001,
         }),
@@ -5682,6 +5723,7 @@ export const get1IndexesIndexNameTaskTaskIDRoute = createRoute({
             in: 'path',
             description: 'Unique task identifier.',
             required: true,
+            schema: { type: 'integer', format: 'int64', example: 1506303845001 },
           },
           example: 1506303845001,
         }),
@@ -5769,7 +5811,13 @@ export const getWaitForApiKeyRoute = createRoute({
       key: z
         .string()
         .openapi({
-          param: { in: 'query', name: 'key', description: 'API key to wait for.', required: true },
+          param: {
+            in: 'query',
+            name: 'key',
+            description: 'API key to wait for.',
+            required: true,
+            schema: { type: 'string' },
+          },
         }),
       operation: ApiKeyOperationSchema.openapi({
         param: {
@@ -5777,6 +5825,7 @@ export const getWaitForApiKeyRoute = createRoute({
           name: 'operation',
           description: 'Whether the API key was created, updated, or deleted.',
           required: true,
+          schema: { $ref: '#/components/schemas/apiKeyOperation' },
         },
       }),
       apiKey: ApiKeySchema.exactOptional().openapi({
@@ -5786,6 +5835,7 @@ export const getWaitForApiKeyRoute = createRoute({
           description:
             'Used to compare fields of the `getApiKey` response on an `update` operation, to check if the `key` has been updated.',
           required: false,
+          schema: { $ref: '#/components/schemas/apiKey' },
         },
       }),
     }),
@@ -5817,6 +5867,7 @@ export const getWaitForTaskRoute = createRoute({
             name: 'indexName',
             description: 'The name of the index on which the operation was performed.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       taskID: z
@@ -5827,6 +5878,7 @@ export const getWaitForTaskRoute = createRoute({
             name: 'taskID',
             description: 'The taskID returned by the operation.',
             required: true,
+            schema: { type: 'integer', format: 'int64' },
           },
         }),
     }),
@@ -5854,6 +5906,7 @@ export const getWaitForAppTaskRoute = createRoute({
             name: 'taskID',
             description: 'The taskID returned by the operation.',
             required: true,
+            schema: { type: 'integer', format: 'int64' },
           },
         }),
     }),
@@ -5882,6 +5935,7 @@ export const getBrowseObjectsRoute = createRoute({
             name: 'indexName',
             description: 'The name of the index on which the operation was performed.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       browseParams: BrowseParamsObjectSchema.openapi({
@@ -5890,6 +5944,7 @@ export const getBrowseObjectsRoute = createRoute({
           name: 'browseParams',
           description: 'Browse parameters.',
           required: true,
+          schema: { $ref: '#/components/schemas/browseParamsObject' },
         },
       }),
     }),
@@ -5915,6 +5970,7 @@ export const getGenerateSecuredApiKeyRoute = createRoute({
             name: 'parentApiKey',
             description: 'API key from which the secured API key will inherit its restrictions.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       restrictions: SecuredApiKeyRestrictionsSchema.openapi({
@@ -5923,6 +5979,7 @@ export const getGenerateSecuredApiKeyRoute = createRoute({
           name: 'restrictions',
           description: 'Restrictions to add to the API key.',
           required: true,
+          schema: { $ref: '#/components/schemas/securedApiKeyRestrictions' },
         },
       }),
     }),
@@ -5952,6 +6009,7 @@ export const getAccountCopyIndexRoute = createRoute({
             name: 'sourceIndexName',
             description: 'The name of the index to copy.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       destinationAppID: z
@@ -5962,6 +6020,7 @@ export const getAccountCopyIndexRoute = createRoute({
             name: 'destinationAppID',
             description: 'The application ID to write the index to.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       destinationApiKey: z
@@ -5973,6 +6032,7 @@ export const getAccountCopyIndexRoute = createRoute({
             description:
               'The API Key of the `destinationAppID` to write the index to, must have write ACLs.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       destinationIndexName: z
@@ -5983,6 +6043,7 @@ export const getAccountCopyIndexRoute = createRoute({
             name: 'destinationIndexName',
             description: 'The name of the index to write the copied index to.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       batchSize: z
@@ -5995,6 +6056,7 @@ export const getAccountCopyIndexRoute = createRoute({
             name: 'batchSize',
             description: 'The size of the chunk of `objects`. Defaults to 1000.',
             required: false,
+            schema: { type: 'integer', default: 1000 },
           },
         }),
     }),
@@ -6024,6 +6086,7 @@ export const getReplaceAllObjectsRoute = createRoute({
             name: 'indexName',
             description: 'The `indexName` to replace `objects` in.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       objects: z
@@ -6036,6 +6099,7 @@ export const getReplaceAllObjectsRoute = createRoute({
                 name: 'objects',
                 description: 'List of objects to replace the current objects with.',
                 required: true,
+                schema: { type: 'array', items: { type: 'object' } },
               },
             }),
         )
@@ -6045,6 +6109,7 @@ export const getReplaceAllObjectsRoute = createRoute({
             name: 'objects',
             description: 'List of objects to replace the current objects with.',
             required: true,
+            schema: { type: 'array', items: { type: 'object' } },
           },
         }),
       batchSize: z
@@ -6058,6 +6123,7 @@ export const getReplaceAllObjectsRoute = createRoute({
             description:
               'The size of the chunk of `objects`. The number of `batch` calls will be equal to `length(objects) / batchSize`. Defaults to 1000.',
             required: false,
+            schema: { type: 'integer', default: 1000 },
           },
         }),
       scopes: z
@@ -6070,6 +6136,7 @@ export const getReplaceAllObjectsRoute = createRoute({
             description:
               'List of scopes to keep in the index. Defaults to `settings`, `synonyms`, and `rules`.',
             required: false,
+            schema: { type: 'array', items: { $ref: '#/components/schemas/scopeType' } },
           },
         }),
     }),
@@ -6101,6 +6168,7 @@ export const getReplaceAllObjectsWithTransformationRoute = createRoute({
             name: 'indexName',
             description: 'The `indexName` to replace `objects` in.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       objects: z
@@ -6113,6 +6181,7 @@ export const getReplaceAllObjectsWithTransformationRoute = createRoute({
                 name: 'objects',
                 description: 'List of objects to replace the current objects with.',
                 required: true,
+                schema: { type: 'array', items: { type: 'object' } },
               },
             }),
         )
@@ -6122,6 +6191,7 @@ export const getReplaceAllObjectsWithTransformationRoute = createRoute({
             name: 'objects',
             description: 'List of objects to replace the current objects with.',
             required: true,
+            schema: { type: 'array', items: { type: 'object' } },
           },
         }),
       batchSize: z
@@ -6135,6 +6205,7 @@ export const getReplaceAllObjectsWithTransformationRoute = createRoute({
             description:
               'The size of the chunk of `objects`. The number of `batch` calls will be equal to `length(objects) / batchSize`. Defaults to 1000.',
             required: false,
+            schema: { type: 'integer', default: 1000 },
           },
         }),
       scopes: z
@@ -6147,6 +6218,7 @@ export const getReplaceAllObjectsWithTransformationRoute = createRoute({
             description:
               'List of scopes to kepp in the index. Defaults to `settings`, `synonyms`, and `rules`.',
             required: false,
+            schema: { type: 'array', items: { $ref: '#/components/schemas/scopeType' } },
           },
         }),
     }),
@@ -6180,6 +6252,7 @@ export const getChunkedBatchRoute = createRoute({
             name: 'indexName',
             description: 'The `indexName` to replace `objects` in.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       objects: z
@@ -6192,6 +6265,7 @@ export const getChunkedBatchRoute = createRoute({
                 name: 'objects',
                 description: 'List of objects to replace the current objects with.',
                 required: true,
+                schema: { type: 'array', items: { type: 'object' } },
               },
             }),
         )
@@ -6201,6 +6275,7 @@ export const getChunkedBatchRoute = createRoute({
             name: 'objects',
             description: 'List of objects to replace the current objects with.',
             required: true,
+            schema: { type: 'array', items: { type: 'object' } },
           },
         }),
       action: ActionSchema.exactOptional().openapi({
@@ -6210,6 +6285,7 @@ export const getChunkedBatchRoute = createRoute({
           description:
             'The `batch` `action` to perform on the given array of `objects`, defaults to `addObject`.',
           required: false,
+          schema: { $ref: '#/components/schemas/action' },
         },
       }),
       waitForTasks: z
@@ -6222,6 +6298,7 @@ export const getChunkedBatchRoute = createRoute({
             description:
               'Whether or not we should wait until every `batch` tasks has been processed, this operation may slow the total execution time of this method but is more reliable.',
             required: false,
+            schema: { type: 'boolean' },
           },
         }),
       batchSize: z
@@ -6234,6 +6311,7 @@ export const getChunkedBatchRoute = createRoute({
             description:
               'The size of the chunk of `objects`. The number of `batch` calls will be equal to `length(objects) / batchSize`. Defaults to 1000.',
             required: false,
+            schema: { type: 'integer' },
           },
         }),
     }),
@@ -6265,6 +6343,7 @@ export const getSaveObjectsRoute = createRoute({
             name: 'indexName',
             description: 'The `indexName` to save `objects` into.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       objects: z
@@ -6277,6 +6356,7 @@ export const getSaveObjectsRoute = createRoute({
                 name: 'objects',
                 description: 'The objects to save in the index.',
                 required: true,
+                schema: { type: 'array', items: { type: 'object' } },
               },
             }),
         )
@@ -6286,6 +6366,7 @@ export const getSaveObjectsRoute = createRoute({
             name: 'objects',
             description: 'The objects to save in the index.',
             required: true,
+            schema: { type: 'array', items: { type: 'object' } },
           },
         }),
       waitForTasks: z
@@ -6299,6 +6380,7 @@ export const getSaveObjectsRoute = createRoute({
             description:
               'Whether or not we should wait until every `batch` tasks has been processed, this operation may slow the total execution time of this method but is more reliable.',
             required: false,
+            schema: { type: 'boolean', default: false },
           },
         }),
       batchSize: z
@@ -6312,6 +6394,7 @@ export const getSaveObjectsRoute = createRoute({
             description:
               'The size of the chunk of `objects`. The number of `batch` calls will be equal to `length(objects) / batchSize`. Defaults to 1000.',
             required: false,
+            schema: { type: 'integer', default: 1000 },
           },
         }),
       requestOptions: z
@@ -6323,6 +6406,7 @@ export const getSaveObjectsRoute = createRoute({
             name: 'requestOptions',
             description: 'The request options to pass to the `batch` method.',
             required: false,
+            schema: { type: 'object' },
           },
         }),
     }),
@@ -6355,6 +6439,7 @@ export const getSaveObjectsWithTransformationRoute = createRoute({
             name: 'indexName',
             description: 'The `indexName` to save `objects` into.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       objects: z
@@ -6367,6 +6452,7 @@ export const getSaveObjectsWithTransformationRoute = createRoute({
                 name: 'objects',
                 description: 'The objects to save in the index.',
                 required: true,
+                schema: { type: 'array', items: { type: 'object' } },
               },
             }),
         )
@@ -6376,6 +6462,7 @@ export const getSaveObjectsWithTransformationRoute = createRoute({
             name: 'objects',
             description: 'The objects to save in the index.',
             required: true,
+            schema: { type: 'array', items: { type: 'object' } },
           },
         }),
       waitForTasks: z
@@ -6389,6 +6476,7 @@ export const getSaveObjectsWithTransformationRoute = createRoute({
             description:
               'Whether or not we should wait until every `batch` tasks has been processed, this operation may slow the total execution time of this method but is more reliable.',
             required: false,
+            schema: { type: 'boolean', default: false },
           },
         }),
       batchSize: z
@@ -6402,6 +6490,7 @@ export const getSaveObjectsWithTransformationRoute = createRoute({
             description:
               'The size of the chunk of `objects`. The number of `batch` calls will be equal to `length(objects) / batchSize`. Defaults to 1000.',
             required: false,
+            schema: { type: 'integer', default: 1000 },
           },
         }),
       requestOptions: z
@@ -6413,6 +6502,7 @@ export const getSaveObjectsWithTransformationRoute = createRoute({
             name: 'requestOptions',
             description: 'The request options to pass to the `batch` method.',
             required: false,
+            schema: { type: 'object' },
           },
         }),
     }),
@@ -6444,6 +6534,7 @@ export const postDeleteObjectsRoute = createRoute({
             name: 'indexName',
             description: 'The `indexName` to delete `objectIDs` from.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       objectIDs: z
@@ -6456,6 +6547,7 @@ export const postDeleteObjectsRoute = createRoute({
                 name: 'objectIDs',
                 description: 'The objectIDs to delete.',
                 required: true,
+                schema: { type: 'array', items: { type: 'string' } },
               },
             }),
         )
@@ -6465,6 +6557,7 @@ export const postDeleteObjectsRoute = createRoute({
             name: 'objectIDs',
             description: 'The objectIDs to delete.',
             required: true,
+            schema: { type: 'array', items: { type: 'string' } },
           },
         }),
       waitForTasks: z
@@ -6477,6 +6570,7 @@ export const postDeleteObjectsRoute = createRoute({
             description:
               'Whether or not we should wait until every `batch` tasks has been processed, this operation may slow the total execution time of this method but is more reliable.',
             required: false,
+            schema: { type: 'boolean' },
           },
         }),
       batchSize: z
@@ -6489,6 +6583,7 @@ export const postDeleteObjectsRoute = createRoute({
             description:
               'The size of the chunk of `objects`. The number of `batch` calls will be equal to `length(objects) / batchSize`. Defaults to 1000.',
             required: false,
+            schema: { type: 'integer' },
           },
         }),
       requestOptions: z
@@ -6500,6 +6595,7 @@ export const postDeleteObjectsRoute = createRoute({
             name: 'requestOptions',
             description: 'The request options to pass to the `batch` method.',
             required: false,
+            schema: { type: 'object' },
           },
         }),
     }),
@@ -6532,6 +6628,7 @@ export const postPartialUpdateObjectsRoute = createRoute({
             name: 'indexName',
             description: 'The `indexName` where to update `objects`.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       objects: z
@@ -6544,6 +6641,7 @@ export const postPartialUpdateObjectsRoute = createRoute({
                 name: 'objects',
                 description: 'The objects to update.',
                 required: true,
+                schema: { type: 'array', items: { type: 'object' } },
               },
             }),
         )
@@ -6553,6 +6651,7 @@ export const postPartialUpdateObjectsRoute = createRoute({
             name: 'objects',
             description: 'The objects to update.',
             required: true,
+            schema: { type: 'array', items: { type: 'object' } },
           },
         }),
       createIfNotExists: z
@@ -6566,6 +6665,7 @@ export const postPartialUpdateObjectsRoute = createRoute({
             description:
               'To be provided if non-existing objects are passed, otherwise, the call will fail.',
             required: false,
+            schema: { type: 'boolean', default: false },
           },
         }),
       waitForTasks: z
@@ -6579,6 +6679,7 @@ export const postPartialUpdateObjectsRoute = createRoute({
             description:
               'Whether or not we should wait until every `batch` tasks has been processed, this operation may slow the total execution time of this method but is more reliable.',
             required: false,
+            schema: { type: 'boolean', default: false },
           },
         }),
       batchSize: z
@@ -6592,6 +6693,7 @@ export const postPartialUpdateObjectsRoute = createRoute({
             description:
               'The size of the chunk of `objects`. The number of `batch` calls will be equal to `length(objects) / batchSize`. Defaults to 1000.',
             required: false,
+            schema: { type: 'integer', default: 1000 },
           },
         }),
       requestOptions: z
@@ -6603,6 +6705,7 @@ export const postPartialUpdateObjectsRoute = createRoute({
             name: 'requestOptions',
             description: 'The request options to pass to the `batch` method.',
             required: false,
+            schema: { type: 'object' },
           },
         }),
     }),
@@ -6635,6 +6738,7 @@ export const postPartialUpdateObjectsWithTransformationRoute = createRoute({
             name: 'indexName',
             description: 'The `indexName` where to update `objects`.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
       objects: z
@@ -6647,6 +6751,7 @@ export const postPartialUpdateObjectsWithTransformationRoute = createRoute({
                 name: 'objects',
                 description: 'The objects to update.',
                 required: true,
+                schema: { type: 'array', items: { type: 'object' } },
               },
             }),
         )
@@ -6656,6 +6761,7 @@ export const postPartialUpdateObjectsWithTransformationRoute = createRoute({
             name: 'objects',
             description: 'The objects to update.',
             required: true,
+            schema: { type: 'array', items: { type: 'object' } },
           },
         }),
       createIfNotExists: z
@@ -6669,6 +6775,7 @@ export const postPartialUpdateObjectsWithTransformationRoute = createRoute({
             description:
               'To be provided if non-existing objects are passed, otherwise, the call will fail.',
             required: false,
+            schema: { type: 'boolean', default: false },
           },
         }),
       waitForTasks: z
@@ -6682,6 +6789,7 @@ export const postPartialUpdateObjectsWithTransformationRoute = createRoute({
             description:
               'Whether or not we should wait until every `batch` tasks has been processed, this operation may slow the total execution time of this method but is more reliable.',
             required: false,
+            schema: { type: 'boolean', default: false },
           },
         }),
       batchSize: z
@@ -6695,6 +6803,7 @@ export const postPartialUpdateObjectsWithTransformationRoute = createRoute({
             description:
               'The size of the chunk of `objects`. The number of `batch` calls will be equal to `length(objects) / batchSize`. Defaults to 1000.',
             required: false,
+            schema: { type: 'integer', default: 1000 },
           },
         }),
       requestOptions: z
@@ -6706,6 +6815,7 @@ export const postPartialUpdateObjectsWithTransformationRoute = createRoute({
             name: 'requestOptions',
             description: 'The request options to pass to the `batch` method.',
             required: false,
+            schema: { type: 'object' },
           },
         }),
     }),
@@ -6737,6 +6847,7 @@ export const getIndexExistsRoute = createRoute({
             name: 'indexName',
             description: 'The name of the index to check.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
     }),
@@ -6763,6 +6874,7 @@ export const getSetClientApiKeyRoute = createRoute({
             name: 'apiKey',
             description: 'API key to be used from now on.',
             required: true,
+            schema: { type: 'string' },
           },
         }),
     }),

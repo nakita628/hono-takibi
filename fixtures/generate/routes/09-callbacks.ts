@@ -285,7 +285,14 @@ export const postIntegrationsIntegrationIdSyncRoute = createRoute({
     params: z.object({
       integrationId: z
         .uuid()
-        .openapi({ param: { name: 'integrationId', in: 'path', required: true } }),
+        .openapi({
+          param: {
+            name: 'integrationId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 202: { description: 'Sync started' } },

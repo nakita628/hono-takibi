@@ -69,7 +69,7 @@ export async function examples(
     // Generate index.ts with sorted exports
     const indexCode = `${keys
       .sort()
-      .map((v) => `export * from './${lowerFirst(v)}'`)
+      .map((v) => `export * from './${lowerFirst(v)}.ts'`)
       .join('\n')}\n`
 
     const results = await Promise.all([
@@ -82,7 +82,7 @@ export async function examples(
         if (hasRef(v)) {
           const refName = makeRef(v.$ref)
           const refKey = v.$ref.split('/').at(-1) ?? ''
-          const importPath = `./${lowerFirst(refKey)}`
+          const importPath = `./${lowerFirst(refKey)}.ts`
           const body = `import { ${refName} } from '${importPath}'\n\nexport const ${name} = ${refName}\n`
           return core(body, path.dirname(filePath), filePath)
         }

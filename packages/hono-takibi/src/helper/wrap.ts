@@ -39,25 +39,6 @@ import { makeExamples } from './openapi.js'
  *   H -->|No| J["Return as-is"]
  * ```
  *
- * ## Important Implementation Notes
- *
- * ### param.schema exclusion
- * The `schema` property inside `param` is intentionally excluded from serialization.
- * zod-openapi-hono automatically derives the OpenAPI schema from the Zod schema itself,
- * so including it would be redundant.
- *
- * ### param.required preservation
- * The `required` property inside `param` MUST be preserved. If omitted, zod-openapi-hono
- * defaults to `required: true`, which breaks optional parameter semantics.
- *
- * ### exactOptional() usage
- * `.exactOptional()` is used for optional parameters/headers (when `required !== true`).
- * This is a workaround for zod-openapi-hono's current behavior where `.optional()` alone
- * does not correctly reflect optionality in the OpenAPI output.
- *
- * @see {@link https://github.com/honojs/middleware/tree/main/packages/zod-openapi | Zod OpenAPI Hono}
- * @see {@link https://github.com/OAI/OpenAPI-Specification/issues/2385 | OpenAPI required semantics}
- *
  * @param zod - Base Zod schema string (e.g., "z.string()")
  * @param schema - OpenAPI schema with metadata
  * @param meta - Optional parameter/header metadata
@@ -81,8 +62,6 @@ export function wrap(
     isOptional?: boolean
   },
 ): string {
-  const isExamples = (v: unknown): v is Parameters<typeof makeExamples>[0] =>
-    typeof v === 'object' && v !== null && !Array.isArray(v)
   // Properties not supported or causing type issues with zod-to-openapi
   const unsupportedProps = new Set([
     'contains',
@@ -252,8 +231,8 @@ export function wrap(
     const restEntries = Object.entries(mediaRest).map(
       ([k, v]) => `${JSON.stringify(k)}:${JSON.stringify(v)}`,
     )
-    const examplesEntry = isExamples(mediaExamples)
-      ? `"examples":${makeExamples(mediaExamples)}`
+    const examplesEntry = isRecord(mediaExamples)
+      ? `"examples":${makeExamples(mediaExamples as Parameters<typeof makeExamples>[0])}`
       : undefined
     const entries = examplesEntry ? [...restEntries, examplesEntry] : restEntries
     return `{${entries.join(',')}}`
@@ -271,34 +250,17 @@ export function wrap(
 
   /**
    * Serializes parameter object with examples as code references (not JSON strings).
-   *
-   * ## Excluded properties
-   * - `schema`: Excluded because zod-openapi-hono automatically derives OpenAPI schema
-   *   from the Zod schema. Including it would create redundant, duplicate information.
-   *
-   * ## Preserved properties
-   * - `required`: MUST be preserved. If omitted, zod-openapi-hono defaults to `required: true`,
-   *   which would incorrectly mark optional parameters as required in OpenAPI output.
-   *   When zod-openapi-hono properly supports deriving `required` from `.exactOptional()`,
-   *   this property can potentially be removed.
-   *
-   * @see {@link https://github.com/asteasolutions/zod-to-openapi | zod-to-openapi}
    */
   const serializeParam = (param: Parameter): string => {
-    // 'schema' is excluded: zod-openapi-hono derives it from Zod schema automatically
-    // 'required' is preserved: without it, defaults to true (breaks optional semantics)
-    const excludedKeys = new Set(['schema'])
-    const entries = Object.entries(param)
-      .filter(([key]) => !excludedKeys.has(key))
-      .map(([key, value]) => {
-        if (key === 'examples' && isExamples(value)) {
-          return `"examples":${makeExamples(value)}`
-        }
-        if (key === 'content' && isRecord(value)) {
-          return `"content":${serializeContent(value)}`
-        }
-        return `${JSON.stringify(key)}:${JSON.stringify(value)}`
-      })
+    const entries = Object.entries(param).map(([key, value]) => {
+      if (key === 'examples' && isRecord(value)) {
+        return `"examples":${makeExamples(value as Parameters<typeof makeExamples>[0])}`
+      }
+      if (key === 'content' && isRecord(value)) {
+        return `"content":${serializeContent(value)}`
+      }
+      return `${JSON.stringify(key)}:${JSON.stringify(value)}`
+    })
     return `{${entries.join(',')}}`
   }
 
@@ -308,28 +270,16 @@ export function wrap(
     openapiSchemaBody && openapiSchemaBody.length > 0 ? openapiSchemaBody : undefined,
   ].filter((v) => v !== undefined)
 
-  // Handle parameters and headers with proper optionality
-  // @see https://github.com/OAI/OpenAPI-Specification/issues/2385
-  //
-  // IMPORTANT: `.exactOptional()` is used instead of `.optional()` because:
-  // - zod-openapi-hono requires `.exactOptional()` to correctly reflect optionality
-  //   in the generated OpenAPI schema
-  // - Using `.optional()` alone does not properly mark parameters as optional
-  //
-  // TODO: When zod-openapi-hono properly supports `.optional()` for OpenAPI optionality,
-  // consider switching from `.exactOptional()` to `.optional()` for simpler generated code.
-  // Also, if zod-openapi-hono starts deriving `required` from Zod schema methods,
-  // the explicit `required` in param can be removed from serializeParam().
+  // https://github.com/OAI/OpenAPI-Specification/issues/2385
   if (meta?.parameters || meta?.headers) {
     if (meta?.parameters?.required === true || meta?.headers?.required === true) {
       return openapiProps.length === 0 ? z : `${z}.openapi({${openapiProps.join(',')}})`
     }
-    // Optional parameter/header: add .exactOptional() for correct OpenAPI output
     return openapiProps.length === 0
       ? `${z}.exactOptional()`
       : `${z}.exactOptional().openapi({${openapiProps.join(',')}})`
   }
-  // Handle optional object properties (same reasoning as above)
+  // Handle optional object properties
   if (meta?.isOptional === true) {
     return openapiProps.length === 0
       ? `${z}.exactOptional()`

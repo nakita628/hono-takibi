@@ -196,6 +196,7 @@ const ProductIdPathParamsSchema = z
       in: 'path',
       required: true,
       description: 'Product unique identifier',
+      schema: { type: 'string', format: 'uuid' },
       examples: { valid: { value: '550e8400-e29b-41d4-a716-446655440000' } },
     },
   })
@@ -205,7 +206,14 @@ const PageParamParamsSchema = z
   .min(1)
   .default(1)
   .exactOptional()
-  .openapi({ param: { name: 'page', in: 'query', description: 'Page number (1-indexed)' } })
+  .openapi({
+    param: {
+      name: 'page',
+      in: 'query',
+      description: 'Page number (1-indexed)',
+      schema: { type: 'integer', format: 'int32', minimum: 1, default: 1 },
+    },
+  })
 
 const LimitParamParamsSchema = z
   .int32()
@@ -213,20 +221,41 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({ param: { name: 'limit', in: 'query', description: 'Items per page' } })
+  .openapi({
+    param: {
+      name: 'limit',
+      in: 'query',
+      description: 'Items per page',
+      schema: { type: 'integer', format: 'int32', minimum: 1, maximum: 100, default: 20 },
+    },
+  })
 
 const SearchParamParamsSchema = z
   .string()
   .min(1)
   .max(200)
   .exactOptional()
-  .openapi({ param: { name: 'q', in: 'query', description: 'Search query' } })
+  .openapi({
+    param: {
+      name: 'q',
+      in: 'query',
+      description: 'Search query',
+      schema: { type: 'string', minLength: 1, maxLength: 200 },
+    },
+  })
 
 const AcceptLanguageHeaderParamsSchema = z
   .string()
   .default('en-US')
   .exactOptional()
-  .openapi({ param: { name: 'Accept-Language', in: 'header', description: 'Preferred language' } })
+  .openapi({
+    param: {
+      name: 'Accept-Language',
+      in: 'header',
+      description: 'Preferred language',
+      schema: { type: 'string', default: 'en-US' },
+    },
+  })
 
 const IfMatchHeaderParamsSchema = z
   .string()
@@ -237,6 +266,7 @@ const IfMatchHeaderParamsSchema = z
       in: 'header',
       description: 'ETag for optimistic concurrency',
       required: false,
+      schema: { type: 'string' },
     },
   })
 
@@ -249,6 +279,7 @@ const IfNoneMatchHeaderParamsSchema = z
       in: 'header',
       description: 'ETag for cache validation',
       required: false,
+      schema: { type: 'string' },
     },
   })
 
@@ -683,7 +714,11 @@ export const getProductsRoute = createRoute({
       limit: LimitParamParamsSchema,
       q: SearchParamParamsSchema,
       category: ProductCategorySchema.exactOptional().openapi({
-        param: { name: 'category', in: 'query' },
+        param: {
+          name: 'category',
+          in: 'query',
+          schema: { $ref: '#/components/schemas/ProductCategory' },
+        },
       }),
     }),
     headers: z.object({ 'Accept-Language': AcceptLanguageHeaderParamsSchema }),

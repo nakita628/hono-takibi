@@ -270,7 +270,7 @@ describe('wrap', () => {
     }
     const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
     const expected =
-      'z.string().openapi({param:{"name":"id","in":"path","required":true,"examples":{"laptop":LaptopIdExample,"tshirt":{value:"tshirt-123"}}}})'
+      'z.string().openapi({param:{"name":"id","in":"path","required":true,"schema":{"type":"string"},"examples":{"laptop":LaptopIdExample,"tshirt":{value:"tshirt-123"}}}})'
     expect(result).toBe(expected)
   })
 
@@ -287,7 +287,7 @@ describe('wrap', () => {
     }
     const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
     const expected =
-      'z.string().exactOptional().openapi({param:{"name":"filter","in":"query","required":false,"examples":{"japanese":{value:"日本語テスト"},"emoji":{value:"🔥炎のテスト🔥"}}}})'
+      'z.string().exactOptional().openapi({param:{"name":"filter","in":"query","required":false,"schema":{"type":"string"},"examples":{"japanese":{value:"日本語テスト"},"emoji":{value:"🔥炎のテスト🔥"}}}})'
     expect(result).toBe(expected)
   })
 
@@ -308,7 +308,7 @@ describe('wrap', () => {
     }
     const result = wrap('z.object({})', { type: 'object' }, { parameters: testParameter })
     const expected =
-      'z.object({}).exactOptional().openapi({param:{"name":"filter","in":"query","required":false,"content":{"application/json":{"schema":{"type":"object"},"examples":{"japanese":{value:{"name":"田中太郎","description":"参照地獄テスト"}}}}}}})'
+      'z.object({}).exactOptional().openapi({param:{"name":"filter","in":"query","required":false,"schema":{"type":"object"},"content":{"application/json":{"schema":{"type":"object"},"examples":{"japanese":{value:{"name":"田中太郎","description":"参照地獄テスト"}}}}}}})'
     expect(result).toBe(expected)
   })
 
@@ -480,7 +480,7 @@ describe('wrap', () => {
       }
       const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
       expect(result).toBe(
-        'z.string().openapi({param:{"name":"userId","in":"path","required":true}})',
+        'z.string().openapi({param:{"name":"userId","in":"path","required":true,"schema":{"type":"string"}}})',
       )
     })
 
@@ -493,7 +493,7 @@ describe('wrap', () => {
       }
       const result = wrap('z.number()', { type: 'integer' }, { parameters: testParameter })
       expect(result).toBe(
-        'z.number().openapi({param:{"name":"page","in":"query","required":true}})',
+        'z.number().openapi({param:{"name":"page","in":"query","required":true,"schema":{"type":"integer"}}})',
       )
     })
 
@@ -506,7 +506,7 @@ describe('wrap', () => {
       }
       const result = wrap('z.number()', { type: 'integer' }, { parameters: testParameter })
       expect(result).toBe(
-        'z.number().exactOptional().openapi({param:{"name":"limit","in":"query","required":false}})',
+        'z.number().exactOptional().openapi({param:{"name":"limit","in":"query","required":false,"schema":{"type":"integer"}}})',
       )
     })
 
@@ -518,7 +518,7 @@ describe('wrap', () => {
       }
       const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
       expect(result).toBe(
-        'z.string().exactOptional().openapi({param:{"name":"sessionId","in":"cookie"}})',
+        'z.string().exactOptional().openapi({param:{"name":"sessionId","in":"cookie","schema":{"type":"string"}}})',
       )
     })
 
@@ -531,7 +531,7 @@ describe('wrap', () => {
       }
       const result = wrap('z.string()', { type: 'string' }, { parameters: testParameter })
       expect(result).toBe(
-        'z.string().openapi({param:{"name":"X-Request-ID","in":"header","required":true}})',
+        'z.string().openapi({param:{"name":"X-Request-ID","in":"header","required":true,"schema":{"type":"string"}}})',
       )
     })
   })

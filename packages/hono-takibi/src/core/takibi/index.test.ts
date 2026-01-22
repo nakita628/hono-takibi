@@ -410,7 +410,7 @@ export default app
         path.join(srcDir, 'handlers', 'index.ts'),
         'utf-8',
       )
-      const expectedHandlersIndex = `export * from './test'
+      const expectedHandlersIndex = `export * from './test.ts'
 `
       expect(handlersIndexContent).toBe(expectedHandlersIndex)
     } finally {

@@ -219,12 +219,19 @@ const ErrorSchema = z
 
 const ConversationIdParamParamsSchema = z
   .uuid()
-  .openapi({ param: { name: 'conversationId', in: 'path', required: true } })
+  .openapi({
+    param: {
+      name: 'conversationId',
+      in: 'path',
+      required: true,
+      schema: { type: 'string', format: 'uuid' },
+    },
+  })
 
 const CursorParamParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({ param: { name: 'cursor', in: 'query' } })
+  .openapi({ param: { name: 'cursor', in: 'query', schema: { type: 'string' } } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -232,7 +239,13 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({ param: { name: 'limit', in: 'query' } })
+  .openapi({
+    param: {
+      name: 'limit',
+      in: 'query',
+      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+    },
+  })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -264,6 +277,7 @@ export const getNotificationsRoute = createRoute({
             name: 'types',
             in: 'query',
             description: '通知タイプでフィルタ（カンマ区切り）',
+            schema: { type: 'string' },
             example: 'like,repost,follow,mention',
           },
         }),
@@ -271,7 +285,13 @@ export const getNotificationsRoute = createRoute({
         .enum(['all', 'mentions', 'verified'])
         .default('all')
         .exactOptional()
-        .openapi({ param: { name: 'filter', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'filter',
+            in: 'query',
+            schema: { type: 'string', enum: ['all', 'mentions', 'verified'], default: 'all' },
+          },
+        }),
     }),
   },
   responses: {
@@ -529,7 +549,16 @@ export const deleteDmMessagesMessageIdRoute = createRoute({
   operationId: 'deleteMessage',
   request: {
     params: z.object({
-      messageId: z.uuid().openapi({ param: { name: 'messageId', in: 'path', required: true } }),
+      messageId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'messageId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -544,7 +573,16 @@ export const postDmMessagesMessageIdReactionsRoute = createRoute({
   operationId: 'addMessageReaction',
   request: {
     params: z.object({
-      messageId: z.uuid().openapi({ param: { name: 'messageId', in: 'path', required: true } }),
+      messageId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'messageId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     body: {
       content: {
@@ -569,10 +607,23 @@ export const deleteDmMessagesMessageIdReactionsRoute = createRoute({
   operationId: 'removeMessageReaction',
   request: {
     params: z.object({
-      messageId: z.uuid().openapi({ param: { name: 'messageId', in: 'path', required: true } }),
+      messageId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'messageId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
     query: z.object({
-      emoji: z.string().openapi({ param: { name: 'emoji', in: 'query', required: true } }),
+      emoji: z
+        .string()
+        .openapi({
+          param: { name: 'emoji', in: 'query', required: true, schema: { type: 'string' } },
+        }),
     }),
   },
   responses: { 200: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -612,34 +663,83 @@ export const getSearchPostsRoute = createRoute({
     query: z.object({
       q: z
         .string()
-        .openapi({ param: { name: 'q', in: 'query', required: true, description: '検索クエリ' } }),
+        .openapi({
+          param: {
+            name: 'q',
+            in: 'query',
+            required: true,
+            description: '検索クエリ',
+            schema: { type: 'string' },
+          },
+        }),
       cursor: CursorParamParamsSchema,
       limit: LimitParamParamsSchema,
       filter: z
         .enum(['latest', 'top', 'photos', 'videos'])
         .default('top')
         .exactOptional()
-        .openapi({ param: { name: 'filter', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'filter',
+            in: 'query',
+            schema: { type: 'string', enum: ['latest', 'top', 'photos', 'videos'], default: 'top' },
+          },
+        }),
       from: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'from', in: 'query', description: '特定ユーザーからの投稿' } }),
+        .openapi({
+          param: {
+            name: 'from',
+            in: 'query',
+            description: '特定ユーザーからの投稿',
+            schema: { type: 'string' },
+          },
+        }),
       to: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'to', in: 'query', description: '特定ユーザーへの返信' } }),
+        .openapi({
+          param: {
+            name: 'to',
+            in: 'query',
+            description: '特定ユーザーへの返信',
+            schema: { type: 'string' },
+          },
+        }),
       since: z.iso
         .datetime()
         .exactOptional()
-        .openapi({ param: { name: 'since', in: 'query', description: 'この日時以降' } }),
+        .openapi({
+          param: {
+            name: 'since',
+            in: 'query',
+            description: 'この日時以降',
+            schema: { type: 'string', format: 'date-time' },
+          },
+        }),
       until: z.iso
         .datetime()
         .exactOptional()
-        .openapi({ param: { name: 'until', in: 'query', description: 'この日時以前' } }),
+        .openapi({
+          param: {
+            name: 'until',
+            in: 'query',
+            description: 'この日時以前',
+            schema: { type: 'string', format: 'date-time' },
+          },
+        }),
       lang: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'lang', in: 'query', description: '言語フィルタ' } }),
+        .openapi({
+          param: {
+            name: 'lang',
+            in: 'query',
+            description: '言語フィルタ',
+            schema: { type: 'string' },
+          },
+        }),
     }),
   },
   responses: {
@@ -658,7 +758,9 @@ export const getSearchUsersRoute = createRoute({
   operationId: 'searchUsers',
   request: {
     query: z.object({
-      q: z.string().openapi({ param: { name: 'q', in: 'query', required: true } }),
+      q: z
+        .string()
+        .openapi({ param: { name: 'q', in: 'query', required: true, schema: { type: 'string' } } }),
       cursor: CursorParamParamsSchema,
       limit: LimitParamParamsSchema,
     }),
@@ -679,7 +781,9 @@ export const getSearchHashtagsRoute = createRoute({
   operationId: 'searchHashtags',
   request: {
     query: z.object({
-      q: z.string().openapi({ param: { name: 'q', in: 'query', required: true } }),
+      q: z
+        .string()
+        .openapi({ param: { name: 'q', in: 'query', required: true, schema: { type: 'string' } } }),
       limit: LimitParamParamsSchema,
     }),
   },
@@ -738,14 +842,25 @@ export const getTrendsRoute = createRoute({
         .int()
         .exactOptional()
         .openapi({
-          param: { name: 'woeid', in: 'query', description: '地域ID（Where On Earth ID）' },
+          param: {
+            name: 'woeid',
+            in: 'query',
+            description: '地域ID（Where On Earth ID）',
+            schema: { type: 'integer' },
+          },
         }),
       limit: z
         .int()
         .max(50)
         .default(20)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: {
+            name: 'limit',
+            in: 'query',
+            schema: { type: 'integer', default: 20, maximum: 50 },
+          },
+        }),
     }),
   },
   responses: {
@@ -782,7 +897,9 @@ export const getSuggestionsUsersRoute = createRoute({
         .int()
         .default(20)
         .exactOptional()
-        .openapi({ param: { name: 'limit', in: 'query' } }),
+        .openapi({
+          param: { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
+        }),
     }),
   },
   responses: {
@@ -803,7 +920,16 @@ export const postSuggestionsUsersUserIdHideRoute = createRoute({
   operationId: 'hideSuggestedUser',
   request: {
     params: z.object({
-      userId: z.uuid().openapi({ param: { name: 'userId', in: 'path', required: true } }),
+      userId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'userId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 200: { description: '非表示成功' }, 401: UnauthorizedResponse },
@@ -834,7 +960,16 @@ export const postTopicsTopicIdFollowRoute = createRoute({
   operationId: 'followTopic',
   request: {
     params: z.object({
-      topicId: z.uuid().openapi({ param: { name: 'topicId', in: 'path', required: true } }),
+      topicId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'topicId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 200: { description: 'フォロー成功' }, 401: UnauthorizedResponse },
@@ -849,7 +984,16 @@ export const deleteTopicsTopicIdFollowRoute = createRoute({
   operationId: 'unfollowTopic',
   request: {
     params: z.object({
-      topicId: z.uuid().openapi({ param: { name: 'topicId', in: 'path', required: true } }),
+      topicId: z
+        .uuid()
+        .openapi({
+          param: {
+            name: 'topicId',
+            in: 'path',
+            required: true,
+            schema: { type: 'string', format: 'uuid' },
+          },
+        }),
     }),
   },
   responses: { 200: { description: '解除成功' }, 401: UnauthorizedResponse },
