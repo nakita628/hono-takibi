@@ -35,8 +35,8 @@ describe('makeExports', () => {
     expect(fs.existsSync(`${testDir}/schemas/index.ts`)).toBe(true)
 
     const indexContent = fs.readFileSync(`${testDir}/schemas/index.ts`, 'utf-8')
-    expect(indexContent).toBe(`export * from './post.ts'
-export * from './user.ts'
+    expect(indexContent).toBe(`export * from './post'
+export * from './user'
 `)
   })
 
@@ -104,9 +104,9 @@ export * from './user.ts'
     expect(result.ok).toBe(true)
 
     const indexContent = fs.readFileSync(`${testDir}/sorted/index.ts`, 'utf-8')
-    expect(indexContent).toBe(`export * from './apple.ts'
-export * from './mango.ts'
-export * from './zebra.ts'
+    expect(indexContent).toBe(`export * from './apple'
+export * from './mango'
+export * from './zebra'
 `)
   })
 

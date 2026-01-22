@@ -424,9 +424,7 @@ export const getWebauthnCredentialsCredentialIdRoute = createRoute({
     params: z.object({
       credentialId: z
         .string()
-        .openapi({
-          param: { name: 'credentialId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+        .openapi({ param: { name: 'credentialId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -451,9 +449,7 @@ export const deleteWebauthnCredentialsCredentialIdRoute = createRoute({
     params: z.object({
       credentialId: z
         .string()
-        .openapi({
-          param: { name: 'credentialId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+        .openapi({ param: { name: 'credentialId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -478,9 +474,7 @@ export const patchWebauthnCredentialsCredentialIdRoute = createRoute({
     params: z.object({
       credentialId: z
         .string()
-        .openapi({
-          param: { name: 'credentialId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+        .openapi({ param: { name: 'credentialId', in: 'path', required: true } }),
     }),
     body: {
       content: {

@@ -86,29 +86,14 @@ const ErrorSchema = z
 
 const UserIdParamParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'userId',
-      in: 'path',
-      required: true,
-      description: 'ユーザーID',
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'userId', in: 'path', required: true, description: 'ユーザーID' } })
 
 const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'page',
-      in: 'query',
-      description: 'ページ番号',
-      schema: { type: 'integer', minimum: 1, default: 1 },
-    },
-  })
+  .openapi({ param: { name: 'page', in: 'query', description: 'ページ番号' } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -116,25 +101,13 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'limit',
-      in: 'query',
-      description: '1ページあたりの件数',
-      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
-    },
-  })
+  .openapi({ param: { name: 'limit', in: 'query', description: '1ページあたりの件数' } })
 
 const SortParamParamsSchema = z
   .string()
   .exactOptional()
   .openapi({
-    param: {
-      name: 'sort',
-      in: 'query',
-      description: 'ソート順（例：createdAt:desc, name:asc）',
-      schema: { type: 'string' },
-    },
+    param: { name: 'sort', in: 'query', description: 'ソート順（例：createdAt:desc, name:asc）' },
   })
 
 const BearerAuthSecurityScheme = {
@@ -343,25 +316,11 @@ export const getUsersRoute = createRoute({
       search: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'search',
-            in: 'query',
-            description: '名前またはメールで検索',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'search', in: 'query', description: '名前またはメールで検索' } }),
       status: z
         .enum(['active', 'inactive', 'suspended'])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'status',
-            in: 'query',
-            description: 'ステータスでフィルタ',
-            schema: { type: 'string', enum: ['active', 'inactive', 'suspended'] },
-          },
-        }),
+        .openapi({ param: { name: 'status', in: 'query', description: 'ステータスでフィルタ' } }),
     }),
   },
   responses: {

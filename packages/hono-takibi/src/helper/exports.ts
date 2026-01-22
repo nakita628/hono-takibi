@@ -48,7 +48,7 @@ export async function makeExports(
   // sort abc
   const indexCode = `${keys
     .sort()
-    .map((v) => `export * from './${lowerFirst(v)}.ts'`)
+    .map((v) => `export * from './${lowerFirst(v)}'`)
     .join('\n')}\n`
 
   const asConst = readonly ? ' as const' : ''

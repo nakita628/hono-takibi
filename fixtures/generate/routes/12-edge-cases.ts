@@ -201,28 +201,22 @@ const UnicodePropertiesSchema = z
 
 const RequiredParamParamsSchema = z
   .string()
-  .openapi({ param: { name: 'required', in: 'query', required: true, schema: { type: 'string' } } })
+  .openapi({ param: { name: 'required', in: 'query', required: true } })
 
 const OptionalParamParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({
-    param: { name: 'optional', in: 'query', required: false, schema: { type: 'string' } },
-  })
+  .openapi({ param: { name: 'optional', in: 'query', required: false } })
 
 const DeprecatedParamParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({
-    param: { name: 'deprecated', in: 'query', deprecated: true, schema: { type: 'string' } },
-  })
+  .openapi({ param: { name: 'deprecated', in: 'query', deprecated: true } })
 
 const AllowEmptyParamParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({
-    param: { name: 'allowEmpty', in: 'query', allowEmptyValue: true, schema: { type: 'string' } },
-  })
+  .openapi({ param: { name: 'allowEmpty', in: 'query', allowEmptyValue: true } })
 
 const ApiKeyHeaderSecurityScheme = { type: 'apiKey', in: 'header', name: 'X-API-Key' }
 
@@ -378,26 +372,9 @@ export const getUsersUserIdPostsPostIdCommentsCommentIdRoute = createRoute({
   operationId: 'getNestedResource',
   request: {
     params: z.object({
-      userId: z
-        .string()
-        .openapi({
-          param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
-      postId: z
-        .int()
-        .openapi({
-          param: { name: 'postId', in: 'path', required: true, schema: { type: 'integer' } },
-        }),
-      commentId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'commentId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      userId: z.string().openapi({ param: { name: 'userId', in: 'path', required: true } }),
+      postId: z.int().openapi({ param: { name: 'postId', in: 'path', required: true } }),
+      commentId: z.uuid().openapi({ param: { name: 'commentId', in: 'path', required: true } }),
     }),
   },
   responses: { 200: { description: 'Nested resource' } },
@@ -409,40 +386,25 @@ export const getParamsTestPathParamRoute = createRoute({
   operationId: 'testAllParamLocations',
   request: {
     params: z.object({
-      pathParam: z
-        .string()
-        .openapi({
-          param: { name: 'pathParam', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      pathParam: z.string().openapi({ param: { name: 'pathParam', in: 'path', required: true } }),
     }),
     query: z.object({
       queryParam: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'queryParam', in: 'query', required: false, schema: { type: 'string' } },
-        }),
+        .openapi({ param: { name: 'queryParam', in: 'query', required: false } }),
     }),
     headers: z.object({
       'X-Header-Param': z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'X-Header-Param',
-            in: 'header',
-            required: false,
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'X-Header-Param', in: 'header', required: false } }),
     }),
     cookies: z.object({
       session_id: z
         .string()
         .exactOptional()
-        .openapi({
-          param: { name: 'session_id', in: 'cookie', required: false, schema: { type: 'string' } },
-        }),
+        .openapi({ param: { name: 'session_id', in: 'cookie', required: false } }),
     }),
   },
   responses: { 200: { description: 'Success' } },
@@ -591,26 +553,12 @@ export const getArrayParamsRoute = createRoute({
             .string()
             .exactOptional()
             .openapi({
-              param: {
-                name: 'ids',
-                in: 'query',
-                required: false,
-                schema: { type: 'array', items: { type: 'string' } },
-                style: 'form',
-                explode: true,
-              },
+              param: { name: 'ids', in: 'query', required: false, style: 'form', explode: true },
             }),
         )
         .exactOptional()
         .openapi({
-          param: {
-            name: 'ids',
-            in: 'query',
-            required: false,
-            schema: { type: 'array', items: { type: 'string' } },
-            style: 'form',
-            explode: true,
-          },
+          param: { name: 'ids', in: 'query', required: false, style: 'form', explode: true },
         }),
       tags: z
         .array(
@@ -618,73 +566,31 @@ export const getArrayParamsRoute = createRoute({
             .string()
             .exactOptional()
             .openapi({
-              param: {
-                name: 'tags',
-                in: 'query',
-                required: false,
-                schema: { type: 'array', items: { type: 'string' } },
-                style: 'form',
-                explode: false,
-              },
+              param: { name: 'tags', in: 'query', required: false, style: 'form', explode: false },
             }),
         )
         .exactOptional()
         .openapi({
-          param: {
-            name: 'tags',
-            in: 'query',
-            required: false,
-            schema: { type: 'array', items: { type: 'string' } },
-            style: 'form',
-            explode: false,
-          },
+          param: { name: 'tags', in: 'query', required: false, style: 'form', explode: false },
         }),
       values: z
         .array(
           z
             .int()
             .exactOptional()
-            .openapi({
-              param: {
-                name: 'values',
-                in: 'query',
-                schema: { type: 'array', items: { type: 'integer' } },
-                style: 'pipeDelimited',
-              },
-            }),
+            .openapi({ param: { name: 'values', in: 'query', style: 'pipeDelimited' } }),
         )
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'values',
-            in: 'query',
-            schema: { type: 'array', items: { type: 'integer' } },
-            style: 'pipeDelimited',
-          },
-        }),
+        .openapi({ param: { name: 'values', in: 'query', style: 'pipeDelimited' } }),
       coords: z
         .array(
           z
             .number()
             .exactOptional()
-            .openapi({
-              param: {
-                name: 'coords',
-                in: 'query',
-                schema: { type: 'array', items: { type: 'number' } },
-                style: 'spaceDelimited',
-              },
-            }),
+            .openapi({ param: { name: 'coords', in: 'query', style: 'spaceDelimited' } }),
         )
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'coords',
-            in: 'query',
-            schema: { type: 'array', items: { type: 'number' } },
-            style: 'spaceDelimited',
-          },
-        }),
+        .openapi({ param: { name: 'coords', in: 'query', style: 'spaceDelimited' } }),
     }),
   },
   responses: { 200: { description: 'Success' } },
@@ -703,22 +609,7 @@ export const getObjectParamRoute = createRoute({
           maxPrice: z.number().exactOptional(),
         })
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'filter',
-            in: 'query',
-            schema: {
-              type: 'object',
-              properties: {
-                name: { type: 'string' },
-                minPrice: { type: 'number' },
-                maxPrice: { type: 'number' },
-              },
-            },
-            style: 'deepObject',
-            explode: true,
-          },
-        }),
+        .openapi({ param: { name: 'filter', in: 'query', style: 'deepObject', explode: true } }),
     }),
   },
   responses: { 200: { description: 'Success' } },

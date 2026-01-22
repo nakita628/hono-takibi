@@ -2887,18 +2887,7 @@ const TuneableTrackObjectSchema = z
 const PathAlbumIdParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'path',
-      name: 'id',
-      required: true,
-      schema: {
-        description:
-          'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids) of the album.\n',
-        example: '4aawyAB9vmqN3uQ7FjRGTy',
-        title: 'Spotify Album ID',
-        type: 'string',
-      },
-    },
+    param: { in: 'path', name: 'id', required: true },
     description:
       'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids) of the album.\n',
     example: '4aawyAB9vmqN3uQ7FjRGTy',
@@ -2908,18 +2897,7 @@ const PathAlbumIdParamsSchema = z
 const PathArtistIdParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'path',
-      name: 'id',
-      required: true,
-      schema: {
-        description:
-          'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids) of the artist.\n',
-        example: '0TnOYISbd1XYRBk9myaseg',
-        title: 'Spotify Artist ID',
-        type: 'string',
-      },
-    },
+    param: { in: 'path', name: 'id', required: true },
     description:
       'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids) of the artist.\n',
     example: '0TnOYISbd1XYRBk9myaseg',
@@ -2929,18 +2907,7 @@ const PathArtistIdParamsSchema = z
 const PathAudiobookIdParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'path',
-      name: 'id',
-      required: true,
-      schema: {
-        description:
-          'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids)\nfor the audiobook.\n',
-        example: '7iHfbu1YPACw6oZPAFJtqe',
-        title: 'Spotify Audiobook ID',
-        type: 'string',
-      },
-    },
+    param: { in: 'path', name: 'id', required: true },
     description:
       'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids)\nfor the audiobook.\n',
     example: '7iHfbu1YPACw6oZPAFJtqe',
@@ -2950,18 +2917,7 @@ const PathAudiobookIdParamsSchema = z
 const PathChapterIdParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'path',
-      name: 'id',
-      required: true,
-      schema: {
-        description:
-          'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids)\nfor the chapter.\n',
-        example: '0D5wENdkdwbqlrHoaJ9g29',
-        title: 'Spotify Chapter ID',
-        type: 'string',
-      },
-    },
+    param: { in: 'path', name: 'id', required: true },
     description:
       'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids)\nfor the chapter.\n',
     example: '0D5wENdkdwbqlrHoaJ9g29',
@@ -2971,18 +2927,7 @@ const PathChapterIdParamsSchema = z
 const PathPlaylistIdParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'path',
-      name: 'playlist_id',
-      required: true,
-      schema: {
-        description:
-          'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids) of the playlist.\n',
-        example: '3cEYpjA9oz9GiPac4AsH4n',
-        title: 'Playlist ID',
-        type: 'string',
-      },
-    },
+    param: { in: 'path', name: 'playlist_id', required: true },
     description:
       'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids) of the playlist.\n',
     example: '3cEYpjA9oz9GiPac4AsH4n',
@@ -2992,18 +2937,7 @@ const PathPlaylistIdParamsSchema = z
 const PathShowIdParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'path',
-      name: 'id',
-      required: true,
-      schema: {
-        description:
-          'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids)\nfor the show.\n',
-        example: '38bS44xjbVVZ3No3ByF1dJ',
-        title: 'Spotify Show ID',
-        type: 'string',
-      },
-    },
+    param: { in: 'path', name: 'id', required: true },
     description:
       'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids)\nfor the show.\n',
     example: '38bS44xjbVVZ3No3ByF1dJ',
@@ -3013,18 +2947,7 @@ const PathShowIdParamsSchema = z
 const PathUserIdParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'path',
-      name: 'user_id',
-      required: true,
-      schema: {
-        description:
-          "The user's [Spotify user ID](/documentation/web-api/concepts/spotify-uris-ids).\n",
-        example: 'smedjan',
-        title: 'User ID',
-        type: 'string',
-      },
-    },
+    param: { in: 'path', name: 'user_id', required: true },
     description:
       "The user's [Spotify user ID](/documentation/web-api/concepts/spotify-uris-ids).\n",
     example: 'smedjan',
@@ -3035,17 +2958,7 @@ const QueryAdditionalTypesParamsSchema = z
   .string()
   .exactOptional()
   .openapi({
-    param: {
-      in: 'query',
-      name: 'additional_types',
-      required: false,
-      schema: {
-        description:
-          'A comma-separated list of item types that your client supports besides the default `track` type. Valid types are: `track` and `episode`.<br/>\n_**Note**: This parameter was introduced to allow existing clients to maintain their current behaviour and might be deprecated in the future._<br/>\nIn addition to providing this parameter, make sure that your client properly handles cases of new types in the future by checking against the `type` field of each object.\n',
-        title: 'Additional Types',
-        type: 'string',
-      },
-    },
+    param: { in: 'query', name: 'additional_types', required: false },
     description:
       'A comma-separated list of item types that your client supports besides the default `track` type. Valid types are: `track` and `episode`.<br/>\n_**Note**: This parameter was introduced to allow existing clients to maintain their current behaviour and might be deprecated in the future._<br/>\nIn addition to providing this parameter, make sure that your client properly handles cases of new types in the future by checking against the `type` field of each object.\n',
     title: 'Additional Types',
@@ -3054,18 +2967,7 @@ const QueryAdditionalTypesParamsSchema = z
 const QueryAlbumIdsParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'query',
-      name: 'ids',
-      required: true,
-      schema: {
-        description:
-          'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for the albums. Maximum: 20 IDs.\n',
-        example: '382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo,2noRn2Aes5aoNVsU6iWThc',
-        title: 'Spotify Album IDs',
-        type: 'string',
-      },
-    },
+    param: { in: 'query', name: 'ids', required: true },
     description:
       'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for the albums. Maximum: 20 IDs.\n',
     example: '382ObEPsp2rxGrnsizN5TX,1A2GTWGtFfWp7KSQTwWOyo,2noRn2Aes5aoNVsU6iWThc',
@@ -3075,18 +2977,7 @@ const QueryAlbumIdsParamsSchema = z
 const QueryAudiobookIdsParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'query',
-      name: 'ids',
-      required: true,
-      schema: {
-        description:
-          'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `ids=18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ`. Maximum: 50 IDs.\n',
-        example: '18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ,7iHfbu1YPACw6oZPAFJtqe',
-        title: 'Spotify Audiobook IDs',
-        type: 'string',
-      },
-    },
+    param: { in: 'query', name: 'ids', required: true },
     description:
       'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `ids=18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ`. Maximum: 50 IDs.\n',
     example: '18yVqkdbdRvS24c0Ilj2ci,1HGw3J3NxZO1TP1BTtVhpZ,7iHfbu1YPACw6oZPAFJtqe',
@@ -3096,18 +2987,7 @@ const QueryAudiobookIdsParamsSchema = z
 const QueryChapterIdsParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'query',
-      name: 'ids',
-      required: true,
-      schema: {
-        description:
-          'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `ids=0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU`. Maximum: 50 IDs.\n',
-        example: '0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU,0D5wENdkdwbqlrHoaJ9g29',
-        title: 'Spotify Chapter IDs',
-        type: 'string',
-      },
-    },
+    param: { in: 'query', name: 'ids', required: true },
     description:
       'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `ids=0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU`. Maximum: 50 IDs.\n',
     example: '0IsXVP0JmcB2adSE338GkK,3ZXb8FKZGU0EHALYX6uCzU,0D5wENdkdwbqlrHoaJ9g29',
@@ -3118,18 +2998,7 @@ const QueryIncludeGroupsParamsSchema = z
   .string()
   .exactOptional()
   .openapi({
-    param: {
-      in: 'query',
-      name: 'include_groups',
-      required: false,
-      schema: {
-        description:
-          'A comma-separated list of keywords that will be used to filter the response. If not supplied, all album types will be returned. <br/>\nValid values are:<br/>- `album`<br/>- `single`<br/>- `appears_on`<br/>- `compilation`<br/>For example: `include_groups=album,single`.\n',
-        example: 'single,appears_on',
-        title: 'Groups to include (single, album, appears_on, compilation)',
-        type: 'string',
-      },
-    },
+    param: { in: 'query', name: 'include_groups', required: false },
     description:
       'A comma-separated list of keywords that will be used to filter the response. If not supplied, all album types will be returned. <br/>\nValid values are:<br/>- `album`<br/>- `single`<br/>- `appears_on`<br/>- `compilation`<br/>For example: `include_groups=album,single`.\n',
     example: 'single,appears_on',
@@ -3143,21 +3012,7 @@ const QueryLimitParamsSchema = z
   .default(20)
   .exactOptional()
   .openapi({
-    param: {
-      in: 'query',
-      name: 'limit',
-      required: false,
-      schema: {
-        default: 20,
-        description:
-          'The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50.\n',
-        example: 10,
-        maximum: 50,
-        minimum: 0,
-        title: 'Limit',
-        type: 'integer',
-      },
-    },
+    param: { in: 'query', name: 'limit', required: false },
     description: 'The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50.\n',
     example: 10,
     title: 'Limit',
@@ -3167,18 +3022,7 @@ const QueryMarketParamsSchema = z
   .string()
   .exactOptional()
   .openapi({
-    param: {
-      in: 'query',
-      name: 'market',
-      required: false,
-      schema: {
-        description:
-          'An [ISO 3166-1 alpha-2 country code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).\n  If a country code is specified, only content that is available in that market will be returned.<br/>\n  If a valid user access token is specified in the request header, the country associated with\n  the user account will take priority over this parameter.<br/>\n  _**Note**: If neither market or user country are provided, the content is considered unavailable for the client._<br/>\n  Users can view the country that is associated with their account in the [account settings](https://www.spotify.com/se/account/overview/).\n',
-        example: 'ES',
-        title: 'Market',
-        type: 'string',
-      },
-    },
+    param: { in: 'query', name: 'market', required: false },
     description:
       'An [ISO 3166-1 alpha-2 country code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).\n  If a country code is specified, only content that is available in that market will be returned.<br/>\n  If a valid user access token is specified in the request header, the country associated with\n  the user account will take priority over this parameter.<br/>\n  _**Note**: If neither market or user country are provided, the content is considered unavailable for the client._<br/>\n  Users can view the country that is associated with their account in the [account settings](https://www.spotify.com/se/account/overview/).\n',
     example: 'ES',
@@ -3190,19 +3034,7 @@ const QueryOffsetParamsSchema = z
   .default(0)
   .exactOptional()
   .openapi({
-    param: {
-      in: 'query',
-      name: 'offset',
-      required: false,
-      schema: {
-        default: 0,
-        description:
-          'The index of the first item to return. Default: 0 (the first item). Use with limit to get the next set of items.\n',
-        example: 5,
-        title: 'Offset',
-        type: 'integer',
-      },
-    },
+    param: { in: 'query', name: 'offset', required: false },
     description:
       'The index of the first item to return. Default: 0 (the first item). Use with limit to get the next set of items.\n',
     example: 5,
@@ -3212,18 +3044,7 @@ const QueryOffsetParamsSchema = z
 const QueryShowIdsParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'query',
-      name: 'ids',
-      required: true,
-      schema: {
-        description:
-          'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for the shows. Maximum: 50 IDs.\n',
-        example: '5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ',
-        title: 'Ids',
-        type: 'string',
-      },
-    },
+    param: { in: 'query', name: 'ids', required: true },
     description:
       'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for the shows. Maximum: 50 IDs.\n',
     example: '5CfCWKI5pZ28U0uOzXkDHe,5as3aKmN2k11yfDDDSrvaZ',
@@ -3233,18 +3054,7 @@ const QueryShowIdsParamsSchema = z
 const QueryTrackIdsParamsSchema = z
   .string()
   .openapi({
-    param: {
-      in: 'query',
-      name: 'ids',
-      required: true,
-      schema: {
-        description:
-          'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `ids=4iV5W9uYEdYUVa79Axb7Rh,1301WleyT98MSxVHPZCA6M`. Maximum: 50 IDs.\n',
-        example: '7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B',
-        title: 'Spotify Track IDs',
-        type: 'string',
-      },
-    },
+    param: { in: 'query', name: 'ids', required: true },
     description:
       'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `ids=4iV5W9uYEdYUVa79Axb7Rh,1301WleyT98MSxVHPZCA6M`. Maximum: 50 IDs.\n',
     example: '7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B',
@@ -3757,18 +3567,7 @@ export const getArtistsRoute = createRoute({
       ids: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'ids',
-            required: true,
-            schema: {
-              description:
-                'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for the artists. Maximum: 50 IDs.\n',
-              example: '2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6',
-              title: 'Spotify Artist IDs',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'ids', required: true },
           description:
             'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for the artists. Maximum: 50 IDs.\n',
           example: '2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6',
@@ -3879,18 +3678,7 @@ export const getAudioAnalysisIdRoute = createRoute({
       id: z
         .string()
         .openapi({
-          param: {
-            in: 'path',
-            name: 'id',
-            required: true,
-            schema: {
-              description:
-                'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids)\nfor the track.\n',
-              example: '11dFghVXANMlKmJXsNCbNl',
-              title: 'Spotify Track ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'path', name: 'id', required: true },
           description:
             'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids)\nfor the track.\n',
           example: '11dFghVXANMlKmJXsNCbNl',
@@ -3919,18 +3707,7 @@ export const getAudioFeaturesRoute = createRoute({
       ids: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'ids',
-            required: true,
-            schema: {
-              description:
-                'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids)\nfor the tracks. Maximum: 100 IDs.\n',
-              example: '7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B',
-              title: 'Spotify Track IDs',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'ids', required: true },
           description:
             'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids)\nfor the tracks. Maximum: 100 IDs.\n',
           example: '7ouMYWpwJ422jRcDASZB7P,4VqPOruhp5EdPBeR92t6lQ,2takcwOaAZWiXQijPHIx7B',
@@ -3960,18 +3737,7 @@ export const getAudioFeaturesIdRoute = createRoute({
       id: z
         .string()
         .openapi({
-          param: {
-            in: 'path',
-            name: 'id',
-            required: true,
-            schema: {
-              description:
-                'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids) for the track.\n',
-              example: '11dFghVXANMlKmJXsNCbNl',
-              title: 'Spotify Track ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'path', name: 'id', required: true },
           description:
             'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids) for the track.\n',
           example: '11dFghVXANMlKmJXsNCbNl',
@@ -4070,18 +3836,7 @@ export const getBrowseCategoriesRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'country',
-            required: false,
-            schema: {
-              description:
-                'A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter if you want to narrow the list of returned categories to those relevant to a particular country. If omitted, the returned items will be globally relevant.\n',
-              example: 'SE',
-              title: 'Country',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'country', required: false },
           description:
             'A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter if you want to narrow the list of returned categories to those relevant to a particular country. If omitted, the returned items will be globally relevant.\n',
           example: 'SE',
@@ -4091,18 +3846,7 @@ export const getBrowseCategoriesRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'locale',
-            required: false,
-            schema: {
-              description:
-                'The desired language, consisting of an [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) language code and an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2), joined by an underscore. For example: `es_MX`, meaning "Spanish (Mexico)". Provide this parameter if you want the category metadata returned in a particular language. <br/>\n_**Note**: if `locale` is not supplied, or if the specified language is not available, all strings will be returned in the Spotify default language (American English). The `locale` parameter, combined with the `country` parameter, may give odd results if not carefully matched. For example `country=SE&locale=de_DE` will return a list of categories relevant to Sweden but as German language strings._\n',
-              example: 'sv_SE',
-              title: 'Locale',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'locale', required: false },
           description:
             'The desired language, consisting of an [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) language code and an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2), joined by an underscore. For example: `es_MX`, meaning "Spanish (Mexico)". Provide this parameter if you want the category metadata returned in a particular language. <br/>\n_**Note**: if `locale` is not supplied, or if the specified language is not available, all strings will be returned in the Spotify default language (American English). The `locale` parameter, combined with the `country` parameter, may give odd results if not carefully matched. For example `country=SE&locale=de_DE` will return a list of categories relevant to Sweden but as German language strings._\n',
           example: 'sv_SE',
@@ -4134,18 +3878,7 @@ export const getBrowseCategoriesCategoryIdRoute = createRoute({
       category_id: z
         .string()
         .openapi({
-          param: {
-            in: 'path',
-            name: 'category_id',
-            required: true,
-            schema: {
-              description:
-                'The [Spotify category ID](/documentation/web-api/concepts/spotify-uris-ids) for the category.\n',
-              example: 'dinner',
-              title: 'Category ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'path', name: 'category_id', required: true },
           description:
             'The [Spotify category ID](/documentation/web-api/concepts/spotify-uris-ids) for the category.\n',
           example: 'dinner',
@@ -4157,18 +3890,7 @@ export const getBrowseCategoriesCategoryIdRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'country',
-            required: false,
-            schema: {
-              description:
-                'A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter to ensure that the category exists for a particular country.\n',
-              example: 'SE',
-              title: 'Country',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'country', required: false },
           description:
             'A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter to ensure that the category exists for a particular country.\n',
           example: 'SE',
@@ -4178,18 +3900,7 @@ export const getBrowseCategoriesCategoryIdRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'locale',
-            required: false,
-            schema: {
-              description:
-                'The desired language, consisting of an [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) language code and an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2), joined by an underscore. For example: `es_MX`, meaning &quot;Spanish (Mexico)&quot;. Provide this parameter if you want the category strings returned in a particular language.<br/> _**Note**: if `locale` is not supplied, or if the specified language is not available, the category strings returned will be in the Spotify default language (American English)._\n',
-              example: 'sv_SE',
-              title: 'Locale',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'locale', required: false },
           description:
             'The desired language, consisting of an [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) language code and an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2), joined by an underscore. For example: `es_MX`, meaning &quot;Spanish (Mexico)&quot;. Provide this parameter if you want the category strings returned in a particular language.<br/> _**Note**: if `locale` is not supplied, or if the specified language is not available, the category strings returned will be in the Spotify default language (American English)._\n',
           example: 'sv_SE',
@@ -4218,18 +3929,7 @@ export const getBrowseCategoriesCategoryIdPlaylistsRoute = createRoute({
       category_id: z
         .string()
         .openapi({
-          param: {
-            in: 'path',
-            name: 'category_id',
-            required: true,
-            schema: {
-              description:
-                'The [Spotify category ID](/documentation/web-api/concepts/spotify-uris-ids) for the category.\n',
-              example: 'dinner',
-              title: 'Category ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'path', name: 'category_id', required: true },
           description:
             'The [Spotify category ID](/documentation/web-api/concepts/spotify-uris-ids) for the category.\n',
           example: 'dinner',
@@ -4241,18 +3941,7 @@ export const getBrowseCategoriesCategoryIdPlaylistsRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'country',
-            required: false,
-            schema: {
-              description:
-                'A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter to ensure that the category exists for a particular country.\n',
-              example: 'SE',
-              title: 'Country',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'country', required: false },
           description:
             'A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter to ensure that the category exists for a particular country.\n',
           example: 'SE',
@@ -4285,18 +3974,7 @@ export const getBrowseFeaturedPlaylistsRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'country',
-            required: false,
-            schema: {
-              description:
-                'A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter if you want the list of returned items to be relevant to a particular country. If omitted, the returned items will be relevant to all countries.\n',
-              example: 'SE',
-              title: 'Country',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'country', required: false },
           description:
             'A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter if you want the list of returned items to be relevant to a particular country. If omitted, the returned items will be relevant to all countries.\n',
           example: 'SE',
@@ -4306,18 +3984,7 @@ export const getBrowseFeaturedPlaylistsRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'locale',
-            required: false,
-            schema: {
-              description:
-                'The desired language, consisting of a lowercase [ISO 639-1 language code](http://en.wikipedia.org/wiki/ISO_639-1) and an uppercase [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2), joined by an underscore. For example: `es_MX`, meaning "Spanish (Mexico)". Provide this parameter if you want the results returned in a particular language (where available). <br/>\n_**Note**: if `locale` is not supplied, or if the specified language is not available, all strings will be returned in the Spotify default language (American English). The `locale` parameter, combined with the `country` parameter, may give odd results if not carefully matched. For example `country=SE&locale=de_DE` will return a list of categories relevant to Sweden but as German language strings._\n',
-              example: 'sv_SE',
-              title: 'Locale',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'locale', required: false },
           description:
             'The desired language, consisting of a lowercase [ISO 639-1 language code](http://en.wikipedia.org/wiki/ISO_639-1) and an uppercase [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2), joined by an underscore. For example: `es_MX`, meaning "Spanish (Mexico)". Provide this parameter if you want the results returned in a particular language (where available). <br/>\n_**Note**: if `locale` is not supplied, or if the specified language is not available, all strings will be returned in the Spotify default language (American English). The `locale` parameter, combined with the `country` parameter, may give odd results if not carefully matched. For example `country=SE&locale=de_DE` will return a list of categories relevant to Sweden but as German language strings._\n',
           example: 'sv_SE',
@@ -4327,18 +3994,7 @@ export const getBrowseFeaturedPlaylistsRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'timestamp',
-            required: false,
-            schema: {
-              description:
-                'A timestamp in [ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601): `yyyy-MM-ddTHH:mm:ss`. Use this parameter to specify the user\'s local time to get results tailored for that specific date and time in the day. If not provided, the response defaults to the current UTC time. Example: "2014-10-23T09:00:00" for a user whose local time is 9AM. If there were no featured playlists (or there is no data) at the specified time, the response will revert to the current UTC time.\n',
-              example: '2014-10-23T09:00:00',
-              title: 'Timestamp',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'timestamp', required: false },
           description:
             'A timestamp in [ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601): `yyyy-MM-ddTHH:mm:ss`. Use this parameter to specify the user\'s local time to get results tailored for that specific date and time in the day. If not provided, the response defaults to the current UTC time. Example: "2014-10-23T09:00:00" for a user whose local time is 9AM. If there were no featured playlists (or there is no data) at the specified time, the response will revert to the current UTC time.\n',
           example: '2014-10-23T09:00:00',
@@ -4371,18 +4027,7 @@ export const getBrowseNewReleasesRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'country',
-            required: false,
-            schema: {
-              description:
-                'A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter if you want the list of returned items to be relevant to a particular country. If omitted, the returned items will be relevant to all countries.\n',
-              example: 'SE',
-              title: 'Country',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'country', required: false },
           description:
             'A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter if you want the list of returned items to be relevant to a particular country. If omitted, the returned items will be relevant to all countries.\n',
           example: 'SE',
@@ -4454,18 +4099,7 @@ export const getEpisodesRoute = createRoute({
       ids: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'ids',
-            required: true,
-            schema: {
-              description:
-                'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for the episodes. Maximum: 50 IDs.\n',
-              example: '77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf',
-              title: 'Ids',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'ids', required: true },
           description:
             'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for the episodes. Maximum: 50 IDs.\n',
           example: '77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf',
@@ -4496,18 +4130,7 @@ export const getEpisodesIdRoute = createRoute({
       id: z
         .string()
         .openapi({
-          param: {
-            in: 'path',
-            name: 'id',
-            required: true,
-            schema: {
-              description:
-                'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids) for the episode.',
-              example: '512ojhOuo1ktJprKbVcKyQ',
-              title: 'Get an Episode',
-              type: 'string',
-            },
-          },
+          param: { in: 'path', name: 'id', required: true },
           description:
             'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids) for the episode.',
           example: '512ojhOuo1ktJprKbVcKyQ',
@@ -4787,18 +4410,7 @@ export const putMeEpisodesRoute = createRoute({
       ids: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'ids',
-            required: true,
-            schema: {
-              description:
-                'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). Maximum: 50 IDs.\n',
-              example: '77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf',
-              title: 'Spotify Episodes IDs',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'ids', required: true },
           description:
             'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). Maximum: 50 IDs.\n',
           example: '77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf',
@@ -4880,18 +4492,7 @@ export const getMeEpisodesContainsRoute = createRoute({
       ids: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'ids',
-            required: true,
-            schema: {
-              description:
-                'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for the episodes. Maximum: 50 IDs.\n',
-              example: '77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf',
-              title: 'Spotify Episode IDs',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'ids', required: true },
           description:
             'A comma-separated list of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for the episodes. Maximum: 50 IDs.\n',
           example: '77o6BIVlYM3msb4MMIL1jH,0Q86acNRm6V9GYx55SXKwf',
@@ -4920,18 +4521,7 @@ export const getMeFollowingRoute = createRoute({
       type: z
         .literal('artist')
         .openapi({
-          param: {
-            in: 'query',
-            name: 'type',
-            required: true,
-            schema: {
-              description: 'The ID type: currently only `artist` is supported.\n',
-              enum: ['artist'],
-              example: 'artist',
-              title: 'Item Type',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'type', required: true },
           description: 'The ID type: currently only `artist` is supported.\n',
           example: 'artist',
           title: 'Item Type',
@@ -4940,17 +4530,7 @@ export const getMeFollowingRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'after',
-            required: false,
-            schema: {
-              description: 'The last artist ID retrieved from the previous request.\n',
-              example: '0I2XqVXqHScXjHhk6AYYRe',
-              title: 'After',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'after', required: false },
           description: 'The last artist ID retrieved from the previous request.\n',
           example: '0I2XqVXqHScXjHhk6AYYRe',
           title: 'After',
@@ -4962,21 +4542,7 @@ export const getMeFollowingRoute = createRoute({
         .default(20)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'limit',
-            required: false,
-            schema: {
-              default: 20,
-              description:
-                'The maximum number of items to return. Default: 20\\. Minimum: 1\\. Maximum: 50\\.\n',
-              example: 10,
-              maximum: 50,
-              minimum: 0,
-              title: 'Limit',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'limit', required: false },
           description:
             'The maximum number of items to return. Default: 20\\. Minimum: 1\\. Maximum: 50\\.\n',
           example: 10,
@@ -5006,18 +4572,7 @@ export const putMeFollowingRoute = createRoute({
       type: z
         .enum(['artist', 'user'])
         .openapi({
-          param: {
-            in: 'query',
-            name: 'type',
-            required: true,
-            schema: {
-              description: 'The ID type.\n',
-              enum: ['artist', 'user'],
-              example: 'artist',
-              title: 'Item Type',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'type', required: true },
           description: 'The ID type.\n',
           example: 'artist',
           title: 'Item Type',
@@ -5025,18 +4580,7 @@ export const putMeFollowingRoute = createRoute({
       ids: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'ids',
-            required: true,
-            schema: {
-              description:
-                'A comma-separated list of the artist or the user [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids).\nA maximum of 50 IDs can be sent in one request.\n',
-              example: '2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6',
-              title: 'Spotify IDs',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'ids', required: true },
           description:
             'A comma-separated list of the artist or the user [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids).\nA maximum of 50 IDs can be sent in one request.\n',
           example: '2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6',
@@ -5082,18 +4626,7 @@ export const deleteMeFollowingRoute = createRoute({
       type: z
         .enum(['artist', 'user'])
         .openapi({
-          param: {
-            in: 'query',
-            name: 'type',
-            required: true,
-            schema: {
-              description: 'The ID type: either `artist` or `user`.\n',
-              enum: ['artist', 'user'],
-              example: 'artist',
-              title: 'Item Type',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'type', required: true },
           description: 'The ID type: either `artist` or `user`.\n',
           example: 'artist',
           title: 'Item Type',
@@ -5101,18 +4634,7 @@ export const deleteMeFollowingRoute = createRoute({
       ids: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'ids',
-            required: true,
-            schema: {
-              description:
-                'A comma-separated list of the artist or the user [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `ids=74ASZWbe4lXaubB36ztrGX,08td7MxkoHQkXnWAYD8d6Q`. A maximum of 50 IDs can be sent in one request.\n',
-              example: '2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6',
-              title: 'Spotify IDs',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'ids', required: true },
           description:
             'A comma-separated list of the artist or the user [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `ids=74ASZWbe4lXaubB36ztrGX,08td7MxkoHQkXnWAYD8d6Q`. A maximum of 50 IDs can be sent in one request.\n',
           example: '2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6',
@@ -5157,18 +4679,7 @@ export const getMeFollowingContainsRoute = createRoute({
       type: z
         .enum(['artist', 'user'])
         .openapi({
-          param: {
-            in: 'query',
-            name: 'type',
-            required: true,
-            schema: {
-              description: 'The ID type: either `artist` or `user`.\n',
-              enum: ['artist', 'user'],
-              example: 'artist',
-              title: 'Item Type',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'type', required: true },
           description: 'The ID type: either `artist` or `user`.\n',
           example: 'artist',
           title: 'Item Type',
@@ -5176,18 +4687,7 @@ export const getMeFollowingContainsRoute = createRoute({
       ids: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'ids',
-            required: true,
-            schema: {
-              description:
-                'A comma-separated list of the artist or the user [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) to check. For example: `ids=74ASZWbe4lXaubB36ztrGX,08td7MxkoHQkXnWAYD8d6Q`. A maximum of 50 IDs can be sent in one request.\n',
-              example: '2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6',
-              title: 'Spotify IDs',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'ids', required: true },
           description:
             'A comma-separated list of the artist or the user [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) to check. For example: `ids=74ASZWbe4lXaubB36ztrGX,08td7MxkoHQkXnWAYD8d6Q`. A maximum of 50 IDs can be sent in one request.\n',
           example: '2CIMQHirSU0MQqyYHq0eOx,57dN52uHvrHOxijzpIgu3E,1vCWHaC5f2uS3yhpwWbIA6',
@@ -5323,18 +4823,7 @@ export const postMePlayerNextRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'device_id',
-            required: false,
-            schema: {
-              description:
-                "The id of the device this command is targeting. If not supplied, the user's currently active device is the target.",
-              example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
-              title: 'Device ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'device_id', required: false },
           description:
             "The id of the device this command is targeting. If not supplied, the user's currently active device is the target.",
           example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
@@ -5364,18 +4853,7 @@ export const putMePlayerPauseRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'device_id',
-            required: false,
-            schema: {
-              description:
-                "The id of the device this command is targeting. If not supplied, the user's currently active device is the target.\n",
-              example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
-              title: 'Device ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'device_id', required: false },
           description:
             "The id of the device this command is targeting. If not supplied, the user's currently active device is the target.\n",
           example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
@@ -5405,18 +4883,7 @@ export const putMePlayerPlayRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'device_id',
-            required: false,
-            schema: {
-              description:
-                "The id of the device this command is targeting. If not supplied, the user's currently active device is the target.",
-              example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
-              title: 'Device ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'device_id', required: false },
           description:
             "The id of the device this command is targeting. If not supplied, the user's currently active device is the target.",
           example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
@@ -5484,18 +4951,7 @@ export const postMePlayerPreviousRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'device_id',
-            required: false,
-            schema: {
-              description:
-                "The id of the device this command is targeting. If\nnot supplied, the user's currently active device is the target.\n",
-              example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
-              title: 'Device ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'device_id', required: false },
           description:
             "The id of the device this command is targeting. If\nnot supplied, the user's currently active device is the target.\n",
           example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
@@ -5540,18 +4996,7 @@ export const postMePlayerQueueRoute = createRoute({
       uri: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'uri',
-            required: true,
-            schema: {
-              description:
-                'The uri of the item to add to the queue. Must be a track or an episode uri.\n',
-              example: 'spotify:track:4iV5W9uYEdYUVa79Axb7Rh',
-              title: 'Spotify URI',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'uri', required: true },
           description:
             'The uri of the item to add to the queue. Must be a track or an episode uri.\n',
           example: 'spotify:track:4iV5W9uYEdYUVa79Axb7Rh',
@@ -5561,18 +5006,7 @@ export const postMePlayerQueueRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'device_id',
-            required: false,
-            schema: {
-              description:
-                "The id of the device this command is targeting. If\nnot supplied, the user's currently active device is the target.\n",
-              example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
-              title: 'Device ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'device_id', required: false },
           description:
             "The id of the device this command is targeting. If\nnot supplied, the user's currently active device is the target.\n",
           example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
@@ -5606,21 +5040,7 @@ export const getMePlayerRecentlyPlayedRoute = createRoute({
         .default(20)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'limit',
-            required: false,
-            schema: {
-              default: 20,
-              description:
-                'The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50.\n',
-              example: 10,
-              maximum: 50,
-              minimum: 0,
-              title: 'Limit',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'limit', required: false },
           description:
             'The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50.\n',
           example: 10,
@@ -5630,18 +5050,7 @@ export const getMePlayerRecentlyPlayedRoute = createRoute({
         .int()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'after',
-            required: false,
-            schema: {
-              description:
-                'A Unix timestamp in milliseconds. Returns all items\nafter (but not including) this cursor position. If `after` is specified, `before`\nmust not be specified.\n',
-              example: 1484811043508,
-              title: 'After',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'after', required: false },
           description:
             'A Unix timestamp in milliseconds. Returns all items\nafter (but not including) this cursor position. If `after` is specified, `before`\nmust not be specified.\n',
           example: 1484811043508,
@@ -5651,17 +5060,7 @@ export const getMePlayerRecentlyPlayedRoute = createRoute({
         .int()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'before',
-            required: false,
-            schema: {
-              description:
-                'A Unix timestamp in milliseconds. Returns all items\nbefore (but not including) this cursor position. If `before` is specified,\n`after` must not be specified.\n',
-              title: 'Before',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'before', required: false },
           description:
             'A Unix timestamp in milliseconds. Returns all items\nbefore (but not including) this cursor position. If `before` is specified,\n`after` must not be specified.\n',
           title: 'Before',
@@ -5690,18 +5089,7 @@ export const putMePlayerRepeatRoute = createRoute({
       state: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'state',
-            required: true,
-            schema: {
-              description:
-                '**track**, **context** or **off**.<br/>\n**track** will repeat the current track.<br/>\n**context** will repeat the current context.<br/>\n**off** will turn repeat off.\n',
-              example: 'context',
-              title: 'State',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'state', required: true },
           description:
             '**track**, **context** or **off**.<br/>\n**track** will repeat the current track.<br/>\n**context** will repeat the current context.<br/>\n**off** will turn repeat off.\n',
           example: 'context',
@@ -5711,18 +5099,7 @@ export const putMePlayerRepeatRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'device_id',
-            required: false,
-            schema: {
-              description:
-                "The id of the device this command is targeting. If\nnot supplied, the user's currently active device is the target.\n",
-              example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
-              title: 'Device ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'device_id', required: false },
           description:
             "The id of the device this command is targeting. If\nnot supplied, the user's currently active device is the target.\n",
           example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
@@ -5751,18 +5128,7 @@ export const putMePlayerSeekRoute = createRoute({
       position_ms: z
         .int()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'position_ms',
-            required: true,
-            schema: {
-              description:
-                'The position in milliseconds to seek to. Must be a\npositive number. Passing in a position that is greater than the length of\nthe track will cause the player to start playing the next song.\n',
-              example: 25000,
-              title: 'Position (ms)',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'position_ms', required: true },
           description:
             'The position in milliseconds to seek to. Must be a\npositive number. Passing in a position that is greater than the length of\nthe track will cause the player to start playing the next song.\n',
           example: 25000,
@@ -5772,18 +5138,7 @@ export const putMePlayerSeekRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'device_id',
-            required: false,
-            schema: {
-              description:
-                "The id of the device this command is targeting. If\nnot supplied, the user's currently active device is the target.\n",
-              example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
-              title: 'Device ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'device_id', required: false },
           description:
             "The id of the device this command is targeting. If\nnot supplied, the user's currently active device is the target.\n",
           example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
@@ -5812,18 +5167,7 @@ export const putMePlayerShuffleRoute = createRoute({
       state: z
         .stringbool()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'state',
-            required: true,
-            schema: {
-              description:
-                "**true** : Shuffle user's playback.<br/>\n**false** : Do not shuffle user's playback.\n",
-              example: true,
-              title: 'State',
-              type: 'boolean',
-            },
-          },
+          param: { in: 'query', name: 'state', required: true },
           description:
             "**true** : Shuffle user's playback.<br/>\n**false** : Do not shuffle user's playback.\n",
           example: true,
@@ -5833,18 +5177,7 @@ export const putMePlayerShuffleRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'device_id',
-            required: false,
-            schema: {
-              description:
-                "The id of the device this command is targeting. If\nnot supplied, the user's currently active device is the target.\n",
-              example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
-              title: 'Device ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'device_id', required: false },
           description:
             "The id of the device this command is targeting. If\nnot supplied, the user's currently active device is the target.\n",
           example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
@@ -5873,17 +5206,7 @@ export const putMePlayerVolumeRoute = createRoute({
       volume_percent: z
         .int()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'volume_percent',
-            required: true,
-            schema: {
-              description: 'The volume to set. Must be a value from 0 to 100 inclusive.\n',
-              example: 50,
-              title: 'Volume %',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'volume_percent', required: true },
           description: 'The volume to set. Must be a value from 0 to 100 inclusive.\n',
           example: 50,
           title: 'Volume %',
@@ -5892,18 +5215,7 @@ export const putMePlayerVolumeRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'device_id',
-            required: false,
-            schema: {
-              description:
-                "The id of the device this command is targeting. If not supplied, the user's currently active device is the target.\n",
-              example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
-              title: 'Device ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'device_id', required: false },
           description:
             "The id of the device this command is targeting. If not supplied, the user's currently active device is the target.\n",
           example: '0d1841b0976bae2a3a310dd74c0f3df354899bc8',
@@ -5935,19 +5247,7 @@ export const getMePlaylistsRoute = createRoute({
         .default(0)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'offset',
-            required: false,
-            schema: {
-              default: 0,
-              description:
-                "'The index of the first playlist to return. Default:\n0 (the first object). Maximum offset: 100.000\\. Use with `limit` to get the\nnext set of playlists.'\n",
-              example: 5,
-              title: 'Offset',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'offset', required: false },
           description:
             "'The index of the first playlist to return. Default:\n0 (the first object). Maximum offset: 100.000\\. Use with `limit` to get the\nnext set of playlists.'\n",
           example: 5,
@@ -6046,17 +5346,7 @@ export const getMeTopTypeRoute = createRoute({
       type: z
         .enum(['artists', 'tracks'])
         .openapi({
-          param: {
-            in: 'path',
-            name: 'type',
-            required: true,
-            schema: {
-              description: 'The type of entity to return. Valid values: `artists` or `tracks`\n',
-              enum: ['artists', 'tracks'],
-              title: 'Type',
-              type: 'string',
-            },
-          },
+          param: { in: 'path', name: 'type', required: true },
           description: 'The type of entity to return. Valid values: `artists` or `tracks`\n',
           title: 'Type',
         }),
@@ -6067,19 +5357,7 @@ export const getMeTopTypeRoute = createRoute({
         .default('medium_term')
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'time_range',
-            required: false,
-            schema: {
-              default: 'medium_term',
-              description:
-                'Over what time frame the affinities are computed. Valid values: `long_term` (calculated from several years of data and including all new data as it becomes available), `medium_term` (approximately last 6 months), `short_term` (approximately last 4 weeks). Default: `medium_term`\n',
-              example: 'medium_term',
-              title: 'Time Range',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'time_range', required: false },
           description:
             'Over what time frame the affinities are computed. Valid values: `long_term` (calculated from several years of data and including all new data as it becomes available), `medium_term` (approximately last 6 months), `short_term` (approximately last 4 weeks). Default: `medium_term`\n',
           example: 'medium_term',
@@ -6225,18 +5503,7 @@ export const getPlaylistsPlaylistIdRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'fields',
-            required: false,
-            schema: {
-              description:
-                "Filters for the query: a comma-separated list of the\nfields to return. If omitted, all fields are returned. For example, to get\njust the playlist''s description and URI: `fields=description,uri`. A dot\nseparator can be used to specify non-reoccurring fields, while parentheses\ncan be used to specify reoccurring fields within objects. For example, to\nget just the added date and user ID of the adder: `fields=tracks.items(added_at,added_by.id)`.\nUse multiple parentheses to drill down into nested objects, for example: `fields=tracks.items(track(name,href,album(name,href)))`.\nFields can be excluded by prefixing them with an exclamation mark, for example:\n`fields=tracks.items(track(name,href,album(!name,href)))`\n",
-              example: 'items(added_by.id,track(name,href,album(name,href)))',
-              title: 'Fields',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'fields', required: false },
           description:
             "Filters for the query: a comma-separated list of the\nfields to return. If omitted, all fields are returned. For example, to get\njust the playlist''s description and URI: `fields=description,uri`. A dot\nseparator can be used to specify non-reoccurring fields, while parentheses\ncan be used to specify reoccurring fields within objects. For example, to\nget just the added date and user ID of the adder: `fields=tracks.items(added_at,added_by.id)`.\nUse multiple parentheses to drill down into nested objects, for example: `fields=tracks.items(track(name,href,album(name,href)))`.\nFields can be excluded by prefixing them with an exclamation mark, for example:\n`fields=tracks.items(track(name,href,album(!name,href)))`\n",
           example: 'items(added_by.id,track(name,href,album(name,href)))',
@@ -6384,18 +5651,7 @@ export const getPlaylistsPlaylistIdFollowersContainsRoute = createRoute({
       ids: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'ids',
-            required: true,
-            schema: {
-              description:
-                'A comma-separated list of [Spotify User IDs](/documentation/web-api/concepts/spotify-uris-ids) ; the ids of the users that you want to check to see if they follow the playlist. Maximum: 5 ids.\n',
-              example: 'jmperezperez,thelinmichael,wizzler',
-              title: 'Spotify user IDs',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'ids', required: true },
           description:
             'A comma-separated list of [Spotify User IDs](/documentation/web-api/concepts/spotify-uris-ids) ; the ids of the users that you want to check to see if they follow the playlist. Maximum: 5 ids.\n',
           example: 'jmperezperez,thelinmichael,wizzler',
@@ -6478,18 +5734,7 @@ export const getPlaylistsPlaylistIdTracksRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'fields',
-            required: false,
-            schema: {
-              description:
-                'Filters for the query: a comma-separated list of the\nfields to return. If omitted, all fields are returned. For example, to get\njust the total number of items and the request limit:<br/>`fields=total,limit`<br/>A\ndot separator can be used to specify non-reoccurring fields, while parentheses\ncan be used to specify reoccurring fields within objects. For example, to\nget just the added date and user ID of the adder:<br/>`fields=items(added_at,added_by.id)`<br/>Use\nmultiple parentheses to drill down into nested objects, for example:<br/>`fields=items(track(name,href,album(name,href)))`<br/>Fields\ncan be excluded by prefixing them with an exclamation mark, for example:<br/>`fields=items.track.album(!external_urls,images)`\n',
-              example: 'items(added_by.id,track(name,href,album(name,href)))',
-              title: 'Fields',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'fields', required: false },
           description:
             'Filters for the query: a comma-separated list of the\nfields to return. If omitted, all fields are returned. For example, to get\njust the total number of items and the request limit:<br/>`fields=total,limit`<br/>A\ndot separator can be used to specify non-reoccurring fields, while parentheses\ncan be used to specify reoccurring fields within objects. For example, to\nget just the added date and user ID of the adder:<br/>`fields=items(added_at,added_by.id)`<br/>Use\nmultiple parentheses to drill down into nested objects, for example:<br/>`fields=items(track(name,href,album(name,href)))`<br/>Fields\ncan be excluded by prefixing them with an exclamation mark, for example:<br/>`fields=items.track.album(!external_urls,images)`\n',
           example: 'items(added_by.id,track(name,href,album(name,href)))',
@@ -6524,17 +5769,7 @@ export const putPlaylistsPlaylistIdTracksRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'uris',
-            required: false,
-            schema: {
-              description:
-                'A comma-separated list of [Spotify URIs](/documentation/web-api/concepts/spotify-uris-ids) to set, can be track or episode URIs. For example: `uris=spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M,spotify:episode:512ojhOuo1ktJprKbVcKyQ`<br/>A maximum of 100 items can be set in one request.\n',
-              title: 'Spotify Track URIs',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'uris', required: false },
           description:
             'A comma-separated list of [Spotify URIs](/documentation/web-api/concepts/spotify-uris-ids) to set, can be track or episode URIs. For example: `uris=spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M,spotify:episode:512ojhOuo1ktJprKbVcKyQ`<br/>A maximum of 100 items can be set in one request.\n',
           title: 'Spotify Track URIs',
@@ -6600,18 +5835,7 @@ export const postPlaylistsPlaylistIdTracksRoute = createRoute({
         .int()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'position',
-            required: false,
-            schema: {
-              description:
-                'The position to insert the items, a zero-based index. For example, to insert the items in the first position: `position=0`; to insert the items in the third position: `position=2`. If omitted, the items will be appended to the playlist. Items are added in the order they are listed in the query string or request body.\n',
-              example: 0,
-              title: 'Position (append by default)',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'position', required: false },
           description:
             'The position to insert the items, a zero-based index. For example, to insert the items in the first position: `position=0`; to insert the items in the third position: `position=2`. If omitted, the items will be appended to the playlist. Items are added in the order they are listed in the query string or request body.\n',
           example: 0,
@@ -6621,18 +5845,7 @@ export const postPlaylistsPlaylistIdTracksRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'uris',
-            required: false,
-            schema: {
-              description:
-                'A comma-separated list of [Spotify URIs](/documentation/web-api/concepts/spotify-uris-ids) to add, can be track or episode URIs. For example:<br/>`uris=spotify:track:4iV5W9uYEdYUVa79Axb7Rh, spotify:track:1301WleyT98MSxVHPZCA6M, spotify:episode:512ojhOuo1ktJprKbVcKyQ`<br/>A maximum of 100 items can be added in one request. <br/>\n_**Note**: it is likely that passing a large number of item URIs as a query parameter will exceed the maximum length of the request URI. When adding a large number of items, it is recommended to pass them in the request body, see below._\n',
-              example: 'spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M',
-              title: 'Spotify Track URIs',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'uris', required: false },
           description:
             'A comma-separated list of [Spotify URIs](/documentation/web-api/concepts/spotify-uris-ids) to add, can be track or episode URIs. For example:<br/>`uris=spotify:track:4iV5W9uYEdYUVa79Axb7Rh, spotify:track:1301WleyT98MSxVHPZCA6M, spotify:episode:512ojhOuo1ktJprKbVcKyQ`<br/>A maximum of 100 items can be added in one request. <br/>\n_**Note**: it is likely that passing a large number of item URIs as a query parameter will exceed the maximum length of the request URI. When adding a large number of items, it is recommended to pass them in the request body, see below._\n',
           example: 'spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M',
@@ -6734,21 +5947,7 @@ export const getRecommendationsRoute = createRoute({
         .default(20)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'limit',
-            required: false,
-            schema: {
-              default: 20,
-              description:
-                'The target size of the list of recommended tracks. For seeds with unusually small pools or when highly restrictive filtering is applied, it may be impossible to generate the requested number of recommended tracks. Debugging information for such cases is available in the response. Default: 20\\. Minimum: 1\\. Maximum: 100.\n',
-              example: 10,
-              maximum: 100,
-              minimum: 1,
-              title: 'Limit',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'limit', required: false },
           description:
             'The target size of the list of recommended tracks. For seeds with unusually small pools or when highly restrictive filtering is applied, it may be impossible to generate the requested number of recommended tracks. Debugging information for such cases is available in the response. Default: 20\\. Minimum: 1\\. Maximum: 100.\n',
           example: 10,
@@ -6758,18 +5957,7 @@ export const getRecommendationsRoute = createRoute({
       seed_artists: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'seed_artists',
-            required: true,
-            schema: {
-              description:
-                'A comma separated list of [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for seed artists.  Up to 5 seed values may be provided in any combination of `seed_artists`, `seed_tracks` and `seed_genres`.\n',
-              example: '4NHQUGzhtTLFvgF5SZesLK',
-              title: 'Spotify Artist ID Seeds',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'seed_artists', required: true },
           description:
             'A comma separated list of [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for seed artists.  Up to 5 seed values may be provided in any combination of `seed_artists`, `seed_tracks` and `seed_genres`.\n',
           example: '4NHQUGzhtTLFvgF5SZesLK',
@@ -6778,18 +5966,7 @@ export const getRecommendationsRoute = createRoute({
       seed_genres: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'seed_genres',
-            required: true,
-            schema: {
-              description:
-                'A comma separated list of any genres in the set of [available genre seeds](#available-genre-seeds).  Up to 5 seed values may be provided in any combination of `seed_artists`, `seed_tracks` and `seed_genres`.\n',
-              example: 'classical,country',
-              title: 'Genres Seeds',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'seed_genres', required: true },
           description:
             'A comma separated list of any genres in the set of [available genre seeds](#available-genre-seeds).  Up to 5 seed values may be provided in any combination of `seed_artists`, `seed_tracks` and `seed_genres`.\n',
           example: 'classical,country',
@@ -6798,18 +5975,7 @@ export const getRecommendationsRoute = createRoute({
       seed_tracks: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'seed_tracks',
-            required: true,
-            schema: {
-              description:
-                'A comma separated list of [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for a seed track.  Up to 5 seed values may be provided in any combination of `seed_artists`, `seed_tracks` and `seed_genres`.\n',
-              example: '0c6xIDDpzE81m2q797ordA',
-              title: 'Spotify Track ID Seeds',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'seed_tracks', required: true },
           description:
             'A comma separated list of [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids) for a seed track.  Up to 5 seed values may be provided in any combination of `seed_artists`, `seed_tracks` and `seed_genres`.\n',
           example: '0c6xIDDpzE81m2q797ordA',
@@ -6821,19 +5987,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_acousticness',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Min. Acousticness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'min_acousticness', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Acousticness',
@@ -6844,19 +5998,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_acousticness',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Max. Acousticness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'max_acousticness', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Acousticness',
@@ -6867,19 +6009,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_acousticness',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Target Acousticness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'target_acousticness', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Acousticness',
@@ -6890,19 +6020,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_danceability',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Min. Danceability',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'min_danceability', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Danceability',
@@ -6913,19 +6031,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_danceability',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Max. Danceability',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'max_danceability', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Danceability',
@@ -6936,19 +6042,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_danceability',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Target Danceability',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'target_danceability', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Danceability',
@@ -6957,17 +6051,7 @@ export const getRecommendationsRoute = createRoute({
         .int()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_duration_ms',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              title: 'Min. Duration (ms)',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'min_duration_ms', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Duration (ms)',
@@ -6976,17 +6060,7 @@ export const getRecommendationsRoute = createRoute({
         .int()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_duration_ms',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              title: 'Max. Duration (ms)',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'max_duration_ms', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Duration (ms)',
@@ -6995,16 +6069,7 @@ export const getRecommendationsRoute = createRoute({
         .int()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_duration_ms',
-            required: false,
-            schema: {
-              description: 'Target duration of the track (ms)',
-              title: 'Target Duration (ms)',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'target_duration_ms', required: false },
           description: 'Target duration of the track (ms)',
           title: 'Target Duration (ms)',
         }),
@@ -7014,19 +6079,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_energy',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Min. Energy',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'min_energy', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Energy',
@@ -7037,19 +6090,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_energy',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Max. Energy',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'max_energy', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Energy',
@@ -7060,19 +6101,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_energy',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Target Energy',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'target_energy', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Energy',
@@ -7083,19 +6112,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_instrumentalness',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Min. Instrumentalness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'min_instrumentalness', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Instrumentalness',
@@ -7106,19 +6123,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_instrumentalness',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Max. Instrumentalness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'max_instrumentalness', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Instrumentalness',
@@ -7129,19 +6134,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_instrumentalness',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Target Instrumentalness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'target_instrumentalness', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Instrumentalness',
@@ -7152,19 +6145,7 @@ export const getRecommendationsRoute = createRoute({
         .max(11)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_key',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              maximum: 11,
-              minimum: 0,
-              title: 'Min. Key',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'min_key', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Key',
@@ -7175,19 +6156,7 @@ export const getRecommendationsRoute = createRoute({
         .max(11)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_key',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              maximum: 11,
-              minimum: 0,
-              title: 'Max. Key',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'max_key', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Key',
@@ -7198,19 +6167,7 @@ export const getRecommendationsRoute = createRoute({
         .max(11)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_key',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              maximum: 11,
-              minimum: 0,
-              title: 'Target Key',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'target_key', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Key',
@@ -7221,19 +6178,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_liveness',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Min. Liveness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'min_liveness', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Liveness',
@@ -7244,19 +6189,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_liveness',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Max. Liveness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'max_liveness', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Liveness',
@@ -7267,19 +6200,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_liveness',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Target Liveness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'target_liveness', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Liveness',
@@ -7288,17 +6209,7 @@ export const getRecommendationsRoute = createRoute({
         .number()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_loudness',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              title: 'Min. Loudness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'min_loudness', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Loudness',
@@ -7307,17 +6218,7 @@ export const getRecommendationsRoute = createRoute({
         .number()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_loudness',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              title: 'Max. Loudness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'max_loudness', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Loudness',
@@ -7326,17 +6227,7 @@ export const getRecommendationsRoute = createRoute({
         .number()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_loudness',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              title: 'Target Loudness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'target_loudness', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Loudness',
@@ -7347,19 +6238,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_mode',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Min. Mode',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'min_mode', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Mode',
@@ -7370,19 +6249,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_mode',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Max. Mode',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'max_mode', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Mode',
@@ -7393,19 +6260,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_mode',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Target Mode',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'target_mode', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Mode',
@@ -7416,19 +6271,7 @@ export const getRecommendationsRoute = createRoute({
         .max(100)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_popularity',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              maximum: 100,
-              minimum: 0,
-              title: 'Min. Popularity',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'min_popularity', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Popularity',
@@ -7439,19 +6282,7 @@ export const getRecommendationsRoute = createRoute({
         .max(100)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_popularity',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              maximum: 100,
-              minimum: 0,
-              title: 'Max. Popularity',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'max_popularity', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Popularity',
@@ -7462,19 +6293,7 @@ export const getRecommendationsRoute = createRoute({
         .max(100)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_popularity',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              maximum: 100,
-              minimum: 0,
-              title: 'Target Popularity',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'target_popularity', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Popularity',
@@ -7485,19 +6304,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_speechiness',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Min. Speechiness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'min_speechiness', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Speechiness',
@@ -7508,19 +6315,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_speechiness',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Max. Speechiness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'max_speechiness', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Speechiness',
@@ -7531,19 +6326,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_speechiness',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Target Speechiness',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'target_speechiness', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Speechiness',
@@ -7552,17 +6335,7 @@ export const getRecommendationsRoute = createRoute({
         .number()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_tempo',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              title: 'Min. Tempo',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'min_tempo', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Tempo',
@@ -7571,17 +6344,7 @@ export const getRecommendationsRoute = createRoute({
         .number()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_tempo',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              title: 'Max. Tempo',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'max_tempo', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Tempo',
@@ -7590,12 +6353,7 @@ export const getRecommendationsRoute = createRoute({
         .number()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_tempo',
-            required: false,
-            schema: { description: 'Target tempo (BPM)', title: 'Target Tempo', type: 'number' },
-          },
+          param: { in: 'query', name: 'target_tempo', required: false },
           description: 'Target tempo (BPM)',
           title: 'Target Tempo',
         }),
@@ -7604,18 +6362,7 @@ export const getRecommendationsRoute = createRoute({
         .max(11)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_time_signature',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              maximum: 11,
-              title: 'Min. Time Signature',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'min_time_signature', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Time Signature',
@@ -7624,17 +6371,7 @@ export const getRecommendationsRoute = createRoute({
         .int()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_time_signature',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              title: 'Max. Time Signature',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'max_time_signature', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Time Signature',
@@ -7643,17 +6380,7 @@ export const getRecommendationsRoute = createRoute({
         .int()
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_time_signature',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              title: 'Target Time Signature',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'target_time_signature', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Time Signature',
@@ -7664,19 +6391,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'min_valence',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Min. Valence',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'min_valence', required: false },
           description:
             'For each tunable track attribute, a hard floor on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `min_tempo=140` would restrict results to only those tracks with a tempo of greater than 140 beats per minute.\n',
           title: 'Min. Valence',
@@ -7687,19 +6402,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'max_valence',
-            required: false,
-            schema: {
-              description:
-                'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Max. Valence',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'max_valence', required: false },
           description:
             'For each tunable track attribute, a hard ceiling on the selected track attribute’s value can be provided. See tunable track attributes below for the list of available options. For example, `max_instrumentalness=0.35` would filter out most tracks that are likely to be instrumental.\n',
           title: 'Max. Valence',
@@ -7710,19 +6413,7 @@ export const getRecommendationsRoute = createRoute({
         .max(1)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'target_valence',
-            required: false,
-            schema: {
-              description:
-                'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
-              maximum: 1,
-              minimum: 0,
-              title: 'Target Valence',
-              type: 'number',
-            },
-          },
+          param: { in: 'query', name: 'target_valence', required: false },
           description:
             'For each of the tunable track attributes (below) a target value may be provided. Tracks with the attribute values nearest to the target values will be preferred. For example, you might request `target_energy=0.6` and `target_danceability=0.8`. All target values will be weighed equally in ranking results.\n',
           title: 'Target Valence',
@@ -7768,18 +6459,7 @@ export const getSearchRoute = createRoute({
       q: z
         .string()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'q',
-            required: true,
-            schema: {
-              description:
-                'Your search query.\n\nYou can narrow down your search using field filters. The available filters are `album`, `artist`, `track`, `year`, `upc`, `tag:hipster`, `tag:new`, `isrc`, and `genre`. Each field filter only applies to certain result types.\n\nThe `artist` and `year` filters can be used while searching albums, artists and tracks. You can filter on a single `year` or a range (e.g. 1955-1960).<br />\nThe `album` filter can be used while searching albums and tracks.<br />\nThe `genre` filter can be used while searching artists and tracks.<br />\nThe `isrc` and `track` filters can be used while searching tracks.<br />\nThe `upc`, `tag:new` and `tag:hipster` filters can only be used while searching albums. The `tag:new` filter will return albums released in the past two weeks and `tag:hipster` can be used to return only albums with the lowest 10% popularity.<br />\n',
-              example: 'remaster%20track:Doxy%20artist:Miles%20Davis',
-              title: 'Query',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'q', required: true },
           description:
             'Your search query.\n\nYou can narrow down your search using field filters. The available filters are `album`, `artist`, `track`, `year`, `upc`, `tag:hipster`, `tag:new`, `isrc`, and `genre`. Each field filter only applies to certain result types.\n\nThe `artist` and `year` filters can be used while searching albums, artists and tracks. You can filter on a single `year` or a range (e.g. 1955-1960).<br />\nThe `album` filter can be used while searching albums and tracks.<br />\nThe `genre` filter can be used while searching artists and tracks.<br />\nThe `isrc` and `track` filters can be used while searching tracks.<br />\nThe `upc`, `tag:new` and `tag:hipster` filters can only be used while searching albums. The `tag:new` filter will return albums released in the past two weeks and `tag:hipster` can be used to return only albums with the lowest 10% popularity.<br />\n',
           example: 'remaster%20track:Doxy%20artist:Miles%20Davis',
@@ -7789,42 +6469,10 @@ export const getSearchRoute = createRoute({
         .array(
           z
             .enum(['album', 'artist', 'playlist', 'track', 'show', 'episode', 'audiobook'])
-            .openapi({
-              param: {
-                explode: false,
-                in: 'query',
-                name: 'type',
-                required: true,
-                schema: {
-                  description:
-                    'A comma-separated list of item types to search across. Search results include hits\nfrom all the specified item types. For example: `q=abacab&type=album,track` returns\nboth albums and tracks matching "abacab".\n',
-                  items: {
-                    enum: ['album', 'artist', 'playlist', 'track', 'show', 'episode', 'audiobook'],
-                    type: 'string',
-                  },
-                  title: 'Item type',
-                  type: 'array',
-                },
-              },
-            }),
+            .openapi({ param: { explode: false, in: 'query', name: 'type', required: true } }),
         )
         .openapi({
-          param: {
-            explode: false,
-            in: 'query',
-            name: 'type',
-            required: true,
-            schema: {
-              description:
-                'A comma-separated list of item types to search across. Search results include hits\nfrom all the specified item types. For example: `q=abacab&type=album,track` returns\nboth albums and tracks matching "abacab".\n',
-              items: {
-                enum: ['album', 'artist', 'playlist', 'track', 'show', 'episode', 'audiobook'],
-                type: 'string',
-              },
-              title: 'Item type',
-              type: 'array',
-            },
-          },
+          param: { explode: false, in: 'query', name: 'type', required: true },
           description:
             'A comma-separated list of item types to search across. Search results include hits\nfrom all the specified item types. For example: `q=abacab&type=album,track` returns\nboth albums and tracks matching "abacab".\n',
           title: 'Item type',
@@ -7837,20 +6485,7 @@ export const getSearchRoute = createRoute({
         .default(20)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'limit',
-            required: false,
-            schema: {
-              default: 20,
-              description: 'The maximum number of results to return in each item type.\n',
-              example: 10,
-              maximum: 50,
-              minimum: 0,
-              title: 'Limit',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'limit', required: false },
           description: 'The maximum number of results to return in each item type.\n',
           example: 10,
           title: 'Limit',
@@ -7862,21 +6497,7 @@ export const getSearchRoute = createRoute({
         .default(0)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'offset',
-            required: false,
-            schema: {
-              default: 0,
-              description:
-                'The index of the first result to return. Use\nwith limit to get the next page of search results.\n',
-              example: 5,
-              maximum: 1000,
-              minimum: 0,
-              title: 'Offset',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'offset', required: false },
           description:
             'The index of the first result to return. Use\nwith limit to get the next page of search results.\n',
           example: 5,
@@ -7886,18 +6507,7 @@ export const getSearchRoute = createRoute({
         .literal('audio')
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'include_external',
-            required: false,
-            schema: {
-              description:
-                'If `include_external=audio` is specified it signals that the client can play externally hosted audio content, and marks\nthe content as playable in the response. By default externally hosted audio content is marked as unplayable in the response.\n',
-              enum: ['audio'],
-              title: 'Include External',
-              type: 'string',
-            },
-          },
+          param: { in: 'query', name: 'include_external', required: false },
           description:
             'If `include_external=audio` is specified it signals that the client can play externally hosted audio content, and marks\nthe content as playable in the response. By default externally hosted audio content is marked as unplayable in the response.\n',
           title: 'Include External',
@@ -8006,18 +6616,7 @@ export const getTracksIdRoute = createRoute({
       id: z
         .string()
         .openapi({
-          param: {
-            in: 'path',
-            name: 'id',
-            required: true,
-            schema: {
-              description:
-                'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids)\nfor the track.\n',
-              example: '11dFghVXANMlKmJXsNCbNl',
-              title: 'Spotify Track ID',
-              type: 'string',
-            },
-          },
+          param: { in: 'path', name: 'id', required: true },
           description:
             'The [Spotify ID](/documentation/web-api/concepts/spotify-uris-ids)\nfor the track.\n',
           example: '11dFghVXANMlKmJXsNCbNl',
@@ -8068,19 +6667,7 @@ export const getUsersUserIdPlaylistsRoute = createRoute({
         .default(0)
         .exactOptional()
         .openapi({
-          param: {
-            in: 'query',
-            name: 'offset',
-            required: false,
-            schema: {
-              default: 0,
-              description:
-                'The index of the first playlist to return. Default:\n0 (the first object). Maximum offset: 100.000\\. Use with `limit` to get the\nnext set of playlists.\n',
-              example: 5,
-              title: 'Offset',
-              type: 'integer',
-            },
-          },
+          param: { in: 'query', name: 'offset', required: false },
           description:
             'The index of the first playlist to return. Default:\n0 (the first object). Maximum offset: 100.000\\. Use with `limit` to get the\nnext set of playlists.\n',
           example: 5,

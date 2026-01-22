@@ -219,7 +219,6 @@ export const getProductsProductIdRoute = createRoute({
             name: 'productId',
             in: 'path',
             required: true,
-            schema: { type: 'string' },
             examples: { laptop: LaptopProductIdExample, tshirt: TShirtProductIdExample },
           },
         }),

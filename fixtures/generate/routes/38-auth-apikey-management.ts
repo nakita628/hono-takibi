@@ -115,23 +115,14 @@ const ErrorSchema = z
 
 const ApiKeyIdParamParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'keyId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'keyId', in: 'path', required: true } })
 
 const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
   .exactOptional()
-  .openapi({
-    param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-  })
+  .openapi({ param: { name: 'page', in: 'query' } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -139,13 +130,7 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'limit',
-      in: 'query',
-      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
-    },
-  })
+  .openapi({ param: { name: 'limit', in: 'query' } })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -177,23 +162,11 @@ export const getApiKeysRoute = createRoute({
       status: z
         .enum(['active', 'revoked', 'expired'])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'status',
-            in: 'query',
-            schema: { type: 'string', enum: ['active', 'revoked', 'expired'] },
-          },
-        }),
+        .openapi({ param: { name: 'status', in: 'query' } }),
       environment: z
         .enum(['production', 'staging', 'development', 'test'])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'environment',
-            in: 'query',
-            schema: { type: 'string', enum: ['production', 'staging', 'development', 'test'] },
-          },
-        }),
+        .openapi({ param: { name: 'environment', in: 'query' } }),
     }),
   },
   responses: {
@@ -331,37 +304,13 @@ export const getApiKeysKeyIdUsageRoute = createRoute({
   request: {
     params: z.object({ keyId: ApiKeyIdParamParamsSchema }),
     query: z.object({
-      from: z.iso
-        .date()
-        .openapi({
-          param: {
-            name: 'from',
-            in: 'query',
-            required: true,
-            schema: { type: 'string', format: 'date' },
-          },
-        }),
-      to: z.iso
-        .date()
-        .openapi({
-          param: {
-            name: 'to',
-            in: 'query',
-            required: true,
-            schema: { type: 'string', format: 'date' },
-          },
-        }),
+      from: z.iso.date().openapi({ param: { name: 'from', in: 'query', required: true } }),
+      to: z.iso.date().openapi({ param: { name: 'to', in: 'query', required: true } }),
       granularity: z
         .enum(['hour', 'day', 'week', 'month'])
         .default('day')
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'granularity',
-            in: 'query',
-            schema: { type: 'string', enum: ['hour', 'day', 'week', 'month'], default: 'day' },
-          },
-        }),
+        .openapi({ param: { name: 'granularity', in: 'query' } }),
     }),
   },
   responses: {

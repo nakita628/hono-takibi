@@ -240,23 +240,14 @@ const ErrorSchema = z
 
 const PostIdParamParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'postId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'postId', in: 'path', required: true } })
 
 const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
   .exactOptional()
-  .openapi({
-    param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-  })
+  .openapi({ param: { name: 'page', in: 'query' } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -264,13 +255,7 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'limit',
-      in: 'query',
-      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
-    },
-  })
+  .openapi({ param: { name: 'limit', in: 'query' } })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -302,79 +287,30 @@ export const getPostsRoute = createRoute({
       status: z
         .enum(['draft', 'published', 'scheduled', 'archived'])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'status',
-            in: 'query',
-            description: 'ステータスでフィルタ',
-            schema: { type: 'string', enum: ['draft', 'published', 'scheduled', 'archived'] },
-          },
-        }),
+        .openapi({ param: { name: 'status', in: 'query', description: 'ステータスでフィルタ' } }),
       category: z
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            name: 'category',
-            in: 'query',
-            description: 'カテゴリスラッグでフィルタ',
-            schema: { type: 'string' },
-          },
+          param: { name: 'category', in: 'query', description: 'カテゴリスラッグでフィルタ' },
         }),
       tag: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'tag',
-            in: 'query',
-            description: 'タグスラッグでフィルタ',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'tag', in: 'query', description: 'タグスラッグでフィルタ' } }),
       author: z
         .uuid()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'author',
-            in: 'query',
-            description: '著者IDでフィルタ',
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+        .openapi({ param: { name: 'author', in: 'query', description: '著者IDでフィルタ' } }),
       search: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'search',
-            in: 'query',
-            description: 'タイトル・本文を検索',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'search', in: 'query', description: 'タイトル・本文を検索' } }),
       sort: z
         .enum(['publishedAt:desc', 'publishedAt:asc', 'title:asc', 'title:desc', 'viewCount:desc'])
         .default('publishedAt:desc')
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'sort',
-            in: 'query',
-            schema: {
-              type: 'string',
-              enum: [
-                'publishedAt:desc',
-                'publishedAt:asc',
-                'title:asc',
-                'title:desc',
-                'viewCount:desc',
-              ],
-              default: 'publishedAt:desc',
-            },
-          },
-        }),
+        .openapi({ param: { name: 'sort', in: 'query' } }),
     }),
   },
   responses: {
@@ -455,13 +391,7 @@ export const getPostsSlugSlugRoute = createRoute({
       slug: z
         .string()
         .openapi({
-          param: {
-            name: 'slug',
-            in: 'path',
-            required: true,
-            description: '記事スラッグ',
-            schema: { type: 'string' },
-          },
+          param: { name: 'slug', in: 'path', required: true, description: '記事スラッグ' },
         }),
     }),
   },
@@ -558,16 +488,7 @@ export const deleteCommentsCommentIdRoute = createRoute({
   operationId: 'deleteComment',
   request: {
     params: z.object({
-      commentId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'commentId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      commentId: z.uuid().openapi({ param: { name: 'commentId', in: 'path', required: true } }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse, 404: NotFoundResponse },
@@ -582,16 +503,7 @@ export const postCommentsCommentIdApproveRoute = createRoute({
   operationId: 'approveComment',
   request: {
     params: z.object({
-      commentId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'commentId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      commentId: z.uuid().openapi({ param: { name: 'commentId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -642,16 +554,7 @@ export const getCategoriesCategoryIdRoute = createRoute({
   operationId: 'getCategory',
   request: {
     params: z.object({
-      categoryId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'categoryId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      categoryId: z.uuid().openapi({ param: { name: 'categoryId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -671,16 +574,7 @@ export const putCategoriesCategoryIdRoute = createRoute({
   operationId: 'updateCategory',
   request: {
     params: z.object({
-      categoryId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'categoryId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      categoryId: z.uuid().openapi({ param: { name: 'categoryId', in: 'path', required: true } }),
     }),
     body: {
       content: { 'application/json': { schema: UpdateCategoryRequestSchema } },
@@ -702,16 +596,7 @@ export const deleteCategoriesCategoryIdRoute = createRoute({
   operationId: 'deleteCategory',
   request: {
     params: z.object({
-      categoryId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'categoryId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      categoryId: z.uuid().openapi({ param: { name: 'categoryId', in: 'path', required: true } }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -729,7 +614,7 @@ export const getTagsRoute = createRoute({
       search: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'search', in: 'query', schema: { type: 'string' } } }),
+        .openapi({ param: { name: 'search', in: 'query' } }),
     }),
   },
   responses: {
@@ -769,14 +654,7 @@ export const getMediaRoute = createRoute({
       type: z
         .enum(['image', 'video', 'audio', 'document'])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'type',
-            in: 'query',
-            description: 'メディアタイプでフィルタ',
-            schema: { type: 'string', enum: ['image', 'video', 'audio', 'document'] },
-          },
-        }),
+        .openapi({ param: { name: 'type', in: 'query', description: 'メディアタイプでフィルタ' } }),
     }),
   },
   responses: {
@@ -830,16 +708,7 @@ export const getMediaMediaIdRoute = createRoute({
   operationId: 'getMedia',
   request: {
     params: z.object({
-      mediaId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'mediaId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      mediaId: z.uuid().openapi({ param: { name: 'mediaId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -858,16 +727,7 @@ export const putMediaMediaIdRoute = createRoute({
   operationId: 'updateMedia',
   request: {
     params: z.object({
-      mediaId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'mediaId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      mediaId: z.uuid().openapi({ param: { name: 'mediaId', in: 'path', required: true } }),
     }),
     body: {
       content: {
@@ -896,16 +756,7 @@ export const deleteMediaMediaIdRoute = createRoute({
   operationId: 'deleteMedia',
   request: {
     params: z.object({
-      mediaId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'mediaId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      mediaId: z.uuid().openapi({ param: { name: 'mediaId', in: 'path', required: true } }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -934,16 +785,7 @@ export const getAuthorsAuthorIdRoute = createRoute({
   operationId: 'getAuthor',
   request: {
     params: z.object({
-      authorId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'authorId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      authorId: z.uuid().openapi({ param: { name: 'authorId', in: 'path', required: true } }),
     }),
   },
   responses: {

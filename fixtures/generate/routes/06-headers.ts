@@ -72,14 +72,7 @@ export const getResourcesRoute = createRoute({
       'X-Request-ID': z
         .uuid()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'X-Request-ID',
-            in: 'header',
-            required: false,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+        .openapi({ param: { name: 'X-Request-ID', in: 'header', required: false } }),
     }),
   },
   responses: {
@@ -102,22 +95,13 @@ export const getResourcesIdRoute = createRoute({
   operationId: 'getResource',
   request: {
     params: z.object({
-      id: z
-        .string()
-        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
+      id: z.string().openapi({ param: { name: 'id', in: 'path', required: true } }),
     }),
     headers: z.object({
       'If-None-Match': z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'If-None-Match',
-            in: 'header',
-            required: false,
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'If-None-Match', in: 'header', required: false } }),
     }),
   },
   responses: {
@@ -140,16 +124,10 @@ export const putResourcesIdRoute = createRoute({
   operationId: 'updateResource',
   request: {
     params: z.object({
-      id: z
-        .string()
-        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
+      id: z.string().openapi({ param: { name: 'id', in: 'path', required: true } }),
     }),
     headers: z.object({
-      'If-Match': z
-        .string()
-        .openapi({
-          param: { name: 'If-Match', in: 'header', required: true, schema: { type: 'string' } },
-        }),
+      'If-Match': z.string().openapi({ param: { name: 'If-Match', in: 'header', required: true } }),
     }),
     body: { content: { 'application/json': { schema: ResourceSchema } } },
   },
@@ -172,9 +150,7 @@ export const getDownloadIdRoute = createRoute({
   operationId: 'downloadFile',
   request: {
     params: z.object({
-      id: z
-        .string()
-        .openapi({ param: { name: 'id', in: 'path', required: true, schema: { type: 'string' } } }),
+      id: z.string().openapi({ param: { name: 'id', in: 'path', required: true } }),
     }),
   },
   responses: {

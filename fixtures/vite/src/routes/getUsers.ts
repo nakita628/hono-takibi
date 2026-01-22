@@ -17,13 +17,7 @@ export const getUsersRoute = createRoute({
         .default(20)
         .exactOptional()
         .openapi({
-          param: {
-            name: 'limit',
-            in: 'query',
-            required: false,
-            schema: { type: 'integer', minimum: 1, maximum: 200, default: 20 },
-            description: 'Items per page.',
-          },
+          param: { name: 'limit', in: 'query', required: false, description: 'Items per page.' },
         }),
       offset: z
         .int()
@@ -35,7 +29,6 @@ export const getUsersRoute = createRoute({
             name: 'offset',
             in: 'query',
             required: false,
-            schema: { type: 'integer', minimum: 0, default: 0 },
             description: 'Number of items to skip.',
           },
         }),
@@ -48,7 +41,6 @@ export const getUsersRoute = createRoute({
             in: 'query',
             required: false,
             description: 'Filter by role (repeatable).',
-            schema: { type: 'array', items: { $ref: '#/components/schemas/Role' } },
             style: 'form',
             explode: true,
           },
@@ -62,7 +54,6 @@ export const getUsersRoute = createRoute({
             name: 'q',
             in: 'query',
             required: false,
-            schema: { type: 'string', minLength: 1 },
             description: 'Search term for displayName or affiliations.',
           },
         }),

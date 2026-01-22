@@ -135,9 +135,7 @@ const PageParamParamsSchema = z
   .min(1)
   .default(1)
   .exactOptional()
-  .openapi({
-    param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-  })
+  .openapi({ param: { name: 'page', in: 'query' } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -145,13 +143,7 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'limit',
-      in: 'query',
-      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
-    },
-  })
+  .openapi({ param: { name: 'limit', in: 'query' } })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 

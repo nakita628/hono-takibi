@@ -508,16 +508,7 @@ export const deleteMfaSmsMethodIdRoute = createRoute({
   operationId: 'removeSmsMethod',
   request: {
     params: z.object({
-      methodId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'methodId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      methodId: z.uuid().openapi({ param: { name: 'methodId', in: 'path', required: true } }),
     }),
     body: {
       content: {
@@ -689,9 +680,7 @@ export const deleteMfaWebauthnCredentialsCredentialIdRoute = createRoute({
     params: z.object({
       credentialId: z
         .string()
-        .openapi({
-          param: { name: 'credentialId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+        .openapi({ param: { name: 'credentialId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -712,9 +701,7 @@ export const patchMfaWebauthnCredentialsCredentialIdRoute = createRoute({
     params: z.object({
       credentialId: z
         .string()
-        .openapi({
-          param: { name: 'credentialId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+        .openapi({ param: { name: 'credentialId', in: 'path', required: true } }),
     }),
     body: {
       content: {

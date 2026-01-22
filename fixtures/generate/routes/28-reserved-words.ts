@@ -251,32 +251,32 @@ const RustReservedSchema = z
 const ClassParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({ param: { name: 'class', in: 'query', schema: { type: 'string' } } })
+  .openapi({ param: { name: 'class', in: 'query' } })
 
 const TypeParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({ param: { name: 'type', in: 'query', schema: { type: 'string' } } })
+  .openapi({ param: { name: 'type', in: 'query' } })
 
 const DefaultParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({ param: { name: 'default', in: 'query', schema: { type: 'string' } } })
+  .openapi({ param: { name: 'default', in: 'query' } })
 
 const NullParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({ param: { name: 'null', in: 'query', schema: { type: 'string' } } })
+  .openapi({ param: { name: 'null', in: 'query' } })
 
 const TrueParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({ param: { name: 'true', in: 'query', schema: { type: 'string' } } })
+  .openapi({ param: { name: 'true', in: 'query' } })
 
 const FalseParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({ param: { name: 'false', in: 'query', schema: { type: 'string' } } })
+  .openapi({ param: { name: 'false', in: 'query' } })
 
 export const getClassRoute = createRoute({
   method: 'get',

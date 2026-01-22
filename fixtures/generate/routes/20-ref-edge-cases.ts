@@ -327,7 +327,7 @@ const ShortRefSchema = z
   .openapi('ShortRef')
 
 const RefParamParamsSchema = ItemSchema.exactOptional().openapi({
-  param: { name: 'refParam', in: 'query', schema: { $ref: '#/components/schemas/Item' } },
+  param: { name: 'refParam', in: 'query' },
 })
 
 const RefBodyRequestBody = { content: { 'application/json': { schema: ItemSchema } } }

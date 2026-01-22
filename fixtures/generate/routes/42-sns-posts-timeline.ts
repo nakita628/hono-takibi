@@ -247,26 +247,12 @@ const ErrorSchema = z
 
 const PostIdParamParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'postId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'postId', in: 'path', required: true } })
 
 const CursorParamParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'cursor',
-      in: 'query',
-      description: 'ページネーションカーソル',
-      schema: { type: 'string' },
-    },
-  })
+  .openapi({ param: { name: 'cursor', in: 'query', description: 'ページネーションカーソル' } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -274,13 +260,7 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'limit',
-      in: 'query',
-      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
-    },
-  })
+  .openapi({ param: { name: 'limit', in: 'query' } })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -318,35 +298,18 @@ export const getPostsRoute = createRoute({
       userId: z
         .uuid()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'userId',
-            in: 'query',
-            description: '特定ユーザーの投稿のみ',
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+        .openapi({ param: { name: 'userId', in: 'query', description: '特定ユーザーの投稿のみ' } }),
       hashtag: z
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            name: 'hashtag',
-            in: 'query',
-            description: 'ハッシュタグでフィルタ',
-            schema: { type: 'string' },
-          },
+          param: { name: 'hashtag', in: 'query', description: 'ハッシュタグでフィルタ' },
         }),
       mediaOnly: z
         .stringbool()
         .exactOptional()
         .openapi({
-          param: {
-            name: 'mediaOnly',
-            in: 'query',
-            description: 'メディア付き投稿のみ',
-            schema: { type: 'boolean' },
-          },
+          param: { name: 'mediaOnly', in: 'query', description: 'メディア付き投稿のみ' },
         }),
     }),
   },
@@ -459,25 +422,13 @@ export const getTimelineHomeRoute = createRoute({
         .stringbool()
         .default(false)
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'includeReplies',
-            in: 'query',
-            description: '返信を含める',
-            schema: { type: 'boolean', default: false },
-          },
-        }),
+        .openapi({ param: { name: 'includeReplies', in: 'query', description: '返信を含める' } }),
       includeReposts: z
         .stringbool()
         .default(true)
         .exactOptional()
         .openapi({
-          param: {
-            name: 'includeReposts',
-            in: 'query',
-            description: 'リポストを含める',
-            schema: { type: 'boolean', default: true },
-          },
+          param: { name: 'includeReposts', in: 'query', description: 'リポストを含める' },
         }),
     }),
   },
@@ -517,16 +468,7 @@ export const getTimelineUserUserIdRoute = createRoute({
   operationId: 'getUserTimeline',
   request: {
     params: z.object({
-      userId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'userId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      userId: z.uuid().openapi({ param: { name: 'userId', in: 'path', required: true } }),
     }),
     query: z.object({
       cursor: CursorParamParamsSchema,
@@ -535,31 +477,17 @@ export const getTimelineUserUserIdRoute = createRoute({
         .stringbool()
         .default(false)
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'includeReplies',
-            in: 'query',
-            schema: { type: 'boolean', default: false },
-          },
-        }),
+        .openapi({ param: { name: 'includeReplies', in: 'query' } }),
       includeReposts: z
         .stringbool()
         .default(true)
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'includeReposts',
-            in: 'query',
-            schema: { type: 'boolean', default: true },
-          },
-        }),
+        .openapi({ param: { name: 'includeReposts', in: 'query' } }),
       mediaOnly: z
         .stringbool()
         .default(false)
         .exactOptional()
-        .openapi({
-          param: { name: 'mediaOnly', in: 'query', schema: { type: 'boolean', default: false } },
-        }),
+        .openapi({ param: { name: 'mediaOnly', in: 'query' } }),
     }),
   },
   responses: {
@@ -579,11 +507,7 @@ export const getTimelineHashtagHashtagRoute = createRoute({
   operationId: 'getHashtagTimeline',
   request: {
     params: z.object({
-      hashtag: z
-        .string()
-        .openapi({
-          param: { name: 'hashtag', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      hashtag: z.string().openapi({ param: { name: 'hashtag', in: 'path', required: true } }),
     }),
     query: z.object({ cursor: CursorParamParamsSchema, limit: LimitParamParamsSchema }),
   },
@@ -788,17 +712,7 @@ export const getPostsPostIdRepliesRoute = createRoute({
         .enum(['recent', 'popular', 'relevant'])
         .default('relevant')
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'sort',
-            in: 'query',
-            schema: {
-              type: 'string',
-              enum: ['recent', 'popular', 'relevant'],
-              default: 'relevant',
-            },
-          },
-        }),
+        .openapi({ param: { name: 'sort', in: 'query' } }),
     }),
   },
   responses: {
@@ -870,16 +784,7 @@ export const getMediaMediaIdRoute = createRoute({
   operationId: 'getMedia',
   request: {
     params: z.object({
-      mediaId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'mediaId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      mediaId: z.uuid().openapi({ param: { name: 'mediaId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -896,16 +801,7 @@ export const patchMediaMediaIdRoute = createRoute({
   operationId: 'updateMedia',
   request: {
     params: z.object({
-      mediaId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'mediaId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      mediaId: z.uuid().openapi({ param: { name: 'mediaId', in: 'path', required: true } }),
     }),
     body: {
       content: {

@@ -104,11 +104,7 @@ export const putUsersUserIdRoute = createRoute({
   operationId: 'updateUser',
   request: {
     params: z.object({
-      userId: z
-        .string()
-        .openapi({
-          param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      userId: z.string().openapi({ param: { name: 'userId', in: 'path', required: true } }),
     }),
     body: UpdateUserRequestBody,
   },
@@ -121,11 +117,7 @@ export const patchUsersUserIdRoute = createRoute({
   operationId: 'patchUser',
   request: {
     params: z.object({
-      userId: z
-        .string()
-        .openapi({
-          param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      userId: z.string().openapi({ param: { name: 'userId', in: 'path', required: true } }),
     }),
     body: PatchUserRequestBody,
   },
@@ -138,11 +130,7 @@ export const postUsersUserIdAvatarRoute = createRoute({
   operationId: 'uploadAvatar',
   request: {
     params: z.object({
-      userId: z
-        .string()
-        .openapi({
-          param: { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      userId: z.string().openapi({ param: { name: 'userId', in: 'path', required: true } }),
     }),
     body: FileUploadRequestBody,
   },

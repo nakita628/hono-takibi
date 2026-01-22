@@ -247,15 +247,7 @@ export const getProjectsRoute = createRoute({
     query: z.object({
       chiban: z
         .string()
-        .openapi({
-          param: {
-            in: 'query',
-            name: 'chiban',
-            required: true,
-            schema: { type: 'string' },
-            description: 'Chiban',
-          },
-        }),
+        .openapi({ param: { in: 'query', name: 'chiban', required: true, description: 'Chiban' } }),
     }),
   },
   responses: {

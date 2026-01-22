@@ -155,34 +155,18 @@ const ErrorSchema = z
 
 const FileIdParamParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'fileId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'fileId', in: 'path', required: true } })
 
 const FolderIdParamParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'folderId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'folderId', in: 'path', required: true } })
 
 const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
   .exactOptional()
-  .openapi({
-    param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-  })
+  .openapi({ param: { name: 'page', in: 'query' } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -190,13 +174,7 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(50)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'limit',
-      in: 'query',
-      schema: { type: 'integer', minimum: 1, maximum: 100, default: 50 },
-    },
-  })
+  .openapi({ param: { name: 'limit', in: 'query' } })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -231,56 +209,21 @@ export const getFilesRoute = createRoute({
             name: 'folderId',
             in: 'query',
             description: 'フォルダID（指定しない場合はルート）',
-            schema: { type: 'string', format: 'uuid' },
           },
         }),
       search: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'search',
-            in: 'query',
-            description: 'ファイル名検索',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'search', in: 'query', description: 'ファイル名検索' } }),
       type: z
         .enum(['document', 'image', 'video', 'audio', 'archive', 'other'])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'type',
-            in: 'query',
-            description: 'ファイルタイプでフィルタ',
-            schema: {
-              type: 'string',
-              enum: ['document', 'image', 'video', 'audio', 'archive', 'other'],
-            },
-          },
-        }),
+        .openapi({ param: { name: 'type', in: 'query', description: 'ファイルタイプでフィルタ' } }),
       sort: z
         .enum(['name:asc', 'name:desc', 'size:asc', 'size:desc', 'updatedAt:desc', 'updatedAt:asc'])
         .default('name:asc')
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'sort',
-            in: 'query',
-            schema: {
-              type: 'string',
-              enum: [
-                'name:asc',
-                'name:desc',
-                'size:asc',
-                'size:desc',
-                'updatedAt:desc',
-                'updatedAt:asc',
-              ],
-              default: 'name:asc',
-            },
-          },
-        }),
+        .openapi({ param: { name: 'sort', in: 'query' } }),
       page: PageParamParamsSchema,
       limit: LimitParamParamsSchema,
     }),
@@ -394,24 +337,13 @@ export const postFilesUploadMultipartUploadIdPartRoute = createRoute({
   operationId: 'uploadPart',
   request: {
     params: z.object({
-      uploadId: z
-        .string()
-        .openapi({
-          param: { name: 'uploadId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      uploadId: z.string().openapi({ param: { name: 'uploadId', in: 'path', required: true } }),
     }),
     query: z.object({
       partNumber: z
         .int()
         .min(1)
-        .openapi({
-          param: {
-            name: 'partNumber',
-            in: 'query',
-            required: true,
-            schema: { type: 'integer', minimum: 1 },
-          },
-        }),
+        .openapi({ param: { name: 'partNumber', in: 'query', required: true } }),
     }),
     body: { content: { 'application/octet-stream': { schema: z.file() } }, required: true },
   },
@@ -440,11 +372,7 @@ export const postFilesUploadMultipartUploadIdCompleteRoute = createRoute({
   operationId: 'completeMultipartUpload',
   request: {
     params: z.object({
-      uploadId: z
-        .string()
-        .openapi({
-          param: { name: 'uploadId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      uploadId: z.string().openapi({ param: { name: 'uploadId', in: 'path', required: true } }),
     }),
     body: {
       content: {
@@ -563,14 +491,7 @@ export const getFilesFileIdDownloadUrlRoute = createRoute({
         .max(86400)
         .default(3600)
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'expiresIn',
-            in: 'query',
-            description: '有効期限（秒）',
-            schema: { type: 'integer', minimum: 60, maximum: 86400, default: 3600 },
-          },
-        }),
+        .openapi({ param: { name: 'expiresIn', in: 'query', description: '有効期限（秒）' } }),
     }),
   },
   responses: {
@@ -658,13 +579,7 @@ export const getFilesFileIdThumbnailRoute = createRoute({
         .enum(['small', 'medium', 'large'])
         .default('medium')
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'size',
-            in: 'query',
-            schema: { type: 'string', enum: ['small', 'medium', 'large'], default: 'medium' },
-          },
-        }),
+        .openapi({ param: { name: 'size', in: 'query' } }),
     }),
   },
   responses: {
@@ -857,16 +772,7 @@ export const postFilesFileIdVersionsVersionIdRestoreRoute = createRoute({
   request: {
     params: z.object({
       fileId: FileIdParamParamsSchema,
-      versionId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'versionId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      versionId: z.uuid().openapi({ param: { name: 'versionId', in: 'path', required: true } }),
     }),
   },
   responses: {

@@ -125,30 +125,16 @@ const ErrorSchema = z
 
 const UserIdParamParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'userId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'userId', in: 'path', required: true } })
 
 const ListIdParamParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'listId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'listId', in: 'path', required: true } })
 
 const CursorParamParamsSchema = z
   .string()
   .exactOptional()
-  .openapi({ param: { name: 'cursor', in: 'query', schema: { type: 'string' } } })
+  .openapi({ param: { name: 'cursor', in: 'query' } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -156,13 +142,7 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'limit',
-      in: 'query',
-      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
-    },
-  })
+  .openapi({ param: { name: 'limit', in: 'query' } })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -207,11 +187,7 @@ export const getUsersByUsernameUsernameRoute = createRoute({
   operationId: 'getUserByUsername',
   request: {
     params: z.object({
-      username: z
-        .string()
-        .openapi({
-          param: { name: 'username', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      username: z.string().openapi({ param: { name: 'username', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -230,15 +206,7 @@ export const getUsersSearchRoute = createRoute({
     query: z.object({
       q: z
         .string()
-        .openapi({
-          param: {
-            name: 'q',
-            in: 'query',
-            required: true,
-            description: '検索クエリ',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'q', in: 'query', required: true, description: '検索クエリ' } }),
       cursor: CursorParamParamsSchema,
       limit: LimitParamParamsSchema,
     }),
@@ -262,24 +230,12 @@ export const getUsersLookupRoute = createRoute({
       ids: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'ids',
-            in: 'query',
-            description: 'ユーザーIDのカンマ区切り',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'ids', in: 'query', description: 'ユーザーIDのカンマ区切り' } }),
       usernames: z
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            name: 'usernames',
-            in: 'query',
-            description: 'ユーザー名のカンマ区切り',
-            schema: { type: 'string' },
-          },
+          param: { name: 'usernames', in: 'query', description: 'ユーザー名のカンマ区切り' },
         }),
     }),
   },
@@ -496,7 +452,6 @@ export const getRelationshipsRoute = createRoute({
             in: 'query',
             required: true,
             description: 'ユーザーIDのカンマ区切り',
-            schema: { type: 'string' },
           },
         }),
     }),

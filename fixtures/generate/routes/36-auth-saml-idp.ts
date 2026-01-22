@@ -232,9 +232,7 @@ const PageParamParamsSchema = z
   .min(1)
   .default(1)
   .exactOptional()
-  .openapi({
-    param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-  })
+  .openapi({ param: { name: 'page', in: 'query' } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -242,13 +240,7 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'limit',
-      in: 'query',
-      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
-    },
-  })
+  .openapi({ param: { name: 'limit', in: 'query' } })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -284,7 +276,6 @@ export const getSamlSsoRoute = createRoute({
             in: 'query',
             required: true,
             description: 'Base64エンコードされたSAML AuthnRequest',
-            schema: { type: 'string' },
           },
         }),
       RelayState: z
@@ -295,31 +286,16 @@ export const getSamlSsoRoute = createRoute({
             name: 'RelayState',
             in: 'query',
             description: '認証後にリダイレクトする状態情報',
-            schema: { type: 'string' },
           },
         }),
       SigAlg: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'SigAlg',
-            in: 'query',
-            description: '署名アルゴリズム',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'SigAlg', in: 'query', description: '署名アルゴリズム' } }),
       Signature: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'Signature',
-            in: 'query',
-            description: 'リクエスト署名',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'Signature', in: 'query', description: 'リクエスト署名' } }),
     }),
   },
   responses: {
@@ -380,37 +356,23 @@ export const getSamlSloRoute = createRoute({
       SAMLRequest: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'SAMLRequest',
-            in: 'query',
-            description: 'LogoutRequest',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'SAMLRequest', in: 'query', description: 'LogoutRequest' } }),
       SAMLResponse: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'SAMLResponse',
-            in: 'query',
-            description: 'LogoutResponse',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'SAMLResponse', in: 'query', description: 'LogoutResponse' } }),
       RelayState: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'RelayState', in: 'query', schema: { type: 'string' } } }),
+        .openapi({ param: { name: 'RelayState', in: 'query' } }),
       SigAlg: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'SigAlg', in: 'query', schema: { type: 'string' } } }),
+        .openapi({ param: { name: 'SigAlg', in: 'query' } }),
       Signature: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'Signature', in: 'query', schema: { type: 'string' } } }),
+        .openapi({ param: { name: 'Signature', in: 'query' } }),
     }),
   },
   responses: { 302: { description: 'ログアウト完了後リダイレクト' } },
@@ -496,11 +458,11 @@ export const getServiceProvidersRoute = createRoute({
       search: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'search', in: 'query', schema: { type: 'string' } } }),
+        .openapi({ param: { name: 'search', in: 'query' } }),
       enabled: z
         .stringbool()
         .exactOptional()
-        .openapi({ param: { name: 'enabled', in: 'query', schema: { type: 'boolean' } } }),
+        .openapi({ param: { name: 'enabled', in: 'query' } }),
     }),
   },
   responses: {
@@ -547,16 +509,7 @@ export const getServiceProvidersSpIdRoute = createRoute({
   operationId: 'getServiceProvider',
   request: {
     params: z.object({
-      spId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'spId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      spId: z.uuid().openapi({ param: { name: 'spId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -578,16 +531,7 @@ export const putServiceProvidersSpIdRoute = createRoute({
   operationId: 'updateServiceProvider',
   request: {
     params: z.object({
-      spId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'spId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      spId: z.uuid().openapi({ param: { name: 'spId', in: 'path', required: true } }),
     }),
     body: {
       content: { 'application/json': { schema: UpdateServiceProviderRequestSchema } },
@@ -612,16 +556,7 @@ export const deleteServiceProvidersSpIdRoute = createRoute({
   operationId: 'deleteServiceProvider',
   request: {
     params: z.object({
-      spId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'spId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      spId: z.uuid().openapi({ param: { name: 'spId', in: 'path', required: true } }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -636,16 +571,7 @@ export const getServiceProvidersSpIdMetadataRoute = createRoute({
   operationId: 'getSpMetadata',
   request: {
     params: z.object({
-      spId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'spId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      spId: z.uuid().openapi({ param: { name: 'spId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -663,16 +589,7 @@ export const putServiceProvidersSpIdMetadataRoute = createRoute({
   operationId: 'updateSpMetadata',
   request: {
     params: z.object({
-      spId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'spId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      spId: z.uuid().openapi({ param: { name: 'spId', in: 'path', required: true } }),
     }),
     body: {
       content: {
@@ -701,16 +618,7 @@ export const getServiceProvidersSpIdAttributesRoute = createRoute({
   operationId: 'getSpAttributeMappings',
   request: {
     params: z.object({
-      spId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'spId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      spId: z.uuid().openapi({ param: { name: 'spId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -731,16 +639,7 @@ export const putServiceProvidersSpIdAttributesRoute = createRoute({
   operationId: 'updateSpAttributeMappings',
   request: {
     params: z.object({
-      spId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'spId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      spId: z.uuid().openapi({ param: { name: 'spId', in: 'path', required: true } }),
     }),
     body: {
       content: { 'application/json': { schema: z.array(AttributeMappingSchema) } },
@@ -831,16 +730,7 @@ export const deleteCertificatesCertIdRoute = createRoute({
   operationId: 'deleteCertificate',
   request: {
     params: z.object({
-      certId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'certId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      certId: z.uuid().openapi({ param: { name: 'certId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -859,16 +749,7 @@ export const postCertificatesCertIdActivateRoute = createRoute({
   operationId: 'activateCertificate',
   request: {
     params: z.object({
-      certId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'certId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      certId: z.uuid().openapi({ param: { name: 'certId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -892,9 +773,7 @@ export const getSessionsRoute = createRoute({
       userId: z
         .uuid()
         .exactOptional()
-        .openapi({
-          param: { name: 'userId', in: 'query', schema: { type: 'string', format: 'uuid' } },
-        }),
+        .openapi({ param: { name: 'userId', in: 'query' } }),
     }),
   },
   responses: {
@@ -915,11 +794,7 @@ export const deleteSessionsSessionIdRoute = createRoute({
   operationId: 'terminateSession',
   request: {
     params: z.object({
-      sessionId: z
-        .string()
-        .openapi({
-          param: { name: 'sessionId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      sessionId: z.string().openapi({ param: { name: 'sessionId', in: 'path', required: true } }),
     }),
   },
   responses: { 204: { description: 'セッション終了成功' }, 401: UnauthorizedResponse },
@@ -937,40 +812,23 @@ export const getAuditLogsRoute = createRoute({
       from: z.iso
         .datetime()
         .exactOptional()
-        .openapi({
-          param: { name: 'from', in: 'query', schema: { type: 'string', format: 'date-time' } },
-        }),
+        .openapi({ param: { name: 'from', in: 'query' } }),
       to: z.iso
         .datetime()
         .exactOptional()
-        .openapi({
-          param: { name: 'to', in: 'query', schema: { type: 'string', format: 'date-time' } },
-        }),
+        .openapi({ param: { name: 'to', in: 'query' } }),
       spId: z
         .uuid()
         .exactOptional()
-        .openapi({
-          param: { name: 'spId', in: 'query', schema: { type: 'string', format: 'uuid' } },
-        }),
+        .openapi({ param: { name: 'spId', in: 'query' } }),
       userId: z
         .uuid()
         .exactOptional()
-        .openapi({
-          param: { name: 'userId', in: 'query', schema: { type: 'string', format: 'uuid' } },
-        }),
+        .openapi({ param: { name: 'userId', in: 'query' } }),
       eventType: z
         .enum(['sso_success', 'sso_failure', 'slo_success', 'slo_failure'])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'eventType',
-            in: 'query',
-            schema: {
-              type: 'string',
-              enum: ['sso_success', 'sso_failure', 'slo_success', 'slo_failure'],
-            },
-          },
-        }),
+        .openapi({ param: { name: 'eventType', in: 'query' } }),
       page: PageParamParamsSchema,
       limit: LimitParamParamsSchema,
     }),

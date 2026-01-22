@@ -649,7 +649,6 @@ const TraceIdHeaderParamParamsSchema = TraceIdSchema.exactOptional().openapi({
     in: 'header',
     required: false,
     description: 'Correlation id (parameter) - schema refs TraceId',
-    schema: { $ref: '#/components/schemas/TraceId' },
     example: 'trace-01J1K9N3E6R6ZK7Z6B0Q9Q3H3J',
   },
 })
@@ -663,36 +662,20 @@ const UserIdPathParamParamsSchema = IdSchema.openapi({
     name: 'userId',
     in: 'path',
     required: true,
-    schema: { $ref: '#/components/schemas/Id' },
     examples: { uuid: UserIdUuidExample, ulid: UserIdUlidExample },
   },
 })
 
 const CompanyIdPathParamParamsSchema = IdSchema.openapi({
-  param: {
-    name: 'companyId',
-    in: 'path',
-    required: true,
-    schema: { $ref: '#/components/schemas/Id' },
-  },
+  param: { name: 'companyId', in: 'path', required: true },
 })
 
 const OrderIdPathParamParamsSchema = IdSchema.openapi({
-  param: {
-    name: 'orderId',
-    in: 'path',
-    required: true,
-    schema: { $ref: '#/components/schemas/Id' },
-  },
+  param: { name: 'orderId', in: 'path', required: true },
 })
 
 const FileIdPathParamParamsSchema = IdSchema.openapi({
-  param: {
-    name: 'fileId',
-    in: 'path',
-    required: true,
-    schema: { $ref: '#/components/schemas/Id' },
-  },
+  param: { name: 'fileId', in: 'path', required: true },
 })
 
 const LimitQueryParamParamsSchema = z
@@ -700,32 +683,14 @@ const LimitQueryParamParamsSchema = z
   .min(1)
   .max(200)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'limit',
-      in: 'query',
-      required: false,
-      schema: { type: 'integer', minimum: 1, maximum: 200 },
-      example: 50,
-    },
-  })
+  .openapi({ param: { name: 'limit', in: 'query', required: false, example: 50 } })
 
 const CursorQueryParamParamsSchema = CursorSchema.exactOptional().openapi({
-  param: {
-    name: 'cursor',
-    in: 'query',
-    required: false,
-    schema: { $ref: '#/components/schemas/Cursor' },
-  },
+  param: { name: 'cursor', in: 'query', required: false },
 })
 
 const BuyerIdQueryParamParamsSchema = IdSchema.exactOptional().openapi({
-  param: {
-    name: 'buyerId',
-    in: 'query',
-    required: false,
-    schema: { $ref: '#/components/schemas/Id' },
-  },
+  param: { name: 'buyerId', in: 'query', required: false },
 })
 
 const IncludeQueryParamParamsSchema = z
@@ -734,38 +699,12 @@ const IncludeQueryParamParamsSchema = z
       .enum(['company', 'manager', 'reports', 'orders', 'auditTrail', 'graph'])
       .exactOptional()
       .openapi({
-        param: {
-          name: 'include',
-          in: 'query',
-          required: false,
-          schema: {
-            type: 'array',
-            items: {
-              type: 'string',
-              enum: ['company', 'manager', 'reports', 'orders', 'auditTrail', 'graph'],
-            },
-          },
-          style: 'form',
-          explode: true,
-        },
+        param: { name: 'include', in: 'query', required: false, style: 'form', explode: true },
       }),
   )
   .exactOptional()
   .openapi({
-    param: {
-      name: 'include',
-      in: 'query',
-      required: false,
-      schema: {
-        type: 'array',
-        items: {
-          type: 'string',
-          enum: ['company', 'manager', 'reports', 'orders', 'auditTrail', 'graph'],
-        },
-      },
-      style: 'form',
-      explode: true,
-    },
+    param: { name: 'include', in: 'query', required: false, style: 'form', explode: true },
   })
 
 const UserFilterExample = {

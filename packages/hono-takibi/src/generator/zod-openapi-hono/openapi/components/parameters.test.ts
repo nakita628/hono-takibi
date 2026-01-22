@@ -21,7 +21,7 @@ describe('parametersCode', () => {
     }
     const result = parametersCode(components, true, false)
     expect(result).toBe(
-      `export const UserIdParamsSchema=z.string().openapi({param:{"name":"userId","in":"path","required":true,"schema":{"type":"string"}}})`,
+      `export const UserIdParamsSchema=z.string().openapi({param:{"name":"userId","in":"path","required":true}})`,
     )
   })
 
@@ -37,7 +37,7 @@ describe('parametersCode', () => {
     }
     const result = parametersCode(components, false, false)
     expect(result).toBe(
-      `const PageParamsSchema=z.int().exactOptional().openapi({param:{"name":"page","in":"query","schema":{"type":"integer"}}})`,
+      `const PageParamsSchema=z.int().exactOptional().openapi({param:{"name":"page","in":"query"}})`,
     )
   })
 
@@ -53,7 +53,7 @@ describe('parametersCode', () => {
     }
     const result = parametersCode(components, true, true)
     expect(result).toBe(
-      `export const LimitParamsSchema=z.int().exactOptional().openapi({param:{"name":"limit","in":"query","schema":{"type":"integer"}}})
+      `export const LimitParamsSchema=z.int().exactOptional().openapi({param:{"name":"limit","in":"query"}})
 
 export type LimitParams=z.infer<typeof LimitParamsSchema>`,
     )
