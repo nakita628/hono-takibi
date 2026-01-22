@@ -1,5 +1,10 @@
+import { Hono } from 'hono'
 import { renderToString } from 'react-dom/server'
-import app from './api'
+import api from './api'
+
+const app = new Hono()
+
+app.route('/api', api)
 
 app.get('*', (c) => {
   return c.html(

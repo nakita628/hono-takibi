@@ -25,6 +25,8 @@ export const getHandler: RouteHandler<typeof get> = async (c) => {
   return c.json({ message: 'Hono🔥 React' })
 }
 
-export const api = app.basePath('/api').openapi(get, getHandler)
+const api = app.openapi(get, getHandler)
 
-export default app
+export type AppType = typeof api
+
+export default api
