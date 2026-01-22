@@ -45,16 +45,7 @@ export const getUsersUserIdRoute = createRoute({
   operationId: 'getUser',
   request: {
     params: z.object({
-      userId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'userId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      userId: z.uuid().openapi({ param: { name: 'userId', in: 'path', required: true } }),
     }),
   },
   responses: {

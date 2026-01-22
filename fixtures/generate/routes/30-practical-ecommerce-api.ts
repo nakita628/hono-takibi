@@ -224,34 +224,18 @@ const ErrorSchema = z
 
 const ProductIdParamParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'productId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'productId', in: 'path', required: true } })
 
 const OrderIdParamParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'orderId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'orderId', in: 'path', required: true } })
 
 const PageParamParamsSchema = z
   .int()
   .min(1)
   .default(1)
   .exactOptional()
-  .openapi({
-    param: { name: 'page', in: 'query', schema: { type: 'integer', minimum: 1, default: 1 } },
-  })
+  .openapi({ param: { name: 'page', in: 'query' } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -259,13 +243,7 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'limit',
-      in: 'query',
-      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
-    },
-  })
+  .openapi({ param: { name: 'limit', in: 'query' } })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
 
@@ -297,60 +275,25 @@ export const getProductsRoute = createRoute({
       category: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'category',
-            in: 'query',
-            description: 'カテゴリIDでフィルタ',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'category', in: 'query', description: 'カテゴリIDでフィルタ' } }),
       minPrice: z.coerce
         .number()
         .min(0)
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'minPrice',
-            in: 'query',
-            description: '最低価格',
-            schema: { type: 'number', minimum: 0 },
-          },
-        }),
+        .openapi({ param: { name: 'minPrice', in: 'query', description: '最低価格' } }),
       maxPrice: z.coerce
         .number()
         .min(0)
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'maxPrice',
-            in: 'query',
-            description: '最高価格',
-            schema: { type: 'number', minimum: 0 },
-          },
-        }),
+        .openapi({ param: { name: 'maxPrice', in: 'query', description: '最高価格' } }),
       inStock: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'inStock',
-            in: 'query',
-            description: '在庫ありのみ',
-            schema: { type: 'boolean' },
-          },
-        }),
+        .openapi({ param: { name: 'inStock', in: 'query', description: '在庫ありのみ' } }),
       search: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'search',
-            in: 'query',
-            description: 'キーワード検索',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'search', in: 'query', description: 'キーワード検索' } }),
       sort: z
         .enum([
           'price:asc',
@@ -361,24 +304,7 @@ export const getProductsRoute = createRoute({
           'popularity:desc',
         ])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'sort',
-            in: 'query',
-            description: 'ソート順',
-            schema: {
-              type: 'string',
-              enum: [
-                'price:asc',
-                'price:desc',
-                'name:asc',
-                'name:desc',
-                'createdAt:desc',
-                'popularity:desc',
-              ],
-            },
-          },
-        }),
+        .openapi({ param: { name: 'sort', in: 'query', description: 'ソート順' } }),
     }),
   },
   responses: {
@@ -564,11 +490,7 @@ export const putCartItemsItemIdRoute = createRoute({
   operationId: 'updateCartItem',
   request: {
     params: z.object({
-      itemId: z
-        .string()
-        .openapi({
-          param: { name: 'itemId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      itemId: z.string().openapi({ param: { name: 'itemId', in: 'path', required: true } }),
     }),
     body: {
       content: {
@@ -594,11 +516,7 @@ export const deleteCartItemsItemIdRoute = createRoute({
   operationId: 'removeFromCart',
   request: {
     params: z.object({
-      itemId: z
-        .string()
-        .openapi({
-          param: { name: 'itemId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      itemId: z.string().openapi({ param: { name: 'itemId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -621,17 +539,7 @@ export const getOrdersRoute = createRoute({
       status: z
         .enum(['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'status',
-            in: 'query',
-            description: 'ステータスでフィルタ',
-            schema: {
-              type: 'string',
-              enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
-            },
-          },
-        }),
+        .openapi({ param: { name: 'status', in: 'query', description: 'ステータスでフィルタ' } }),
     }),
   },
   responses: {

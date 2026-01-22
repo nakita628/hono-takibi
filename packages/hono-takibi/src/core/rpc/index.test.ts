@@ -429,7 +429,7 @@ describe('rpc', () => {
       const out = path.join(dir, 'index.ts')
       fs.writeFileSync(input, JSON.stringify(openapi), 'utf-8')
 
-      const result = await rpc(openapi, out, '../index.ts', false)
+      const result = await rpc(openapi, out, '../index', false)
 
       if (!result.ok) {
         throw new Error(result.error)
@@ -437,7 +437,7 @@ describe('rpc', () => {
 
       const index = fs.readFileSync(out, 'utf-8')
       const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
+import { client } from '../index'
 
 /**
  * GET /hono
@@ -577,7 +577,7 @@ describe('rpc (split mode)', () => {
       fs.writeFileSync(input, JSON.stringify(openapi, null, 2), 'utf-8')
 
       const out = path.join(dir, 'rpc', 'index.ts')
-      const result = await rpc(openapi, out, '../index.ts', true)
+      const result = await rpc(openapi, out, '../index', true)
 
       const index = fs.readFileSync(path.join(dir, 'rpc', 'index.ts'), 'utf-8')
       const indexExpected = `export * from './getHono'
@@ -594,7 +594,7 @@ export * from './patchUsersId'
 
       const deleteUsersId = fs.readFileSync(path.join(dir, 'rpc', 'deleteUsersId.ts'), 'utf-8')
       const deleteUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
+import { client } from '../index'
 
 /**
  * DELETE /users/{id}
@@ -615,7 +615,7 @@ export async function deleteUsersId(
 
       const getHono = fs.readFileSync(path.join(dir, 'rpc', 'getHono.ts'), 'utf-8')
       const getHonoExpected = `import type { ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
+import { client } from '../index'
 
 /**
  * GET /hono
@@ -633,7 +633,7 @@ export async function getHono(options?: ClientRequestOptions) {
 
       const getHonoX = fs.readFileSync(path.join(dir, 'rpc', 'getHonoX.ts'), 'utf-8')
       const getHonoXExpected = `import type { ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
+import { client } from '../index'
 
 /**
  * GET /hono-x
@@ -652,7 +652,7 @@ export async function getHonoX(options?: ClientRequestOptions) {
       const getUsers = fs.readFileSync(path.join(dir, 'rpc', 'getUsers.ts'), 'utf-8')
 
       const expected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
+import { client } from '../index'
 
 /**
  * GET /users
@@ -674,7 +674,7 @@ export async function getUsers(
       const getUsersId = fs.readFileSync(path.join(dir, 'rpc', 'getUsersId.ts'), 'utf-8')
 
       const getUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
+import { client } from '../index'
 
 /**
  * GET /users/{id}
@@ -698,7 +698,7 @@ export async function getUsersId(
       )
 
       const getZodOpenapiHonoExpected = `import type { ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
+import { client } from '../index'
 
 /**
  * GET /zod-openapi-hono
@@ -716,7 +716,7 @@ export async function getZodOpenapiHono(options?: ClientRequestOptions) {
       const patchUsersId = fs.readFileSync(path.join(dir, 'rpc', 'patchUsersId.ts'), 'utf-8')
 
       const patchUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
+import { client } from '../index'
 
 /**
  * PATCH /users/{id}
@@ -736,7 +736,7 @@ export async function patchUsersId(
 
       const postUsers = fs.readFileSync(path.join(dir, 'rpc', 'postUsers.ts'), 'utf-8')
       const postUsersExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
+import { client } from '../index'
 
 /**
  * POST /users
@@ -757,7 +757,7 @@ export async function postUsers(
       const putUsersId = fs.readFileSync(path.join(dir, 'rpc', 'putUsersId.ts'), 'utf-8')
 
       const putUsersIdExpected = `import type { InferRequestType, ClientRequestOptions } from 'hono/client'
-import { client } from '../index.ts'
+import { client } from '../index'
 
 /**
  * PUT /users/{id}

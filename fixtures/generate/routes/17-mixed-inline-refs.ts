@@ -341,14 +341,7 @@ const PaginationSchema = z
 
 const UserIdPathParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'userId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'userId', in: 'path', required: true } })
 
 const LimitParamParamsSchema = z
   .int()
@@ -356,22 +349,14 @@ const LimitParamParamsSchema = z
   .max(100)
   .default(20)
   .exactOptional()
-  .openapi({
-    param: {
-      name: 'limit',
-      in: 'query',
-      schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
-    },
-  })
+  .openapi({ param: { name: 'limit', in: 'query' } })
 
 const OffsetParamParamsSchema = z
   .int()
   .min(0)
   .default(0)
   .exactOptional()
-  .openapi({
-    param: { name: 'offset', in: 'query', schema: { type: 'integer', minimum: 0, default: 0 } },
-  })
+  .openapi({ param: { name: 'offset', in: 'query' } })
 
 export const getUsersRoute = createRoute({
   method: 'get',
@@ -382,18 +367,10 @@ export const getUsersRoute = createRoute({
       status: z
         .enum(['active', 'inactive', 'pending'])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'status',
-            in: 'query',
-            schema: { type: 'string', enum: ['active', 'inactive', 'pending'] },
-          },
-        }),
+        .openapi({ param: { name: 'status', in: 'query' } }),
       limit: LimitParamParamsSchema,
       offset: OffsetParamParamsSchema,
-      filter: UserFilterSchema.exactOptional().openapi({
-        param: { name: 'filter', in: 'query', schema: { $ref: '#/components/schemas/UserFilter' } },
-      }),
+      filter: UserFilterSchema.exactOptional().openapi({ param: { name: 'filter', in: 'query' } }),
     }),
   },
   responses: {
@@ -509,11 +486,7 @@ export const getProductsProductIdVariantsRoute = createRoute({
   operationId: 'getProductVariants',
   request: {
     params: z.object({
-      productId: z
-        .string()
-        .openapi({
-          param: { name: 'productId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      productId: z.string().openapi({ param: { name: 'productId', in: 'path', required: true } }),
     }),
   },
   responses: {

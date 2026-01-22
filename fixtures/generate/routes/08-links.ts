@@ -113,16 +113,7 @@ export const getOrdersOrderIdRoute = createRoute({
   operationId: 'getOrder',
   request: {
     params: z.object({
-      orderId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'orderId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      orderId: z.uuid().openapi({ param: { name: 'orderId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -145,16 +136,7 @@ export const deleteOrdersOrderIdRoute = createRoute({
   operationId: 'cancelOrder',
   request: {
     params: z.object({
-      orderId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'orderId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      orderId: z.uuid().openapi({ param: { name: 'orderId', in: 'path', required: true } }),
     }),
   },
   responses: { 200: { description: 'Order cancelled', links: { GetOrder: GetOrderByIdLink } } },
@@ -166,16 +148,7 @@ export const getOrdersOrderIdItemsRoute = createRoute({
   operationId: 'getOrderItems',
   request: {
     params: z.object({
-      orderId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'orderId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      orderId: z.uuid().openapi({ param: { name: 'orderId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -193,16 +166,7 @@ export const getCustomersCustomerIdRoute = createRoute({
   operationId: 'getCustomer',
   request: {
     params: z.object({
-      customerId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'customerId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      customerId: z.uuid().openapi({ param: { name: 'customerId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -220,16 +184,7 @@ export const getCustomersCustomerIdOrdersRoute = createRoute({
   operationId: 'getCustomerOrders',
   request: {
     params: z.object({
-      customerId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'customerId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      customerId: z.uuid().openapi({ param: { name: 'customerId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -246,16 +201,7 @@ export const getPaymentsPaymentIdRoute = createRoute({
   operationId: 'getPayment',
   request: {
     params: z.object({
-      paymentId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'paymentId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      paymentId: z.uuid().openapi({ param: { name: 'paymentId', in: 'path', required: true } }),
     }),
   },
   responses: {

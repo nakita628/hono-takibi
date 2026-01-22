@@ -350,19 +350,12 @@ export const getOauthAuthorizeRoute = createRoute({
             in: 'query',
             required: true,
             description: 'レスポンスタイプ',
-            schema: { type: 'string', enum: ['code', 'token'] },
           },
         }),
       client_id: z
         .string()
         .openapi({
-          param: {
-            name: 'client_id',
-            in: 'query',
-            required: true,
-            description: 'クライアントID',
-            schema: { type: 'string' },
-          },
+          param: { name: 'client_id', in: 'query', required: true, description: 'クライアントID' },
         }),
       redirect_uri: z
         .url()
@@ -372,7 +365,6 @@ export const getOauthAuthorizeRoute = createRoute({
             in: 'query',
             required: true,
             description: 'コールバックURL',
-            schema: { type: 'string', format: 'uri' },
           },
         }),
       scope: z
@@ -383,7 +375,6 @@ export const getOauthAuthorizeRoute = createRoute({
             name: 'scope',
             in: 'query',
             description: '要求するスコープ（スペース区切り）',
-            schema: { type: 'string' },
             example: 'openid profile email',
           },
         }),
@@ -395,19 +386,13 @@ export const getOauthAuthorizeRoute = createRoute({
             in: 'query',
             required: true,
             description: 'CSRF対策用のランダム文字列',
-            schema: { type: 'string' },
           },
         }),
       code_challenge: z
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            name: 'code_challenge',
-            in: 'query',
-            description: 'PKCE用コードチャレンジ',
-            schema: { type: 'string' },
-          },
+          param: { name: 'code_challenge', in: 'query', description: 'PKCE用コードチャレンジ' },
         }),
       code_challenge_method: z
         .enum(['plain', 'S256'])
@@ -418,31 +403,16 @@ export const getOauthAuthorizeRoute = createRoute({
             name: 'code_challenge_method',
             in: 'query',
             description: 'コードチャレンジの生成方法',
-            schema: { type: 'string', enum: ['plain', 'S256'], default: 'S256' },
           },
         }),
       nonce: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'nonce',
-            in: 'query',
-            description: 'OpenID Connect用のnonce',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'nonce', in: 'query', description: 'OpenID Connect用のnonce' } }),
       prompt: z
         .enum(['none', 'login', 'consent', 'select_account'])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'prompt',
-            in: 'query',
-            description: '認証プロンプトの制御',
-            schema: { type: 'string', enum: ['none', 'login', 'consent', 'select_account'] },
-          },
-        }),
+        .openapi({ param: { name: 'prompt', in: 'query', description: '認証プロンプトの制御' } }),
       login_hint: z
         .string()
         .exactOptional()
@@ -451,20 +421,13 @@ export const getOauthAuthorizeRoute = createRoute({
             name: 'login_hint',
             in: 'query',
             description: 'ログインヒント（メールアドレス等）',
-            schema: { type: 'string' },
           },
         }),
       ui_locales: z
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            name: 'ui_locales',
-            in: 'query',
-            description: 'UI言語設定',
-            schema: { type: 'string' },
-            example: 'ja',
-          },
+          param: { name: 'ui_locales', in: 'query', description: 'UI言語設定', example: 'ja' },
         }),
     }),
   },
@@ -739,11 +702,7 @@ export const getOauthClientsClientIdRoute = createRoute({
   operationId: 'getClient',
   request: {
     params: z.object({
-      clientId: z
-        .string()
-        .openapi({
-          param: { name: 'clientId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      clientId: z.string().openapi({ param: { name: 'clientId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -765,11 +724,7 @@ export const putOauthClientsClientIdRoute = createRoute({
   operationId: 'updateClient',
   request: {
     params: z.object({
-      clientId: z
-        .string()
-        .openapi({
-          param: { name: 'clientId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      clientId: z.string().openapi({ param: { name: 'clientId', in: 'path', required: true } }),
     }),
     body: {
       content: { 'application/json': { schema: UpdateClientRequestSchema } },
@@ -794,11 +749,7 @@ export const deleteOauthClientsClientIdRoute = createRoute({
   operationId: 'deleteClient',
   request: {
     params: z.object({
-      clientId: z
-        .string()
-        .openapi({
-          param: { name: 'clientId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      clientId: z.string().openapi({ param: { name: 'clientId', in: 'path', required: true } }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -813,11 +764,7 @@ export const postOauthClientsClientIdSecretRoute = createRoute({
   operationId: 'rotateClientSecret',
   request: {
     params: z.object({
-      clientId: z
-        .string()
-        .openapi({
-          param: { name: 'clientId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      clientId: z.string().openapi({ param: { name: 'clientId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -858,11 +805,7 @@ export const deleteOauthConsentsClientIdRoute = createRoute({
   operationId: 'revokeConsent',
   request: {
     params: z.object({
-      clientId: z
-        .string()
-        .openapi({
-          param: { name: 'clientId', in: 'path', required: true, schema: { type: 'string' } },
-        }),
+      clientId: z.string().openapi({ param: { name: 'clientId', in: 'path', required: true } }),
     }),
   },
   responses: { 204: { description: '取り消し成功' }, 401: UnauthorizedResponse },

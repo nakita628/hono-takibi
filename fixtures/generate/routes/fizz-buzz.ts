@@ -10,20 +10,11 @@ export const getFizzbuzzRoute = createRoute({
       number: z.coerce
         .number()
         .min(1)
-        .openapi({
-          param: {
-            schema: { type: 'number', minimum: 1 },
-            required: true,
-            name: 'number',
-            in: 'query',
-          },
-        }),
+        .openapi({ param: { required: true, name: 'number', in: 'query' } }),
       details: z
         .stringbool()
         .exactOptional()
-        .openapi({
-          param: { schema: { type: 'boolean' }, required: false, name: 'details', in: 'query' },
-        }),
+        .openapi({ param: { required: false, name: 'details', in: 'query' } }),
     }),
   },
   responses: {

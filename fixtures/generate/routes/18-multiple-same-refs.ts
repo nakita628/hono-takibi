@@ -338,15 +338,9 @@ export const getDocumentsRoute = createRoute({
   operationId: 'listDocuments',
   request: {
     query: z.object({
-      author: UserIdSchema.exactOptional().openapi({
-        param: { name: 'author', in: 'query', schema: { $ref: '#/components/schemas/UserId' } },
-      }),
-      reviewer: UserIdSchema.exactOptional().openapi({
-        param: { name: 'reviewer', in: 'query', schema: { $ref: '#/components/schemas/UserId' } },
-      }),
-      approver: UserIdSchema.exactOptional().openapi({
-        param: { name: 'approver', in: 'query', schema: { $ref: '#/components/schemas/UserId' } },
-      }),
+      author: UserIdSchema.exactOptional().openapi({ param: { name: 'author', in: 'query' } }),
+      reviewer: UserIdSchema.exactOptional().openapi({ param: { name: 'reviewer', in: 'query' } }),
+      approver: UserIdSchema.exactOptional().openapi({ param: { name: 'approver', in: 'query' } }),
     }),
   },
   responses: {
@@ -374,12 +368,7 @@ export const getDocumentsDocumentIdRoute = createRoute({
   request: {
     params: z.object({
       documentId: DocumentIdSchema.openapi({
-        param: {
-          name: 'documentId',
-          in: 'path',
-          required: true,
-          schema: { $ref: '#/components/schemas/DocumentId' },
-        },
+        param: { name: 'documentId', in: 'path', required: true },
       }),
     }),
   },
@@ -398,12 +387,7 @@ export const putDocumentsDocumentIdRoute = createRoute({
   request: {
     params: z.object({
       documentId: DocumentIdSchema.openapi({
-        param: {
-          name: 'documentId',
-          in: 'path',
-          required: true,
-          schema: { $ref: '#/components/schemas/DocumentId' },
-        },
+        param: { name: 'documentId', in: 'path', required: true },
       }),
     }),
     body: { content: { 'application/json': { schema: UpdateDocumentInputSchema } } },
@@ -420,12 +404,7 @@ export const getDocumentsDocumentIdVersionsRoute = createRoute({
   request: {
     params: z.object({
       documentId: DocumentIdSchema.openapi({
-        param: {
-          name: 'documentId',
-          in: 'path',
-          required: true,
-          schema: { $ref: '#/components/schemas/DocumentId' },
-        },
+        param: { name: 'documentId', in: 'path', required: true },
       }),
     }),
   },
@@ -444,12 +423,7 @@ export const postDocumentsDocumentIdShareRoute = createRoute({
   request: {
     params: z.object({
       documentId: DocumentIdSchema.openapi({
-        param: {
-          name: 'documentId',
-          in: 'path',
-          required: true,
-          schema: { $ref: '#/components/schemas/DocumentId' },
-        },
+        param: { name: 'documentId', in: 'path', required: true },
       }),
     }),
     body: { content: { 'application/json': { schema: ShareRequestSchema } } },
@@ -465,14 +439,7 @@ export const getUsersUserIdDocumentsRoute = createRoute({
   operationId: 'getUserDocuments',
   request: {
     params: z.object({
-      userId: UserIdSchema.openapi({
-        param: {
-          name: 'userId',
-          in: 'path',
-          required: true,
-          schema: { $ref: '#/components/schemas/UserId' },
-        },
-      }),
+      userId: UserIdSchema.openapi({ param: { name: 'userId', in: 'path', required: true } }),
     }),
   },
   responses: {

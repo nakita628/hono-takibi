@@ -147,26 +147,19 @@ export const getContentNegotiationRoute = createRoute({
         .string()
         .default('application/json')
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'Accept',
-            in: 'header',
-            required: false,
-            schema: { type: 'string', default: 'application/json' },
-          },
-        }),
+        .openapi({ param: { name: 'Accept', in: 'header', required: false } }),
       'Accept-Language': z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'Accept-Language', in: 'header', schema: { type: 'string' } } }),
+        .openapi({ param: { name: 'Accept-Language', in: 'header' } }),
       'Accept-Encoding': z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'Accept-Encoding', in: 'header', schema: { type: 'string' } } }),
+        .openapi({ param: { name: 'Accept-Encoding', in: 'header' } }),
       'Accept-Charset': z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'Accept-Charset', in: 'header', schema: { type: 'string' } } }),
+        .openapi({ param: { name: 'Accept-Charset', in: 'header' } }),
     }),
   },
   responses: {

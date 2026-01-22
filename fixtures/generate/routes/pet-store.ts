@@ -200,11 +200,6 @@ export const getPetFindByStatusRoute = createRoute({
             description: 'Status values that need to be considered for filter',
             required: false,
             explode: true,
-            schema: {
-              type: 'string',
-              default: 'available',
-              enum: ['available', 'pending', 'sold'],
-            },
           },
         }),
     }),
@@ -244,7 +239,6 @@ export const getPetFindByTagsRoute = createRoute({
                 description: 'Tags to filter by',
                 required: false,
                 explode: true,
-                schema: { type: 'array', items: { type: 'string' } },
               },
             }),
         )
@@ -256,7 +250,6 @@ export const getPetFindByTagsRoute = createRoute({
             description: 'Tags to filter by',
             required: false,
             explode: true,
-            schema: { type: 'array', items: { type: 'string' } },
           },
         }),
     }),
@@ -286,13 +279,7 @@ export const getPetPetIdRoute = createRoute({
       petId: z
         .int64()
         .openapi({
-          param: {
-            name: 'petId',
-            in: 'path',
-            description: 'ID of pet to return',
-            required: true,
-            schema: { type: 'integer', format: 'int64' },
-          },
+          param: { name: 'petId', in: 'path', description: 'ID of pet to return', required: true },
         }),
     }),
   },
@@ -326,7 +313,6 @@ export const postPetPetIdRoute = createRoute({
             in: 'path',
             description: 'ID of pet that needs to be updated',
             required: true,
-            schema: { type: 'integer', format: 'int64' },
           },
         }),
     }),
@@ -335,12 +321,7 @@ export const postPetPetIdRoute = createRoute({
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            name: 'name',
-            in: 'query',
-            description: 'Name of pet that needs to be updated',
-            schema: { type: 'string' },
-          },
+          param: { name: 'name', in: 'query', description: 'Name of pet that needs to be updated' },
         }),
       status: z
         .string()
@@ -350,7 +331,6 @@ export const postPetPetIdRoute = createRoute({
             name: 'status',
             in: 'query',
             description: 'Status of pet that needs to be updated',
-            schema: { type: 'string' },
           },
         }),
     }),
@@ -371,27 +351,13 @@ export const deletePetPetIdRoute = createRoute({
       api_key: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'api_key',
-            in: 'header',
-            description: '',
-            required: false,
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'api_key', in: 'header', description: '', required: false } }),
     }),
     params: z.object({
       petId: z
         .int64()
         .openapi({
-          param: {
-            name: 'petId',
-            in: 'path',
-            description: 'Pet id to delete',
-            required: true,
-            schema: { type: 'integer', format: 'int64' },
-          },
+          param: { name: 'petId', in: 'path', description: 'Pet id to delete', required: true },
         }),
     }),
   },
@@ -410,13 +376,7 @@ export const postPetPetIdUploadImageRoute = createRoute({
       petId: z
         .int64()
         .openapi({
-          param: {
-            name: 'petId',
-            in: 'path',
-            description: 'ID of pet to update',
-            required: true,
-            schema: { type: 'integer', format: 'int64' },
-          },
+          param: { name: 'petId', in: 'path', description: 'ID of pet to update', required: true },
         }),
     }),
     query: z.object({
@@ -429,7 +389,6 @@ export const postPetPetIdUploadImageRoute = createRoute({
             in: 'query',
             description: 'Additional Metadata',
             required: false,
-            schema: { type: 'string' },
           },
         }),
     }),
@@ -504,7 +463,6 @@ export const getStoreOrderOrderIdRoute = createRoute({
             in: 'path',
             description: 'ID of order that needs to be fetched',
             required: true,
-            schema: { type: 'integer', format: 'int64' },
           },
         }),
     }),
@@ -540,7 +498,6 @@ export const deleteStoreOrderOrderIdRoute = createRoute({
             in: 'path',
             description: 'ID of the order that needs to be deleted',
             required: true,
-            schema: { type: 'integer', format: 'int64' },
           },
         }),
     }),
@@ -616,7 +573,6 @@ export const getUserLoginRoute = createRoute({
             in: 'query',
             description: 'The user name for login',
             required: false,
-            schema: { type: 'string' },
           },
         }),
       password: z
@@ -628,7 +584,6 @@ export const getUserLoginRoute = createRoute({
             in: 'query',
             description: 'The password for login in clear text',
             required: false,
-            schema: { type: 'string' },
           },
         }),
     }),
@@ -686,7 +641,6 @@ export const getUserUsernameRoute = createRoute({
             in: 'path',
             description: 'The name that needs to be fetched. Use user1 for testing. ',
             required: true,
-            schema: { type: 'string' },
           },
         }),
     }),
@@ -721,7 +675,6 @@ export const putUserUsernameRoute = createRoute({
             in: 'path',
             description: 'name that need to be deleted',
             required: true,
-            schema: { type: 'string' },
           },
         }),
     }),
@@ -754,7 +707,6 @@ export const deleteUserUsernameRoute = createRoute({
             in: 'path',
             description: 'The name that needs to be deleted',
             required: true,
-            schema: { type: 'string' },
           },
         }),
     }),

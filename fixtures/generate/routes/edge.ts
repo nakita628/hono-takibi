@@ -48,65 +48,30 @@ export const getSearchRoute = createRoute({
   summary: 'Search with complex query',
   request: {
     query: z.object({
-      q: z
-        .string()
-        .openapi({ param: { name: 'q', in: 'query', required: true, schema: { type: 'string' } } }),
+      q: z.string().openapi({ param: { name: 'q', in: 'query', required: true } }),
       filter: z
         .union([
           z
             .string()
             .exactOptional()
-            .openapi({
-              param: {
-                name: 'filter',
-                in: 'query',
-                schema: {
-                  anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
-                },
-              },
-            }),
+            .openapi({ param: { name: 'filter', in: 'query' } }),
           z
             .array(
               z
                 .string()
                 .exactOptional()
-                .openapi({
-                  param: {
-                    name: 'filter',
-                    in: 'query',
-                    schema: {
-                      anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
-                    },
-                  },
-                }),
+                .openapi({ param: { name: 'filter', in: 'query' } }),
             )
             .exactOptional()
-            .openapi({
-              param: {
-                name: 'filter',
-                in: 'query',
-                schema: {
-                  anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
-                },
-              },
-            }),
+            .openapi({ param: { name: 'filter', in: 'query' } }),
         ])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'filter',
-            in: 'query',
-            schema: { anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }] },
-          },
-        }),
+        .openapi({ param: { name: 'filter', in: 'query' } }),
       exclude: z
         .any()
         .refine((v) => typeof v !== 'number')
         .exactOptional()
-        .openapi({
-          param: { name: 'exclude', in: 'query', schema: { not: { type: 'number' } } },
-          not: { type: 'number' },
-        }),
+        .openapi({ param: { name: 'exclude', in: 'query' }, not: { type: 'number' } }),
     }),
   },
   responses: { 200: { description: 'OK' } },

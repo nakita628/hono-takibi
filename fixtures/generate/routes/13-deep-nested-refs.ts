@@ -348,36 +348,15 @@ const OrganizationSummarySchema = z
 
 const OrgIdPathParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'orgId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'orgId', in: 'path', required: true } })
 
 const DeptIdPathParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'deptId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'deptId', in: 'path', required: true } })
 
 const TeamIdPathParamsSchema = z
   .uuid()
-  .openapi({
-    param: {
-      name: 'teamId',
-      in: 'path',
-      required: true,
-      schema: { type: 'string', format: 'uuid' },
-    },
-  })
+  .openapi({ param: { name: 'teamId', in: 'path', required: true } })
 
 const AddTeamMemberRequestBody = {
   content: {

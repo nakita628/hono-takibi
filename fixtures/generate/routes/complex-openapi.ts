@@ -174,11 +174,7 @@ export const getUsersUserIdRoute = createRoute({
   summary: 'Retrieve a user by ID',
   request: {
     params: z.object({
-      userId: z
-        .string()
-        .openapi({
-          param: { in: 'path', name: 'userId', required: true, schema: { type: 'string' } },
-        }),
+      userId: z.string().openapi({ param: { in: 'path', name: 'userId', required: true } }),
     }),
   },
   responses: {
@@ -193,11 +189,7 @@ export const putUsersUserIdRoute = createRoute({
   summary: 'Update an existing user',
   request: {
     params: z.object({
-      userId: z
-        .string()
-        .openapi({
-          param: { in: 'path', name: 'userId', required: true, schema: { type: 'string' } },
-        }),
+      userId: z.string().openapi({ param: { in: 'path', name: 'userId', required: true } }),
     }),
     body: {
       description: 'Updated user information',
@@ -220,11 +212,7 @@ export const deleteUsersUserIdRoute = createRoute({
   summary: 'Delete a user',
   request: {
     params: z.object({
-      userId: z
-        .string()
-        .openapi({
-          param: { in: 'path', name: 'userId', required: true, schema: { type: 'string' } },
-        }),
+      userId: z.string().openapi({ param: { in: 'path', name: 'userId', required: true } }),
     }),
   },
   responses: {

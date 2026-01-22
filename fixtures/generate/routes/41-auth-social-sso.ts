@@ -245,27 +245,7 @@ const ProviderParamParamsSchema = z
     'custom',
   ])
   .openapi({
-    param: {
-      name: 'provider',
-      in: 'path',
-      required: true,
-      description: 'プロバイダー識別子',
-      schema: {
-        type: 'string',
-        enum: [
-          'google',
-          'github',
-          'microsoft',
-          'apple',
-          'facebook',
-          'twitter',
-          'linkedin',
-          'slack',
-          'discord',
-          'custom',
-        ],
-      },
-    },
+    param: { name: 'provider', in: 'path', required: true, description: 'プロバイダー識別子' },
   })
 
 const BearerAuthSecurityScheme = { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }
@@ -297,50 +277,25 @@ export const getSocialAuthorizeProviderRoute = createRoute({
     query: z.object({
       redirect_uri: z
         .url()
-        .openapi({
-          param: {
-            name: 'redirect_uri',
-            in: 'query',
-            required: true,
-            schema: { type: 'string', format: 'uri' },
-          },
-        }),
+        .openapi({ param: { name: 'redirect_uri', in: 'query', required: true } }),
       state: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'state', in: 'query', schema: { type: 'string' } } }),
+        .openapi({ param: { name: 'state', in: 'query' } }),
       scope: z
         .string()
         .exactOptional()
         .openapi({
-          param: {
-            name: 'scope',
-            in: 'query',
-            description: '追加のスコープ（カンマ区切り）',
-            schema: { type: 'string' },
-          },
+          param: { name: 'scope', in: 'query', description: '追加のスコープ（カンマ区切り）' },
         }),
       login_hint: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'login_hint',
-            in: 'query',
-            description: 'ログインヒント',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'login_hint', in: 'query', description: 'ログインヒント' } }),
       prompt: z
         .enum(['none', 'consent', 'select_account'])
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'prompt',
-            in: 'query',
-            schema: { type: 'string', enum: ['none', 'consent', 'select_account'] },
-          },
-        }),
+        .openapi({ param: { name: 'prompt', in: 'query' } }),
     }),
   },
   responses: {
@@ -368,33 +323,19 @@ export const getSocialCallbackProviderRoute = createRoute({
       code: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'code',
-            in: 'query',
-            description: '認可コード',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'code', in: 'query', description: '認可コード' } }),
       state: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'state', in: 'query', schema: { type: 'string' } } }),
+        .openapi({ param: { name: 'state', in: 'query' } }),
       error: z
         .string()
         .exactOptional()
-        .openapi({
-          param: {
-            name: 'error',
-            in: 'query',
-            description: 'エラーコード',
-            schema: { type: 'string' },
-          },
-        }),
+        .openapi({ param: { name: 'error', in: 'query', description: 'エラーコード' } }),
       error_description: z
         .string()
         .exactOptional()
-        .openapi({ param: { name: 'error_description', in: 'query', schema: { type: 'string' } } }),
+        .openapi({ param: { name: 'error_description', in: 'query' } }),
     }),
   },
   responses: {
@@ -541,16 +482,7 @@ export const getProvidersProviderIdRoute = createRoute({
   operationId: 'getProvider',
   request: {
     params: z.object({
-      providerId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'providerId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      providerId: z.uuid().openapi({ param: { name: 'providerId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -572,16 +504,7 @@ export const putProvidersProviderIdRoute = createRoute({
   operationId: 'updateProvider',
   request: {
     params: z.object({
-      providerId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'providerId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      providerId: z.uuid().openapi({ param: { name: 'providerId', in: 'path', required: true } }),
     }),
     body: {
       content: { 'application/json': { schema: UpdateProviderRequestSchema } },
@@ -606,16 +529,7 @@ export const deleteProvidersProviderIdRoute = createRoute({
   operationId: 'deleteProvider',
   request: {
     params: z.object({
-      providerId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'providerId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      providerId: z.uuid().openapi({ param: { name: 'providerId', in: 'path', required: true } }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -630,16 +544,7 @@ export const postProvidersProviderIdTestRoute = createRoute({
   operationId: 'testProvider',
   request: {
     params: z.object({
-      providerId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'providerId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      providerId: z.uuid().openapi({ param: { name: 'providerId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -776,16 +681,7 @@ export const getEnterpriseSsoConfigIdRoute = createRoute({
   operationId: 'getEnterpriseSSOConfig',
   request: {
     params: z.object({
-      configId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'configId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      configId: z.uuid().openapi({ param: { name: 'configId', in: 'path', required: true } }),
     }),
   },
   responses: {
@@ -807,16 +703,7 @@ export const putEnterpriseSsoConfigIdRoute = createRoute({
   operationId: 'updateEnterpriseSSOConfig',
   request: {
     params: z.object({
-      configId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'configId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      configId: z.uuid().openapi({ param: { name: 'configId', in: 'path', required: true } }),
     }),
     body: {
       content: { 'application/json': { schema: UpdateEnterpriseSSORequestSchema } },
@@ -841,16 +728,7 @@ export const deleteEnterpriseSsoConfigIdRoute = createRoute({
   operationId: 'deleteEnterpriseSSOConfig',
   request: {
     params: z.object({
-      configId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'configId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      configId: z.uuid().openapi({ param: { name: 'configId', in: 'path', required: true } }),
     }),
   },
   responses: { 204: { description: '削除成功' }, 401: UnauthorizedResponse },
@@ -868,13 +746,7 @@ export const getEnterpriseSsoDomainLookupRoute = createRoute({
       domain: z
         .string()
         .openapi({
-          param: {
-            name: 'domain',
-            in: 'query',
-            required: true,
-            schema: { type: 'string' },
-            example: 'company.com',
-          },
+          param: { name: 'domain', in: 'query', required: true, example: 'company.com' },
         }),
     }),
   },
@@ -896,16 +768,7 @@ export const getEnterpriseSsoConfigIdMetadataRoute = createRoute({
   operationId: 'getSPMetadata',
   request: {
     params: z.object({
-      configId: z
-        .uuid()
-        .openapi({
-          param: {
-            name: 'configId',
-            in: 'path',
-            required: true,
-            schema: { type: 'string', format: 'uuid' },
-          },
-        }),
+      configId: z.uuid().openapi({ param: { name: 'configId', in: 'path', required: true } }),
     }),
   },
   responses: {

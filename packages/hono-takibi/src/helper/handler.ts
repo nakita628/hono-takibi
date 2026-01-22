@@ -21,8 +21,7 @@ export async function zodOpenAPIHonoHandler(
   const paths: OpenAPI['paths'] = openapi.paths
 
   const handlers: readonly {
-    readonly fileName: `${string}.ts`
-    readonly testFileName: `${string}.ts`
+    readonly baseName: string
     readonly routeHandlerContents: string[]
     readonly routeNames: string[]
   }[] = Object.entries(paths).flatMap(([p, pathItem]) =>
@@ -40,18 +39,14 @@ export async function zodOpenAPIHonoHandler(
           .replace(/__+/g, '_')
           .replace(/[-._](\w)/g, (_, c: string) => c.toUpperCase())
 
-        const pathName = sanitized === '' ? '__root' : sanitized
-        const fileName: `${string}.ts` = `${pathName}.ts`
-        const testFileName: `${string}.ts` = `${pathName}.test.ts`
+        const baseName = sanitized === '' ? '__root' : sanitized
 
         return {
-          fileName,
-          testFileName,
+          baseName,
           routeHandlerContents: [routeHandlerContent],
           routeNames: [`${routeId}Route`],
         } satisfies {
-          readonly fileName: `${string}.ts`
-          readonly testFileName: `${string}.ts`
+          readonly baseName: string
           readonly routeHandlerContents: string[]
           readonly routeNames: string[]
         }
@@ -59,8 +54,7 @@ export async function zodOpenAPIHonoHandler(
   )
 
   const mergedHandlers: readonly {
-    readonly fileName: `${string}.ts`
-    readonly testFileName: `${string}.ts`
+    readonly baseName: string
     readonly routeHandlerContents: string[]
     readonly routeNames: string[]
   }[] = Array.from(
@@ -69,33 +63,29 @@ export async function zodOpenAPIHonoHandler(
         Map<
           string,
           {
-            readonly fileName: `${string}.ts`
-            readonly testFileName: `${string}.ts`
+            readonly baseName: string
             readonly routeHandlerContents: string[]
             readonly routeNames: string[]
           }
         >
       >((map, h) => {
-        const prev = map.get(h.fileName)
+        const prev = map.get(h.baseName)
         const next: {
-          readonly fileName: `${string}.ts`
-          readonly testFileName: `${string}.ts`
+          readonly baseName: string
           readonly routeHandlerContents: string[]
           readonly routeNames: string[]
         } = prev
           ? {
-              fileName: h.fileName,
-              testFileName: h.testFileName,
+              baseName: h.baseName,
               routeHandlerContents: [...prev.routeHandlerContents, ...h.routeHandlerContents],
               routeNames: Array.from(new Set([...prev.routeNames, ...h.routeNames])),
             }
           : {
-              fileName: h.fileName,
-              testFileName: h.testFileName,
+              baseName: h.baseName,
               routeHandlerContents: [...h.routeHandlerContents],
               routeNames: [...h.routeNames],
             }
-        map.set(h.fileName, next)
+        map.set(h.baseName, next)
         return map
       }, new Map())
       .values(),
@@ -104,14 +94,13 @@ export async function zodOpenAPIHonoHandler(
   const isDot = output === '.' || output === './'
   const baseDir = isDot ? '.' : (output.match(/^(.*)\/[^/]+\.ts$/)?.[1] ?? '.')
   const handlerPath = baseDir === '.' ? 'handlers' : `${baseDir}/handlers`
-  const routeEntryBasename = output.match(/[^/]+\.ts$/)?.[0] ?? 'index.ts'
-  const importFrom = `../${routeEntryBasename.replace(/\.ts$/, '')}`
+  const routeEntryBasename = output.match(/([^/]+)\.ts$/)?.[1] ?? 'index'
+  const importFrom = `../${routeEntryBasename}`
 
   const mkdirResult = await mkdir(handlerPath)
   if (!mkdirResult.ok) return { ok: false, error: mkdirResult.error }
 
-  const handlerFiles = mergedHandlers.map((h) => h.fileName)
-  const exports = handlerFiles.map((h) => `export * from './${h}'`).join('\n')
+  const exports = mergedHandlers.map((h) => `export * from './${h.baseName}'`).join('\n')
 
   const handlerResults = await Promise.all([
     ...mergedHandlers.map(async (handler) => {
@@ -124,11 +113,11 @@ export async function zodOpenAPIHonoHandler(
 
       const fmtResult = await fmt(fileContent)
       if (!fmtResult.ok) return { ok: false, error: fmtResult.error } as const
-      const writeResult = await writeFile(`${handlerPath}/${handler.fileName}`, fmtResult.value)
+      const writeResult = await writeFile(`${handlerPath}/${handler.baseName}.ts`, fmtResult.value)
       if (!writeResult.ok) return { ok: false, error: writeResult.error } as const
 
       if (test) {
-        const testWriteResult = await writeFile(`${handlerPath}/${handler.testFileName}`, '')
+        const testWriteResult = await writeFile(`${handlerPath}/${handler.baseName}.test.ts`, '')
         if (!testWriteResult.ok) return { ok: false, error: testWriteResult.error } as const
       }
       return { ok: true, value: undefined } as const
