@@ -24,6 +24,7 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
+    "@hono/swagger-ui": "^0.5.3",
     "@hono/vite-build": "^1.9.1",
     "@hono/vite-dev-server": "^0.24.1",
     "@rslint/tsgo": "^0.2.0",

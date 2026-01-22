@@ -64,9 +64,9 @@ export const CreatedSchema = z
 
 export type Created = z.infer<typeof CreatedSchema>
 
-export const getRoute = createRoute({
+export const getApiRoute = createRoute({
   method: 'get',
-  path: '/',
+  path: '/api',
   tags: ['Health'],
   summary: 'Health Check',
   operationId: 'Health_list',
@@ -78,9 +78,9 @@ export const getRoute = createRoute({
   },
 })
 
-export const getTodoRoute = createRoute({
+export const getApiTodoRoute = createRoute({
   method: 'get',
-  path: '/todo',
+  path: '/api/todo',
   tags: ['Todos'],
   summary: 'Retrieve a list of posts',
   operationId: 'Todos_list',
@@ -136,9 +136,9 @@ export const getTodoRoute = createRoute({
   },
 })
 
-export const postTodoRoute = createRoute({
+export const postApiTodoRoute = createRoute({
   method: 'post',
-  path: '/todo',
+  path: '/api/todo',
   tags: ['Todos'],
   summary: 'Create a new post',
   operationId: 'Todos_create',
@@ -174,9 +174,9 @@ export const postTodoRoute = createRoute({
   },
 })
 
-export const getTodoIdRoute = createRoute({
+export const getApiTodoIdRoute = createRoute({
   method: 'get',
-  path: '/todo/{id}',
+  path: '/api/todo/{id}',
   tags: ['Todos'],
   summary: 'Get a single todo',
   operationId: 'Todos_read',
@@ -218,9 +218,9 @@ export const getTodoIdRoute = createRoute({
   },
 })
 
-export const putTodoIdRoute = createRoute({
+export const putApiTodoIdRoute = createRoute({
   method: 'put',
-  path: '/todo/{id}',
+  path: '/api/todo/{id}',
   tags: ['Todos'],
   summary: 'Update an existing todo',
   operationId: 'Todos_update',
@@ -275,9 +275,9 @@ export const putTodoIdRoute = createRoute({
   },
 })
 
-export const deleteTodoIdRoute = createRoute({
+export const deleteApiTodoIdRoute = createRoute({
   method: 'delete',
-  path: '/todo/{id}',
+  path: '/api/todo/{id}',
   tags: ['Todos'],
   summary: 'Delete a todo',
   operationId: 'Todos_delete',

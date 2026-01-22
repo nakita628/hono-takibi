@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import type { Todo } from '@/api/routes'
-import { deleteTodoId, getTodo, postTodo } from '@/rpc'
+import { deleteApiTodoId, getApiTodo, postApiTodo } from '@/rpc'
 
 function App() {
   const [content, setContent] = useState('')
@@ -9,7 +9,7 @@ function App() {
   const [loading, setLoading] = useState(true)
 
   const fetchTodos = useCallback(async () => {
-    const res = await getTodo({ query: {} })
+    const res = await getApiTodo({ query: {} })
     if (res.status === 200) {
       const data = await res.json()
       setTodos(data)
@@ -21,21 +21,27 @@ function App() {
     fetchTodos()
   }, [fetchTodos])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!content.trim()) return
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      if (!content.trim()) return
 
-    const res = await postTodo({ json: { content } })
-    if (res.ok) {
-      setContent('')
+      const res = await postApiTodo({ json: { content } })
+      if (res.ok) {
+        setContent('')
+        fetchTodos()
+      }
+    },
+    [content, fetchTodos],
+  )
+
+  const handleRemoveTodo = useCallback(
+    async (id: string) => {
+      await deleteApiTodoId({ param: { id } })
       fetchTodos()
-    }
-  }
-
-  const handleRemoveTodo = async (id: string) => {
-    await deleteTodoId({ param: { id } })
-    fetchTodos()
-  }
+    },
+    [fetchTodos],
+  )
 
   const recentTodos = useMemo(() => todos.slice(0, 5), [todos])
 

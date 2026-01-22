@@ -11,7 +11,4 @@ export default defineConfig({
     import: '../lib',
     output: 'src/rpc/index.ts',
   },
-  type: {
-    output: 'src/types/index.d.ts',
-  },
 })

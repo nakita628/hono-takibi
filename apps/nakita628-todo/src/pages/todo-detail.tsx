@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import type { Todo } from '@/api/routes'
-import { getTodoId } from '@/rpc'
+import { getApiTodoId } from '@/rpc'
 
 /**
  * Formats an ISO date string into a human-readable format.
@@ -34,7 +34,7 @@ export function TodoDetailPage() {
         return
       }
 
-      const res = await getTodoId({ param: { id } })
+      const res = await getApiTodoId({ param: { id } })
       if (res.ok) {
         const data = await res.json()
         setTodo(data)

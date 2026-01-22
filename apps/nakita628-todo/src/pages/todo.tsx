@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import type { Todo } from '@/api/routes'
-import { deleteTodoId, getTodo, postTodo, putTodoId } from '@/rpc'
+import { deleteApiTodoId, getApiTodo, postApiTodo, putApiTodoId } from '@/rpc'
 
 export function TodoPage() {
   const [todos, setTodos] = useState<Todo[]>([])
@@ -9,7 +9,7 @@ export function TodoPage() {
   const [loading, setLoading] = useState(true)
 
   const fetchTodos = useCallback(async () => {
-    const res = await getTodo({ query: {} })
+    const res = await getApiTodo({ query: {} })
     if (res.status === 200) {
       const data = await res.json()
       setTodos(data)
@@ -21,31 +21,40 @@ export function TodoPage() {
     fetchTodos()
   }, [fetchTodos])
 
-  const handleAddTodo = async () => {
+  const handleAddTodo = useCallback(async () => {
     if (!newContent.trim()) return
-    await postTodo({ json: { content: newContent } })
+    await postApiTodo({ json: { content: newContent } })
     setNewContent('')
     fetchTodos()
-  }
+  }, [newContent, fetchTodos])
 
-  const handleToggleTodo = async (id: string, completed: number) => {
-    await putTodoId({
-      param: { id },
-      json: { completed: completed === 0 ? 1 : 0 },
-    })
-    fetchTodos()
-  }
+  const handleToggleTodo = useCallback(
+    async (id: string, completed: number) => {
+      await putApiTodoId({
+        param: { id },
+        json: { completed: completed === 0 ? 1 : 0 },
+      })
+      fetchTodos()
+    },
+    [fetchTodos],
+  )
 
-  const handleRemoveTodo = async (id: string) => {
-    await deleteTodoId({ param: { id } })
-    fetchTodos()
-  }
+  const handleRemoveTodo = useCallback(
+    async (id: string) => {
+      await deleteApiTodoId({ param: { id } })
+      fetchTodos()
+    },
+    [fetchTodos],
+  )
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleAddTodo()
-    }
-  }
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        handleAddTodo()
+      }
+    },
+    [handleAddTodo],
+  )
 
   if (loading) {
     return (
