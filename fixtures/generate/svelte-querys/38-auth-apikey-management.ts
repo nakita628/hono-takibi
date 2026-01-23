@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
@@ -12,7 +12,12 @@ import { client } from '../clients/38-auth-apikey-management'
 export function createGetApiKeys(
   args: InferRequestType<(typeof client)['api-keys']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['api-keys']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['api-keys']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['api-keys']['$get']>,
+      readonly ['/api-keys', InferRequestType<(typeof client)['api-keys']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -33,10 +38,8 @@ export function createGetApiKeys(
 /**
  * Generates Svelte Query cache key for GET /api-keys
  */
-export function getGetApiKeysQueryKey(
-  args?: InferRequestType<(typeof client)['api-keys']['$get']>,
-) {
-  return ['/api-keys', ...(args ? [args] : [])] as const
+export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
+  return ['/api-keys', args] as const
 }
 
 /**
@@ -78,7 +81,9 @@ export function createGetApiKeysKeyId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
+      readonly ['/api-keys/:keyId', InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -101,9 +106,9 @@ export function createGetApiKeysKeyId(
  * Generates Svelte Query cache key for GET /api-keys/{keyId}
  */
 export function getGetApiKeysKeyIdQueryKey(
-  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
 ) {
-  return ['/api-keys/:keyId', ...(args ? [args] : [])] as const
+  return ['/api-keys/:keyId', args] as const
 }
 
 /**
@@ -236,7 +241,12 @@ export function createGetApiKeysKeyIdUsage(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+      readonly [
+        '/api-keys/:keyId/usage',
+        InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -260,9 +270,9 @@ export function createGetApiKeysKeyIdUsage(
  * Generates Svelte Query cache key for GET /api-keys/{keyId}/usage
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
-  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
 ) {
-  return ['/api-keys/:keyId/usage', ...(args ? [args] : [])] as const
+  return ['/api-keys/:keyId/usage', args] as const
 }
 
 /**
@@ -275,7 +285,12 @@ export function createGetApiKeysKeyIdRateLimitCurrent(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+      readonly [
+        '/api-keys/:keyId/rate-limit/current',
+        InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -299,9 +314,9 @@ export function createGetApiKeysKeyIdRateLimitCurrent(
  * Generates Svelte Query cache key for GET /api-keys/{keyId}/rate-limit/current
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
-  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  return ['/api-keys/:keyId/rate-limit/current', ...(args ? [args] : [])] as const
+  return ['/api-keys/:keyId/rate-limit/current', args] as const
 }
 
 /**
@@ -341,7 +356,12 @@ export function createPostApiKeysVerify(
  */
 export function createGetScopes(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.scopes.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.scopes.$get>,
+      Error,
+      InferResponseType<typeof client.scopes.$get>,
+      readonly ['/scopes']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

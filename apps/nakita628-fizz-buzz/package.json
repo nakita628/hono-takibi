@@ -15,7 +15,7 @@
   "devDependencies": {
     "@hono/swagger-ui": "^0.5.2",
     "@types/node": "^25.0.2",
-    "hono-takibi": "^0.9.61",
+    "hono-takibi": "workspace:^",
     "tsx": "^4.21.0"
   }
 }

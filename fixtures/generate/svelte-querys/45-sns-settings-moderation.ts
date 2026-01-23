@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
@@ -11,7 +11,12 @@ import { client } from '../clients/45-sns-settings-moderation'
  */
 export function createGetSettingsAccount(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.settings.account.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.settings.account.$get>,
+      Error,
+      InferResponseType<typeof client.settings.account.$get>,
+      readonly ['/settings/account']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -74,7 +79,15 @@ export function createPutSettingsAccount(
 export function createGetSettingsUsernameCheck(
   args: InferRequestType<typeof client.settings.username.check.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.settings.username.check.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.settings.username.check.$get>,
+      Error,
+      InferResponseType<typeof client.settings.username.check.$get>,
+      readonly [
+        '/settings/username/check',
+        InferRequestType<typeof client.settings.username.check.$get>,
+      ]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -96,9 +109,9 @@ export function createGetSettingsUsernameCheck(
  * Generates Svelte Query cache key for GET /settings/username/check
  */
 export function getGetSettingsUsernameCheckQueryKey(
-  args?: InferRequestType<typeof client.settings.username.check.$get>,
+  args: InferRequestType<typeof client.settings.username.check.$get>,
 ) {
-  return ['/settings/username/check', ...(args ? [args] : [])] as const
+  return ['/settings/username/check', args] as const
 }
 
 /**
@@ -108,7 +121,12 @@ export function getGetSettingsUsernameCheckQueryKey(
  */
 export function createGetSettingsPrivacy(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.settings.privacy.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.settings.privacy.$get>,
+      Error,
+      InferResponseType<typeof client.settings.privacy.$get>,
+      readonly ['/settings/privacy']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -172,7 +190,9 @@ export function createGetSettingsContentPreferences(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.settings)['content-preferences']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.settings)['content-preferences']['$get']>,
+      readonly ['/settings/content-preferences']
     >
     client?: ClientRequestOptions
   },
@@ -238,7 +258,9 @@ export function createGetSettingsMutedWords(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.settings)['muted-words']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.settings)['muted-words']['$get']>,
+      readonly ['/settings/muted-words']
     >
     client?: ClientRequestOptions
   },
@@ -332,7 +354,12 @@ export function createDeleteSettingsMutedWordsWordId(
  */
 export function createGetSettingsSessions(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.settings.sessions.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.settings.sessions.$get>,
+      Error,
+      InferResponseType<typeof client.settings.sessions.$get>,
+      readonly ['/settings/sessions']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -396,7 +423,9 @@ export function createGetSettingsConnectedApps(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.settings)['connected-apps']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.settings)['connected-apps']['$get']>,
+      readonly ['/settings/connected-apps']
     >
     client?: ClientRequestOptions
   },
@@ -494,7 +523,12 @@ export function createGetSettingsDataExportRequestId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+      readonly [
+        '/settings/data-export/:requestId',
+        InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -518,9 +552,9 @@ export function createGetSettingsDataExportRequestId(
  * Generates Svelte Query cache key for GET /settings/data-export/{requestId}
  */
 export function getGetSettingsDataExportRequestIdQueryKey(
-  args?: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
 ) {
-  return ['/settings/data-export/:requestId', ...(args ? [args] : [])] as const
+  return ['/settings/data-export/:requestId', args] as const
 }
 
 /**
@@ -592,7 +626,12 @@ export function createGetReportsReportId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.reports)[':reportId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.reports)[':reportId']['$get']>,
+      readonly [
+        '/reports/:reportId',
+        InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -615,9 +654,9 @@ export function createGetReportsReportId(
  * Generates Svelte Query cache key for GET /reports/{reportId}
  */
 export function getGetReportsReportIdQueryKey(
-  args?: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
 ) {
-  return ['/reports/:reportId', ...(args ? [args] : [])] as const
+  return ['/reports/:reportId', args] as const
 }
 
 /**
@@ -630,7 +669,12 @@ export function getGetReportsReportIdQueryKey(
 export function createGetModerationQueue(
   args: InferRequestType<typeof client.moderation.queue.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.moderation.queue.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.moderation.queue.$get>,
+      Error,
+      InferResponseType<typeof client.moderation.queue.$get>,
+      readonly ['/moderation/queue', InferRequestType<typeof client.moderation.queue.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -652,9 +696,9 @@ export function createGetModerationQueue(
  * Generates Svelte Query cache key for GET /moderation/queue
  */
 export function getGetModerationQueueQueryKey(
-  args?: InferRequestType<typeof client.moderation.queue.$get>,
+  args: InferRequestType<typeof client.moderation.queue.$get>,
 ) {
-  return ['/moderation/queue', ...(args ? [args] : [])] as const
+  return ['/moderation/queue', args] as const
 }
 
 /**
@@ -667,7 +711,12 @@ export function createGetModerationItemsItemId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>,
+      readonly [
+        '/moderation/items/:itemId',
+        InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -691,9 +740,9 @@ export function createGetModerationItemsItemId(
  * Generates Svelte Query cache key for GET /moderation/items/{itemId}
  */
 export function getGetModerationItemsItemIdQueryKey(
-  args?: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
 ) {
-  return ['/moderation/items/:itemId', ...(args ? [args] : [])] as const
+  return ['/moderation/items/:itemId', args] as const
 }
 
 /**
@@ -736,7 +785,12 @@ export function createGetModerationUsersUserIdHistory(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+      readonly [
+        '/moderation/users/:userId/history',
+        InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -760,9 +814,9 @@ export function createGetModerationUsersUserIdHistory(
  * Generates Svelte Query cache key for GET /moderation/users/{userId}/history
  */
 export function getGetModerationUsersUserIdHistoryQueryKey(
-  args?: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
 ) {
-  return ['/moderation/users/:userId/history', ...(args ? [args] : [])] as const
+  return ['/moderation/users/:userId/history', args] as const
 }
 
 /**
@@ -838,7 +892,12 @@ export function createGetAnalyticsPostsPostId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>,
+      readonly [
+        '/analytics/posts/:postId',
+        InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -862,9 +921,9 @@ export function createGetAnalyticsPostsPostId(
  * Generates Svelte Query cache key for GET /analytics/posts/{postId}
  */
 export function getGetAnalyticsPostsPostIdQueryKey(
-  args?: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
 ) {
-  return ['/analytics/posts/:postId', ...(args ? [args] : [])] as const
+  return ['/analytics/posts/:postId', args] as const
 }
 
 /**
@@ -875,7 +934,12 @@ export function getGetAnalyticsPostsPostIdQueryKey(
 export function createGetAnalyticsAccount(
   args: InferRequestType<typeof client.analytics.account.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.analytics.account.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.analytics.account.$get>,
+      Error,
+      InferResponseType<typeof client.analytics.account.$get>,
+      readonly ['/analytics/account', InferRequestType<typeof client.analytics.account.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -897,9 +961,9 @@ export function createGetAnalyticsAccount(
  * Generates Svelte Query cache key for GET /analytics/account
  */
 export function getGetAnalyticsAccountQueryKey(
-  args?: InferRequestType<typeof client.analytics.account.$get>,
+  args: InferRequestType<typeof client.analytics.account.$get>,
 ) {
-  return ['/analytics/account', ...(args ? [args] : [])] as const
+  return ['/analytics/account', args] as const
 }
 
 /**
@@ -910,7 +974,12 @@ export function getGetAnalyticsAccountQueryKey(
 export function createGetAnalyticsFollowers(
   args: InferRequestType<typeof client.analytics.followers.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.analytics.followers.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.analytics.followers.$get>,
+      Error,
+      InferResponseType<typeof client.analytics.followers.$get>,
+      readonly ['/analytics/followers', InferRequestType<typeof client.analytics.followers.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -932,9 +1001,9 @@ export function createGetAnalyticsFollowers(
  * Generates Svelte Query cache key for GET /analytics/followers
  */
 export function getGetAnalyticsFollowersQueryKey(
-  args?: InferRequestType<typeof client.analytics.followers.$get>,
+  args: InferRequestType<typeof client.analytics.followers.$get>,
 ) {
-  return ['/analytics/followers', ...(args ? [args] : [])] as const
+  return ['/analytics/followers', args] as const
 }
 
 /**
@@ -947,7 +1016,12 @@ export function createGetAnalyticsTopPosts(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.analytics)['top-posts']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.analytics)['top-posts']['$get']>,
+      readonly [
+        '/analytics/top-posts',
+        InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -970,7 +1044,7 @@ export function createGetAnalyticsTopPosts(
  * Generates Svelte Query cache key for GET /analytics/top-posts
  */
 export function getGetAnalyticsTopPostsQueryKey(
-  args?: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
+  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
 ) {
-  return ['/analytics/top-posts', ...(args ? [args] : [])] as const
+  return ['/analytics/top-posts', args] as const
 }

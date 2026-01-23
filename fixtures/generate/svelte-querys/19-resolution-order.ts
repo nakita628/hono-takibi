@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -9,7 +9,12 @@ import { client } from '../clients/19-resolution-order'
  */
 export function createGetEntities(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.entities.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.entities.$get>,
+      Error,
+      InferResponseType<typeof client.entities.$get>,
+      readonly ['/entities']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -66,7 +71,12 @@ export function createPostProcess(
  */
 export function createGetGraph(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.graph.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.graph.$get>,
+      Error,
+      InferResponseType<typeof client.graph.$get>,
+      readonly ['/graph']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

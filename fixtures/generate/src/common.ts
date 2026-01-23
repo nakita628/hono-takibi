@@ -12,10 +12,6 @@ export type OpenAPI = Parameters<typeof generateType>[0]
 export const __dirname = dirname(fileURLToPath(import.meta.url))
 export const WORKERS = availableParallelism()
 
-export type Result =
-  | { file: string; success: true }
-  | { file: string; success: false; stderr?: string; error?: string }
-
 export async function parseOpenAPI(
   input: string,
 ): Promise<
@@ -27,10 +23,7 @@ export async function parseOpenAPI(
         noEmit: true,
       })
       if (program.diagnostics.length) {
-        return {
-          ok: false,
-          error: 'TypeSpec compile failed',
-        }
+        return { ok: false, error: 'TypeSpec compile failed' }
       }
       const [record] = await getOpenAPI3(program)
       const tsp = 'document' in record ? record.document : record.versions[0].document
@@ -48,14 +41,15 @@ export async function getOpenAPIFiles(): Promise<string[]> {
   return (await readdir(join(__dirname, '../openapi'))).filter((f) => /\.(yaml|json|tsp)$/i.test(f))
 }
 
-export function printFailures(failures: Result[], total: number, label: string): void {
+export function printFailures(
+  failures: { readonly ok: false; readonly error: string }[],
+  total: number,
+  label: string,
+): void {
   if (failures.length > 0) {
     console.error(`\n${failures.length}/${total} ${label} failed:\n`)
     for (const f of failures) {
-      console.error(`--- ${f.file} ---`)
-      if (!f.success) {
-        console.error(f.stderr || f.error || '(no output)')
-      }
+      console.error(f.error || '(no output)')
     }
   }
 }

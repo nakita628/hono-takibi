@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -11,9 +11,11 @@ import { client } from '../clients/26-extreme-features'
  */
 export function useGetStream(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.stream.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.stream.$get>,
+      Error,
+      InferResponseType<typeof client.stream.$get>,
+      readonly ['/stream']
     >
     client?: ClientRequestOptions
   },
@@ -23,9 +25,9 @@ export function useGetStream(
   const queryKey = getGetStreamQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.stream.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -109,9 +111,11 @@ export function usePostGrpcGateway(
  */
 export function useGetDeprecatedEndpoint(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['deprecated-endpoint']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
+      readonly ['/deprecated-endpoint']
     >
     client?: ClientRequestOptions
   },
@@ -121,10 +125,10 @@ export function useGetDeprecatedEndpoint(
   const queryKey = getGetDeprecatedEndpointQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['deprecated-endpoint'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

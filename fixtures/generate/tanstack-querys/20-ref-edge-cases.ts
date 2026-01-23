@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
 import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 
@@ -10,9 +10,11 @@ import { client } from '../clients/20-ref-edge-cases'
 export function useGetTest(
   args: InferRequestType<typeof client.test.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.test.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.test.$get>,
+      Error,
+      InferResponseType<typeof client.test.$get>,
+      readonly ['/test', InferRequestType<typeof client.test.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -22,9 +24,9 @@ export function useGetTest(
   const queryKey = getGetTestQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.test.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -34,8 +36,8 @@ export function useGetTest(
 /**
  * Generates TanStack Query cache key for GET /test
  */
-export function getGetTestQueryKey(args?: InferRequestType<typeof client.test.$get>) {
-  return ['/test', ...(args ? [args] : [])] as const
+export function getGetTestQueryKey(args: InferRequestType<typeof client.test.$get>) {
+  return ['/test', args] as const
 }
 
 /**
@@ -43,9 +45,11 @@ export function getGetTestQueryKey(args?: InferRequestType<typeof client.test.$g
  */
 export function useGetEmptyRefs(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['empty-refs']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['empty-refs']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['empty-refs']['$get']>,
+      readonly ['/empty-refs']
     >
     client?: ClientRequestOptions
   },
@@ -55,9 +59,9 @@ export function useGetEmptyRefs(
   const queryKey = getGetEmptyRefsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['empty-refs'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -76,9 +80,11 @@ export function getGetEmptyRefsQueryKey() {
  */
 export function useGetUnicodeRefs(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['unicode-refs']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['unicode-refs']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['unicode-refs']['$get']>,
+      readonly ['/unicode-refs']
     >
     client?: ClientRequestOptions
   },
@@ -88,9 +94,9 @@ export function useGetUnicodeRefs(
   const queryKey = getGetUnicodeRefsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['unicode-refs'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -109,9 +115,11 @@ export function getGetUnicodeRefsQueryKey() {
  */
 export function useGetSpecialChars(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['special-chars']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['special-chars']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['special-chars']['$get']>,
+      readonly ['/special-chars']
     >
     client?: ClientRequestOptions
   },
@@ -121,9 +129,9 @@ export function useGetSpecialChars(
   const queryKey = getGetSpecialCharsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['special-chars'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -142,9 +150,11 @@ export function getGetSpecialCharsQueryKey() {
  */
 export function useGetNumericStart(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['numeric-start']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['numeric-start']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['numeric-start']['$get']>,
+      readonly ['/numeric-start']
     >
     client?: ClientRequestOptions
   },
@@ -154,9 +164,9 @@ export function useGetNumericStart(
   const queryKey = getGetNumericStartQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['numeric-start'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -175,9 +185,11 @@ export function getGetNumericStartQueryKey() {
  */
 export function useGetRefInAllof(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['ref-in-allof']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['ref-in-allof']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['ref-in-allof']['$get']>,
+      readonly ['/ref-in-allof']
     >
     client?: ClientRequestOptions
   },
@@ -187,9 +199,9 @@ export function useGetRefInAllof(
   const queryKey = getGetRefInAllofQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['ref-in-allof'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -208,9 +220,11 @@ export function getGetRefInAllofQueryKey() {
  */
 export function useGetDeeplyNested(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['deeply-nested']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['deeply-nested']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['deeply-nested']['$get']>,
+      readonly ['/deeply-nested']
     >
     client?: ClientRequestOptions
   },
@@ -220,9 +234,9 @@ export function useGetDeeplyNested(
   const queryKey = getGetDeeplyNestedQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['deeply-nested'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -241,9 +255,11 @@ export function getGetDeeplyNestedQueryKey() {
  */
 export function useGetSameNameDiffContext(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['same-name-diff-context']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['same-name-diff-context']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['same-name-diff-context']['$get']>,
+      readonly ['/same-name-diff-context']
     >
     client?: ClientRequestOptions
   },
@@ -253,10 +269,10 @@ export function useGetSameNameDiffContext(
   const queryKey = getGetSameNameDiffContextQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['same-name-diff-context'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

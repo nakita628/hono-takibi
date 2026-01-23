@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
@@ -11,9 +11,11 @@ import { client } from '../clients/45-sns-settings-moderation'
  */
 export function useGetSettingsAccount(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.settings.account.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.settings.account.$get>,
+      Error,
+      InferResponseType<typeof client.settings.account.$get>,
+      readonly ['/settings/account']
     >
     client?: ClientRequestOptions
   },
@@ -23,9 +25,9 @@ export function useGetSettingsAccount(
   const queryKey = getGetSettingsAccountQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.settings.account.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -77,9 +79,14 @@ export function usePutSettingsAccount(
 export function useGetSettingsUsernameCheck(
   args: InferRequestType<typeof client.settings.username.check.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.settings.username.check.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.settings.username.check.$get>,
+      Error,
+      InferResponseType<typeof client.settings.username.check.$get>,
+      readonly [
+        '/settings/username/check',
+        InferRequestType<typeof client.settings.username.check.$get>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -89,9 +96,9 @@ export function useGetSettingsUsernameCheck(
   const queryKey = getGetSettingsUsernameCheckQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.settings.username.check.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -102,9 +109,9 @@ export function useGetSettingsUsernameCheck(
  * Generates TanStack Query cache key for GET /settings/username/check
  */
 export function getGetSettingsUsernameCheckQueryKey(
-  args?: InferRequestType<typeof client.settings.username.check.$get>,
+  args: InferRequestType<typeof client.settings.username.check.$get>,
 ) {
-  return ['/settings/username/check', ...(args ? [args] : [])] as const
+  return ['/settings/username/check', args] as const
 }
 
 /**
@@ -114,9 +121,11 @@ export function getGetSettingsUsernameCheckQueryKey(
  */
 export function useGetSettingsPrivacy(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.settings.privacy.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.settings.privacy.$get>,
+      Error,
+      InferResponseType<typeof client.settings.privacy.$get>,
+      readonly ['/settings/privacy']
     >
     client?: ClientRequestOptions
   },
@@ -126,9 +135,9 @@ export function useGetSettingsPrivacy(
   const queryKey = getGetSettingsPrivacyQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.settings.privacy.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -179,12 +188,11 @@ export function usePutSettingsPrivacy(
  */
 export function useGetSettingsContentPreferences(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.settings)['content-preferences']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.settings)['content-preferences']['$get']>,
+      Error,
+      InferResponseType<(typeof client.settings)['content-preferences']['$get']>,
+      readonly ['/settings/content-preferences']
     >
     client?: ClientRequestOptions
   },
@@ -194,10 +202,10 @@ export function useGetSettingsContentPreferences(
   const queryKey = getGetSettingsContentPreferencesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.settings['content-preferences'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -248,9 +256,11 @@ export function usePutSettingsContentPreferences(
  */
 export function useGetSettingsMutedWords(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.settings)['muted-words']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.settings)['muted-words']['$get']>,
+      Error,
+      InferResponseType<(typeof client.settings)['muted-words']['$get']>,
+      readonly ['/settings/muted-words']
     >
     client?: ClientRequestOptions
   },
@@ -260,10 +270,10 @@ export function useGetSettingsMutedWords(
   const queryKey = getGetSettingsMutedWordsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.settings['muted-words'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -344,9 +354,11 @@ export function useDeleteSettingsMutedWordsWordId(
  */
 export function useGetSettingsSessions(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.settings.sessions.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.settings.sessions.$get>,
+      Error,
+      InferResponseType<typeof client.settings.sessions.$get>,
+      readonly ['/settings/sessions']
     >
     client?: ClientRequestOptions
   },
@@ -356,9 +368,9 @@ export function useGetSettingsSessions(
   const queryKey = getGetSettingsSessionsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.settings.sessions.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -409,9 +421,11 @@ export function useDeleteSettingsSessionsSessionId(
  */
 export function useGetSettingsConnectedApps(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.settings)['connected-apps']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.settings)['connected-apps']['$get']>,
+      Error,
+      InferResponseType<(typeof client.settings)['connected-apps']['$get']>,
+      readonly ['/settings/connected-apps']
     >
     client?: ClientRequestOptions
   },
@@ -421,10 +435,10 @@ export function useGetSettingsConnectedApps(
   const queryKey = getGetSettingsConnectedAppsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.settings['connected-apps'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -507,12 +521,14 @@ export function usePostSettingsDataExport(
 export function useGetSettingsDataExportRequestId(
   args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+      readonly [
+        '/settings/data-export/:requestId',
+        InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -522,10 +538,10 @@ export function useGetSettingsDataExportRequestId(
   const queryKey = getGetSettingsDataExportRequestIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.settings['data-export'][':requestId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -536,9 +552,9 @@ export function useGetSettingsDataExportRequestId(
  * Generates TanStack Query cache key for GET /settings/data-export/{requestId}
  */
 export function getGetSettingsDataExportRequestIdQueryKey(
-  args?: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
 ) {
-  return ['/settings/data-export/:requestId', ...(args ? [args] : [])] as const
+  return ['/settings/data-export/:requestId', args] as const
 }
 
 /**
@@ -608,9 +624,14 @@ export function usePostReports(
 export function useGetReportsReportId(
   args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.reports)[':reportId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.reports)[':reportId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.reports)[':reportId']['$get']>,
+      readonly [
+        '/reports/:reportId',
+        InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -620,9 +641,9 @@ export function useGetReportsReportId(
   const queryKey = getGetReportsReportIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.reports[':reportId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -633,9 +654,9 @@ export function useGetReportsReportId(
  * Generates TanStack Query cache key for GET /reports/{reportId}
  */
 export function getGetReportsReportIdQueryKey(
-  args?: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
 ) {
-  return ['/reports/:reportId', ...(args ? [args] : [])] as const
+  return ['/reports/:reportId', args] as const
 }
 
 /**
@@ -648,9 +669,11 @@ export function getGetReportsReportIdQueryKey(
 export function useGetModerationQueue(
   args: InferRequestType<typeof client.moderation.queue.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.moderation.queue.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.moderation.queue.$get>,
+      Error,
+      InferResponseType<typeof client.moderation.queue.$get>,
+      readonly ['/moderation/queue', InferRequestType<typeof client.moderation.queue.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -660,9 +683,9 @@ export function useGetModerationQueue(
   const queryKey = getGetModerationQueueQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.moderation.queue.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -673,9 +696,9 @@ export function useGetModerationQueue(
  * Generates TanStack Query cache key for GET /moderation/queue
  */
 export function getGetModerationQueueQueryKey(
-  args?: InferRequestType<typeof client.moderation.queue.$get>,
+  args: InferRequestType<typeof client.moderation.queue.$get>,
 ) {
-  return ['/moderation/queue', ...(args ? [args] : [])] as const
+  return ['/moderation/queue', args] as const
 }
 
 /**
@@ -686,12 +709,14 @@ export function getGetModerationQueueQueryKey(
 export function useGetModerationItemsItemId(
   args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>,
+      readonly [
+        '/moderation/items/:itemId',
+        InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -701,10 +726,10 @@ export function useGetModerationItemsItemId(
   const queryKey = getGetModerationItemsItemIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.moderation.items[':itemId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -715,9 +740,9 @@ export function useGetModerationItemsItemId(
  * Generates TanStack Query cache key for GET /moderation/items/{itemId}
  */
 export function getGetModerationItemsItemIdQueryKey(
-  args?: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
 ) {
-  return ['/moderation/items/:itemId', ...(args ? [args] : [])] as const
+  return ['/moderation/items/:itemId', args] as const
 }
 
 /**
@@ -758,12 +783,14 @@ export function usePostModerationItemsItemIdAction(
 export function useGetModerationUsersUserIdHistory(
   args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+      Error,
+      InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+      readonly [
+        '/moderation/users/:userId/history',
+        InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -773,10 +800,10 @@ export function useGetModerationUsersUserIdHistory(
   const queryKey = getGetModerationUsersUserIdHistoryQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.moderation.users[':userId'].history.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -787,9 +814,9 @@ export function useGetModerationUsersUserIdHistory(
  * Generates TanStack Query cache key for GET /moderation/users/{userId}/history
  */
 export function getGetModerationUsersUserIdHistoryQueryKey(
-  args?: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
 ) {
-  return ['/moderation/users/:userId/history', ...(args ? [args] : [])] as const
+  return ['/moderation/users/:userId/history', args] as const
 }
 
 /**
@@ -863,9 +890,14 @@ export function usePostModerationUsersUserIdUnsuspend(
 export function useGetAnalyticsPostsPostId(
   args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>,
+      readonly [
+        '/analytics/posts/:postId',
+        InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -875,10 +907,10 @@ export function useGetAnalyticsPostsPostId(
   const queryKey = getGetAnalyticsPostsPostIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.analytics.posts[':postId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -889,9 +921,9 @@ export function useGetAnalyticsPostsPostId(
  * Generates TanStack Query cache key for GET /analytics/posts/{postId}
  */
 export function getGetAnalyticsPostsPostIdQueryKey(
-  args?: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
 ) {
-  return ['/analytics/posts/:postId', ...(args ? [args] : [])] as const
+  return ['/analytics/posts/:postId', args] as const
 }
 
 /**
@@ -902,9 +934,11 @@ export function getGetAnalyticsPostsPostIdQueryKey(
 export function useGetAnalyticsAccount(
   args: InferRequestType<typeof client.analytics.account.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.analytics.account.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.analytics.account.$get>,
+      Error,
+      InferResponseType<typeof client.analytics.account.$get>,
+      readonly ['/analytics/account', InferRequestType<typeof client.analytics.account.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -914,9 +948,9 @@ export function useGetAnalyticsAccount(
   const queryKey = getGetAnalyticsAccountQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.analytics.account.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -927,9 +961,9 @@ export function useGetAnalyticsAccount(
  * Generates TanStack Query cache key for GET /analytics/account
  */
 export function getGetAnalyticsAccountQueryKey(
-  args?: InferRequestType<typeof client.analytics.account.$get>,
+  args: InferRequestType<typeof client.analytics.account.$get>,
 ) {
-  return ['/analytics/account', ...(args ? [args] : [])] as const
+  return ['/analytics/account', args] as const
 }
 
 /**
@@ -940,9 +974,11 @@ export function getGetAnalyticsAccountQueryKey(
 export function useGetAnalyticsFollowers(
   args: InferRequestType<typeof client.analytics.followers.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.analytics.followers.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.analytics.followers.$get>,
+      Error,
+      InferResponseType<typeof client.analytics.followers.$get>,
+      readonly ['/analytics/followers', InferRequestType<typeof client.analytics.followers.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -952,9 +988,9 @@ export function useGetAnalyticsFollowers(
   const queryKey = getGetAnalyticsFollowersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.analytics.followers.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -965,9 +1001,9 @@ export function useGetAnalyticsFollowers(
  * Generates TanStack Query cache key for GET /analytics/followers
  */
 export function getGetAnalyticsFollowersQueryKey(
-  args?: InferRequestType<typeof client.analytics.followers.$get>,
+  args: InferRequestType<typeof client.analytics.followers.$get>,
 ) {
-  return ['/analytics/followers', ...(args ? [args] : [])] as const
+  return ['/analytics/followers', args] as const
 }
 
 /**
@@ -978,9 +1014,14 @@ export function getGetAnalyticsFollowersQueryKey(
 export function useGetAnalyticsTopPosts(
   args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.analytics)['top-posts']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.analytics)['top-posts']['$get']>,
+      Error,
+      InferResponseType<(typeof client.analytics)['top-posts']['$get']>,
+      readonly [
+        '/analytics/top-posts',
+        InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -990,9 +1031,9 @@ export function useGetAnalyticsTopPosts(
   const queryKey = getGetAnalyticsTopPostsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.analytics['top-posts'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1003,7 +1044,7 @@ export function useGetAnalyticsTopPosts(
  * Generates TanStack Query cache key for GET /analytics/top-posts
  */
 export function getGetAnalyticsTopPostsQueryKey(
-  args?: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
+  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
 ) {
-  return ['/analytics/top-posts', ...(args ? [args] : [])] as const
+  return ['/analytics/top-posts', args] as const
 }

@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
@@ -37,9 +37,11 @@ export function usePostOrders(
 export function useGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.orders)[':orderId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.orders)[':orderId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.orders)[':orderId']['$get']>,
+      readonly ['/orders/:orderId', InferRequestType<(typeof client.orders)[':orderId']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -49,9 +51,9 @@ export function useGetOrdersOrderId(
   const queryKey = getGetOrdersOrderIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -62,9 +64,9 @@ export function useGetOrdersOrderId(
  * Generates TanStack Query cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdQueryKey(
-  args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return ['/orders/:orderId', ...(args ? [args] : [])] as const
+  return ['/orders/:orderId', args] as const
 }
 
 /**
@@ -101,12 +103,14 @@ export function useDeleteOrdersOrderId(
 export function useGetOrdersOrderIdItems(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.orders)[':orderId']['items']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.orders)[':orderId']['items']['$get']>,
+      Error,
+      InferResponseType<(typeof client.orders)[':orderId']['items']['$get']>,
+      readonly [
+        '/orders/:orderId/items',
+        InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -116,9 +120,9 @@ export function useGetOrdersOrderIdItems(
   const queryKey = getGetOrdersOrderIdItemsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.orders[':orderId'].items.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -129,9 +133,9 @@ export function useGetOrdersOrderIdItems(
  * Generates TanStack Query cache key for GET /orders/{orderId}/items
  */
 export function getGetOrdersOrderIdItemsQueryKey(
-  args?: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
+  args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
 ) {
-  return ['/orders/:orderId/items', ...(args ? [args] : [])] as const
+  return ['/orders/:orderId/items', args] as const
 }
 
 /**
@@ -140,9 +144,14 @@ export function getGetOrdersOrderIdItemsQueryKey(
 export function useGetCustomersCustomerId(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.customers)[':customerId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.customers)[':customerId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.customers)[':customerId']['$get']>,
+      readonly [
+        '/customers/:customerId',
+        InferRequestType<(typeof client.customers)[':customerId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -152,9 +161,9 @@ export function useGetCustomersCustomerId(
   const queryKey = getGetCustomersCustomerIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.customers[':customerId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -165,9 +174,9 @@ export function useGetCustomersCustomerId(
  * Generates TanStack Query cache key for GET /customers/{customerId}
  */
 export function getGetCustomersCustomerIdQueryKey(
-  args?: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
+  args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
-  return ['/customers/:customerId', ...(args ? [args] : [])] as const
+  return ['/customers/:customerId', args] as const
 }
 
 /**
@@ -176,12 +185,14 @@ export function getGetCustomersCustomerIdQueryKey(
 export function useGetCustomersCustomerIdOrders(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.customers)[':customerId']['orders']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.customers)[':customerId']['orders']['$get']>,
+      Error,
+      InferResponseType<(typeof client.customers)[':customerId']['orders']['$get']>,
+      readonly [
+        '/customers/:customerId/orders',
+        InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -191,10 +202,10 @@ export function useGetCustomersCustomerIdOrders(
   const queryKey = getGetCustomersCustomerIdOrdersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.customers[':customerId'].orders.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -205,9 +216,9 @@ export function useGetCustomersCustomerIdOrders(
  * Generates TanStack Query cache key for GET /customers/{customerId}/orders
  */
 export function getGetCustomersCustomerIdOrdersQueryKey(
-  args?: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
+  args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
 ) {
-  return ['/customers/:customerId/orders', ...(args ? [args] : [])] as const
+  return ['/customers/:customerId/orders', args] as const
 }
 
 /**
@@ -216,9 +227,14 @@ export function getGetCustomersCustomerIdOrdersQueryKey(
 export function useGetPaymentsPaymentId(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.payments)[':paymentId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.payments)[':paymentId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.payments)[':paymentId']['$get']>,
+      readonly [
+        '/payments/:paymentId',
+        InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -228,9 +244,9 @@ export function useGetPaymentsPaymentId(
   const queryKey = getGetPaymentsPaymentIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.payments[':paymentId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -241,7 +257,7 @@ export function useGetPaymentsPaymentId(
  * Generates TanStack Query cache key for GET /payments/{paymentId}
  */
 export function getGetPaymentsPaymentIdQueryKey(
-  args?: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
+  args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
-  return ['/payments/:paymentId', ...(args ? [args] : [])] as const
+  return ['/payments/:paymentId', args] as const
 }

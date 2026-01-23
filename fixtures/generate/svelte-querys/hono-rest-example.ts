@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
@@ -13,7 +13,12 @@ import { client } from '../clients/hono-rest-example'
  */
 export function createGet(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.index.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.index.$get>,
+      Error,
+      InferResponseType<typeof client.index.$get>,
+      readonly ['/']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -48,7 +53,12 @@ export function getGetQueryKey() {
 export function createGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.posts.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.posts.$get>,
+      Error,
+      InferResponseType<typeof client.posts.$get>,
+      readonly ['/posts', InferRequestType<typeof client.posts.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -69,8 +79,8 @@ export function createGetPosts(
 /**
  * Generates Svelte Query cache key for GET /posts
  */
-export function getGetPostsQueryKey(args?: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', ...(args ? [args] : [])] as const
+export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', args] as const
 }
 
 /**

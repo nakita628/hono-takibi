@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
@@ -14,9 +14,11 @@ import { client } from '../clients/36-auth-saml-idp'
 export function useGetSamlSso(
   args: InferRequestType<typeof client.saml.sso.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.saml.sso.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.saml.sso.$get>,
+      Error,
+      InferResponseType<typeof client.saml.sso.$get>,
+      readonly ['/saml/sso', InferRequestType<typeof client.saml.sso.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -26,9 +28,9 @@ export function useGetSamlSso(
   const queryKey = getGetSamlSsoQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.saml.sso.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -38,8 +40,8 @@ export function useGetSamlSso(
 /**
  * Generates TanStack Query cache key for GET /saml/sso
  */
-export function getGetSamlSsoQueryKey(args?: InferRequestType<typeof client.saml.sso.$get>) {
-  return ['/saml/sso', ...(args ? [args] : [])] as const
+export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
+  return ['/saml/sso', args] as const
 }
 
 /**
@@ -83,9 +85,11 @@ export function usePostSamlSso(
 export function useGetSamlSlo(
   args: InferRequestType<typeof client.saml.slo.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.saml.slo.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.saml.slo.$get>,
+      Error,
+      InferResponseType<typeof client.saml.slo.$get>,
+      readonly ['/saml/slo', InferRequestType<typeof client.saml.slo.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -95,9 +99,9 @@ export function useGetSamlSlo(
   const queryKey = getGetSamlSloQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.saml.slo.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -107,8 +111,8 @@ export function useGetSamlSlo(
 /**
  * Generates TanStack Query cache key for GET /saml/slo
  */
-export function getGetSamlSloQueryKey(args?: InferRequestType<typeof client.saml.slo.$get>) {
-  return ['/saml/slo', ...(args ? [args] : [])] as const
+export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
+  return ['/saml/slo', args] as const
 }
 
 /**
@@ -182,9 +186,11 @@ export function usePostSamlAcs(
  */
 export function useGetSamlMetadata(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.saml.metadata.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.saml.metadata.$get>,
+      Error,
+      InferResponseType<typeof client.saml.metadata.$get>,
+      readonly ['/saml/metadata']
     >
     client?: ClientRequestOptions
   },
@@ -194,9 +200,9 @@ export function useGetSamlMetadata(
   const queryKey = getGetSamlMetadataQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.saml.metadata.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -218,9 +224,14 @@ export function getGetSamlMetadataQueryKey() {
 export function useGetServiceProviders(
   args: InferRequestType<(typeof client)['service-providers']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['service-providers']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['service-providers']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['service-providers']['$get']>,
+      readonly [
+        '/service-providers',
+        InferRequestType<(typeof client)['service-providers']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -230,9 +241,9 @@ export function useGetServiceProviders(
   const queryKey = getGetServiceProvidersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['service-providers'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -243,9 +254,9 @@ export function useGetServiceProviders(
  * Generates TanStack Query cache key for GET /service-providers
  */
 export function getGetServiceProvidersQueryKey(
-  args?: InferRequestType<(typeof client)['service-providers']['$get']>,
+  args: InferRequestType<(typeof client)['service-providers']['$get']>,
 ) {
-  return ['/service-providers', ...(args ? [args] : [])] as const
+  return ['/service-providers', args] as const
 }
 
 /**
@@ -286,12 +297,14 @@ export function usePostServiceProviders(
 export function useGetServiceProvidersSpId(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
+      readonly [
+        '/service-providers/:spId',
+        InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -301,10 +314,10 @@ export function useGetServiceProvidersSpId(
   const queryKey = getGetServiceProvidersSpIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['service-providers'][':spId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -315,9 +328,9 @@ export function useGetServiceProvidersSpId(
  * Generates TanStack Query cache key for GET /service-providers/{spId}
  */
 export function getGetServiceProvidersSpIdQueryKey(
-  args?: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
 ) {
-  return ['/service-providers/:spId', ...(args ? [args] : [])] as const
+  return ['/service-providers/:spId', args] as const
 }
 
 /**
@@ -388,12 +401,14 @@ export function useDeleteServiceProvidersSpId(
 export function useGetServiceProvidersSpIdMetadata(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+      readonly [
+        '/service-providers/:spId/metadata',
+        InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -403,10 +418,10 @@ export function useGetServiceProvidersSpIdMetadata(
   const queryKey = getGetServiceProvidersSpIdMetadataQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['service-providers'][':spId'].metadata.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -417,9 +432,9 @@ export function useGetServiceProvidersSpIdMetadata(
  * Generates TanStack Query cache key for GET /service-providers/{spId}/metadata
  */
 export function getGetServiceProvidersSpIdMetadataQueryKey(
-  args?: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
 ) {
-  return ['/service-providers/:spId/metadata', ...(args ? [args] : [])] as const
+  return ['/service-providers/:spId/metadata', args] as const
 }
 
 /**
@@ -462,12 +477,14 @@ export function usePutServiceProvidersSpIdMetadata(
 export function useGetServiceProvidersSpIdAttributes(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+      readonly [
+        '/service-providers/:spId/attributes',
+        InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -477,10 +494,10 @@ export function useGetServiceProvidersSpIdAttributes(
   const queryKey = getGetServiceProvidersSpIdAttributesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['service-providers'][':spId'].attributes.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -491,9 +508,9 @@ export function useGetServiceProvidersSpIdAttributes(
  * Generates TanStack Query cache key for GET /service-providers/{spId}/attributes
  */
 export function getGetServiceProvidersSpIdAttributesQueryKey(
-  args?: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
 ) {
-  return ['/service-providers/:spId/attributes', ...(args ? [args] : [])] as const
+  return ['/service-providers/:spId/attributes', args] as const
 }
 
 /**
@@ -535,9 +552,11 @@ export function usePutServiceProvidersSpIdAttributes(
  */
 export function useGetAttributes(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.attributes.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.attributes.$get>,
+      Error,
+      InferResponseType<typeof client.attributes.$get>,
+      readonly ['/attributes']
     >
     client?: ClientRequestOptions
   },
@@ -547,9 +566,9 @@ export function useGetAttributes(
   const queryKey = getGetAttributesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.attributes.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -570,9 +589,11 @@ export function getGetAttributesQueryKey() {
  */
 export function useGetCertificates(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.certificates.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.certificates.$get>,
+      Error,
+      InferResponseType<typeof client.certificates.$get>,
+      readonly ['/certificates']
     >
     client?: ClientRequestOptions
   },
@@ -582,9 +603,9 @@ export function useGetCertificates(
   const queryKey = getGetCertificatesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.certificates.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -695,9 +716,11 @@ export function usePostCertificatesCertIdActivate(
 export function useGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.sessions.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.sessions.$get>,
+      Error,
+      InferResponseType<typeof client.sessions.$get>,
+      readonly ['/sessions', InferRequestType<typeof client.sessions.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -707,9 +730,9 @@ export function useGetSessions(
   const queryKey = getGetSessionsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -719,8 +742,8 @@ export function useGetSessions(
 /**
  * Generates TanStack Query cache key for GET /sessions
  */
-export function getGetSessionsQueryKey(args?: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', ...(args ? [args] : [])] as const
+export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['/sessions', args] as const
 }
 
 /**
@@ -761,9 +784,11 @@ export function useDeleteSessionsSessionId(
 export function useGetAuditLogs(
   args: InferRequestType<(typeof client)['audit-logs']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['audit-logs']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['audit-logs']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['audit-logs']['$get']>,
+      readonly ['/audit-logs', InferRequestType<(typeof client)['audit-logs']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -773,9 +798,9 @@ export function useGetAuditLogs(
   const queryKey = getGetAuditLogsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['audit-logs'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -786,7 +811,7 @@ export function useGetAuditLogs(
  * Generates TanStack Query cache key for GET /audit-logs
  */
 export function getGetAuditLogsQueryKey(
-  args?: InferRequestType<(typeof client)['audit-logs']['$get']>,
+  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
 ) {
-  return ['/audit-logs', ...(args ? [args] : [])] as const
+  return ['/audit-logs', args] as const
 }

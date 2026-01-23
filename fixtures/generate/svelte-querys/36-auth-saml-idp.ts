@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
@@ -14,7 +14,12 @@ import { client } from '../clients/36-auth-saml-idp'
 export function createGetSamlSso(
   args: InferRequestType<typeof client.saml.sso.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.saml.sso.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.saml.sso.$get>,
+      Error,
+      InferResponseType<typeof client.saml.sso.$get>,
+      readonly ['/saml/sso', InferRequestType<typeof client.saml.sso.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -35,8 +40,8 @@ export function createGetSamlSso(
 /**
  * Generates Svelte Query cache key for GET /saml/sso
  */
-export function getGetSamlSsoQueryKey(args?: InferRequestType<typeof client.saml.sso.$get>) {
-  return ['/saml/sso', ...(args ? [args] : [])] as const
+export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
+  return ['/saml/sso', args] as const
 }
 
 /**
@@ -80,7 +85,12 @@ export function createPostSamlSso(
 export function createGetSamlSlo(
   args: InferRequestType<typeof client.saml.slo.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.saml.slo.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.saml.slo.$get>,
+      Error,
+      InferResponseType<typeof client.saml.slo.$get>,
+      readonly ['/saml/slo', InferRequestType<typeof client.saml.slo.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -101,8 +111,8 @@ export function createGetSamlSlo(
 /**
  * Generates Svelte Query cache key for GET /saml/slo
  */
-export function getGetSamlSloQueryKey(args?: InferRequestType<typeof client.saml.slo.$get>) {
-  return ['/saml/slo', ...(args ? [args] : [])] as const
+export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
+  return ['/saml/slo', args] as const
 }
 
 /**
@@ -176,7 +186,12 @@ export function createPostSamlAcs(
  */
 export function createGetSamlMetadata(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.saml.metadata.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.saml.metadata.$get>,
+      Error,
+      InferResponseType<typeof client.saml.metadata.$get>,
+      readonly ['/saml/metadata']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -211,7 +226,12 @@ export function createGetServiceProviders(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['service-providers']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['service-providers']['$get']>,
+      readonly [
+        '/service-providers',
+        InferRequestType<(typeof client)['service-providers']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -234,9 +254,9 @@ export function createGetServiceProviders(
  * Generates Svelte Query cache key for GET /service-providers
  */
 export function getGetServiceProvidersQueryKey(
-  args?: InferRequestType<(typeof client)['service-providers']['$get']>,
+  args: InferRequestType<(typeof client)['service-providers']['$get']>,
 ) {
-  return ['/service-providers', ...(args ? [args] : [])] as const
+  return ['/service-providers', args] as const
 }
 
 /**
@@ -279,7 +299,12 @@ export function createGetServiceProvidersSpId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
+      readonly [
+        '/service-providers/:spId',
+        InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -303,9 +328,9 @@ export function createGetServiceProvidersSpId(
  * Generates Svelte Query cache key for GET /service-providers/{spId}
  */
 export function getGetServiceProvidersSpIdQueryKey(
-  args?: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
 ) {
-  return ['/service-providers/:spId', ...(args ? [args] : [])] as const
+  return ['/service-providers/:spId', args] as const
 }
 
 /**
@@ -378,7 +403,12 @@ export function createGetServiceProvidersSpIdMetadata(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+      readonly [
+        '/service-providers/:spId/metadata',
+        InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -402,9 +432,9 @@ export function createGetServiceProvidersSpIdMetadata(
  * Generates Svelte Query cache key for GET /service-providers/{spId}/metadata
  */
 export function getGetServiceProvidersSpIdMetadataQueryKey(
-  args?: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
 ) {
-  return ['/service-providers/:spId/metadata', ...(args ? [args] : [])] as const
+  return ['/service-providers/:spId/metadata', args] as const
 }
 
 /**
@@ -449,7 +479,12 @@ export function createGetServiceProvidersSpIdAttributes(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+      readonly [
+        '/service-providers/:spId/attributes',
+        InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -473,9 +508,9 @@ export function createGetServiceProvidersSpIdAttributes(
  * Generates Svelte Query cache key for GET /service-providers/{spId}/attributes
  */
 export function getGetServiceProvidersSpIdAttributesQueryKey(
-  args?: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
 ) {
-  return ['/service-providers/:spId/attributes', ...(args ? [args] : [])] as const
+  return ['/service-providers/:spId/attributes', args] as const
 }
 
 /**
@@ -517,7 +552,12 @@ export function createPutServiceProvidersSpIdAttributes(
  */
 export function createGetAttributes(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.attributes.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.attributes.$get>,
+      Error,
+      InferResponseType<typeof client.attributes.$get>,
+      readonly ['/attributes']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -549,7 +589,12 @@ export function getGetAttributesQueryKey() {
  */
 export function createGetCertificates(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.certificates.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.certificates.$get>,
+      Error,
+      InferResponseType<typeof client.certificates.$get>,
+      readonly ['/certificates']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -671,7 +716,12 @@ export function createPostCertificatesCertIdActivate(
 export function createGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.sessions.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.sessions.$get>,
+      Error,
+      InferResponseType<typeof client.sessions.$get>,
+      readonly ['/sessions', InferRequestType<typeof client.sessions.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -692,8 +742,8 @@ export function createGetSessions(
 /**
  * Generates Svelte Query cache key for GET /sessions
  */
-export function getGetSessionsQueryKey(args?: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', ...(args ? [args] : [])] as const
+export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['/sessions', args] as const
 }
 
 /**
@@ -734,7 +784,12 @@ export function createDeleteSessionsSessionId(
 export function createGetAuditLogs(
   args: InferRequestType<(typeof client)['audit-logs']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['audit-logs']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['audit-logs']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['audit-logs']['$get']>,
+      readonly ['/audit-logs', InferRequestType<(typeof client)['audit-logs']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -756,7 +811,7 @@ export function createGetAuditLogs(
  * Generates Svelte Query cache key for GET /audit-logs
  */
 export function getGetAuditLogsQueryKey(
-  args?: InferRequestType<(typeof client)['audit-logs']['$get']>,
+  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
 ) {
-  return ['/audit-logs', ...(args ? [args] : [])] as const
+  return ['/audit-logs', args] as const
 }

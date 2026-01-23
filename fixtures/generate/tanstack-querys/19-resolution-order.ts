@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -9,9 +9,11 @@ import { client } from '../clients/19-resolution-order'
  */
 export function useGetEntities(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.entities.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.entities.$get>,
+      Error,
+      InferResponseType<typeof client.entities.$get>,
+      readonly ['/entities']
     >
     client?: ClientRequestOptions
   },
@@ -21,9 +23,9 @@ export function useGetEntities(
   const queryKey = getGetEntitiesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.entities.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -69,9 +71,11 @@ export function usePostProcess(
  */
 export function useGetGraph(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.graph.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.graph.$get>,
+      Error,
+      InferResponseType<typeof client.graph.$get>,
+      readonly ['/graph']
     >
     client?: ClientRequestOptions
   },
@@ -81,9 +85,9 @@ export function useGetGraph(
   const queryKey = getGetGraphQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.graph.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

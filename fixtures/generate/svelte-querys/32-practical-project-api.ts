@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
@@ -12,7 +12,12 @@ import { client } from '../clients/32-practical-project-api'
 export function createGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.projects.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.projects.$get>,
+      Error,
+      InferResponseType<typeof client.projects.$get>,
+      readonly ['/projects', InferRequestType<typeof client.projects.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -33,8 +38,8 @@ export function createGetProjects(
 /**
  * Generates Svelte Query cache key for GET /projects
  */
-export function getGetProjectsQueryKey(args?: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', ...(args ? [args] : [])] as const
+export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
+  return ['/projects', args] as const
 }
 
 /**
@@ -76,7 +81,12 @@ export function createGetProjectsProjectId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.projects)[':projectId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.projects)[':projectId']['$get']>,
+      readonly [
+        '/projects/:projectId',
+        InferRequestType<(typeof client.projects)[':projectId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -99,9 +109,9 @@ export function createGetProjectsProjectId(
  * Generates Svelte Query cache key for GET /projects/{projectId}
  */
 export function getGetProjectsProjectIdQueryKey(
-  args?: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
+  args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
 ) {
-  return ['/projects/:projectId', ...(args ? [args] : [])] as const
+  return ['/projects/:projectId', args] as const
 }
 
 /**
@@ -174,7 +184,12 @@ export function createGetProjectsProjectIdMembers(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>,
+      readonly [
+        '/projects/:projectId/members',
+        InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -198,9 +213,9 @@ export function createGetProjectsProjectIdMembers(
  * Generates Svelte Query cache key for GET /projects/{projectId}/members
  */
 export function getGetProjectsProjectIdMembersQueryKey(
-  args?: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
+  args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
 ) {
-  return ['/projects/:projectId/members', ...(args ? [args] : [])] as const
+  return ['/projects/:projectId/members', args] as const
 }
 
 /**
@@ -243,7 +258,12 @@ export function createGetProjectsProjectIdTasks(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+      readonly [
+        '/projects/:projectId/tasks',
+        InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -267,9 +287,9 @@ export function createGetProjectsProjectIdTasks(
  * Generates Svelte Query cache key for GET /projects/{projectId}/tasks
  */
 export function getGetProjectsProjectIdTasksQueryKey(
-  args?: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+  args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
 ) {
-  return ['/projects/:projectId/tasks', ...(args ? [args] : [])] as const
+  return ['/projects/:projectId/tasks', args] as const
 }
 
 /**
@@ -310,7 +330,12 @@ export function createPostProjectsProjectIdTasks(
 export function createGetTasksTaskId(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.tasks)[':taskId']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.tasks)[':taskId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.tasks)[':taskId']['$get']>,
+      readonly ['/tasks/:taskId', InferRequestType<(typeof client.tasks)[':taskId']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -332,9 +357,9 @@ export function createGetTasksTaskId(
  * Generates Svelte Query cache key for GET /tasks/{taskId}
  */
 export function getGetTasksTaskIdQueryKey(
-  args?: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
+  args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
 ) {
-  return ['/tasks/:taskId', ...(args ? [args] : [])] as const
+  return ['/tasks/:taskId', args] as const
 }
 
 /**
@@ -437,7 +462,12 @@ export function createGetTasksTaskIdComments(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+      readonly [
+        '/tasks/:taskId/comments',
+        InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -461,9 +491,9 @@ export function createGetTasksTaskIdComments(
  * Generates Svelte Query cache key for GET /tasks/{taskId}/comments
  */
 export function getGetTasksTaskIdCommentsQueryKey(
-  args?: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+  args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
 ) {
-  return ['/tasks/:taskId/comments', ...(args ? [args] : [])] as const
+  return ['/tasks/:taskId/comments', args] as const
 }
 
 /**
@@ -506,7 +536,12 @@ export function createGetTasksTaskIdTimeEntries(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+      readonly [
+        '/tasks/:taskId/time-entries',
+        InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -530,9 +565,9 @@ export function createGetTasksTaskIdTimeEntries(
  * Generates Svelte Query cache key for GET /tasks/{taskId}/time-entries
  */
 export function getGetTasksTaskIdTimeEntriesQueryKey(
-  args?: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+  args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
 ) {
-  return ['/tasks/:taskId/time-entries', ...(args ? [args] : [])] as const
+  return ['/tasks/:taskId/time-entries', args] as const
 }
 
 /**
@@ -575,7 +610,12 @@ export function createGetProjectsProjectIdMilestones(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+      readonly [
+        '/projects/:projectId/milestones',
+        InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -599,9 +639,9 @@ export function createGetProjectsProjectIdMilestones(
  * Generates Svelte Query cache key for GET /projects/{projectId}/milestones
  */
 export function getGetProjectsProjectIdMilestonesQueryKey(
-  args?: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+  args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
 ) {
-  return ['/projects/:projectId/milestones', ...(args ? [args] : [])] as const
+  return ['/projects/:projectId/milestones', args] as const
 }
 
 /**
@@ -641,7 +681,12 @@ export function createPostProjectsProjectIdMilestones(
  */
 export function createGetTeams(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.teams.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.teams.$get>,
+      Error,
+      InferResponseType<typeof client.teams.$get>,
+      readonly ['/teams']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

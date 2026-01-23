@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
@@ -37,7 +37,12 @@ export function createPostOrders(
 export function createGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.orders)[':orderId']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.orders)[':orderId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.orders)[':orderId']['$get']>,
+      readonly ['/orders/:orderId', InferRequestType<(typeof client.orders)[':orderId']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -59,9 +64,9 @@ export function createGetOrdersOrderId(
  * Generates Svelte Query cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdQueryKey(
-  args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return ['/orders/:orderId', ...(args ? [args] : [])] as const
+  return ['/orders/:orderId', args] as const
 }
 
 /**
@@ -100,7 +105,12 @@ export function createGetOrdersOrderIdItems(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.orders)[':orderId']['items']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.orders)[':orderId']['items']['$get']>,
+      readonly [
+        '/orders/:orderId/items',
+        InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -123,9 +133,9 @@ export function createGetOrdersOrderIdItems(
  * Generates Svelte Query cache key for GET /orders/{orderId}/items
  */
 export function getGetOrdersOrderIdItemsQueryKey(
-  args?: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
+  args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
 ) {
-  return ['/orders/:orderId/items', ...(args ? [args] : [])] as const
+  return ['/orders/:orderId/items', args] as const
 }
 
 /**
@@ -136,7 +146,12 @@ export function createGetCustomersCustomerId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.customers)[':customerId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.customers)[':customerId']['$get']>,
+      readonly [
+        '/customers/:customerId',
+        InferRequestType<(typeof client.customers)[':customerId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -159,9 +174,9 @@ export function createGetCustomersCustomerId(
  * Generates Svelte Query cache key for GET /customers/{customerId}
  */
 export function getGetCustomersCustomerIdQueryKey(
-  args?: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
+  args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
-  return ['/customers/:customerId', ...(args ? [args] : [])] as const
+  return ['/customers/:customerId', args] as const
 }
 
 /**
@@ -172,7 +187,12 @@ export function createGetCustomersCustomerIdOrders(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.customers)[':customerId']['orders']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.customers)[':customerId']['orders']['$get']>,
+      readonly [
+        '/customers/:customerId/orders',
+        InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -196,9 +216,9 @@ export function createGetCustomersCustomerIdOrders(
  * Generates Svelte Query cache key for GET /customers/{customerId}/orders
  */
 export function getGetCustomersCustomerIdOrdersQueryKey(
-  args?: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
+  args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
 ) {
-  return ['/customers/:customerId/orders', ...(args ? [args] : [])] as const
+  return ['/customers/:customerId/orders', args] as const
 }
 
 /**
@@ -209,7 +229,12 @@ export function createGetPaymentsPaymentId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.payments)[':paymentId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.payments)[':paymentId']['$get']>,
+      readonly [
+        '/payments/:paymentId',
+        InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -232,7 +257,7 @@ export function createGetPaymentsPaymentId(
  * Generates Svelte Query cache key for GET /payments/{paymentId}
  */
 export function getGetPaymentsPaymentIdQueryKey(
-  args?: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
+  args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
-  return ['/payments/:paymentId', ...(args ? [args] : [])] as const
+  return ['/payments/:paymentId', args] as const
 }

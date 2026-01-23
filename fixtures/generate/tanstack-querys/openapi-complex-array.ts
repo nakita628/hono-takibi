@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
 import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-complex-array'
 
@@ -13,9 +13,11 @@ import { client } from '../clients/openapi-complex-array'
  */
 export function useGetArray(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.array.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.array.$get>,
+      Error,
+      InferResponseType<typeof client.array.$get>,
+      readonly ['/array']
     >
     client?: ClientRequestOptions
   },
@@ -25,9 +27,9 @@ export function useGetArray(
   const queryKey = getGetArrayQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.array.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

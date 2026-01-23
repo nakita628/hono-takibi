@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
 
@@ -14,12 +14,14 @@ import { client } from '../clients/41-auth-social-sso'
 export function useGetSocialAuthorizeProvider(
   args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.social.authorize)[':provider']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.social.authorize)[':provider']['$get']>,
+      Error,
+      InferResponseType<(typeof client.social.authorize)[':provider']['$get']>,
+      readonly [
+        '/social/authorize/:provider',
+        InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -29,10 +31,10 @@ export function useGetSocialAuthorizeProvider(
   const queryKey = getGetSocialAuthorizeProviderQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.social.authorize[':provider'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -43,9 +45,9 @@ export function useGetSocialAuthorizeProvider(
  * Generates TanStack Query cache key for GET /social/authorize/{provider}
  */
 export function getGetSocialAuthorizeProviderQueryKey(
-  args?: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
+  args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
 ) {
-  return ['/social/authorize/:provider', ...(args ? [args] : [])] as const
+  return ['/social/authorize/:provider', args] as const
 }
 
 /**
@@ -58,12 +60,14 @@ export function getGetSocialAuthorizeProviderQueryKey(
 export function useGetSocialCallbackProvider(
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.social.callback)[':provider']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.social.callback)[':provider']['$get']>,
+      Error,
+      InferResponseType<(typeof client.social.callback)[':provider']['$get']>,
+      readonly [
+        '/social/callback/:provider',
+        InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -73,10 +77,10 @@ export function useGetSocialCallbackProvider(
   const queryKey = getGetSocialCallbackProviderQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.social.callback[':provider'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -87,9 +91,9 @@ export function useGetSocialCallbackProvider(
  * Generates TanStack Query cache key for GET /social/callback/{provider}
  */
 export function getGetSocialCallbackProviderQueryKey(
-  args?: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
+  args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
 ) {
-  return ['/social/callback/:provider', ...(args ? [args] : [])] as const
+  return ['/social/callback/:provider', args] as const
 }
 
 /**
@@ -162,9 +166,11 @@ export function usePostSocialTokenNative(
  */
 export function useGetProviders(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.providers.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.providers.$get>,
+      Error,
+      InferResponseType<typeof client.providers.$get>,
+      readonly ['/providers']
     >
     client?: ClientRequestOptions
   },
@@ -174,9 +180,9 @@ export function useGetProviders(
   const queryKey = getGetProvidersQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.providers.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -197,9 +203,11 @@ export function getGetProvidersQueryKey() {
  */
 export function useGetProvidersAdmin(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.providers.admin.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.providers.admin.$get>,
+      Error,
+      InferResponseType<typeof client.providers.admin.$get>,
+      readonly ['/providers/admin']
     >
     client?: ClientRequestOptions
   },
@@ -209,9 +217,9 @@ export function useGetProvidersAdmin(
   const queryKey = getGetProvidersAdminQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.providers.admin.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -263,9 +271,14 @@ export function usePostProvidersAdmin(
 export function useGetProvidersProviderId(
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.providers)[':providerId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.providers)[':providerId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.providers)[':providerId']['$get']>,
+      readonly [
+        '/providers/:providerId',
+        InferRequestType<(typeof client.providers)[':providerId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -275,9 +288,9 @@ export function useGetProvidersProviderId(
   const queryKey = getGetProvidersProviderIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.providers[':providerId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -288,9 +301,9 @@ export function useGetProvidersProviderId(
  * Generates TanStack Query cache key for GET /providers/{providerId}
  */
 export function getGetProvidersProviderIdQueryKey(
-  args?: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
+  args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
 ) {
-  return ['/providers/:providerId', ...(args ? [args] : [])] as const
+  return ['/providers/:providerId', args] as const
 }
 
 /**
@@ -390,9 +403,11 @@ export function usePostProvidersProviderIdTest(
  */
 export function useGetAccountLinked(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.account.linked.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.account.linked.$get>,
+      Error,
+      InferResponseType<typeof client.account.linked.$get>,
+      readonly ['/account/linked']
     >
     client?: ClientRequestOptions
   },
@@ -402,9 +417,9 @@ export function useGetAccountLinked(
   const queryKey = getGetAccountLinkedQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.account.linked.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -487,9 +502,11 @@ export function useDeleteAccountLinkProvider(
  */
 export function useGetEnterpriseSso(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.enterprise.sso.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.enterprise.sso.$get>,
+      Error,
+      InferResponseType<typeof client.enterprise.sso.$get>,
+      readonly ['/enterprise/sso']
     >
     client?: ClientRequestOptions
   },
@@ -499,9 +516,9 @@ export function useGetEnterpriseSso(
   const queryKey = getGetEnterpriseSsoQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.enterprise.sso.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -552,12 +569,14 @@ export function usePostEnterpriseSso(
 export function useGetEnterpriseSsoConfigId(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>,
+      readonly [
+        '/enterprise/sso/:configId',
+        InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -567,10 +586,10 @@ export function useGetEnterpriseSsoConfigId(
   const queryKey = getGetEnterpriseSsoConfigIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.enterprise.sso[':configId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -581,9 +600,9 @@ export function useGetEnterpriseSsoConfigId(
  * Generates TanStack Query cache key for GET /enterprise/sso/{configId}
  */
 export function getGetEnterpriseSsoConfigIdQueryKey(
-  args?: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
 ) {
-  return ['/enterprise/sso/:configId', ...(args ? [args] : [])] as const
+  return ['/enterprise/sso/:configId', args] as const
 }
 
 /**
@@ -654,12 +673,14 @@ export function useDeleteEnterpriseSsoConfigId(
 export function useGetEnterpriseSsoDomainLookup(
   args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+      Error,
+      InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+      readonly [
+        '/enterprise/sso/domain-lookup',
+        InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -669,10 +690,10 @@ export function useGetEnterpriseSsoDomainLookup(
   const queryKey = getGetEnterpriseSsoDomainLookupQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.enterprise.sso['domain-lookup'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -683,9 +704,9 @@ export function useGetEnterpriseSsoDomainLookup(
  * Generates TanStack Query cache key for GET /enterprise/sso/domain-lookup
  */
 export function getGetEnterpriseSsoDomainLookupQueryKey(
-  args?: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+  args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
 ) {
-  return ['/enterprise/sso/domain-lookup', ...(args ? [args] : [])] as const
+  return ['/enterprise/sso/domain-lookup', args] as const
 }
 
 /**
@@ -698,12 +719,14 @@ export function getGetEnterpriseSsoDomainLookupQueryKey(
 export function useGetEnterpriseSsoConfigIdMetadata(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
+      Error,
+      InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
+      readonly [
+        '/enterprise/sso/:configId/metadata',
+        InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -713,10 +736,10 @@ export function useGetEnterpriseSsoConfigIdMetadata(
   const queryKey = getGetEnterpriseSsoConfigIdMetadataQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.enterprise.sso[':configId'].metadata.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -727,7 +750,7 @@ export function useGetEnterpriseSsoConfigIdMetadata(
  * Generates TanStack Query cache key for GET /enterprise/sso/{configId}/metadata
  */
 export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
-  args?: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
 ) {
-  return ['/enterprise/sso/:configId/metadata', ...(args ? [args] : [])] as const
+  return ['/enterprise/sso/:configId/metadata', args] as const
 }

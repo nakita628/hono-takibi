@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
@@ -194,9 +194,11 @@ export function usePostAuthPasswordReset(
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.users.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.users.$get>,
+      Error,
+      InferResponseType<typeof client.users.$get>,
+      readonly ['/users', InferRequestType<typeof client.users.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -206,9 +208,9 @@ export function useGetUsers(
   const queryKey = getGetUsersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -218,8 +220,8 @@ export function useGetUsers(
 /**
  * Generates TanStack Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
-  return ['/users', ...(args ? [args] : [])] as const
+export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['/users', args] as const
 }
 
 /**
@@ -230,9 +232,11 @@ export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      readonly ['/users/:userId', InferRequestType<(typeof client.users)[':userId']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -242,9 +246,9 @@ export function useGetUsersUserId(
   const queryKey = getGetUsersUserIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -255,9 +259,9 @@ export function useGetUsersUserId(
  * Generates TanStack Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['/users/:userId', ...(args ? [args] : [])] as const
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -327,9 +331,11 @@ export function usePatchUsersUserId(
  */
 export function useGetUsersMe(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.users.me.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.users.me.$get>,
+      Error,
+      InferResponseType<typeof client.users.me.$get>,
+      readonly ['/users/me']
     >
     client?: ClientRequestOptions
   },
@@ -339,9 +345,9 @@ export function useGetUsersMe(
   const queryKey = getGetUsersMeQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users.me.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

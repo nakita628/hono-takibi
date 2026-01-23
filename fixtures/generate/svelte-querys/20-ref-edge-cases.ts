@@ -1,6 +1,6 @@
+import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 
@@ -10,7 +10,12 @@ import { client } from '../clients/20-ref-edge-cases'
 export function createGetTest(
   args: InferRequestType<typeof client.test.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.test.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.test.$get>,
+      Error,
+      InferResponseType<typeof client.test.$get>,
+      readonly ['/test', InferRequestType<typeof client.test.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -31,8 +36,8 @@ export function createGetTest(
 /**
  * Generates Svelte Query cache key for GET /test
  */
-export function getGetTestQueryKey(args?: InferRequestType<typeof client.test.$get>) {
-  return ['/test', ...(args ? [args] : [])] as const
+export function getGetTestQueryKey(args: InferRequestType<typeof client.test.$get>) {
+  return ['/test', args] as const
 }
 
 /**
@@ -40,7 +45,12 @@ export function getGetTestQueryKey(args?: InferRequestType<typeof client.test.$g
  */
 export function createGetEmptyRefs(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['empty-refs']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['empty-refs']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['empty-refs']['$get']>,
+      readonly ['/empty-refs']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -70,7 +80,12 @@ export function getGetEmptyRefsQueryKey() {
  */
 export function createGetUnicodeRefs(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['unicode-refs']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['unicode-refs']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['unicode-refs']['$get']>,
+      readonly ['/unicode-refs']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -100,7 +115,12 @@ export function getGetUnicodeRefsQueryKey() {
  */
 export function createGetSpecialChars(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['special-chars']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['special-chars']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['special-chars']['$get']>,
+      readonly ['/special-chars']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -130,7 +150,12 @@ export function getGetSpecialCharsQueryKey() {
  */
 export function createGetNumericStart(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['numeric-start']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['numeric-start']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['numeric-start']['$get']>,
+      readonly ['/numeric-start']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -160,7 +185,12 @@ export function getGetNumericStartQueryKey() {
  */
 export function createGetRefInAllof(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['ref-in-allof']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['ref-in-allof']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['ref-in-allof']['$get']>,
+      readonly ['/ref-in-allof']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -190,7 +220,12 @@ export function getGetRefInAllofQueryKey() {
  */
 export function createGetDeeplyNested(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['deeply-nested']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['deeply-nested']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['deeply-nested']['$get']>,
+      readonly ['/deeply-nested']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -222,7 +257,9 @@ export function createGetSameNameDiffContext(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['same-name-diff-context']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['same-name-diff-context']['$get']>,
+      readonly ['/same-name-diff-context']
     >
     client?: ClientRequestOptions
   },

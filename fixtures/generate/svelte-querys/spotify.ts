@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -14,7 +14,12 @@ import { client } from '../clients/spotify'
 export function createGetAlbums(
   args: InferRequestType<typeof client.albums.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.albums.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.albums.$get>,
+      Error,
+      InferResponseType<typeof client.albums.$get>,
+      readonly ['/albums', InferRequestType<typeof client.albums.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -35,8 +40,8 @@ export function createGetAlbums(
 /**
  * Generates Svelte Query cache key for GET /albums
  */
-export function getGetAlbumsQueryKey(args?: InferRequestType<typeof client.albums.$get>) {
-  return ['/albums', ...(args ? [args] : [])] as const
+export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
+  return ['/albums', args] as const
 }
 
 /**
@@ -49,7 +54,12 @@ export function getGetAlbumsQueryKey(args?: InferRequestType<typeof client.album
 export function createGetAlbumsId(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.albums)[':id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.albums)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.albums)[':id']['$get']>,
+      readonly ['/albums/:id', InferRequestType<(typeof client.albums)[':id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -71,9 +81,9 @@ export function createGetAlbumsId(
  * Generates Svelte Query cache key for GET /albums/{id}
  */
 export function getGetAlbumsIdQueryKey(
-  args?: InferRequestType<(typeof client.albums)[':id']['$get']>,
+  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
 ) {
-  return ['/albums/:id', ...(args ? [args] : [])] as const
+  return ['/albums/:id', args] as const
 }
 
 /**
@@ -89,7 +99,12 @@ export function createGetAlbumsIdTracks(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>,
+      readonly [
+        '/albums/:id/tracks',
+        InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -112,9 +127,9 @@ export function createGetAlbumsIdTracks(
  * Generates Svelte Query cache key for GET /albums/{id}/tracks
  */
 export function getGetAlbumsIdTracksQueryKey(
-  args?: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
+  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  return ['/albums/:id/tracks', ...(args ? [args] : [])] as const
+  return ['/albums/:id/tracks', args] as const
 }
 
 /**
@@ -127,7 +142,12 @@ export function getGetAlbumsIdTracksQueryKey(
 export function createGetArtists(
   args: InferRequestType<typeof client.artists.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.artists.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.artists.$get>,
+      Error,
+      InferResponseType<typeof client.artists.$get>,
+      readonly ['/artists', InferRequestType<typeof client.artists.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -148,8 +168,8 @@ export function createGetArtists(
 /**
  * Generates Svelte Query cache key for GET /artists
  */
-export function getGetArtistsQueryKey(args?: InferRequestType<typeof client.artists.$get>) {
-  return ['/artists', ...(args ? [args] : [])] as const
+export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
+  return ['/artists', args] as const
 }
 
 /**
@@ -162,7 +182,12 @@ export function getGetArtistsQueryKey(args?: InferRequestType<typeof client.arti
 export function createGetArtistsId(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.artists)[':id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.artists)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.artists)[':id']['$get']>,
+      readonly ['/artists/:id', InferRequestType<(typeof client.artists)[':id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -184,9 +209,9 @@ export function createGetArtistsId(
  * Generates Svelte Query cache key for GET /artists/{id}
  */
 export function getGetArtistsIdQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
 ) {
-  return ['/artists/:id', ...(args ? [args] : [])] as const
+  return ['/artists/:id', args] as const
 }
 
 /**
@@ -201,7 +226,12 @@ export function createGetArtistsIdAlbums(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.artists)[':id']['albums']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.artists)[':id']['albums']['$get']>,
+      readonly [
+        '/artists/:id/albums',
+        InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -224,9 +254,9 @@ export function createGetArtistsIdAlbums(
  * Generates Svelte Query cache key for GET /artists/{id}/albums
  */
 export function getGetArtistsIdAlbumsQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  return ['/artists/:id/albums', ...(args ? [args] : [])] as const
+  return ['/artists/:id/albums', args] as const
 }
 
 /**
@@ -241,7 +271,12 @@ export function createGetArtistsIdRelatedArtists(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
+      readonly [
+        '/artists/:id/related-artists',
+        InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -265,9 +300,9 @@ export function createGetArtistsIdRelatedArtists(
  * Generates Svelte Query cache key for GET /artists/{id}/related-artists
  */
 export function getGetArtistsIdRelatedArtistsQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  return ['/artists/:id/related-artists', ...(args ? [args] : [])] as const
+  return ['/artists/:id/related-artists', args] as const
 }
 
 /**
@@ -282,7 +317,12 @@ export function createGetArtistsIdTopTracks(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+      readonly [
+        '/artists/:id/top-tracks',
+        InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -306,9 +346,9 @@ export function createGetArtistsIdTopTracks(
  * Generates Svelte Query cache key for GET /artists/{id}/top-tracks
  */
 export function getGetArtistsIdTopTracksQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  return ['/artists/:id/top-tracks', ...(args ? [args] : [])] as const
+  return ['/artists/:id/top-tracks', args] as const
 }
 
 /**
@@ -323,7 +363,12 @@ export function createGetAudioAnalysisId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>,
+      readonly [
+        '/audio-analysis/:id',
+        InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -346,9 +391,9 @@ export function createGetAudioAnalysisId(
  * Generates Svelte Query cache key for GET /audio-analysis/{id}
  */
 export function getGetAudioAnalysisIdQueryKey(
-  args?: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
+  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  return ['/audio-analysis/:id', ...(args ? [args] : [])] as const
+  return ['/audio-analysis/:id', args] as const
 }
 
 /**
@@ -361,7 +406,12 @@ export function getGetAudioAnalysisIdQueryKey(
 export function createGetAudioFeatures(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['audio-features']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['audio-features']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['audio-features']['$get']>,
+      readonly ['/audio-features', InferRequestType<(typeof client)['audio-features']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -383,9 +433,9 @@ export function createGetAudioFeatures(
  * Generates Svelte Query cache key for GET /audio-features
  */
 export function getGetAudioFeaturesQueryKey(
-  args?: InferRequestType<(typeof client)['audio-features']['$get']>,
+  args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  return ['/audio-features', ...(args ? [args] : [])] as const
+  return ['/audio-features', args] as const
 }
 
 /**
@@ -401,7 +451,12 @@ export function createGetAudioFeaturesId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['audio-features'][':id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['audio-features'][':id']['$get']>,
+      readonly [
+        '/audio-features/:id',
+        InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -424,9 +479,9 @@ export function createGetAudioFeaturesId(
  * Generates Svelte Query cache key for GET /audio-features/{id}
  */
 export function getGetAudioFeaturesIdQueryKey(
-  args?: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
+  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  return ['/audio-features/:id', ...(args ? [args] : [])] as const
+  return ['/audio-features/:id', args] as const
 }
 
 /**
@@ -440,7 +495,12 @@ export function getGetAudioFeaturesIdQueryKey(
 export function createGetAudiobooks(
   args: InferRequestType<typeof client.audiobooks.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.audiobooks.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.audiobooks.$get>,
+      Error,
+      InferResponseType<typeof client.audiobooks.$get>,
+      readonly ['/audiobooks', InferRequestType<typeof client.audiobooks.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -461,8 +521,8 @@ export function createGetAudiobooks(
 /**
  * Generates Svelte Query cache key for GET /audiobooks
  */
-export function getGetAudiobooksQueryKey(args?: InferRequestType<typeof client.audiobooks.$get>) {
-  return ['/audiobooks', ...(args ? [args] : [])] as const
+export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
+  return ['/audiobooks', args] as const
 }
 
 /**
@@ -476,7 +536,12 @@ export function getGetAudiobooksQueryKey(args?: InferRequestType<typeof client.a
 export function createGetAudiobooksId(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.audiobooks)[':id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.audiobooks)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.audiobooks)[':id']['$get']>,
+      readonly ['/audiobooks/:id', InferRequestType<(typeof client.audiobooks)[':id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -498,9 +563,9 @@ export function createGetAudiobooksId(
  * Generates Svelte Query cache key for GET /audiobooks/{id}
  */
 export function getGetAudiobooksIdQueryKey(
-  args?: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
+  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
 ) {
-  return ['/audiobooks/:id', ...(args ? [args] : [])] as const
+  return ['/audiobooks/:id', args] as const
 }
 
 /**
@@ -516,7 +581,12 @@ export function createGetAudiobooksIdChapters(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+      readonly [
+        '/audiobooks/:id/chapters',
+        InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -540,9 +610,9 @@ export function createGetAudiobooksIdChapters(
  * Generates Svelte Query cache key for GET /audiobooks/{id}/chapters
  */
 export function getGetAudiobooksIdChaptersQueryKey(
-  args?: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  return ['/audiobooks/:id/chapters', ...(args ? [args] : [])] as const
+  return ['/audiobooks/:id/chapters', args] as const
 }
 
 /**
@@ -555,7 +625,12 @@ export function getGetAudiobooksIdChaptersQueryKey(
 export function createGetBrowseCategories(
   args: InferRequestType<typeof client.browse.categories.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.browse.categories.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.browse.categories.$get>,
+      Error,
+      InferResponseType<typeof client.browse.categories.$get>,
+      readonly ['/browse/categories', InferRequestType<typeof client.browse.categories.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -577,9 +652,9 @@ export function createGetBrowseCategories(
  * Generates Svelte Query cache key for GET /browse/categories
  */
 export function getGetBrowseCategoriesQueryKey(
-  args?: InferRequestType<typeof client.browse.categories.$get>,
+  args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  return ['/browse/categories', ...(args ? [args] : [])] as const
+  return ['/browse/categories', args] as const
 }
 
 /**
@@ -594,7 +669,12 @@ export function createGetBrowseCategoriesCategoryId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
+      readonly [
+        '/browse/categories/:category_id',
+        InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -618,9 +698,9 @@ export function createGetBrowseCategoriesCategoryId(
  * Generates Svelte Query cache key for GET /browse/categories/{category_id}
  */
 export function getGetBrowseCategoriesCategoryIdQueryKey(
-  args?: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  return ['/browse/categories/:category_id', ...(args ? [args] : [])] as const
+  return ['/browse/categories/:category_id', args] as const
 }
 
 /**
@@ -635,7 +715,12 @@ export function createGetBrowseCategoriesCategoryIdPlaylists(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+      readonly [
+        '/browse/categories/:category_id/playlists',
+        InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -659,9 +744,9 @@ export function createGetBrowseCategoriesCategoryIdPlaylists(
  * Generates Svelte Query cache key for GET /browse/categories/{category_id}/playlists
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
-  args?: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  return ['/browse/categories/:category_id/playlists', ...(args ? [args] : [])] as const
+  return ['/browse/categories/:category_id/playlists', args] as const
 }
 
 /**
@@ -676,7 +761,12 @@ export function createGetBrowseFeaturedPlaylists(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
+      readonly [
+        '/browse/featured-playlists',
+        InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -700,9 +790,9 @@ export function createGetBrowseFeaturedPlaylists(
  * Generates Svelte Query cache key for GET /browse/featured-playlists
  */
 export function getGetBrowseFeaturedPlaylistsQueryKey(
-  args?: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
+  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  return ['/browse/featured-playlists', ...(args ? [args] : [])] as const
+  return ['/browse/featured-playlists', args] as const
 }
 
 /**
@@ -717,7 +807,12 @@ export function createGetBrowseNewReleases(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.browse)['new-releases']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.browse)['new-releases']['$get']>,
+      readonly [
+        '/browse/new-releases',
+        InferRequestType<(typeof client.browse)['new-releases']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -740,9 +835,9 @@ export function createGetBrowseNewReleases(
  * Generates Svelte Query cache key for GET /browse/new-releases
  */
 export function getGetBrowseNewReleasesQueryKey(
-  args?: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
+  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  return ['/browse/new-releases', ...(args ? [args] : [])] as const
+  return ['/browse/new-releases', args] as const
 }
 
 /**
@@ -756,7 +851,12 @@ export function getGetBrowseNewReleasesQueryKey(
 export function createGetChapters(
   args: InferRequestType<typeof client.chapters.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.chapters.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.chapters.$get>,
+      Error,
+      InferResponseType<typeof client.chapters.$get>,
+      readonly ['/chapters', InferRequestType<typeof client.chapters.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -777,8 +877,8 @@ export function createGetChapters(
 /**
  * Generates Svelte Query cache key for GET /chapters
  */
-export function getGetChaptersQueryKey(args?: InferRequestType<typeof client.chapters.$get>) {
-  return ['/chapters', ...(args ? [args] : [])] as const
+export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
+  return ['/chapters', args] as const
 }
 
 /**
@@ -792,7 +892,12 @@ export function getGetChaptersQueryKey(args?: InferRequestType<typeof client.cha
 export function createGetChaptersId(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.chapters)[':id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.chapters)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.chapters)[':id']['$get']>,
+      readonly ['/chapters/:id', InferRequestType<(typeof client.chapters)[':id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -814,9 +919,9 @@ export function createGetChaptersId(
  * Generates Svelte Query cache key for GET /chapters/{id}
  */
 export function getGetChaptersIdQueryKey(
-  args?: InferRequestType<(typeof client.chapters)[':id']['$get']>,
+  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
 ) {
-  return ['/chapters/:id', ...(args ? [args] : [])] as const
+  return ['/chapters/:id', args] as const
 }
 
 /**
@@ -829,7 +934,12 @@ export function getGetChaptersIdQueryKey(
 export function createGetEpisodes(
   args: InferRequestType<typeof client.episodes.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.episodes.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.episodes.$get>,
+      Error,
+      InferResponseType<typeof client.episodes.$get>,
+      readonly ['/episodes', InferRequestType<typeof client.episodes.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -850,8 +960,8 @@ export function createGetEpisodes(
 /**
  * Generates Svelte Query cache key for GET /episodes
  */
-export function getGetEpisodesQueryKey(args?: InferRequestType<typeof client.episodes.$get>) {
-  return ['/episodes', ...(args ? [args] : [])] as const
+export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
+  return ['/episodes', args] as const
 }
 
 /**
@@ -865,7 +975,12 @@ export function getGetEpisodesQueryKey(args?: InferRequestType<typeof client.epi
 export function createGetEpisodesId(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.episodes)[':id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.episodes)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.episodes)[':id']['$get']>,
+      readonly ['/episodes/:id', InferRequestType<(typeof client.episodes)[':id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -887,9 +1002,9 @@ export function createGetEpisodesId(
  * Generates Svelte Query cache key for GET /episodes/{id}
  */
 export function getGetEpisodesIdQueryKey(
-  args?: InferRequestType<(typeof client.episodes)[':id']['$get']>,
+  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
 ) {
-  return ['/episodes/:id', ...(args ? [args] : [])] as const
+  return ['/episodes/:id', args] as const
 }
 
 /**
@@ -901,7 +1016,12 @@ export function getGetEpisodesIdQueryKey(
  */
 export function createGetMarkets(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.markets.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.markets.$get>,
+      Error,
+      InferResponseType<typeof client.markets.$get>,
+      readonly ['/markets']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -936,7 +1056,12 @@ export function getGetMarketsQueryKey() {
  */
 export function createGetMe(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.$get>,
+      Error,
+      InferResponseType<typeof client.me.$get>,
+      readonly ['/me']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -971,7 +1096,12 @@ export function getGetMeQueryKey() {
 export function createGetMeAlbums(
   args: InferRequestType<typeof client.me.albums.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.albums.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.albums.$get>,
+      Error,
+      InferResponseType<typeof client.me.albums.$get>,
+      readonly ['/me/albums', InferRequestType<typeof client.me.albums.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -992,8 +1122,8 @@ export function createGetMeAlbums(
 /**
  * Generates Svelte Query cache key for GET /me/albums
  */
-export function getGetMeAlbumsQueryKey(args?: InferRequestType<typeof client.me.albums.$get>) {
-  return ['/me/albums', ...(args ? [args] : [])] as const
+export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
+  return ['/me/albums', args] as const
 }
 
 /**
@@ -1068,7 +1198,12 @@ export function createDeleteMeAlbums(
 export function createGetMeAlbumsContains(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.albums.contains.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.albums.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.albums.contains.$get>,
+      readonly ['/me/albums/contains', InferRequestType<typeof client.me.albums.contains.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1090,9 +1225,9 @@ export function createGetMeAlbumsContains(
  * Generates Svelte Query cache key for GET /me/albums/contains
  */
 export function getGetMeAlbumsContainsQueryKey(
-  args?: InferRequestType<typeof client.me.albums.contains.$get>,
+  args: InferRequestType<typeof client.me.albums.contains.$get>,
 ) {
-  return ['/me/albums/contains', ...(args ? [args] : [])] as const
+  return ['/me/albums/contains', args] as const
 }
 
 /**
@@ -1105,7 +1240,12 @@ export function getGetMeAlbumsContainsQueryKey(
 export function createGetMeAudiobooks(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.audiobooks.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.audiobooks.$get>,
+      Error,
+      InferResponseType<typeof client.me.audiobooks.$get>,
+      readonly ['/me/audiobooks', InferRequestType<typeof client.me.audiobooks.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1127,9 +1267,9 @@ export function createGetMeAudiobooks(
  * Generates Svelte Query cache key for GET /me/audiobooks
  */
 export function getGetMeAudiobooksQueryKey(
-  args?: InferRequestType<typeof client.me.audiobooks.$get>,
+  args: InferRequestType<typeof client.me.audiobooks.$get>,
 ) {
-  return ['/me/audiobooks', ...(args ? [args] : [])] as const
+  return ['/me/audiobooks', args] as const
 }
 
 /**
@@ -1205,7 +1345,15 @@ export function createDeleteMeAudiobooks(
 export function createGetMeAudiobooksContains(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.audiobooks.contains.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.audiobooks.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.audiobooks.contains.$get>,
+      readonly [
+        '/me/audiobooks/contains',
+        InferRequestType<typeof client.me.audiobooks.contains.$get>,
+      ]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1227,9 +1375,9 @@ export function createGetMeAudiobooksContains(
  * Generates Svelte Query cache key for GET /me/audiobooks/contains
  */
 export function getGetMeAudiobooksContainsQueryKey(
-  args?: InferRequestType<typeof client.me.audiobooks.contains.$get>,
+  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
 ) {
-  return ['/me/audiobooks/contains', ...(args ? [args] : [])] as const
+  return ['/me/audiobooks/contains', args] as const
 }
 
 /**
@@ -1243,7 +1391,12 @@ export function getGetMeAudiobooksContainsQueryKey(
 export function createGetMeEpisodes(
   args: InferRequestType<typeof client.me.episodes.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.episodes.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.episodes.$get>,
+      Error,
+      InferResponseType<typeof client.me.episodes.$get>,
+      readonly ['/me/episodes', InferRequestType<typeof client.me.episodes.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1264,8 +1417,8 @@ export function createGetMeEpisodes(
 /**
  * Generates Svelte Query cache key for GET /me/episodes
  */
-export function getGetMeEpisodesQueryKey(args?: InferRequestType<typeof client.me.episodes.$get>) {
-  return ['/me/episodes', ...(args ? [args] : [])] as const
+export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
+  return ['/me/episodes', args] as const
 }
 
 /**
@@ -1343,7 +1496,12 @@ export function createDeleteMeEpisodes(
 export function createGetMeEpisodesContains(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.episodes.contains.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.episodes.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.episodes.contains.$get>,
+      readonly ['/me/episodes/contains', InferRequestType<typeof client.me.episodes.contains.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1365,9 +1523,9 @@ export function createGetMeEpisodesContains(
  * Generates Svelte Query cache key for GET /me/episodes/contains
  */
 export function getGetMeEpisodesContainsQueryKey(
-  args?: InferRequestType<typeof client.me.episodes.contains.$get>,
+  args: InferRequestType<typeof client.me.episodes.contains.$get>,
 ) {
-  return ['/me/episodes/contains', ...(args ? [args] : [])] as const
+  return ['/me/episodes/contains', args] as const
 }
 
 /**
@@ -1380,7 +1538,12 @@ export function getGetMeEpisodesContainsQueryKey(
 export function createGetMeFollowing(
   args: InferRequestType<typeof client.me.following.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.following.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.following.$get>,
+      Error,
+      InferResponseType<typeof client.me.following.$get>,
+      readonly ['/me/following', InferRequestType<typeof client.me.following.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1401,10 +1564,8 @@ export function createGetMeFollowing(
 /**
  * Generates Svelte Query cache key for GET /me/following
  */
-export function getGetMeFollowingQueryKey(
-  args?: InferRequestType<typeof client.me.following.$get>,
-) {
-  return ['/me/following', ...(args ? [args] : [])] as const
+export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
+  return ['/me/following', args] as const
 }
 
 /**
@@ -1479,7 +1640,15 @@ export function createDeleteMeFollowing(
 export function createGetMeFollowingContains(
   args: InferRequestType<typeof client.me.following.contains.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.following.contains.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.following.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.following.contains.$get>,
+      readonly [
+        '/me/following/contains',
+        InferRequestType<typeof client.me.following.contains.$get>,
+      ]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1501,9 +1670,9 @@ export function createGetMeFollowingContains(
  * Generates Svelte Query cache key for GET /me/following/contains
  */
 export function getGetMeFollowingContainsQueryKey(
-  args?: InferRequestType<typeof client.me.following.contains.$get>,
+  args: InferRequestType<typeof client.me.following.contains.$get>,
 ) {
-  return ['/me/following/contains', ...(args ? [args] : [])] as const
+  return ['/me/following/contains', args] as const
 }
 
 /**
@@ -1516,7 +1685,12 @@ export function getGetMeFollowingContainsQueryKey(
 export function createGetMePlayer(
   args: InferRequestType<typeof client.me.player.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.player.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.player.$get>,
+      Error,
+      InferResponseType<typeof client.me.player.$get>,
+      readonly ['/me/player', InferRequestType<typeof client.me.player.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1537,8 +1711,8 @@ export function createGetMePlayer(
 /**
  * Generates Svelte Query cache key for GET /me/player
  */
-export function getGetMePlayerQueryKey(args?: InferRequestType<typeof client.me.player.$get>) {
-  return ['/me/player', ...(args ? [args] : [])] as const
+export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
+  return ['/me/player', args] as const
 }
 
 /**
@@ -1584,7 +1758,12 @@ export function createGetMePlayerCurrentlyPlaying(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
+      readonly [
+        '/me/player/currently-playing',
+        InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1608,9 +1787,9 @@ export function createGetMePlayerCurrentlyPlaying(
  * Generates Svelte Query cache key for GET /me/player/currently-playing
  */
 export function getGetMePlayerCurrentlyPlayingQueryKey(
-  args?: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
+  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
 ) {
-  return ['/me/player/currently-playing', ...(args ? [args] : [])] as const
+  return ['/me/player/currently-playing', args] as const
 }
 
 /**
@@ -1622,7 +1801,12 @@ export function getGetMePlayerCurrentlyPlayingQueryKey(
  */
 export function createGetMePlayerDevices(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.player.devices.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.player.devices.$get>,
+      Error,
+      InferResponseType<typeof client.me.player.devices.$get>,
+      readonly ['/me/player/devices']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1781,7 +1965,12 @@ export function createPostMePlayerPrevious(
  */
 export function createGetMePlayerQueue(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.player.queue.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.player.queue.$get>,
+      Error,
+      InferResponseType<typeof client.me.player.queue.$get>,
+      readonly ['/me/player/queue']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1851,7 +2040,12 @@ export function createGetMePlayerRecentlyPlayed(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
+      readonly [
+        '/me/player/recently-played',
+        InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1875,9 +2069,9 @@ export function createGetMePlayerRecentlyPlayed(
  * Generates Svelte Query cache key for GET /me/player/recently-played
  */
 export function getGetMePlayerRecentlyPlayedQueryKey(
-  args?: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
+  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
 ) {
-  return ['/me/player/recently-played', ...(args ? [args] : [])] as const
+  return ['/me/player/recently-played', args] as const
 }
 
 /**
@@ -2019,7 +2213,12 @@ export function createPutMePlayerVolume(
 export function createGetMePlaylists(
   args: InferRequestType<typeof client.me.playlists.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.playlists.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.playlists.$get>,
+      Error,
+      InferResponseType<typeof client.me.playlists.$get>,
+      readonly ['/me/playlists', InferRequestType<typeof client.me.playlists.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2040,10 +2239,8 @@ export function createGetMePlaylists(
 /**
  * Generates Svelte Query cache key for GET /me/playlists
  */
-export function getGetMePlaylistsQueryKey(
-  args?: InferRequestType<typeof client.me.playlists.$get>,
-) {
-  return ['/me/playlists', ...(args ? [args] : [])] as const
+export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
+  return ['/me/playlists', args] as const
 }
 
 /**
@@ -2056,7 +2253,12 @@ export function getGetMePlaylistsQueryKey(
 export function createGetMeShows(
   args: InferRequestType<typeof client.me.shows.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.shows.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.shows.$get>,
+      Error,
+      InferResponseType<typeof client.me.shows.$get>,
+      readonly ['/me/shows', InferRequestType<typeof client.me.shows.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2077,8 +2279,8 @@ export function createGetMeShows(
 /**
  * Generates Svelte Query cache key for GET /me/shows
  */
-export function getGetMeShowsQueryKey(args?: InferRequestType<typeof client.me.shows.$get>) {
-  return ['/me/shows', ...(args ? [args] : [])] as const
+export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
+  return ['/me/shows', args] as const
 }
 
 /**
@@ -2153,7 +2355,12 @@ export function createDeleteMeShows(
 export function createGetMeShowsContains(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.shows.contains.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.shows.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.shows.contains.$get>,
+      readonly ['/me/shows/contains', InferRequestType<typeof client.me.shows.contains.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2175,9 +2382,9 @@ export function createGetMeShowsContains(
  * Generates Svelte Query cache key for GET /me/shows/contains
  */
 export function getGetMeShowsContainsQueryKey(
-  args?: InferRequestType<typeof client.me.shows.contains.$get>,
+  args: InferRequestType<typeof client.me.shows.contains.$get>,
 ) {
-  return ['/me/shows/contains', ...(args ? [args] : [])] as const
+  return ['/me/shows/contains', args] as const
 }
 
 /**
@@ -2190,7 +2397,12 @@ export function getGetMeShowsContainsQueryKey(
 export function createGetMeTopType(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.me.top)[':type']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.me.top)[':type']['$get']>,
+      Error,
+      InferResponseType<(typeof client.me.top)[':type']['$get']>,
+      readonly ['/me/top/:type', InferRequestType<(typeof client.me.top)[':type']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2212,9 +2424,9 @@ export function createGetMeTopType(
  * Generates Svelte Query cache key for GET /me/top/{type}
  */
 export function getGetMeTopTypeQueryKey(
-  args?: InferRequestType<(typeof client.me.top)[':type']['$get']>,
+  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  return ['/me/top/:type', ...(args ? [args] : [])] as const
+  return ['/me/top/:type', args] as const
 }
 
 /**
@@ -2227,7 +2439,12 @@ export function getGetMeTopTypeQueryKey(
 export function createGetMeTracks(
   args: InferRequestType<typeof client.me.tracks.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.tracks.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.tracks.$get>,
+      Error,
+      InferResponseType<typeof client.me.tracks.$get>,
+      readonly ['/me/tracks', InferRequestType<typeof client.me.tracks.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2248,8 +2465,8 @@ export function createGetMeTracks(
 /**
  * Generates Svelte Query cache key for GET /me/tracks
  */
-export function getGetMeTracksQueryKey(args?: InferRequestType<typeof client.me.tracks.$get>) {
-  return ['/me/tracks', ...(args ? [args] : [])] as const
+export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
+  return ['/me/tracks', args] as const
 }
 
 /**
@@ -2324,7 +2541,12 @@ export function createDeleteMeTracks(
 export function createGetMeTracksContains(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.me.tracks.contains.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.me.tracks.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.tracks.contains.$get>,
+      readonly ['/me/tracks/contains', InferRequestType<typeof client.me.tracks.contains.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2346,9 +2568,9 @@ export function createGetMeTracksContains(
  * Generates Svelte Query cache key for GET /me/tracks/contains
  */
 export function getGetMeTracksContainsQueryKey(
-  args?: InferRequestType<typeof client.me.tracks.contains.$get>,
+  args: InferRequestType<typeof client.me.tracks.contains.$get>,
 ) {
-  return ['/me/tracks/contains', ...(args ? [args] : [])] as const
+  return ['/me/tracks/contains', args] as const
 }
 
 /**
@@ -2363,7 +2585,12 @@ export function createGetPlaylistsPlaylistId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>,
+      readonly [
+        '/playlists/:playlist_id',
+        InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2387,9 +2614,9 @@ export function createGetPlaylistsPlaylistId(
  * Generates Svelte Query cache key for GET /playlists/{playlist_id}
  */
 export function getGetPlaylistsPlaylistIdQueryKey(
-  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  return ['/playlists/:playlist_id', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id', args] as const
 }
 
 /**
@@ -2505,7 +2732,14 @@ export function createGetPlaylistsPlaylistIdFollowersContains(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['contains']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['contains']['$get']>,
+      readonly [
+        '/playlists/:playlist_id/followers/contains',
+        InferRequestType<
+          (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2531,11 +2765,11 @@ export function createGetPlaylistsPlaylistIdFollowersContains(
  * Generates Svelte Query cache key for GET /playlists/{playlist_id}/followers/contains
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
 ) {
-  return ['/playlists/:playlist_id/followers/contains', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id/followers/contains', args] as const
 }
 
 /**
@@ -2550,7 +2784,12 @@ export function createGetPlaylistsPlaylistIdImages(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+      readonly [
+        '/playlists/:playlist_id/images',
+        InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2574,9 +2813,9 @@ export function createGetPlaylistsPlaylistIdImages(
  * Generates Svelte Query cache key for GET /playlists/{playlist_id}/images
  */
 export function getGetPlaylistsPlaylistIdImagesQueryKey(
-  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  return ['/playlists/:playlist_id/images', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id/images', args] as const
 }
 
 /**
@@ -2623,7 +2862,12 @@ export function createGetPlaylistsPlaylistIdTracks(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+      readonly [
+        '/playlists/:playlist_id/tracks',
+        InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2647,9 +2891,9 @@ export function createGetPlaylistsPlaylistIdTracks(
  * Generates Svelte Query cache key for GET /playlists/{playlist_id}/tracks
  */
 export function getGetPlaylistsPlaylistIdTracksQueryKey(
-  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
 ) {
-  return ['/playlists/:playlist_id/tracks', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id/tracks', args] as const
 }
 
 /**
@@ -2766,7 +3010,12 @@ export function createDeletePlaylistsPlaylistIdTracks(
 export function createGetRecommendations(
   args: InferRequestType<typeof client.recommendations.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.recommendations.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.recommendations.$get>,
+      Error,
+      InferResponseType<typeof client.recommendations.$get>,
+      readonly ['/recommendations', InferRequestType<typeof client.recommendations.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2788,9 +3037,9 @@ export function createGetRecommendations(
  * Generates Svelte Query cache key for GET /recommendations
  */
 export function getGetRecommendationsQueryKey(
-  args?: InferRequestType<typeof client.recommendations.$get>,
+  args: InferRequestType<typeof client.recommendations.$get>,
 ) {
-  return ['/recommendations', ...(args ? [args] : [])] as const
+  return ['/recommendations', args] as const
 }
 
 /**
@@ -2804,7 +3053,9 @@ export function createGetRecommendationsAvailableGenreSeeds(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
+      readonly ['/recommendations/available-genre-seeds']
     >
     client?: ClientRequestOptions
   },
@@ -2845,7 +3096,12 @@ export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
 export function createGetSearch(
   args: InferRequestType<typeof client.search.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.search.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.search.$get>,
+      Error,
+      InferResponseType<typeof client.search.$get>,
+      readonly ['/search', InferRequestType<typeof client.search.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2866,8 +3122,8 @@ export function createGetSearch(
 /**
  * Generates Svelte Query cache key for GET /search
  */
-export function getGetSearchQueryKey(args?: InferRequestType<typeof client.search.$get>) {
-  return ['/search', ...(args ? [args] : [])] as const
+export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
+  return ['/search', args] as const
 }
 
 /**
@@ -2880,7 +3136,12 @@ export function getGetSearchQueryKey(args?: InferRequestType<typeof client.searc
 export function createGetShows(
   args: InferRequestType<typeof client.shows.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.shows.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.shows.$get>,
+      Error,
+      InferResponseType<typeof client.shows.$get>,
+      readonly ['/shows', InferRequestType<typeof client.shows.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2901,8 +3162,8 @@ export function createGetShows(
 /**
  * Generates Svelte Query cache key for GET /shows
  */
-export function getGetShowsQueryKey(args?: InferRequestType<typeof client.shows.$get>) {
-  return ['/shows', ...(args ? [args] : [])] as const
+export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
+  return ['/shows', args] as const
 }
 
 /**
@@ -2916,7 +3177,12 @@ export function getGetShowsQueryKey(args?: InferRequestType<typeof client.shows.
 export function createGetShowsId(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.shows)[':id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.shows)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.shows)[':id']['$get']>,
+      readonly ['/shows/:id', InferRequestType<(typeof client.shows)[':id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2938,9 +3204,9 @@ export function createGetShowsId(
  * Generates Svelte Query cache key for GET /shows/{id}
  */
 export function getGetShowsIdQueryKey(
-  args?: InferRequestType<(typeof client.shows)[':id']['$get']>,
+  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
 ) {
-  return ['/shows/:id', ...(args ? [args] : [])] as const
+  return ['/shows/:id', args] as const
 }
 
 /**
@@ -2955,7 +3221,12 @@ export function createGetShowsIdEpisodes(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>,
+      readonly [
+        '/shows/:id/episodes',
+        InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2978,9 +3249,9 @@ export function createGetShowsIdEpisodes(
  * Generates Svelte Query cache key for GET /shows/{id}/episodes
  */
 export function getGetShowsIdEpisodesQueryKey(
-  args?: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
+  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  return ['/shows/:id/episodes', ...(args ? [args] : [])] as const
+  return ['/shows/:id/episodes', args] as const
 }
 
 /**
@@ -2993,7 +3264,12 @@ export function getGetShowsIdEpisodesQueryKey(
 export function createGetTracks(
   args: InferRequestType<typeof client.tracks.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.tracks.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.tracks.$get>,
+      Error,
+      InferResponseType<typeof client.tracks.$get>,
+      readonly ['/tracks', InferRequestType<typeof client.tracks.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -3014,8 +3290,8 @@ export function createGetTracks(
 /**
  * Generates Svelte Query cache key for GET /tracks
  */
-export function getGetTracksQueryKey(args?: InferRequestType<typeof client.tracks.$get>) {
-  return ['/tracks', ...(args ? [args] : [])] as const
+export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
+  return ['/tracks', args] as const
 }
 
 /**
@@ -3029,7 +3305,12 @@ export function getGetTracksQueryKey(args?: InferRequestType<typeof client.track
 export function createGetTracksId(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.tracks)[':id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.tracks)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.tracks)[':id']['$get']>,
+      readonly ['/tracks/:id', InferRequestType<(typeof client.tracks)[':id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -3051,9 +3332,9 @@ export function createGetTracksId(
  * Generates Svelte Query cache key for GET /tracks/{id}
  */
 export function getGetTracksIdQueryKey(
-  args?: InferRequestType<(typeof client.tracks)[':id']['$get']>,
+  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
 ) {
-  return ['/tracks/:id', ...(args ? [args] : [])] as const
+  return ['/tracks/:id', args] as const
 }
 
 /**
@@ -3066,7 +3347,12 @@ export function getGetTracksIdQueryKey(
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.users)[':user_id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      readonly ['/users/:user_id', InferRequestType<(typeof client.users)[':user_id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -3088,9 +3374,9 @@ export function createGetUsersUserId(
  * Generates Svelte Query cache key for GET /users/{user_id}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['/users/:user_id', ...(args ? [args] : [])] as const
+  return ['/users/:user_id', args] as const
 }
 
 /**
@@ -3105,7 +3391,12 @@ export function createGetUsersUserIdPlaylists(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
+      readonly [
+        '/users/:user_id/playlists',
+        InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3129,9 +3420,9 @@ export function createGetUsersUserIdPlaylists(
  * Generates Svelte Query cache key for GET /users/{user_id}/playlists
  */
 export function getGetUsersUserIdPlaylistsQueryKey(
-  args?: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
+  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  return ['/users/:user_id/playlists', ...(args ? [args] : [])] as const
+  return ['/users/:user_id/playlists', args] as const
 }
 
 /**

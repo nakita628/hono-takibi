@@ -34,7 +34,7 @@
     "@typespec/http": "^1.8.0",
     "@typespec/openapi3": "^1.8.0",
     "@typespec/versioning": "^0.78.0",
-    "hono-takibi": "^0.9.77",
+    "hono-takibi": "workspace:^",
     "tailwindcss": "^4.1.18",
     "typedoc": "^0.28.16",
     "typedoc-plugin-mermaid": "^1.12.0",

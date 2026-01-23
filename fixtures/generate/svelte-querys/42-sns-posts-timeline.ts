@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/42-sns-posts-timeline'
 
@@ -14,7 +14,12 @@ import { client } from '../clients/42-sns-posts-timeline'
 export function createGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.posts.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.posts.$get>,
+      Error,
+      InferResponseType<typeof client.posts.$get>,
+      readonly ['/posts', InferRequestType<typeof client.posts.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -35,8 +40,8 @@ export function createGetPosts(
 /**
  * Generates Svelte Query cache key for GET /posts
  */
-export function getGetPostsQueryKey(args?: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', ...(args ? [args] : [])] as const
+export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', args] as const
 }
 
 /**
@@ -76,7 +81,12 @@ export function createPostPosts(
 export function createGetPostsPostId(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.posts)[':postId']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.posts)[':postId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.posts)[':postId']['$get']>,
+      readonly ['/posts/:postId', InferRequestType<(typeof client.posts)[':postId']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -98,9 +108,9 @@ export function createGetPostsPostId(
  * Generates Svelte Query cache key for GET /posts/{postId}
  */
 export function getGetPostsPostIdQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return ['/posts/:postId', ...(args ? [args] : [])] as const
+  return ['/posts/:postId', args] as const
 }
 
 /**
@@ -145,7 +155,12 @@ export function createGetPostsPostIdThread(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.posts)[':postId']['thread']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.posts)[':postId']['thread']['$get']>,
+      readonly [
+        '/posts/:postId/thread',
+        InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -168,9 +183,9 @@ export function createGetPostsPostIdThread(
  * Generates Svelte Query cache key for GET /posts/{postId}/thread
  */
 export function getGetPostsPostIdThreadQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
 ) {
-  return ['/posts/:postId/thread', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/thread', args] as const
 }
 
 /**
@@ -185,7 +200,12 @@ export function createGetPostsPostIdContext(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.posts)[':postId']['context']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.posts)[':postId']['context']['$get']>,
+      readonly [
+        '/posts/:postId/context',
+        InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -208,9 +228,9 @@ export function createGetPostsPostIdContext(
  * Generates Svelte Query cache key for GET /posts/{postId}/context
  */
 export function getGetPostsPostIdContextQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
 ) {
-  return ['/posts/:postId/context', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/context', args] as const
 }
 
 /**
@@ -223,7 +243,12 @@ export function getGetPostsPostIdContextQueryKey(
 export function createGetTimelineHome(
   args: InferRequestType<typeof client.timeline.home.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.timeline.home.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.timeline.home.$get>,
+      Error,
+      InferResponseType<typeof client.timeline.home.$get>,
+      readonly ['/timeline/home', InferRequestType<typeof client.timeline.home.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -245,9 +270,9 @@ export function createGetTimelineHome(
  * Generates Svelte Query cache key for GET /timeline/home
  */
 export function getGetTimelineHomeQueryKey(
-  args?: InferRequestType<typeof client.timeline.home.$get>,
+  args: InferRequestType<typeof client.timeline.home.$get>,
 ) {
-  return ['/timeline/home', ...(args ? [args] : [])] as const
+  return ['/timeline/home', args] as const
 }
 
 /**
@@ -262,7 +287,9 @@ export function createGetTimelineForYou(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.timeline)['for-you']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.timeline)['for-you']['$get']>,
+      readonly ['/timeline/for-you', InferRequestType<(typeof client.timeline)['for-you']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -285,9 +312,9 @@ export function createGetTimelineForYou(
  * Generates Svelte Query cache key for GET /timeline/for-you
  */
 export function getGetTimelineForYouQueryKey(
-  args?: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
+  args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
 ) {
-  return ['/timeline/for-you', ...(args ? [args] : [])] as const
+  return ['/timeline/for-you', args] as const
 }
 
 /**
@@ -300,7 +327,12 @@ export function createGetTimelineUserUserId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.timeline.user)[':userId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.timeline.user)[':userId']['$get']>,
+      readonly [
+        '/timeline/user/:userId',
+        InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -323,9 +355,9 @@ export function createGetTimelineUserUserId(
  * Generates Svelte Query cache key for GET /timeline/user/{userId}
  */
 export function getGetTimelineUserUserIdQueryKey(
-  args?: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
+  args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
 ) {
-  return ['/timeline/user/:userId', ...(args ? [args] : [])] as const
+  return ['/timeline/user/:userId', args] as const
 }
 
 /**
@@ -338,7 +370,12 @@ export function createGetTimelineHashtagHashtag(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
+      readonly [
+        '/timeline/hashtag/:hashtag',
+        InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -362,9 +399,9 @@ export function createGetTimelineHashtagHashtag(
  * Generates Svelte Query cache key for GET /timeline/hashtag/{hashtag}
  */
 export function getGetTimelineHashtagHashtagQueryKey(
-  args?: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
+  args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
 ) {
-  return ['/timeline/hashtag/:hashtag', ...(args ? [args] : [])] as const
+  return ['/timeline/hashtag/:hashtag', args] as const
 }
 
 /**
@@ -585,7 +622,12 @@ export function createDeletePostsPostIdBookmark(
 export function createGetBookmarks(
   args: InferRequestType<typeof client.bookmarks.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.bookmarks.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.bookmarks.$get>,
+      Error,
+      InferResponseType<typeof client.bookmarks.$get>,
+      readonly ['/bookmarks', InferRequestType<typeof client.bookmarks.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -606,8 +648,8 @@ export function createGetBookmarks(
 /**
  * Generates Svelte Query cache key for GET /bookmarks
  */
-export function getGetBookmarksQueryKey(args?: InferRequestType<typeof client.bookmarks.$get>) {
-  return ['/bookmarks', ...(args ? [args] : [])] as const
+export function getGetBookmarksQueryKey(args: InferRequestType<typeof client.bookmarks.$get>) {
+  return ['/bookmarks', args] as const
 }
 
 /**
@@ -620,7 +662,12 @@ export function createGetPostsPostIdLikes(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.posts)[':postId']['likes']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.posts)[':postId']['likes']['$get']>,
+      readonly [
+        '/posts/:postId/likes',
+        InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -643,9 +690,9 @@ export function createGetPostsPostIdLikes(
  * Generates Svelte Query cache key for GET /posts/{postId}/likes
  */
 export function getGetPostsPostIdLikesQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
 ) {
-  return ['/posts/:postId/likes', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/likes', args] as const
 }
 
 /**
@@ -658,7 +705,12 @@ export function createGetPostsPostIdReposts(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.posts)[':postId']['reposts']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.posts)[':postId']['reposts']['$get']>,
+      readonly [
+        '/posts/:postId/reposts',
+        InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -681,9 +733,9 @@ export function createGetPostsPostIdReposts(
  * Generates Svelte Query cache key for GET /posts/{postId}/reposts
  */
 export function getGetPostsPostIdRepostsQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
 ) {
-  return ['/posts/:postId/reposts', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/reposts', args] as const
 }
 
 /**
@@ -696,7 +748,12 @@ export function createGetPostsPostIdQuotes(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.posts)[':postId']['quotes']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.posts)[':postId']['quotes']['$get']>,
+      readonly [
+        '/posts/:postId/quotes',
+        InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -719,9 +776,9 @@ export function createGetPostsPostIdQuotes(
  * Generates Svelte Query cache key for GET /posts/{postId}/quotes
  */
 export function getGetPostsPostIdQuotesQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
 ) {
-  return ['/posts/:postId/quotes', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/quotes', args] as const
 }
 
 /**
@@ -734,7 +791,12 @@ export function createGetPostsPostIdReplies(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.posts)[':postId']['replies']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.posts)[':postId']['replies']['$get']>,
+      readonly [
+        '/posts/:postId/replies',
+        InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -757,9 +819,9 @@ export function createGetPostsPostIdReplies(
  * Generates Svelte Query cache key for GET /posts/{postId}/replies
  */
 export function getGetPostsPostIdRepliesQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
 ) {
-  return ['/posts/:postId/replies', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/replies', args] as const
 }
 
 /**
@@ -829,7 +891,12 @@ export function createPostMediaUpload(
 export function createGetMediaMediaId(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.media)[':mediaId']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.media)[':mediaId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.media)[':mediaId']['$get']>,
+      readonly ['/media/:mediaId', InferRequestType<(typeof client.media)[':mediaId']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -851,9 +918,9 @@ export function createGetMediaMediaId(
  * Generates Svelte Query cache key for GET /media/{mediaId}
  */
 export function getGetMediaMediaIdQueryKey(
-  args?: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return ['/media/:mediaId', ...(args ? [args] : [])] as const
+  return ['/media/:mediaId', args] as const
 }
 
 /**

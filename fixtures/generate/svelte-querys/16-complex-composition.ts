@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
@@ -63,7 +63,12 @@ export function createPostEvents(
  */
 export function createGetConfigs(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.configs.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.configs.$get>,
+      Error,
+      InferResponseType<typeof client.configs.$get>,
+      readonly ['/configs']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
@@ -9,9 +9,11 @@ import { client } from '../clients/21-extreme-status-content'
  */
 export function useGetExtremeResponses(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['extreme-responses']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['extreme-responses']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['extreme-responses']['$get']>,
+      readonly ['/extreme-responses']
     >
     client?: ClientRequestOptions
   },
@@ -21,10 +23,10 @@ export function useGetExtremeResponses(
   const queryKey = getGetExtremeResponsesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['extreme-responses'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

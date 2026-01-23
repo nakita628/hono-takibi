@@ -1,14 +1,7 @@
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { svelteQuery } from 'hono-takibi/svelte-query'
-import {
-  __dirname,
-  getOpenAPIFiles,
-  parseOpenAPI,
-  printFailures,
-  type Result,
-  WORKERS,
-} from './common'
+import { __dirname, getOpenAPIFiles, parseOpenAPI, printFailures, WORKERS } from './common'
 
 /* ─────────────────────────────── Main ─────────────────────────────── */
 
@@ -17,7 +10,10 @@ async function main() {
 
   console.log('Generating Svelte Query hooks...')
   const queue = [...files]
-  const results: Result[] = []
+  const results: (
+    | { readonly ok: true; readonly value: string }
+    | { readonly ok: false; readonly error: string }
+  )[] = []
 
   await Promise.all(
     Array.from({ length: Math.min(WORKERS, files.length) }, async () => {
@@ -30,7 +26,7 @@ async function main() {
 
         const parseResult = await parseOpenAPI(openAPIPath)
         if (!parseResult.ok) {
-          results.push({ file, success: false, error: `Parse error: ${parseResult.error}` })
+          results.push({ ok: false, error: `${file}: Parse error: ${parseResult.error}` })
           continue
         }
 
@@ -46,9 +42,8 @@ async function main() {
         )
         if (!svelteQueryResult.ok) {
           results.push({
-            file,
-            success: false,
-            error: `Svelte Query generation error: ${svelteQueryResult.error}`,
+            ok: false,
+            error: `${file}: Svelte Query generation error: ${svelteQueryResult.error}`,
           })
           continue
         }
@@ -62,14 +57,12 @@ export const client = hc<typeof routes>('/')
 `
         await writeFile(clientOutput, clientCode)
 
-        results.push({ file, success: true })
+        results.push({ ok: true, value: file })
       }
     }),
   )
 
-  const failures = results.filter(
-    (r): r is { file: string; success: false; error: string } => !r.success,
-  )
+  const failures = results.filter((r): r is { readonly ok: false; readonly error: string } => !r.ok)
 
   printFailures(failures, results.length, 'svelte-query files')
 

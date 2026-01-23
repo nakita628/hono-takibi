@@ -1,32 +1,39 @@
 import { join } from 'node:path'
 import { type as generateType } from 'hono-takibi/type'
-import { __dirname, getOpenAPIFiles, parseOpenAPI, printFailures, type Result } from './common'
+import { __dirname, getOpenAPIFiles, parseOpenAPI, printFailures } from './common'
 
 async function main() {
   const files = await getOpenAPIFiles()
 
   console.log('Generating types...')
   const results = await Promise.all(
-    files.map(async (file): Promise<Result> => {
-      const baseName = file.replace(/\.(yaml|json|tsp)$/i, '')
-      const openAPIPath = join(__dirname, '../openapi', file)
+    files.map(
+      async (
+        file,
+      ): Promise<
+        | { readonly ok: true; readonly value: string }
+        | { readonly ok: false; readonly error: string }
+      > => {
+        const baseName = file.replace(/\.(yaml|json|tsp)$/i, '')
+        const openAPIPath = join(__dirname, '../openapi', file)
 
-      const parseResult = await parseOpenAPI(openAPIPath)
-      if (!parseResult.ok) {
-        return { file, success: false, error: `Parse error: ${parseResult.error}` }
-      }
+        const parseResult = await parseOpenAPI(openAPIPath)
+        if (!parseResult.ok) {
+          return { ok: false, error: `${file}: Parse error: ${parseResult.error}` }
+        }
 
-      const typeOutput = join(__dirname, '../types', `${baseName}.ts`) as `${string}.ts`
-      const typeResult = await generateType(parseResult.value, typeOutput)
-      if (!typeResult.ok) {
-        return { file, success: false, error: `Type generation error: ${typeResult.error}` }
-      }
+        const typeOutput = join(__dirname, '../types', `${baseName}.ts`) as `${string}.ts`
+        const typeResult = await generateType(parseResult.value, typeOutput)
+        if (!typeResult.ok) {
+          return { ok: false, error: `${file}: Type generation error: ${typeResult.error}` }
+        }
 
-      return { file, success: true }
-    }),
+        return { ok: true, value: file }
+      },
+    ),
   )
 
-  const failures = results.filter((r): r is Extract<Result, { success: false }> => !r.success)
+  const failures = results.filter((r): r is { readonly ok: false; readonly error: string } => !r.ok)
   printFailures(failures, results.length, 'type files')
 
   if (failures.length > 0) {

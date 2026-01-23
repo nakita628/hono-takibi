@@ -1,6 +1,6 @@
+import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/example'
 
@@ -11,7 +11,12 @@ import { client } from '../clients/example'
  */
 export function createGetSample(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.sample.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.sample.$get>,
+      Error,
+      InferResponseType<typeof client.sample.$get>,
+      readonly ['/sample']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

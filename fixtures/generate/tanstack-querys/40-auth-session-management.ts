@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
@@ -14,9 +14,11 @@ import { client } from '../clients/40-auth-session-management'
 export function useGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.sessions.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.sessions.$get>,
+      Error,
+      InferResponseType<typeof client.sessions.$get>,
+      readonly ['/sessions', InferRequestType<typeof client.sessions.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -26,9 +28,9 @@ export function useGetSessions(
   const queryKey = getGetSessionsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -38,8 +40,8 @@ export function useGetSessions(
 /**
  * Generates TanStack Query cache key for GET /sessions
  */
-export function getGetSessionsQueryKey(args?: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', ...(args ? [args] : [])] as const
+export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['/sessions', args] as const
 }
 
 /**
@@ -80,9 +82,11 @@ export function usePostSessions(
  */
 export function useGetSessionsCurrent(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.sessions.current.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.sessions.current.$get>,
+      Error,
+      InferResponseType<typeof client.sessions.current.$get>,
+      readonly ['/sessions/current']
     >
     client?: ClientRequestOptions
   },
@@ -92,9 +96,9 @@ export function useGetSessionsCurrent(
   const queryKey = getGetSessionsCurrentQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -242,9 +246,14 @@ export function usePostSessionsCurrentActivity(
 export function useGetSessionsSessionId(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.sessions)[':sessionId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.sessions)[':sessionId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.sessions)[':sessionId']['$get']>,
+      readonly [
+        '/sessions/:sessionId',
+        InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -254,9 +263,9 @@ export function useGetSessionsSessionId(
   const queryKey = getGetSessionsSessionIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -267,9 +276,9 @@ export function useGetSessionsSessionId(
  * Generates TanStack Query cache key for GET /sessions/{sessionId}
  */
 export function getGetSessionsSessionIdQueryKey(
-  args?: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  return ['/sessions/:sessionId', ...(args ? [args] : [])] as const
+  return ['/sessions/:sessionId', args] as const
 }
 
 /**
@@ -376,9 +385,11 @@ export function usePostSessionsValidate(
 export function useGetSessionsHistory(
   args: InferRequestType<typeof client.sessions.history.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.sessions.history.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.sessions.history.$get>,
+      Error,
+      InferResponseType<typeof client.sessions.history.$get>,
+      readonly ['/sessions/history', InferRequestType<typeof client.sessions.history.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -388,9 +399,9 @@ export function useGetSessionsHistory(
   const queryKey = getGetSessionsHistoryQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -401,9 +412,9 @@ export function useGetSessionsHistory(
  * Generates TanStack Query cache key for GET /sessions/history
  */
 export function getGetSessionsHistoryQueryKey(
-  args?: InferRequestType<typeof client.sessions.history.$get>,
+  args: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  return ['/sessions/history', ...(args ? [args] : [])] as const
+  return ['/sessions/history', args] as const
 }
 
 /**
@@ -416,12 +427,14 @@ export function getGetSessionsHistoryQueryKey(
 export function useGetSessionsSecurityEvents(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.sessions)['security-events']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.sessions)['security-events']['$get']>,
+      Error,
+      InferResponseType<(typeof client.sessions)['security-events']['$get']>,
+      readonly [
+        '/sessions/security-events',
+        InferRequestType<(typeof client.sessions)['security-events']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -431,10 +444,10 @@ export function useGetSessionsSecurityEvents(
   const queryKey = getGetSessionsSecurityEventsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -445,9 +458,9 @@ export function useGetSessionsSecurityEvents(
  * Generates TanStack Query cache key for GET /sessions/security-events
  */
 export function getGetSessionsSecurityEventsQueryKey(
-  args?: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
+  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return ['/sessions/security-events', ...(args ? [args] : [])] as const
+  return ['/sessions/security-events', args] as const
 }
 
 /**
@@ -457,9 +470,11 @@ export function getGetSessionsSecurityEventsQueryKey(
  */
 export function useGetSessionsPolicies(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.sessions.policies.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.sessions.policies.$get>,
+      Error,
+      InferResponseType<typeof client.sessions.policies.$get>,
+      readonly ['/sessions/policies']
     >
     client?: ClientRequestOptions
   },
@@ -469,9 +484,9 @@ export function useGetSessionsPolicies(
   const queryKey = getGetSessionsPoliciesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -522,12 +537,11 @@ export function usePutSessionsPolicies(
  */
 export function useGetSessionsTrustedDevices(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
+      Error,
+      InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
+      readonly ['/sessions/trusted-devices']
     >
     client?: ClientRequestOptions
   },
@@ -537,10 +551,10 @@ export function useGetSessionsTrustedDevices(
   const queryKey = getGetSessionsTrustedDevicesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

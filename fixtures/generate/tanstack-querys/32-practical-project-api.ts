@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
@@ -12,9 +12,11 @@ import { client } from '../clients/32-practical-project-api'
 export function useGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.projects.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.projects.$get>,
+      Error,
+      InferResponseType<typeof client.projects.$get>,
+      readonly ['/projects', InferRequestType<typeof client.projects.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -24,9 +26,9 @@ export function useGetProjects(
   const queryKey = getGetProjectsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -36,8 +38,8 @@ export function useGetProjects(
 /**
  * Generates TanStack Query cache key for GET /projects
  */
-export function getGetProjectsQueryKey(args?: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', ...(args ? [args] : [])] as const
+export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
+  return ['/projects', args] as const
 }
 
 /**
@@ -77,9 +79,14 @@ export function usePostProjects(
 export function useGetProjectsProjectId(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.projects)[':projectId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.projects)[':projectId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.projects)[':projectId']['$get']>,
+      readonly [
+        '/projects/:projectId',
+        InferRequestType<(typeof client.projects)[':projectId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -89,9 +96,9 @@ export function useGetProjectsProjectId(
   const queryKey = getGetProjectsProjectIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.projects[':projectId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -102,9 +109,9 @@ export function useGetProjectsProjectId(
  * Generates TanStack Query cache key for GET /projects/{projectId}
  */
 export function getGetProjectsProjectIdQueryKey(
-  args?: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
+  args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
 ) {
-  return ['/projects/:projectId', ...(args ? [args] : [])] as const
+  return ['/projects/:projectId', args] as const
 }
 
 /**
@@ -175,12 +182,14 @@ export function useDeleteProjectsProjectId(
 export function useGetProjectsProjectIdMembers(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>,
+      Error,
+      InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>,
+      readonly [
+        '/projects/:projectId/members',
+        InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -190,10 +199,10 @@ export function useGetProjectsProjectIdMembers(
   const queryKey = getGetProjectsProjectIdMembersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.projects[':projectId'].members.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -204,9 +213,9 @@ export function useGetProjectsProjectIdMembers(
  * Generates TanStack Query cache key for GET /projects/{projectId}/members
  */
 export function getGetProjectsProjectIdMembersQueryKey(
-  args?: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
+  args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
 ) {
-  return ['/projects/:projectId/members', ...(args ? [args] : [])] as const
+  return ['/projects/:projectId/members', args] as const
 }
 
 /**
@@ -247,12 +256,14 @@ export function usePostProjectsProjectIdMembers(
 export function useGetProjectsProjectIdTasks(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+      Error,
+      InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+      readonly [
+        '/projects/:projectId/tasks',
+        InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -262,10 +273,10 @@ export function useGetProjectsProjectIdTasks(
   const queryKey = getGetProjectsProjectIdTasksQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.projects[':projectId'].tasks.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -276,9 +287,9 @@ export function useGetProjectsProjectIdTasks(
  * Generates TanStack Query cache key for GET /projects/{projectId}/tasks
  */
 export function getGetProjectsProjectIdTasksQueryKey(
-  args?: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+  args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
 ) {
-  return ['/projects/:projectId/tasks', ...(args ? [args] : [])] as const
+  return ['/projects/:projectId/tasks', args] as const
 }
 
 /**
@@ -319,9 +330,11 @@ export function usePostProjectsProjectIdTasks(
 export function useGetTasksTaskId(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.tasks)[':taskId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.tasks)[':taskId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.tasks)[':taskId']['$get']>,
+      readonly ['/tasks/:taskId', InferRequestType<(typeof client.tasks)[':taskId']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -331,9 +344,9 @@ export function useGetTasksTaskId(
   const queryKey = getGetTasksTaskIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.tasks[':taskId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -344,9 +357,9 @@ export function useGetTasksTaskId(
  * Generates TanStack Query cache key for GET /tasks/{taskId}
  */
 export function getGetTasksTaskIdQueryKey(
-  args?: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
+  args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
 ) {
-  return ['/tasks/:taskId', ...(args ? [args] : [])] as const
+  return ['/tasks/:taskId', args] as const
 }
 
 /**
@@ -447,12 +460,14 @@ export function usePatchTasksTaskIdStatus(
 export function useGetTasksTaskIdComments(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+      Error,
+      InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+      readonly [
+        '/tasks/:taskId/comments',
+        InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -462,10 +477,10 @@ export function useGetTasksTaskIdComments(
   const queryKey = getGetTasksTaskIdCommentsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.tasks[':taskId'].comments.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -476,9 +491,9 @@ export function useGetTasksTaskIdComments(
  * Generates TanStack Query cache key for GET /tasks/{taskId}/comments
  */
 export function getGetTasksTaskIdCommentsQueryKey(
-  args?: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+  args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
 ) {
-  return ['/tasks/:taskId/comments', ...(args ? [args] : [])] as const
+  return ['/tasks/:taskId/comments', args] as const
 }
 
 /**
@@ -519,12 +534,14 @@ export function usePostTasksTaskIdComments(
 export function useGetTasksTaskIdTimeEntries(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+      Error,
+      InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+      readonly [
+        '/tasks/:taskId/time-entries',
+        InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -534,10 +551,10 @@ export function useGetTasksTaskIdTimeEntries(
   const queryKey = getGetTasksTaskIdTimeEntriesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.tasks[':taskId']['time-entries'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -548,9 +565,9 @@ export function useGetTasksTaskIdTimeEntries(
  * Generates TanStack Query cache key for GET /tasks/{taskId}/time-entries
  */
 export function getGetTasksTaskIdTimeEntriesQueryKey(
-  args?: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+  args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
 ) {
-  return ['/tasks/:taskId/time-entries', ...(args ? [args] : [])] as const
+  return ['/tasks/:taskId/time-entries', args] as const
 }
 
 /**
@@ -591,12 +608,14 @@ export function usePostTasksTaskIdTimeEntries(
 export function useGetProjectsProjectIdMilestones(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+      Error,
+      InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+      readonly [
+        '/projects/:projectId/milestones',
+        InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -606,10 +625,10 @@ export function useGetProjectsProjectIdMilestones(
   const queryKey = getGetProjectsProjectIdMilestonesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.projects[':projectId'].milestones.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -620,9 +639,9 @@ export function useGetProjectsProjectIdMilestones(
  * Generates TanStack Query cache key for GET /projects/{projectId}/milestones
  */
 export function getGetProjectsProjectIdMilestonesQueryKey(
-  args?: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+  args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
 ) {
-  return ['/projects/:projectId/milestones', ...(args ? [args] : [])] as const
+  return ['/projects/:projectId/milestones', args] as const
 }
 
 /**
@@ -662,9 +681,11 @@ export function usePostProjectsProjectIdMilestones(
  */
 export function useGetTeams(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.teams.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.teams.$get>,
+      Error,
+      InferResponseType<typeof client.teams.$get>,
+      readonly ['/teams']
     >
     client?: ClientRequestOptions
   },
@@ -674,9 +695,9 @@ export function useGetTeams(
   const queryKey = getGetTeamsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.teams.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

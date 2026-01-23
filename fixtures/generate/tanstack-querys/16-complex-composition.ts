@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
@@ -63,9 +63,11 @@ export function usePostEvents(
  */
 export function useGetConfigs(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.configs.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.configs.$get>,
+      Error,
+      InferResponseType<typeof client.configs.$get>,
+      readonly ['/configs']
     >
     client?: ClientRequestOptions
   },
@@ -75,9 +77,9 @@ export function useGetConfigs(
   const queryKey = getGetConfigsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.configs.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

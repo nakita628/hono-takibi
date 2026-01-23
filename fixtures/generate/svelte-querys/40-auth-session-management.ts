@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
@@ -14,7 +14,12 @@ import { client } from '../clients/40-auth-session-management'
 export function createGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.sessions.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.sessions.$get>,
+      Error,
+      InferResponseType<typeof client.sessions.$get>,
+      readonly ['/sessions', InferRequestType<typeof client.sessions.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -35,8 +40,8 @@ export function createGetSessions(
 /**
  * Generates Svelte Query cache key for GET /sessions
  */
-export function getGetSessionsQueryKey(args?: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', ...(args ? [args] : [])] as const
+export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['/sessions', args] as const
 }
 
 /**
@@ -77,7 +82,12 @@ export function createPostSessions(
  */
 export function createGetSessionsCurrent(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.sessions.current.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.sessions.current.$get>,
+      Error,
+      InferResponseType<typeof client.sessions.current.$get>,
+      readonly ['/sessions/current']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -238,7 +248,12 @@ export function createGetSessionsSessionId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.sessions)[':sessionId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.sessions)[':sessionId']['$get']>,
+      readonly [
+        '/sessions/:sessionId',
+        InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -261,9 +276,9 @@ export function createGetSessionsSessionId(
  * Generates Svelte Query cache key for GET /sessions/{sessionId}
  */
 export function getGetSessionsSessionIdQueryKey(
-  args?: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  return ['/sessions/:sessionId', ...(args ? [args] : [])] as const
+  return ['/sessions/:sessionId', args] as const
 }
 
 /**
@@ -370,7 +385,12 @@ export function createPostSessionsValidate(
 export function createGetSessionsHistory(
   args: InferRequestType<typeof client.sessions.history.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.sessions.history.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.sessions.history.$get>,
+      Error,
+      InferResponseType<typeof client.sessions.history.$get>,
+      readonly ['/sessions/history', InferRequestType<typeof client.sessions.history.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -392,9 +412,9 @@ export function createGetSessionsHistory(
  * Generates Svelte Query cache key for GET /sessions/history
  */
 export function getGetSessionsHistoryQueryKey(
-  args?: InferRequestType<typeof client.sessions.history.$get>,
+  args: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  return ['/sessions/history', ...(args ? [args] : [])] as const
+  return ['/sessions/history', args] as const
 }
 
 /**
@@ -409,7 +429,12 @@ export function createGetSessionsSecurityEvents(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.sessions)['security-events']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.sessions)['security-events']['$get']>,
+      readonly [
+        '/sessions/security-events',
+        InferRequestType<(typeof client.sessions)['security-events']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -433,9 +458,9 @@ export function createGetSessionsSecurityEvents(
  * Generates Svelte Query cache key for GET /sessions/security-events
  */
 export function getGetSessionsSecurityEventsQueryKey(
-  args?: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
+  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return ['/sessions/security-events', ...(args ? [args] : [])] as const
+  return ['/sessions/security-events', args] as const
 }
 
 /**
@@ -445,7 +470,12 @@ export function getGetSessionsSecurityEventsQueryKey(
  */
 export function createGetSessionsPolicies(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.sessions.policies.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.sessions.policies.$get>,
+      Error,
+      InferResponseType<typeof client.sessions.policies.$get>,
+      readonly ['/sessions/policies']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -509,7 +539,9 @@ export function createGetSessionsTrustedDevices(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
+      readonly ['/sessions/trusted-devices']
     >
     client?: ClientRequestOptions
   },

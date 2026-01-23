@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
@@ -11,7 +11,12 @@ import { client } from '../clients/37-auth-mfa'
  */
 export function createGetMfaStatus(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.mfa.status.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.mfa.status.$get>,
+      Error,
+      InferResponseType<typeof client.mfa.status.$get>,
+      readonly ['/mfa/status']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -43,7 +48,12 @@ export function getGetMfaStatusQueryKey() {
  */
 export function createGetMfaMethods(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.mfa.methods.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.mfa.methods.$get>,
+      Error,
+      InferResponseType<typeof client.mfa.methods.$get>,
+      readonly ['/mfa/methods']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -410,7 +420,9 @@ export function createGetMfaWebauthnCredentials(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<typeof client.mfa.webauthn.credentials.$get>,
-      Error
+      Error,
+      InferResponseType<typeof client.mfa.webauthn.credentials.$get>,
+      readonly ['/mfa/webauthn/credentials']
     >
     client?: ClientRequestOptions
   },
@@ -546,7 +558,9 @@ export function createGetMfaBackupCodesStatus(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>,
+      readonly ['/mfa/backup-codes/status']
     >
     client?: ClientRequestOptions
   },

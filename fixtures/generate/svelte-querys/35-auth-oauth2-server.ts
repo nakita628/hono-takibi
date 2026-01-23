@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
@@ -15,7 +15,12 @@ import { client } from '../clients/35-auth-oauth2-server'
 export function createGetOauthAuthorize(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.oauth.authorize.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.oauth.authorize.$get>,
+      Error,
+      InferResponseType<typeof client.oauth.authorize.$get>,
+      readonly ['/oauth/authorize', InferRequestType<typeof client.oauth.authorize.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -37,9 +42,9 @@ export function createGetOauthAuthorize(
  * Generates Svelte Query cache key for GET /oauth/authorize
  */
 export function getGetOauthAuthorizeQueryKey(
-  args?: InferRequestType<typeof client.oauth.authorize.$get>,
+  args: InferRequestType<typeof client.oauth.authorize.$get>,
 ) {
-  return ['/oauth/authorize', ...(args ? [args] : [])] as const
+  return ['/oauth/authorize', args] as const
 }
 
 /**
@@ -178,7 +183,12 @@ export function createPostOauthDeviceCode(
  */
 export function createGetOauthUserinfo(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.oauth.userinfo.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.oauth.userinfo.$get>,
+      Error,
+      InferResponseType<typeof client.oauth.userinfo.$get>,
+      readonly ['/oauth/userinfo']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -214,7 +224,9 @@ export function createGetWellKnownOpenidConfiguration(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
+      readonly ['/.well-known/openid-configuration']
     >
     client?: ClientRequestOptions
   },
@@ -252,7 +264,9 @@ export function createGetWellKnownJwksJson(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
+      readonly ['/.well-known/jwks.json']
     >
     client?: ClientRequestOptions
   },
@@ -286,7 +300,12 @@ export function getGetWellKnownJwksJsonQueryKey() {
  */
 export function createGetOauthClients(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.oauth.clients.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.oauth.clients.$get>,
+      Error,
+      InferResponseType<typeof client.oauth.clients.$get>,
+      readonly ['/oauth/clients']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -350,7 +369,12 @@ export function createGetOauthClientsClientId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
+      readonly [
+        '/oauth/clients/:clientId',
+        InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -374,9 +398,9 @@ export function createGetOauthClientsClientId(
  * Generates Svelte Query cache key for GET /oauth/clients/{clientId}
  */
 export function getGetOauthClientsClientIdQueryKey(
-  args?: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
 ) {
-  return ['/oauth/clients/:clientId', ...(args ? [args] : [])] as const
+  return ['/oauth/clients/:clientId', args] as const
 }
 
 /**
@@ -478,7 +502,12 @@ export function createPostOauthClientsClientIdSecret(
  */
 export function createGetOauthConsents(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.oauth.consents.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.oauth.consents.$get>,
+      Error,
+      InferResponseType<typeof client.oauth.consents.$get>,
+      readonly ['/oauth/consents']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

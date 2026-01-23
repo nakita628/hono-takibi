@@ -64,9 +64,11 @@ import { client } from '../client'
  */
 export function useGetHono(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.hono.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.hono.$get>,
+      Error,
+      InferResponseType<typeof client.hono.$get>,
+      readonly ['/hono']
     >
     client?: ClientRequestOptions
   },
@@ -76,9 +78,9 @@ export function useGetHono(
   const queryKey = getGetHonoQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -102,9 +104,11 @@ export function getGetHonoQueryKey() {
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.users.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.users.$get>,
+      Error,
+      InferResponseType<typeof client.users.$get>,
+      readonly ['/users', InferRequestType<typeof client.users.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -114,9 +118,9 @@ export function useGetUsers(
   const queryKey = getGetUsersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -126,8 +130,8 @@ export function useGetUsers(
 /**
  * Generates TanStack Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
-  return ['/users', ...(args ? [args] : [])] as const
+export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['/users', args] as const
 }
 
 /**
@@ -209,9 +213,11 @@ import { client } from '../client'
  */
 export function useGetHono(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.hono.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.hono.$get>,
+      Error,
+      InferResponseType<typeof client.hono.$get>,
+      readonly ['/hono']
     >
     client?: ClientRequestOptions
   },
@@ -221,9 +227,9 @@ export function useGetHono(
   const queryKey = getGetHonoQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -257,9 +263,11 @@ import { client } from '../client'
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.users.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.users.$get>,
+      Error,
+      InferResponseType<typeof client.users.$get>,
+      readonly ['/users', InferRequestType<typeof client.users.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -269,9 +277,9 @@ export function useGetUsers(
   const queryKey = getGetUsersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -281,8 +289,8 @@ export function useGetUsers(
 /**
  * Generates TanStack Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
-  return ['/users', ...(args ? [args] : [])] as const
+export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['/users', args] as const
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
@@ -376,9 +384,11 @@ import { authClient } from '../api'
  */
 export function useGetUsers(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof authClient.users.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof authClient.users.$get>,
+      Error,
+      InferResponseType<typeof authClient.users.$get>,
+      readonly ['/users']
     >
     client?: ClientRequestOptions
   },
@@ -388,9 +398,9 @@ export function useGetUsers(
   const queryKey = getGetUsersQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(authClient.users.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -454,9 +464,11 @@ import { client } from '../client'
  */
 export function useGetPing(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.ping.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.ping.$get>,
+      Error,
+      InferResponseType<typeof client.ping.$get>,
+      readonly ['/ping']
     >
     client?: ClientRequestOptions
   },
@@ -466,9 +478,9 @@ export function useGetPing(
   const queryKey = getGetPingQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.ping.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -552,9 +564,11 @@ import { client } from '../client'
  */
 export function useGetHonoX(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['hono-x']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['hono-x']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['hono-x']['$get']>,
+      readonly ['/hono-x']
     >
     client?: ClientRequestOptions
   },
@@ -564,9 +578,9 @@ export function useGetHonoX(
   const queryKey = getGetHonoXQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -632,9 +646,11 @@ import { client } from '../client'
 export function useGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.users)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.users)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':id']['$get']>,
+      readonly ['/users/:id', InferRequestType<(typeof client.users)[':id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -644,9 +660,9 @@ export function useGetUsersId(
   const queryKey = getGetUsersIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users[':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -657,9 +673,9 @@ export function useGetUsersId(
  * Generates TanStack Query cache key for GET /users/{id}
  */
 export function getGetUsersIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['/users/:id', ...(args ? [args] : [])] as const
+  return ['/users/:id', args] as const
 }
 
 /**

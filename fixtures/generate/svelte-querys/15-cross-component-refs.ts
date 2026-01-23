@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -10,7 +10,12 @@ import { client } from '../clients/15-cross-component-refs'
 export function createGetEntities(
   args: InferRequestType<typeof client.entities.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.entities.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.entities.$get>,
+      Error,
+      InferResponseType<typeof client.entities.$get>,
+      readonly ['/entities', InferRequestType<typeof client.entities.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -31,8 +36,8 @@ export function createGetEntities(
 /**
  * Generates Svelte Query cache key for GET /entities
  */
-export function getGetEntitiesQueryKey(args?: InferRequestType<typeof client.entities.$get>) {
-  return ['/entities', ...(args ? [args] : [])] as const
+export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.entities.$get>) {
+  return ['/entities', args] as const
 }
 
 /**
@@ -70,7 +75,12 @@ export function createGetEntitiesEntityId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.entities)[':entityId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.entities)[':entityId']['$get']>,
+      readonly [
+        '/entities/:entityId',
+        InferRequestType<(typeof client.entities)[':entityId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -93,9 +103,9 @@ export function createGetEntitiesEntityId(
  * Generates Svelte Query cache key for GET /entities/{entityId}
  */
 export function getGetEntitiesEntityIdQueryKey(
-  args?: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
+  args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
-  return ['/entities/:entityId', ...(args ? [args] : [])] as const
+  return ['/entities/:entityId', args] as const
 }
 
 /**
@@ -162,7 +172,12 @@ export function createGetEntitiesEntityIdRelationships(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+      readonly [
+        '/entities/:entityId/relationships',
+        InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -186,9 +201,9 @@ export function createGetEntitiesEntityIdRelationships(
  * Generates Svelte Query cache key for GET /entities/{entityId}/relationships
  */
 export function getGetEntitiesEntityIdRelationshipsQueryKey(
-  args?: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+  args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
-  return ['/entities/:entityId/relationships', ...(args ? [args] : [])] as const
+  return ['/entities/:entityId/relationships', args] as const
 }
 
 /**

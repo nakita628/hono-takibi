@@ -37,8 +37,12 @@ import {
   rpc,
   schemas,
   securitySchemes,
+  svelteQuery,
+  swr,
   takibi,
+  tanstackQuery,
   type,
+  vueQuery,
 } from '../core/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 import { isRecord } from '../utils/index.js'
@@ -500,6 +504,140 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     })()
   }
 
+  const makeSwrJob = (): Promise<string> | undefined => {
+    const swrConfig = configuration.swr
+    if (!swrConfig) return undefined
+    return (async () => {
+      if (swrConfig.split === true) {
+        const outputDirectory = toAbsolutePath(swrConfig.output)
+        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
+        await deleteTypeScriptFiles(beforeFiles)
+        const swrResult = await swr(
+          openAPI,
+          outputDirectory,
+          swrConfig.import,
+          true,
+          swrConfig.client ?? 'client',
+        )
+        if (!swrResult.ok) return `✗ swr(split): ${swrResult.error}`
+        return beforeFiles.length > 0
+          ? `✓ swr(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
+          : `✓ swr(split) -> ${outputDirectory}/*.ts`
+      }
+      const outputPath = toAbsolutePath(swrConfig.output)
+      const swrResult = await swr(
+        openAPI,
+        outputPath,
+        swrConfig.import,
+        false,
+        swrConfig.client ?? 'client',
+      )
+      return swrResult.ok ? `✓ swr -> ${outputPath}` : `✗ swr: ${swrResult.error}`
+    })()
+  }
+
+  const makeTanstackQueryJob = (): Promise<string> | undefined => {
+    const tanstackQueryConfig = configuration['tanstack-query']
+    if (!tanstackQueryConfig) return undefined
+    return (async () => {
+      if (tanstackQueryConfig.split === true) {
+        const outputDirectory = toAbsolutePath(tanstackQueryConfig.output)
+        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
+        await deleteTypeScriptFiles(beforeFiles)
+        const tanstackQueryResult = await tanstackQuery(
+          openAPI,
+          outputDirectory,
+          tanstackQueryConfig.import,
+          true,
+          tanstackQueryConfig.client ?? 'client',
+        )
+        if (!tanstackQueryResult.ok) return `✗ tanstack-query(split): ${tanstackQueryResult.error}`
+        return beforeFiles.length > 0
+          ? `✓ tanstack-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
+          : `✓ tanstack-query(split) -> ${outputDirectory}/*.ts`
+      }
+      const outputPath = toAbsolutePath(tanstackQueryConfig.output)
+      const tanstackQueryResult = await tanstackQuery(
+        openAPI,
+        outputPath,
+        tanstackQueryConfig.import,
+        false,
+        tanstackQueryConfig.client ?? 'client',
+      )
+      return tanstackQueryResult.ok
+        ? `✓ tanstack-query -> ${outputPath}`
+        : `✗ tanstack-query: ${tanstackQueryResult.error}`
+    })()
+  }
+
+  const makeSvelteQueryJob = (): Promise<string> | undefined => {
+    const svelteQueryConfig = configuration['svelte-query']
+    if (!svelteQueryConfig) return undefined
+    return (async () => {
+      if (svelteQueryConfig.split === true) {
+        const outputDirectory = toAbsolutePath(svelteQueryConfig.output)
+        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
+        await deleteTypeScriptFiles(beforeFiles)
+        const svelteQueryResult = await svelteQuery(
+          openAPI,
+          outputDirectory,
+          svelteQueryConfig.import,
+          true,
+          svelteQueryConfig.client ?? 'client',
+        )
+        if (!svelteQueryResult.ok) return `✗ svelte-query(split): ${svelteQueryResult.error}`
+        return beforeFiles.length > 0
+          ? `✓ svelte-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
+          : `✓ svelte-query(split) -> ${outputDirectory}/*.ts`
+      }
+      const outputPath = toAbsolutePath(svelteQueryConfig.output)
+      const svelteQueryResult = await svelteQuery(
+        openAPI,
+        outputPath,
+        svelteQueryConfig.import,
+        false,
+        svelteQueryConfig.client ?? 'client',
+      )
+      return svelteQueryResult.ok
+        ? `✓ svelte-query -> ${outputPath}`
+        : `✗ svelte-query: ${svelteQueryResult.error}`
+    })()
+  }
+
+  const makeVueQueryJob = (): Promise<string> | undefined => {
+    const vueQueryConfig = configuration['vue-query']
+    if (!vueQueryConfig) return undefined
+    return (async () => {
+      if (vueQueryConfig.split === true) {
+        const outputDirectory = toAbsolutePath(vueQueryConfig.output)
+        const beforeFiles = await listTypeScriptFilesShallow(outputDirectory)
+        await deleteTypeScriptFiles(beforeFiles)
+        const vueQueryResult = await vueQuery(
+          openAPI,
+          outputDirectory,
+          vueQueryConfig.import,
+          true,
+          vueQueryConfig.client ?? 'client',
+        )
+        if (!vueQueryResult.ok) return `✗ vue-query(split): ${vueQueryResult.error}`
+        return beforeFiles.length > 0
+          ? `✓ vue-query(split) -> ${outputDirectory}/*.ts (cleaned ${beforeFiles.length})`
+          : `✓ vue-query(split) -> ${outputDirectory}/*.ts`
+      }
+      const outputPath = toAbsolutePath(vueQueryConfig.output)
+      const vueQueryResult = await vueQuery(
+        openAPI,
+        outputPath,
+        vueQueryConfig.import,
+        false,
+        vueQueryConfig.client ?? 'client',
+      )
+      return vueQueryResult.ok
+        ? `✓ vue-query -> ${outputPath}`
+        : `✗ vue-query: ${vueQueryResult.error}`
+    })()
+  }
+
   const generationJobs = [
     makeZodOpenAPIJob(),
     makeSchemaJob(),
@@ -514,6 +652,10 @@ const runAllGenerationTasks = async (configuration: Configuration): Promise<{ lo
     makeRoutesJob(),
     makeTypeJob(),
     makeRpcJob(),
+    makeSwrJob(),
+    makeTanstackQueryJob(),
+    makeSvelteQueryJob(),
+    makeVueQueryJob(),
   ].filter((job): job is Promise<string> => job !== undefined)
 
   return Promise.all(generationJobs).then((logs) => ({ logs }))
@@ -624,6 +766,10 @@ const extractOutputPaths = (configuration: Configuration): string[] =>
     configuration['zod-openapi']?.routes?.output,
     configuration.type?.output,
     configuration.rpc?.output,
+    configuration.swr?.output,
+    configuration['tanstack-query']?.output,
+    configuration['svelte-query']?.output,
+    configuration['vue-query']?.output,
   ]
     .filter((outputPath): outputPath is string => outputPath !== undefined)
     .map(toAbsolutePath)

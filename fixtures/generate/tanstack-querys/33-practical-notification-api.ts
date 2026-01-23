@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/33-practical-notification-api'
 
@@ -12,9 +12,11 @@ import { client } from '../clients/33-practical-notification-api'
 export function useGetNotifications(
   args: InferRequestType<typeof client.notifications.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.notifications.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.notifications.$get>,
+      Error,
+      InferResponseType<typeof client.notifications.$get>,
+      readonly ['/notifications', InferRequestType<typeof client.notifications.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -24,9 +26,9 @@ export function useGetNotifications(
   const queryKey = getGetNotificationsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.notifications.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -37,9 +39,9 @@ export function useGetNotifications(
  * Generates TanStack Query cache key for GET /notifications
  */
 export function getGetNotificationsQueryKey(
-  args?: InferRequestType<typeof client.notifications.$get>,
+  args: InferRequestType<typeof client.notifications.$get>,
 ) {
-  return ['/notifications', ...(args ? [args] : [])] as const
+  return ['/notifications', args] as const
 }
 
 /**
@@ -50,12 +52,14 @@ export function getGetNotificationsQueryKey(
 export function useGetNotificationsNotificationId(
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.notifications)[':notificationId']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.notifications)[':notificationId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.notifications)[':notificationId']['$get']>,
+      readonly [
+        '/notifications/:notificationId',
+        InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -65,10 +69,10 @@ export function useGetNotificationsNotificationId(
   const queryKey = getGetNotificationsNotificationIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.notifications[':notificationId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -79,9 +83,9 @@ export function useGetNotificationsNotificationId(
  * Generates TanStack Query cache key for GET /notifications/{notificationId}
  */
 export function getGetNotificationsNotificationIdQueryKey(
-  args?: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
+  args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
 ) {
-  return ['/notifications/:notificationId', ...(args ? [args] : [])] as const
+  return ['/notifications/:notificationId', args] as const
 }
 
 /**
@@ -183,12 +187,11 @@ export function usePostNotificationsReadAll(
  */
 export function useGetNotificationsUnreadCount(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
+      Error,
+      InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
+      readonly ['/notifications/unread-count']
     >
     client?: ClientRequestOptions
   },
@@ -198,10 +201,10 @@ export function useGetNotificationsUnreadCount(
   const queryKey = getGetNotificationsUnreadCountQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.notifications['unread-count'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -284,9 +287,14 @@ export function usePostMessagesSendBatch(
 export function useGetMessagesMessageId(
   args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.messages)[':messageId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.messages)[':messageId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.messages)[':messageId']['$get']>,
+      readonly [
+        '/messages/:messageId',
+        InferRequestType<(typeof client.messages)[':messageId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -296,9 +304,9 @@ export function useGetMessagesMessageId(
   const queryKey = getGetMessagesMessageIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.messages[':messageId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -309,9 +317,9 @@ export function useGetMessagesMessageId(
  * Generates TanStack Query cache key for GET /messages/{messageId}
  */
 export function getGetMessagesMessageIdQueryKey(
-  args?: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
+  args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
 ) {
-  return ['/messages/:messageId', ...(args ? [args] : [])] as const
+  return ['/messages/:messageId', args] as const
 }
 
 /**
@@ -322,9 +330,11 @@ export function getGetMessagesMessageIdQueryKey(
 export function useGetTemplates(
   args: InferRequestType<typeof client.templates.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.templates.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.templates.$get>,
+      Error,
+      InferResponseType<typeof client.templates.$get>,
+      readonly ['/templates', InferRequestType<typeof client.templates.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -334,9 +344,9 @@ export function useGetTemplates(
   const queryKey = getGetTemplatesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.templates.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -346,8 +356,8 @@ export function useGetTemplates(
 /**
  * Generates TanStack Query cache key for GET /templates
  */
-export function getGetTemplatesQueryKey(args?: InferRequestType<typeof client.templates.$get>) {
-  return ['/templates', ...(args ? [args] : [])] as const
+export function getGetTemplatesQueryKey(args: InferRequestType<typeof client.templates.$get>) {
+  return ['/templates', args] as const
 }
 
 /**
@@ -387,9 +397,14 @@ export function usePostTemplates(
 export function useGetTemplatesTemplateId(
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.templates)[':templateId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.templates)[':templateId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.templates)[':templateId']['$get']>,
+      readonly [
+        '/templates/:templateId',
+        InferRequestType<(typeof client.templates)[':templateId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -399,9 +414,9 @@ export function useGetTemplatesTemplateId(
   const queryKey = getGetTemplatesTemplateIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.templates[':templateId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -412,9 +427,9 @@ export function useGetTemplatesTemplateId(
  * Generates TanStack Query cache key for GET /templates/{templateId}
  */
 export function getGetTemplatesTemplateIdQueryKey(
-  args?: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
+  args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
 ) {
-  return ['/templates/:templateId', ...(args ? [args] : [])] as const
+  return ['/templates/:templateId', args] as const
 }
 
 /**
@@ -514,9 +529,11 @@ export function usePostTemplatesTemplateIdPreview(
  */
 export function useGetChannelsPreferences(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.channels.preferences.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.channels.preferences.$get>,
+      Error,
+      InferResponseType<typeof client.channels.preferences.$get>,
+      readonly ['/channels/preferences']
     >
     client?: ClientRequestOptions
   },
@@ -526,10 +543,10 @@ export function useGetChannelsPreferences(
   const queryKey = getGetChannelsPreferencesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.channels.preferences.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -580,9 +597,11 @@ export function usePutChannelsPreferences(
  */
 export function useGetChannelsDevices(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.channels.devices.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.channels.devices.$get>,
+      Error,
+      InferResponseType<typeof client.channels.devices.$get>,
+      readonly ['/channels/devices']
     >
     client?: ClientRequestOptions
   },
@@ -592,9 +611,9 @@ export function useGetChannelsDevices(
   const queryKey = getGetChannelsDevicesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.channels.devices.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -675,9 +694,11 @@ export function useDeleteChannelsDevicesDeviceId(
  */
 export function useGetWebhooks(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.webhooks.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.webhooks.$get>,
+      Error,
+      InferResponseType<typeof client.webhooks.$get>,
+      readonly ['/webhooks']
     >
     client?: ClientRequestOptions
   },
@@ -687,9 +708,9 @@ export function useGetWebhooks(
   const queryKey = getGetWebhooksQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.webhooks.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -740,9 +761,14 @@ export function usePostWebhooks(
 export function useGetWebhooksWebhookId(
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>,
+      readonly [
+        '/webhooks/:webhookId',
+        InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -752,9 +778,9 @@ export function useGetWebhooksWebhookId(
   const queryKey = getGetWebhooksWebhookIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.webhooks[':webhookId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -765,9 +791,9 @@ export function useGetWebhooksWebhookId(
  * Generates TanStack Query cache key for GET /webhooks/{webhookId}
  */
 export function getGetWebhooksWebhookIdQueryKey(
-  args?: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
+  args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
 ) {
-  return ['/webhooks/:webhookId', ...(args ? [args] : [])] as const
+  return ['/webhooks/:webhookId', args] as const
 }
 
 /**

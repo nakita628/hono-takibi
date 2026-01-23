@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
 import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/test'
 
@@ -13,9 +13,11 @@ import { client } from '../clients/test'
  */
 export function useGetHono(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.hono.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.hono.$get>,
+      Error,
+      InferResponseType<typeof client.hono.$get>,
+      readonly ['/hono']
     >
     client?: ClientRequestOptions
   },
@@ -25,9 +27,9 @@ export function useGetHono(
   const queryKey = getGetHonoQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -50,9 +52,11 @@ export function getGetHonoQueryKey() {
  */
 export function useGetHonoX(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['hono-x']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['hono-x']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['hono-x']['$get']>,
+      readonly ['/hono-x']
     >
     client?: ClientRequestOptions
   },
@@ -62,9 +66,9 @@ export function useGetHonoX(
   const queryKey = getGetHonoXQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -87,9 +91,11 @@ export function getGetHonoXQueryKey() {
  */
 export function useGetZodOpenapiHono(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['zod-openapi-hono']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['zod-openapi-hono']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['zod-openapi-hono']['$get']>,
+      readonly ['/zod-openapi-hono']
     >
     client?: ClientRequestOptions
   },
@@ -99,9 +105,9 @@ export function useGetZodOpenapiHono(
   const queryKey = getGetZodOpenapiHonoQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['zod-openapi-hono'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

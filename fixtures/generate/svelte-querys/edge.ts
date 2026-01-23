@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -41,7 +41,12 @@ export function createPostPolymorphic(
 export function createGetSearch(
   args: InferRequestType<typeof client.search.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.search.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.search.$get>,
+      Error,
+      InferResponseType<typeof client.search.$get>,
+      readonly ['/search', InferRequestType<typeof client.search.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -62,8 +67,8 @@ export function createGetSearch(
 /**
  * Generates Svelte Query cache key for GET /search
  */
-export function getGetSearchQueryKey(args?: InferRequestType<typeof client.search.$get>) {
-  return ['/search', ...(args ? [args] : [])] as const
+export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
+  return ['/search', args] as const
 }
 
 /**

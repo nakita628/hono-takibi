@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
 
@@ -9,9 +9,11 @@ import { client } from '../clients/07-examples'
  */
 export function useGetProducts(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.products.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.products.$get>,
+      Error,
+      InferResponseType<typeof client.products.$get>,
+      readonly ['/products']
     >
     client?: ClientRequestOptions
   },
@@ -21,9 +23,9 @@ export function useGetProducts(
   const queryKey = getGetProductsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.products.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -70,9 +72,14 @@ export function usePostProducts(
 export function useGetProductsProductId(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.products)[':productId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.products)[':productId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.products)[':productId']['$get']>,
+      readonly [
+        '/products/:productId',
+        InferRequestType<(typeof client.products)[':productId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -82,9 +89,9 @@ export function useGetProductsProductId(
   const queryKey = getGetProductsProductIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -95,7 +102,7 @@ export function useGetProductsProductId(
  * Generates TanStack Query cache key for GET /products/{productId}
  */
 export function getGetProductsProductIdQueryKey(
-  args?: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return ['/products/:productId', ...(args ? [args] : [])] as const
+  return ['/products/:productId', args] as const
 }

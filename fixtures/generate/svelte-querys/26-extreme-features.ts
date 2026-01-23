@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -11,7 +11,12 @@ import { client } from '../clients/26-extreme-features'
  */
 export function createGetStream(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.stream.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.stream.$get>,
+      Error,
+      InferResponseType<typeof client.stream.$get>,
+      readonly ['/stream']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -108,7 +113,9 @@ export function createGetDeprecatedEndpoint(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
+      readonly ['/deprecated-endpoint']
     >
     client?: ClientRequestOptions
   },

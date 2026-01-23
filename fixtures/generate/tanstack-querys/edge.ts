@@ -1,6 +1,6 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -41,9 +41,11 @@ export function usePostPolymorphic(
 export function useGetSearch(
   args: InferRequestType<typeof client.search.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.search.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.search.$get>,
+      Error,
+      InferResponseType<typeof client.search.$get>,
+      readonly ['/search', InferRequestType<typeof client.search.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -53,9 +55,9 @@ export function useGetSearch(
   const queryKey = getGetSearchQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -65,8 +67,8 @@ export function useGetSearch(
 /**
  * Generates TanStack Query cache key for GET /search
  */
-export function getGetSearchQueryKey(args?: InferRequestType<typeof client.search.$get>) {
-  return ['/search', ...(args ? [args] : [])] as const
+export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
+  return ['/search', args] as const
 }
 
 /**

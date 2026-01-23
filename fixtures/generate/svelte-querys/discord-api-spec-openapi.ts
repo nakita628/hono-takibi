@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/discord-api-spec-openapi'
 
@@ -11,7 +11,9 @@ export function createGetApplicationsMe(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.applications)['@me']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.applications)['@me']['$get']>,
+      readonly ['/applications/@me']
     >
     client?: ClientRequestOptions
   },
@@ -73,7 +75,12 @@ export function createGetApplicationsApplicationId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.applications)[':application_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.applications)[':application_id']['$get']>,
+      readonly [
+        '/applications/:application_id',
+        InferRequestType<(typeof client.applications)[':application_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -97,9 +104,9 @@ export function createGetApplicationsApplicationId(
  * Generates Svelte Query cache key for GET /applications/{application_id}
  */
 export function getGetApplicationsApplicationIdQueryKey(
-  args?: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
+  args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
 ) {
-  return ['/applications/:application_id', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id', args] as const
 }
 
 /**
@@ -142,7 +149,16 @@ export function createGetApplicationsApplicationIdActivityInstancesInstanceId(
       InferResponseType<
         (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/activity-instances/:instance_id',
+        InferRequestType<
+          (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -171,14 +187,11 @@ export function createGetApplicationsApplicationIdActivityInstancesInstanceId(
  * Generates Svelte Query cache key for GET /applications/{application_id}/activity-instances/{instance_id}
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/activity-instances/:instance_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/activity-instances/:instance_id', args] as const
 }
 
 /**
@@ -221,7 +234,12 @@ export function createGetApplicationsApplicationIdCommands(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>,
+      readonly [
+        '/applications/:application_id/commands',
+        InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -245,9 +263,9 @@ export function createGetApplicationsApplicationIdCommands(
  * Generates Svelte Query cache key for GET /applications/{application_id}/commands
  */
 export function getGetApplicationsApplicationIdCommandsQueryKey(
-  args?: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
+  args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
 ) {
-  return ['/applications/:application_id/commands', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id/commands', args] as const
 }
 
 /**
@@ -322,7 +340,16 @@ export function createGetApplicationsApplicationIdCommandsCommandId(
       InferResponseType<
         (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/commands/:command_id',
+        InferRequestType<
+          (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -348,11 +375,11 @@ export function createGetApplicationsApplicationIdCommandsCommandId(
  * Generates Svelte Query cache key for GET /applications/{application_id}/commands/{command_id}
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
   >,
 ) {
-  return ['/applications/:application_id/commands/:command_id', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id/commands/:command_id', args] as const
 }
 
 /**
@@ -449,7 +476,12 @@ export function createGetApplicationsApplicationIdEmojis(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
+      readonly [
+        '/applications/:application_id/emojis',
+        InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -473,9 +505,9 @@ export function createGetApplicationsApplicationIdEmojis(
  * Generates Svelte Query cache key for GET /applications/{application_id}/emojis
  */
 export function getGetApplicationsApplicationIdEmojisQueryKey(
-  args?: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
+  args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
 ) {
-  return ['/applications/:application_id/emojis', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id/emojis', args] as const
 }
 
 /**
@@ -520,7 +552,16 @@ export function createGetApplicationsApplicationIdEmojisEmojiId(
       InferResponseType<
         (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/emojis/:emoji_id',
+        InferRequestType<
+          (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -546,11 +587,11 @@ export function createGetApplicationsApplicationIdEmojisEmojiId(
  * Generates Svelte Query cache key for GET /applications/{application_id}/emojis/{emoji_id}
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
   >,
 ) {
-  return ['/applications/:application_id/emojis/:emoji_id', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id/emojis/:emoji_id', args] as const
 }
 
 /**
@@ -641,7 +682,12 @@ export function createGetApplicationsApplicationIdEntitlements(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
+      readonly [
+        '/applications/:application_id/entitlements',
+        InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -667,9 +713,9 @@ export function createGetApplicationsApplicationIdEntitlements(
  * Generates Svelte Query cache key for GET /applications/{application_id}/entitlements
  */
 export function getGetApplicationsApplicationIdEntitlementsQueryKey(
-  args?: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
+  args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
 ) {
-  return ['/applications/:application_id/entitlements', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id/entitlements', args] as const
 }
 
 /**
@@ -716,7 +762,16 @@ export function createGetApplicationsApplicationIdEntitlementsEntitlementId(
       InferResponseType<
         (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/entitlements/:entitlement_id',
+        InferRequestType<
+          (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -745,14 +800,11 @@ export function createGetApplicationsApplicationIdEntitlementsEntitlementId(
  * Generates Svelte Query cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/entitlements/:entitlement_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/entitlements/:entitlement_id', args] as const
 }
 
 /**
@@ -853,7 +905,16 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommands(
       InferResponseType<
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/guilds/:guild_id/commands',
+        InferRequestType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -882,14 +943,11 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommands(
  * Generates Svelte Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/guilds/:guild_id/commands',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/guilds/:guild_id/commands', args] as const
 }
 
 /**
@@ -990,7 +1048,16 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsPermissio
       InferResponseType<
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/guilds/:guild_id/commands/permissions',
+        InferRequestType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1019,14 +1086,11 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsPermissio
  * Generates Svelte Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/guilds/:guild_id/commands/permissions',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/guilds/:guild_id/commands/permissions', args] as const
 }
 
 /**
@@ -1041,7 +1105,16 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
       InferResponseType<
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/guilds/:guild_id/commands/:command_id',
+        InferRequestType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1070,14 +1143,11 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
  * Generates Svelte Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/guilds/:guild_id/commands/:command_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/guilds/:guild_id/commands/:command_id', args] as const
 }
 
 /**
@@ -1177,7 +1247,16 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
       InferResponseType<
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
+        InferRequestType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1206,13 +1285,13 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
  * Generates Svelte Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
   >,
 ) {
   return [
     '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
-    ...(args ? [args] : []),
+    args,
   ] as const
 }
 
@@ -1270,7 +1349,16 @@ export function createGetApplicationsApplicationIdRoleConnectionsMetadata(
       InferResponseType<
         (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/role-connections/metadata',
+        InferRequestType<
+          (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1299,14 +1387,11 @@ export function createGetApplicationsApplicationIdRoleConnectionsMetadata(
  * Generates Svelte Query cache key for GET /applications/{application_id}/role-connections/metadata
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/role-connections/metadata',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/role-connections/metadata', args] as const
 }
 
 /**
@@ -1360,7 +1445,12 @@ export function createGetChannelsChannelId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.channels)[':channel_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['$get']>,
+      readonly [
+        '/channels/:channel_id',
+        InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1383,9 +1473,9 @@ export function createGetChannelsChannelId(
  * Generates Svelte Query cache key for GET /channels/{channel_id}
  */
 export function getGetChannelsChannelIdQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
 ) {
-  return ['/channels/:channel_id', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id', args] as const
 }
 
 /**
@@ -1480,7 +1570,12 @@ export function createGetChannelsChannelIdInvites(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
+      readonly [
+        '/channels/:channel_id/invites',
+        InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1504,9 +1599,9 @@ export function createGetChannelsChannelIdInvites(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/invites
  */
 export function getGetChannelsChannelIdInvitesQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
 ) {
-  return ['/channels/:channel_id/invites', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/invites', args] as const
 }
 
 /**
@@ -1545,7 +1640,12 @@ export function createGetChannelsChannelIdMessages(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
+      readonly [
+        '/channels/:channel_id/messages',
+        InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1569,9 +1669,9 @@ export function createGetChannelsChannelIdMessages(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/messages
  */
 export function getGetChannelsChannelIdMessagesQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
 ) {
-  return ['/channels/:channel_id/messages', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/messages', args] as const
 }
 
 /**
@@ -1644,7 +1744,12 @@ export function createGetChannelsChannelIdMessagesPins(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
+      readonly [
+        '/channels/:channel_id/messages/pins',
+        InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1668,9 +1773,9 @@ export function createGetChannelsChannelIdMessagesPins(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/messages/pins
  */
 export function getGetChannelsChannelIdMessagesPinsQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
 ) {
-  return ['/channels/:channel_id/messages/pins', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/messages/pins', args] as const
 }
 
 /**
@@ -1766,7 +1871,14 @@ export function createGetChannelsChannelIdMessagesMessageId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$get']>,
+      readonly [
+        '/channels/:channel_id/messages/:message_id',
+        InferRequestType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1792,11 +1904,11 @@ export function createGetChannelsChannelIdMessagesMessageId(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/messages/{message_id}
  */
 export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
   >,
 ) {
-  return ['/channels/:channel_id/messages/:message_id', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/messages/:message_id', args] as const
 }
 
 /**
@@ -1971,7 +2083,16 @@ export function createGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
       InferResponseType<
         (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/messages/:message_id/reactions/:emoji_name',
+        InferRequestType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2000,14 +2121,11 @@ export function createGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
   >,
 ) {
-  return [
-    '/channels/:channel_id/messages/:message_id/reactions/:emoji_name',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name', args] as const
 }
 
 /**
@@ -2313,7 +2431,12 @@ export function createGetChannelsChannelIdPins(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+      readonly [
+        '/channels/:channel_id/pins',
+        InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2337,9 +2460,9 @@ export function createGetChannelsChannelIdPins(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/pins
  */
 export function getGetChannelsChannelIdPinsQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
 ) {
-  return ['/channels/:channel_id/pins', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/pins', args] as const
 }
 
 /**
@@ -2418,7 +2541,16 @@ export function createGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
       InferResponseType<
         (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/polls/:message_id/answers/:answer_id',
+        InferRequestType<
+          (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2447,14 +2579,11 @@ export function createGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
   >,
 ) {
-  return [
-    '/channels/:channel_id/polls/:message_id/answers/:answer_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/channels/:channel_id/polls/:message_id/answers/:answer_id', args] as const
 }
 
 /**
@@ -2605,7 +2734,12 @@ export function createGetChannelsChannelIdThreadMembers(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
+      readonly [
+        '/channels/:channel_id/thread-members',
+        InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2629,9 +2763,9 @@ export function createGetChannelsChannelIdThreadMembers(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/thread-members
  */
 export function getGetChannelsChannelIdThreadMembersQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
 ) {
-  return ['/channels/:channel_id/thread-members', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/thread-members', args] as const
 }
 
 /**
@@ -2712,7 +2846,16 @@ export function createGetChannelsChannelIdThreadMembersUserId(
       InferResponseType<
         (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/thread-members/:user_id',
+        InferRequestType<
+          (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2738,11 +2881,11 @@ export function createGetChannelsChannelIdThreadMembersUserId(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/thread-members/{user_id}
  */
 export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
   >,
 ) {
-  return ['/channels/:channel_id/thread-members/:user_id', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/thread-members/:user_id', args] as const
 }
 
 /**
@@ -2866,7 +3009,16 @@ export function createGetChannelsChannelIdThreadsArchivedPrivate(
       InferResponseType<
         (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/threads/archived/private',
+        InferRequestType<
+          (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2892,11 +3044,11 @@ export function createGetChannelsChannelIdThreadsArchivedPrivate(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/threads/archived/private
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
   >,
 ) {
-  return ['/channels/:channel_id/threads/archived/private', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/threads/archived/private', args] as const
 }
 
 /**
@@ -2911,7 +3063,16 @@ export function createGetChannelsChannelIdThreadsArchivedPublic(
       InferResponseType<
         (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/threads/archived/public',
+        InferRequestType<
+          (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2937,11 +3098,11 @@ export function createGetChannelsChannelIdThreadsArchivedPublic(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/threads/archived/public
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
 ) {
-  return ['/channels/:channel_id/threads/archived/public', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/threads/archived/public', args] as const
 }
 
 /**
@@ -2952,7 +3113,12 @@ export function createGetChannelsChannelIdThreadsSearch(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
+      readonly [
+        '/channels/:channel_id/threads/search',
+        InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2976,9 +3142,9 @@ export function createGetChannelsChannelIdThreadsSearch(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/threads/search
  */
 export function getGetChannelsChannelIdThreadsSearchQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
 ) {
-  return ['/channels/:channel_id/threads/search', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/threads/search', args] as const
 }
 
 /**
@@ -3021,7 +3187,16 @@ export function createGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
       InferResponseType<
         (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/users/@me/threads/archived/private',
+        InferRequestType<
+          (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3050,14 +3225,11 @@ export function createGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
   >,
 ) {
-  return [
-    '/channels/:channel_id/users/@me/threads/archived/private',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/channels/:channel_id/users/@me/threads/archived/private', args] as const
 }
 
 /**
@@ -3068,7 +3240,12 @@ export function createGetChannelsChannelIdWebhooks(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
+      readonly [
+        '/channels/:channel_id/webhooks',
+        InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3092,9 +3269,9 @@ export function createGetChannelsChannelIdWebhooks(
  * Generates Svelte Query cache key for GET /channels/{channel_id}/webhooks
  */
 export function getGetChannelsChannelIdWebhooksQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
 ) {
-  return ['/channels/:channel_id/webhooks', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/webhooks', args] as const
 }
 
 /**
@@ -3130,7 +3307,12 @@ export function createPostChannelsChannelIdWebhooks(
  */
 export function createGetGateway(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.gateway.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.gateway.$get>,
+      Error,
+      InferResponseType<typeof client.gateway.$get>,
+      readonly ['/gateway']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -3160,7 +3342,12 @@ export function getGetGatewayQueryKey() {
  */
 export function createGetGatewayBot(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.gateway.bot.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.gateway.bot.$get>,
+      Error,
+      InferResponseType<typeof client.gateway.bot.$get>,
+      readonly ['/gateway/bot']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -3193,7 +3380,12 @@ export function createGetGuildsTemplatesCode(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds.templates)[':code']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds.templates)[':code']['$get']>,
+      readonly [
+        '/guilds/templates/:code',
+        InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3217,9 +3409,9 @@ export function createGetGuildsTemplatesCode(
  * Generates Svelte Query cache key for GET /guilds/templates/{code}
  */
 export function getGetGuildsTemplatesCodeQueryKey(
-  args?: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
+  args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
 ) {
-  return ['/guilds/templates/:code', ...(args ? [args] : [])] as const
+  return ['/guilds/templates/:code', args] as const
 }
 
 /**
@@ -3230,7 +3422,9 @@ export function createGetGuildsGuildId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['$get']>,
+      readonly ['/guilds/:guild_id', InferRequestType<(typeof client.guilds)[':guild_id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -3253,9 +3447,9 @@ export function createGetGuildsGuildId(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}
  */
 export function getGetGuildsGuildIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id', args] as const
 }
 
 /**
@@ -3294,7 +3488,12 @@ export function createGetGuildsGuildIdAuditLogs(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+      readonly [
+        '/guilds/:guild_id/audit-logs',
+        InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3318,9 +3517,9 @@ export function createGetGuildsGuildIdAuditLogs(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/audit-logs
  */
 export function getGetGuildsGuildIdAuditLogsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
 ) {
-  return ['/guilds/:guild_id/audit-logs', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/audit-logs', args] as const
 }
 
 /**
@@ -3331,7 +3530,12 @@ export function createGetGuildsGuildIdAutoModerationRules(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
+      readonly [
+        '/guilds/:guild_id/auto-moderation/rules',
+        InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3357,9 +3561,9 @@ export function createGetGuildsGuildIdAutoModerationRules(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/auto-moderation/rules
  */
 export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
 ) {
-  return ['/guilds/:guild_id/auto-moderation/rules', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/auto-moderation/rules', args] as const
 }
 
 /**
@@ -3406,7 +3610,16 @@ export function createGetGuildsGuildIdAutoModerationRulesRuleId(
       InferResponseType<
         (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+      >,
+      readonly [
+        '/guilds/:guild_id/auto-moderation/rules/:rule_id',
+        InferRequestType<
+          (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3432,11 +3645,11 @@ export function createGetGuildsGuildIdAutoModerationRulesRuleId(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
   >,
 ) {
-  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id', args] as const
 }
 
 /**
@@ -3533,7 +3746,12 @@ export function createGetGuildsGuildIdBans(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+      readonly [
+        '/guilds/:guild_id/bans',
+        InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3556,9 +3774,9 @@ export function createGetGuildsGuildIdBans(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/bans
  */
 export function getGetGuildsGuildIdBansQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
 ) {
-  return ['/guilds/:guild_id/bans', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/bans', args] as const
 }
 
 /**
@@ -3569,7 +3787,12 @@ export function createGetGuildsGuildIdBansUserId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/bans/:user_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3593,9 +3816,9 @@ export function createGetGuildsGuildIdBansUserId(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/bans/{user_id}
  */
 export function getGetGuildsGuildIdBansUserIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/bans/:user_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/bans/:user_id', args] as const
 }
 
 /**
@@ -3693,7 +3916,12 @@ export function createGetGuildsGuildIdChannels(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+      readonly [
+        '/guilds/:guild_id/channels',
+        InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3717,9 +3945,9 @@ export function createGetGuildsGuildIdChannels(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/channels
  */
 export function getGetGuildsGuildIdChannelsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
 ) {
-  return ['/guilds/:guild_id/channels', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/channels', args] as const
 }
 
 /**
@@ -3786,7 +4014,12 @@ export function createGetGuildsGuildIdEmojis(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+      readonly [
+        '/guilds/:guild_id/emojis',
+        InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3810,9 +4043,9 @@ export function createGetGuildsGuildIdEmojis(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/emojis
  */
 export function getGetGuildsGuildIdEmojisQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
 ) {
-  return ['/guilds/:guild_id/emojis', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/emojis', args] as const
 }
 
 /**
@@ -3851,7 +4084,12 @@ export function createGetGuildsGuildIdEmojisEmojiId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/emojis/:emoji_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3875,9 +4113,9 @@ export function createGetGuildsGuildIdEmojisEmojiId(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
  */
 export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/emojis/:emoji_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/emojis/:emoji_id', args] as const
 }
 
 /**
@@ -3950,7 +4188,12 @@ export function createGetGuildsGuildIdIntegrations(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
+      readonly [
+        '/guilds/:guild_id/integrations',
+        InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3974,9 +4217,9 @@ export function createGetGuildsGuildIdIntegrations(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/integrations
  */
 export function getGetGuildsGuildIdIntegrationsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
 ) {
-  return ['/guilds/:guild_id/integrations', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/integrations', args] as const
 }
 
 /**
@@ -4027,7 +4270,12 @@ export function createGetGuildsGuildIdInvites(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+      readonly [
+        '/guilds/:guild_id/invites',
+        InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4051,9 +4299,9 @@ export function createGetGuildsGuildIdInvites(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/invites
  */
 export function getGetGuildsGuildIdInvitesQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
 ) {
-  return ['/guilds/:guild_id/invites', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/invites', args] as const
 }
 
 /**
@@ -4064,7 +4312,12 @@ export function createGetGuildsGuildIdMembers(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
+      readonly [
+        '/guilds/:guild_id/members',
+        InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4088,9 +4341,9 @@ export function createGetGuildsGuildIdMembers(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/members
  */
 export function getGetGuildsGuildIdMembersQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
 ) {
-  return ['/guilds/:guild_id/members', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/members', args] as const
 }
 
 /**
@@ -4130,7 +4383,12 @@ export function createGetGuildsGuildIdMembersSearch(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+      readonly [
+        '/guilds/:guild_id/members/search',
+        InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4154,9 +4412,9 @@ export function createGetGuildsGuildIdMembersSearch(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/members/search
  */
 export function getGetGuildsGuildIdMembersSearchQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
 ) {
-  return ['/guilds/:guild_id/members/search', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/members/search', args] as const
 }
 
 /**
@@ -4167,7 +4425,12 @@ export function createGetGuildsGuildIdMembersUserId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/members/:user_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4191,9 +4454,9 @@ export function createGetGuildsGuildIdMembersUserId(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/members/{user_id}
  */
 export function getGetGuildsGuildIdMembersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/members/:user_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/members/:user_id', args] as const
 }
 
 /**
@@ -4382,7 +4645,12 @@ export function createGetGuildsGuildIdNewMemberWelcome(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
+      readonly [
+        '/guilds/:guild_id/new-member-welcome',
+        InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4406,9 +4674,9 @@ export function createGetGuildsGuildIdNewMemberWelcome(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/new-member-welcome
  */
 export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
 ) {
-  return ['/guilds/:guild_id/new-member-welcome', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/new-member-welcome', args] as const
 }
 
 /**
@@ -4419,7 +4687,12 @@ export function createGetGuildsGuildIdOnboarding(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
+      readonly [
+        '/guilds/:guild_id/onboarding',
+        InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4443,9 +4716,9 @@ export function createGetGuildsGuildIdOnboarding(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/onboarding
  */
 export function getGetGuildsGuildIdOnboardingQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
 ) {
-  return ['/guilds/:guild_id/onboarding', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/onboarding', args] as const
 }
 
 /**
@@ -4484,7 +4757,12 @@ export function createGetGuildsGuildIdPreview(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+      readonly [
+        '/guilds/:guild_id/preview',
+        InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4508,9 +4786,9 @@ export function createGetGuildsGuildIdPreview(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/preview
  */
 export function getGetGuildsGuildIdPreviewQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
 ) {
-  return ['/guilds/:guild_id/preview', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/preview', args] as const
 }
 
 /**
@@ -4521,7 +4799,12 @@ export function createGetGuildsGuildIdPrune(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
+      readonly [
+        '/guilds/:guild_id/prune',
+        InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4545,9 +4828,9 @@ export function createGetGuildsGuildIdPrune(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/prune
  */
 export function getGetGuildsGuildIdPruneQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
 ) {
-  return ['/guilds/:guild_id/prune', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/prune', args] as const
 }
 
 /**
@@ -4586,7 +4869,12 @@ export function createGetGuildsGuildIdRegions(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+      readonly [
+        '/guilds/:guild_id/regions',
+        InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4610,9 +4898,9 @@ export function createGetGuildsGuildIdRegions(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/regions
  */
 export function getGetGuildsGuildIdRegionsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
 ) {
-  return ['/guilds/:guild_id/regions', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/regions', args] as const
 }
 
 /**
@@ -4623,7 +4911,12 @@ export function createGetGuildsGuildIdRoles(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
+      readonly [
+        '/guilds/:guild_id/roles',
+        InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4647,9 +4940,9 @@ export function createGetGuildsGuildIdRoles(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/roles
  */
 export function getGetGuildsGuildIdRolesQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
 ) {
-  return ['/guilds/:guild_id/roles', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/roles', args] as const
 }
 
 /**
@@ -4716,7 +5009,12 @@ export function createGetGuildsGuildIdRolesRoleId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/roles/:role_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4740,9 +5038,9 @@ export function createGetGuildsGuildIdRolesRoleId(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/roles/{role_id}
  */
 export function getGetGuildsGuildIdRolesRoleIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/roles/:role_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/roles/:role_id', args] as const
 }
 
 /**
@@ -4813,7 +5111,12 @@ export function createGetGuildsGuildIdScheduledEvents(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
+      readonly [
+        '/guilds/:guild_id/scheduled-events',
+        InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4837,9 +5140,9 @@ export function createGetGuildsGuildIdScheduledEvents(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/scheduled-events
  */
 export function getGetGuildsGuildIdScheduledEventsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
 ) {
-  return ['/guilds/:guild_id/scheduled-events', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/scheduled-events', args] as const
 }
 
 /**
@@ -4883,7 +5186,16 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
       InferResponseType<
         (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+      >,
+      readonly [
+        '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id',
+        InferRequestType<
+          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4912,14 +5224,11 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
   >,
 ) {
-  return [
-    '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id', args] as const
 }
 
 /**
@@ -5020,7 +5329,16 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
       InferResponseType<
         (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+      >,
+      readonly [
+        '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users',
+        InferRequestType<
+          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5049,14 +5367,11 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
   >,
 ) {
-  return [
-    '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users', args] as const
 }
 
 /**
@@ -5067,7 +5382,12 @@ export function createGetGuildsGuildIdSoundboardSounds(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
+      readonly [
+        '/guilds/:guild_id/soundboard-sounds',
+        InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5091,9 +5411,9 @@ export function createGetGuildsGuildIdSoundboardSounds(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/soundboard-sounds
  */
 export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
 ) {
-  return ['/guilds/:guild_id/soundboard-sounds', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/soundboard-sounds', args] as const
 }
 
 /**
@@ -5138,7 +5458,16 @@ export function createGetGuildsGuildIdSoundboardSoundsSoundId(
       InferResponseType<
         (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+      >,
+      readonly [
+        '/guilds/:guild_id/soundboard-sounds/:sound_id',
+        InferRequestType<
+          (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5164,11 +5493,11 @@ export function createGetGuildsGuildIdSoundboardSoundsSoundId(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
   >,
 ) {
-  return ['/guilds/:guild_id/soundboard-sounds/:sound_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/soundboard-sounds/:sound_id', args] as const
 }
 
 /**
@@ -5265,7 +5594,12 @@ export function createGetGuildsGuildIdStickers(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+      readonly [
+        '/guilds/:guild_id/stickers',
+        InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5289,9 +5623,9 @@ export function createGetGuildsGuildIdStickers(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/stickers
  */
 export function getGetGuildsGuildIdStickersQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
 ) {
-  return ['/guilds/:guild_id/stickers', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/stickers', args] as const
 }
 
 /**
@@ -5330,7 +5664,12 @@ export function createGetGuildsGuildIdStickersStickerId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/stickers/:sticker_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5354,9 +5693,9 @@ export function createGetGuildsGuildIdStickersStickerId(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
  */
 export function getGetGuildsGuildIdStickersStickerIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/stickers/:sticker_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/stickers/:sticker_id', args] as const
 }
 
 /**
@@ -5431,7 +5770,12 @@ export function createGetGuildsGuildIdTemplates(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+      readonly [
+        '/guilds/:guild_id/templates',
+        InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5455,9 +5799,9 @@ export function createGetGuildsGuildIdTemplates(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/templates
  */
 export function getGetGuildsGuildIdTemplatesQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
 ) {
-  return ['/guilds/:guild_id/templates', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/templates', args] as const
 }
 
 /**
@@ -5586,7 +5930,12 @@ export function createGetGuildsGuildIdThreadsActive(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+      readonly [
+        '/guilds/:guild_id/threads/active',
+        InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5610,9 +5959,9 @@ export function createGetGuildsGuildIdThreadsActive(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/threads/active
  */
 export function getGetGuildsGuildIdThreadsActiveQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
 ) {
-  return ['/guilds/:guild_id/threads/active', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/threads/active', args] as const
 }
 
 /**
@@ -5623,7 +5972,12 @@ export function createGetGuildsGuildIdVanityUrl(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
+      readonly [
+        '/guilds/:guild_id/vanity-url',
+        InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5647,9 +6001,9 @@ export function createGetGuildsGuildIdVanityUrl(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/vanity-url
  */
 export function getGetGuildsGuildIdVanityUrlQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
 ) {
-  return ['/guilds/:guild_id/vanity-url', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/vanity-url', args] as const
 }
 
 /**
@@ -5660,7 +6014,12 @@ export function createGetGuildsGuildIdVoiceStatesMe(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
+      readonly [
+        '/guilds/:guild_id/voice-states/@me',
+        InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5684,9 +6043,9 @@ export function createGetGuildsGuildIdVoiceStatesMe(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/voice-states/@me
  */
 export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
 ) {
-  return ['/guilds/:guild_id/voice-states/@me', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/voice-states/@me', args] as const
 }
 
 /**
@@ -5729,7 +6088,12 @@ export function createGetGuildsGuildIdVoiceStatesUserId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/voice-states/:user_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5755,9 +6119,9 @@ export function createGetGuildsGuildIdVoiceStatesUserId(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/voice-states/{user_id}
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/voice-states/:user_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/voice-states/:user_id', args] as const
 }
 
 /**
@@ -5800,7 +6164,12 @@ export function createGetGuildsGuildIdWebhooks(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+      readonly [
+        '/guilds/:guild_id/webhooks',
+        InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5824,9 +6193,9 @@ export function createGetGuildsGuildIdWebhooks(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/webhooks
  */
 export function getGetGuildsGuildIdWebhooksQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
 ) {
-  return ['/guilds/:guild_id/webhooks', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/webhooks', args] as const
 }
 
 /**
@@ -5837,7 +6206,12 @@ export function createGetGuildsGuildIdWelcomeScreen(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
+      readonly [
+        '/guilds/:guild_id/welcome-screen',
+        InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5861,9 +6235,9 @@ export function createGetGuildsGuildIdWelcomeScreen(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/welcome-screen
  */
 export function getGetGuildsGuildIdWelcomeScreenQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
 ) {
-  return ['/guilds/:guild_id/welcome-screen', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/welcome-screen', args] as const
 }
 
 /**
@@ -5903,7 +6277,12 @@ export function createGetGuildsGuildIdWidget(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+      readonly [
+        '/guilds/:guild_id/widget',
+        InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5927,9 +6306,9 @@ export function createGetGuildsGuildIdWidget(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/widget
  */
 export function getGetGuildsGuildIdWidgetQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
 ) {
-  return ['/guilds/:guild_id/widget', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/widget', args] as const
 }
 
 /**
@@ -5968,7 +6347,12 @@ export function createGetGuildsGuildIdWidgetJson(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+      readonly [
+        '/guilds/:guild_id/widget.json',
+        InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5992,9 +6376,9 @@ export function createGetGuildsGuildIdWidgetJson(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/widget.json
  */
 export function getGetGuildsGuildIdWidgetJsonQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
 ) {
-  return ['/guilds/:guild_id/widget.json', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/widget.json', args] as const
 }
 
 /**
@@ -6005,7 +6389,12 @@ export function createGetGuildsGuildIdWidgetPng(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
+      readonly [
+        '/guilds/:guild_id/widget.png',
+        InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -6029,9 +6418,9 @@ export function createGetGuildsGuildIdWidgetPng(
  * Generates Svelte Query cache key for GET /guilds/{guild_id}/widget.png
  */
 export function getGetGuildsGuildIdWidgetPngQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
 ) {
-  return ['/guilds/:guild_id/widget.png', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/widget.png', args] as const
 }
 
 /**
@@ -6083,7 +6472,12 @@ export function createPostInteractionsInteractionIdInteractionTokenCallback(
 export function createGetInvitesCode(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.invites)[':code']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.invites)[':code']['$get']>,
+      Error,
+      InferResponseType<(typeof client.invites)[':code']['$get']>,
+      readonly ['/invites/:code', InferRequestType<(typeof client.invites)[':code']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -6105,9 +6499,9 @@ export function createGetInvitesCode(
  * Generates Svelte Query cache key for GET /invites/{code}
  */
 export function getGetInvitesCodeQueryKey(
-  args?: InferRequestType<(typeof client.invites)[':code']['$get']>,
+  args: InferRequestType<(typeof client.invites)[':code']['$get']>,
 ) {
-  return ['/invites/:code', ...(args ? [args] : [])] as const
+  return ['/invites/:code', args] as const
 }
 
 /**
@@ -6200,7 +6594,12 @@ export function createGetLobbiesLobbyId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>,
+      readonly [
+        '/lobbies/:lobby_id',
+        InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -6223,9 +6622,9 @@ export function createGetLobbiesLobbyId(
  * Generates Svelte Query cache key for GET /lobbies/{lobby_id}
  */
 export function getGetLobbiesLobbyIdQueryKey(
-  args?: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
+  args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
 ) {
-  return ['/lobbies/:lobby_id', ...(args ? [args] : [])] as const
+  return ['/lobbies/:lobby_id', args] as const
 }
 
 /**
@@ -6489,7 +6888,12 @@ export function createGetLobbiesLobbyIdMessages(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+      readonly [
+        '/lobbies/:lobby_id/messages',
+        InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -6513,9 +6917,9 @@ export function createGetLobbiesLobbyIdMessages(
  * Generates Svelte Query cache key for GET /lobbies/{lobby_id}/messages
  */
 export function getGetLobbiesLobbyIdMessagesQueryKey(
-  args?: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+  args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
 ) {
-  return ['/lobbies/:lobby_id/messages', ...(args ? [args] : [])] as const
+  return ['/lobbies/:lobby_id/messages', args] as const
 }
 
 /**
@@ -6551,7 +6955,12 @@ export function createPostLobbiesLobbyIdMessages(
  */
 export function createGetOauth2Me(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.oauth2)['@me']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.oauth2)['@me']['$get']>,
+      Error,
+      InferResponseType<(typeof client.oauth2)['@me']['$get']>,
+      readonly ['/oauth2/@me']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -6583,7 +6992,9 @@ export function createGetOauth2ApplicationsMe(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>,
+      readonly ['/oauth2/applications/@me']
     >
     client?: ClientRequestOptions
   },
@@ -6615,7 +7026,12 @@ export function getGetOauth2ApplicationsMeQueryKey() {
  */
 export function createGetOauth2Keys(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.oauth2.keys.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.oauth2.keys.$get>,
+      Error,
+      InferResponseType<typeof client.oauth2.keys.$get>,
+      readonly ['/oauth2/keys']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -6645,7 +7061,12 @@ export function getGetOauth2KeysQueryKey() {
  */
 export function createGetOauth2Userinfo(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.oauth2.userinfo.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.oauth2.userinfo.$get>,
+      Error,
+      InferResponseType<typeof client.oauth2.userinfo.$get>,
+      readonly ['/oauth2/userinfo']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -6807,7 +7228,9 @@ export function createGetSoundboardDefaultSounds(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
+      readonly ['/soundboard-default-sounds']
     >
     client?: ClientRequestOptions
   },
@@ -6870,7 +7293,12 @@ export function createGetStageInstancesChannelId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
+      readonly [
+        '/stage-instances/:channel_id',
+        InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -6894,9 +7322,9 @@ export function createGetStageInstancesChannelId(
  * Generates Svelte Query cache key for GET /stage-instances/{channel_id}
  */
 export function getGetStageInstancesChannelIdQueryKey(
-  args?: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
+  args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
 ) {
-  return ['/stage-instances/:channel_id', ...(args ? [args] : [])] as const
+  return ['/stage-instances/:channel_id', args] as const
 }
 
 /**
@@ -6960,7 +7388,12 @@ export function createPatchStageInstancesChannelId(
  */
 export function createGetStickerPacks(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['sticker-packs']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['sticker-packs']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['sticker-packs']['$get']>,
+      readonly ['/sticker-packs']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -6993,7 +7426,12 @@ export function createGetStickerPacksPackId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+      readonly [
+        '/sticker-packs/:pack_id',
+        InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7017,9 +7455,9 @@ export function createGetStickerPacksPackId(
  * Generates Svelte Query cache key for GET /sticker-packs/{pack_id}
  */
 export function getGetStickerPacksPackIdQueryKey(
-  args?: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+  args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
 ) {
-  return ['/sticker-packs/:pack_id', ...(args ? [args] : [])] as const
+  return ['/sticker-packs/:pack_id', args] as const
 }
 
 /**
@@ -7030,7 +7468,12 @@ export function createGetStickersStickerId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>,
+      readonly [
+        '/stickers/:sticker_id',
+        InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7053,9 +7496,9 @@ export function createGetStickersStickerId(
  * Generates Svelte Query cache key for GET /stickers/{sticker_id}
  */
 export function getGetStickersStickerIdQueryKey(
-  args?: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
+  args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
 ) {
-  return ['/stickers/:sticker_id', ...(args ? [args] : [])] as const
+  return ['/stickers/:sticker_id', args] as const
 }
 
 /**
@@ -7063,7 +7506,12 @@ export function getGetStickersStickerIdQueryKey(
  */
 export function createGetUsersMe(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.users)['@me']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.users)['@me']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)['@me']['$get']>,
+      readonly ['/users/@me']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -7127,7 +7575,16 @@ export function createGetUsersMeApplicationsApplicationIdEntitlements(
       InferResponseType<
         (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+      >,
+      readonly [
+        '/users/@me/applications/:application_id/entitlements',
+        InferRequestType<
+          (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7156,11 +7613,11 @@ export function createGetUsersMeApplicationsApplicationIdEntitlements(
  * Generates Svelte Query cache key for GET /users/@me/applications/{application_id}/entitlements
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
   >,
 ) {
-  return ['/users/@me/applications/:application_id/entitlements', ...(args ? [args] : [])] as const
+  return ['/users/@me/applications/:application_id/entitlements', args] as const
 }
 
 /**
@@ -7175,7 +7632,16 @@ export function createGetUsersMeApplicationsApplicationIdRoleConnection(
       InferResponseType<
         (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
+      >,
+      readonly [
+        '/users/@me/applications/:application_id/role-connection',
+        InferRequestType<
+          (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7204,14 +7670,11 @@ export function createGetUsersMeApplicationsApplicationIdRoleConnection(
  * Generates Svelte Query cache key for GET /users/@me/applications/{application_id}/role-connection
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
 ) {
-  return [
-    '/users/@me/applications/:application_id/role-connection',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/users/@me/applications/:application_id/role-connection', args] as const
 }
 
 /**
@@ -7335,7 +7798,9 @@ export function createGetUsersMeConnections(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
+      readonly ['/users/@me/connections']
     >
     client?: ClientRequestOptions
   },
@@ -7370,7 +7835,12 @@ export function createGetUsersMeGuilds(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.users)['@me']['guilds']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.users)['@me']['guilds']['$get']>,
+      readonly [
+        '/users/@me/guilds',
+        InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7393,9 +7863,9 @@ export function createGetUsersMeGuilds(
  * Generates Svelte Query cache key for GET /users/@me/guilds
  */
 export function getGetUsersMeGuildsQueryKey(
-  args?: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
+  args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
 ) {
-  return ['/users/@me/guilds', ...(args ? [args] : [])] as const
+  return ['/users/@me/guilds', args] as const
 }
 
 /**
@@ -7434,7 +7904,12 @@ export function createGetUsersMeGuildsGuildIdMember(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
+      readonly [
+        '/users/@me/guilds/:guild_id/member',
+        InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7458,9 +7933,9 @@ export function createGetUsersMeGuildsGuildIdMember(
  * Generates Svelte Query cache key for GET /users/@me/guilds/{guild_id}/member
  */
 export function getGetUsersMeGuildsGuildIdMemberQueryKey(
-  args?: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
+  args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
 ) {
-  return ['/users/@me/guilds/:guild_id/member', ...(args ? [args] : [])] as const
+  return ['/users/@me/guilds/:guild_id/member', args] as const
 }
 
 /**
@@ -7469,7 +7944,12 @@ export function getGetUsersMeGuildsGuildIdMemberQueryKey(
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.users)[':user_id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      readonly ['/users/:user_id', InferRequestType<(typeof client.users)[':user_id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -7491,9 +7971,9 @@ export function createGetUsersUserId(
  * Generates Svelte Query cache key for GET /users/{user_id}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['/users/:user_id', ...(args ? [args] : [])] as const
+  return ['/users/:user_id', args] as const
 }
 
 /**
@@ -7501,7 +7981,12 @@ export function getGetUsersUserIdQueryKey(
  */
 export function createGetVoiceRegions(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.voice.regions.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.voice.regions.$get>,
+      Error,
+      InferResponseType<typeof client.voice.regions.$get>,
+      readonly ['/voice/regions']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -7534,7 +8019,12 @@ export function createGetWebhooksWebhookId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>,
+      readonly [
+        '/webhooks/:webhook_id',
+        InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7557,9 +8047,9 @@ export function createGetWebhooksWebhookId(
  * Generates Svelte Query cache key for GET /webhooks/{webhook_id}
  */
 export function getGetWebhooksWebhookIdQueryKey(
-  args?: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
+  args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
 ) {
-  return ['/webhooks/:webhook_id', ...(args ? [args] : [])] as const
+  return ['/webhooks/:webhook_id', args] as const
 }
 
 /**
@@ -7626,7 +8116,12 @@ export function createGetWebhooksWebhookIdWebhookToken(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
+      readonly [
+        '/webhooks/:webhook_id/:webhook_token',
+        InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7650,9 +8145,9 @@ export function createGetWebhooksWebhookIdWebhookToken(
  * Generates Svelte Query cache key for GET /webhooks/{webhook_id}/{webhook_token}
  */
 export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
-  args?: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
+  args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
 ) {
-  return ['/webhooks/:webhook_id/:webhook_token', ...(args ? [args] : [])] as const
+  return ['/webhooks/:webhook_id/:webhook_token', args] as const
 }
 
 /**
@@ -7799,7 +8294,16 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
       InferResponseType<
         (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+      >,
+      readonly [
+        '/webhooks/:webhook_id/:webhook_token/messages/@original',
+        InferRequestType<
+          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7828,14 +8332,11 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
  * Generates Svelte Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
   >,
 ) {
-  return [
-    '/webhooks/:webhook_id/:webhook_token/messages/@original',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/webhooks/:webhook_id/:webhook_token/messages/@original', args] as const
 }
 
 /**
@@ -7936,7 +8437,16 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
       InferResponseType<
         (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+      >,
+      readonly [
+        '/webhooks/:webhook_id/:webhook_token/messages/:message_id',
+        InferRequestType<
+          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7965,14 +8475,11 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
  * Generates Svelte Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
   >,
 ) {
-  return [
-    '/webhooks/:webhook_id/:webhook_token/messages/:message_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/webhooks/:webhook_id/:webhook_token/messages/:message_id', args] as const
 }
 
 /**

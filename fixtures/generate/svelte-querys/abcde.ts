@@ -1,6 +1,6 @@
+import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/abcde'
 
@@ -11,7 +11,12 @@ import { client } from '../clients/abcde'
  */
 export function createGetExample(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.example.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.example.$get>,
+      Error,
+      InferResponseType<typeof client.example.$get>,
+      readonly ['/example']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
 import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/additional'
 
@@ -13,9 +13,11 @@ import { client } from '../clients/additional'
  */
 export function useGetPassthrough(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.passthrough.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.passthrough.$get>,
+      Error,
+      InferResponseType<typeof client.passthrough.$get>,
+      readonly ['/passthrough']
     >
     client?: ClientRequestOptions
   },
@@ -25,9 +27,9 @@ export function useGetPassthrough(
   const queryKey = getGetPassthroughQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.passthrough.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

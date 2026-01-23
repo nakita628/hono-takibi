@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
@@ -9,7 +9,12 @@ import { client } from '../clients/12-edge-cases'
  */
 export function createGetAllMethods(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['all-methods']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['all-methods']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['all-methods']['$get']>,
+      readonly ['/all-methods']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -241,7 +246,16 @@ export function createGetUsersUserIdPostsPostIdCommentsCommentId(
       InferResponseType<
         (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
+      >,
+      readonly [
+        '/users/:userId/posts/:postId/comments/:commentId',
+        InferRequestType<
+          (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -267,11 +281,11 @@ export function createGetUsersUserIdPostsPostIdCommentsCommentId(
  * Generates Svelte Query cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
 ) {
-  return ['/users/:userId/posts/:postId/comments/:commentId', ...(args ? [args] : [])] as const
+  return ['/users/:userId/posts/:postId/comments/:commentId', args] as const
 }
 
 /**
@@ -282,7 +296,12 @@ export function createGetParamsTestPathParam(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>,
+      readonly [
+        '/params-test/:pathParam',
+        InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -306,9 +325,9 @@ export function createGetParamsTestPathParam(
  * Generates Svelte Query cache key for GET /params-test/{pathParam}
  */
 export function getGetParamsTestPathParamQueryKey(
-  args?: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
+  args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
-  return ['/params-test/:pathParam', ...(args ? [args] : [])] as const
+  return ['/params-test/:pathParam', args] as const
 }
 
 /**
@@ -343,7 +362,12 @@ export function createPostNoContent(
  */
 export function createGetMultiContent(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['multi-content']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['multi-content']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['multi-content']['$get']>,
+      readonly ['/multi-content']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -401,7 +425,12 @@ export function createPostMultiContent(
  */
 export function createGetResponseRanges(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['response-ranges']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['response-ranges']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['response-ranges']['$get']>,
+      readonly ['/response-ranges']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -433,7 +462,12 @@ export function getGetResponseRangesQueryKey() {
  */
 export function createGetDeprecated(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.deprecated.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.deprecated.$get>,
+      Error,
+      InferResponseType<typeof client.deprecated.$get>,
+      readonly ['/deprecated']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -465,7 +499,12 @@ export function getGetDeprecatedQueryKey() {
  */
 export function createGetNoOperationId(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['no-operation-id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['no-operation-id']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['no-operation-id']['$get']>,
+      readonly ['/no-operation-id']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -522,7 +561,12 @@ export function createPostEmptyBody(
  */
 export function createGetCircular(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.circular.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.circular.$get>,
+      Error,
+      InferResponseType<typeof client.circular.$get>,
+      readonly ['/circular']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -552,7 +596,12 @@ export function getGetCircularQueryKey() {
  */
 export function createGetDeepNesting(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['deep-nesting']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['deep-nesting']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['deep-nesting']['$get']>,
+      readonly ['/deep-nesting']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -583,7 +632,12 @@ export function getGetDeepNestingQueryKey() {
 export function createGetArrayParams(
   args: InferRequestType<(typeof client)['array-params']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['array-params']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['array-params']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['array-params']['$get']>,
+      readonly ['/array-params', InferRequestType<(typeof client)['array-params']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -605,9 +659,9 @@ export function createGetArrayParams(
  * Generates Svelte Query cache key for GET /array-params
  */
 export function getGetArrayParamsQueryKey(
-  args?: InferRequestType<(typeof client)['array-params']['$get']>,
+  args: InferRequestType<(typeof client)['array-params']['$get']>,
 ) {
-  return ['/array-params', ...(args ? [args] : [])] as const
+  return ['/array-params', args] as const
 }
 
 /**
@@ -616,7 +670,12 @@ export function getGetArrayParamsQueryKey(
 export function createGetObjectParam(
   args: InferRequestType<(typeof client)['object-param']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['object-param']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['object-param']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['object-param']['$get']>,
+      readonly ['/object-param', InferRequestType<(typeof client)['object-param']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -638,7 +697,7 @@ export function createGetObjectParam(
  * Generates Svelte Query cache key for GET /object-param
  */
 export function getGetObjectParamQueryKey(
-  args?: InferRequestType<(typeof client)['object-param']['$get']>,
+  args: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
-  return ['/object-param', ...(args ? [args] : [])] as const
+  return ['/object-param', args] as const
 }

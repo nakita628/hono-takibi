@@ -6,18 +6,16 @@ import { svelteQuery } from 'hono-takibi/svelte-query'
 import { swr } from 'hono-takibi/swr'
 import { tanstackQuery } from 'hono-takibi/tanstack-query'
 import { type as generateType } from 'hono-takibi/type'
-import {
-  __dirname,
-  getOpenAPIFiles,
-  parseOpenAPI,
-  printFailures,
-  type Result,
-  WORKERS,
-} from './common'
+import { vueQuery } from 'hono-takibi/vue-query'
+import { __dirname, getOpenAPIFiles, parseOpenAPI, printFailures, WORKERS } from './common'
 
 /* ─────────────────────────────── Route generation (spawn) ─────────────────────────────── */
 
-const runRoute = (file: string): Promise<Result> =>
+const runRoute = (
+  file: string,
+): Promise<
+  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
+> =>
   new Promise((resolve) => {
     const chunks: Buffer[] = []
     const child = spawn(
@@ -32,8 +30,8 @@ const runRoute = (file: string): Promise<Result> =>
     child.on('close', (code) => {
       resolve(
         code === 0
-          ? { file, success: true }
-          : { file, success: false, stderr: Buffer.concat(chunks).toString() },
+          ? { ok: true, value: file }
+          : { ok: false, error: `${file}: ${Buffer.concat(chunks).toString()}` },
       )
     })
   })
@@ -44,7 +42,10 @@ async function main() {
   const files = await getOpenAPIFiles()
 
   const queue = [...files]
-  const routeResults: Result[] = []
+  const routeResults: (
+    | { readonly ok: true; readonly value: string }
+    | { readonly ok: false; readonly error: string }
+  )[] = []
 
   // Route generation (parallel spawn)
   console.log('Generating routes...')
@@ -58,7 +59,7 @@ async function main() {
   )
 
   const routeFailures = routeResults.filter(
-    (r): r is Extract<Result, { success: false }> => !r.success,
+    (r): r is { readonly ok: false; readonly error: string } => !r.ok,
   )
 
   printFailures(routeFailures, routeResults.length, 'route files')
@@ -69,94 +70,116 @@ async function main() {
 
   console.log(`${routeResults.length} routes generated successfully`)
 
-  // Type, Client, RPC, SWR, TanStack Query, Svelte Query generation (parallel)
-  console.log('Generating types, clients, rpcs, swrs, tanstack-querys, and svelte-querys...')
+  // Type, Client, RPC, SWR, TanStack Query, Svelte Query, Vue Query generation (parallel)
+  console.log(
+    'Generating types, clients, rpcs, swrs, tanstack-querys, svelte-querys, and vue-querys...',
+  )
   const generateResults = await Promise.all(
-    files.map(async (file) => {
-      const baseName = file.replace(/\.(yaml|json|tsp)$/i, '')
-      const openAPIPath = join(__dirname, '../openapi', file)
+    files.map(
+      async (
+        file,
+      ): Promise<
+        | { readonly ok: true; readonly value: string }
+        | { readonly ok: false; readonly error: string }
+      > => {
+        const baseName = file.replace(/\.(yaml|json|tsp)$/i, '')
+        const openAPIPath = join(__dirname, '../openapi', file)
 
-      const parseResult = await parseOpenAPI(openAPIPath)
-      if (!parseResult.ok) {
-        return { file, success: false, error: `Parse error: ${parseResult.error}` }
-      }
-
-      const openAPI = parseResult.value
-
-      // Generate type file using hono-takibi type function
-      const typeOutput = join(__dirname, '../types', `${baseName}.ts`) as `${string}.ts`
-      const typeResult = await generateType(openAPI, typeOutput)
-      if (!typeResult.ok) {
-        return { file, success: false, error: `Type generation error: ${typeResult.error}` }
-      }
-
-      // Generate RPC file
-      const rpcOutput = join(__dirname, '../rpcs', `${baseName}.ts`)
-      const rpcResult = await rpc(openAPI, rpcOutput, `../clients/${baseName}`, false)
-      if (!rpcResult.ok) {
-        return { file, success: false, error: `RPC generation error: ${rpcResult.error}` }
-      }
-
-      // Generate SWR hooks file
-      const swrOutput = join(__dirname, '../swrs', `${baseName}.ts`)
-      const swrResult = await swr(openAPI, swrOutput, `../clients/${baseName}`, false)
-      if (!swrResult.ok) {
-        return { file, success: false, error: `SWR generation error: ${swrResult.error}` }
-      }
-
-      // Generate TanStack Query hooks file
-      const tanstackQueryOutput = join(__dirname, '../tanstack-querys', `${baseName}.ts`)
-      const tanstackQueryResult = await tanstackQuery(
-        openAPI,
-        tanstackQueryOutput,
-        `../clients/${baseName}`,
-        false,
-      )
-      if (!tanstackQueryResult.ok) {
-        return {
-          file,
-          success: false,
-          error: `TanStack Query generation error: ${tanstackQueryResult.error}`,
+        const parseResult = await parseOpenAPI(openAPIPath)
+        if (!parseResult.ok) {
+          return { ok: false, error: `${file}: Parse error: ${parseResult.error}` }
         }
-      }
 
-      // Generate Svelte Query hooks file
-      const svelteQueryOutput = join(__dirname, '../svelte-querys', `${baseName}.ts`)
-      const svelteQueryResult = await svelteQuery(
-        openAPI,
-        svelteQueryOutput,
-        `../clients/${baseName}`,
-        false,
-      )
-      if (!svelteQueryResult.ok) {
-        return {
-          file,
-          success: false,
-          error: `Svelte Query generation error: ${svelteQueryResult.error}`,
+        const openAPI = parseResult.value
+
+        // Generate type file using hono-takibi type function
+        const typeOutput = join(__dirname, '../types', `${baseName}.ts`) as `${string}.ts`
+        const typeResult = await generateType(openAPI, typeOutput)
+        if (!typeResult.ok) {
+          return { ok: false, error: `${file}: Type generation error: ${typeResult.error}` }
         }
-      }
 
-      // Generate Client file with simple hc pattern
-      const clientOutput = join(__dirname, '../clients', `${baseName}.ts`)
-      const clientCode = `import { hc } from 'hono/client'
+        // Generate RPC file
+        const rpcOutput = join(__dirname, '../rpcs', `${baseName}.ts`)
+        const rpcResult = await rpc(openAPI, rpcOutput, `../clients/${baseName}`, false)
+        if (!rpcResult.ok) {
+          return { ok: false, error: `${file}: RPC generation error: ${rpcResult.error}` }
+        }
+
+        // Generate SWR hooks file
+        const swrOutput = join(__dirname, '../swrs', `${baseName}.ts`)
+        const swrResult = await swr(openAPI, swrOutput, `../clients/${baseName}`, false)
+        if (!swrResult.ok) {
+          return { ok: false, error: `${file}: SWR generation error: ${swrResult.error}` }
+        }
+
+        // Generate TanStack Query hooks file
+        const tanstackQueryOutput = join(__dirname, '../tanstack-querys', `${baseName}.ts`)
+        const tanstackQueryResult = await tanstackQuery(
+          openAPI,
+          tanstackQueryOutput,
+          `../clients/${baseName}`,
+          false,
+        )
+        if (!tanstackQueryResult.ok) {
+          return {
+            ok: false,
+            error: `${file}: TanStack Query generation error: ${tanstackQueryResult.error}`,
+          }
+        }
+
+        // Generate Svelte Query hooks file
+        const svelteQueryOutput = join(__dirname, '../svelte-querys', `${baseName}.ts`)
+        const svelteQueryResult = await svelteQuery(
+          openAPI,
+          svelteQueryOutput,
+          `../clients/${baseName}`,
+          false,
+        )
+        if (!svelteQueryResult.ok) {
+          return {
+            ok: false,
+            error: `${file}: Svelte Query generation error: ${svelteQueryResult.error}`,
+          }
+        }
+
+        // Generate Vue Query hooks file
+        const vueQueryOutput = join(__dirname, '../vue-querys', `${baseName}.ts`)
+        const vueQueryResult = await vueQuery(
+          openAPI,
+          vueQueryOutput,
+          `../clients/${baseName}`,
+          false,
+        )
+        if (!vueQueryResult.ok) {
+          return {
+            ok: false,
+            error: `${file}: Vue Query generation error: ${vueQueryResult.error}`,
+          }
+        }
+
+        // Generate Client file with simple hc pattern
+        const clientOutput = join(__dirname, '../clients', `${baseName}.ts`)
+        const clientCode = `import { hc } from 'hono/client'
 import type routes from '../types/${baseName}'
 
 export const client = hc<typeof routes>('/')
 `
-      await writeFile(clientOutput, clientCode)
+        await writeFile(clientOutput, clientCode)
 
-      return { file, success: true }
-    }),
+        return { ok: true, value: file }
+      },
+    ),
   )
 
   const genFailures = generateResults.filter(
-    (r): r is { file: string; success: false; error: string } => !r.success,
+    (r): r is { readonly ok: false; readonly error: string } => !r.ok,
   )
 
   printFailures(
     genFailures,
     generateResults.length,
-    'type/rpc/swr/tanstack-query/svelte-query files',
+    'type/rpc/swr/tanstack-query/svelte-query/vue-query files',
   )
 
   if (genFailures.length > 0) {
@@ -164,7 +187,7 @@ export const client = hc<typeof routes>('/')
   }
 
   console.log(
-    `${generateResults.length} type/rpc/swr/tanstack-query/svelte-query sets generated successfully`,
+    `${generateResults.length} type/rpc/swr/tanstack-query/svelte-query/vue-query sets generated successfully`,
   )
 }
 
