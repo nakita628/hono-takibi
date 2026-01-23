@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -14,17 +14,22 @@ import { client } from '../clients/38-auth-apikey-management'
 export function useGetApiKeys(
   args: InferRequestType<(typeof client)['api-keys']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client)['api-keys']['$get']>, Error>
+    swr?: SWRConfiguration<InferResponseType<(typeof client)['api-keys']['$get']>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/api-keys', args] as const) : null
-  return useSWR<InferResponseType<(typeof client)['api-keys']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['api-keys'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApiKeysKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client)['api-keys']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['api-keys'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -68,17 +73,22 @@ export function usePostApiKeys(options?: {
 export function useGetApiKeysKeyId(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/api-keys/:keyId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['api-keys'][':keyId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApiKeysKeyIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['api-keys'][':keyId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -207,17 +217,22 @@ export function useGetApiKeysKeyIdUsage(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/api-keys/:keyId/usage', args] as const) : null
-  return useSWR<InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['api-keys'][':keyId'].usage.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApiKeysKeyIdUsageKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client['api-keys'][':keyId'].usage.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -240,24 +255,24 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/api-keys/:keyId/rate-limit/current', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetApiKeysKeyIdRateLimitCurrentKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client['api-keys'][':keyId']['rate-limit'].current.$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client['api-keys'][':keyId']['rate-limit'].current.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -301,16 +316,21 @@ export function usePostApiKeysVerify(options?: {
  * 利用可能なスコープ一覧
  */
 export function useGetScopes(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.scopes.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.scopes.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/scopes'] as const) : null
-  return useSWR<InferResponseType<typeof client.scopes.$get>, Error>(
-    key,
-    async () => parseResponse(client.scopes.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetScopesKey() : null)
+  const query = useSWR<InferResponseType<typeof client.scopes.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.scopes.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

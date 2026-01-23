@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/openapi-array'
 
@@ -12,16 +12,21 @@ import { client } from '../clients/openapi-array'
  * zod array
  */
 export function useGetArray(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.array.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.array.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/array'] as const) : null
-  return useSWR<InferResponseType<typeof client.array.$get>, Error>(
-    key,
-    async () => parseResponse(client.array.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetArrayKey() : null)
+  const query = useSWR<InferResponseType<typeof client.array.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.array.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

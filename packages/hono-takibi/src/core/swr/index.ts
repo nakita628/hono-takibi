@@ -106,18 +106,18 @@ const makeHookCode = (
   let keyGetterCode: string
 
   if (isQuery) {
-    // useSWR hook for GET
+    // useSWR hook for GET (Orval-style pattern)
     const argsSig = hasArgs ? `args:${inferRequestType},` : ''
-    const optionsSig = `options?:{swr?:SWRConfiguration<${inferResponseType},Error>;client?:ClientRequestOptions;enabled?:boolean}`
-    const keyExpr = hasArgs
-      ? `options?.enabled!==false?['GET','${honoPath}',args]as const:null`
-      : `options?.enabled!==false?['GET','${honoPath}']as const:null`
+    const swrConfigType = `SWRConfiguration<${inferResponseType},Error>&{swrKey?:Key;enabled?:boolean}`
+    const optionsSig = `options?:{swr?:${swrConfigType};client?:ClientRequestOptions}`
+
+    const keyGetterCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
     const clientCall = hasArgs
-      ? `${deps.client}${pathResult.runtimePath}.$${method}(args,options?.client)`
-      : `${deps.client}${pathResult.runtimePath}.$${method}(undefined,options?.client)`
+      ? `${deps.client}${pathResult.runtimePath}.$${method}(args,clientOptions)`
+      : `${deps.client}${pathResult.runtimePath}.$${method}(undefined,clientOptions)`
 
     hookCode = `${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const key=${keyExpr};return useSWR<${inferResponseType},Error>(key,async()=>parseResponse(${clientCall}),options?.swr)}`
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const isEnabled=swrOptions?.enabled!==false;const swrKey=swrOptions?.swrKey??(isEnabled?${keyGetterCall}:null);const query=useSWR<${inferResponseType},Error>(swrKey,async()=>parseResponse(${clientCall}),swrOptions);return{swrKey,...query}}`
 
     // Key getter for GET
     if (hasArgs) {
@@ -188,7 +188,7 @@ const makeHeader = (
   // SWR imports
   if (hasQuery) {
     lines.push("import useSWR from'swr'")
-    lines.push("import type{SWRConfiguration}from'swr'")
+    lines.push("import type{Key,SWRConfiguration}from'swr'")
   }
   if (hasMutation) {
     lines.push("import useSWRMutation from'swr/mutation'")

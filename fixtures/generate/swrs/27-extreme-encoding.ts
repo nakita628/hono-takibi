@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -36,17 +36,22 @@ export function usePostEncodingTest(options?: {
 export function useGetContentNegotiation(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client)['content-negotiation']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client)['content-negotiation']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/content-negotiation', args] as const) : null
-  return useSWR<InferResponseType<(typeof client)['content-negotiation']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['content-negotiation'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetContentNegotiationKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client)['content-negotiation']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['content-negotiation'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -86,16 +91,21 @@ export function usePostBinaryVariations(options?: {
  * GET /streaming
  */
 export function useGetStreaming(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.streaming.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.streaming.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/streaming'] as const) : null
-  return useSWR<InferResponseType<typeof client.streaming.$get>, Error>(
-    key,
-    async () => parseResponse(client.streaming.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStreamingKey() : null)
+  const query = useSWR<InferResponseType<typeof client.streaming.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.streaming.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -157,16 +167,21 @@ export function usePostUrlEncodedComplex(options?: {
  * GET /response-encoding
  */
 export function useGetResponseEncoding(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['response-encoding']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['response-encoding']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/response-encoding'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['response-encoding']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['response-encoding'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetResponseEncodingKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['response-encoding']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['response-encoding'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -16,17 +16,22 @@ import { client } from '../clients/40-auth-session-management'
 export function useGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.sessions.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.sessions.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/sessions', args] as const) : null
-  return useSWR<InferResponseType<typeof client.sessions.$get>, Error>(
-    key,
-    async () => parseResponse(client.sessions.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.sessions.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.sessions.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -70,16 +75,21 @@ export function usePostSessions(options?: {
  * 現在のセッション取得
  */
 export function useGetSessionsCurrent(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.sessions.current.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.sessions.current.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/sessions/current'] as const) : null
-  return useSWR<InferResponseType<typeof client.sessions.current.$get>, Error>(
-    key,
-    async () => parseResponse(client.sessions.current.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsCurrentKey() : null)
+  const query = useSWR<InferResponseType<typeof client.sessions.current.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -208,17 +218,22 @@ export function usePostSessionsCurrentActivity(options?: {
 export function useGetSessionsSessionId(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.sessions)[':sessionId']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client.sessions)[':sessionId']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/sessions/:sessionId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.sessions)[':sessionId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.sessions[':sessionId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsSessionIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.sessions)[':sessionId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -323,17 +338,22 @@ export function usePostSessionsValidate(options?: {
 export function useGetSessionsHistory(
   args: InferRequestType<typeof client.sessions.history.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.sessions.history.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.sessions.history.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/sessions/history', args] as const) : null
-  return useSWR<InferResponseType<typeof client.sessions.history.$get>, Error>(
-    key,
-    async () => parseResponse(client.sessions.history.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsHistoryKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.sessions.history.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -358,18 +378,22 @@ export function useGetSessionsSecurityEvents(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.sessions)['security-events']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/sessions/security-events', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.sessions)['security-events']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.sessions['security-events'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsSecurityEventsKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.sessions)['security-events']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -387,16 +411,21 @@ export function getGetSessionsSecurityEventsKey(
  * セッションポリシー取得
  */
 export function useGetSessionsPolicies(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.sessions.policies.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.sessions.policies.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/sessions/policies'] as const) : null
-  return useSWR<InferResponseType<typeof client.sessions.policies.$get>, Error>(
-    key,
-    async () => parseResponse(client.sessions.policies.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsPoliciesKey() : null)
+  const query = useSWR<InferResponseType<typeof client.sessions.policies.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -441,16 +470,21 @@ export function useGetSessionsTrustedDevices(options?: {
   swr?: SWRConfiguration<
     InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
     Error
-  >
+  > & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/sessions/trusted-devices'] as const) : null
-  return useSWR<InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.sessions['trusted-devices'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsTrustedDevicesKey() : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

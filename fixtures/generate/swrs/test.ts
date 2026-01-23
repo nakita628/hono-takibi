@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/test'
 
@@ -12,16 +12,21 @@ import { client } from '../clients/test'
  * Hono
  */
 export function useGetHono(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.hono.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.hono.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/hono'] as const) : null
-  return useSWR<InferResponseType<typeof client.hono.$get>, Error>(
-    key,
-    async () => parseResponse(client.hono.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetHonoKey() : null)
+  const query = useSWR<InferResponseType<typeof client.hono.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -39,16 +44,21 @@ export function getGetHonoKey() {
  * HonoX
  */
 export function useGetHonoX(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['hono-x']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['hono-x']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/hono-x'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['hono-x']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['hono-x'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetHonoXKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['hono-x']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -66,16 +76,21 @@ export function getGetHonoXKey() {
  * ZodOpenAPIHono
  */
 export function useGetZodOpenapiHono(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['zod-openapi-hono']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['zod-openapi-hono']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/zod-openapi-hono'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['zod-openapi-hono']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['zod-openapi-hono'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetZodOpenapiHonoKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['zod-openapi-hono']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['zod-openapi-hono'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

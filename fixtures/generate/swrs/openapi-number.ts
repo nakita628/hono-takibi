@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/openapi-number'
 
@@ -12,16 +12,21 @@ import { client } from '../clients/openapi-number'
  * zod number
  */
 export function useGetNumber(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.number.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.number.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/number'] as const) : null
-  return useSWR<InferResponseType<typeof client.number.$get>, Error>(
-    key,
-    async () => parseResponse(client.number.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetNumberKey() : null)
+  const query = useSWR<InferResponseType<typeof client.number.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.number.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

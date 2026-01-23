@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -14,17 +14,22 @@ import { client } from '../clients/30-practical-ecommerce-api'
 export function useGetProducts(
   args: InferRequestType<typeof client.products.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.products.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.products.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/products', args] as const) : null
-  return useSWR<InferResponseType<typeof client.products.$get>, Error>(
-    key,
-    async () => parseResponse(client.products.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProductsKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.products.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.products.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -68,17 +73,22 @@ export function usePostProducts(options?: {
 export function useGetProductsProductId(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.products)[':productId']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client.products)[':productId']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/products/:productId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.products)[':productId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.products[':productId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProductsProductIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.products)[':productId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -176,16 +186,21 @@ export function usePostProductsProductIdImages(options?: {
  * カテゴリ一覧取得
  */
 export function useGetCategories(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.categories.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.categories.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/categories'] as const) : null
-  return useSWR<InferResponseType<typeof client.categories.$get>, Error>(
-    key,
-    async () => parseResponse(client.categories.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCategoriesKey() : null)
+  const query = useSWR<InferResponseType<typeof client.categories.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -227,16 +242,21 @@ export function usePostCategories(options?: {
  * カート取得
  */
 export function useGetCart(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.cart.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.cart.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/cart'] as const) : null
-  return useSWR<InferResponseType<typeof client.cart.$get>, Error>(
-    key,
-    async () => parseResponse(client.cart.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCartKey() : null)
+  const query = useSWR<InferResponseType<typeof client.cart.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.cart.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -348,17 +368,22 @@ export function useDeleteCartItemsItemId(options?: {
 export function useGetOrders(
   args: InferRequestType<typeof client.orders.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.orders.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.orders.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/orders', args] as const) : null
-  return useSWR<InferResponseType<typeof client.orders.$get>, Error>(
-    key,
-    async () => parseResponse(client.orders.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOrdersKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.orders.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.orders.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -404,17 +429,22 @@ export function usePostOrders(options?: {
 export function useGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.orders)[':orderId']['$get']>, Error>
+    swr?: SWRConfiguration<InferResponseType<(typeof client.orders)[':orderId']['$get']>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/orders/:orderId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.orders)[':orderId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.orders[':orderId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOrdersOrderIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.orders)[':orderId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -464,17 +494,19 @@ export function useGetInventoryProductId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.inventory)[':productId']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/inventory/:productId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.inventory)[':productId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.inventory[':productId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetInventoryProductIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.inventory)[':productId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.inventory[':productId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

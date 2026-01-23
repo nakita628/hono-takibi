@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -14,17 +14,22 @@ import { client } from '../clients/34-practical-storage-api'
 export function useGetFiles(
   args: InferRequestType<typeof client.files.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.files.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.files.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/files', args] as const) : null
-  return useSWR<InferResponseType<typeof client.files.$get>, Error>(
-    key,
-    async () => parseResponse(client.files.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.files.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.files.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -153,17 +158,22 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
 export function useGetFilesFileId(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.files)[':fileId']['$get']>, Error>
+    swr?: SWRConfiguration<InferResponseType<(typeof client.files)[':fileId']['$get']>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/files/:fileId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.files)[':fileId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.files[':fileId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.files)[':fileId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -238,18 +248,22 @@ export function useGetFilesFileIdDownload(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/files/:fileId/download', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.files)[':fileId']['download']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.files[':fileId'].download.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdDownloadKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.files[':fileId'].download.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -272,18 +286,22 @@ export function useGetFilesFileIdDownloadUrl(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/files/:fileId/download-url', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.files[':fileId']['download-url'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdDownloadUrlKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.files[':fileId']['download-url'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -358,18 +376,22 @@ export function useGetFilesFileIdThumbnail(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/files/:fileId/thumbnail', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.files[':fileId'].thumbnail.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdThumbnailKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.files[':fileId'].thumbnail.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -415,17 +437,22 @@ export function usePostFolders(options?: {
 export function useGetFoldersFolderId(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.folders)[':folderId']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client.folders)[':folderId']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/folders/:folderId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.folders)[':folderId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.folders[':folderId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFoldersFolderIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.folders)[':folderId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.folders[':folderId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -500,17 +527,19 @@ export function useGetFilesFileIdShare(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.files)[':fileId']['share']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/files/:fileId/share', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.files)[':fileId']['share']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.files[':fileId'].share.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdShareKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.files)[':fileId']['share']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.files[':fileId'].share.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -613,18 +642,22 @@ export function useGetFilesFileIdVersions(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/files/:fileId/versions', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.files[':fileId'].versions.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFilesFileIdVersionsKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.files[':fileId'].versions.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -677,17 +710,22 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
 export function useGetTrash(
   args: InferRequestType<typeof client.trash.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.trash.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.trash.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/trash', args] as const) : null
-  return useSWR<InferResponseType<typeof client.trash.$get>, Error>(
-    key,
-    async () => parseResponse(client.trash.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTrashKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.trash.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.trash.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -751,16 +789,21 @@ export function usePostTrashFileIdRestore(options?: {
  * ストレージ使用量取得
  */
 export function useGetStorageUsage(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.storage.usage.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.storage.usage.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/storage/usage'] as const) : null
-  return useSWR<InferResponseType<typeof client.storage.usage.$get>, Error>(
-    key,
-    async () => parseResponse(client.storage.usage.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStorageUsageKey() : null)
+  const query = useSWR<InferResponseType<typeof client.storage.usage.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.storage.usage.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

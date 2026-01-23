@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/openapi-boolean'
 
@@ -12,16 +12,21 @@ import { client } from '../clients/openapi-boolean'
  * zod boolean
  */
 export function useGetBoolean(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.boolean.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.boolean.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/boolean'] as const) : null
-  return useSWR<InferResponseType<typeof client.boolean.$get>, Error>(
-    key,
-    async () => parseResponse(client.boolean.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetBooleanKey() : null)
+  const query = useSWR<InferResponseType<typeof client.boolean.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.boolean.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -12,16 +12,21 @@ import { client } from '../clients/37-auth-mfa'
  * MFA設定状況取得
  */
 export function useGetMfaStatus(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.mfa.status.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.mfa.status.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/mfa/status'] as const) : null
-  return useSWR<InferResponseType<typeof client.mfa.status.$get>, Error>(
-    key,
-    async () => parseResponse(client.mfa.status.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaStatusKey() : null)
+  const query = useSWR<InferResponseType<typeof client.mfa.status.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.mfa.status.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -37,16 +42,21 @@ export function getGetMfaStatusKey() {
  * 登録済みMFA方式一覧
  */
 export function useGetMfaMethods(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.mfa.methods.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.mfa.methods.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/mfa/methods'] as const) : null
-  return useSWR<InferResponseType<typeof client.mfa.methods.$get>, Error>(
-    key,
-    async () => parseResponse(client.mfa.methods.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaMethodsKey() : null)
+  const query = useSWR<InferResponseType<typeof client.mfa.methods.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.mfa.methods.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -358,16 +368,21 @@ export function usePostMfaWebauthnRegisterVerify(options?: {
  * WebAuthn認証器一覧
  */
 export function useGetMfaWebauthnCredentials(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.mfa.webauthn.credentials.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.mfa.webauthn.credentials.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/mfa/webauthn/credentials'] as const) : null
-  return useSWR<InferResponseType<typeof client.mfa.webauthn.credentials.$get>, Error>(
-    key,
-    async () => parseResponse(client.mfa.webauthn.credentials.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaWebauthnCredentialsKey() : null)
+  const query = useSWR<InferResponseType<typeof client.mfa.webauthn.credentials.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.mfa.webauthn.credentials.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -469,16 +484,21 @@ export function useGetMfaBackupCodesStatus(options?: {
   swr?: SWRConfiguration<
     InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>,
     Error
-  >
+  > & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/mfa/backup-codes/status'] as const) : null
-  return useSWR<InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.mfa['backup-codes'].status.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaBackupCodesStatusKey() : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.mfa['backup-codes'].status.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

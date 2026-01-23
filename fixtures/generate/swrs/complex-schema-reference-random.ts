@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/complex-schema-reference-random'
 
@@ -10,16 +10,21 @@ import { client } from '../clients/complex-schema-reference-random'
  * Test endpoint for comprehensive schema references
  */
 export function useGetTest(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.test.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.test.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/test'] as const) : null
-  return useSWR<InferResponseType<typeof client.test.$get>, Error>(
-    key,
-    async () => parseResponse(client.test.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTestKey() : null)
+  const query = useSWR<InferResponseType<typeof client.test.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.test.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

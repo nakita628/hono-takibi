@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -12,17 +12,22 @@ import { client } from '../clients/03-parameters-responses'
 export function useGetItems(
   args: InferRequestType<typeof client.items.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.items.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.items.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/items', args] as const) : null
-  return useSWR<InferResponseType<typeof client.items.$get>, Error>(
-    key,
-    async () => parseResponse(client.items.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetItemsKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.items.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.items.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -38,17 +43,22 @@ export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>)
 export function useGetItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.items)[':itemId']['$get']>, Error>
+    swr?: SWRConfiguration<InferResponseType<(typeof client.items)[':itemId']['$get']>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/items/:itemId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.items)[':itemId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.items[':itemId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetItemsItemIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.items)[':itemId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.items[':itemId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

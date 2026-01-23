@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -12,17 +12,22 @@ import { client } from '../clients/17-mixed-inline-refs'
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.users.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.users.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/users', args] as const) : null
-  return useSWR<InferResponseType<typeof client.users.$get>, Error>(
-    key,
-    async () => parseResponse(client.users.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.users.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.users.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -62,17 +67,22 @@ export function usePostUsers(options?: {
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>
+    swr?: SWRConfiguration<InferResponseType<(typeof client.users)[':userId']['$get']>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/users/:userId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.users[':userId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -117,21 +127,22 @@ export function useGetProductsProductIdVariants(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.products)[':productId']['variants']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/products/:productId/variants', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProductsProductIdVariantsKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.products)[':productId']['variants']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client.products[':productId'].variants.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.products[':productId'].variants.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

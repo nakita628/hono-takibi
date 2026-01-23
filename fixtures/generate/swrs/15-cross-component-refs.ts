@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -12,17 +12,22 @@ import { client } from '../clients/15-cross-component-refs'
 export function useGetEntities(
   args: InferRequestType<typeof client.entities.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.entities.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.entities.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/entities', args] as const) : null
-  return useSWR<InferResponseType<typeof client.entities.$get>, Error>(
-    key,
-    async () => parseResponse(client.entities.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEntitiesKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.entities.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.entities.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -62,17 +67,22 @@ export function usePostEntities(options?: {
 export function useGetEntitiesEntityId(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.entities)[':entityId']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client.entities)[':entityId']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/entities/:entityId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.entities)[':entityId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.entities[':entityId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEntitiesEntityIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.entities)[':entityId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.entities[':entityId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -141,24 +151,23 @@ export function useGetEntitiesEntityIdRelationships(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/entities/:entityId/relationships', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetEntitiesEntityIdRelationshipsKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>,
     Error
   >(
-    key,
-    async () =>
-      parseResponse(client.entities[':entityId'].relationships.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.entities[':entityId'].relationships.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -14,17 +14,22 @@ import { client } from '../clients/31-practical-blog-api'
 export function useGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.posts.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.posts.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/posts', args] as const) : null
-  return useSWR<InferResponseType<typeof client.posts.$get>, Error>(
-    key,
-    async () => parseResponse(client.posts.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPostsKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.posts.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.posts.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -68,17 +73,22 @@ export function usePostPosts(options?: {
 export function useGetPostsPostId(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.posts)[':postId']['$get']>, Error>
+    swr?: SWRConfiguration<InferResponseType<(typeof client.posts)[':postId']['$get']>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/posts/:postId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.posts)[':postId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.posts[':postId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPostsPostIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.posts)[':postId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.posts[':postId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -150,17 +160,22 @@ export function useDeletePostsPostId(options?: {
 export function useGetPostsSlugSlug(
   args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.posts.slug)[':slug']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client.posts.slug)[':slug']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/posts/slug/:slug', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.posts.slug)[':slug']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.posts.slug[':slug'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPostsSlugSlugKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.posts.slug)[':slug']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.posts.slug[':slug'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -237,18 +252,22 @@ export function useGetPostsPostIdComments(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.posts)[':postId']['comments']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/posts/:postId/comments', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.posts)[':postId']['comments']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.posts[':postId'].comments.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPostsPostIdCommentsKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.posts)[':postId']['comments']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.posts[':postId'].comments.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -347,16 +366,21 @@ export function usePostCommentsCommentIdApprove(options?: {
  * カテゴリ一覧取得
  */
 export function useGetCategories(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.categories.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.categories.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/categories'] as const) : null
-  return useSWR<InferResponseType<typeof client.categories.$get>, Error>(
-    key,
-    async () => parseResponse(client.categories.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCategoriesKey() : null)
+  const query = useSWR<InferResponseType<typeof client.categories.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -403,18 +427,19 @@ export function useGetCategoriesCategoryId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.categories)[':categoryId']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/categories/:categoryId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.categories)[':categoryId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.categories[':categoryId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCategoriesCategoryIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.categories)[':categoryId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.categories[':categoryId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -488,17 +513,22 @@ export function useDeleteCategoriesCategoryId(options?: {
 export function useGetTags(
   args: InferRequestType<typeof client.tags.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.tags.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.tags.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/tags', args] as const) : null
-  return useSWR<InferResponseType<typeof client.tags.$get>, Error>(
-    key,
-    async () => parseResponse(client.tags.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTagsKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.tags.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.tags.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -542,17 +572,22 @@ export function usePostTags(options?: {
 export function useGetMedia(
   args: InferRequestType<typeof client.media.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.media.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.media.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/media', args] as const) : null
-  return useSWR<InferResponseType<typeof client.media.$get>, Error>(
-    key,
-    async () => parseResponse(client.media.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMediaKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.media.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.media.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -596,17 +631,22 @@ export function usePostMedia(options?: {
 export function useGetMediaMediaId(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.media)[':mediaId']['$get']>, Error>
+    swr?: SWRConfiguration<InferResponseType<(typeof client.media)[':mediaId']['$get']>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/media/:mediaId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.media)[':mediaId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.media[':mediaId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMediaMediaIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.media)[':mediaId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.media[':mediaId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -676,16 +716,21 @@ export function useDeleteMediaMediaId(options?: {
  * 著者一覧取得
  */
 export function useGetAuthors(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.authors.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.authors.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/authors'] as const) : null
-  return useSWR<InferResponseType<typeof client.authors.$get>, Error>(
-    key,
-    async () => parseResponse(client.authors.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAuthorsKey() : null)
+  const query = useSWR<InferResponseType<typeof client.authors.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.authors.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -703,17 +748,22 @@ export function getGetAuthorsKey() {
 export function useGetAuthorsAuthorId(
   args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.authors)[':authorId']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client.authors)[':authorId']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/authors/:authorId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.authors)[':authorId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.authors[':authorId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAuthorsAuthorIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.authors)[':authorId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.authors[':authorId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

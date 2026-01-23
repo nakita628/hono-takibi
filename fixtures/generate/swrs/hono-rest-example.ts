@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -14,16 +14,21 @@ import { client } from '../clients/hono-rest-example'
  * Retrieve a simple welcome message from the Hono API.
  */
 export function useGet(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.index.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.index.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/'] as const) : null
-  return useSWR<InferResponseType<typeof client.index.$get>, Error>(
-    key,
-    async () => parseResponse(client.index.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetKey() : null)
+  const query = useSWR<InferResponseType<typeof client.index.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.index.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -43,17 +48,22 @@ export function getGetKey() {
 export function useGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.posts.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.posts.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/posts', args] as const) : null
-  return useSWR<InferResponseType<typeof client.posts.$get>, Error>(
-    key,
-    async () => parseResponse(client.posts.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPostsKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.posts.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.posts.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

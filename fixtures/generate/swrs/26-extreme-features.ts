@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -12,16 +12,21 @@ import { client } from '../clients/26-extreme-features'
  * Stream data with Server-Sent Events
  */
 export function useGetStream(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.stream.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.stream.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/stream'] as const) : null
-  return useSWR<InferResponseType<typeof client.stream.$get>, Error>(
-    key,
-    async () => parseResponse(client.stream.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStreamKey() : null)
+  const query = useSWR<InferResponseType<typeof client.stream.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.stream.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -93,16 +98,21 @@ export function usePostGrpcGateway(options?: {
  * Please use `/new-endpoint` instead.
  */
 export function useGetDeprecatedEndpoint(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['deprecated-endpoint']['$get']>, Error>
+  swr?: SWRConfiguration<
+    InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
+    Error
+  > & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/deprecated-endpoint'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['deprecated-endpoint']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['deprecated-endpoint'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetDeprecatedEndpointKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['deprecated-endpoint']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['deprecated-endpoint'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -130,16 +130,21 @@ export function usePostWebauthnAuthenticateVerify(options?: {
  * ユーザーに登録されているパスキー一覧を取得
  */
 export function useGetWebauthnCredentials(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.webauthn.credentials.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.webauthn.credentials.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/webauthn/credentials'] as const) : null
-  return useSWR<InferResponseType<typeof client.webauthn.credentials.$get>, Error>(
-    key,
-    async () => parseResponse(client.webauthn.credentials.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWebauthnCredentialsKey() : null)
+  const query = useSWR<InferResponseType<typeof client.webauthn.credentials.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.webauthn.credentials.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -160,24 +165,24 @@ export function useGetWebauthnCredentialsCredentialId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/webauthn/credentials/:credentialId', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetWebauthnCredentialsCredentialIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.webauthn.credentials[':credentialId'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.webauthn.credentials[':credentialId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -255,16 +260,21 @@ export function usePatchWebauthnCredentialsCredentialId(options?: {
  * リライングパーティの設定情報を取得
  */
 export function useGetWebauthnSettings(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.webauthn.settings.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.webauthn.settings.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/webauthn/settings'] as const) : null
-  return useSWR<InferResponseType<typeof client.webauthn.settings.$get>, Error>(
-    key,
-    async () => parseResponse(client.webauthn.settings.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWebauthnSettingsKey() : null)
+  const query = useSWR<InferResponseType<typeof client.webauthn.settings.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.webauthn.settings.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -280,16 +290,21 @@ export function getGetWebauthnSettingsKey() {
  * リライングパーティ情報取得
  */
 export function useGetWebauthnSettingsRp(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.webauthn.settings.rp.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.webauthn.settings.rp.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/webauthn/settings/rp'] as const) : null
-  return useSWR<InferResponseType<typeof client.webauthn.settings.rp.$get>, Error>(
-    key,
-    async () => parseResponse(client.webauthn.settings.rp.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWebauthnSettingsRpKey() : null)
+  const query = useSWR<InferResponseType<typeof client.webauthn.settings.rp.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.webauthn.settings.rp.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -333,16 +348,21 @@ export function usePutWebauthnSettingsRp(options?: {
  * 許可されている認証器のAAGUID一覧
  */
 export function useGetWebauthnAuthenticators(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.webauthn.authenticators.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.webauthn.authenticators.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/webauthn/authenticators'] as const) : null
-  return useSWR<InferResponseType<typeof client.webauthn.authenticators.$get>, Error>(
-    key,
-    async () => parseResponse(client.webauthn.authenticators.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWebauthnAuthenticatorsKey() : null)
+  const query = useSWR<InferResponseType<typeof client.webauthn.authenticators.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.webauthn.authenticators.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

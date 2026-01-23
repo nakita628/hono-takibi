@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -10,16 +10,21 @@ import { client } from '../clients/discord-api-spec-openapi_preview'
  * GET /applications/@me
  */
 export function useGetApplicationsMe(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client.applications)['@me']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client.applications)['@me']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/applications/@me'] as const) : null
-  return useSWR<InferResponseType<(typeof client.applications)['@me']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.applications['@me'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsMeKey() : null)
+  const query = useSWR<InferResponseType<(typeof client.applications)['@me']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.applications['@me'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -62,18 +67,22 @@ export function useGetApplicationsApplicationId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.applications)[':application_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/applications/:application_id', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.applications)[':application_id']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.applications[':application_id'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsApplicationIdKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.applications)[':application_id']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.applications[':application_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -123,31 +132,32 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
         (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/applications/:application_id/activity-instances/:instance_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetApplicationsApplicationIdActivityInstancesInstanceIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.applications[':application_id']['activity-instances'][':instance_id'].$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -195,24 +205,24 @@ export function useGetApplicationsApplicationIdCommands(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/applications/:application_id/commands', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsApplicationIdCommandsKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.applications[':application_id'].commands.$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.applications[':application_id'].commands.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -287,28 +297,29 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
         (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/applications/:application_id/commands/:command_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetApplicationsApplicationIdCommandsCommandIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
-        client.applications[':application_id'].commands[':command_id'].$get(args, options?.client),
+        client.applications[':application_id'].commands[':command_id'].$get(args, clientOptions),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -404,24 +415,24 @@ export function useGetApplicationsApplicationIdEmojis(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/applications/:application_id/emojis', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsApplicationIdEmojisKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.applications[':application_id'].emojis.$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.applications[':application_id'].emojis.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -471,28 +482,28 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
         (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/applications/:application_id/emojis/:emoji_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsApplicationIdEmojisEmojiIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
-        client.applications[':application_id'].emojis[':emoji_id'].$get(args, options?.client),
+        client.applications[':application_id'].emojis[':emoji_id'].$get(args, clientOptions),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -585,26 +596,24 @@ export function useGetApplicationsApplicationIdEntitlements(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/applications/:application_id/entitlements', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsApplicationIdEntitlementsKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(
-        client.applications[':application_id'].entitlements.$get(args, options?.client),
-      ),
-    options?.swr,
+      parseResponse(client.applications[':application_id'].entitlements.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -656,31 +665,32 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
         (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/applications/:application_id/entitlements/:entitlement_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetApplicationsApplicationIdEntitlementsEntitlementIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.applications[':application_id'].entitlements[':entitlement_id'].$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -783,31 +793,32 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/applications/:application_id/guilds/:guild_id/commands', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetApplicationsApplicationIdGuildsGuildIdCommandsKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands.$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -910,35 +921,32 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? ([
-          'GET',
-          '/applications/:application_id/guilds/:guild_id/commands/permissions',
-          args,
-        ] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -969,35 +977,32 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? ([
-          'GET',
-          '/applications/:application_id/guilds/:guild_id/commands/:command_id',
-          args,
-        ] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -1104,34 +1109,33 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? ([
-          'GET',
-          '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
-          args,
-        ] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled
+      ? getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsKey(args)
+      : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands[
           ':command_id'
-        ].permissions.$get(args, options?.client),
+        ].permissions.$get(args, clientOptions),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -1199,31 +1203,32 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
         (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/applications/:application_id/role-connections/metadata', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetApplicationsApplicationIdRoleConnectionsMetadataKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.applications[':application_id']['role-connections'].metadata.$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -1284,17 +1289,19 @@ export function useGetChannelsChannelId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.channels)[':channel_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/channels/:channel_id', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.channels)[':channel_id']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.channels[':channel_id'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.channels)[':channel_id']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.channels[':channel_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -1390,21 +1397,22 @@ export function useGetChannelsChannelIdInvites(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/channels/:channel_id/invites', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdInvitesKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client.channels[':channel_id'].invites.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.channels[':channel_id'].invites.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -1450,21 +1458,22 @@ export function useGetChannelsChannelIdMessages(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/channels/:channel_id/messages', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdMessagesKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client.channels[':channel_id'].messages.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.channels[':channel_id'].messages.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -1537,24 +1546,24 @@ export function useGetChannelsChannelIdMessagesPins(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/channels/:channel_id/messages/pins', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdMessagesPinsKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.channels[':channel_id'].messages.pins.$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.channels[':channel_id'].messages.pins.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -1647,26 +1656,26 @@ export function useGetChannelsChannelIdMessagesMessageId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/channels/:channel_id/messages/:message_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdMessagesMessageIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].$get(args, options?.client),
+        client.channels[':channel_id'].messages[':message_id'].$get(args, clientOptions),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -1827,31 +1836,32 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
         (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/channels/:channel_id/messages/:message_id/reactions/:emoji_name', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2129,18 +2139,22 @@ export function useGetChannelsChannelIdPins(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/channels/:channel_id/pins', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.channels[':channel_id'].pins.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdPinsKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.channels[':channel_id'].pins.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2217,31 +2231,32 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
         (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/channels/:channel_id/polls/:message_id/answers/:answer_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2380,24 +2395,24 @@ export function useGetChannelsChannelIdThreadMembers(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/channels/:channel_id/thread-members', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdThreadMembersKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.channels[':channel_id']['thread-members'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.channels[':channel_id']['thread-members'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2476,28 +2491,28 @@ export function useGetChannelsChannelIdThreadMembersUserId(
         (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/channels/:channel_id/thread-members/:user_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdThreadMembersUserIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
-        client.channels[':channel_id']['thread-members'][':user_id'].$get(args, options?.client),
+        client.channels[':channel_id']['thread-members'][':user_id'].$get(args, clientOptions),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2615,28 +2630,29 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
         (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/channels/:channel_id/threads/archived/private', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetChannelsChannelIdThreadsArchivedPrivateKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
-        client.channels[':channel_id'].threads.archived.private.$get(args, options?.client),
+        client.channels[':channel_id'].threads.archived.private.$get(args, clientOptions),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2663,28 +2679,28 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
         (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/channels/:channel_id/threads/archived/public', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdThreadsArchivedPublicKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
-        client.channels[':channel_id'].threads.archived.public.$get(args, options?.client),
+        client.channels[':channel_id'].threads.archived.public.$get(args, clientOptions),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2707,24 +2723,24 @@ export function useGetChannelsChannelIdThreadsSearch(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/channels/:channel_id/threads/search', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdThreadsSearchKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.channels[':channel_id'].threads.search.$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.channels[':channel_id'].threads.search.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2774,31 +2790,32 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
         (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/channels/:channel_id/users/@me/threads/archived/private', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetChannelsChannelIdUsersMeThreadsArchivedPrivateKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.channels[':channel_id'].users['@me'].threads.archived.private.$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2821,21 +2838,22 @@ export function useGetChannelsChannelIdWebhooks(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/channels/:channel_id/webhooks', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdWebhooksKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client.channels[':channel_id'].webhooks.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.channels[':channel_id'].webhooks.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2876,16 +2894,21 @@ export function usePostChannelsChannelIdWebhooks(options?: {
  * GET /gateway
  */
 export function useGetGateway(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.gateway.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.gateway.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/gateway'] as const) : null
-  return useSWR<InferResponseType<typeof client.gateway.$get>, Error>(
-    key,
-    async () => parseResponse(client.gateway.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGatewayKey() : null)
+  const query = useSWR<InferResponseType<typeof client.gateway.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.gateway.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2899,16 +2922,21 @@ export function getGetGatewayKey() {
  * GET /gateway/bot
  */
 export function useGetGatewayBot(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.gateway.bot.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.gateway.bot.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/gateway/bot'] as const) : null
-  return useSWR<InferResponseType<typeof client.gateway.bot.$get>, Error>(
-    key,
-    async () => parseResponse(client.gateway.bot.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGatewayBotKey() : null)
+  const query = useSWR<InferResponseType<typeof client.gateway.bot.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.gateway.bot.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2927,18 +2955,19 @@ export function useGetGuildsTemplatesCode(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds.templates)[':code']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/templates/:code', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds.templates)[':code']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds.templates[':code'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsTemplatesCodeKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.guilds.templates)[':code']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.guilds.templates[':code'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -2956,17 +2985,22 @@ export function getGetGuildsTemplatesCodeKey(
 export function useGetGuildsGuildId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.guilds)[':guild_id']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client.guilds)[':guild_id']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/guilds/:guild_id', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3011,21 +3045,22 @@ export function useGetGuildsGuildIdAuditLogs(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/audit-logs', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdAuditLogsKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client.guilds[':guild_id']['audit-logs'].$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id']['audit-logs'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3046,26 +3081,24 @@ export function useGetGuildsGuildIdAutoModerationRules(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/auto-moderation/rules', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdAutoModerationRulesKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(
-        client.guilds[':guild_id']['auto-moderation'].rules.$get(args, options?.client),
-      ),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id']['auto-moderation'].rules.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3117,28 +3150,28 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
         (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/auto-moderation/rules/:rule_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdAutoModerationRulesRuleIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
-        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$get(args, options?.client),
+        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$get(args, clientOptions),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3237,17 +3270,22 @@ export function useGetGuildsGuildIdBans(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/guilds/:guild_id/bans', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].bans.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdBansKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].bans.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3268,22 +3306,23 @@ export function useGetGuildsGuildIdBansUserId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/bans/:user_id', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdBansUserIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.guilds[':guild_id'].bans[':user_id'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id'].bans[':user_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3379,18 +3418,22 @@ export function useGetGuildsGuildIdChannels(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/channels', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].channels.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdChannelsKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].channels.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3461,18 +3504,22 @@ export function useGetGuildsGuildIdEmojis(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/emojis', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].emojis.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdEmojisKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].emojis.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3518,24 +3565,24 @@ export function useGetGuildsGuildIdEmojisEmojiId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/emojis/:emoji_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdEmojisEmojiIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3606,21 +3653,22 @@ export function useGetGuildsGuildIdIntegrations(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/integrations', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdIntegrationsKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].integrations.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].integrations.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3676,18 +3724,22 @@ export function useGetGuildsGuildIdInvites(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/invites', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].invites.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdInvitesKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].invites.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3708,18 +3760,22 @@ export function useGetGuildsGuildIdMembers(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/members', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].members.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdMembersKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].members.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3765,22 +3821,23 @@ export function useGetGuildsGuildIdMembersSearch(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/members/search', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdMembersSearchKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
     Error
   >(
-    key,
-    async () =>
-      parseResponse(client.guilds[':guild_id'].members.search.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].members.search.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3801,24 +3858,24 @@ export function useGetGuildsGuildIdMembersUserId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/members/:user_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdMembersUserIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.guilds[':guild_id'].members[':user_id'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id'].members[':user_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -3987,24 +4044,23 @@ export function useGetGuildsGuildIdMessagesSearch(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['messages']['search']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/messages/search', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdMessagesSearchKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['messages']['search']['$get']>,
     Error
   >(
-    key,
-    async () =>
-      parseResponse(client.guilds[':guild_id'].messages.search.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].messages.search.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4025,24 +4081,24 @@ export function useGetGuildsGuildIdNewMemberWelcome(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/new-member-welcome', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdNewMemberWelcomeKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.guilds[':guild_id']['new-member-welcome'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id']['new-member-welcome'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4063,21 +4119,22 @@ export function useGetGuildsGuildIdOnboarding(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/onboarding', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdOnboardingKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].onboarding.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].onboarding.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4123,18 +4180,22 @@ export function useGetGuildsGuildIdPreview(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/preview', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].preview.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdPreviewKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].preview.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4155,18 +4216,22 @@ export function useGetGuildsGuildIdPrune(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/prune', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].prune.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdPruneKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].prune.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4212,18 +4277,22 @@ export function useGetGuildsGuildIdRegions(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/regions', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].regions.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdRegionsKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].regions.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4244,18 +4313,22 @@ export function useGetGuildsGuildIdRoles(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/roles', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].roles.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdRolesKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].roles.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4326,24 +4399,24 @@ export function useGetGuildsGuildIdRolesMemberCounts(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['roles']['member-counts']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/roles/member-counts', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdRolesMemberCountsKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['roles']['member-counts']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.guilds[':guild_id'].roles['member-counts'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id'].roles['member-counts'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4364,22 +4437,23 @@ export function useGetGuildsGuildIdRolesRoleId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/roles/:role_id', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdRolesRoleIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.guilds[':guild_id'].roles[':role_id'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id'].roles[':role_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4450,24 +4524,24 @@ export function useGetGuildsGuildIdScheduledEvents(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/scheduled-events', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdScheduledEventsKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.guilds[':guild_id']['scheduled-events'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id']['scheduled-events'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4517,31 +4591,32 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
         (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4644,35 +4719,32 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
         (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? ([
-          'GET',
-          '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users',
-          args,
-        ] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].users.$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4699,24 +4771,24 @@ export function useGetGuildsGuildIdSoundboardSounds(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/soundboard-sounds', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdSoundboardSoundsKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4766,28 +4838,28 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
         (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/soundboard-sounds/:sound_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdSoundboardSoundsSoundIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
-        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$get(args, options?.client),
+        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$get(args, clientOptions),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4880,18 +4952,22 @@ export function useGetGuildsGuildIdStickers(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/stickers', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].stickers.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdStickersKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].stickers.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -4937,24 +5013,24 @@ export function useGetGuildsGuildIdStickersStickerId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/stickers/:sticker_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdStickersStickerIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5029,18 +5105,22 @@ export function useGetGuildsGuildIdTemplates(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/templates', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].templates.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdTemplatesKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].templates.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5161,22 +5241,23 @@ export function useGetGuildsGuildIdThreadsActive(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/threads/active', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdThreadsActiveKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
     Error
   >(
-    key,
-    async () =>
-      parseResponse(client.guilds[':guild_id'].threads.active.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].threads.active.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5197,21 +5278,22 @@ export function useGetGuildsGuildIdVanityUrl(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/vanity-url', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdVanityUrlKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client.guilds[':guild_id']['vanity-url'].$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id']['vanity-url'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5232,24 +5314,24 @@ export function useGetGuildsGuildIdVoiceStatesMe(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/voice-states/@me', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdVoiceStatesMeKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5295,26 +5377,26 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/guilds/:guild_id/voice-states/:user_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdVoiceStatesUserIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
-        client.guilds[':guild_id']['voice-states'][':user_id'].$get(args, options?.client),
+        client.guilds[':guild_id']['voice-states'][':user_id'].$get(args, clientOptions),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5362,18 +5444,22 @@ export function useGetGuildsGuildIdWebhooks(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/webhooks', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].webhooks.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdWebhooksKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].webhooks.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5394,22 +5480,24 @@ export function useGetGuildsGuildIdWelcomeScreen(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/welcome-screen', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdWelcomeScreenKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.guilds[':guild_id']['welcome-screen'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.guilds[':guild_id']['welcome-screen'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5455,18 +5543,22 @@ export function useGetGuildsGuildIdWidget(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/widget', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.guilds[':guild_id'].widget.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdWidgetKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id'].widget.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5512,22 +5604,22 @@ export function useGetGuildsGuildIdWidgetJson(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/widget.json', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdWidgetJsonKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
     Error
   >(
-    key,
-    async () =>
-      parseResponse(client.guilds[':guild_id']['widget.json'].$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id']['widget.json'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5548,21 +5640,22 @@ export function useGetGuildsGuildIdWidgetPng(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/guilds/:guild_id/widget.png', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdWidgetPngKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client.guilds[':guild_id']['widget.png'].$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.guilds[':guild_id']['widget.png'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5618,17 +5711,22 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(options
 export function useGetInvitesCode(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.invites)[':code']['$get']>, Error>
+    swr?: SWRConfiguration<InferResponseType<(typeof client.invites)[':code']['$get']>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/invites/:code', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.invites)[':code']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.invites[':code'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetInvitesCodeKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.invites)[':code']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.invites[':code'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5718,17 +5816,22 @@ export function usePostLobbies(options?: {
 export function useGetLobbiesLobbyId(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/lobbies/:lobby_id', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.lobbies[':lobby_id'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetLobbiesLobbyIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.lobbies[':lobby_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -5958,18 +6061,22 @@ export function useGetLobbiesLobbyIdMessages(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/lobbies/:lobby_id/messages', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.lobbies[':lobby_id'].messages.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetLobbiesLobbyIdMessagesKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.lobbies[':lobby_id'].messages.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6010,16 +6117,21 @@ export function usePostLobbiesLobbyIdMessages(options?: {
  * GET /oauth2/@me
  */
 export function useGetOauth2Me(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client.oauth2)['@me']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client.oauth2)['@me']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/oauth2/@me'] as const) : null
-  return useSWR<InferResponseType<(typeof client.oauth2)['@me']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.oauth2['@me'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauth2MeKey() : null)
+  const query = useSWR<InferResponseType<(typeof client.oauth2)['@me']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.oauth2['@me'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6036,16 +6148,21 @@ export function useGetOauth2ApplicationsMe(options?: {
   swr?: SWRConfiguration<
     InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>,
     Error
-  >
+  > & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/oauth2/applications/@me'] as const) : null
-  return useSWR<InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.oauth2.applications['@me'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauth2ApplicationsMeKey() : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.oauth2.applications['@me'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6059,16 +6176,21 @@ export function getGetOauth2ApplicationsMeKey() {
  * GET /oauth2/keys
  */
 export function useGetOauth2Keys(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.oauth2.keys.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.oauth2.keys.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/oauth2/keys'] as const) : null
-  return useSWR<InferResponseType<typeof client.oauth2.keys.$get>, Error>(
-    key,
-    async () => parseResponse(client.oauth2.keys.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauth2KeysKey() : null)
+  const query = useSWR<InferResponseType<typeof client.oauth2.keys.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.oauth2.keys.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6082,16 +6204,21 @@ export function getGetOauth2KeysKey() {
  * GET /oauth2/userinfo
  */
 export function useGetOauth2Userinfo(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.oauth2.userinfo.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.oauth2.userinfo.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/oauth2/userinfo'] as const) : null
-  return useSWR<InferResponseType<typeof client.oauth2.userinfo.$get>, Error>(
-    key,
-    async () => parseResponse(client.oauth2.userinfo.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauth2UserinfoKey() : null)
+  const query = useSWR<InferResponseType<typeof client.oauth2.userinfo.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.oauth2.userinfo.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6219,16 +6346,21 @@ export function useGetSoundboardDefaultSounds(options?: {
   swr?: SWRConfiguration<
     InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
     Error
-  >
+  > & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/soundboard-default-sounds'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['soundboard-default-sounds'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSoundboardDefaultSoundsKey() : null)
+  const query = useSWR<
+    InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client['soundboard-default-sounds'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6271,21 +6403,22 @@ export function useGetStageInstancesChannelId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/stage-instances/:channel_id', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStageInstancesChannelIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client['stage-instances'][':channel_id'].$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client['stage-instances'][':channel_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6351,16 +6484,21 @@ export function usePatchStageInstancesChannelId(options?: {
  * GET /sticker-packs
  */
 export function useGetStickerPacks(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['sticker-packs']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['sticker-packs']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/sticker-packs'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['sticker-packs']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['sticker-packs'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStickerPacksKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['sticker-packs']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['sticker-packs'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6379,18 +6517,22 @@ export function useGetStickerPacksPackId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/sticker-packs/:pack_id', args] as const) : null
-  return useSWR<InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['sticker-packs'][':pack_id'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStickerPacksPackIdKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client['sticker-packs'][':pack_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6411,17 +6553,19 @@ export function useGetStickersStickerId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/stickers/:sticker_id', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.stickers[':sticker_id'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStickersStickerIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.stickers[':sticker_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6437,16 +6581,21 @@ export function getGetStickersStickerIdKey(
  * GET /users/@me
  */
 export function useGetUsersMe(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client.users)['@me']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client.users)['@me']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/users/@me'] as const) : null
-  return useSWR<InferResponseType<(typeof client.users)['@me']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.users['@me'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersMeKey() : null)
+  const query = useSWR<InferResponseType<(typeof client.users)['@me']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.users['@me'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6493,31 +6642,29 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
         (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/users/@me/applications/:application_id/entitlements', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetUsersMeApplicationsApplicationIdEntitlementsKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
-        client.users['@me'].applications[':application_id'].entitlements.$get(
-          args,
-          options?.client,
-        ),
+        client.users['@me'].applications[':application_id'].entitlements.$get(args, clientOptions),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6544,31 +6691,32 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
         (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/users/@me/applications/:application_id/role-connection', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetUsersMeApplicationsApplicationIdRoleConnectionKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.users['@me'].applications[':application_id']['role-connection'].$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6689,16 +6837,21 @@ export function useGetUsersMeConnections(options?: {
   swr?: SWRConfiguration<
     InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
     Error
-  >
+  > & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/users/@me/connections'] as const) : null
-  return useSWR<InferResponseType<(typeof client.users)['@me']['connections']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.users['@me'].connections.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersMeConnectionsKey() : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.users['@me'].connections.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6714,17 +6867,22 @@ export function getGetUsersMeConnectionsKey() {
 export function useGetUsersMeGuilds(
   args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.users)['@me']['guilds']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client.users)['@me']['guilds']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/users/@me/guilds', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.users)['@me']['guilds']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.users['@me'].guilds.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersMeGuildsKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.users)['@me']['guilds']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.users['@me'].guilds.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6770,24 +6928,24 @@ export function useGetUsersMeGuildsGuildIdMember(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/users/@me/guilds/:guild_id/member', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetUsersMeGuildsGuildIdMemberKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.users['@me'].guilds[':guild_id'].member.$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.users['@me'].guilds[':guild_id'].member.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6805,17 +6963,22 @@ export function getGetUsersMeGuildsGuildIdMemberKey(
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.users)[':user_id']['$get']>, Error>
+    swr?: SWRConfiguration<InferResponseType<(typeof client.users)[':user_id']['$get']>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/users/:user_id', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.users)[':user_id']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.users[':user_id'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.users)[':user_id']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6831,16 +6994,21 @@ export function getGetUsersUserIdKey(
  * GET /voice/regions
  */
 export function useGetVoiceRegions(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.voice.regions.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.voice.regions.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/voice/regions'] as const) : null
-  return useSWR<InferResponseType<typeof client.voice.regions.$get>, Error>(
-    key,
-    async () => parseResponse(client.voice.regions.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetVoiceRegionsKey() : null)
+  const query = useSWR<InferResponseType<typeof client.voice.regions.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.voice.regions.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6859,17 +7027,19 @@ export function useGetWebhooksWebhookId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/webhooks/:webhook_id', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.webhooks[':webhook_id'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWebhooksWebhookIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.webhooks[':webhook_id'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -6940,24 +7110,24 @@ export function useGetWebhooksWebhookIdWebhookToken(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/webhooks/:webhook_id/:webhook_token', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetWebhooksWebhookIdWebhookTokenKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -7084,31 +7254,32 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
         (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/webhooks/:webhook_id/:webhook_token/messages/@original', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetWebhooksWebhookIdWebhookTokenMessagesOriginalKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -7211,31 +7382,32 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
         (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/webhooks/:webhook_id/:webhook_token/messages/:message_id', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -14,17 +14,22 @@ import { client } from '../clients/32-practical-project-api'
 export function useGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.projects.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.projects.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/projects', args] as const) : null
-  return useSWR<InferResponseType<typeof client.projects.$get>, Error>(
-    key,
-    async () => parseResponse(client.projects.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProjectsKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.projects.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.projects.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -68,17 +73,22 @@ export function usePostProjects(options?: {
 export function useGetProjectsProjectId(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.projects)[':projectId']['$get']>, Error>
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client.projects)[':projectId']['$get']>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/projects/:projectId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.projects)[':projectId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.projects[':projectId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProjectsProjectIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.projects)[':projectId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.projects[':projectId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -154,21 +164,22 @@ export function useGetProjectsProjectIdMembers(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/projects/:projectId/members', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProjectsProjectIdMembersKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client.projects[':projectId'].members.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.projects[':projectId'].members.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -218,18 +229,22 @@ export function useGetProjectsProjectIdTasks(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/projects/:projectId/tasks', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.projects[':projectId'].tasks.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProjectsProjectIdTasksKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.projects[':projectId'].tasks.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -276,17 +291,22 @@ export function usePostProjectsProjectIdTasks(options?: {
 export function useGetTasksTaskId(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.tasks)[':taskId']['$get']>, Error>
+    swr?: SWRConfiguration<InferResponseType<(typeof client.tasks)[':taskId']['$get']>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/tasks/:taskId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.tasks)[':taskId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.tasks[':taskId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTasksTaskIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.tasks)[':taskId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.tasks[':taskId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -388,18 +408,22 @@ export function useGetTasksTaskIdComments(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/tasks/:taskId/comments', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.tasks[':taskId'].comments.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTasksTaskIdCommentsKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.tasks[':taskId'].comments.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -449,18 +473,22 @@ export function useGetTasksTaskIdTimeEntries(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/tasks/:taskId/time-entries', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.tasks[':taskId']['time-entries'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTasksTaskIdTimeEntriesKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.tasks[':taskId']['time-entries'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -510,21 +538,23 @@ export function useGetProjectsProjectIdMilestones(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/projects/:projectId/milestones', args] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetProjectsProjectIdMilestonesKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>,
     Error
   >(
-    key,
-    async () => parseResponse(client.projects[':projectId'].milestones.$get(args, options?.client)),
-    options?.swr,
+    swrKey,
+    async () => parseResponse(client.projects[':projectId'].milestones.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -569,16 +599,21 @@ export function usePostProjectsProjectIdMilestones(options?: {
  * チーム一覧取得
  */
 export function useGetTeams(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.teams.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.teams.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/teams'] as const) : null
-  return useSWR<InferResponseType<typeof client.teams.$get>, Error>(
-    key,
-    async () => parseResponse(client.teams.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTeamsKey() : null)
+  const query = useSWR<InferResponseType<typeof client.teams.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.teams.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

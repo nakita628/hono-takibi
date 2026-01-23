@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -17,17 +17,22 @@ import { client } from '../clients/35-auth-oauth2-server'
 export function useGetOauthAuthorize(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.oauth.authorize.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.oauth.authorize.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/oauth/authorize', args] as const) : null
-  return useSWR<InferResponseType<typeof client.oauth.authorize.$get>, Error>(
-    key,
-    async () => parseResponse(client.oauth.authorize.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauthAuthorizeKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.oauth.authorize.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.oauth.authorize.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -160,16 +165,21 @@ export function usePostOauthDeviceCode(options?: {
  * OpenID Connect UserInfo エンドポイント
  */
 export function useGetOauthUserinfo(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.oauth.userinfo.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.oauth.userinfo.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/oauth/userinfo'] as const) : null
-  return useSWR<InferResponseType<typeof client.oauth.userinfo.$get>, Error>(
-    key,
-    async () => parseResponse(client.oauth.userinfo.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauthUserinfoKey() : null)
+  const query = useSWR<InferResponseType<typeof client.oauth.userinfo.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.oauth.userinfo.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -190,21 +200,22 @@ export function useGetWellKnownOpenidConfiguration(options?: {
   swr?: SWRConfiguration<
     InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
     Error
-  >
+  > & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key =
-    options?.enabled !== false ? (['GET', '/.well-known/openid-configuration'] as const) : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWellKnownOpenidConfigurationKey() : null)
+  const query = useSWR<
     InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client['.well-known']['openid-configuration'].$get(undefined, options?.client)),
-    options?.swr,
+      parseResponse(client['.well-known']['openid-configuration'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -225,16 +236,21 @@ export function useGetWellKnownJwksJson(options?: {
   swr?: SWRConfiguration<
     InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
     Error
-  >
+  > & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/.well-known/jwks.json'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['.well-known']['jwks.json'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWellKnownJwksJsonKey() : null)
+  const query = useSWR<
+    InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client['.well-known']['jwks.json'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -250,16 +266,21 @@ export function getGetWellKnownJwksJsonKey() {
  * クライアント一覧取得
  */
 export function useGetOauthClients(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.oauth.clients.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.oauth.clients.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/oauth/clients'] as const) : null
-  return useSWR<InferResponseType<typeof client.oauth.clients.$get>, Error>(
-    key,
-    async () => parseResponse(client.oauth.clients.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauthClientsKey() : null)
+  const query = useSWR<InferResponseType<typeof client.oauth.clients.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.oauth.clients.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -306,18 +327,22 @@ export function useGetOauthClientsClientId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/oauth/clients/:clientId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.oauth.clients[':clientId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauthClientsClientIdKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.oauth.clients[':clientId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -418,16 +443,21 @@ export function usePostOauthClientsClientIdSecret(options?: {
  * ユーザーが許可したアプリケーション一覧
  */
 export function useGetOauthConsents(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.oauth.consents.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.oauth.consents.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/oauth/consents'] as const) : null
-  return useSWR<InferResponseType<typeof client.oauth.consents.$get>, Error>(
-    key,
-    async () => parseResponse(client.oauth.consents.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauthConsentsKey() : null)
+  const query = useSWR<InferResponseType<typeof client.oauth.consents.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.oauth.consents.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import { client } from '../clients/01-minimal'
 
@@ -8,16 +8,21 @@ import { client } from '../clients/01-minimal'
  * GET /health
  */
 export function useGetHealth(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.health.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.health.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/health'] as const) : null
-  return useSWR<InferResponseType<typeof client.health.$get>, Error>(
-    key,
-    async () => parseResponse(client.health.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetHealthKey() : null)
+  const query = useSWR<InferResponseType<typeof client.health.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.health.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

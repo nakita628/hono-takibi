@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -19,31 +19,32 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
         (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
       >,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/organizations/:orgId/departments/:deptId/teams/:teamId/members', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ??
+    (isEnabled ? getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(args) : null)
+  const query = useSWR<
     InferResponseType<
       (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
     >,
     Error
   >(
-    key,
+    swrKey,
     async () =>
       parseResponse(
         client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(
           args,
-          options?.client,
+          clientOptions,
         ),
       ),
-    options?.swr,
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -102,18 +103,22 @@ export function useGetReportsOrganizationSummary(options?: {
   swr?: SWRConfiguration<
     InferResponseType<(typeof client.reports)['organization-summary']['$get']>,
     Error
-  >
+  > & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key =
-    options?.enabled !== false ? (['GET', '/reports/organization-summary'] as const) : null
-  return useSWR<InferResponseType<(typeof client.reports)['organization-summary']['$get']>, Error>(
-    key,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetReportsOrganizationSummaryKey() : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.reports)['organization-summary']['$get']>,
+    Error
+  >(
+    swrKey,
     async () =>
-      parseResponse(client.reports['organization-summary'].$get(undefined, options?.client)),
-    options?.swr,
+      parseResponse(client.reports['organization-summary'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -12,16 +12,21 @@ import { client } from '../clients/24-extreme-security'
  * Completely public endpoint
  */
 export function useGetPublic(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.public.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.public.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/public'] as const) : null
-  return useSWR<InferResponseType<typeof client.public.$get>, Error>(
-    key,
-    async () => parseResponse(client.public.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPublicKey() : null)
+  const query = useSWR<InferResponseType<typeof client.public.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.public.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -37,16 +42,21 @@ export function getGetPublicKey() {
  * Single authentication required
  */
 export function useGetSingleAuth(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['single-auth']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['single-auth']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/single-auth'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['single-auth']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['single-auth'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSingleAuthKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['single-auth']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['single-auth'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -62,16 +72,21 @@ export function getGetSingleAuthKey() {
  * Any of these auth methods works (OR)
  */
 export function useGetAnyAuth(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['any-auth']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['any-auth']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/any-auth'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['any-auth']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['any-auth'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAnyAuthKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['any-auth']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['any-auth'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -87,16 +102,21 @@ export function getGetAnyAuthKey() {
  * All of these auth methods required (AND)
  */
 export function useGetAllAuth(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['all-auth']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['all-auth']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/all-auth'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['all-auth']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['all-auth'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAllAuthKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['all-auth']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['all-auth'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -112,16 +132,21 @@ export function getGetAllAuthKey() {
  * Complex AND/OR security requirements
  */
 export function useGetComplexAuth(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['complex-auth']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['complex-auth']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/complex-auth'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['complex-auth']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['complex-auth'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetComplexAuthKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['complex-auth']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['complex-auth'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -137,16 +162,21 @@ export function getGetComplexAuthKey() {
  * OAuth with many specific scopes
  */
 export function useGetScopedOauth(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['scoped-oauth']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['scoped-oauth']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/scoped-oauth'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['scoped-oauth']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['scoped-oauth'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetScopedOauthKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['scoped-oauth']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['scoped-oauth'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -162,16 +192,21 @@ export function getGetScopedOauthKey() {
  * Path level + operation level security
  */
 export function useGetMixedLevelSecurity(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['mixed-level-security']['$get']>, Error>
+  swr?: SWRConfiguration<
+    InferResponseType<(typeof client)['mixed-level-security']['$get']>,
+    Error
+  > & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/mixed-level-security'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['mixed-level-security']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['mixed-level-security'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMixedLevelSecurityKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['mixed-level-security']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['mixed-level-security'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -265,16 +300,21 @@ export function useDeleteMixedLevelSecurity(options?: {
  * Override global security with public
  */
 export function useGetOverrideGlobal(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['override-global']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['override-global']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/override-global'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['override-global']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['override-global'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOverrideGlobalKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['override-global']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['override-global'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -290,16 +330,21 @@ export function getGetOverrideGlobalKey() {
  * Optional auth with enhanced access if authenticated
  */
 export function useGetOptionalEnhanced(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['optional-enhanced']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['optional-enhanced']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/optional-enhanced'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['optional-enhanced']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['optional-enhanced'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOptionalEnhancedKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['optional-enhanced']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['optional-enhanced'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -315,16 +360,21 @@ export function getGetOptionalEnhancedKey() {
  * Multi-tenant with org-level auth
  */
 export function useGetMultiTenant(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['multi-tenant']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['multi-tenant']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/multi-tenant'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['multi-tenant']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['multi-tenant'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMultiTenantKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['multi-tenant']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['multi-tenant'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

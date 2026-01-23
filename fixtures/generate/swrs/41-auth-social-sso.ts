@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -19,18 +19,22 @@ export function useGetSocialAuthorizeProvider(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.social.authorize)[':provider']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/social/authorize/:provider', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.social.authorize)[':provider']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.social.authorize[':provider'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSocialAuthorizeProviderKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.social.authorize)[':provider']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.social.authorize[':provider'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -55,18 +59,22 @@ export function useGetSocialCallbackProvider(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.social.callback)[':provider']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/social/callback/:provider', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.social.callback)[':provider']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.social.callback[':provider'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSocialCallbackProviderKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.social.callback)[':provider']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.social.callback[':provider'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -140,16 +148,21 @@ export function usePostSocialTokenNative(options?: {
  * 有効なプロバイダー一覧
  */
 export function useGetProviders(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.providers.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.providers.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/providers'] as const) : null
-  return useSWR<InferResponseType<typeof client.providers.$get>, Error>(
-    key,
-    async () => parseResponse(client.providers.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProvidersKey() : null)
+  const query = useSWR<InferResponseType<typeof client.providers.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.providers.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -165,16 +178,21 @@ export function getGetProvidersKey() {
  * 全プロバイダー一覧（管理用）
  */
 export function useGetProvidersAdmin(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.providers.admin.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.providers.admin.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/providers/admin'] as const) : null
-  return useSWR<InferResponseType<typeof client.providers.admin.$get>, Error>(
-    key,
-    async () => parseResponse(client.providers.admin.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProvidersAdminKey() : null)
+  const query = useSWR<InferResponseType<typeof client.providers.admin.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.providers.admin.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -221,17 +239,19 @@ export function useGetProvidersProviderId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.providers)[':providerId']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/providers/:providerId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.providers)[':providerId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.providers[':providerId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProvidersProviderIdKey(args) : null)
+  const query = useSWR<InferResponseType<(typeof client.providers)[':providerId']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client.providers[':providerId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -329,16 +349,21 @@ export function usePostProvidersProviderIdTest(options?: {
  * 連携アカウント一覧
  */
 export function useGetAccountLinked(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.account.linked.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.account.linked.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/account/linked'] as const) : null
-  return useSWR<InferResponseType<typeof client.account.linked.$get>, Error>(
-    key,
-    async () => parseResponse(client.account.linked.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAccountLinkedKey() : null)
+  const query = useSWR<InferResponseType<typeof client.account.linked.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.account.linked.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -410,16 +435,21 @@ export function useDeleteAccountLinkProvider(options?: {
  * エンタープライズSSO設定一覧
  */
 export function useGetEnterpriseSso(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.enterprise.sso.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.enterprise.sso.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/enterprise/sso'] as const) : null
-  return useSWR<InferResponseType<typeof client.enterprise.sso.$get>, Error>(
-    key,
-    async () => parseResponse(client.enterprise.sso.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEnterpriseSsoKey() : null)
+  const query = useSWR<InferResponseType<typeof client.enterprise.sso.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.enterprise.sso.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -466,18 +496,22 @@ export function useGetEnterpriseSsoConfigId(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/enterprise/sso/:configId', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.enterprise.sso[':configId'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEnterpriseSsoConfigIdKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.enterprise.sso[':configId'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -554,18 +588,22 @@ export function useGetEnterpriseSsoDomainLookup(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false ? (['GET', '/enterprise/sso/domain-lookup', args] as const) : null
-  return useSWR<InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>, Error>(
-    key,
-    async () => parseResponse(client.enterprise.sso['domain-lookup'].$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEnterpriseSsoDomainLookupKey(args) : null)
+  const query = useSWR<
+    InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+    Error
+  >(
+    swrKey,
+    async () => parseResponse(client.enterprise.sso['domain-lookup'].$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
@@ -590,24 +628,24 @@ export function useGetEnterpriseSsoConfigIdMetadata(
     swr?: SWRConfiguration<
       InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
       Error
-    >
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key =
-    options?.enabled !== false
-      ? (['GET', '/enterprise/sso/:configId/metadata', args] as const)
-      : null
-  return useSWR<
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? getGetEnterpriseSsoConfigIdMetadataKey(args) : null)
+  const query = useSWR<
     InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
     Error
   >(
-    key,
+    swrKey,
     async () =>
-      parseResponse(client.enterprise.sso[':configId'].metadata.$get(args, options?.client)),
-    options?.swr,
+      parseResponse(client.enterprise.sso[':configId'].metadata.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

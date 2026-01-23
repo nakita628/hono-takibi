@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -58,16 +58,21 @@ export function usePostEvents(options?: {
  * GET /configs
  */
 export function useGetConfigs(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.configs.$get>, Error>
+  swr?: SWRConfiguration<InferResponseType<typeof client.configs.$get>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/configs'] as const) : null
-  return useSWR<InferResponseType<typeof client.configs.$get>, Error>(
-    key,
-    async () => parseResponse(client.configs.$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetConfigsKey() : null)
+  const query = useSWR<InferResponseType<typeof client.configs.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.configs.$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

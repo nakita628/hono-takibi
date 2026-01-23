@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -10,16 +10,21 @@ import { client } from '../clients/21-extreme-status-content'
  * GET /extreme-responses
  */
 export function useGetExtremeResponses(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['extreme-responses']['$get']>, Error>
+  swr?: SWRConfiguration<InferResponseType<(typeof client)['extreme-responses']['$get']>, Error> & {
+    swrKey?: Key
+    enabled?: boolean
+  }
   client?: ClientRequestOptions
-  enabled?: boolean
 }) {
-  const key = options?.enabled !== false ? (['GET', '/extreme-responses'] as const) : null
-  return useSWR<InferResponseType<(typeof client)['extreme-responses']['$get']>, Error>(
-    key,
-    async () => parseResponse(client['extreme-responses'].$get(undefined, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetExtremeResponsesKey() : null)
+  const query = useSWR<InferResponseType<(typeof client)['extreme-responses']['$get']>, Error>(
+    swrKey,
+    async () => parseResponse(client['extreme-responses'].$get(undefined, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**

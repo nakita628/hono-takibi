@@ -1,6 +1,6 @@
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { SWRConfiguration } from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
 import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
@@ -40,17 +40,22 @@ export function usePostPolymorphic(options?: {
 export function useGetSearch(
   args: InferRequestType<typeof client.search.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.search.$get>, Error>
+    swr?: SWRConfiguration<InferResponseType<typeof client.search.$get>, Error> & {
+      swrKey?: Key
+      enabled?: boolean
+    }
     client?: ClientRequestOptions
-    enabled?: boolean
   },
 ) {
-  const key = options?.enabled !== false ? (['GET', '/search', args] as const) : null
-  return useSWR<InferResponseType<typeof client.search.$get>, Error>(
-    key,
-    async () => parseResponse(client.search.$get(args, options?.client)),
-    options?.swr,
+  const { swr: swrOptions, client: clientOptions } = options ?? {}
+  const isEnabled = swrOptions?.enabled !== false
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSearchKey(args) : null)
+  const query = useSWR<InferResponseType<typeof client.search.$get>, Error>(
+    swrKey,
+    async () => parseResponse(client.search.$get(args, clientOptions)),
+    swrOptions,
   )
+  return { swrKey, ...query }
 }
 
 /**
