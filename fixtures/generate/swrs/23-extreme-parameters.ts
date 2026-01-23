@@ -1,7 +1,7 @@
-import useSWR from 'swr'
-import type { SWRConfiguration } from 'swr'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { SWRConfiguration } from 'swr'
+import useSWR from 'swr'
 import { client } from '../clients/23-extreme-parameters'
 
 /**
