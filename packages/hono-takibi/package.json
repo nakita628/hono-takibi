@@ -56,6 +56,10 @@
       "types": "./dist/core/svelte-query/index.d.ts",
       "import": "./dist/core/svelte-query/index.js"
     },
+    "./vue-query": {
+      "types": "./dist/core/vue-query/index.d.ts",
+      "import": "./dist/core/vue-query/index.js"
+    },
     "./type": {
       "types": "./dist/core/type/index.d.ts",
       "import": "./dist/core/type/index.js"

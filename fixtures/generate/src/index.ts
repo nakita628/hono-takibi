@@ -6,6 +6,7 @@ import { svelteQuery } from 'hono-takibi/svelte-query'
 import { swr } from 'hono-takibi/swr'
 import { tanstackQuery } from 'hono-takibi/tanstack-query'
 import { type as generateType } from 'hono-takibi/type'
+import { vueQuery } from 'hono-takibi/vue-query'
 import {
   __dirname,
   getOpenAPIFiles,
@@ -69,8 +70,10 @@ async function main() {
 
   console.log(`${routeResults.length} routes generated successfully`)
 
-  // Type, Client, RPC, SWR, TanStack Query, Svelte Query generation (parallel)
-  console.log('Generating types, clients, rpcs, swrs, tanstack-querys, and svelte-querys...')
+  // Type, Client, RPC, SWR, TanStack Query, Svelte Query, Vue Query generation (parallel)
+  console.log(
+    'Generating types, clients, rpcs, swrs, tanstack-querys, svelte-querys, and vue-querys...',
+  )
   const generateResults = await Promise.all(
     files.map(async (file) => {
       const baseName = file.replace(/\.(yaml|json|tsp)$/i, '')
@@ -136,6 +139,22 @@ async function main() {
         }
       }
 
+      // Generate Vue Query hooks file
+      const vueQueryOutput = join(__dirname, '../vue-querys', `${baseName}.ts`)
+      const vueQueryResult = await vueQuery(
+        openAPI,
+        vueQueryOutput,
+        `../clients/${baseName}`,
+        false,
+      )
+      if (!vueQueryResult.ok) {
+        return {
+          file,
+          success: false,
+          error: `Vue Query generation error: ${vueQueryResult.error}`,
+        }
+      }
+
       // Generate Client file with simple hc pattern
       const clientOutput = join(__dirname, '../clients', `${baseName}.ts`)
       const clientCode = `import { hc } from 'hono/client'
@@ -156,7 +175,7 @@ export const client = hc<typeof routes>('/')
   printFailures(
     genFailures,
     generateResults.length,
-    'type/rpc/swr/tanstack-query/svelte-query files',
+    'type/rpc/swr/tanstack-query/svelte-query/vue-query files',
   )
 
   if (genFailures.length > 0) {
@@ -164,7 +183,7 @@ export const client = hc<typeof routes>('/')
   }
 
   console.log(
-    `${generateResults.length} type/rpc/swr/tanstack-query/svelte-query sets generated successfully`,
+    `${generateResults.length} type/rpc/swr/tanstack-query/svelte-query/vue-query sets generated successfully`,
   )
 }
 
