@@ -44,6 +44,10 @@
       "types": "./dist/core/rpc/index.d.ts",
       "import": "./dist/core/rpc/index.js"
     },
+    "./swr": {
+      "types": "./dist/core/swr/index.d.ts",
+      "import": "./dist/core/swr/index.js"
+    },
     "./type": {
       "types": "./dist/core/type/index.d.ts",
       "import": "./dist/core/type/index.js"
