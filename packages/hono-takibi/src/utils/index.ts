@@ -114,29 +114,11 @@ export const requestParamsArray = (parameters: {
     })
 
 /**
- * Converts a string to a safe TypeScript object key.
- *
- * @param text - The string to convert to a safe identifier.
- * @returns A safe identifier string.
- *
- * @example
- * ```ts
- * getToSafeIdentifier('user')        // → 'user'
- * getToSafeIdentifier('_id')         // → '_id'
- * getToSafeIdentifier('123key')      // → '"123key"'
- * getToSafeIdentifier('hello world') // → '"hello world"'
- * getToSafeIdentifier('if')          // → 'if'
- * ```
- */
-export function getToSafeIdentifier(text: string): string {
-  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(text) ? text : JSON.stringify(text)
-}
-
-/**
  * Converts a string to a safe TypeScript object key with single quotes.
  *
- * Similar to `getToSafeIdentifier`, but uses single quotes instead of
- * double quotes for invalid identifiers.
+ * Returns the key as-is if it's a valid JavaScript identifier.
+ * Otherwise, wraps it in single quotes with proper escaping for
+ * backslashes, single quotes, newlines, carriage returns, and tabs.
  *
  * @param key - The string to convert to a safe key.
  * @returns A safe key string with single quotes if needed.
@@ -147,10 +129,19 @@ export function getToSafeIdentifier(text: string): string {
  * makeSafeKey('_id')         // → '_id'
  * makeSafeKey('123key')      // → "'123key'"
  * makeSafeKey('hello world') // → "'hello world'"
+ * makeSafeKey("it's")        // → "'it\\'s'"
+ * makeSafeKey('line\nbreak') // → "'line\\nbreak'"
  * ```
  */
 export function makeSafeKey(key: string): string {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`
+  if (/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key)) return key
+  const escaped = key
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t')
+  return `'${escaped}'`
 }
 
 /**

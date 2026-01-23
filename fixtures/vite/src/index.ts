@@ -45,6 +45,6 @@ if (process.env.NODE_ENV === 'development') {
     .get('/ui', swaggerUI({ url: '/doc' }))
 }
 
-export type AddType = typeof api
+export type AppType = typeof api
 
 export default app

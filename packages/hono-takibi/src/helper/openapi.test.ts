@@ -753,7 +753,7 @@ describe('openapi helper', () => {
         undefined,
       )
       expect(result).toBe(
-        `{headers:z.object({"X-Api-Key":z.string().exactOptional().openapi({param:{"name":"X-Api-Key","in":"header","schema":{"type":"string"}}})})}`,
+        `{headers:z.object({'X-Api-Key':z.string().exactOptional().openapi({param:{"name":"X-Api-Key","in":"header","schema":{"type":"string"}}})})}`,
       )
     })
     it.concurrent('generates request with multiple parameter types', () => {
@@ -788,7 +788,7 @@ describe('openapi helper', () => {
         { name: 'X-Token', in: 'header', schema: { type: 'string' } },
       ])
       expect(result).toBe(
-        `headers:z.object({"X-Token":z.string().exactOptional().openapi({param:{"name":"X-Token","in":"header","schema":{"type":"string"}}})})`,
+        `headers:z.object({'X-Token':z.string().exactOptional().openapi({param:{"name":"X-Token","in":"header","schema":{"type":"string"}}})})`,
       )
     })
     it.concurrent('generates cookie for cookie parameter', () => {

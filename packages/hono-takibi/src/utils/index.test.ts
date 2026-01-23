@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   ensureSuffix,
-  getToSafeIdentifier,
   isHttpMethod,
   isRecord,
   lowerFirst,
@@ -142,44 +141,32 @@ describe('utils', () => {
       expect(requestParamsArray(input)).toStrictEqual(expected)
     })
   })
-  // getToSafeIdentifier
-  describe('getToSafeIdentifier', () => {
-    it.concurrent.each([
-      ['validName', 'validName'],
-      ['_underscore', '_underscore'],
-      ['$dollar', '$dollar'],
-      ['camelCase123', 'camelCase123'],
-      ['has space', '"has space"'],
-      ['invalid-name', '"invalid-name"'],
-      ['123startWithNumber', '"123startWithNumber"'],
-      ['has.dot', '"has.dot"'],
-      ['hyphen-ated', '"hyphen-ated"'],
-      ['class', 'class'],
-      ['function', 'function'],
-      ['', '""'],
-      [' ', '" "'],
-      ['-', '"-"'],
-    ])(`getToSafeIdentifier('%s') -> '%s'`, (input, expected) => {
-      expect(getToSafeIdentifier(input)).toBe(expected)
-    })
-  })
   // makeSafeKey
   describe('makeSafeKey', () => {
     it.concurrent.each([
+      // Valid identifiers (returned as-is)
       ['validName', 'validName'],
       ['_underscore', '_underscore'],
       ['$dollar', '$dollar'],
       ['camelCase123', 'camelCase123'],
+      ['class', 'class'],
+      ['function', 'function'],
+      // Invalid identifiers (wrapped in single quotes)
       ['has space', "'has space'"],
       ['invalid-name', "'invalid-name'"],
       ['123startWithNumber', "'123startWithNumber'"],
       ['has.dot', "'has.dot'"],
       ['hyphen-ated', "'hyphen-ated'"],
-      ['class', 'class'],
-      ['function', 'function'],
       ['', "''"],
       [' ', "' '"],
       ['-', "'-'"],
+      // Escape handling
+      ["it's", "'it\\'s'"],
+      ['line\nbreak', "'line\\nbreak'"],
+      ['tab\there', "'tab\\there'"],
+      ['return\rhere', "'return\\rhere'"],
+      ['back\\slash', "'back\\\\slash'"],
+      ["quote'and\\slash", "'quote\\'and\\\\slash'"],
     ])(`makeSafeKey('%s') -> '%s'`, (input, expected) => {
       expect(makeSafeKey(input)).toBe(expected)
     })
