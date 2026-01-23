@@ -35,8 +35,8 @@ export function useGetApiKeys(
 /**
  * Generates SWR cache key for GET /api-keys
  */
-export function getGetApiKeysKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
-  return ['GET', '/api-keys', args] as const
+export function getGetApiKeysKey(args?: InferRequestType<(typeof client)['api-keys']['$get']>) {
+  return ['/api-keys', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -95,9 +95,9 @@ export function useGetApiKeysKeyId(
  * Generates SWR cache key for GET /api-keys/{keyId}
  */
 export function getGetApiKeysKeyIdKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
 ) {
-  return ['GET', '/api-keys/:keyId', args] as const
+  return ['/api-keys/:keyId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -239,9 +239,9 @@ export function useGetApiKeysKeyIdUsage(
  * Generates SWR cache key for GET /api-keys/{keyId}/usage
  */
 export function getGetApiKeysKeyIdUsageKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
 ) {
-  return ['GET', '/api-keys/:keyId/usage', args] as const
+  return ['/api-keys/:keyId/usage', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -279,9 +279,9 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
  * Generates SWR cache key for GET /api-keys/{keyId}/rate-limit/current
  */
 export function getGetApiKeysKeyIdRateLimitCurrentKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  return ['GET', '/api-keys/:keyId/rate-limit/current', args] as const
+  return ['/api-keys/:keyId/rate-limit/current', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -337,5 +337,5 @@ export function useGetScopes(options?: {
  * Generates SWR cache key for GET /scopes
  */
 export function getGetScopesKey() {
-  return ['GET', '/scopes'] as const
+  return ['/scopes'] as const
 }

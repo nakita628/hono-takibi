@@ -37,9 +37,9 @@ export function useGetUsersUserId(
  * Generates TanStack Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['GET', '/users/:userId', args] as const
+  return ['/users/:userId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -79,9 +79,9 @@ export function useGetUsersByUsernameUsername(
  * Generates TanStack Query cache key for GET /users/by/username/{username}
  */
 export function getGetUsersByUsernameUsernameQueryKey(
-  args: InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
+  args?: InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
 ) {
-  return ['GET', '/users/by/username/:username', args] as const
+  return ['/users/by/username/:username', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -116,8 +116,10 @@ export function useGetUsersSearch(
 /**
  * Generates TanStack Query cache key for GET /users/search
  */
-export function getGetUsersSearchQueryKey(args: InferRequestType<typeof client.users.search.$get>) {
-  return ['GET', '/users/search', args] as const
+export function getGetUsersSearchQueryKey(
+  args?: InferRequestType<typeof client.users.search.$get>,
+) {
+  return ['/users/search', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -152,8 +154,10 @@ export function useGetUsersLookup(
 /**
  * Generates TanStack Query cache key for GET /users/lookup
  */
-export function getGetUsersLookupQueryKey(args: InferRequestType<typeof client.users.lookup.$get>) {
-  return ['GET', '/users/lookup', args] as const
+export function getGetUsersLookupQueryKey(
+  args?: InferRequestType<typeof client.users.lookup.$get>,
+) {
+  return ['/users/lookup', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -188,7 +192,7 @@ export function useGetMe(
  * Generates TanStack Query cache key for GET /me
  */
 export function getGetMeQueryKey() {
-  return ['GET', '/me'] as const
+  return ['/me'] as const
 }
 
 /**
@@ -425,9 +429,9 @@ export function useGetUsersUserIdFollowers(
  * Generates TanStack Query cache key for GET /users/{userId}/followers
  */
 export function getGetUsersUserIdFollowersQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
 ) {
-  return ['GET', '/users/:userId/followers', args] as const
+  return ['/users/:userId/followers', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -467,9 +471,9 @@ export function useGetUsersUserIdFollowing(
  * Generates TanStack Query cache key for GET /users/{userId}/following
  */
 export function getGetUsersUserIdFollowingQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
 ) {
-  return ['GET', '/users/:userId/following', args] as const
+  return ['/users/:userId/following', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -538,9 +542,9 @@ export function useGetRelationships(
  * Generates TanStack Query cache key for GET /relationships
  */
 export function getGetRelationshipsQueryKey(
-  args: InferRequestType<typeof client.relationships.$get>,
+  args?: InferRequestType<typeof client.relationships.$get>,
 ) {
-  return ['GET', '/relationships', args] as const
+  return ['/relationships', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -578,9 +582,9 @@ export function useGetFollowRequests(
  * Generates TanStack Query cache key for GET /follow-requests
  */
 export function getGetFollowRequestsQueryKey(
-  args: InferRequestType<(typeof client)['follow-requests']['$get']>,
+  args?: InferRequestType<(typeof client)['follow-requests']['$get']>,
 ) {
-  return ['GET', '/follow-requests', args] as const
+  return ['/follow-requests', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -797,8 +801,8 @@ export function useGetBlocks(
 /**
  * Generates TanStack Query cache key for GET /blocks
  */
-export function getGetBlocksQueryKey(args: InferRequestType<typeof client.blocks.$get>) {
-  return ['GET', '/blocks', args] as const
+export function getGetBlocksQueryKey(args?: InferRequestType<typeof client.blocks.$get>) {
+  return ['/blocks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -833,8 +837,8 @@ export function useGetMutes(
 /**
  * Generates TanStack Query cache key for GET /mutes
  */
-export function getGetMutesQueryKey(args: InferRequestType<typeof client.mutes.$get>) {
-  return ['GET', '/mutes', args] as const
+export function getGetMutesQueryKey(args?: InferRequestType<typeof client.mutes.$get>) {
+  return ['/mutes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -869,7 +873,7 @@ export function useGetLists(
  * Generates TanStack Query cache key for GET /lists
  */
 export function getGetListsQueryKey() {
-  return ['GET', '/lists'] as const
+  return ['/lists'] as const
 }
 
 /**
@@ -934,9 +938,9 @@ export function useGetListsListId(
  * Generates TanStack Query cache key for GET /lists/{listId}
  */
 export function getGetListsListIdQueryKey(
-  args: InferRequestType<(typeof client.lists)[':listId']['$get']>,
+  args?: InferRequestType<(typeof client.lists)[':listId']['$get']>,
 ) {
-  return ['GET', '/lists/:listId', args] as const
+  return ['/lists/:listId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1035,9 +1039,9 @@ export function useGetListsListIdMembers(
  * Generates TanStack Query cache key for GET /lists/{listId}/members
  */
 export function getGetListsListIdMembersQueryKey(
-  args: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
+  args?: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
 ) {
-  return ['GET', '/lists/:listId/members', args] as const
+  return ['/lists/:listId/members', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1139,9 +1143,9 @@ export function useGetListsListIdTimeline(
  * Generates TanStack Query cache key for GET /lists/{listId}/timeline
  */
 export function getGetListsListIdTimelineQueryKey(
-  args: InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
+  args?: InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
 ) {
-  return ['GET', '/lists/:listId/timeline', args] as const
+  return ['/lists/:listId/timeline', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1177,7 +1181,7 @@ export function useGetUsersUserIdLists(
  * Generates TanStack Query cache key for GET /users/{userId}/lists
  */
 export function getGetUsersUserIdListsQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,
 ) {
-  return ['GET', '/users/:userId/lists', args] as const
+  return ['/users/:userId/lists', ...(args ? [args] : [])] as const
 }

@@ -89,7 +89,7 @@ export function useGetHono(
  * Generates TanStack Query cache key for GET /hono
  */
 export function getGetHonoQueryKey() {
-  return ['GET', '/hono'] as const
+  return ['/hono'] as const
 }
 
 /**
@@ -126,8 +126,8 @@ export function useGetUsers(
 /**
  * Generates TanStack Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['GET', '/users', args] as const
+export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
+  return ['/users', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -234,7 +234,7 @@ export function useGetHono(
  * Generates TanStack Query cache key for GET /hono
  */
 export function getGetHonoQueryKey() {
-  return ['GET', '/hono'] as const
+  return ['/hono'] as const
 }
 `
       expect(useGetHono).toBe(useGetHonoExpected)
@@ -281,8 +281,8 @@ export function useGetUsers(
 /**
  * Generates TanStack Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['GET', '/users', args] as const
+export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
+  return ['/users', ...(args ? [args] : [])] as const
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
@@ -401,7 +401,7 @@ export function useGetUsers(
  * Generates TanStack Query cache key for GET /users
  */
 export function getGetUsersQueryKey() {
-  return ['GET', '/users'] as const
+  return ['/users'] as const
 }
 `
       expect(code).toBe(expected)
@@ -479,7 +479,7 @@ export function useGetPing(
  * Generates TanStack Query cache key for GET /ping
  */
 export function getGetPingQueryKey() {
-  return ['GET', '/ping'] as const
+  return ['/ping'] as const
 }
 
 /**
@@ -577,7 +577,7 @@ export function useGetHonoX(
  * Generates TanStack Query cache key for GET /hono-x
  */
 export function getGetHonoXQueryKey() {
-  return ['GET', '/hono-x'] as const
+  return ['/hono-x'] as const
 }
 `
       expect(code).toBe(expected)
@@ -657,9 +657,9 @@ export function useGetUsersId(
  * Generates TanStack Query cache key for GET /users/{id}
  */
 export function getGetUsersIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['GET', '/users/:id', args] as const
+  return ['/users/:id', ...(args ? [args] : [])] as const
 }
 
 /**

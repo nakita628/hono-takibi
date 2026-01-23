@@ -36,8 +36,8 @@ export function useGetFiles(
 /**
  * Generates TanStack Query cache key for GET /files
  */
-export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$get>) {
-  return ['GET', '/files', args] as const
+export function getGetFilesQueryKey(args?: InferRequestType<typeof client.files.$get>) {
+  return ['/files', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -200,9 +200,9 @@ export function useGetFilesFileId(
  * Generates TanStack Query cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return ['GET', '/files/:fileId', args] as const
+  return ['/files/:fileId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -302,9 +302,9 @@ export function useGetFilesFileIdDownload(
  * Generates TanStack Query cache key for GET /files/{fileId}/download
  */
 export function getGetFilesFileIdDownloadQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
 ) {
-  return ['GET', '/files/:fileId/download', args] as const
+  return ['/files/:fileId/download', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -344,9 +344,9 @@ export function useGetFilesFileIdDownloadUrl(
  * Generates TanStack Query cache key for GET /files/{fileId}/download-url
  */
 export function getGetFilesFileIdDownloadUrlQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  return ['GET', '/files/:fileId/download-url', args] as const
+  return ['/files/:fileId/download-url', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -446,9 +446,9 @@ export function useGetFilesFileIdThumbnail(
  * Generates TanStack Query cache key for GET /files/{fileId}/thumbnail
  */
 export function getGetFilesFileIdThumbnailQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
 ) {
-  return ['GET', '/files/:fileId/thumbnail', args] as const
+  return ['/files/:fileId/thumbnail', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -513,9 +513,9 @@ export function useGetFoldersFolderId(
  * Generates TanStack Query cache key for GET /folders/{folderId}
  */
 export function getGetFoldersFolderIdQueryKey(
-  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+  args?: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
 ) {
-  return ['GET', '/folders/:folderId', args] as const
+  return ['/folders/:folderId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -611,9 +611,9 @@ export function useGetFilesFileIdShare(
  * Generates TanStack Query cache key for GET /files/{fileId}/share
  */
 export function getGetFilesFileIdShareQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
 ) {
-  return ['GET', '/files/:fileId/share', args] as const
+  return ['/files/:fileId/share', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -743,9 +743,9 @@ export function useGetFilesFileIdVersions(
  * Generates TanStack Query cache key for GET /files/{fileId}/versions
  */
 export function getGetFilesFileIdVersionsQueryKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
 ) {
-  return ['GET', '/files/:fileId/versions', args] as const
+  return ['/files/:fileId/versions', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -820,8 +820,8 @@ export function useGetTrash(
 /**
  * Generates TanStack Query cache key for GET /trash
  */
-export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$get>) {
-  return ['GET', '/trash', args] as const
+export function getGetTrashQueryKey(args?: InferRequestType<typeof client.trash.$get>) {
+  return ['/trash', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -911,5 +911,5 @@ export function useGetStorageUsage(
  * Generates TanStack Query cache key for GET /storage/usage
  */
 export function getGetStorageUsageQueryKey() {
-  return ['GET', '/storage/usage'] as const
+  return ['/storage/usage'] as const
 }

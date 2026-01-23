@@ -33,8 +33,8 @@ export function useGetUsers(
 /**
  * Generates SWR cache key for GET /users
  */
-export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['GET', '/users', args] as const
+export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>) {
+  return ['/users', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -89,9 +89,9 @@ export function useGetUsersUserId(
  * Generates SWR cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['GET', '/users/:userId', args] as const
+  return ['/users/:userId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -149,9 +149,9 @@ export function useGetProductsProductIdVariants(
  * Generates SWR cache key for GET /products/{productId}/variants
  */
 export function getGetProductsProductIdVariantsKey(
-  args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
+  args?: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
 ) {
-  return ['GET', '/products/:productId/variants', args] as const
+  return ['/products/:productId/variants', ...(args ? [args] : [])] as const
 }
 
 /**

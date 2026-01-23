@@ -79,7 +79,7 @@ export function useGetConfigs(options?: {
  * Generates SWR cache key for GET /configs
  */
 export function getGetConfigsKey() {
-  return ['GET', '/configs'] as const
+  return ['/configs'] as const
 }
 
 /**

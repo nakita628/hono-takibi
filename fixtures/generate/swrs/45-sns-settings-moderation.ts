@@ -33,7 +33,7 @@ export function useGetSettingsAccount(options?: {
  * Generates SWR cache key for GET /settings/account
  */
 export function getGetSettingsAccountKey() {
-  return ['GET', '/settings/account'] as const
+  return ['/settings/account'] as const
 }
 
 /**
@@ -92,9 +92,9 @@ export function useGetSettingsUsernameCheck(
  * Generates SWR cache key for GET /settings/username/check
  */
 export function getGetSettingsUsernameCheckKey(
-  args: InferRequestType<typeof client.settings.username.check.$get>,
+  args?: InferRequestType<typeof client.settings.username.check.$get>,
 ) {
-  return ['GET', '/settings/username/check', args] as const
+  return ['/settings/username/check', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -124,7 +124,7 @@ export function useGetSettingsPrivacy(options?: {
  * Generates SWR cache key for GET /settings/privacy
  */
 export function getGetSettingsPrivacyKey() {
-  return ['GET', '/settings/privacy'] as const
+  return ['/settings/privacy'] as const
 }
 
 /**
@@ -184,7 +184,7 @@ export function useGetSettingsContentPreferences(options?: {
  * Generates SWR cache key for GET /settings/content-preferences
  */
 export function getGetSettingsContentPreferencesKey() {
-  return ['GET', '/settings/content-preferences'] as const
+  return ['/settings/content-preferences'] as const
 }
 
 /**
@@ -241,7 +241,7 @@ export function useGetSettingsMutedWords(options?: {
  * Generates SWR cache key for GET /settings/muted-words
  */
 export function getGetSettingsMutedWordsKey() {
-  return ['GET', '/settings/muted-words'] as const
+  return ['/settings/muted-words'] as const
 }
 
 /**
@@ -324,7 +324,7 @@ export function useGetSettingsSessions(options?: {
  * Generates SWR cache key for GET /settings/sessions
  */
 export function getGetSettingsSessionsKey() {
-  return ['GET', '/settings/sessions'] as const
+  return ['/settings/sessions'] as const
 }
 
 /**
@@ -384,7 +384,7 @@ export function useGetSettingsConnectedApps(options?: {
  * Generates SWR cache key for GET /settings/connected-apps
  */
 export function getGetSettingsConnectedAppsKey() {
-  return ['GET', '/settings/connected-apps'] as const
+  return ['/settings/connected-apps'] as const
 }
 
 /**
@@ -475,9 +475,9 @@ export function useGetSettingsDataExportRequestId(
  * Generates SWR cache key for GET /settings/data-export/{requestId}
  */
 export function getGetSettingsDataExportRequestIdKey(
-  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+  args?: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
 ) {
-  return ['GET', '/settings/data-export/:requestId', args] as const
+  return ['/settings/data-export/:requestId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -562,9 +562,9 @@ export function useGetReportsReportId(
  * Generates SWR cache key for GET /reports/{reportId}
  */
 export function getGetReportsReportIdKey(
-  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+  args?: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
 ) {
-  return ['GET', '/reports/:reportId', args] as const
+  return ['/reports/:reportId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -599,9 +599,9 @@ export function useGetModerationQueue(
  * Generates SWR cache key for GET /moderation/queue
  */
 export function getGetModerationQueueKey(
-  args: InferRequestType<typeof client.moderation.queue.$get>,
+  args?: InferRequestType<typeof client.moderation.queue.$get>,
 ) {
-  return ['GET', '/moderation/queue', args] as const
+  return ['/moderation/queue', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -637,9 +637,9 @@ export function useGetModerationItemsItemId(
  * Generates SWR cache key for GET /moderation/items/{itemId}
  */
 export function getGetModerationItemsItemIdKey(
-  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
+  args?: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
 ) {
-  return ['GET', '/moderation/items/:itemId', args] as const
+  return ['/moderation/items/:itemId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -703,9 +703,9 @@ export function useGetModerationUsersUserIdHistory(
  * Generates SWR cache key for GET /moderation/users/{userId}/history
  */
 export function getGetModerationUsersUserIdHistoryKey(
-  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+  args?: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
 ) {
-  return ['GET', '/moderation/users/:userId/history', args] as const
+  return ['/moderation/users/:userId/history', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -795,9 +795,9 @@ export function useGetAnalyticsPostsPostId(
  * Generates SWR cache key for GET /analytics/posts/{postId}
  */
 export function getGetAnalyticsPostsPostIdKey(
-  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+  args?: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
 ) {
-  return ['GET', '/analytics/posts/:postId', args] as const
+  return ['/analytics/posts/:postId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -830,9 +830,9 @@ export function useGetAnalyticsAccount(
  * Generates SWR cache key for GET /analytics/account
  */
 export function getGetAnalyticsAccountKey(
-  args: InferRequestType<typeof client.analytics.account.$get>,
+  args?: InferRequestType<typeof client.analytics.account.$get>,
 ) {
-  return ['GET', '/analytics/account', args] as const
+  return ['/analytics/account', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -865,9 +865,9 @@ export function useGetAnalyticsFollowers(
  * Generates SWR cache key for GET /analytics/followers
  */
 export function getGetAnalyticsFollowersKey(
-  args: InferRequestType<typeof client.analytics.followers.$get>,
+  args?: InferRequestType<typeof client.analytics.followers.$get>,
 ) {
-  return ['GET', '/analytics/followers', args] as const
+  return ['/analytics/followers', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -900,7 +900,7 @@ export function useGetAnalyticsTopPosts(
  * Generates SWR cache key for GET /analytics/top-posts
  */
 export function getGetAnalyticsTopPostsKey(
-  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
+  args?: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
 ) {
-  return ['GET', '/analytics/top-posts', args] as const
+  return ['/analytics/top-posts', ...(args ? [args] : [])] as const
 }

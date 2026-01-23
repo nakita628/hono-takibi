@@ -33,5 +33,5 @@ export function useGetString(options?: {
  * Generates SWR cache key for GET /string
  */
 export function getGetStringKey() {
-  return ['GET', '/string'] as const
+  return ['/string'] as const
 }

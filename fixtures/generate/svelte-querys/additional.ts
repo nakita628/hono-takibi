@@ -1,0 +1,39 @@
+import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../clients/additional'
+
+/**
+ * GET /passthrough
+ *
+ * zod passthrough
+ *
+ * zod passthrough
+ */
+export function createGetPassthrough(
+  options?: {
+    query?: CreateQueryOptions<InferResponseType<typeof client.passthrough.$get>, Error>
+    client?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const queryKey = getGetPassthroughQueryKey()
+  const query = createQuery(
+    {
+      ...queryOptions,
+      queryKey,
+      queryFn: async () => parseResponse(client.passthrough.$get(undefined, clientOptions)),
+    },
+    queryClient,
+  )
+  return { ...query, queryKey }
+}
+
+/**
+ * Generates Svelte Query cache key for GET /passthrough
+ */
+export function getGetPassthroughQueryKey() {
+  return ['/passthrough'] as const
+}

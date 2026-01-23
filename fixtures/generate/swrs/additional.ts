@@ -33,5 +33,5 @@ export function useGetPassthrough(options?: {
  * Generates SWR cache key for GET /passthrough
  */
 export function getGetPassthroughKey() {
-  return ['GET', '/passthrough'] as const
+  return ['/passthrough'] as const
 }

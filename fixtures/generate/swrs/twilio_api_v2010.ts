@@ -41,9 +41,9 @@ export function useGet20100401AccountsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts.json
  */
 export function getGet20100401AccountsJsonKey(
-  args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
+  args?: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
 ) {
-  return ['GET', '/2010-04-01/Accounts.json', args] as const
+  return ['/2010-04-01/Accounts.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -110,9 +110,9 @@ export function useGet20100401AccountsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{Sid}.json
  */
 export function getGet20100401AccountsSidJsonKey(
-  args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
+  args?: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -186,11 +186,11 @@ export function useGet20100401AccountsAccountSidAddressesJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
  */
 export function getGet20100401AccountsAccountSidAddressesJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Addresses.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Addresses.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -273,11 +273,11 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidAddressesSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -402,11 +402,11 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
  */
 export function getGet20100401AccountsAccountSidApplicationsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Applications.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Applications.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -500,11 +500,14 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidApplicationsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -641,14 +644,13 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid}.json
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps/:ConnectAppSid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -701,11 +703,14 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -753,11 +758,14 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -806,14 +814,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -863,14 +870,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Local.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -922,14 +928,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/MachineToMachine.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -979,14 +984,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Mobile.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1036,14 +1040,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/National.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1093,14 +1096,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/SharedCost.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1150,14 +1152,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/TollFree.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1207,14 +1208,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Voip.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1263,11 +1263,11 @@ export function useGet20100401AccountsAccountSidBalanceJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
  */
 export function getGet20100401AccountsAccountSidBalanceJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Balance.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Balance.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1315,11 +1315,11 @@ export function useGet20100401AccountsAccountSidCallsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
  */
 export function getGet20100401AccountsAccountSidCallsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Calls.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Calls.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1406,11 +1406,11 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidCallsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1543,11 +1543,14 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -1594,14 +1597,13 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1650,14 +1652,13 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1710,11 +1711,14 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -1808,14 +1812,13 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1950,11 +1953,14 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidConferencesSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -2041,11 +2047,11 @@ export function useGet20100401AccountsAccountSidConferencesJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
  */
 export function getGet20100401AccountsAccountSidConferencesJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Conferences.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Conferences.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2098,14 +2104,13 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2159,14 +2164,13 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2301,11 +2305,14 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidConnectAppsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -2438,11 +2445,11 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
  */
 export function getGet20100401AccountsAccountSidConnectAppsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/ConnectApps.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/ConnectApps.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2491,14 +2498,13 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
  */
 export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Addresses/:AddressSid/DependentPhoneNumbers.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2551,11 +2557,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -2691,11 +2700,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -2792,14 +2804,13 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2894,14 +2905,13 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2998,14 +3008,13 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3061,14 +3070,13 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3117,11 +3125,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -3207,11 +3218,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -3297,14 +3311,13 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3387,11 +3400,11 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidKeysSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3508,11 +3521,11 @@ export function useGet20100401AccountsAccountSidKeysJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
  */
 export function getGet20100401AccountsAccountSidKeysJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Keys.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Keys.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3594,14 +3607,13 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3695,11 +3707,14 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -3750,14 +3765,13 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid}.json
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3851,11 +3865,14 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -3903,11 +3920,11 @@ export function useGet20100401AccountsAccountSidMessagesJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
  */
 export function getGet20100401AccountsAccountSidMessagesJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Messages.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Messages.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3998,11 +4015,11 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidMessagesSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4173,11 +4190,11 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
  */
 export function getGet20100401AccountsAccountSidSigningKeysJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SigningKeys.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4271,11 +4288,14 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidNotificationsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -4327,11 +4347,11 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
  */
 export function getGet20100401AccountsAccountSidNotificationsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Notifications.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Notifications.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4383,11 +4403,14 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -4523,11 +4546,14 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -4618,14 +4644,13 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid}.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -4761,14 +4786,13 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -4939,11 +4963,11 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidQueuesSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5075,11 +5099,11 @@ export function useGet20100401AccountsAccountSidQueuesJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
  */
 export function getGet20100401AccountsAccountSidQueuesJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Queues.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Queues.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5253,11 +5277,11 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidRecordingsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5348,11 +5372,11 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
  */
 export function getGet20100401AccountsAccountSidRecordingsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Recordings.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Recordings.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5405,14 +5429,13 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5507,14 +5530,13 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5570,14 +5592,13 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5674,14 +5695,13 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5737,14 +5757,13 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:PayloadSid/Data.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5794,14 +5813,13 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5888,14 +5906,13 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5948,11 +5965,14 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -6046,11 +6066,11 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -6098,11 +6118,14 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSigningKeysSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -6233,14 +6256,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6337,14 +6359,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6441,14 +6462,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6545,14 +6565,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6649,14 +6668,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6753,14 +6771,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6855,14 +6872,13 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6959,14 +6975,13 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7101,11 +7116,14 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -7199,11 +7217,14 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -7340,14 +7361,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7442,14 +7462,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7540,11 +7559,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -7638,11 +7657,14 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -7778,11 +7800,14 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -7876,14 +7901,13 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8023,14 +8047,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8125,14 +8148,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8229,14 +8251,13 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8333,14 +8354,13 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8682,11 +8702,14 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -8780,11 +8803,11 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
  */
 export function getGet20100401AccountsAccountSidTranscriptionsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Transcriptions.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Transcriptions.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -8836,11 +8859,11 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -8888,11 +8911,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -8940,11 +8966,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -8992,11 +9021,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9044,11 +9076,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9096,11 +9131,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9148,11 +9186,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9200,11 +9241,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9252,11 +9296,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9308,11 +9355,14 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9444,11 +9494,11 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
  */
 export function getGet20100401AccountsAccountSidUsageTriggersJsonKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json', ...(args ? [args] : [])] as const
 }
 
 /**

@@ -38,5 +38,5 @@ export function useGetPassthrough(
  * Generates TanStack Query cache key for GET /passthrough
  */
 export function getGetPassthroughQueryKey() {
-  return ['GET', '/passthrough'] as const
+  return ['/passthrough'] as const
 }

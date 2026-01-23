@@ -34,5 +34,5 @@ export function useGetCategories(
  * Generates TanStack Query cache key for GET /categories
  */
 export function getGetCategoriesQueryKey() {
-  return ['GET', '/categories'] as const
+  return ['/categories'] as const
 }

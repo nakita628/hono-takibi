@@ -33,5 +33,5 @@ export function useGetPrimitive(options?: {
  * Generates SWR cache key for GET /primitive
  */
 export function getGetPrimitiveKey() {
-  return ['GET', '/primitive'] as const
+  return ['/primitive'] as const
 }

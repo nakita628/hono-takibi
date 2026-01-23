@@ -36,7 +36,7 @@ export function useGetStream(
  * Generates TanStack Query cache key for GET /stream
  */
 export function getGetStreamQueryKey() {
-  return ['GET', '/stream'] as const
+  return ['/stream'] as const
 }
 
 /**
@@ -135,5 +135,5 @@ export function useGetDeprecatedEndpoint(
  * Generates TanStack Query cache key for GET /deprecated-endpoint
  */
 export function getGetDeprecatedEndpointQueryKey() {
-  return ['GET', '/deprecated-endpoint'] as const
+  return ['/deprecated-endpoint'] as const
 }

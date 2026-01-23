@@ -31,7 +31,7 @@ export function useGetExtremeResponses(options?: {
  * Generates SWR cache key for GET /extreme-responses
  */
 export function getGetExtremeResponsesKey() {
-  return ['GET', '/extreme-responses'] as const
+  return ['/extreme-responses'] as const
 }
 
 /**

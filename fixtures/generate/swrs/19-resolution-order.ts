@@ -31,7 +31,7 @@ export function useGetEntities(options?: {
  * Generates SWR cache key for GET /entities
  */
 export function getGetEntitiesKey() {
-  return ['GET', '/entities'] as const
+  return ['/entities'] as const
 }
 
 /**
@@ -83,7 +83,7 @@ export function useGetGraph(options?: {
  * Generates SWR cache key for GET /graph
  */
 export function getGetGraphKey() {
-  return ['GET', '/graph'] as const
+  return ['/graph'] as const
 }
 
 /**

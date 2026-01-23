@@ -36,7 +36,7 @@ export function useGetPublic(
  * Generates TanStack Query cache key for GET /public
  */
 export function getGetPublicQueryKey() {
-  return ['GET', '/public'] as const
+  return ['/public'] as const
 }
 
 /**
@@ -71,7 +71,7 @@ export function useGetSingleAuth(
  * Generates TanStack Query cache key for GET /single-auth
  */
 export function getGetSingleAuthQueryKey() {
-  return ['GET', '/single-auth'] as const
+  return ['/single-auth'] as const
 }
 
 /**
@@ -106,7 +106,7 @@ export function useGetAnyAuth(
  * Generates TanStack Query cache key for GET /any-auth
  */
 export function getGetAnyAuthQueryKey() {
-  return ['GET', '/any-auth'] as const
+  return ['/any-auth'] as const
 }
 
 /**
@@ -141,7 +141,7 @@ export function useGetAllAuth(
  * Generates TanStack Query cache key for GET /all-auth
  */
 export function getGetAllAuthQueryKey() {
-  return ['GET', '/all-auth'] as const
+  return ['/all-auth'] as const
 }
 
 /**
@@ -176,7 +176,7 @@ export function useGetComplexAuth(
  * Generates TanStack Query cache key for GET /complex-auth
  */
 export function getGetComplexAuthQueryKey() {
-  return ['GET', '/complex-auth'] as const
+  return ['/complex-auth'] as const
 }
 
 /**
@@ -211,7 +211,7 @@ export function useGetScopedOauth(
  * Generates TanStack Query cache key for GET /scoped-oauth
  */
 export function getGetScopedOauthQueryKey() {
-  return ['GET', '/scoped-oauth'] as const
+  return ['/scoped-oauth'] as const
 }
 
 /**
@@ -247,7 +247,7 @@ export function useGetMixedLevelSecurity(
  * Generates TanStack Query cache key for GET /mixed-level-security
  */
 export function getGetMixedLevelSecurityQueryKey() {
-  return ['GET', '/mixed-level-security'] as const
+  return ['/mixed-level-security'] as const
 }
 
 /**
@@ -372,7 +372,7 @@ export function useGetOverrideGlobal(
  * Generates TanStack Query cache key for GET /override-global
  */
 export function getGetOverrideGlobalQueryKey() {
-  return ['GET', '/override-global'] as const
+  return ['/override-global'] as const
 }
 
 /**
@@ -408,7 +408,7 @@ export function useGetOptionalEnhanced(
  * Generates TanStack Query cache key for GET /optional-enhanced
  */
 export function getGetOptionalEnhancedQueryKey() {
-  return ['GET', '/optional-enhanced'] as const
+  return ['/optional-enhanced'] as const
 }
 
 /**
@@ -443,5 +443,5 @@ export function useGetMultiTenant(
  * Generates TanStack Query cache key for GET /multi-tenant
  */
 export function getGetMultiTenantQueryKey() {
-  return ['GET', '/multi-tenant'] as const
+  return ['/multi-tenant'] as const
 }

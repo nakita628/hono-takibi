@@ -33,5 +33,5 @@ export function useGetArray(options?: {
  * Generates SWR cache key for GET /array
  */
 export function getGetArrayKey() {
-  return ['GET', '/array'] as const
+  return ['/array'] as const
 }

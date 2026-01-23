@@ -34,7 +34,7 @@ export function useGetUsers(
  * Generates TanStack Query cache key for GET /users
  */
 export function getGetUsersQueryKey() {
-  return ['GET', '/users'] as const
+  return ['/users'] as const
 }
 
 /**
@@ -95,7 +95,7 @@ export function useGetUsersUserId(
  * Generates TanStack Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['GET', '/users/:userId', args] as const
+  return ['/users/:userId', ...(args ? [args] : [])] as const
 }

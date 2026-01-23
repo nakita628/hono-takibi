@@ -36,8 +36,8 @@ export function useGetPosts(
 /**
  * Generates TanStack Query cache key for GET /posts
  */
-export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['GET', '/posts', args] as const
+export function getGetPostsQueryKey(args?: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -102,9 +102,9 @@ export function useGetPostsPostId(
  * Generates TanStack Query cache key for GET /posts/{postId}
  */
 export function getGetPostsPostIdQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return ['GET', '/posts/:postId', args] as const
+  return ['/posts/:postId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -200,9 +200,9 @@ export function useGetPostsSlugSlug(
  * Generates TanStack Query cache key for GET /posts/slug/{slug}
  */
 export function getGetPostsSlugSlugQueryKey(
-  args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
+  args?: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
 ) {
-  return ['GET', '/posts/slug/:slug', args] as const
+  return ['/posts/slug/:slug', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -302,9 +302,9 @@ export function useGetPostsPostIdComments(
  * Generates TanStack Query cache key for GET /posts/{postId}/comments
  */
 export function getGetPostsPostIdCommentsQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/comments', args] as const
+  return ['/posts/:postId/comments', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -429,7 +429,7 @@ export function useGetCategories(
  * Generates TanStack Query cache key for GET /categories
  */
 export function getGetCategoriesQueryKey() {
-  return ['GET', '/categories'] as const
+  return ['/categories'] as const
 }
 
 /**
@@ -495,9 +495,9 @@ export function useGetCategoriesCategoryId(
  * Generates TanStack Query cache key for GET /categories/{categoryId}
  */
 export function getGetCategoriesCategoryIdQueryKey(
-  args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
+  args?: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
 ) {
-  return ['GET', '/categories/:categoryId', args] as const
+  return ['/categories/:categoryId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -592,8 +592,8 @@ export function useGetTags(
 /**
  * Generates TanStack Query cache key for GET /tags
  */
-export function getGetTagsQueryKey(args: InferRequestType<typeof client.tags.$get>) {
-  return ['GET', '/tags', args] as const
+export function getGetTagsQueryKey(args?: InferRequestType<typeof client.tags.$get>) {
+  return ['/tags', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -657,8 +657,8 @@ export function useGetMedia(
 /**
  * Generates TanStack Query cache key for GET /media
  */
-export function getGetMediaQueryKey(args: InferRequestType<typeof client.media.$get>) {
-  return ['GET', '/media', args] as const
+export function getGetMediaQueryKey(args?: InferRequestType<typeof client.media.$get>) {
+  return ['/media', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -723,9 +723,9 @@ export function useGetMediaMediaId(
  * Generates TanStack Query cache key for GET /media/{mediaId}
  */
 export function getGetMediaMediaIdQueryKey(
-  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+  args?: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return ['GET', '/media/:mediaId', args] as const
+  return ['/media/:mediaId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -820,7 +820,7 @@ export function useGetAuthors(
  * Generates TanStack Query cache key for GET /authors
  */
 export function getGetAuthorsQueryKey() {
-  return ['GET', '/authors'] as const
+  return ['/authors'] as const
 }
 
 /**
@@ -856,7 +856,7 @@ export function useGetAuthorsAuthorId(
  * Generates TanStack Query cache key for GET /authors/{authorId}
  */
 export function getGetAuthorsAuthorIdQueryKey(
-  args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
+  args?: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
 ) {
-  return ['GET', '/authors/:authorId', args] as const
+  return ['/authors/:authorId', ...(args ? [args] : [])] as const
 }

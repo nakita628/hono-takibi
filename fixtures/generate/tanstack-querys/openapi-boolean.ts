@@ -38,5 +38,5 @@ export function useGetBoolean(
  * Generates TanStack Query cache key for GET /boolean
  */
 export function getGetBooleanQueryKey() {
-  return ['GET', '/boolean'] as const
+  return ['/boolean'] as const
 }

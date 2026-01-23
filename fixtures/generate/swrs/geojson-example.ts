@@ -33,7 +33,7 @@ export function useGet(options?: {
  * Generates SWR cache key for GET /
  */
 export function getGetKey() {
-  return ['GET', '/'] as const
+  return ['/'] as const
 }
 
 /**
@@ -67,6 +67,6 @@ export function useGetProjects(
 /**
  * Generates SWR cache key for GET /projects
  */
-export function getGetProjectsKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['GET', '/projects', args] as const
+export function getGetProjectsKey(args?: InferRequestType<typeof client.projects.$get>) {
+  return ['/projects', ...(args ? [args] : [])] as const
 }

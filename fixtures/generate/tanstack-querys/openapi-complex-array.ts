@@ -38,5 +38,5 @@ export function useGetArray(
  * Generates TanStack Query cache key for GET /array
  */
 export function getGetArrayQueryKey() {
-  return ['GET', '/array'] as const
+  return ['/array'] as const
 }

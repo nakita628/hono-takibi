@@ -38,5 +38,5 @@ export function useGetNullable(
  * Generates TanStack Query cache key for GET /nullable
  */
 export function getGetNullableQueryKey() {
-  return ['GET', '/nullable'] as const
+  return ['/nullable'] as const
 }

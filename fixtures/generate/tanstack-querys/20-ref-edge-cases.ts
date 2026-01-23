@@ -34,8 +34,8 @@ export function useGetTest(
 /**
  * Generates TanStack Query cache key for GET /test
  */
-export function getGetTestQueryKey(args: InferRequestType<typeof client.test.$get>) {
-  return ['GET', '/test', args] as const
+export function getGetTestQueryKey(args?: InferRequestType<typeof client.test.$get>) {
+  return ['/test', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -68,7 +68,7 @@ export function useGetEmptyRefs(
  * Generates TanStack Query cache key for GET /empty-refs
  */
 export function getGetEmptyRefsQueryKey() {
-  return ['GET', '/empty-refs'] as const
+  return ['/empty-refs'] as const
 }
 
 /**
@@ -101,7 +101,7 @@ export function useGetUnicodeRefs(
  * Generates TanStack Query cache key for GET /unicode-refs
  */
 export function getGetUnicodeRefsQueryKey() {
-  return ['GET', '/unicode-refs'] as const
+  return ['/unicode-refs'] as const
 }
 
 /**
@@ -134,7 +134,7 @@ export function useGetSpecialChars(
  * Generates TanStack Query cache key for GET /special-chars
  */
 export function getGetSpecialCharsQueryKey() {
-  return ['GET', '/special-chars'] as const
+  return ['/special-chars'] as const
 }
 
 /**
@@ -167,7 +167,7 @@ export function useGetNumericStart(
  * Generates TanStack Query cache key for GET /numeric-start
  */
 export function getGetNumericStartQueryKey() {
-  return ['GET', '/numeric-start'] as const
+  return ['/numeric-start'] as const
 }
 
 /**
@@ -200,7 +200,7 @@ export function useGetRefInAllof(
  * Generates TanStack Query cache key for GET /ref-in-allof
  */
 export function getGetRefInAllofQueryKey() {
-  return ['GET', '/ref-in-allof'] as const
+  return ['/ref-in-allof'] as const
 }
 
 /**
@@ -233,7 +233,7 @@ export function useGetDeeplyNested(
  * Generates TanStack Query cache key for GET /deeply-nested
  */
 export function getGetDeeplyNestedQueryKey() {
-  return ['GET', '/deeply-nested'] as const
+  return ['/deeply-nested'] as const
 }
 
 /**
@@ -267,5 +267,5 @@ export function useGetSameNameDiffContext(
  * Generates TanStack Query cache key for GET /same-name-diff-context
  */
 export function getGetSameNameDiffContextQueryKey() {
-  return ['GET', '/same-name-diff-context'] as const
+  return ['/same-name-diff-context'] as const
 }

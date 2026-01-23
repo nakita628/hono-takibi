@@ -33,7 +33,7 @@ export function useGetStream(options?: {
  * Generates SWR cache key for GET /stream
  */
 export function getGetStreamKey() {
-  return ['GET', '/stream'] as const
+  return ['/stream'] as const
 }
 
 /**
@@ -119,5 +119,5 @@ export function useGetDeprecatedEndpoint(options?: {
  * Generates SWR cache key for GET /deprecated-endpoint
  */
 export function getGetDeprecatedEndpointKey() {
-  return ['GET', '/deprecated-endpoint'] as const
+  return ['/deprecated-endpoint'] as const
 }

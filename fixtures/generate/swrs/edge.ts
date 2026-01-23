@@ -61,8 +61,8 @@ export function useGetSearch(
 /**
  * Generates SWR cache key for GET /search
  */
-export function getGetSearchKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['GET', '/search', args] as const
+export function getGetSearchKey(args?: InferRequestType<typeof client.search.$get>) {
+  return ['/search', ...(args ? [args] : [])] as const
 }
 
 /**

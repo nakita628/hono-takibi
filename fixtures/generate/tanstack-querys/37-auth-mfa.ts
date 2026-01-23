@@ -36,7 +36,7 @@ export function useGetMfaStatus(
  * Generates TanStack Query cache key for GET /mfa/status
  */
 export function getGetMfaStatusQueryKey() {
-  return ['GET', '/mfa/status'] as const
+  return ['/mfa/status'] as const
 }
 
 /**
@@ -71,7 +71,7 @@ export function useGetMfaMethods(
  * Generates TanStack Query cache key for GET /mfa/methods
  */
 export function getGetMfaMethodsQueryKey() {
-  return ['GET', '/mfa/methods'] as const
+  return ['/mfa/methods'] as const
 }
 
 /**
@@ -440,7 +440,7 @@ export function useGetMfaWebauthnCredentials(
  * Generates TanStack Query cache key for GET /mfa/webauthn/credentials
  */
 export function getGetMfaWebauthnCredentialsQueryKey() {
-  return ['GET', '/mfa/webauthn/credentials'] as const
+  return ['/mfa/webauthn/credentials'] as const
 }
 
 /**
@@ -579,7 +579,7 @@ export function useGetMfaBackupCodesStatus(
  * Generates TanStack Query cache key for GET /mfa/backup-codes/status
  */
 export function getGetMfaBackupCodesStatusQueryKey() {
-  return ['GET', '/mfa/backup-codes/status'] as const
+  return ['/mfa/backup-codes/status'] as const
 }
 
 /**

@@ -58,9 +58,9 @@ export function useGetOrdersOrderId(
  * Generates SWR cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdKey(
-  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return ['GET', '/orders/:orderId', args] as const
+  return ['/orders/:orderId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -118,9 +118,9 @@ export function useGetOrdersOrderIdItems(
  * Generates SWR cache key for GET /orders/{orderId}/items
  */
 export function getGetOrdersOrderIdItemsKey(
-  args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
+  args?: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
 ) {
-  return ['GET', '/orders/:orderId/items', args] as const
+  return ['/orders/:orderId/items', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -151,9 +151,9 @@ export function useGetCustomersCustomerId(
  * Generates SWR cache key for GET /customers/{customerId}
  */
 export function getGetCustomersCustomerIdKey(
-  args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
+  args?: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
-  return ['GET', '/customers/:customerId', args] as const
+  return ['/customers/:customerId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -187,9 +187,9 @@ export function useGetCustomersCustomerIdOrders(
  * Generates SWR cache key for GET /customers/{customerId}/orders
  */
 export function getGetCustomersCustomerIdOrdersKey(
-  args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
+  args?: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
 ) {
-  return ['GET', '/customers/:customerId/orders', args] as const
+  return ['/customers/:customerId/orders', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -220,7 +220,7 @@ export function useGetPaymentsPaymentId(
  * Generates SWR cache key for GET /payments/{paymentId}
  */
 export function getGetPaymentsPaymentIdKey(
-  args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
+  args?: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
-  return ['GET', '/payments/:paymentId', args] as const
+  return ['/payments/:paymentId', ...(args ? [args] : [])] as const
 }

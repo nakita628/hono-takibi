@@ -38,8 +38,8 @@ export function useGetPosts(
 /**
  * Generates TanStack Query cache key for GET /posts
  */
-export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['GET', '/posts', args] as const
+export function getGetPostsQueryKey(args?: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -104,9 +104,9 @@ export function useGetPostsPostId(
  * Generates TanStack Query cache key for GET /posts/{postId}
  */
 export function getGetPostsPostIdQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return ['GET', '/posts/:postId', args] as const
+  return ['/posts/:postId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -174,9 +174,9 @@ export function useGetPostsPostIdThread(
  * Generates TanStack Query cache key for GET /posts/{postId}/thread
  */
 export function getGetPostsPostIdThreadQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/thread', args] as const
+  return ['/posts/:postId/thread', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -217,9 +217,9 @@ export function useGetPostsPostIdContext(
  * Generates TanStack Query cache key for GET /posts/{postId}/context
  */
 export function getGetPostsPostIdContextQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/context', args] as const
+  return ['/posts/:postId/context', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -257,9 +257,9 @@ export function useGetTimelineHome(
  * Generates TanStack Query cache key for GET /timeline/home
  */
 export function getGetTimelineHomeQueryKey(
-  args: InferRequestType<typeof client.timeline.home.$get>,
+  args?: InferRequestType<typeof client.timeline.home.$get>,
 ) {
-  return ['GET', '/timeline/home', args] as const
+  return ['/timeline/home', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -297,9 +297,9 @@ export function useGetTimelineForYou(
  * Generates TanStack Query cache key for GET /timeline/for-you
  */
 export function getGetTimelineForYouQueryKey(
-  args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
+  args?: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
 ) {
-  return ['GET', '/timeline/for-you', args] as const
+  return ['/timeline/for-you', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -335,9 +335,9 @@ export function useGetTimelineUserUserId(
  * Generates TanStack Query cache key for GET /timeline/user/{userId}
  */
 export function getGetTimelineUserUserIdQueryKey(
-  args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
+  args?: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
 ) {
-  return ['GET', '/timeline/user/:userId', args] as const
+  return ['/timeline/user/:userId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -377,9 +377,9 @@ export function useGetTimelineHashtagHashtag(
  * Generates TanStack Query cache key for GET /timeline/hashtag/{hashtag}
  */
 export function getGetTimelineHashtagHashtagQueryKey(
-  args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
+  args?: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
 ) {
-  return ['GET', '/timeline/hashtag/:hashtag', args] as const
+  return ['/timeline/hashtag/:hashtag', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -624,8 +624,8 @@ export function useGetBookmarks(
 /**
  * Generates TanStack Query cache key for GET /bookmarks
  */
-export function getGetBookmarksQueryKey(args: InferRequestType<typeof client.bookmarks.$get>) {
-  return ['GET', '/bookmarks', args] as const
+export function getGetBookmarksQueryKey(args?: InferRequestType<typeof client.bookmarks.$get>) {
+  return ['/bookmarks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -661,9 +661,9 @@ export function useGetPostsPostIdLikes(
  * Generates TanStack Query cache key for GET /posts/{postId}/likes
  */
 export function getGetPostsPostIdLikesQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/likes', args] as const
+  return ['/posts/:postId/likes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -702,9 +702,9 @@ export function useGetPostsPostIdReposts(
  * Generates TanStack Query cache key for GET /posts/{postId}/reposts
  */
 export function getGetPostsPostIdRepostsQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/reposts', args] as const
+  return ['/posts/:postId/reposts', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -740,9 +740,9 @@ export function useGetPostsPostIdQuotes(
  * Generates TanStack Query cache key for GET /posts/{postId}/quotes
  */
 export function getGetPostsPostIdQuotesQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/quotes', args] as const
+  return ['/posts/:postId/quotes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -781,9 +781,9 @@ export function useGetPostsPostIdReplies(
  * Generates TanStack Query cache key for GET /posts/{postId}/replies
  */
 export function getGetPostsPostIdRepliesQueryKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/replies', args] as const
+  return ['/posts/:postId/replies', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -878,9 +878,9 @@ export function useGetMediaMediaId(
  * Generates TanStack Query cache key for GET /media/{mediaId}
  */
 export function getGetMediaMediaIdQueryKey(
-  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+  args?: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return ['GET', '/media/:mediaId', args] as const
+  return ['/media/:mediaId', ...(args ? [args] : [])] as const
 }
 
 /**

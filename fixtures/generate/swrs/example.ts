@@ -31,5 +31,5 @@ export function useGetSample(options?: {
  * Generates SWR cache key for GET /sample
  */
 export function getGetSampleKey() {
-  return ['GET', '/sample'] as const
+  return ['/sample'] as const
 }

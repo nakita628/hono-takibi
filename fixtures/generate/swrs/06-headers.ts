@@ -33,8 +33,8 @@ export function useGetResources(
 /**
  * Generates SWR cache key for GET /resources
  */
-export function getGetResourcesKey(args: InferRequestType<typeof client.resources.$get>) {
-  return ['GET', '/resources', args] as const
+export function getGetResourcesKey(args?: InferRequestType<typeof client.resources.$get>) {
+  return ['/resources', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -65,9 +65,9 @@ export function useGetResourcesId(
  * Generates SWR cache key for GET /resources/{id}
  */
 export function getGetResourcesIdKey(
-  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
+  args?: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  return ['GET', '/resources/:id', args] as const
+  return ['/resources/:id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -122,7 +122,7 @@ export function useGetDownloadId(
  * Generates SWR cache key for GET /download/{id}
  */
 export function getGetDownloadIdKey(
-  args: InferRequestType<(typeof client.download)[':id']['$get']>,
+  args?: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
-  return ['GET', '/download/:id', args] as const
+  return ['/download/:id', ...(args ? [args] : [])] as const
 }

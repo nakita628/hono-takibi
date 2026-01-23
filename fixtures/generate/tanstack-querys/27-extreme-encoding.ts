@@ -63,9 +63,9 @@ export function useGetContentNegotiation(
  * Generates TanStack Query cache key for GET /content-negotiation
  */
 export function getGetContentNegotiationQueryKey(
-  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
+  args?: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  return ['GET', '/content-negotiation', args] as const
+  return ['/content-negotiation', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -126,7 +126,7 @@ export function useGetStreaming(
  * Generates TanStack Query cache key for GET /streaming
  */
 export function getGetStreamingQueryKey() {
-  return ['GET', '/streaming'] as const
+  return ['/streaming'] as const
 }
 
 /**
@@ -215,7 +215,7 @@ export function useGetResponseEncoding(
  * Generates TanStack Query cache key for GET /response-encoding
  */
 export function getGetResponseEncodingQueryKey() {
-  return ['GET', '/response-encoding'] as const
+  return ['/response-encoding'] as const
 }
 
 /**

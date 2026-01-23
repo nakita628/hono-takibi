@@ -37,8 +37,8 @@ export function useGetPosts(
 /**
  * Generates SWR cache key for GET /posts
  */
-export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['GET', '/posts', args] as const
+export function getGetPostsKey(args?: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -97,9 +97,9 @@ export function useGetPostsPostId(
  * Generates SWR cache key for GET /posts/{postId}
  */
 export function getGetPostsPostIdKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return ['GET', '/posts/:postId', args] as const
+  return ['/posts/:postId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -163,9 +163,9 @@ export function useGetPostsPostIdThread(
  * Generates SWR cache key for GET /posts/{postId}/thread
  */
 export function getGetPostsPostIdThreadKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/thread', args] as const
+  return ['/posts/:postId/thread', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -203,9 +203,9 @@ export function useGetPostsPostIdContext(
  * Generates SWR cache key for GET /posts/{postId}/context
  */
 export function getGetPostsPostIdContextKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/context', args] as const
+  return ['/posts/:postId/context', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -239,8 +239,8 @@ export function useGetTimelineHome(
 /**
  * Generates SWR cache key for GET /timeline/home
  */
-export function getGetTimelineHomeKey(args: InferRequestType<typeof client.timeline.home.$get>) {
-  return ['GET', '/timeline/home', args] as const
+export function getGetTimelineHomeKey(args?: InferRequestType<typeof client.timeline.home.$get>) {
+  return ['/timeline/home', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -275,9 +275,9 @@ export function useGetTimelineForYou(
  * Generates SWR cache key for GET /timeline/for-you
  */
 export function getGetTimelineForYouKey(
-  args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
+  args?: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
 ) {
-  return ['GET', '/timeline/for-you', args] as const
+  return ['/timeline/for-you', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -310,9 +310,9 @@ export function useGetTimelineUserUserId(
  * Generates SWR cache key for GET /timeline/user/{userId}
  */
 export function getGetTimelineUserUserIdKey(
-  args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
+  args?: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
 ) {
-  return ['GET', '/timeline/user/:userId', args] as const
+  return ['/timeline/user/:userId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -348,9 +348,9 @@ export function useGetTimelineHashtagHashtag(
  * Generates SWR cache key for GET /timeline/hashtag/{hashtag}
  */
 export function getGetTimelineHashtagHashtagKey(
-  args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
+  args?: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
 ) {
-  return ['GET', '/timeline/hashtag/:hashtag', args] as const
+  return ['/timeline/hashtag/:hashtag', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -567,8 +567,8 @@ export function useGetBookmarks(
 /**
  * Generates SWR cache key for GET /bookmarks
  */
-export function getGetBookmarksKey(args: InferRequestType<typeof client.bookmarks.$get>) {
-  return ['GET', '/bookmarks', args] as const
+export function getGetBookmarksKey(args?: InferRequestType<typeof client.bookmarks.$get>) {
+  return ['/bookmarks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -601,9 +601,9 @@ export function useGetPostsPostIdLikes(
  * Generates SWR cache key for GET /posts/{postId}/likes
  */
 export function getGetPostsPostIdLikesKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/likes', args] as const
+  return ['/posts/:postId/likes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -639,9 +639,9 @@ export function useGetPostsPostIdReposts(
  * Generates SWR cache key for GET /posts/{postId}/reposts
  */
 export function getGetPostsPostIdRepostsKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/reposts', args] as const
+  return ['/posts/:postId/reposts', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -677,9 +677,9 @@ export function useGetPostsPostIdQuotes(
  * Generates SWR cache key for GET /posts/{postId}/quotes
  */
 export function getGetPostsPostIdQuotesKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/quotes', args] as const
+  return ['/posts/:postId/quotes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -715,9 +715,9 @@ export function useGetPostsPostIdReplies(
  * Generates SWR cache key for GET /posts/{postId}/replies
  */
 export function getGetPostsPostIdRepliesKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/replies', args] as const
+  return ['/posts/:postId/replies', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -803,9 +803,9 @@ export function useGetMediaMediaId(
  * Generates SWR cache key for GET /media/{mediaId}
  */
 export function getGetMediaMediaIdKey(
-  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+  args?: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return ['GET', '/media/:mediaId', args] as const
+  return ['/media/:mediaId', ...(args ? [args] : [])] as const
 }
 
 /**

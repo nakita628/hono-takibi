@@ -29,5 +29,5 @@ export function useGetHealth(options?: {
  * Generates SWR cache key for GET /health
  */
 export function getGetHealthKey() {
-  return ['GET', '/health'] as const
+  return ['/health'] as const
 }

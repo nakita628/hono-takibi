@@ -31,5 +31,5 @@ export function useGetTest(options?: {
  * Generates SWR cache key for GET /test
  */
 export function getGetTestKey() {
-  return ['GET', '/test'] as const
+  return ['/test'] as const
 }

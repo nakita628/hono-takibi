@@ -35,6 +35,6 @@ export function useGetFizzbuzz(
 /**
  * Generates SWR cache key for GET /fizzbuzz
  */
-export function getGetFizzbuzzKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['GET', '/fizzbuzz', args] as const
+export function getGetFizzbuzzKey(args?: InferRequestType<typeof client.fizzbuzz.$get>) {
+  return ['/fizzbuzz', ...(args ? [args] : [])] as const
 }

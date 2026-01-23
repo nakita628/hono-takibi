@@ -38,8 +38,8 @@ export function useGetAlbums(
 /**
  * Generates TanStack Query cache key for GET /albums
  */
-export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
-  return ['GET', '/albums', args] as const
+export function getGetAlbumsQueryKey(args?: InferRequestType<typeof client.albums.$get>) {
+  return ['/albums', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -77,9 +77,9 @@ export function useGetAlbumsId(
  * Generates TanStack Query cache key for GET /albums/{id}
  */
 export function getGetAlbumsIdQueryKey(
-  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
+  args?: InferRequestType<(typeof client.albums)[':id']['$get']>,
 ) {
-  return ['GET', '/albums/:id', args] as const
+  return ['/albums/:id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -118,9 +118,9 @@ export function useGetAlbumsIdTracks(
  * Generates TanStack Query cache key for GET /albums/{id}/tracks
  */
 export function getGetAlbumsIdTracksQueryKey(
-  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
+  args?: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  return ['GET', '/albums/:id/tracks', args] as const
+  return ['/albums/:id/tracks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -157,8 +157,8 @@ export function useGetArtists(
 /**
  * Generates TanStack Query cache key for GET /artists
  */
-export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
-  return ['GET', '/artists', args] as const
+export function getGetArtistsQueryKey(args?: InferRequestType<typeof client.artists.$get>) {
+  return ['/artists', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -196,9 +196,9 @@ export function useGetArtistsId(
  * Generates TanStack Query cache key for GET /artists/{id}
  */
 export function getGetArtistsIdQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
+  args?: InferRequestType<(typeof client.artists)[':id']['$get']>,
 ) {
-  return ['GET', '/artists/:id', args] as const
+  return ['/artists/:id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -236,9 +236,9 @@ export function useGetArtistsIdAlbums(
  * Generates TanStack Query cache key for GET /artists/{id}/albums
  */
 export function getGetArtistsIdAlbumsQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
+  args?: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  return ['GET', '/artists/:id/albums', args] as const
+  return ['/artists/:id/albums', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -280,9 +280,9 @@ export function useGetArtistsIdRelatedArtists(
  * Generates TanStack Query cache key for GET /artists/{id}/related-artists
  */
 export function getGetArtistsIdRelatedArtistsQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
+  args?: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  return ['GET', '/artists/:id/related-artists', args] as const
+  return ['/artists/:id/related-artists', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -324,9 +324,9 @@ export function useGetArtistsIdTopTracks(
  * Generates TanStack Query cache key for GET /artists/{id}/top-tracks
  */
 export function getGetArtistsIdTopTracksQueryKey(
-  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+  args?: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  return ['GET', '/artists/:id/top-tracks', args] as const
+  return ['/artists/:id/top-tracks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -364,9 +364,9 @@ export function useGetAudioAnalysisId(
  * Generates TanStack Query cache key for GET /audio-analysis/{id}
  */
 export function getGetAudioAnalysisIdQueryKey(
-  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
+  args?: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  return ['GET', '/audio-analysis/:id', args] as const
+  return ['/audio-analysis/:id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -404,9 +404,9 @@ export function useGetAudioFeatures(
  * Generates TanStack Query cache key for GET /audio-features
  */
 export function getGetAudioFeaturesQueryKey(
-  args: InferRequestType<(typeof client)['audio-features']['$get']>,
+  args?: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  return ['GET', '/audio-features', args] as const
+  return ['/audio-features', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -445,9 +445,9 @@ export function useGetAudioFeaturesId(
  * Generates TanStack Query cache key for GET /audio-features/{id}
  */
 export function getGetAudioFeaturesIdQueryKey(
-  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
+  args?: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  return ['GET', '/audio-features/:id', args] as const
+  return ['/audio-features/:id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -485,8 +485,8 @@ export function useGetAudiobooks(
 /**
  * Generates TanStack Query cache key for GET /audiobooks
  */
-export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
-  return ['GET', '/audiobooks', args] as const
+export function getGetAudiobooksQueryKey(args?: InferRequestType<typeof client.audiobooks.$get>) {
+  return ['/audiobooks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -525,9 +525,9 @@ export function useGetAudiobooksId(
  * Generates TanStack Query cache key for GET /audiobooks/{id}
  */
 export function getGetAudiobooksIdQueryKey(
-  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
+  args?: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
 ) {
-  return ['GET', '/audiobooks/:id', args] as const
+  return ['/audiobooks/:id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -570,9 +570,9 @@ export function useGetAudiobooksIdChapters(
  * Generates TanStack Query cache key for GET /audiobooks/{id}/chapters
  */
 export function getGetAudiobooksIdChaptersQueryKey(
-  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+  args?: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  return ['GET', '/audiobooks/:id/chapters', args] as const
+  return ['/audiobooks/:id/chapters', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -610,9 +610,9 @@ export function useGetBrowseCategories(
  * Generates TanStack Query cache key for GET /browse/categories
  */
 export function getGetBrowseCategoriesQueryKey(
-  args: InferRequestType<typeof client.browse.categories.$get>,
+  args?: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  return ['GET', '/browse/categories', args] as const
+  return ['/browse/categories', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -654,9 +654,9 @@ export function useGetBrowseCategoriesCategoryId(
  * Generates TanStack Query cache key for GET /browse/categories/{category_id}
  */
 export function getGetBrowseCategoriesCategoryIdQueryKey(
-  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
+  args?: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  return ['GET', '/browse/categories/:category_id', args] as const
+  return ['/browse/categories/:category_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -698,9 +698,9 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
  * Generates TanStack Query cache key for GET /browse/categories/{category_id}/playlists
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
-  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+  args?: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  return ['GET', '/browse/categories/:category_id/playlists', args] as const
+  return ['/browse/categories/:category_id/playlists', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -742,9 +742,9 @@ export function useGetBrowseFeaturedPlaylists(
  * Generates TanStack Query cache key for GET /browse/featured-playlists
  */
 export function getGetBrowseFeaturedPlaylistsQueryKey(
-  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
+  args?: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  return ['GET', '/browse/featured-playlists', args] as const
+  return ['/browse/featured-playlists', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -782,9 +782,9 @@ export function useGetBrowseNewReleases(
  * Generates TanStack Query cache key for GET /browse/new-releases
  */
 export function getGetBrowseNewReleasesQueryKey(
-  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
+  args?: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  return ['GET', '/browse/new-releases', args] as const
+  return ['/browse/new-releases', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -822,8 +822,8 @@ export function useGetChapters(
 /**
  * Generates TanStack Query cache key for GET /chapters
  */
-export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
-  return ['GET', '/chapters', args] as const
+export function getGetChaptersQueryKey(args?: InferRequestType<typeof client.chapters.$get>) {
+  return ['/chapters', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -862,9 +862,9 @@ export function useGetChaptersId(
  * Generates TanStack Query cache key for GET /chapters/{id}
  */
 export function getGetChaptersIdQueryKey(
-  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
+  args?: InferRequestType<(typeof client.chapters)[':id']['$get']>,
 ) {
-  return ['GET', '/chapters/:id', args] as const
+  return ['/chapters/:id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -901,8 +901,8 @@ export function useGetEpisodes(
 /**
  * Generates TanStack Query cache key for GET /episodes
  */
-export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
-  return ['GET', '/episodes', args] as const
+export function getGetEpisodesQueryKey(args?: InferRequestType<typeof client.episodes.$get>) {
+  return ['/episodes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -941,9 +941,9 @@ export function useGetEpisodesId(
  * Generates TanStack Query cache key for GET /episodes/{id}
  */
 export function getGetEpisodesIdQueryKey(
-  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
+  args?: InferRequestType<(typeof client.episodes)[':id']['$get']>,
 ) {
-  return ['GET', '/episodes/:id', args] as const
+  return ['/episodes/:id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -980,7 +980,7 @@ export function useGetMarkets(
  * Generates TanStack Query cache key for GET /markets
  */
 export function getGetMarketsQueryKey() {
-  return ['GET', '/markets'] as const
+  return ['/markets'] as const
 }
 
 /**
@@ -1018,7 +1018,7 @@ export function useGetMe(
  * Generates TanStack Query cache key for GET /me
  */
 export function getGetMeQueryKey() {
-  return ['GET', '/me'] as const
+  return ['/me'] as const
 }
 
 /**
@@ -1055,8 +1055,8 @@ export function useGetMeAlbums(
 /**
  * Generates TanStack Query cache key for GET /me/albums
  */
-export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
-  return ['GET', '/me/albums', args] as const
+export function getGetMeAlbumsQueryKey(args?: InferRequestType<typeof client.me.albums.$get>) {
+  return ['/me/albums', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1156,9 +1156,9 @@ export function useGetMeAlbumsContains(
  * Generates TanStack Query cache key for GET /me/albums/contains
  */
 export function getGetMeAlbumsContainsQueryKey(
-  args: InferRequestType<typeof client.me.albums.contains.$get>,
+  args?: InferRequestType<typeof client.me.albums.contains.$get>,
 ) {
-  return ['GET', '/me/albums/contains', args] as const
+  return ['/me/albums/contains', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1196,9 +1196,9 @@ export function useGetMeAudiobooks(
  * Generates TanStack Query cache key for GET /me/audiobooks
  */
 export function getGetMeAudiobooksQueryKey(
-  args: InferRequestType<typeof client.me.audiobooks.$get>,
+  args?: InferRequestType<typeof client.me.audiobooks.$get>,
 ) {
-  return ['GET', '/me/audiobooks', args] as const
+  return ['/me/audiobooks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1299,9 +1299,9 @@ export function useGetMeAudiobooksContains(
  * Generates TanStack Query cache key for GET /me/audiobooks/contains
  */
 export function getGetMeAudiobooksContainsQueryKey(
-  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
+  args?: InferRequestType<typeof client.me.audiobooks.contains.$get>,
 ) {
-  return ['GET', '/me/audiobooks/contains', args] as const
+  return ['/me/audiobooks/contains', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1339,8 +1339,8 @@ export function useGetMeEpisodes(
 /**
  * Generates TanStack Query cache key for GET /me/episodes
  */
-export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
-  return ['GET', '/me/episodes', args] as const
+export function getGetMeEpisodesQueryKey(args?: InferRequestType<typeof client.me.episodes.$get>) {
+  return ['/me/episodes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1443,9 +1443,9 @@ export function useGetMeEpisodesContains(
  * Generates TanStack Query cache key for GET /me/episodes/contains
  */
 export function getGetMeEpisodesContainsQueryKey(
-  args: InferRequestType<typeof client.me.episodes.contains.$get>,
+  args?: InferRequestType<typeof client.me.episodes.contains.$get>,
 ) {
-  return ['GET', '/me/episodes/contains', args] as const
+  return ['/me/episodes/contains', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1482,8 +1482,10 @@ export function useGetMeFollowing(
 /**
  * Generates TanStack Query cache key for GET /me/following
  */
-export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
-  return ['GET', '/me/following', args] as const
+export function getGetMeFollowingQueryKey(
+  args?: InferRequestType<typeof client.me.following.$get>,
+) {
+  return ['/me/following', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1583,9 +1585,9 @@ export function useGetMeFollowingContains(
  * Generates TanStack Query cache key for GET /me/following/contains
  */
 export function getGetMeFollowingContainsQueryKey(
-  args: InferRequestType<typeof client.me.following.contains.$get>,
+  args?: InferRequestType<typeof client.me.following.contains.$get>,
 ) {
-  return ['GET', '/me/following/contains', args] as const
+  return ['/me/following/contains', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1622,8 +1624,8 @@ export function useGetMePlayer(
 /**
  * Generates TanStack Query cache key for GET /me/player
  */
-export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
-  return ['GET', '/me/player', args] as const
+export function getGetMePlayerQueryKey(args?: InferRequestType<typeof client.me.player.$get>) {
+  return ['/me/player', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1696,9 +1698,9 @@ export function useGetMePlayerCurrentlyPlaying(
  * Generates TanStack Query cache key for GET /me/player/currently-playing
  */
 export function getGetMePlayerCurrentlyPlayingQueryKey(
-  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
+  args?: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
 ) {
-  return ['GET', '/me/player/currently-playing', args] as const
+  return ['/me/player/currently-playing', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1735,7 +1737,7 @@ export function useGetMePlayerDevices(
  * Generates TanStack Query cache key for GET /me/player/devices
  */
 export function getGetMePlayerDevicesQueryKey() {
-  return ['GET', '/me/player/devices'] as const
+  return ['/me/player/devices'] as const
 }
 
 /**
@@ -1897,7 +1899,7 @@ export function useGetMePlayerQueue(
  * Generates TanStack Query cache key for GET /me/player/queue
  */
 export function getGetMePlayerQueueQueryKey() {
-  return ['GET', '/me/player/queue'] as const
+  return ['/me/player/queue'] as const
 }
 
 /**
@@ -1972,9 +1974,9 @@ export function useGetMePlayerRecentlyPlayed(
  * Generates TanStack Query cache key for GET /me/player/recently-played
  */
 export function getGetMePlayerRecentlyPlayedQueryKey(
-  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
+  args?: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
 ) {
-  return ['GET', '/me/player/recently-played', args] as const
+  return ['/me/player/recently-played', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2140,8 +2142,10 @@ export function useGetMePlaylists(
 /**
  * Generates TanStack Query cache key for GET /me/playlists
  */
-export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
-  return ['GET', '/me/playlists', args] as const
+export function getGetMePlaylistsQueryKey(
+  args?: InferRequestType<typeof client.me.playlists.$get>,
+) {
+  return ['/me/playlists', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2178,8 +2182,8 @@ export function useGetMeShows(
 /**
  * Generates TanStack Query cache key for GET /me/shows
  */
-export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
-  return ['GET', '/me/shows', args] as const
+export function getGetMeShowsQueryKey(args?: InferRequestType<typeof client.me.shows.$get>) {
+  return ['/me/shows', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2279,9 +2283,9 @@ export function useGetMeShowsContains(
  * Generates TanStack Query cache key for GET /me/shows/contains
  */
 export function getGetMeShowsContainsQueryKey(
-  args: InferRequestType<typeof client.me.shows.contains.$get>,
+  args?: InferRequestType<typeof client.me.shows.contains.$get>,
 ) {
-  return ['GET', '/me/shows/contains', args] as const
+  return ['/me/shows/contains', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2319,9 +2323,9 @@ export function useGetMeTopType(
  * Generates TanStack Query cache key for GET /me/top/{type}
  */
 export function getGetMeTopTypeQueryKey(
-  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
+  args?: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  return ['GET', '/me/top/:type', args] as const
+  return ['/me/top/:type', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2358,8 +2362,8 @@ export function useGetMeTracks(
 /**
  * Generates TanStack Query cache key for GET /me/tracks
  */
-export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
-  return ['GET', '/me/tracks', args] as const
+export function getGetMeTracksQueryKey(args?: InferRequestType<typeof client.me.tracks.$get>) {
+  return ['/me/tracks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2459,9 +2463,9 @@ export function useGetMeTracksContains(
  * Generates TanStack Query cache key for GET /me/tracks/contains
  */
 export function getGetMeTracksContainsQueryKey(
-  args: InferRequestType<typeof client.me.tracks.contains.$get>,
+  args?: InferRequestType<typeof client.me.tracks.contains.$get>,
 ) {
-  return ['GET', '/me/tracks/contains', args] as const
+  return ['/me/tracks/contains', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2500,9 +2504,9 @@ export function useGetPlaylistsPlaylistId(
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}
  */
 export function getGetPlaylistsPlaylistIdQueryKey(
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
+  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  return ['GET', '/playlists/:playlist_id', args] as const
+  return ['/playlists/:playlist_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2649,11 +2653,11 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/followers/contains
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
 ) {
-  return ['GET', '/playlists/:playlist_id/followers/contains', args] as const
+  return ['/playlists/:playlist_id/followers/contains', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2695,9 +2699,9 @@ export function useGetPlaylistsPlaylistIdImages(
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/images
  */
 export function getGetPlaylistsPlaylistIdImagesQueryKey(
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  return ['GET', '/playlists/:playlist_id/images', args] as const
+  return ['/playlists/:playlist_id/images', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2771,9 +2775,9 @@ export function useGetPlaylistsPlaylistIdTracks(
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/tracks
  */
 export function getGetPlaylistsPlaylistIdTracksQueryKey(
-  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
 ) {
-  return ['GET', '/playlists/:playlist_id/tracks', args] as const
+  return ['/playlists/:playlist_id/tracks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2915,9 +2919,9 @@ export function useGetRecommendations(
  * Generates TanStack Query cache key for GET /recommendations
  */
 export function getGetRecommendationsQueryKey(
-  args: InferRequestType<typeof client.recommendations.$get>,
+  args?: InferRequestType<typeof client.recommendations.$get>,
 ) {
-  return ['GET', '/recommendations', args] as const
+  return ['/recommendations', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2960,7 +2964,7 @@ export function useGetRecommendationsAvailableGenreSeeds(
  * Generates TanStack Query cache key for GET /recommendations/available-genre-seeds
  */
 export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
-  return ['GET', '/recommendations/available-genre-seeds'] as const
+  return ['/recommendations/available-genre-seeds'] as const
 }
 
 /**
@@ -2999,8 +3003,8 @@ export function useGetSearch(
 /**
  * Generates TanStack Query cache key for GET /search
  */
-export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['GET', '/search', args] as const
+export function getGetSearchQueryKey(args?: InferRequestType<typeof client.search.$get>) {
+  return ['/search', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3037,8 +3041,8 @@ export function useGetShows(
 /**
  * Generates TanStack Query cache key for GET /shows
  */
-export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
-  return ['GET', '/shows', args] as const
+export function getGetShowsQueryKey(args?: InferRequestType<typeof client.shows.$get>) {
+  return ['/shows', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3077,9 +3081,9 @@ export function useGetShowsId(
  * Generates TanStack Query cache key for GET /shows/{id}
  */
 export function getGetShowsIdQueryKey(
-  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
+  args?: InferRequestType<(typeof client.shows)[':id']['$get']>,
 ) {
-  return ['GET', '/shows/:id', args] as const
+  return ['/shows/:id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3117,9 +3121,9 @@ export function useGetShowsIdEpisodes(
  * Generates TanStack Query cache key for GET /shows/{id}/episodes
  */
 export function getGetShowsIdEpisodesQueryKey(
-  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
+  args?: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  return ['GET', '/shows/:id/episodes', args] as const
+  return ['/shows/:id/episodes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3156,8 +3160,8 @@ export function useGetTracks(
 /**
  * Generates TanStack Query cache key for GET /tracks
  */
-export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
-  return ['GET', '/tracks', args] as const
+export function getGetTracksQueryKey(args?: InferRequestType<typeof client.tracks.$get>) {
+  return ['/tracks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3196,9 +3200,9 @@ export function useGetTracksId(
  * Generates TanStack Query cache key for GET /tracks/{id}
  */
 export function getGetTracksIdQueryKey(
-  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
+  args?: InferRequestType<(typeof client.tracks)[':id']['$get']>,
 ) {
-  return ['GET', '/tracks/:id', args] as const
+  return ['/tracks/:id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3236,9 +3240,9 @@ export function useGetUsersUserId(
  * Generates TanStack Query cache key for GET /users/{user_id}
  */
 export function getGetUsersUserIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['GET', '/users/:user_id', args] as const
+  return ['/users/:user_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3280,9 +3284,9 @@ export function useGetUsersUserIdPlaylists(
  * Generates TanStack Query cache key for GET /users/{user_id}/playlists
  */
 export function getGetUsersUserIdPlaylistsQueryKey(
-  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  return ['GET', '/users/:user_id/playlists', args] as const
+  return ['/users/:user_id/playlists', ...(args ? [args] : [])] as const
 }
 
 /**

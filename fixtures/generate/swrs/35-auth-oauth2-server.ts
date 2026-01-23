@@ -39,9 +39,9 @@ export function useGetOauthAuthorize(
  * Generates SWR cache key for GET /oauth/authorize
  */
 export function getGetOauthAuthorizeKey(
-  args: InferRequestType<typeof client.oauth.authorize.$get>,
+  args?: InferRequestType<typeof client.oauth.authorize.$get>,
 ) {
-  return ['GET', '/oauth/authorize', args] as const
+  return ['/oauth/authorize', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -186,7 +186,7 @@ export function useGetOauthUserinfo(options?: {
  * Generates SWR cache key for GET /oauth/userinfo
  */
 export function getGetOauthUserinfoKey() {
-  return ['GET', '/oauth/userinfo'] as const
+  return ['/oauth/userinfo'] as const
 }
 
 /**
@@ -222,7 +222,7 @@ export function useGetWellKnownOpenidConfiguration(options?: {
  * Generates SWR cache key for GET /.well-known/openid-configuration
  */
 export function getGetWellKnownOpenidConfigurationKey() {
-  return ['GET', '/.well-known/openid-configuration'] as const
+  return ['/.well-known/openid-configuration'] as const
 }
 
 /**
@@ -257,7 +257,7 @@ export function useGetWellKnownJwksJson(options?: {
  * Generates SWR cache key for GET /.well-known/jwks.json
  */
 export function getGetWellKnownJwksJsonKey() {
-  return ['GET', '/.well-known/jwks.json'] as const
+  return ['/.well-known/jwks.json'] as const
 }
 
 /**
@@ -287,7 +287,7 @@ export function useGetOauthClients(options?: {
  * Generates SWR cache key for GET /oauth/clients
  */
 export function getGetOauthClientsKey() {
-  return ['GET', '/oauth/clients'] as const
+  return ['/oauth/clients'] as const
 }
 
 /**
@@ -349,9 +349,9 @@ export function useGetOauthClientsClientId(
  * Generates SWR cache key for GET /oauth/clients/{clientId}
  */
 export function getGetOauthClientsClientIdKey(
-  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+  args?: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
 ) {
-  return ['GET', '/oauth/clients/:clientId', args] as const
+  return ['/oauth/clients/:clientId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -464,7 +464,7 @@ export function useGetOauthConsents(options?: {
  * Generates SWR cache key for GET /oauth/consents
  */
 export function getGetOauthConsentsKey() {
-  return ['GET', '/oauth/consents'] as const
+  return ['/oauth/consents'] as const
 }
 
 /**

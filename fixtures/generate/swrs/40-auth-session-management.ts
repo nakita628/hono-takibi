@@ -37,8 +37,8 @@ export function useGetSessions(
 /**
  * Generates SWR cache key for GET /sessions
  */
-export function getGetSessionsKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['GET', '/sessions', args] as const
+export function getGetSessionsKey(args?: InferRequestType<typeof client.sessions.$get>) {
+  return ['/sessions', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -96,7 +96,7 @@ export function useGetSessionsCurrent(options?: {
  * Generates SWR cache key for GET /sessions/current
  */
 export function getGetSessionsCurrentKey() {
-  return ['GET', '/sessions/current'] as const
+  return ['/sessions/current'] as const
 }
 
 /**
@@ -240,9 +240,9 @@ export function useGetSessionsSessionId(
  * Generates SWR cache key for GET /sessions/{sessionId}
  */
 export function getGetSessionsSessionIdKey(
-  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+  args?: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  return ['GET', '/sessions/:sessionId', args] as const
+  return ['/sessions/:sessionId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -360,9 +360,9 @@ export function useGetSessionsHistory(
  * Generates SWR cache key for GET /sessions/history
  */
 export function getGetSessionsHistoryKey(
-  args: InferRequestType<typeof client.sessions.history.$get>,
+  args?: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  return ['GET', '/sessions/history', args] as const
+  return ['/sessions/history', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -400,9 +400,9 @@ export function useGetSessionsSecurityEvents(
  * Generates SWR cache key for GET /sessions/security-events
  */
 export function getGetSessionsSecurityEventsKey(
-  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
+  args?: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return ['GET', '/sessions/security-events', args] as const
+  return ['/sessions/security-events', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -432,7 +432,7 @@ export function useGetSessionsPolicies(options?: {
  * Generates SWR cache key for GET /sessions/policies
  */
 export function getGetSessionsPoliciesKey() {
-  return ['GET', '/sessions/policies'] as const
+  return ['/sessions/policies'] as const
 }
 
 /**
@@ -491,7 +491,7 @@ export function useGetSessionsTrustedDevices(options?: {
  * Generates SWR cache key for GET /sessions/trusted-devices
  */
 export function getGetSessionsTrustedDevicesKey() {
-  return ['GET', '/sessions/trusted-devices'] as const
+  return ['/sessions/trusted-devices'] as const
 }
 
 /**

@@ -38,5 +38,5 @@ export function useGetNumber(
  * Generates TanStack Query cache key for GET /number
  */
 export function getGetNumberQueryKey() {
-  return ['GET', '/number'] as const
+  return ['/number'] as const
 }

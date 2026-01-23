@@ -33,5 +33,5 @@ export function useGetBoolean(options?: {
  * Generates SWR cache key for GET /boolean
  */
 export function getGetBooleanKey() {
-  return ['GET', '/boolean'] as const
+  return ['/boolean'] as const
 }

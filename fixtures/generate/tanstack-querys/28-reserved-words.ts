@@ -34,7 +34,7 @@ export function useGetClass(
  * Generates TanStack Query cache key for GET /class
  */
 export function getGetClassQueryKey() {
-  return ['GET', '/class'] as const
+  return ['/class'] as const
 }
 
 /**
@@ -67,7 +67,7 @@ export function useGetInterface(
  * Generates TanStack Query cache key for GET /interface
  */
 export function getGetInterfaceQueryKey() {
-  return ['GET', '/interface'] as const
+  return ['/interface'] as const
 }
 
 /**
@@ -100,7 +100,7 @@ export function useGetType(
  * Generates TanStack Query cache key for GET /type
  */
 export function getGetTypeQueryKey() {
-  return ['GET', '/type'] as const
+  return ['/type'] as const
 }
 
 /**
@@ -156,7 +156,7 @@ export function useGetReturn(
  * Generates TanStack Query cache key for GET /return
  */
 export function getGetReturnQueryKey() {
-  return ['GET', '/return'] as const
+  return ['/return'] as const
 }
 
 /**
@@ -189,7 +189,7 @@ export function useGetImport(
  * Generates TanStack Query cache key for GET /import
  */
 export function getGetImportQueryKey() {
-  return ['GET', '/import'] as const
+  return ['/import'] as const
 }
 
 /**
@@ -222,7 +222,7 @@ export function useGetExport(
  * Generates TanStack Query cache key for GET /export
  */
 export function getGetExportQueryKey() {
-  return ['GET', '/export'] as const
+  return ['/export'] as const
 }
 
 /**
@@ -255,7 +255,7 @@ export function useGetDefault(
  * Generates TanStack Query cache key for GET /default
  */
 export function getGetDefaultQueryKey() {
-  return ['GET', '/default'] as const
+  return ['/default'] as const
 }
 
 /**
@@ -334,7 +334,7 @@ export function useGetVoid(
  * Generates TanStack Query cache key for GET /void
  */
 export function getGetVoidQueryKey() {
-  return ['GET', '/void'] as const
+  return ['/void'] as const
 }
 
 /**
@@ -367,7 +367,7 @@ export function useGetNull(
  * Generates TanStack Query cache key for GET /null
  */
 export function getGetNullQueryKey() {
-  return ['GET', '/null'] as const
+  return ['/null'] as const
 }
 
 /**
@@ -400,7 +400,7 @@ export function useGetTrue(
  * Generates TanStack Query cache key for GET /true
  */
 export function getGetTrueQueryKey() {
-  return ['GET', '/true'] as const
+  return ['/true'] as const
 }
 
 /**
@@ -433,7 +433,7 @@ export function useGetFalse(
  * Generates TanStack Query cache key for GET /false
  */
 export function getGetFalseQueryKey() {
-  return ['GET', '/false'] as const
+  return ['/false'] as const
 }
 
 /**
@@ -466,7 +466,7 @@ export function useGetIf(
  * Generates TanStack Query cache key for GET /if
  */
 export function getGetIfQueryKey() {
-  return ['GET', '/if'] as const
+  return ['/if'] as const
 }
 
 /**
@@ -499,7 +499,7 @@ export function useGetElse(
  * Generates TanStack Query cache key for GET /else
  */
 export function getGetElseQueryKey() {
-  return ['GET', '/else'] as const
+  return ['/else'] as const
 }
 
 /**
@@ -532,7 +532,7 @@ export function useGetFor(
  * Generates TanStack Query cache key for GET /for
  */
 export function getGetForQueryKey() {
-  return ['GET', '/for'] as const
+  return ['/for'] as const
 }
 
 /**
@@ -565,7 +565,7 @@ export function useGetWhile(
  * Generates TanStack Query cache key for GET /while
  */
 export function getGetWhileQueryKey() {
-  return ['GET', '/while'] as const
+  return ['/while'] as const
 }
 
 /**
@@ -598,7 +598,7 @@ export function useGetSwitch(
  * Generates TanStack Query cache key for GET /switch
  */
 export function getGetSwitchQueryKey() {
-  return ['GET', '/switch'] as const
+  return ['/switch'] as const
 }
 
 /**
@@ -631,7 +631,7 @@ export function useGetCase(
  * Generates TanStack Query cache key for GET /case
  */
 export function getGetCaseQueryKey() {
-  return ['GET', '/case'] as const
+  return ['/case'] as const
 }
 
 /**
@@ -664,7 +664,7 @@ export function useGetBreak(
  * Generates TanStack Query cache key for GET /break
  */
 export function getGetBreakQueryKey() {
-  return ['GET', '/break'] as const
+  return ['/break'] as const
 }
 
 /**
@@ -697,7 +697,7 @@ export function useGetContinue(
  * Generates TanStack Query cache key for GET /continue
  */
 export function getGetContinueQueryKey() {
-  return ['GET', '/continue'] as const
+  return ['/continue'] as const
 }
 
 /**
@@ -730,7 +730,7 @@ export function useGetTry(
  * Generates TanStack Query cache key for GET /try
  */
 export function getGetTryQueryKey() {
-  return ['GET', '/try'] as const
+  return ['/try'] as const
 }
 
 /**
@@ -763,7 +763,7 @@ export function useGetCatch(
  * Generates TanStack Query cache key for GET /catch
  */
 export function getGetCatchQueryKey() {
-  return ['GET', '/catch'] as const
+  return ['/catch'] as const
 }
 
 /**
@@ -796,7 +796,7 @@ export function useGetFinally(
  * Generates TanStack Query cache key for GET /finally
  */
 export function getGetFinallyQueryKey() {
-  return ['GET', '/finally'] as const
+  return ['/finally'] as const
 }
 
 /**
@@ -829,7 +829,7 @@ export function useGetThrow(
  * Generates TanStack Query cache key for GET /throw
  */
 export function getGetThrowQueryKey() {
-  return ['GET', '/throw'] as const
+  return ['/throw'] as const
 }
 
 /**
@@ -862,7 +862,7 @@ export function useGetAsync(
  * Generates TanStack Query cache key for GET /async
  */
 export function getGetAsyncQueryKey() {
-  return ['GET', '/async'] as const
+  return ['/async'] as const
 }
 
 /**
@@ -895,7 +895,7 @@ export function useGetAwait(
  * Generates TanStack Query cache key for GET /await
  */
 export function getGetAwaitQueryKey() {
-  return ['GET', '/await'] as const
+  return ['/await'] as const
 }
 
 /**
@@ -928,7 +928,7 @@ export function useGetYield(
  * Generates TanStack Query cache key for GET /yield
  */
 export function getGetYieldQueryKey() {
-  return ['GET', '/yield'] as const
+  return ['/yield'] as const
 }
 
 /**
@@ -961,7 +961,7 @@ export function useGetStatic(
  * Generates TanStack Query cache key for GET /static
  */
 export function getGetStaticQueryKey() {
-  return ['GET', '/static'] as const
+  return ['/static'] as const
 }
 
 /**
@@ -994,7 +994,7 @@ export function useGetPublic(
  * Generates TanStack Query cache key for GET /public
  */
 export function getGetPublicQueryKey() {
-  return ['GET', '/public'] as const
+  return ['/public'] as const
 }
 
 /**
@@ -1027,7 +1027,7 @@ export function useGetPrivate(
  * Generates TanStack Query cache key for GET /private
  */
 export function getGetPrivateQueryKey() {
-  return ['GET', '/private'] as const
+  return ['/private'] as const
 }
 
 /**
@@ -1060,7 +1060,7 @@ export function useGetProtected(
  * Generates TanStack Query cache key for GET /protected
  */
 export function getGetProtectedQueryKey() {
-  return ['GET', '/protected'] as const
+  return ['/protected'] as const
 }
 
 /**
@@ -1093,7 +1093,7 @@ export function useGetAbstract(
  * Generates TanStack Query cache key for GET /abstract
  */
 export function getGetAbstractQueryKey() {
-  return ['GET', '/abstract'] as const
+  return ['/abstract'] as const
 }
 
 /**
@@ -1126,7 +1126,7 @@ export function useGetFinal(
  * Generates TanStack Query cache key for GET /final
  */
 export function getGetFinalQueryKey() {
-  return ['GET', '/final'] as const
+  return ['/final'] as const
 }
 
 /**
@@ -1159,7 +1159,7 @@ export function useGetExtends(
  * Generates TanStack Query cache key for GET /extends
  */
 export function getGetExtendsQueryKey() {
-  return ['GET', '/extends'] as const
+  return ['/extends'] as const
 }
 
 /**
@@ -1192,7 +1192,7 @@ export function useGetImplements(
  * Generates TanStack Query cache key for GET /implements
  */
 export function getGetImplementsQueryKey() {
-  return ['GET', '/implements'] as const
+  return ['/implements'] as const
 }
 
 /**
@@ -1225,7 +1225,7 @@ export function useGetPackage(
  * Generates TanStack Query cache key for GET /package
  */
 export function getGetPackageQueryKey() {
-  return ['GET', '/package'] as const
+  return ['/package'] as const
 }
 
 /**
@@ -1258,7 +1258,7 @@ export function useGetEnum(
  * Generates TanStack Query cache key for GET /enum
  */
 export function getGetEnumQueryKey() {
-  return ['GET', '/enum'] as const
+  return ['/enum'] as const
 }
 
 /**
@@ -1291,7 +1291,7 @@ export function useGetConst(
  * Generates TanStack Query cache key for GET /const
  */
 export function getGetConstQueryKey() {
-  return ['GET', '/const'] as const
+  return ['/const'] as const
 }
 
 /**
@@ -1324,7 +1324,7 @@ export function useGetLet(
  * Generates TanStack Query cache key for GET /let
  */
 export function getGetLetQueryKey() {
-  return ['GET', '/let'] as const
+  return ['/let'] as const
 }
 
 /**
@@ -1357,7 +1357,7 @@ export function useGetVar(
  * Generates TanStack Query cache key for GET /var
  */
 export function getGetVarQueryKey() {
-  return ['GET', '/var'] as const
+  return ['/var'] as const
 }
 
 /**
@@ -1390,7 +1390,7 @@ export function useGetThis(
  * Generates TanStack Query cache key for GET /this
  */
 export function getGetThisQueryKey() {
-  return ['GET', '/this'] as const
+  return ['/this'] as const
 }
 
 /**
@@ -1423,7 +1423,7 @@ export function useGetSuper(
  * Generates TanStack Query cache key for GET /super
  */
 export function getGetSuperQueryKey() {
-  return ['GET', '/super'] as const
+  return ['/super'] as const
 }
 
 /**
@@ -1456,7 +1456,7 @@ export function useGetSelf(
  * Generates TanStack Query cache key for GET /self
  */
 export function getGetSelfQueryKey() {
-  return ['GET', '/self'] as const
+  return ['/self'] as const
 }
 
 /**
@@ -1489,7 +1489,7 @@ export function useGetConstructor(
  * Generates TanStack Query cache key for GET /constructor
  */
 export function getGetConstructorQueryKey() {
-  return ['GET', '/constructor'] as const
+  return ['/constructor'] as const
 }
 
 /**
@@ -1522,7 +1522,7 @@ export function useGetPrototype(
  * Generates TanStack Query cache key for GET /prototype
  */
 export function getGetPrototypeQueryKey() {
-  return ['GET', '/prototype'] as const
+  return ['/prototype'] as const
 }
 
 /**
@@ -1555,7 +1555,7 @@ export function useGetToString(
  * Generates TanStack Query cache key for GET /toString
  */
 export function getGetToStringQueryKey() {
-  return ['GET', '/toString'] as const
+  return ['/toString'] as const
 }
 
 /**
@@ -1588,7 +1588,7 @@ export function useGetValueOf(
  * Generates TanStack Query cache key for GET /valueOf
  */
 export function getGetValueOfQueryKey() {
-  return ['GET', '/valueOf'] as const
+  return ['/valueOf'] as const
 }
 
 /**
@@ -1621,7 +1621,7 @@ export function useGetHasOwnProperty(
  * Generates TanStack Query cache key for GET /hasOwnProperty
  */
 export function getGetHasOwnPropertyQueryKey() {
-  return ['GET', '/hasOwnProperty'] as const
+  return ['/hasOwnProperty'] as const
 }
 
 /**
@@ -1654,5 +1654,5 @@ export function useGetNameCollisions(
  * Generates TanStack Query cache key for GET /name-collisions
  */
 export function getGetNameCollisionsQueryKey() {
-  return ['GET', '/name-collisions'] as const
+  return ['/name-collisions'] as const
 }

@@ -31,5 +31,5 @@ export function useGetExample(options?: {
  * Generates SWR cache key for GET /example
  */
 export function getGetExampleKey() {
-  return ['GET', '/example'] as const
+  return ['/example'] as const
 }

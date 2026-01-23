@@ -34,7 +34,7 @@ export function useGetEntities(
  * Generates TanStack Query cache key for GET /entities
  */
 export function getGetEntitiesQueryKey() {
-  return ['GET', '/entities'] as const
+  return ['/entities'] as const
 }
 
 /**
@@ -94,7 +94,7 @@ export function useGetGraph(
  * Generates TanStack Query cache key for GET /graph
  */
 export function getGetGraphQueryKey() {
-  return ['GET', '/graph'] as const
+  return ['/graph'] as const
 }
 
 /**

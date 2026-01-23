@@ -31,7 +31,7 @@ export function useGetAllMethods(options?: {
  * Generates SWR cache key for GET /all-methods
  */
 export function getGetAllMethodsKey() {
-  return ['GET', '/all-methods'] as const
+  return ['/all-methods'] as const
 }
 
 /**
@@ -244,11 +244,11 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
  * Generates SWR cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
 ) {
-  return ['GET', '/users/:userId/posts/:postId/comments/:commentId', args] as const
+  return ['/users/:userId/posts/:postId/comments/:commentId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -282,9 +282,9 @@ export function useGetParamsTestPathParam(
  * Generates SWR cache key for GET /params-test/{pathParam}
  */
 export function getGetParamsTestPathParamKey(
-  args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
+  args?: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
-  return ['GET', '/params-test/:pathParam', args] as const
+  return ['/params-test/:pathParam', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -336,7 +336,7 @@ export function useGetMultiContent(options?: {
  * Generates SWR cache key for GET /multi-content
  */
 export function getGetMultiContentKey() {
-  return ['GET', '/multi-content'] as const
+  return ['/multi-content'] as const
 }
 
 /**
@@ -388,7 +388,7 @@ export function useGetResponseRanges(options?: {
  * Generates SWR cache key for GET /response-ranges
  */
 export function getGetResponseRangesKey() {
-  return ['GET', '/response-ranges'] as const
+  return ['/response-ranges'] as const
 }
 
 /**
@@ -418,7 +418,7 @@ export function useGetDeprecated(options?: {
  * Generates SWR cache key for GET /deprecated
  */
 export function getGetDeprecatedKey() {
-  return ['GET', '/deprecated'] as const
+  return ['/deprecated'] as const
 }
 
 /**
@@ -448,7 +448,7 @@ export function useGetNoOperationId(options?: {
  * Generates SWR cache key for GET /no-operation-id
  */
 export function getGetNoOperationIdKey() {
-  return ['GET', '/no-operation-id'] as const
+  return ['/no-operation-id'] as const
 }
 
 /**
@@ -500,7 +500,7 @@ export function useGetCircular(options?: {
  * Generates SWR cache key for GET /circular
  */
 export function getGetCircularKey() {
-  return ['GET', '/circular'] as const
+  return ['/circular'] as const
 }
 
 /**
@@ -528,7 +528,7 @@ export function useGetDeepNesting(options?: {
  * Generates SWR cache key for GET /deep-nesting
  */
 export function getGetDeepNestingKey() {
-  return ['GET', '/deep-nesting'] as const
+  return ['/deep-nesting'] as const
 }
 
 /**
@@ -559,9 +559,9 @@ export function useGetArrayParams(
  * Generates SWR cache key for GET /array-params
  */
 export function getGetArrayParamsKey(
-  args: InferRequestType<(typeof client)['array-params']['$get']>,
+  args?: InferRequestType<(typeof client)['array-params']['$get']>,
 ) {
-  return ['GET', '/array-params', args] as const
+  return ['/array-params', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -592,7 +592,7 @@ export function useGetObjectParam(
  * Generates SWR cache key for GET /object-param
  */
 export function getGetObjectParamKey(
-  args: InferRequestType<(typeof client)['object-param']['$get']>,
+  args?: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
-  return ['GET', '/object-param', args] as const
+  return ['/object-param', ...(args ? [args] : [])] as const
 }

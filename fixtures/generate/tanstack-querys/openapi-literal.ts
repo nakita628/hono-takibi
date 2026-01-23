@@ -38,5 +38,5 @@ export function useGetPrimitive(
  * Generates TanStack Query cache key for GET /primitive
  */
 export function getGetPrimitiveQueryKey() {
-  return ['GET', '/primitive'] as const
+  return ['/primitive'] as const
 }

@@ -88,7 +88,7 @@ export function useGetConfigs(
  * Generates TanStack Query cache key for GET /configs
  */
 export function getGetConfigsQueryKey() {
-  return ['GET', '/configs'] as const
+  return ['/configs'] as const
 }
 
 /**

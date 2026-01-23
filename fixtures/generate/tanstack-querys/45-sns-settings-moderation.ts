@@ -36,7 +36,7 @@ export function useGetSettingsAccount(
  * Generates TanStack Query cache key for GET /settings/account
  */
 export function getGetSettingsAccountQueryKey() {
-  return ['GET', '/settings/account'] as const
+  return ['/settings/account'] as const
 }
 
 /**
@@ -102,9 +102,9 @@ export function useGetSettingsUsernameCheck(
  * Generates TanStack Query cache key for GET /settings/username/check
  */
 export function getGetSettingsUsernameCheckQueryKey(
-  args: InferRequestType<typeof client.settings.username.check.$get>,
+  args?: InferRequestType<typeof client.settings.username.check.$get>,
 ) {
-  return ['GET', '/settings/username/check', args] as const
+  return ['/settings/username/check', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -139,7 +139,7 @@ export function useGetSettingsPrivacy(
  * Generates TanStack Query cache key for GET /settings/privacy
  */
 export function getGetSettingsPrivacyQueryKey() {
-  return ['GET', '/settings/privacy'] as const
+  return ['/settings/privacy'] as const
 }
 
 /**
@@ -208,7 +208,7 @@ export function useGetSettingsContentPreferences(
  * Generates TanStack Query cache key for GET /settings/content-preferences
  */
 export function getGetSettingsContentPreferencesQueryKey() {
-  return ['GET', '/settings/content-preferences'] as const
+  return ['/settings/content-preferences'] as const
 }
 
 /**
@@ -274,7 +274,7 @@ export function useGetSettingsMutedWords(
  * Generates TanStack Query cache key for GET /settings/muted-words
  */
 export function getGetSettingsMutedWordsQueryKey() {
-  return ['GET', '/settings/muted-words'] as const
+  return ['/settings/muted-words'] as const
 }
 
 /**
@@ -369,7 +369,7 @@ export function useGetSettingsSessions(
  * Generates TanStack Query cache key for GET /settings/sessions
  */
 export function getGetSettingsSessionsQueryKey() {
-  return ['GET', '/settings/sessions'] as const
+  return ['/settings/sessions'] as const
 }
 
 /**
@@ -435,7 +435,7 @@ export function useGetSettingsConnectedApps(
  * Generates TanStack Query cache key for GET /settings/connected-apps
  */
 export function getGetSettingsConnectedAppsQueryKey() {
-  return ['GET', '/settings/connected-apps'] as const
+  return ['/settings/connected-apps'] as const
 }
 
 /**
@@ -536,9 +536,9 @@ export function useGetSettingsDataExportRequestId(
  * Generates TanStack Query cache key for GET /settings/data-export/{requestId}
  */
 export function getGetSettingsDataExportRequestIdQueryKey(
-  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+  args?: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
 ) {
-  return ['GET', '/settings/data-export/:requestId', args] as const
+  return ['/settings/data-export/:requestId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -633,9 +633,9 @@ export function useGetReportsReportId(
  * Generates TanStack Query cache key for GET /reports/{reportId}
  */
 export function getGetReportsReportIdQueryKey(
-  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+  args?: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
 ) {
-  return ['GET', '/reports/:reportId', args] as const
+  return ['/reports/:reportId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -673,9 +673,9 @@ export function useGetModerationQueue(
  * Generates TanStack Query cache key for GET /moderation/queue
  */
 export function getGetModerationQueueQueryKey(
-  args: InferRequestType<typeof client.moderation.queue.$get>,
+  args?: InferRequestType<typeof client.moderation.queue.$get>,
 ) {
-  return ['GET', '/moderation/queue', args] as const
+  return ['/moderation/queue', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -715,9 +715,9 @@ export function useGetModerationItemsItemId(
  * Generates TanStack Query cache key for GET /moderation/items/{itemId}
  */
 export function getGetModerationItemsItemIdQueryKey(
-  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
+  args?: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
 ) {
-  return ['GET', '/moderation/items/:itemId', args] as const
+  return ['/moderation/items/:itemId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -787,9 +787,9 @@ export function useGetModerationUsersUserIdHistory(
  * Generates TanStack Query cache key for GET /moderation/users/{userId}/history
  */
 export function getGetModerationUsersUserIdHistoryQueryKey(
-  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+  args?: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
 ) {
-  return ['GET', '/moderation/users/:userId/history', args] as const
+  return ['/moderation/users/:userId/history', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -889,9 +889,9 @@ export function useGetAnalyticsPostsPostId(
  * Generates TanStack Query cache key for GET /analytics/posts/{postId}
  */
 export function getGetAnalyticsPostsPostIdQueryKey(
-  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+  args?: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
 ) {
-  return ['GET', '/analytics/posts/:postId', args] as const
+  return ['/analytics/posts/:postId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -927,9 +927,9 @@ export function useGetAnalyticsAccount(
  * Generates TanStack Query cache key for GET /analytics/account
  */
 export function getGetAnalyticsAccountQueryKey(
-  args: InferRequestType<typeof client.analytics.account.$get>,
+  args?: InferRequestType<typeof client.analytics.account.$get>,
 ) {
-  return ['GET', '/analytics/account', args] as const
+  return ['/analytics/account', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -965,9 +965,9 @@ export function useGetAnalyticsFollowers(
  * Generates TanStack Query cache key for GET /analytics/followers
  */
 export function getGetAnalyticsFollowersQueryKey(
-  args: InferRequestType<typeof client.analytics.followers.$get>,
+  args?: InferRequestType<typeof client.analytics.followers.$get>,
 ) {
-  return ['GET', '/analytics/followers', args] as const
+  return ['/analytics/followers', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1003,7 +1003,7 @@ export function useGetAnalyticsTopPosts(
  * Generates TanStack Query cache key for GET /analytics/top-posts
  */
 export function getGetAnalyticsTopPostsQueryKey(
-  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
+  args?: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
 ) {
-  return ['GET', '/analytics/top-posts', args] as const
+  return ['/analytics/top-posts', ...(args ? [args] : [])] as const
 }

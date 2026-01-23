@@ -38,6 +38,6 @@ export function useGetFizzbuzz(
 /**
  * Generates TanStack Query cache key for GET /fizzbuzz
  */
-export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['GET', '/fizzbuzz', args] as const
+export function getGetFizzbuzzQueryKey(args?: InferRequestType<typeof client.fizzbuzz.$get>) {
+  return ['/fizzbuzz', ...(args ? [args] : [])] as const
 }

@@ -41,9 +41,9 @@ export function useGetSocialAuthorizeProvider(
  * Generates SWR cache key for GET /social/authorize/{provider}
  */
 export function getGetSocialAuthorizeProviderKey(
-  args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
+  args?: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
 ) {
-  return ['GET', '/social/authorize/:provider', args] as const
+  return ['/social/authorize/:provider', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -81,9 +81,9 @@ export function useGetSocialCallbackProvider(
  * Generates SWR cache key for GET /social/callback/{provider}
  */
 export function getGetSocialCallbackProviderKey(
-  args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
+  args?: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
 ) {
-  return ['GET', '/social/callback/:provider', args] as const
+  return ['/social/callback/:provider', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -169,7 +169,7 @@ export function useGetProviders(options?: {
  * Generates SWR cache key for GET /providers
  */
 export function getGetProvidersKey() {
-  return ['GET', '/providers'] as const
+  return ['/providers'] as const
 }
 
 /**
@@ -199,7 +199,7 @@ export function useGetProvidersAdmin(options?: {
  * Generates SWR cache key for GET /providers/admin
  */
 export function getGetProvidersAdminKey() {
-  return ['GET', '/providers/admin'] as const
+  return ['/providers/admin'] as const
 }
 
 /**
@@ -258,9 +258,9 @@ export function useGetProvidersProviderId(
  * Generates SWR cache key for GET /providers/{providerId}
  */
 export function getGetProvidersProviderIdKey(
-  args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
+  args?: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
 ) {
-  return ['GET', '/providers/:providerId', args] as const
+  return ['/providers/:providerId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -370,7 +370,7 @@ export function useGetAccountLinked(options?: {
  * Generates SWR cache key for GET /account/linked
  */
 export function getGetAccountLinkedKey() {
-  return ['GET', '/account/linked'] as const
+  return ['/account/linked'] as const
 }
 
 /**
@@ -456,7 +456,7 @@ export function useGetEnterpriseSso(options?: {
  * Generates SWR cache key for GET /enterprise/sso
  */
 export function getGetEnterpriseSsoKey() {
-  return ['GET', '/enterprise/sso'] as const
+  return ['/enterprise/sso'] as const
 }
 
 /**
@@ -518,9 +518,9 @@ export function useGetEnterpriseSsoConfigId(
  * Generates SWR cache key for GET /enterprise/sso/{configId}
  */
 export function getGetEnterpriseSsoConfigIdKey(
-  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
+  args?: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
 ) {
-  return ['GET', '/enterprise/sso/:configId', args] as const
+  return ['/enterprise/sso/:configId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -610,9 +610,9 @@ export function useGetEnterpriseSsoDomainLookup(
  * Generates SWR cache key for GET /enterprise/sso/domain-lookup
  */
 export function getGetEnterpriseSsoDomainLookupKey(
-  args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+  args?: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
 ) {
-  return ['GET', '/enterprise/sso/domain-lookup', args] as const
+  return ['/enterprise/sso/domain-lookup', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -652,7 +652,7 @@ export function useGetEnterpriseSsoConfigIdMetadata(
  * Generates SWR cache key for GET /enterprise/sso/{configId}/metadata
  */
 export function getGetEnterpriseSsoConfigIdMetadataKey(
-  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
+  args?: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
 ) {
-  return ['GET', '/enterprise/sso/:configId/metadata', args] as const
+  return ['/enterprise/sso/:configId/metadata', ...(args ? [args] : [])] as const
 }

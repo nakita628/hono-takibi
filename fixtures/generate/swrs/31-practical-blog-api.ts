@@ -35,8 +35,8 @@ export function useGetPosts(
 /**
  * Generates SWR cache key for GET /posts
  */
-export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['GET', '/posts', args] as const
+export function getGetPostsKey(args?: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -95,9 +95,9 @@ export function useGetPostsPostId(
  * Generates SWR cache key for GET /posts/{postId}
  */
 export function getGetPostsPostIdKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return ['GET', '/posts/:postId', args] as const
+  return ['/posts/:postId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -182,9 +182,9 @@ export function useGetPostsSlugSlug(
  * Generates SWR cache key for GET /posts/slug/{slug}
  */
 export function getGetPostsSlugSlugKey(
-  args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
+  args?: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
 ) {
-  return ['GET', '/posts/slug/:slug', args] as const
+  return ['/posts/slug/:slug', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -274,9 +274,9 @@ export function useGetPostsPostIdComments(
  * Generates SWR cache key for GET /posts/{postId}/comments
  */
 export function getGetPostsPostIdCommentsKey(
-  args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
+  args?: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
 ) {
-  return ['GET', '/posts/:postId/comments', args] as const
+  return ['/posts/:postId/comments', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -387,7 +387,7 @@ export function useGetCategories(options?: {
  * Generates SWR cache key for GET /categories
  */
 export function getGetCategoriesKey() {
-  return ['GET', '/categories'] as const
+  return ['/categories'] as const
 }
 
 /**
@@ -446,9 +446,9 @@ export function useGetCategoriesCategoryId(
  * Generates SWR cache key for GET /categories/{categoryId}
  */
 export function getGetCategoriesCategoryIdKey(
-  args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
+  args?: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
 ) {
-  return ['GET', '/categories/:categoryId', args] as const
+  return ['/categories/:categoryId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -534,8 +534,8 @@ export function useGetTags(
 /**
  * Generates SWR cache key for GET /tags
  */
-export function getGetTagsKey(args: InferRequestType<typeof client.tags.$get>) {
-  return ['GET', '/tags', args] as const
+export function getGetTagsKey(args?: InferRequestType<typeof client.tags.$get>) {
+  return ['/tags', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -593,8 +593,8 @@ export function useGetMedia(
 /**
  * Generates SWR cache key for GET /media
  */
-export function getGetMediaKey(args: InferRequestType<typeof client.media.$get>) {
-  return ['GET', '/media', args] as const
+export function getGetMediaKey(args?: InferRequestType<typeof client.media.$get>) {
+  return ['/media', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -653,9 +653,9 @@ export function useGetMediaMediaId(
  * Generates SWR cache key for GET /media/{mediaId}
  */
 export function getGetMediaMediaIdKey(
-  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+  args?: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return ['GET', '/media/:mediaId', args] as const
+  return ['/media/:mediaId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -737,7 +737,7 @@ export function useGetAuthors(options?: {
  * Generates SWR cache key for GET /authors
  */
 export function getGetAuthorsKey() {
-  return ['GET', '/authors'] as const
+  return ['/authors'] as const
 }
 
 /**
@@ -770,7 +770,7 @@ export function useGetAuthorsAuthorId(
  * Generates SWR cache key for GET /authors/{authorId}
  */
 export function getGetAuthorsAuthorIdKey(
-  args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
+  args?: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
 ) {
-  return ['GET', '/authors/:authorId', args] as const
+  return ['/authors/:authorId', ...(args ? [args] : [])] as const
 }

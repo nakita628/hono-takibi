@@ -1,0 +1,39 @@
+import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import { client } from '../clients/openapi-number'
+
+/**
+ * GET /number
+ *
+ * zod number
+ *
+ * zod number
+ */
+export function createGetNumber(
+  options?: {
+    query?: CreateQueryOptions<InferResponseType<typeof client.number.$get>, Error>
+    client?: ClientRequestOptions
+  },
+  queryClient?: QueryClient,
+) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
+  const queryKey = getGetNumberQueryKey()
+  const query = createQuery(
+    {
+      ...queryOptions,
+      queryKey,
+      queryFn: async () => parseResponse(client.number.$get(undefined, clientOptions)),
+    },
+    queryClient,
+  )
+  return { ...query, queryKey }
+}
+
+/**
+ * Generates Svelte Query cache key for GET /number
+ */
+export function getGetNumberQueryKey() {
+  return ['/number'] as const
+}

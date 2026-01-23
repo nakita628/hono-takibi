@@ -94,9 +94,9 @@ export function useGetPetFindByStatus(
  * Generates SWR cache key for GET /pet/findByStatus
  */
 export function getGetPetFindByStatusKey(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+  args?: InferRequestType<typeof client.pet.findByStatus.$get>,
 ) {
-  return ['GET', '/pet/findByStatus', args] as const
+  return ['/pet/findByStatus', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -130,8 +130,8 @@ export function useGetPetFindByTags(
 /**
  * Generates SWR cache key for GET /pet/findByTags
  */
-export function getGetPetFindByTagsKey(args: InferRequestType<typeof client.pet.findByTags.$get>) {
-  return ['GET', '/pet/findByTags', args] as const
+export function getGetPetFindByTagsKey(args?: InferRequestType<typeof client.pet.findByTags.$get>) {
+  return ['/pet/findByTags', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -165,8 +165,8 @@ export function useGetPetPetId(
 /**
  * Generates SWR cache key for GET /pet/{petId}
  */
-export function getGetPetPetIdKey(args: InferRequestType<(typeof client.pet)[':petId']['$get']>) {
-  return ['GET', '/pet/:petId', args] as const
+export function getGetPetPetIdKey(args?: InferRequestType<(typeof client.pet)[':petId']['$get']>) {
+  return ['/pet/:petId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -279,7 +279,7 @@ export function useGetStoreInventory(options?: {
  * Generates SWR cache key for GET /store/inventory
  */
 export function getGetStoreInventoryKey() {
-  return ['GET', '/store/inventory'] as const
+  return ['/store/inventory'] as const
 }
 
 /**
@@ -342,9 +342,9 @@ export function useGetStoreOrderOrderId(
  * Generates SWR cache key for GET /store/order/{orderId}
  */
 export function getGetStoreOrderOrderIdKey(
-  args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
+  args?: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
 ) {
-  return ['GET', '/store/order/:orderId', args] as const
+  return ['/store/order/:orderId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -461,8 +461,8 @@ export function useGetUserLogin(
 /**
  * Generates SWR cache key for GET /user/login
  */
-export function getGetUserLoginKey(args: InferRequestType<typeof client.user.login.$get>) {
-  return ['GET', '/user/login', args] as const
+export function getGetUserLoginKey(args?: InferRequestType<typeof client.user.login.$get>) {
+  return ['/user/login', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -492,7 +492,7 @@ export function useGetUserLogout(options?: {
  * Generates SWR cache key for GET /user/logout
  */
 export function getGetUserLogoutKey() {
-  return ['GET', '/user/logout'] as const
+  return ['/user/logout'] as const
 }
 
 /**
@@ -525,9 +525,9 @@ export function useGetUserUsername(
  * Generates SWR cache key for GET /user/{username}
  */
 export function getGetUserUsernameKey(
-  args: InferRequestType<(typeof client.user)[':username']['$get']>,
+  args?: InferRequestType<(typeof client.user)[':username']['$get']>,
 ) {
-  return ['GET', '/user/:username', args] as const
+  return ['/user/:username', ...(args ? [args] : [])] as const
 }
 
 /**

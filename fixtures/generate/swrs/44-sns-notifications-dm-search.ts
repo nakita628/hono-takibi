@@ -35,8 +35,8 @@ export function useGetNotifications(
 /**
  * Generates SWR cache key for GET /notifications
  */
-export function getGetNotificationsKey(args: InferRequestType<typeof client.notifications.$get>) {
-  return ['GET', '/notifications', args] as const
+export function getGetNotificationsKey(args?: InferRequestType<typeof client.notifications.$get>) {
+  return ['/notifications', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -69,7 +69,7 @@ export function useGetNotificationsUnreadCount(options?: {
  * Generates SWR cache key for GET /notifications/unread-count
  */
 export function getGetNotificationsUnreadCountKey() {
-  return ['GET', '/notifications/unread-count'] as const
+  return ['/notifications/unread-count'] as const
 }
 
 /**
@@ -126,7 +126,7 @@ export function useGetNotificationsSettings(options?: {
  * Generates SWR cache key for GET /notifications/settings
  */
 export function getGetNotificationsSettingsKey() {
-  return ['GET', '/notifications/settings'] as const
+  return ['/notifications/settings'] as const
 }
 
 /**
@@ -185,9 +185,9 @@ export function useGetDmConversations(
  * Generates SWR cache key for GET /dm/conversations
  */
 export function getGetDmConversationsKey(
-  args: InferRequestType<typeof client.dm.conversations.$get>,
+  args?: InferRequestType<typeof client.dm.conversations.$get>,
 ) {
-  return ['GET', '/dm/conversations', args] as const
+  return ['/dm/conversations', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -250,9 +250,9 @@ export function useGetDmConversationsConversationId(
  * Generates SWR cache key for GET /dm/conversations/{conversationId}
  */
 export function getGetDmConversationsConversationIdKey(
-  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
+  args?: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
 ) {
-  return ['GET', '/dm/conversations/:conversationId', args] as const
+  return ['/dm/conversations/:conversationId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -317,9 +317,9 @@ export function useGetDmConversationsConversationIdMessages(
  * Generates SWR cache key for GET /dm/conversations/{conversationId}/messages
  */
 export function getGetDmConversationsConversationIdMessagesKey(
-  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
+  args?: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
 ) {
-  return ['GET', '/dm/conversations/:conversationId/messages', args] as const
+  return ['/dm/conversations/:conversationId/messages', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -513,7 +513,7 @@ export function useGetDmUnreadCount(options?: {
  * Generates SWR cache key for GET /dm/unread-count
  */
 export function getGetDmUnreadCountKey() {
-  return ['GET', '/dm/unread-count'] as const
+  return ['/dm/unread-count'] as const
 }
 
 /**
@@ -545,8 +545,8 @@ export function useGetSearchPosts(
 /**
  * Generates SWR cache key for GET /search/posts
  */
-export function getGetSearchPostsKey(args: InferRequestType<typeof client.search.posts.$get>) {
-  return ['GET', '/search/posts', args] as const
+export function getGetSearchPostsKey(args?: InferRequestType<typeof client.search.posts.$get>) {
+  return ['/search/posts', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -578,8 +578,8 @@ export function useGetSearchUsers(
 /**
  * Generates SWR cache key for GET /search/users
  */
-export function getGetSearchUsersKey(args: InferRequestType<typeof client.search.users.$get>) {
-  return ['GET', '/search/users', args] as const
+export function getGetSearchUsersKey(args?: InferRequestType<typeof client.search.users.$get>) {
+  return ['/search/users', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -612,9 +612,9 @@ export function useGetSearchHashtags(
  * Generates SWR cache key for GET /search/hashtags
  */
 export function getGetSearchHashtagsKey(
-  args: InferRequestType<typeof client.search.hashtags.$get>,
+  args?: InferRequestType<typeof client.search.hashtags.$get>,
 ) {
-  return ['GET', '/search/hashtags', args] as const
+  return ['/search/hashtags', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -644,7 +644,7 @@ export function useGetSearchRecent(options?: {
  * Generates SWR cache key for GET /search/recent
  */
 export function getGetSearchRecentKey() {
-  return ['GET', '/search/recent'] as const
+  return ['/search/recent'] as const
 }
 
 /**
@@ -702,8 +702,8 @@ export function useGetTrends(
 /**
  * Generates SWR cache key for GET /trends
  */
-export function getGetTrendsKey(args: InferRequestType<typeof client.trends.$get>) {
-  return ['GET', '/trends', args] as const
+export function getGetTrendsKey(args?: InferRequestType<typeof client.trends.$get>) {
+  return ['/trends', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -733,7 +733,7 @@ export function useGetTrendsLocations(options?: {
  * Generates SWR cache key for GET /trends/locations
  */
 export function getGetTrendsLocationsKey() {
-  return ['GET', '/trends/locations'] as const
+  return ['/trends/locations'] as const
 }
 
 /**
@@ -766,9 +766,9 @@ export function useGetSuggestionsUsers(
  * Generates SWR cache key for GET /suggestions/users
  */
 export function getGetSuggestionsUsersKey(
-  args: InferRequestType<typeof client.suggestions.users.$get>,
+  args?: InferRequestType<typeof client.suggestions.users.$get>,
 ) {
-  return ['GET', '/suggestions/users', args] as const
+  return ['/suggestions/users', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -825,7 +825,7 @@ export function useGetSuggestionsTopics(options?: {
  * Generates SWR cache key for GET /suggestions/topics
  */
 export function getGetSuggestionsTopicsKey() {
-  return ['GET', '/suggestions/topics'] as const
+  return ['/suggestions/topics'] as const
 }
 
 /**

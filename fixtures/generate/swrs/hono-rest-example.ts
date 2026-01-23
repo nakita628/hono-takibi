@@ -35,7 +35,7 @@ export function useGet(options?: {
  * Generates SWR cache key for GET /
  */
 export function getGetKey() {
-  return ['GET', '/'] as const
+  return ['/'] as const
 }
 
 /**
@@ -69,8 +69,8 @@ export function useGetPosts(
 /**
  * Generates SWR cache key for GET /posts
  */
-export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['GET', '/posts', args] as const
+export function getGetPostsKey(args?: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', ...(args ? [args] : [])] as const
 }
 
 /**

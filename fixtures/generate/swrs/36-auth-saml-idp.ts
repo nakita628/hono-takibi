@@ -37,8 +37,8 @@ export function useGetSamlSso(
 /**
  * Generates SWR cache key for GET /saml/sso
  */
-export function getGetSamlSsoKey(args: InferRequestType<typeof client.saml.sso.$get>) {
-  return ['GET', '/saml/sso', args] as const
+export function getGetSamlSsoKey(args?: InferRequestType<typeof client.saml.sso.$get>) {
+  return ['/saml/sso', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -100,8 +100,8 @@ export function useGetSamlSlo(
 /**
  * Generates SWR cache key for GET /saml/slo
  */
-export function getGetSamlSloKey(args: InferRequestType<typeof client.saml.slo.$get>) {
-  return ['GET', '/saml/slo', args] as const
+export function getGetSamlSloKey(args?: InferRequestType<typeof client.saml.slo.$get>) {
+  return ['/saml/slo', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -189,7 +189,7 @@ export function useGetSamlMetadata(options?: {
  * Generates SWR cache key for GET /saml/metadata
  */
 export function getGetSamlMetadataKey() {
-  return ['GET', '/saml/metadata'] as const
+  return ['/saml/metadata'] as const
 }
 
 /**
@@ -222,9 +222,9 @@ export function useGetServiceProviders(
  * Generates SWR cache key for GET /service-providers
  */
 export function getGetServiceProvidersKey(
-  args: InferRequestType<(typeof client)['service-providers']['$get']>,
+  args?: InferRequestType<(typeof client)['service-providers']['$get']>,
 ) {
-  return ['GET', '/service-providers', args] as const
+  return ['/service-providers', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -286,9 +286,9 @@ export function useGetServiceProvidersSpId(
  * Generates SWR cache key for GET /service-providers/{spId}
  */
 export function getGetServiceProvidersSpIdKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+  args?: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
 ) {
-  return ['GET', '/service-providers/:spId', args] as const
+  return ['/service-providers/:spId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -380,9 +380,9 @@ export function useGetServiceProvidersSpIdMetadata(
  * Generates SWR cache key for GET /service-providers/{spId}/metadata
  */
 export function getGetServiceProvidersSpIdMetadataKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+  args?: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
 ) {
-  return ['GET', '/service-providers/:spId/metadata', args] as const
+  return ['/service-providers/:spId/metadata', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -447,9 +447,9 @@ export function useGetServiceProvidersSpIdAttributes(
  * Generates SWR cache key for GET /service-providers/{spId}/attributes
  */
 export function getGetServiceProvidersSpIdAttributesKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+  args?: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
 ) {
-  return ['GET', '/service-providers/:spId/attributes', args] as const
+  return ['/service-providers/:spId/attributes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -506,7 +506,7 @@ export function useGetAttributes(options?: {
  * Generates SWR cache key for GET /attributes
  */
 export function getGetAttributesKey() {
-  return ['GET', '/attributes'] as const
+  return ['/attributes'] as const
 }
 
 /**
@@ -536,7 +536,7 @@ export function useGetCertificates(options?: {
  * Generates SWR cache key for GET /certificates
  */
 export function getGetCertificatesKey() {
-  return ['GET', '/certificates'] as const
+  return ['/certificates'] as const
 }
 
 /**
@@ -648,8 +648,8 @@ export function useGetSessions(
 /**
  * Generates SWR cache key for GET /sessions
  */
-export function getGetSessionsKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['GET', '/sessions', args] as const
+export function getGetSessionsKey(args?: InferRequestType<typeof client.sessions.$get>) {
+  return ['/sessions', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -708,6 +708,6 @@ export function useGetAuditLogs(
 /**
  * Generates SWR cache key for GET /audit-logs
  */
-export function getGetAuditLogsKey(args: InferRequestType<(typeof client)['audit-logs']['$get']>) {
-  return ['GET', '/audit-logs', args] as const
+export function getGetAuditLogsKey(args?: InferRequestType<(typeof client)['audit-logs']['$get']>) {
+  return ['/audit-logs', ...(args ? [args] : [])] as const
 }

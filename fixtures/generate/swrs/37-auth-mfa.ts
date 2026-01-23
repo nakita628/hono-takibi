@@ -33,7 +33,7 @@ export function useGetMfaStatus(options?: {
  * Generates SWR cache key for GET /mfa/status
  */
 export function getGetMfaStatusKey() {
-  return ['GET', '/mfa/status'] as const
+  return ['/mfa/status'] as const
 }
 
 /**
@@ -63,7 +63,7 @@ export function useGetMfaMethods(options?: {
  * Generates SWR cache key for GET /mfa/methods
  */
 export function getGetMfaMethodsKey() {
-  return ['GET', '/mfa/methods'] as const
+  return ['/mfa/methods'] as const
 }
 
 /**
@@ -389,7 +389,7 @@ export function useGetMfaWebauthnCredentials(options?: {
  * Generates SWR cache key for GET /mfa/webauthn/credentials
  */
 export function getGetMfaWebauthnCredentialsKey() {
-  return ['GET', '/mfa/webauthn/credentials'] as const
+  return ['/mfa/webauthn/credentials'] as const
 }
 
 /**
@@ -505,7 +505,7 @@ export function useGetMfaBackupCodesStatus(options?: {
  * Generates SWR cache key for GET /mfa/backup-codes/status
  */
 export function getGetMfaBackupCodesStatusKey() {
-  return ['GET', '/mfa/backup-codes/status'] as const
+  return ['/mfa/backup-codes/status'] as const
 }
 
 /**

@@ -38,8 +38,8 @@ export function useGetSamlSso(
 /**
  * Generates TanStack Query cache key for GET /saml/sso
  */
-export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
-  return ['GET', '/saml/sso', args] as const
+export function getGetSamlSsoQueryKey(args?: InferRequestType<typeof client.saml.sso.$get>) {
+  return ['/saml/sso', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -107,8 +107,8 @@ export function useGetSamlSlo(
 /**
  * Generates TanStack Query cache key for GET /saml/slo
  */
-export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
-  return ['GET', '/saml/slo', args] as const
+export function getGetSamlSloQueryKey(args?: InferRequestType<typeof client.saml.slo.$get>) {
+  return ['/saml/slo', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -207,7 +207,7 @@ export function useGetSamlMetadata(
  * Generates TanStack Query cache key for GET /saml/metadata
  */
 export function getGetSamlMetadataQueryKey() {
-  return ['GET', '/saml/metadata'] as const
+  return ['/saml/metadata'] as const
 }
 
 /**
@@ -243,9 +243,9 @@ export function useGetServiceProviders(
  * Generates TanStack Query cache key for GET /service-providers
  */
 export function getGetServiceProvidersQueryKey(
-  args: InferRequestType<(typeof client)['service-providers']['$get']>,
+  args?: InferRequestType<(typeof client)['service-providers']['$get']>,
 ) {
-  return ['GET', '/service-providers', args] as const
+  return ['/service-providers', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -315,9 +315,9 @@ export function useGetServiceProvidersSpId(
  * Generates TanStack Query cache key for GET /service-providers/{spId}
  */
 export function getGetServiceProvidersSpIdQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+  args?: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
 ) {
-  return ['GET', '/service-providers/:spId', args] as const
+  return ['/service-providers/:spId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -417,9 +417,9 @@ export function useGetServiceProvidersSpIdMetadata(
  * Generates TanStack Query cache key for GET /service-providers/{spId}/metadata
  */
 export function getGetServiceProvidersSpIdMetadataQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+  args?: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
 ) {
-  return ['GET', '/service-providers/:spId/metadata', args] as const
+  return ['/service-providers/:spId/metadata', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -491,9 +491,9 @@ export function useGetServiceProvidersSpIdAttributes(
  * Generates TanStack Query cache key for GET /service-providers/{spId}/attributes
  */
 export function getGetServiceProvidersSpIdAttributesQueryKey(
-  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+  args?: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
 ) {
-  return ['GET', '/service-providers/:spId/attributes', args] as const
+  return ['/service-providers/:spId/attributes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -560,7 +560,7 @@ export function useGetAttributes(
  * Generates TanStack Query cache key for GET /attributes
  */
 export function getGetAttributesQueryKey() {
-  return ['GET', '/attributes'] as const
+  return ['/attributes'] as const
 }
 
 /**
@@ -595,7 +595,7 @@ export function useGetCertificates(
  * Generates TanStack Query cache key for GET /certificates
  */
 export function getGetCertificatesQueryKey() {
-  return ['GET', '/certificates'] as const
+  return ['/certificates'] as const
 }
 
 /**
@@ -719,8 +719,8 @@ export function useGetSessions(
 /**
  * Generates TanStack Query cache key for GET /sessions
  */
-export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['GET', '/sessions', args] as const
+export function getGetSessionsQueryKey(args?: InferRequestType<typeof client.sessions.$get>) {
+  return ['/sessions', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -786,7 +786,7 @@ export function useGetAuditLogs(
  * Generates TanStack Query cache key for GET /audit-logs
  */
 export function getGetAuditLogsQueryKey(
-  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
+  args?: InferRequestType<(typeof client)['audit-logs']['$get']>,
 ) {
-  return ['GET', '/audit-logs', args] as const
+  return ['/audit-logs', ...(args ? [args] : [])] as const
 }

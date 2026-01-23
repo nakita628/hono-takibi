@@ -106,6 +106,12 @@ type Config = {
     readonly split?: boolean
     readonly client?: string
   }
+  readonly 'svelte-query'?: {
+    readonly output: string | `${string}.ts`
+    readonly import: string
+    readonly split?: boolean
+    readonly client?: string
+  }
 }
 
 /**
@@ -463,6 +469,47 @@ export function parseConfig(
     }
   }
 
+  // svelte-query
+  if (config['svelte-query'] !== undefined) {
+    if (typeof config['svelte-query'].output !== 'string') {
+      return {
+        ok: false,
+        error: `Invalid output format for svelte-query: ${String(config['svelte-query'].output)}`,
+      }
+    }
+    if (typeof config['svelte-query'].import !== 'string') {
+      return {
+        ok: false,
+        error: `Invalid import format for svelte-query: ${String(config['svelte-query'].import)}`,
+      }
+    }
+    if (
+      config['svelte-query'].split !== undefined &&
+      typeof config['svelte-query'].split !== 'boolean'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid split format for svelte-query: ${String(config['svelte-query'].split)}`,
+      }
+    }
+    if (
+      config['svelte-query'].client !== undefined &&
+      typeof config['svelte-query'].client !== 'string'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid client format for svelte-query: ${String(config['svelte-query'].client)}`,
+      }
+    }
+    // split: true requires directory (no .ts)
+    if (config['svelte-query'].split === true && isTs(config['svelte-query'].output)) {
+      return {
+        ok: false,
+        error: `Invalid svelte-query output path for split mode (must be a directory, not .ts): ${config['svelte-query'].output}`,
+      }
+    }
+  }
+
   const result = {
     ...config,
     ...(config['zod-openapi'] && {
@@ -600,6 +647,15 @@ export function parseConfig(
           config['tanstack-query'].split !== true && !isTs(config['tanstack-query'].output)
             ? `${config['tanstack-query'].output}/index.ts`
             : config['tanstack-query'].output,
+      },
+    }),
+    ...(config['svelte-query'] && {
+      'svelte-query': {
+        ...config['svelte-query'],
+        output:
+          config['svelte-query'].split !== true && !isTs(config['svelte-query'].output)
+            ? `${config['svelte-query'].output}/index.ts`
+            : config['svelte-query'].output,
       },
     }),
   }

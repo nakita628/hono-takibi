@@ -38,5 +38,5 @@ export function useGetString(
  * Generates TanStack Query cache key for GET /string
  */
 export function getGetStringQueryKey() {
-  return ['GET', '/string'] as const
+  return ['/string'] as const
 }

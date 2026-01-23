@@ -38,8 +38,8 @@ export function useGetSessions(
 /**
  * Generates TanStack Query cache key for GET /sessions
  */
-export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['GET', '/sessions', args] as const
+export function getGetSessionsQueryKey(args?: InferRequestType<typeof client.sessions.$get>) {
+  return ['/sessions', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -105,7 +105,7 @@ export function useGetSessionsCurrent(
  * Generates TanStack Query cache key for GET /sessions/current
  */
 export function getGetSessionsCurrentQueryKey() {
-  return ['GET', '/sessions/current'] as const
+  return ['/sessions/current'] as const
 }
 
 /**
@@ -267,9 +267,9 @@ export function useGetSessionsSessionId(
  * Generates TanStack Query cache key for GET /sessions/{sessionId}
  */
 export function getGetSessionsSessionIdQueryKey(
-  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+  args?: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  return ['GET', '/sessions/:sessionId', args] as const
+  return ['/sessions/:sessionId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -401,9 +401,9 @@ export function useGetSessionsHistory(
  * Generates TanStack Query cache key for GET /sessions/history
  */
 export function getGetSessionsHistoryQueryKey(
-  args: InferRequestType<typeof client.sessions.history.$get>,
+  args?: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  return ['GET', '/sessions/history', args] as const
+  return ['/sessions/history', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -445,9 +445,9 @@ export function useGetSessionsSecurityEvents(
  * Generates TanStack Query cache key for GET /sessions/security-events
  */
 export function getGetSessionsSecurityEventsQueryKey(
-  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
+  args?: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return ['GET', '/sessions/security-events', args] as const
+  return ['/sessions/security-events', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -482,7 +482,7 @@ export function useGetSessionsPolicies(
  * Generates TanStack Query cache key for GET /sessions/policies
  */
 export function getGetSessionsPoliciesQueryKey() {
-  return ['GET', '/sessions/policies'] as const
+  return ['/sessions/policies'] as const
 }
 
 /**
@@ -551,7 +551,7 @@ export function useGetSessionsTrustedDevices(
  * Generates TanStack Query cache key for GET /sessions/trusted-devices
  */
 export function getGetSessionsTrustedDevicesQueryKey() {
-  return ['GET', '/sessions/trusted-devices'] as const
+  return ['/sessions/trusted-devices'] as const
 }
 
 /**

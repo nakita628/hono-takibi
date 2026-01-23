@@ -34,8 +34,8 @@ export function useGetItems(
 /**
  * Generates TanStack Query cache key for GET /items
  */
-export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['GET', '/items', args] as const
+export function getGetItemsQueryKey(args?: InferRequestType<typeof client.items.$get>) {
+  return ['/items', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -69,9 +69,9 @@ export function useGetItemsItemId(
  * Generates TanStack Query cache key for GET /items/{itemId}
  */
 export function getGetItemsItemIdQueryKey(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  args?: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  return ['GET', '/items/:itemId', args] as const
+  return ['/items/:itemId', ...(args ? [args] : [])] as const
 }
 
 /**

@@ -34,7 +34,7 @@ export function useGetPublic(
  * Generates TanStack Query cache key for GET /public
  */
 export function getGetPublicQueryKey() {
-  return ['GET', '/public'] as const
+  return ['/public'] as const
 }
 
 /**
@@ -67,7 +67,7 @@ export function useGetProtected(
  * Generates TanStack Query cache key for GET /protected
  */
 export function getGetProtectedQueryKey() {
-  return ['GET', '/protected'] as const
+  return ['/protected'] as const
 }
 
 /**
@@ -100,7 +100,7 @@ export function useGetAdmin(
  * Generates TanStack Query cache key for GET /admin
  */
 export function getGetAdminQueryKey() {
-  return ['GET', '/admin'] as const
+  return ['/admin'] as const
 }
 
 /**
@@ -133,7 +133,7 @@ export function useGetOauthResource(
  * Generates TanStack Query cache key for GET /oauth-resource
  */
 export function getGetOauthResourceQueryKey() {
-  return ['GET', '/oauth-resource'] as const
+  return ['/oauth-resource'] as const
 }
 
 /**
@@ -166,5 +166,5 @@ export function useGetMultiAuth(
  * Generates TanStack Query cache key for GET /multi-auth
  */
 export function getGetMultiAuthQueryKey() {
-  return ['GET', '/multi-auth'] as const
+  return ['/multi-auth'] as const
 }

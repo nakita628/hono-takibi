@@ -35,7 +35,7 @@ export function useGetExtremeResponses(
  * Generates TanStack Query cache key for GET /extreme-responses
  */
 export function getGetExtremeResponsesQueryKey() {
-  return ['GET', '/extreme-responses'] as const
+  return ['/extreme-responses'] as const
 }
 
 /**

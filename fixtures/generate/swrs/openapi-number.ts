@@ -33,5 +33,5 @@ export function useGetNumber(options?: {
  * Generates SWR cache key for GET /number
  */
 export function getGetNumberKey() {
-  return ['GET', '/number'] as const
+  return ['/number'] as const
 }

@@ -34,8 +34,8 @@ export function useGetDocuments(
 /**
  * Generates TanStack Query cache key for GET /documents
  */
-export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.documents.$get>) {
-  return ['GET', '/documents', args] as const
+export function getGetDocumentsQueryKey(args?: InferRequestType<typeof client.documents.$get>) {
+  return ['/documents', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -96,9 +96,9 @@ export function useGetDocumentsDocumentId(
  * Generates TanStack Query cache key for GET /documents/{documentId}
  */
 export function getGetDocumentsDocumentIdQueryKey(
-  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
+  args?: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
-  return ['GET', '/documents/:documentId', args] as const
+  return ['/documents/:documentId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -164,9 +164,9 @@ export function useGetDocumentsDocumentIdVersions(
  * Generates TanStack Query cache key for GET /documents/{documentId}/versions
  */
 export function getGetDocumentsDocumentIdVersionsQueryKey(
-  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
+  args?: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
-  return ['GET', '/documents/:documentId/versions', args] as const
+  return ['/documents/:documentId/versions', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -232,9 +232,9 @@ export function useGetUsersUserIdDocuments(
  * Generates TanStack Query cache key for GET /users/{userId}/documents
  */
 export function getGetUsersUserIdDocumentsQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
 ) {
-  return ['GET', '/users/:userId/documents', args] as const
+  return ['/users/:userId/documents', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -294,7 +294,7 @@ export function useGetTemplates(
  * Generates TanStack Query cache key for GET /templates
  */
 export function getGetTemplatesQueryKey() {
-  return ['GET', '/templates'] as const
+  return ['/templates'] as const
 }
 
 /**

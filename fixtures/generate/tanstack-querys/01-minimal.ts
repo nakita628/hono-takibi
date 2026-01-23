@@ -34,5 +34,5 @@ export function useGetHealth(
  * Generates TanStack Query cache key for GET /health
  */
 export function getGetHealthQueryKey() {
-  return ['GET', '/health'] as const
+  return ['/health'] as const
 }

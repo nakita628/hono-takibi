@@ -34,7 +34,7 @@ export function useGetTrees(
  * Generates TanStack Query cache key for GET /trees
  */
 export function getGetTreesQueryKey() {
-  return ['GET', '/trees'] as const
+  return ['/trees'] as const
 }
 
 /**
@@ -94,7 +94,7 @@ export function useGetGraphs(
  * Generates TanStack Query cache key for GET /graphs
  */
 export function getGetGraphsQueryKey() {
-  return ['GET', '/graphs'] as const
+  return ['/graphs'] as const
 }
 
 /**
@@ -127,7 +127,7 @@ export function useGetLinkedLists(
  * Generates TanStack Query cache key for GET /linked-lists
  */
 export function getGetLinkedListsQueryKey() {
-  return ['GET', '/linked-lists'] as const
+  return ['/linked-lists'] as const
 }
 
 /**
@@ -160,7 +160,7 @@ export function useGetSocialNetwork(
  * Generates TanStack Query cache key for GET /social-network
  */
 export function getGetSocialNetworkQueryKey() {
-  return ['GET', '/social-network'] as const
+  return ['/social-network'] as const
 }
 
 /**
@@ -193,7 +193,7 @@ export function useGetFileSystem(
  * Generates TanStack Query cache key for GET /file-system
  */
 export function getGetFileSystemQueryKey() {
-  return ['GET', '/file-system'] as const
+  return ['/file-system'] as const
 }
 
 /**
@@ -226,7 +226,7 @@ export function useGetComments(
  * Generates TanStack Query cache key for GET /comments
  */
 export function getGetCommentsQueryKey() {
-  return ['GET', '/comments'] as const
+  return ['/comments'] as const
 }
 
 /**
@@ -259,7 +259,7 @@ export function useGetPolymorphic(
  * Generates TanStack Query cache key for GET /polymorphic
  */
 export function getGetPolymorphicQueryKey() {
-  return ['GET', '/polymorphic'] as const
+  return ['/polymorphic'] as const
 }
 
 /**
@@ -292,7 +292,7 @@ export function useGetCategories(
  * Generates TanStack Query cache key for GET /categories
  */
 export function getGetCategoriesQueryKey() {
-  return ['GET', '/categories'] as const
+  return ['/categories'] as const
 }
 
 /**
@@ -325,5 +325,5 @@ export function useGetWorkflow(
  * Generates TanStack Query cache key for GET /workflow
  */
 export function getGetWorkflowQueryKey() {
-  return ['GET', '/workflow'] as const
+  return ['/workflow'] as const
 }

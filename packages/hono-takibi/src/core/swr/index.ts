@@ -119,13 +119,13 @@ const makeHookCode = (
     hookCode = `${docs}
 export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const isEnabled=swrOptions?.enabled!==false;const swrKey=swrOptions?.swrKey??(isEnabled?${keyGetterCall}:null);const query=useSWR<${inferResponseType},Error>(swrKey,async()=>parseResponse(${clientCall}),swrOptions);return{swrKey,...query}}`
 
-    // Key getter for GET
+    // Key getter for GET (orval style: optional args with conditional spread)
     if (hasArgs) {
       keyGetterCode = `${keyDocs}
-export function ${keyGetterName}(args:${inferRequestType}){return['GET','${honoPath}',args]as const}`
+export function ${keyGetterName}(args?:${inferRequestType}){return['${honoPath}',...(args?[args]:[])]as const}`
     } else {
       keyGetterCode = `${keyDocs}
-export function ${keyGetterName}(){return['GET','${honoPath}']as const}`
+export function ${keyGetterName}(){return['${honoPath}']as const}`
     }
   } else {
     // useSWRMutation hook for POST/PUT/DELETE/PATCH

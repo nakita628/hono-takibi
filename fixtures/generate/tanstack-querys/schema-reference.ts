@@ -36,5 +36,5 @@ export function useGetExample(
  * Generates TanStack Query cache key for GET /example
  */
 export function getGetExampleQueryKey() {
-  return ['GET', '/example'] as const
+  return ['/example'] as const
 }

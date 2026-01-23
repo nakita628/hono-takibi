@@ -29,5 +29,5 @@ export function useGetCategories(options?: {
  * Generates SWR cache key for GET /categories
  */
 export function getGetCategoriesKey() {
-  return ['GET', '/categories'] as const
+  return ['/categories'] as const
 }

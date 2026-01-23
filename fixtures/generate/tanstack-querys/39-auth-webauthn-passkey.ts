@@ -167,7 +167,7 @@ export function useGetWebauthnCredentials(
  * Generates TanStack Query cache key for GET /webauthn/credentials
  */
 export function getGetWebauthnCredentialsQueryKey() {
-  return ['GET', '/webauthn/credentials'] as const
+  return ['/webauthn/credentials'] as const
 }
 
 /**
@@ -207,9 +207,9 @@ export function useGetWebauthnCredentialsCredentialId(
  * Generates TanStack Query cache key for GET /webauthn/credentials/{credentialId}
  */
 export function getGetWebauthnCredentialsCredentialIdQueryKey(
-  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+  args?: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
-  return ['GET', '/webauthn/credentials/:credentialId', args] as const
+  return ['/webauthn/credentials/:credentialId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -312,7 +312,7 @@ export function useGetWebauthnSettings(
  * Generates TanStack Query cache key for GET /webauthn/settings
  */
 export function getGetWebauthnSettingsQueryKey() {
-  return ['GET', '/webauthn/settings'] as const
+  return ['/webauthn/settings'] as const
 }
 
 /**
@@ -348,7 +348,7 @@ export function useGetWebauthnSettingsRp(
  * Generates TanStack Query cache key for GET /webauthn/settings/rp
  */
 export function getGetWebauthnSettingsRpQueryKey() {
-  return ['GET', '/webauthn/settings/rp'] as const
+  return ['/webauthn/settings/rp'] as const
 }
 
 /**
@@ -416,5 +416,5 @@ export function useGetWebauthnAuthenticators(
  * Generates TanStack Query cache key for GET /webauthn/authenticators
  */
 export function getGetWebauthnAuthenticatorsQueryKey() {
-  return ['GET', '/webauthn/authenticators'] as const
+  return ['/webauthn/authenticators'] as const
 }

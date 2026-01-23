@@ -38,7 +38,7 @@ export function useGet(
  * Generates TanStack Query cache key for GET /
  */
 export function getGetQueryKey() {
-  return ['GET', '/'] as const
+  return ['/'] as const
 }
 
 /**
@@ -75,8 +75,8 @@ export function useGetPosts(
 /**
  * Generates TanStack Query cache key for GET /posts
  */
-export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['GET', '/posts', args] as const
+export function getGetPostsQueryKey(args?: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', ...(args ? [args] : [])] as const
 }
 
 /**

@@ -37,8 +37,8 @@ export function useGetPath(
 /**
  * Generates SWR cache key for GET /{path}
  */
-export function getGetPathKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['GET', '/:path', args] as const
+export function getGetPathKey(args?: InferRequestType<(typeof client)[':path']['$get']>) {
+  return ['/:path', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -401,9 +401,9 @@ export function useGet1IndexesIndexNameObjectID(
  * Generates SWR cache key for GET /1/indexes/{indexName}/{objectID}
  */
 export function getGet1IndexesIndexNameObjectIDKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
 ) {
-  return ['GET', '/1/indexes/:indexName/:objectID', args] as const
+  return ['/1/indexes/:indexName/:objectID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -734,9 +734,9 @@ export function useGet1IndexesIndexNameSettings(
  * Generates SWR cache key for GET /1/indexes/{indexName}/settings
  */
 export function getGet1IndexesIndexNameSettingsKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
 ) {
-  return ['GET', '/1/indexes/:indexName/settings', args] as const
+  return ['/1/indexes/:indexName/settings', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -820,11 +820,11 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
  * Generates SWR cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
  */
 export function getGet1IndexesIndexNameSynonymsObjectIDKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
 ) {
-  return ['GET', '/1/indexes/:indexName/synonyms/:objectID', args] as const
+  return ['/1/indexes/:indexName/synonyms/:objectID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1023,7 +1023,7 @@ export function useGet1Keys(options?: {
  * Generates SWR cache key for GET /1/keys
  */
 export function getGet1KeysKey() {
-  return ['GET', '/1/keys'] as const
+  return ['/1/keys'] as const
 }
 
 /**
@@ -1090,9 +1090,9 @@ export function useGet1KeysKey(
  * Generates SWR cache key for GET /1/keys/{key}
  */
 export function getGet1KeysKeyKey(
-  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
 ) {
-  return ['GET', '/1/keys/:key', args] as const
+  return ['/1/keys/:key', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1229,11 +1229,11 @@ export function useGet1IndexesIndexNameRulesObjectID(
  * Generates SWR cache key for GET /1/indexes/{indexName}/rules/{objectID}
  */
 export function getGet1IndexesIndexNameRulesObjectIDKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
 ) {
-  return ['GET', '/1/indexes/:indexName/rules/:objectID', args] as const
+  return ['/1/indexes/:indexName/rules/:objectID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1490,7 +1490,7 @@ export function useGet1DictionariesSettings(options?: {
  * Generates SWR cache key for GET /1/dictionaries/[*]/settings
  */
 export function getGet1DictionariesSettingsKey() {
-  return ['GET', '/1/dictionaries/*/settings'] as const
+  return ['/1/dictionaries/*/settings'] as const
 }
 
 /**
@@ -1555,7 +1555,7 @@ export function useGet1DictionariesLanguages(options?: {
  * Generates SWR cache key for GET /1/dictionaries/[*]/languages
  */
 export function getGet1DictionariesLanguagesKey() {
-  return ['GET', '/1/dictionaries/*/languages'] as const
+  return ['/1/dictionaries/*/languages'] as const
 }
 
 /**
@@ -1596,9 +1596,9 @@ export function useGet1ClustersMapping(
  * Generates SWR cache key for GET /1/clusters/mapping
  */
 export function getGet1ClustersMappingKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
 ) {
-  return ['GET', '/1/clusters/mapping', args] as const
+  return ['/1/clusters/mapping', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1697,7 +1697,7 @@ export function useGet1ClustersMappingTop(options?: {
  * Generates SWR cache key for GET /1/clusters/mapping/top
  */
 export function getGet1ClustersMappingTopKey() {
-  return ['GET', '/1/clusters/mapping/top'] as const
+  return ['/1/clusters/mapping/top'] as const
 }
 
 /**
@@ -1738,9 +1738,9 @@ export function useGet1ClustersMappingUserID(
  * Generates SWR cache key for GET /1/clusters/mapping/{userID}
  */
 export function getGet1ClustersMappingUserIDKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
 ) {
-  return ['GET', '/1/clusters/mapping/:userID', args] as const
+  return ['/1/clusters/mapping/:userID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1801,7 +1801,7 @@ export function useGet1Clusters(options?: {
  * Generates SWR cache key for GET /1/clusters
  */
 export function getGet1ClustersKey() {
-  return ['GET', '/1/clusters'] as const
+  return ['/1/clusters'] as const
 }
 
 /**
@@ -1871,9 +1871,9 @@ export function useGet1ClustersMappingPending(
  * Generates SWR cache key for GET /1/clusters/mapping/pending
  */
 export function getGet1ClustersMappingPendingKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
 ) {
-  return ['GET', '/1/clusters/mapping/pending', args] as const
+  return ['/1/clusters/mapping/pending', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1908,7 +1908,7 @@ export function useGet1SecuritySources(options?: {
  * Generates SWR cache key for GET /1/security/sources
  */
 export function getGet1SecuritySourcesKey() {
-  return ['GET', '/1/security/sources'] as const
+  return ['/1/security/sources'] as const
 }
 
 /**
@@ -2032,8 +2032,8 @@ export function useGet1Logs(
 /**
  * Generates SWR cache key for GET /1/logs
  */
-export function getGet1LogsKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['GET', '/1/logs', args] as const
+export function getGet1LogsKey(args?: InferRequestType<(typeof client)['1']['logs']['$get']>) {
+  return ['/1/logs', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2068,9 +2068,9 @@ export function useGet1TaskTaskID(
  * Generates SWR cache key for GET /1/task/{taskID}
  */
 export function getGet1TaskTaskIDKey(
-  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
 ) {
-  return ['GET', '/1/task/:taskID', args] as const
+  return ['/1/task/:taskID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2116,9 +2116,9 @@ export function useGet1IndexesIndexNameTaskTaskID(
  * Generates SWR cache key for GET /1/indexes/{indexName}/task/{taskID}
  */
 export function getGet1IndexesIndexNameTaskTaskIDKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return ['GET', '/1/indexes/:indexName/task/:taskID', args] as const
+  return ['/1/indexes/:indexName/task/:taskID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2206,8 +2206,10 @@ export function useGet1Indexes(
 /**
  * Generates SWR cache key for GET /1/indexes
  */
-export function getGet1IndexesKey(args: InferRequestType<(typeof client)['1']['indexes']['$get']>) {
-  return ['GET', '/1/indexes', args] as const
+export function getGet1IndexesKey(
+  args?: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+) {
+  return ['/1/indexes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2241,8 +2243,8 @@ export function useGetWaitForApiKey(
 /**
  * Generates SWR cache key for GET /waitForApiKey
  */
-export function getGetWaitForApiKeyKey(args: InferRequestType<typeof client.waitForApiKey.$get>) {
-  return ['GET', '/waitForApiKey', args] as const
+export function getGetWaitForApiKeyKey(args?: InferRequestType<typeof client.waitForApiKey.$get>) {
+  return ['/waitForApiKey', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2278,8 +2280,8 @@ export function useGetWaitForTask(
 /**
  * Generates SWR cache key for GET /waitForTask
  */
-export function getGetWaitForTaskKey(args: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['GET', '/waitForTask', args] as const
+export function getGetWaitForTaskKey(args?: InferRequestType<typeof client.waitForTask.$get>) {
+  return ['/waitForTask', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2313,8 +2315,10 @@ export function useGetWaitForAppTask(
 /**
  * Generates SWR cache key for GET /waitForAppTask
  */
-export function getGetWaitForAppTaskKey(args: InferRequestType<typeof client.waitForAppTask.$get>) {
-  return ['GET', '/waitForAppTask', args] as const
+export function getGetWaitForAppTaskKey(
+  args?: InferRequestType<typeof client.waitForAppTask.$get>,
+) {
+  return ['/waitForAppTask', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2352,8 +2356,8 @@ export function useGetBrowseObjects(
 /**
  * Generates SWR cache key for GET /browseObjects
  */
-export function getGetBrowseObjectsKey(args: InferRequestType<typeof client.browseObjects.$get>) {
-  return ['GET', '/browseObjects', args] as const
+export function getGetBrowseObjectsKey(args?: InferRequestType<typeof client.browseObjects.$get>) {
+  return ['/browseObjects', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2400,9 +2404,9 @@ export function useGetGenerateSecuredApiKey(
  * Generates SWR cache key for GET /generateSecuredApiKey
  */
 export function getGetGenerateSecuredApiKeyKey(
-  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+  args?: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  return ['GET', '/generateSecuredApiKey', args] as const
+  return ['/generateSecuredApiKey', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2437,9 +2441,9 @@ export function useGetAccountCopyIndex(
  * Generates SWR cache key for GET /accountCopyIndex
  */
 export function getGetAccountCopyIndexKey(
-  args: InferRequestType<typeof client.accountCopyIndex.$get>,
+  args?: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return ['GET', '/accountCopyIndex', args] as const
+  return ['/accountCopyIndex', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2489,9 +2493,9 @@ export function useGetReplaceAllObjects(
  * Generates SWR cache key for GET /replaceAllObjects
  */
 export function getGetReplaceAllObjectsKey(
-  args: InferRequestType<typeof client.replaceAllObjects.$get>,
+  args?: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return ['GET', '/replaceAllObjects', args] as const
+  return ['/replaceAllObjects', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2542,9 +2546,9 @@ export function useGetReplaceAllObjectsWithTransformation(
  * Generates SWR cache key for GET /replaceAllObjectsWithTransformation
  */
 export function getGetReplaceAllObjectsWithTransformationKey(
-  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+  args?: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  return ['GET', '/replaceAllObjectsWithTransformation', args] as const
+  return ['/replaceAllObjectsWithTransformation', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2578,8 +2582,8 @@ export function useGetChunkedBatch(
 /**
  * Generates SWR cache key for GET /chunkedBatch
  */
-export function getGetChunkedBatchKey(args: InferRequestType<typeof client.chunkedBatch.$get>) {
-  return ['GET', '/chunkedBatch', args] as const
+export function getGetChunkedBatchKey(args?: InferRequestType<typeof client.chunkedBatch.$get>) {
+  return ['/chunkedBatch', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2613,8 +2617,8 @@ export function useGetSaveObjects(
 /**
  * Generates SWR cache key for GET /saveObjects
  */
-export function getGetSaveObjectsKey(args: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['GET', '/saveObjects', args] as const
+export function getGetSaveObjectsKey(args?: InferRequestType<typeof client.saveObjects.$get>) {
+  return ['/saveObjects', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2650,9 +2654,9 @@ export function useGetSaveObjectsWithTransformation(
  * Generates SWR cache key for GET /saveObjectsWithTransformation
  */
 export function getGetSaveObjectsWithTransformationKey(
-  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+  args?: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
 ) {
-  return ['GET', '/saveObjectsWithTransformation', args] as const
+  return ['/saveObjectsWithTransformation', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2771,8 +2775,8 @@ export function useGetIndexExists(
 /**
  * Generates SWR cache key for GET /indexExists
  */
-export function getGetIndexExistsKey(args: InferRequestType<typeof client.indexExists.$get>) {
-  return ['GET', '/indexExists', args] as const
+export function getGetIndexExistsKey(args?: InferRequestType<typeof client.indexExists.$get>) {
+  return ['/indexExists', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2807,7 +2811,7 @@ export function useGetSetClientApiKey(
  * Generates SWR cache key for GET /setClientApiKey
  */
 export function getGetSetClientApiKeyKey(
-  args: InferRequestType<typeof client.setClientApiKey.$get>,
+  args?: InferRequestType<typeof client.setClientApiKey.$get>,
 ) {
-  return ['GET', '/setClientApiKey', args] as const
+  return ['/setClientApiKey', ...(args ? [args] : [])] as const
 }

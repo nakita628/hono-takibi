@@ -38,7 +38,7 @@ export function useGetHono(
  * Generates TanStack Query cache key for GET /hono
  */
 export function getGetHonoQueryKey() {
-  return ['GET', '/hono'] as const
+  return ['/hono'] as const
 }
 
 /**
@@ -75,7 +75,7 @@ export function useGetHonoX(
  * Generates TanStack Query cache key for GET /hono-x
  */
 export function getGetHonoXQueryKey() {
-  return ['GET', '/hono-x'] as const
+  return ['/hono-x'] as const
 }
 
 /**
@@ -112,5 +112,5 @@ export function useGetZodOpenapiHono(
  * Generates TanStack Query cache key for GET /zod-openapi-hono
  */
 export function getGetZodOpenapiHonoQueryKey() {
-  return ['GET', '/zod-openapi-hono'] as const
+  return ['/zod-openapi-hono'] as const
 }

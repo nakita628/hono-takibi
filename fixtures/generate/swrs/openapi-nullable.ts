@@ -33,5 +33,5 @@ export function useGetNullable(options?: {
  * Generates SWR cache key for GET /nullable
  */
 export function getGetNullableKey() {
-  return ['GET', '/nullable'] as const
+  return ['/nullable'] as const
 }

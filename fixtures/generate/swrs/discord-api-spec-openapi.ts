@@ -31,7 +31,7 @@ export function useGetApplicationsMe(options?: {
  * Generates SWR cache key for GET /applications/@me
  */
 export function getGetApplicationsMeKey() {
-  return ['GET', '/applications/@me'] as const
+  return ['/applications/@me'] as const
 }
 
 /**
@@ -89,9 +89,9 @@ export function useGetApplicationsApplicationId(
  * Generates SWR cache key for GET /applications/{application_id}
  */
 export function getGetApplicationsApplicationIdKey(
-  args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
+  args?: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
 ) {
-  return ['GET', '/applications/:application_id', args] as const
+  return ['/applications/:application_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -164,11 +164,14 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
  * Generates SWR cache key for GET /applications/{application_id}/activity-instances/{instance_id}
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
   >,
 ) {
-  return ['GET', '/applications/:application_id/activity-instances/:instance_id', args] as const
+  return [
+    '/applications/:application_id/activity-instances/:instance_id',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -229,9 +232,9 @@ export function useGetApplicationsApplicationIdCommands(
  * Generates SWR cache key for GET /applications/{application_id}/commands
  */
 export function getGetApplicationsApplicationIdCommandsKey(
-  args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
+  args?: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
 ) {
-  return ['GET', '/applications/:application_id/commands', args] as const
+  return ['/applications/:application_id/commands', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -326,11 +329,11 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
  * Generates SWR cache key for GET /applications/{application_id}/commands/{command_id}
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
   >,
 ) {
-  return ['GET', '/applications/:application_id/commands/:command_id', args] as const
+  return ['/applications/:application_id/commands/:command_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -439,9 +442,9 @@ export function useGetApplicationsApplicationIdEmojis(
  * Generates SWR cache key for GET /applications/{application_id}/emojis
  */
 export function getGetApplicationsApplicationIdEmojisKey(
-  args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
+  args?: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
 ) {
-  return ['GET', '/applications/:application_id/emojis', args] as const
+  return ['/applications/:application_id/emojis', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -510,11 +513,11 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
  * Generates SWR cache key for GET /applications/{application_id}/emojis/{emoji_id}
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
   >,
 ) {
-  return ['GET', '/applications/:application_id/emojis/:emoji_id', args] as const
+  return ['/applications/:application_id/emojis/:emoji_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -620,9 +623,9 @@ export function useGetApplicationsApplicationIdEntitlements(
  * Generates SWR cache key for GET /applications/{application_id}/entitlements
  */
 export function getGetApplicationsApplicationIdEntitlementsKey(
-  args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
+  args?: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
 ) {
-  return ['GET', '/applications/:application_id/entitlements', args] as const
+  return ['/applications/:application_id/entitlements', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -697,11 +700,14 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
  * Generates SWR cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
   >,
 ) {
-  return ['GET', '/applications/:application_id/entitlements/:entitlement_id', args] as const
+  return [
+    '/applications/:application_id/entitlements/:entitlement_id',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -825,11 +831,14 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
   >,
 ) {
-  return ['GET', '/applications/:application_id/guilds/:guild_id/commands', args] as const
+  return [
+    '/applications/:application_id/guilds/:guild_id/commands',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -953,14 +962,13 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
   >,
 ) {
   return [
-    'GET',
     '/applications/:application_id/guilds/:guild_id/commands/permissions',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1009,14 +1017,13 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
 ) {
   return [
-    'GET',
     '/applications/:application_id/guilds/:guild_id/commands/:command_id',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1142,14 +1149,13 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
   >,
 ) {
   return [
-    'GET',
     '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1235,11 +1241,14 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
  * Generates SWR cache key for GET /applications/{application_id}/role-connections/metadata
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
   >,
 ) {
-  return ['GET', '/applications/:application_id/role-connections/metadata', args] as const
+  return [
+    '/applications/:application_id/role-connections/metadata',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -1308,9 +1317,9 @@ export function useGetChannelsChannelId(
  * Generates SWR cache key for GET /channels/{channel_id}
  */
 export function getGetChannelsChannelIdKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
+  args?: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
 ) {
-  return ['GET', '/channels/:channel_id', args] as const
+  return ['/channels/:channel_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1419,9 +1428,9 @@ export function useGetChannelsChannelIdInvites(
  * Generates SWR cache key for GET /channels/{channel_id}/invites
  */
 export function getGetChannelsChannelIdInvitesKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
+  args?: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
 ) {
-  return ['GET', '/channels/:channel_id/invites', args] as const
+  return ['/channels/:channel_id/invites', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1480,9 +1489,9 @@ export function useGetChannelsChannelIdMessages(
  * Generates SWR cache key for GET /channels/{channel_id}/messages
  */
 export function getGetChannelsChannelIdMessagesKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
+  args?: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
 ) {
-  return ['GET', '/channels/:channel_id/messages', args] as const
+  return ['/channels/:channel_id/messages', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1570,9 +1579,9 @@ export function useGetChannelsChannelIdMessagesPins(
  * Generates SWR cache key for GET /channels/{channel_id}/messages/pins
  */
 export function getGetChannelsChannelIdMessagesPinsKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
+  args?: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
 ) {
-  return ['GET', '/channels/:channel_id/messages/pins', args] as const
+  return ['/channels/:channel_id/messages/pins', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1682,11 +1691,11 @@ export function useGetChannelsChannelIdMessagesMessageId(
  * Generates SWR cache key for GET /channels/{channel_id}/messages/{message_id}
  */
 export function getGetChannelsChannelIdMessagesMessageIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
   >,
 ) {
-  return ['GET', '/channels/:channel_id/messages/:message_id', args] as const
+  return ['/channels/:channel_id/messages/:message_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1868,11 +1877,14 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
  * Generates SWR cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
   >,
 ) {
-  return ['GET', '/channels/:channel_id/messages/:message_id/reactions/:emoji_name', args] as const
+  return [
+    '/channels/:channel_id/messages/:message_id/reactions/:emoji_name',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -2161,9 +2173,9 @@ export function useGetChannelsChannelIdPins(
  * Generates SWR cache key for GET /channels/{channel_id}/pins
  */
 export function getGetChannelsChannelIdPinsKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+  args?: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
 ) {
-  return ['GET', '/channels/:channel_id/pins', args] as const
+  return ['/channels/:channel_id/pins', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2263,11 +2275,14 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
  * Generates SWR cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
   >,
 ) {
-  return ['GET', '/channels/:channel_id/polls/:message_id/answers/:answer_id', args] as const
+  return [
+    '/channels/:channel_id/polls/:message_id/answers/:answer_id',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -2419,9 +2434,9 @@ export function useGetChannelsChannelIdThreadMembers(
  * Generates SWR cache key for GET /channels/{channel_id}/thread-members
  */
 export function getGetChannelsChannelIdThreadMembersKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
+  args?: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
 ) {
-  return ['GET', '/channels/:channel_id/thread-members', args] as const
+  return ['/channels/:channel_id/thread-members', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2519,11 +2534,11 @@ export function useGetChannelsChannelIdThreadMembersUserId(
  * Generates SWR cache key for GET /channels/{channel_id}/thread-members/{user_id}
  */
 export function getGetChannelsChannelIdThreadMembersUserIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
   >,
 ) {
-  return ['GET', '/channels/:channel_id/thread-members/:user_id', args] as const
+  return ['/channels/:channel_id/thread-members/:user_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2659,11 +2674,11 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
  * Generates SWR cache key for GET /channels/{channel_id}/threads/archived/private
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
   >,
 ) {
-  return ['GET', '/channels/:channel_id/threads/archived/private', args] as const
+  return ['/channels/:channel_id/threads/archived/private', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2707,11 +2722,11 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
  * Generates SWR cache key for GET /channels/{channel_id}/threads/archived/public
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
 ) {
-  return ['GET', '/channels/:channel_id/threads/archived/public', args] as const
+  return ['/channels/:channel_id/threads/archived/public', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2747,9 +2762,9 @@ export function useGetChannelsChannelIdThreadsSearch(
  * Generates SWR cache key for GET /channels/{channel_id}/threads/search
  */
 export function getGetChannelsChannelIdThreadsSearchKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
+  args?: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
 ) {
-  return ['GET', '/channels/:channel_id/threads/search', args] as const
+  return ['/channels/:channel_id/threads/search', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2822,11 +2837,14 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
  * Generates SWR cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
   >,
 ) {
-  return ['GET', '/channels/:channel_id/users/@me/threads/archived/private', args] as const
+  return [
+    '/channels/:channel_id/users/@me/threads/archived/private',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -2860,9 +2878,9 @@ export function useGetChannelsChannelIdWebhooks(
  * Generates SWR cache key for GET /channels/{channel_id}/webhooks
  */
 export function getGetChannelsChannelIdWebhooksKey(
-  args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
+  args?: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
 ) {
-  return ['GET', '/channels/:channel_id/webhooks', args] as const
+  return ['/channels/:channel_id/webhooks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2915,7 +2933,7 @@ export function useGetGateway(options?: {
  * Generates SWR cache key for GET /gateway
  */
 export function getGetGatewayKey() {
-  return ['GET', '/gateway'] as const
+  return ['/gateway'] as const
 }
 
 /**
@@ -2943,7 +2961,7 @@ export function useGetGatewayBot(options?: {
  * Generates SWR cache key for GET /gateway/bot
  */
 export function getGetGatewayBotKey() {
-  return ['GET', '/gateway/bot'] as const
+  return ['/gateway/bot'] as const
 }
 
 /**
@@ -2974,9 +2992,9 @@ export function useGetGuildsTemplatesCode(
  * Generates SWR cache key for GET /guilds/templates/{code}
  */
 export function getGetGuildsTemplatesCodeKey(
-  args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
+  args?: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
 ) {
-  return ['GET', '/guilds/templates/:code', args] as const
+  return ['/guilds/templates/:code', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3007,9 +3025,9 @@ export function useGetGuildsGuildId(
  * Generates SWR cache key for GET /guilds/{guild_id}
  */
 export function getGetGuildsGuildIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id', args] as const
+  return ['/guilds/:guild_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3067,9 +3085,9 @@ export function useGetGuildsGuildIdAuditLogs(
  * Generates SWR cache key for GET /guilds/{guild_id}/audit-logs
  */
 export function getGetGuildsGuildIdAuditLogsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/audit-logs', args] as const
+  return ['/guilds/:guild_id/audit-logs', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3105,9 +3123,9 @@ export function useGetGuildsGuildIdAutoModerationRules(
  * Generates SWR cache key for GET /guilds/{guild_id}/auto-moderation/rules
  */
 export function getGetGuildsGuildIdAutoModerationRulesKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/auto-moderation/rules', args] as const
+  return ['/guilds/:guild_id/auto-moderation/rules', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3178,11 +3196,11 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
  * Generates SWR cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
   >,
 ) {
-  return ['GET', '/guilds/:guild_id/auto-moderation/rules/:rule_id', args] as const
+  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3292,9 +3310,9 @@ export function useGetGuildsGuildIdBans(
  * Generates SWR cache key for GET /guilds/{guild_id}/bans
  */
 export function getGetGuildsGuildIdBansKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/bans', args] as const
+  return ['/guilds/:guild_id/bans', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3329,9 +3347,9 @@ export function useGetGuildsGuildIdBansUserId(
  * Generates SWR cache key for GET /guilds/{guild_id}/bans/{user_id}
  */
 export function getGetGuildsGuildIdBansUserIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/bans/:user_id', args] as const
+  return ['/guilds/:guild_id/bans/:user_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3440,9 +3458,9 @@ export function useGetGuildsGuildIdChannels(
  * Generates SWR cache key for GET /guilds/{guild_id}/channels
  */
 export function getGetGuildsGuildIdChannelsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/channels', args] as const
+  return ['/guilds/:guild_id/channels', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3526,9 +3544,9 @@ export function useGetGuildsGuildIdEmojis(
  * Generates SWR cache key for GET /guilds/{guild_id}/emojis
  */
 export function getGetGuildsGuildIdEmojisKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/emojis', args] as const
+  return ['/guilds/:guild_id/emojis', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3589,9 +3607,9 @@ export function useGetGuildsGuildIdEmojisEmojiId(
  * Generates SWR cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
  */
 export function getGetGuildsGuildIdEmojisEmojiIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/emojis/:emoji_id', args] as const
+  return ['/guilds/:guild_id/emojis/:emoji_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3675,9 +3693,9 @@ export function useGetGuildsGuildIdIntegrations(
  * Generates SWR cache key for GET /guilds/{guild_id}/integrations
  */
 export function getGetGuildsGuildIdIntegrationsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/integrations', args] as const
+  return ['/guilds/:guild_id/integrations', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3746,9 +3764,9 @@ export function useGetGuildsGuildIdInvites(
  * Generates SWR cache key for GET /guilds/{guild_id}/invites
  */
 export function getGetGuildsGuildIdInvitesKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/invites', args] as const
+  return ['/guilds/:guild_id/invites', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3782,9 +3800,9 @@ export function useGetGuildsGuildIdMembers(
  * Generates SWR cache key for GET /guilds/{guild_id}/members
  */
 export function getGetGuildsGuildIdMembersKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/members', args] as const
+  return ['/guilds/:guild_id/members', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3844,9 +3862,9 @@ export function useGetGuildsGuildIdMembersSearch(
  * Generates SWR cache key for GET /guilds/{guild_id}/members/search
  */
 export function getGetGuildsGuildIdMembersSearchKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/members/search', args] as const
+  return ['/guilds/:guild_id/members/search', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3882,9 +3900,9 @@ export function useGetGuildsGuildIdMembersUserId(
  * Generates SWR cache key for GET /guilds/{guild_id}/members/{user_id}
  */
 export function getGetGuildsGuildIdMembersUserIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/members/:user_id', args] as const
+  return ['/guilds/:guild_id/members/:user_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4068,9 +4086,9 @@ export function useGetGuildsGuildIdNewMemberWelcome(
  * Generates SWR cache key for GET /guilds/{guild_id}/new-member-welcome
  */
 export function getGetGuildsGuildIdNewMemberWelcomeKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/new-member-welcome', args] as const
+  return ['/guilds/:guild_id/new-member-welcome', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4104,9 +4122,9 @@ export function useGetGuildsGuildIdOnboarding(
  * Generates SWR cache key for GET /guilds/{guild_id}/onboarding
  */
 export function getGetGuildsGuildIdOnboardingKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/onboarding', args] as const
+  return ['/guilds/:guild_id/onboarding', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4165,9 +4183,9 @@ export function useGetGuildsGuildIdPreview(
  * Generates SWR cache key for GET /guilds/{guild_id}/preview
  */
 export function getGetGuildsGuildIdPreviewKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/preview', args] as const
+  return ['/guilds/:guild_id/preview', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4201,9 +4219,9 @@ export function useGetGuildsGuildIdPrune(
  * Generates SWR cache key for GET /guilds/{guild_id}/prune
  */
 export function getGetGuildsGuildIdPruneKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/prune', args] as const
+  return ['/guilds/:guild_id/prune', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4262,9 +4280,9 @@ export function useGetGuildsGuildIdRegions(
  * Generates SWR cache key for GET /guilds/{guild_id}/regions
  */
 export function getGetGuildsGuildIdRegionsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/regions', args] as const
+  return ['/guilds/:guild_id/regions', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4298,9 +4316,9 @@ export function useGetGuildsGuildIdRoles(
  * Generates SWR cache key for GET /guilds/{guild_id}/roles
  */
 export function getGetGuildsGuildIdRolesKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/roles', args] as const
+  return ['/guilds/:guild_id/roles', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4385,9 +4403,9 @@ export function useGetGuildsGuildIdRolesRoleId(
  * Generates SWR cache key for GET /guilds/{guild_id}/roles/{role_id}
  */
 export function getGetGuildsGuildIdRolesRoleIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/roles/:role_id', args] as const
+  return ['/guilds/:guild_id/roles/:role_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4473,9 +4491,9 @@ export function useGetGuildsGuildIdScheduledEvents(
  * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events
  */
 export function getGetGuildsGuildIdScheduledEventsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/scheduled-events', args] as const
+  return ['/guilds/:guild_id/scheduled-events', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4548,11 +4566,14 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
  * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
   >,
 ) {
-  return ['GET', '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id', args] as const
+  return [
+    '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -4676,14 +4697,13 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
  * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
   >,
 ) {
   return [
-    'GET',
     '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -4720,9 +4740,9 @@ export function useGetGuildsGuildIdSoundboardSounds(
  * Generates SWR cache key for GET /guilds/{guild_id}/soundboard-sounds
  */
 export function getGetGuildsGuildIdSoundboardSoundsKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/soundboard-sounds', args] as const
+  return ['/guilds/:guild_id/soundboard-sounds', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4791,11 +4811,11 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
  * Generates SWR cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
   >,
 ) {
-  return ['GET', '/guilds/:guild_id/soundboard-sounds/:sound_id', args] as const
+  return ['/guilds/:guild_id/soundboard-sounds/:sound_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4899,9 +4919,9 @@ export function useGetGuildsGuildIdStickers(
  * Generates SWR cache key for GET /guilds/{guild_id}/stickers
  */
 export function getGetGuildsGuildIdStickersKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/stickers', args] as const
+  return ['/guilds/:guild_id/stickers', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4962,9 +4982,9 @@ export function useGetGuildsGuildIdStickersStickerId(
  * Generates SWR cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
  */
 export function getGetGuildsGuildIdStickersStickerIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/stickers/:sticker_id', args] as const
+  return ['/guilds/:guild_id/stickers/:sticker_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5052,9 +5072,9 @@ export function useGetGuildsGuildIdTemplates(
  * Generates SWR cache key for GET /guilds/{guild_id}/templates
  */
 export function getGetGuildsGuildIdTemplatesKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/templates', args] as const
+  return ['/guilds/:guild_id/templates', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5189,9 +5209,9 @@ export function useGetGuildsGuildIdThreadsActive(
  * Generates SWR cache key for GET /guilds/{guild_id}/threads/active
  */
 export function getGetGuildsGuildIdThreadsActiveKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/threads/active', args] as const
+  return ['/guilds/:guild_id/threads/active', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5225,9 +5245,9 @@ export function useGetGuildsGuildIdVanityUrl(
  * Generates SWR cache key for GET /guilds/{guild_id}/vanity-url
  */
 export function getGetGuildsGuildIdVanityUrlKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/vanity-url', args] as const
+  return ['/guilds/:guild_id/vanity-url', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5263,9 +5283,9 @@ export function useGetGuildsGuildIdVoiceStatesMe(
  * Generates SWR cache key for GET /guilds/{guild_id}/voice-states/@me
  */
 export function getGetGuildsGuildIdVoiceStatesMeKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/voice-states/@me', args] as const
+  return ['/guilds/:guild_id/voice-states/@me', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5328,9 +5348,9 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
  * Generates SWR cache key for GET /guilds/{guild_id}/voice-states/{user_id}
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/voice-states/:user_id', args] as const
+  return ['/guilds/:guild_id/voice-states/:user_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5391,9 +5411,9 @@ export function useGetGuildsGuildIdWebhooks(
  * Generates SWR cache key for GET /guilds/{guild_id}/webhooks
  */
 export function getGetGuildsGuildIdWebhooksKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/webhooks', args] as const
+  return ['/guilds/:guild_id/webhooks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5429,9 +5449,9 @@ export function useGetGuildsGuildIdWelcomeScreen(
  * Generates SWR cache key for GET /guilds/{guild_id}/welcome-screen
  */
 export function getGetGuildsGuildIdWelcomeScreenKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/welcome-screen', args] as const
+  return ['/guilds/:guild_id/welcome-screen', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5490,9 +5510,9 @@ export function useGetGuildsGuildIdWidget(
  * Generates SWR cache key for GET /guilds/{guild_id}/widget
  */
 export function getGetGuildsGuildIdWidgetKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/widget', args] as const
+  return ['/guilds/:guild_id/widget', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5551,9 +5571,9 @@ export function useGetGuildsGuildIdWidgetJson(
  * Generates SWR cache key for GET /guilds/{guild_id}/widget.json
  */
 export function getGetGuildsGuildIdWidgetJsonKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/widget.json', args] as const
+  return ['/guilds/:guild_id/widget.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5587,9 +5607,9 @@ export function useGetGuildsGuildIdWidgetPng(
  * Generates SWR cache key for GET /guilds/{guild_id}/widget.png
  */
 export function getGetGuildsGuildIdWidgetPngKey(
-  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
+  args?: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
 ) {
-  return ['GET', '/guilds/:guild_id/widget.png', args] as const
+  return ['/guilds/:guild_id/widget.png', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5658,9 +5678,9 @@ export function useGetInvitesCode(
  * Generates SWR cache key for GET /invites/{code}
  */
 export function getGetInvitesCodeKey(
-  args: InferRequestType<(typeof client.invites)[':code']['$get']>,
+  args?: InferRequestType<(typeof client.invites)[':code']['$get']>,
 ) {
-  return ['GET', '/invites/:code', args] as const
+  return ['/invites/:code', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5763,9 +5783,9 @@ export function useGetLobbiesLobbyId(
  * Generates SWR cache key for GET /lobbies/{lobby_id}
  */
 export function getGetLobbiesLobbyIdKey(
-  args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
+  args?: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
 ) {
-  return ['GET', '/lobbies/:lobby_id', args] as const
+  return ['/lobbies/:lobby_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -6008,9 +6028,9 @@ export function useGetLobbiesLobbyIdMessages(
  * Generates SWR cache key for GET /lobbies/{lobby_id}/messages
  */
 export function getGetLobbiesLobbyIdMessagesKey(
-  args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+  args?: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
 ) {
-  return ['GET', '/lobbies/:lobby_id/messages', args] as const
+  return ['/lobbies/:lobby_id/messages', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -6063,7 +6083,7 @@ export function useGetOauth2Me(options?: {
  * Generates SWR cache key for GET /oauth2/@me
  */
 export function getGetOauth2MeKey() {
-  return ['GET', '/oauth2/@me'] as const
+  return ['/oauth2/@me'] as const
 }
 
 /**
@@ -6094,7 +6114,7 @@ export function useGetOauth2ApplicationsMe(options?: {
  * Generates SWR cache key for GET /oauth2/applications/@me
  */
 export function getGetOauth2ApplicationsMeKey() {
-  return ['GET', '/oauth2/applications/@me'] as const
+  return ['/oauth2/applications/@me'] as const
 }
 
 /**
@@ -6122,7 +6142,7 @@ export function useGetOauth2Keys(options?: {
  * Generates SWR cache key for GET /oauth2/keys
  */
 export function getGetOauth2KeysKey() {
-  return ['GET', '/oauth2/keys'] as const
+  return ['/oauth2/keys'] as const
 }
 
 /**
@@ -6150,7 +6170,7 @@ export function useGetOauth2Userinfo(options?: {
  * Generates SWR cache key for GET /oauth2/userinfo
  */
 export function getGetOauth2UserinfoKey() {
-  return ['GET', '/oauth2/userinfo'] as const
+  return ['/oauth2/userinfo'] as const
 }
 
 /**
@@ -6292,7 +6312,7 @@ export function useGetSoundboardDefaultSounds(options?: {
  * Generates SWR cache key for GET /soundboard-default-sounds
  */
 export function getGetSoundboardDefaultSoundsKey() {
-  return ['GET', '/soundboard-default-sounds'] as const
+  return ['/soundboard-default-sounds'] as const
 }
 
 /**
@@ -6350,9 +6370,9 @@ export function useGetStageInstancesChannelId(
  * Generates SWR cache key for GET /stage-instances/{channel_id}
  */
 export function getGetStageInstancesChannelIdKey(
-  args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
+  args?: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
 ) {
-  return ['GET', '/stage-instances/:channel_id', args] as const
+  return ['/stage-instances/:channel_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -6430,7 +6450,7 @@ export function useGetStickerPacks(options?: {
  * Generates SWR cache key for GET /sticker-packs
  */
 export function getGetStickerPacksKey() {
-  return ['GET', '/sticker-packs'] as const
+  return ['/sticker-packs'] as const
 }
 
 /**
@@ -6464,9 +6484,9 @@ export function useGetStickerPacksPackId(
  * Generates SWR cache key for GET /sticker-packs/{pack_id}
  */
 export function getGetStickerPacksPackIdKey(
-  args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+  args?: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
 ) {
-  return ['GET', '/sticker-packs/:pack_id', args] as const
+  return ['/sticker-packs/:pack_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -6497,9 +6517,9 @@ export function useGetStickersStickerId(
  * Generates SWR cache key for GET /stickers/{sticker_id}
  */
 export function getGetStickersStickerIdKey(
-  args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
+  args?: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
 ) {
-  return ['GET', '/stickers/:sticker_id', args] as const
+  return ['/stickers/:sticker_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -6527,7 +6547,7 @@ export function useGetUsersMe(options?: {
  * Generates SWR cache key for GET /users/@me
  */
 export function getGetUsersMeKey() {
-  return ['GET', '/users/@me'] as const
+  return ['/users/@me'] as const
 }
 
 /**
@@ -6596,11 +6616,11 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
  * Generates SWR cache key for GET /users/@me/applications/{application_id}/entitlements
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
   >,
 ) {
-  return ['GET', '/users/@me/applications/:application_id/entitlements', args] as const
+  return ['/users/@me/applications/:application_id/entitlements', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -6648,11 +6668,14 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
  * Generates SWR cache key for GET /users/@me/applications/{application_id}/role-connection
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
 ) {
-  return ['GET', '/users/@me/applications/:application_id/role-connection', args] as const
+  return [
+    '/users/@me/applications/:application_id/role-connection',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -6783,7 +6806,7 @@ export function useGetUsersMeConnections(options?: {
  * Generates SWR cache key for GET /users/@me/connections
  */
 export function getGetUsersMeConnectionsKey() {
-  return ['GET', '/users/@me/connections'] as const
+  return ['/users/@me/connections'] as const
 }
 
 /**
@@ -6814,9 +6837,9 @@ export function useGetUsersMeGuilds(
  * Generates SWR cache key for GET /users/@me/guilds
  */
 export function getGetUsersMeGuildsKey(
-  args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
+  args?: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
 ) {
-  return ['GET', '/users/@me/guilds', args] as const
+  return ['/users/@me/guilds', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -6877,9 +6900,9 @@ export function useGetUsersMeGuildsGuildIdMember(
  * Generates SWR cache key for GET /users/@me/guilds/{guild_id}/member
  */
 export function getGetUsersMeGuildsGuildIdMemberKey(
-  args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
+  args?: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
 ) {
-  return ['GET', '/users/@me/guilds/:guild_id/member', args] as const
+  return ['/users/@me/guilds/:guild_id/member', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -6910,9 +6933,9 @@ export function useGetUsersUserId(
  * Generates SWR cache key for GET /users/{user_id}
  */
 export function getGetUsersUserIdKey(
-  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['GET', '/users/:user_id', args] as const
+  return ['/users/:user_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -6940,7 +6963,7 @@ export function useGetVoiceRegions(options?: {
  * Generates SWR cache key for GET /voice/regions
  */
 export function getGetVoiceRegionsKey() {
-  return ['GET', '/voice/regions'] as const
+  return ['/voice/regions'] as const
 }
 
 /**
@@ -6971,9 +6994,9 @@ export function useGetWebhooksWebhookId(
  * Generates SWR cache key for GET /webhooks/{webhook_id}
  */
 export function getGetWebhooksWebhookIdKey(
-  args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
+  args?: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
 ) {
-  return ['GET', '/webhooks/:webhook_id', args] as const
+  return ['/webhooks/:webhook_id', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -7059,9 +7082,9 @@ export function useGetWebhooksWebhookIdWebhookToken(
  * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}
  */
 export function getGetWebhooksWebhookIdWebhookTokenKey(
-  args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
+  args?: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
 ) {
-  return ['GET', '/webhooks/:webhook_id/:webhook_token', args] as const
+  return ['/webhooks/:webhook_id/:webhook_token', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -7211,11 +7234,14 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
  * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
   >,
 ) {
-  return ['GET', '/webhooks/:webhook_id/:webhook_token/messages/@original', args] as const
+  return [
+    '/webhooks/:webhook_id/:webhook_token/messages/@original',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -7339,11 +7365,14 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
  * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
   >,
 ) {
-  return ['GET', '/webhooks/:webhook_id/:webhook_token/messages/:message_id', args] as const
+  return [
+    '/webhooks/:webhook_id/:webhook_token/messages/:message_id',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**

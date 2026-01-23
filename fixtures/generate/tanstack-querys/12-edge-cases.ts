@@ -34,7 +34,7 @@ export function useGetAllMethods(
  * Generates TanStack Query cache key for GET /all-methods
  */
 export function getGetAllMethodsQueryKey() {
-  return ['GET', '/all-methods'] as const
+  return ['/all-methods'] as const
 }
 
 /**
@@ -273,11 +273,11 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
  * Generates TanStack Query cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
 ) {
-  return ['GET', '/users/:userId/posts/:postId/comments/:commentId', args] as const
+  return ['/users/:userId/posts/:postId/comments/:commentId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -315,9 +315,9 @@ export function useGetParamsTestPathParam(
  * Generates TanStack Query cache key for GET /params-test/{pathParam}
  */
 export function getGetParamsTestPathParamQueryKey(
-  args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
+  args?: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
-  return ['GET', '/params-test/:pathParam', args] as const
+  return ['/params-test/:pathParam', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -377,7 +377,7 @@ export function useGetMultiContent(
  * Generates TanStack Query cache key for GET /multi-content
  */
 export function getGetMultiContentQueryKey() {
-  return ['GET', '/multi-content'] as const
+  return ['/multi-content'] as const
 }
 
 /**
@@ -438,7 +438,7 @@ export function useGetResponseRanges(
  * Generates TanStack Query cache key for GET /response-ranges
  */
 export function getGetResponseRangesQueryKey() {
-  return ['GET', '/response-ranges'] as const
+  return ['/response-ranges'] as const
 }
 
 /**
@@ -473,7 +473,7 @@ export function useGetDeprecated(
  * Generates TanStack Query cache key for GET /deprecated
  */
 export function getGetDeprecatedQueryKey() {
-  return ['GET', '/deprecated'] as const
+  return ['/deprecated'] as const
 }
 
 /**
@@ -508,7 +508,7 @@ export function useGetNoOperationId(
  * Generates TanStack Query cache key for GET /no-operation-id
  */
 export function getGetNoOperationIdQueryKey() {
-  return ['GET', '/no-operation-id'] as const
+  return ['/no-operation-id'] as const
 }
 
 /**
@@ -568,7 +568,7 @@ export function useGetCircular(
  * Generates TanStack Query cache key for GET /circular
  */
 export function getGetCircularQueryKey() {
-  return ['GET', '/circular'] as const
+  return ['/circular'] as const
 }
 
 /**
@@ -601,7 +601,7 @@ export function useGetDeepNesting(
  * Generates TanStack Query cache key for GET /deep-nesting
  */
 export function getGetDeepNestingQueryKey() {
-  return ['GET', '/deep-nesting'] as const
+  return ['/deep-nesting'] as const
 }
 
 /**
@@ -635,9 +635,9 @@ export function useGetArrayParams(
  * Generates TanStack Query cache key for GET /array-params
  */
 export function getGetArrayParamsQueryKey(
-  args: InferRequestType<(typeof client)['array-params']['$get']>,
+  args?: InferRequestType<(typeof client)['array-params']['$get']>,
 ) {
-  return ['GET', '/array-params', args] as const
+  return ['/array-params', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -671,7 +671,7 @@ export function useGetObjectParam(
  * Generates TanStack Query cache key for GET /object-param
  */
 export function getGetObjectParamQueryKey(
-  args: InferRequestType<(typeof client)['object-param']['$get']>,
+  args?: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
-  return ['GET', '/object-param', args] as const
+  return ['/object-param', ...(args ? [args] : [])] as const
 }

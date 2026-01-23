@@ -36,8 +36,8 @@ export function useGetProducts(
 /**
  * Generates TanStack Query cache key for GET /products
  */
-export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
-  return ['GET', '/products', args] as const
+export function getGetProductsQueryKey(args?: InferRequestType<typeof client.products.$get>) {
+  return ['/products', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -102,9 +102,9 @@ export function useGetProductsProductId(
  * Generates TanStack Query cache key for GET /products/{productId}
  */
 export function getGetProductsProductIdQueryKey(
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  args?: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return ['GET', '/products/:productId', args] as const
+  return ['/products/:productId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -229,7 +229,7 @@ export function useGetCategories(
  * Generates TanStack Query cache key for GET /categories
  */
 export function getGetCategoriesQueryKey() {
-  return ['GET', '/categories'] as const
+  return ['/categories'] as const
 }
 
 /**
@@ -293,7 +293,7 @@ export function useGetCart(
  * Generates TanStack Query cache key for GET /cart
  */
 export function getGetCartQueryKey() {
-  return ['GET', '/cart'] as const
+  return ['/cart'] as const
 }
 
 /**
@@ -442,8 +442,8 @@ export function useGetOrders(
 /**
  * Generates TanStack Query cache key for GET /orders
  */
-export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
-  return ['GET', '/orders', args] as const
+export function getGetOrdersQueryKey(args?: InferRequestType<typeof client.orders.$get>) {
+  return ['/orders', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -510,9 +510,9 @@ export function useGetOrdersOrderId(
  * Generates TanStack Query cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdQueryKey(
-  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return ['GET', '/orders/:orderId', args] as const
+  return ['/orders/:orderId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -578,9 +578,9 @@ export function useGetInventoryProductId(
  * Generates TanStack Query cache key for GET /inventory/{productId}
  */
 export function getGetInventoryProductIdQueryKey(
-  args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
+  args?: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
 ) {
-  return ['GET', '/inventory/:productId', args] as const
+  return ['/inventory/:productId', ...(args ? [args] : [])] as const
 }
 
 /**

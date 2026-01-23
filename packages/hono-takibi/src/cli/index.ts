@@ -34,6 +34,7 @@ import {
   rpc,
   schemas,
   securitySchemes,
+  svelteQuery,
   swr,
   takibi,
   tanstackQuery,
@@ -244,6 +245,7 @@ export async function honoTakibi(): Promise<
     rpcResult,
     swrResult,
     tanstackQueryResult,
+    svelteQueryResult,
   ] = await Promise.all([
     config['zod-openapi']?.output
       ? takibi(openAPI, config['zod-openapi'].output, false, false, '/', {
@@ -379,6 +381,15 @@ export async function honoTakibi(): Promise<
           config['tanstack-query'].client ?? 'client',
         )
       : Promise.resolve(undefined),
+    config['svelte-query']
+      ? svelteQuery(
+          openAPI,
+          config['svelte-query'].output,
+          config['svelte-query'].import,
+          config['svelte-query'].split ?? false,
+          config['svelte-query'].client ?? 'client',
+        )
+      : Promise.resolve(undefined),
   ])
 
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
@@ -399,6 +410,8 @@ export async function honoTakibi(): Promise<
   if (swrResult && !swrResult.ok) return { ok: false, error: swrResult.error }
   if (tanstackQueryResult && !tanstackQueryResult.ok)
     return { ok: false, error: tanstackQueryResult.error }
+  if (svelteQueryResult && !svelteQueryResult.ok)
+    return { ok: false, error: svelteQueryResult.error }
 
   const results = [
     takibiResult?.value,
@@ -416,6 +429,7 @@ export async function honoTakibi(): Promise<
     rpcResult?.value,
     swrResult?.value,
     tanstackQueryResult?.value,
+    svelteQueryResult?.value,
   ].filter((v) => v !== undefined)
 
   return { ok: true, value: results.join('\n') }

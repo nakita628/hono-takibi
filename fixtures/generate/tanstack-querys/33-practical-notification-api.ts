@@ -37,9 +37,9 @@ export function useGetNotifications(
  * Generates TanStack Query cache key for GET /notifications
  */
 export function getGetNotificationsQueryKey(
-  args: InferRequestType<typeof client.notifications.$get>,
+  args?: InferRequestType<typeof client.notifications.$get>,
 ) {
-  return ['GET', '/notifications', args] as const
+  return ['/notifications', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -79,9 +79,9 @@ export function useGetNotificationsNotificationId(
  * Generates TanStack Query cache key for GET /notifications/{notificationId}
  */
 export function getGetNotificationsNotificationIdQueryKey(
-  args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
+  args?: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
 ) {
-  return ['GET', '/notifications/:notificationId', args] as const
+  return ['/notifications/:notificationId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -212,7 +212,7 @@ export function useGetNotificationsUnreadCount(
  * Generates TanStack Query cache key for GET /notifications/unread-count
  */
 export function getGetNotificationsUnreadCountQueryKey() {
-  return ['GET', '/notifications/unread-count'] as const
+  return ['/notifications/unread-count'] as const
 }
 
 /**
@@ -309,9 +309,9 @@ export function useGetMessagesMessageId(
  * Generates TanStack Query cache key for GET /messages/{messageId}
  */
 export function getGetMessagesMessageIdQueryKey(
-  args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
+  args?: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
 ) {
-  return ['GET', '/messages/:messageId', args] as const
+  return ['/messages/:messageId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -346,8 +346,8 @@ export function useGetTemplates(
 /**
  * Generates TanStack Query cache key for GET /templates
  */
-export function getGetTemplatesQueryKey(args: InferRequestType<typeof client.templates.$get>) {
-  return ['GET', '/templates', args] as const
+export function getGetTemplatesQueryKey(args?: InferRequestType<typeof client.templates.$get>) {
+  return ['/templates', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -412,9 +412,9 @@ export function useGetTemplatesTemplateId(
  * Generates TanStack Query cache key for GET /templates/{templateId}
  */
 export function getGetTemplatesTemplateIdQueryKey(
-  args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
+  args?: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
 ) {
-  return ['GET', '/templates/:templateId', args] as const
+  return ['/templates/:templateId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -540,7 +540,7 @@ export function useGetChannelsPreferences(
  * Generates TanStack Query cache key for GET /channels/preferences
  */
 export function getGetChannelsPreferencesQueryKey() {
-  return ['GET', '/channels/preferences'] as const
+  return ['/channels/preferences'] as const
 }
 
 /**
@@ -605,7 +605,7 @@ export function useGetChannelsDevices(
  * Generates TanStack Query cache key for GET /channels/devices
  */
 export function getGetChannelsDevicesQueryKey() {
-  return ['GET', '/channels/devices'] as const
+  return ['/channels/devices'] as const
 }
 
 /**
@@ -700,7 +700,7 @@ export function useGetWebhooks(
  * Generates TanStack Query cache key for GET /webhooks
  */
 export function getGetWebhooksQueryKey() {
-  return ['GET', '/webhooks'] as const
+  return ['/webhooks'] as const
 }
 
 /**
@@ -765,9 +765,9 @@ export function useGetWebhooksWebhookId(
  * Generates TanStack Query cache key for GET /webhooks/{webhookId}
  */
 export function getGetWebhooksWebhookIdQueryKey(
-  args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
+  args?: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
 ) {
-  return ['GET', '/webhooks/:webhookId', args] as const
+  return ['/webhooks/:webhookId', ...(args ? [args] : [])] as const
 }
 
 /**
