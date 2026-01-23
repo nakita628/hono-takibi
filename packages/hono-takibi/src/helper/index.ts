@@ -3,6 +3,42 @@ export { makeBarrel } from './barrel.js'
 export { makeConst, makeExportConst, makeImports, makeModuleSpec } from './code.js'
 export { core } from './core.js'
 export { makeExports } from './exports.js'
+export type {
+  AllBodyInfo,
+  BodyInfo,
+  FormatPathResult,
+  HttpMethod,
+  OperationDeps,
+  OperationLike,
+  ParameterLike,
+  PathItemLike,
+  RefObject,
+} from './hono-rpc.js'
+export {
+  buildInferRequestType,
+  buildInferResponseType,
+  buildOperationDocs,
+  createOperationDeps,
+  createPickAllBodyInfo,
+  createResolveParameter,
+  createToParameterLikes,
+  esc,
+  formatJsDocLines,
+  formatPath,
+  HTTP_METHODS,
+  hasSchemaProp,
+  isOpenAPIPaths,
+  isOperationLike,
+  isParameterObject,
+  isRefObject,
+  isValidIdent,
+  operationHasArgs,
+  parsePathItem,
+  pickAllBodyInfoFromContent,
+  refParamName,
+  refRequestBodyName,
+  resolveSplitOutDir,
+} from './hono-rpc.js'
 export {
   makeCallbacks,
   makeContent,

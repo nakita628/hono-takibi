@@ -94,6 +94,12 @@ type Config = {
     readonly split?: boolean
     readonly client?: string
   }
+  readonly swr?: {
+    readonly output: string | `${string}.ts`
+    readonly import: string
+    readonly split?: boolean
+    readonly client?: string
+  }
 }
 
 /**
@@ -387,6 +393,29 @@ export function parseConfig(
     }
   }
 
+  // swr
+  if (config.swr !== undefined) {
+    if (typeof config.swr.output !== 'string') {
+      return { ok: false, error: `Invalid output format for swr: ${String(config.swr.output)}` }
+    }
+    if (typeof config.swr.import !== 'string') {
+      return { ok: false, error: `Invalid import format for swr: ${String(config.swr.import)}` }
+    }
+    if (config.swr.split !== undefined && typeof config.swr.split !== 'boolean') {
+      return { ok: false, error: `Invalid split format for swr: ${String(config.swr.split)}` }
+    }
+    if (config.swr.client !== undefined && typeof config.swr.client !== 'string') {
+      return { ok: false, error: `Invalid client format for swr: ${String(config.swr.client)}` }
+    }
+    // split: true requires directory (no .ts)
+    if (config.swr.split === true && isTs(config.swr.output)) {
+      return {
+        ok: false,
+        error: `Invalid swr output path for split mode (must be a directory, not .ts): ${config.swr.output}`,
+      }
+    }
+  }
+
   const result = {
     ...config,
     ...(config['zod-openapi'] && {
@@ -506,6 +535,15 @@ export function parseConfig(
           config.rpc.split !== true && !isTs(config.rpc.output)
             ? `${config.rpc.output}/index.ts`
             : config.rpc.output,
+      },
+    }),
+    ...(config.swr && {
+      swr: {
+        ...config.swr,
+        output:
+          config.swr.split !== true && !isTs(config.swr.output)
+            ? `${config.swr.output}/index.ts`
+            : config.swr.output,
       },
     }),
   }

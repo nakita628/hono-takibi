@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { rpc } from 'hono-takibi/rpc'
+import { swr } from 'hono-takibi/swr'
 import { type as generateType } from 'hono-takibi/type'
 import {
   __dirname,
@@ -66,8 +67,8 @@ async function main() {
 
   console.log(`${routeResults.length} routes generated successfully`)
 
-  // Type, Client, RPC generation (parallel)
-  console.log('Generating types, clients, and rpcs...')
+  // Type, Client, RPC, SWR generation (parallel)
+  console.log('Generating types, clients, rpcs, and swrs...')
   const generateResults = await Promise.all(
     files.map(async (file) => {
       const baseName = file.replace(/\.(yaml|json|tsp)$/i, '')
@@ -94,6 +95,13 @@ async function main() {
         return { file, success: false, error: `RPC generation error: ${rpcResult.error}` }
       }
 
+      // Generate SWR hooks file
+      const swrOutput = join(__dirname, '../swrs', `${baseName}.ts`)
+      const swrResult = await swr(openAPI, swrOutput, `../clients/${baseName}`, false)
+      if (!swrResult.ok) {
+        return { file, success: false, error: `SWR generation error: ${swrResult.error}` }
+      }
+
       // Generate Client file with simple hc pattern
       const clientOutput = join(__dirname, '../clients', `${baseName}.ts`)
       const clientCode = `import { hc } from 'hono/client'
@@ -111,13 +119,13 @@ export const client = hc<typeof routes>('/')
     (r): r is { file: string; success: false; error: string } => !r.success,
   )
 
-  printFailures(genFailures, generateResults.length, 'type/rpc files')
+  printFailures(genFailures, generateResults.length, 'type/rpc/swr files')
 
   if (genFailures.length > 0) {
     process.exit(1)
   }
 
-  console.log(`${generateResults.length} type/rpc sets generated successfully`)
+  console.log(`${generateResults.length} type/rpc/swr sets generated successfully`)
 }
 
 main()
