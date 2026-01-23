@@ -34,7 +34,9 @@ import {
   rpc,
   schemas,
   securitySchemes,
+  swr,
   takibi,
+  tanstackQuery,
   type,
 } from '../core/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
@@ -240,6 +242,8 @@ export async function honoTakibi(): Promise<
     routeResult,
     typeResult,
     rpcResult,
+    swrResult,
+    tanstackQueryResult,
   ] = await Promise.all([
     config['zod-openapi']?.output
       ? takibi(openAPI, config['zod-openapi'].output, false, false, '/', {
@@ -357,6 +361,24 @@ export async function honoTakibi(): Promise<
           config.rpc.client ?? 'client',
         )
       : Promise.resolve(undefined),
+    config.swr
+      ? swr(
+          openAPI,
+          config.swr.output,
+          config.swr.import,
+          config.swr.split ?? false,
+          config.swr.client ?? 'client',
+        )
+      : Promise.resolve(undefined),
+    config['tanstack-query']
+      ? tanstackQuery(
+          openAPI,
+          config['tanstack-query'].output,
+          config['tanstack-query'].import,
+          config['tanstack-query'].split ?? false,
+          config['tanstack-query'].client ?? 'client',
+        )
+      : Promise.resolve(undefined),
   ])
 
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
@@ -374,6 +396,9 @@ export async function honoTakibi(): Promise<
   if (routeResult && !routeResult.ok) return { ok: false, error: routeResult.error }
   if (typeResult && !typeResult.ok) return { ok: false, error: typeResult.error }
   if (rpcResult && !rpcResult.ok) return { ok: false, error: rpcResult.error }
+  if (swrResult && !swrResult.ok) return { ok: false, error: swrResult.error }
+  if (tanstackQueryResult && !tanstackQueryResult.ok)
+    return { ok: false, error: tanstackQueryResult.error }
 
   const results = [
     takibiResult?.value,
@@ -389,6 +414,8 @@ export async function honoTakibi(): Promise<
     routeResult?.value,
     typeResult?.value,
     rpcResult?.value,
+    swrResult?.value,
+    tanstackQueryResult?.value,
   ].filter((v) => v !== undefined)
 
   return { ok: true, value: results.join('\n') }

@@ -48,6 +48,10 @@
       "types": "./dist/core/swr/index.d.ts",
       "import": "./dist/core/swr/index.js"
     },
+    "./tanstack-query": {
+      "types": "./dist/core/tanstack-query/index.d.ts",
+      "import": "./dist/core/tanstack-query/index.js"
+    },
     "./type": {
       "types": "./dist/core/type/index.d.ts",
       "import": "./dist/core/type/index.js"
