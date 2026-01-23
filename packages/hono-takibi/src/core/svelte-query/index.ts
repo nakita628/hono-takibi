@@ -21,8 +21,9 @@
  * @link https://tanstack.com/query/latest/docs/framework/svelte/overview
  * @link https://hono.dev/docs/guides/rpc
  */
+
+import { makeQueryHooks, SVELTE_QUERY_CONFIG } from '../../helper/query.js'
 import type { OpenAPI } from '../../openapi/index.js'
-import { makeQueryHooks, SVELTE_QUERY_CONFIG } from '../query/index.js'
 
 /**
  * Generates Svelte Query hooks from OpenAPI specification.

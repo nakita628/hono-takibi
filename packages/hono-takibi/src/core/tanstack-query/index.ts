@@ -21,8 +21,9 @@
  * @link https://tanstack.com/query/latest
  * @link https://hono.dev/docs/guides/rpc
  */
+
+import { makeQueryHooks, TANSTACK_QUERY_CONFIG } from '../../helper/query.js'
 import type { OpenAPI } from '../../openapi/index.js'
-import { makeQueryHooks, TANSTACK_QUERY_CONFIG } from '../query/index.js'
 
 /**
  * Generates TanStack Query hooks from OpenAPI specification.

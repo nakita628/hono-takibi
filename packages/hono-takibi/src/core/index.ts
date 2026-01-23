@@ -3,7 +3,7 @@
  *
  * @module core
  */
-export * from './components/index.js'
+
 // Shared query module
 export {
   makeQueryHooks,
@@ -11,7 +11,8 @@ export {
   SVELTE_QUERY_CONFIG,
   TANSTACK_QUERY_CONFIG,
   VUE_QUERY_CONFIG,
-} from './query/index.js'
+} from '../helper/query.js'
+export * from './components/index.js'
 // Generation functions
 export { route } from './route/index.js'
 export { rpc } from './rpc/index.js'

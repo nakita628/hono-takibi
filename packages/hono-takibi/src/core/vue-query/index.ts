@@ -21,8 +21,9 @@
  * @link https://tanstack.com/query/latest/docs/framework/vue/overview
  * @link https://hono.dev/docs/guides/rpc
  */
+
+import { makeQueryHooks, VUE_QUERY_CONFIG } from '../../helper/query.js'
 import type { OpenAPI } from '../../openapi/index.js'
-import { makeQueryHooks, VUE_QUERY_CONFIG } from '../query/index.js'
 
 /**
  * Generates Vue Query hooks from OpenAPI specification.
