@@ -1,33 +1,17 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
 /**
  * GET /entities
  */
-export function useGetEntities(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.entities.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetEntities(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetEntitiesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.entities.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.entities.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -40,54 +24,23 @@ export function getGetEntitiesQueryKey() {
 /**
  * POST /process
  */
-export function usePostProcess(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.process.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.process.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostProcess(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.process.$post> | undefined,
     Error,
     InferRequestType<typeof client.process.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.process.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.process.$post(args, clientOptions)) })
 }
 
 /**
  * GET /graph
  */
-export function useGetGraph(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.graph.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetGraph(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetGraphQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.graph.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.graph.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -100,26 +53,10 @@ export function getGetGraphQueryKey() {
 /**
  * POST /transform
  */
-export function usePostTransform(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.transform.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.transform.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostTransform(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.transform.$post> | undefined,
     Error,
     InferRequestType<typeof client.transform.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.transform.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.transform.$post(args, clientOptions)) })
 }

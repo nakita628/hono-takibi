@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/sample-geojson'
 
@@ -13,9 +13,11 @@ import { client } from '../clients/sample-geojson'
  */
 export function useGet(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.index.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.index.$get>,
+      Error,
+      InferResponseType<typeof client.index.$get>,
+      readonly ['/']
     >
     client?: ClientRequestOptions
   },
@@ -25,9 +27,9 @@ export function useGet(
   const queryKey = getGetQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -51,9 +53,11 @@ export function getGetQueryKey() {
 export function useGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.projects.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.projects.$get>,
+      Error,
+      InferResponseType<typeof client.projects.$get>,
+      readonly ['/projects', InferRequestType<typeof client.projects.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -63,9 +67,9 @@ export function useGetProjects(
   const queryKey = getGetProjectsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -75,6 +79,6 @@ export function useGetProjects(
 /**
  * Generates TanStack Query cache key for GET /projects
  */
-export function getGetProjectsQueryKey(args?: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', ...(args ? [args] : [])] as const
+export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
+  return ['/projects', args] as const
 }

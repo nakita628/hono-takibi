@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
@@ -38,9 +38,14 @@ export function usePostEncodingTest(
 export function useGetContentNegotiation(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['content-negotiation']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['content-negotiation']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['content-negotiation']['$get']>,
+      readonly [
+        '/content-negotiation',
+        InferRequestType<(typeof client)['content-negotiation']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -50,9 +55,9 @@ export function useGetContentNegotiation(
   const queryKey = getGetContentNegotiationQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['content-negotiation'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -63,9 +68,9 @@ export function useGetContentNegotiation(
  * Generates TanStack Query cache key for GET /content-negotiation
  */
 export function getGetContentNegotiationQueryKey(
-  args?: InferRequestType<(typeof client)['content-negotiation']['$get']>,
+  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  return ['/content-negotiation', ...(args ? [args] : [])] as const
+  return ['/content-negotiation', args] as const
 }
 
 /**
@@ -101,9 +106,11 @@ export function usePostBinaryVariations(
  */
 export function useGetStreaming(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.streaming.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.streaming.$get>,
+      Error,
+      InferResponseType<typeof client.streaming.$get>,
+      readonly ['/streaming']
     >
     client?: ClientRequestOptions
   },
@@ -113,9 +120,9 @@ export function useGetStreaming(
   const queryKey = getGetStreamingQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.streaming.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -189,9 +196,11 @@ export function usePostUrlEncodedComplex(
  */
 export function useGetResponseEncoding(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['response-encoding']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['response-encoding']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['response-encoding']['$get']>,
+      readonly ['/response-encoding']
     >
     client?: ClientRequestOptions
   },
@@ -201,10 +210,10 @@ export function useGetResponseEncoding(
   const queryKey = getGetResponseEncodingQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['response-encoding'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

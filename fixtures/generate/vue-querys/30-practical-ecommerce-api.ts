@@ -1,6 +1,5 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
 
@@ -11,33 +10,20 @@ import { client } from '../clients/30-practical-ecommerce-api'
  */
 export function useGetProducts(
   args: InferRequestType<typeof client.products.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.products.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetProductsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.products.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.products.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /products
  */
-export function getGetProductsQueryKey(args?: InferRequestType<typeof client.products.$get>) {
-  return ['/products', ...(args ? [args] : [])] as const
+export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
+  return ['/products', args] as const
 }
 
 /**
@@ -45,28 +31,12 @@ export function getGetProductsQueryKey(args?: InferRequestType<typeof client.pro
  *
  * 商品作成
  */
-export function usePostProducts(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.products.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.products.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostProducts(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.products.$post> | undefined,
     Error,
     InferRequestType<typeof client.products.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.products.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.products.$post(args, clientOptions)) })
 }
 
 /**
@@ -76,35 +46,22 @@ export function usePostProducts(
  */
 export function useGetProductsProductId(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.products)[':productId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetProductsProductIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /products/{productId}
  */
 export function getGetProductsProductIdQueryKey(
-  args?: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return ['/products/:productId', ...(args ? [args] : [])] as const
+  return ['/products/:productId', args] as const
 }
 
 /**
@@ -112,29 +69,15 @@ export function getGetProductsProductIdQueryKey(
  *
  * 商品更新
  */
-export function usePutProductsProductId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.products)[':productId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.products)[':productId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutProductsProductId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.products)[':productId']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.products)[':productId']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.products[':productId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.products[':productId'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -142,29 +85,15 @@ export function usePutProductsProductId(
  *
  * 商品削除
  */
-export function useDeleteProductsProductId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.products)[':productId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.products)[':productId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteProductsProductId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.products)[':productId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.products)[':productId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.products[':productId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.products[':productId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -172,29 +101,15 @@ export function useDeleteProductsProductId(
  *
  * 商品画像アップロード
  */
-export function usePostProductsProductIdImages(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.products)[':productId']['images']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.products)[':productId']['images']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostProductsProductIdImages(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.products)[':productId']['images']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.products)[':productId']['images']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.products[':productId'].images.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.products[':productId'].images.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -202,27 +117,12 @@ export function usePostProductsProductIdImages(
  *
  * カテゴリ一覧取得
  */
-export function useGetCategories(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.categories.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetCategories(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetCategoriesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -237,28 +137,12 @@ export function getGetCategoriesQueryKey() {
  *
  * カテゴリ作成
  */
-export function usePostCategories(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.categories.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.categories.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostCategories(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.categories.$post> | undefined,
     Error,
     InferRequestType<typeof client.categories.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.categories.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.categories.$post(args, clientOptions)) })
 }
 
 /**
@@ -266,27 +150,12 @@ export function usePostCategories(
  *
  * カート取得
  */
-export function useGetCart(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.cart.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetCart(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetCartQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.cart.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.cart.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -301,24 +170,10 @@ export function getGetCartQueryKey() {
  *
  * カートをクリア
  */
-export function useDeleteCart(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.cart.$delete> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<InferResponseType<typeof client.cart.$delete> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.cart.$delete(undefined, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteCart(clientOptions?: ClientRequestOptions) {
+  return useMutation<InferResponseType<typeof client.cart.$delete> | undefined, Error, void>({
+    mutationFn: async () => parseResponse(client.cart.$delete(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -326,28 +181,12 @@ export function useDeleteCart(
  *
  * カートに商品追加
  */
-export function usePostCartItems(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.cart.items.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.cart.items.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostCartItems(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.cart.items.$post> | undefined,
     Error,
     InferRequestType<typeof client.cart.items.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.cart.items.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.cart.items.$post(args, clientOptions)) })
 }
 
 /**
@@ -355,29 +194,15 @@ export function usePostCartItems(
  *
  * カートアイテム数量変更
  */
-export function usePutCartItemsItemId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.cart.items)[':itemId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.cart.items)[':itemId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutCartItemsItemId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.cart.items)[':itemId']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.cart.items)[':itemId']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.cart.items[':itemId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.cart.items[':itemId'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -385,29 +210,15 @@ export function usePutCartItemsItemId(
  *
  * カートから商品削除
  */
-export function useDeleteCartItemsItemId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.cart.items)[':itemId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteCartItemsItemId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.cart.items)[':itemId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.cart.items[':itemId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.cart.items[':itemId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -417,33 +228,20 @@ export function useDeleteCartItemsItemId(
  */
 export function useGetOrders(
   args: InferRequestType<typeof client.orders.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.orders.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetOrdersQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.orders.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.orders.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /orders
  */
-export function getGetOrdersQueryKey(args?: InferRequestType<typeof client.orders.$get>) {
-  return ['/orders', ...(args ? [args] : [])] as const
+export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
+  return ['/orders', args] as const
 }
 
 /**
@@ -453,28 +251,12 @@ export function getGetOrdersQueryKey(args?: InferRequestType<typeof client.order
  *
  * カートの内容から注文を作成します
  */
-export function usePostOrders(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.orders.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.orders.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostOrders(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.orders.$post> | undefined,
     Error,
     InferRequestType<typeof client.orders.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.orders.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.orders.$post(args, clientOptions)) })
 }
 
 /**
@@ -484,35 +266,22 @@ export function usePostOrders(
  */
 export function useGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.orders)[':orderId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetOrdersOrderIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdQueryKey(
-  args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return ['/orders/:orderId', ...(args ? [args] : [])] as const
+  return ['/orders/:orderId', args] as const
 }
 
 /**
@@ -520,29 +289,15 @@ export function getGetOrdersOrderIdQueryKey(
  *
  * 注文キャンセル
  */
-export function usePostOrdersOrderIdCancel(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.orders)[':orderId']['cancel']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostOrdersOrderIdCancel(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.orders)[':orderId']['cancel']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.orders[':orderId'].cancel.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.orders[':orderId'].cancel.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -552,35 +307,22 @@ export function usePostOrdersOrderIdCancel(
  */
 export function useGetInventoryProductId(
   args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.inventory)[':productId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetInventoryProductIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.inventory[':productId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.inventory[':productId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /inventory/{productId}
  */
 export function getGetInventoryProductIdQueryKey(
-  args?: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
+  args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
 ) {
-  return ['/inventory/:productId', ...(args ? [args] : [])] as const
+  return ['/inventory/:productId', args] as const
 }
 
 /**
@@ -588,27 +330,13 @@ export function getGetInventoryProductIdQueryKey(
  *
  * 在庫更新
  */
-export function usePutInventoryProductId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.inventory)[':productId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.inventory)[':productId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutInventoryProductId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.inventory)[':productId']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.inventory)[':productId']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.inventory[':productId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.inventory[':productId'].$put(args, clientOptions)),
+  })
 }

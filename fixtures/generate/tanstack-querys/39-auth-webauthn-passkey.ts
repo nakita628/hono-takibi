@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
@@ -141,9 +141,11 @@ export function usePostWebauthnAuthenticateVerify(
  */
 export function useGetWebauthnCredentials(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.webauthn.credentials.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.webauthn.credentials.$get>,
+      Error,
+      InferResponseType<typeof client.webauthn.credentials.$get>,
+      readonly ['/webauthn/credentials']
     >
     client?: ClientRequestOptions
   },
@@ -153,10 +155,10 @@ export function useGetWebauthnCredentials(
   const queryKey = getGetWebauthnCredentialsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.webauthn.credentials.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -178,12 +180,14 @@ export function getGetWebauthnCredentialsQueryKey() {
 export function useGetWebauthnCredentialsCredentialId(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+      readonly [
+        '/webauthn/credentials/:credentialId',
+        InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -193,10 +197,10 @@ export function useGetWebauthnCredentialsCredentialId(
   const queryKey = getGetWebauthnCredentialsCredentialIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.webauthn.credentials[':credentialId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -207,9 +211,9 @@ export function useGetWebauthnCredentialsCredentialId(
  * Generates TanStack Query cache key for GET /webauthn/credentials/{credentialId}
  */
 export function getGetWebauthnCredentialsCredentialIdQueryKey(
-  args?: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
-  return ['/webauthn/credentials/:credentialId', ...(args ? [args] : [])] as const
+  return ['/webauthn/credentials/:credentialId', args] as const
 }
 
 /**
@@ -287,9 +291,11 @@ export function usePatchWebauthnCredentialsCredentialId(
  */
 export function useGetWebauthnSettings(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.webauthn.settings.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.webauthn.settings.$get>,
+      Error,
+      InferResponseType<typeof client.webauthn.settings.$get>,
+      readonly ['/webauthn/settings']
     >
     client?: ClientRequestOptions
   },
@@ -299,9 +305,9 @@ export function useGetWebauthnSettings(
   const queryKey = getGetWebauthnSettingsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.webauthn.settings.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -322,9 +328,11 @@ export function getGetWebauthnSettingsQueryKey() {
  */
 export function useGetWebauthnSettingsRp(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.webauthn.settings.rp.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.webauthn.settings.rp.$get>,
+      Error,
+      InferResponseType<typeof client.webauthn.settings.rp.$get>,
+      readonly ['/webauthn/settings/rp']
     >
     client?: ClientRequestOptions
   },
@@ -334,10 +342,10 @@ export function useGetWebauthnSettingsRp(
   const queryKey = getGetWebauthnSettingsRpQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.webauthn.settings.rp.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -390,9 +398,11 @@ export function usePutWebauthnSettingsRp(
  */
 export function useGetWebauthnAuthenticators(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.webauthn.authenticators.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.webauthn.authenticators.$get>,
+      Error,
+      InferResponseType<typeof client.webauthn.authenticators.$get>,
+      readonly ['/webauthn/authenticators']
     >
     client?: ClientRequestOptions
   },
@@ -402,10 +412,10 @@ export function useGetWebauthnAuthenticators(
   const queryKey = getGetWebauthnAuthenticatorsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.webauthn.authenticators.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

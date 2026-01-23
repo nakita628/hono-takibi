@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
@@ -198,7 +198,12 @@ export function createPostAuthPasswordReset(
 export function createGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.users.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.users.$get>,
+      Error,
+      InferResponseType<typeof client.users.$get>,
+      readonly ['/users', InferRequestType<typeof client.users.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -219,8 +224,8 @@ export function createGetUsers(
 /**
  * Generates Svelte Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
-  return ['/users', ...(args ? [args] : [])] as const
+export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['/users', args] as const
 }
 
 /**
@@ -231,7 +236,12 @@ export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      readonly ['/users/:userId', InferRequestType<(typeof client.users)[':userId']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -253,9 +263,9 @@ export function createGetUsersUserId(
  * Generates Svelte Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['/users/:userId', ...(args ? [args] : [])] as const
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -325,7 +335,12 @@ export function createPatchUsersUserId(
  */
 export function createGetUsersMe(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.users.me.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.users.me.$get>,
+      Error,
+      InferResponseType<typeof client.users.me.$get>,
+      readonly ['/users/me']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

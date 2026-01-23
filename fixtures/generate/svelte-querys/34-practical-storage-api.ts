@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
@@ -12,7 +12,12 @@ import { client } from '../clients/34-practical-storage-api'
 export function createGetFiles(
   args: InferRequestType<typeof client.files.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.files.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.files.$get>,
+      Error,
+      InferResponseType<typeof client.files.$get>,
+      readonly ['/files', InferRequestType<typeof client.files.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -33,8 +38,8 @@ export function createGetFiles(
 /**
  * Generates Svelte Query cache key for GET /files
  */
-export function getGetFilesQueryKey(args?: InferRequestType<typeof client.files.$get>) {
-  return ['/files', ...(args ? [args] : [])] as const
+export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$get>) {
+  return ['/files', args] as const
 }
 
 /**
@@ -172,7 +177,12 @@ export function createPostFilesUploadMultipartUploadIdComplete(
 export function createGetFilesFileId(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.files)[':fileId']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.files)[':fileId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['$get']>,
+      readonly ['/files/:fileId', InferRequestType<(typeof client.files)[':fileId']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -194,9 +204,9 @@ export function createGetFilesFileId(
  * Generates Svelte Query cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return ['/files/:fileId', ...(args ? [args] : [])] as const
+  return ['/files/:fileId', args] as const
 }
 
 /**
@@ -269,7 +279,12 @@ export function createGetFilesFileIdDownload(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
+      readonly [
+        '/files/:fileId/download',
+        InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -293,9 +308,9 @@ export function createGetFilesFileIdDownload(
  * Generates Svelte Query cache key for GET /files/{fileId}/download
  */
 export function getGetFilesFileIdDownloadQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
 ) {
-  return ['/files/:fileId/download', ...(args ? [args] : [])] as const
+  return ['/files/:fileId/download', args] as const
 }
 
 /**
@@ -308,7 +323,12 @@ export function createGetFilesFileIdDownloadUrl(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
+      readonly [
+        '/files/:fileId/download-url',
+        InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -332,9 +352,9 @@ export function createGetFilesFileIdDownloadUrl(
  * Generates Svelte Query cache key for GET /files/{fileId}/download-url
  */
 export function getGetFilesFileIdDownloadUrlQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  return ['/files/:fileId/download-url', ...(args ? [args] : [])] as const
+  return ['/files/:fileId/download-url', args] as const
 }
 
 /**
@@ -407,7 +427,12 @@ export function createGetFilesFileIdThumbnail(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+      readonly [
+        '/files/:fileId/thumbnail',
+        InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -431,9 +456,9 @@ export function createGetFilesFileIdThumbnail(
  * Generates Svelte Query cache key for GET /files/{fileId}/thumbnail
  */
 export function getGetFilesFileIdThumbnailQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
 ) {
-  return ['/files/:fileId/thumbnail', ...(args ? [args] : [])] as const
+  return ['/files/:fileId/thumbnail', args] as const
 }
 
 /**
@@ -475,7 +500,12 @@ export function createGetFoldersFolderId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.folders)[':folderId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.folders)[':folderId']['$get']>,
+      readonly [
+        '/folders/:folderId',
+        InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -498,9 +528,9 @@ export function createGetFoldersFolderId(
  * Generates Svelte Query cache key for GET /folders/{folderId}
  */
 export function getGetFoldersFolderIdQueryKey(
-  args?: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
 ) {
-  return ['/folders/:folderId', ...(args ? [args] : [])] as const
+  return ['/folders/:folderId', args] as const
 }
 
 /**
@@ -573,7 +603,12 @@ export function createGetFilesFileIdShare(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.files)[':fileId']['share']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['share']['$get']>,
+      readonly [
+        '/files/:fileId/share',
+        InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -596,9 +631,9 @@ export function createGetFilesFileIdShare(
  * Generates Svelte Query cache key for GET /files/{fileId}/share
  */
 export function getGetFilesFileIdShareQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
 ) {
-  return ['/files/:fileId/share', ...(args ? [args] : [])] as const
+  return ['/files/:fileId/share', args] as const
 }
 
 /**
@@ -701,7 +736,12 @@ export function createGetFilesFileIdVersions(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
+      readonly [
+        '/files/:fileId/versions',
+        InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -725,9 +765,9 @@ export function createGetFilesFileIdVersions(
  * Generates Svelte Query cache key for GET /files/{fileId}/versions
  */
 export function getGetFilesFileIdVersionsQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
 ) {
-  return ['/files/:fileId/versions', ...(args ? [args] : [])] as const
+  return ['/files/:fileId/versions', args] as const
 }
 
 /**
@@ -778,7 +818,12 @@ export function createPostFilesFileIdVersionsVersionIdRestore(
 export function createGetTrash(
   args: InferRequestType<typeof client.trash.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.trash.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.trash.$get>,
+      Error,
+      InferResponseType<typeof client.trash.$get>,
+      readonly ['/trash', InferRequestType<typeof client.trash.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -799,8 +844,8 @@ export function createGetTrash(
 /**
  * Generates Svelte Query cache key for GET /trash
  */
-export function getGetTrashQueryKey(args?: InferRequestType<typeof client.trash.$get>) {
-  return ['/trash', ...(args ? [args] : [])] as const
+export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$get>) {
+  return ['/trash', args] as const
 }
 
 /**
@@ -865,7 +910,12 @@ export function createPostTrashFileIdRestore(
  */
 export function createGetStorageUsage(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.storage.usage.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.storage.usage.$get>,
+      Error,
+      InferResponseType<typeof client.storage.usage.$get>,
+      readonly ['/storage/usage']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
 
@@ -16,7 +16,12 @@ export function createGetSocialAuthorizeProvider(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.social.authorize)[':provider']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.social.authorize)[':provider']['$get']>,
+      readonly [
+        '/social/authorize/:provider',
+        InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -40,9 +45,9 @@ export function createGetSocialAuthorizeProvider(
  * Generates Svelte Query cache key for GET /social/authorize/{provider}
  */
 export function getGetSocialAuthorizeProviderQueryKey(
-  args?: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
+  args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
 ) {
-  return ['/social/authorize/:provider', ...(args ? [args] : [])] as const
+  return ['/social/authorize/:provider', args] as const
 }
 
 /**
@@ -57,7 +62,12 @@ export function createGetSocialCallbackProvider(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.social.callback)[':provider']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.social.callback)[':provider']['$get']>,
+      readonly [
+        '/social/callback/:provider',
+        InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -81,9 +91,9 @@ export function createGetSocialCallbackProvider(
  * Generates Svelte Query cache key for GET /social/callback/{provider}
  */
 export function getGetSocialCallbackProviderQueryKey(
-  args?: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
+  args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
 ) {
-  return ['/social/callback/:provider', ...(args ? [args] : [])] as const
+  return ['/social/callback/:provider', args] as const
 }
 
 /**
@@ -156,7 +166,12 @@ export function createPostSocialTokenNative(
  */
 export function createGetProviders(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.providers.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.providers.$get>,
+      Error,
+      InferResponseType<typeof client.providers.$get>,
+      readonly ['/providers']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -188,7 +203,12 @@ export function getGetProvidersQueryKey() {
  */
 export function createGetProvidersAdmin(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.providers.admin.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.providers.admin.$get>,
+      Error,
+      InferResponseType<typeof client.providers.admin.$get>,
+      readonly ['/providers/admin']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -253,7 +273,12 @@ export function createGetProvidersProviderId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.providers)[':providerId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.providers)[':providerId']['$get']>,
+      readonly [
+        '/providers/:providerId',
+        InferRequestType<(typeof client.providers)[':providerId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -276,9 +301,9 @@ export function createGetProvidersProviderId(
  * Generates Svelte Query cache key for GET /providers/{providerId}
  */
 export function getGetProvidersProviderIdQueryKey(
-  args?: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
+  args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
 ) {
-  return ['/providers/:providerId', ...(args ? [args] : [])] as const
+  return ['/providers/:providerId', args] as const
 }
 
 /**
@@ -378,7 +403,12 @@ export function createPostProvidersProviderIdTest(
  */
 export function createGetAccountLinked(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.account.linked.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.account.linked.$get>,
+      Error,
+      InferResponseType<typeof client.account.linked.$get>,
+      readonly ['/account/linked']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -472,7 +502,12 @@ export function createDeleteAccountLinkProvider(
  */
 export function createGetEnterpriseSso(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.enterprise.sso.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.enterprise.sso.$get>,
+      Error,
+      InferResponseType<typeof client.enterprise.sso.$get>,
+      readonly ['/enterprise/sso']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -536,7 +571,12 @@ export function createGetEnterpriseSsoConfigId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>,
+      readonly [
+        '/enterprise/sso/:configId',
+        InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -560,9 +600,9 @@ export function createGetEnterpriseSsoConfigId(
  * Generates Svelte Query cache key for GET /enterprise/sso/{configId}
  */
 export function getGetEnterpriseSsoConfigIdQueryKey(
-  args?: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
 ) {
-  return ['/enterprise/sso/:configId', ...(args ? [args] : [])] as const
+  return ['/enterprise/sso/:configId', args] as const
 }
 
 /**
@@ -635,7 +675,12 @@ export function createGetEnterpriseSsoDomainLookup(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+      readonly [
+        '/enterprise/sso/domain-lookup',
+        InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -659,9 +704,9 @@ export function createGetEnterpriseSsoDomainLookup(
  * Generates Svelte Query cache key for GET /enterprise/sso/domain-lookup
  */
 export function getGetEnterpriseSsoDomainLookupQueryKey(
-  args?: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+  args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
 ) {
-  return ['/enterprise/sso/domain-lookup', ...(args ? [args] : [])] as const
+  return ['/enterprise/sso/domain-lookup', args] as const
 }
 
 /**
@@ -676,7 +721,12 @@ export function createGetEnterpriseSsoConfigIdMetadata(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
+      readonly [
+        '/enterprise/sso/:configId/metadata',
+        InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -700,7 +750,7 @@ export function createGetEnterpriseSsoConfigIdMetadata(
  * Generates Svelte Query cache key for GET /enterprise/sso/{configId}/metadata
  */
 export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
-  args?: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
 ) {
-  return ['/enterprise/sso/:configId/metadata', ...(args ? [args] : [])] as const
+  return ['/enterprise/sso/:configId/metadata', args] as const
 }

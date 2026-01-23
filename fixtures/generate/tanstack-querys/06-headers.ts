@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -10,9 +10,11 @@ import { client } from '../clients/06-headers'
 export function useGetResources(
   args: InferRequestType<typeof client.resources.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.resources.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.resources.$get>,
+      Error,
+      InferResponseType<typeof client.resources.$get>,
+      readonly ['/resources', InferRequestType<typeof client.resources.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -22,9 +24,9 @@ export function useGetResources(
   const queryKey = getGetResourcesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.resources.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -34,8 +36,8 @@ export function useGetResources(
 /**
  * Generates TanStack Query cache key for GET /resources
  */
-export function getGetResourcesQueryKey(args?: InferRequestType<typeof client.resources.$get>) {
-  return ['/resources', ...(args ? [args] : [])] as const
+export function getGetResourcesQueryKey(args: InferRequestType<typeof client.resources.$get>) {
+  return ['/resources', args] as const
 }
 
 /**
@@ -44,9 +46,11 @@ export function getGetResourcesQueryKey(args?: InferRequestType<typeof client.re
 export function useGetResourcesId(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.resources)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.resources)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.resources)[':id']['$get']>,
+      readonly ['/resources/:id', InferRequestType<(typeof client.resources)[':id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -56,9 +60,9 @@ export function useGetResourcesId(
   const queryKey = getGetResourcesIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -69,9 +73,9 @@ export function useGetResourcesId(
  * Generates TanStack Query cache key for GET /resources/{id}
  */
 export function getGetResourcesIdQueryKey(
-  args?: InferRequestType<(typeof client.resources)[':id']['$get']>,
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  return ['/resources/:id', ...(args ? [args] : [])] as const
+  return ['/resources/:id', args] as const
 }
 
 /**
@@ -108,9 +112,11 @@ export function usePutResourcesId(
 export function useGetDownloadId(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.download)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.download)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.download)[':id']['$get']>,
+      readonly ['/download/:id', InferRequestType<(typeof client.download)[':id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -120,9 +126,9 @@ export function useGetDownloadId(
   const queryKey = getGetDownloadIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -133,7 +139,7 @@ export function useGetDownloadId(
  * Generates TanStack Query cache key for GET /download/{id}
  */
 export function getGetDownloadIdQueryKey(
-  args?: InferRequestType<(typeof client.download)[':id']['$get']>,
+  args: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
-  return ['/download/:id', ...(args ? [args] : [])] as const
+  return ['/download/:id', args] as const
 }

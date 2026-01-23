@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
@@ -11,9 +11,11 @@ import { client } from '../clients/37-auth-mfa'
  */
 export function useGetMfaStatus(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.mfa.status.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.mfa.status.$get>,
+      Error,
+      InferResponseType<typeof client.mfa.status.$get>,
+      readonly ['/mfa/status']
     >
     client?: ClientRequestOptions
   },
@@ -23,9 +25,9 @@ export function useGetMfaStatus(
   const queryKey = getGetMfaStatusQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.mfa.status.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -46,9 +48,11 @@ export function getGetMfaStatusQueryKey() {
  */
 export function useGetMfaMethods(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.mfa.methods.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.mfa.methods.$get>,
+      Error,
+      InferResponseType<typeof client.mfa.methods.$get>,
+      readonly ['/mfa/methods']
     >
     client?: ClientRequestOptions
   },
@@ -58,9 +62,9 @@ export function useGetMfaMethods(
   const queryKey = getGetMfaMethodsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.mfa.methods.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -414,9 +418,11 @@ export function usePostMfaWebauthnRegisterVerify(
  */
 export function useGetMfaWebauthnCredentials(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.mfa.webauthn.credentials.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.mfa.webauthn.credentials.$get>,
+      Error,
+      InferResponseType<typeof client.mfa.webauthn.credentials.$get>,
+      readonly ['/mfa/webauthn/credentials']
     >
     client?: ClientRequestOptions
   },
@@ -426,10 +432,10 @@ export function useGetMfaWebauthnCredentials(
   const queryKey = getGetMfaWebauthnCredentialsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.mfa.webauthn.credentials.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -550,12 +556,11 @@ export function usePostMfaBackupCodesGenerate(
  */
 export function useGetMfaBackupCodesStatus(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>,
+      Error,
+      InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>,
+      readonly ['/mfa/backup-codes/status']
     >
     client?: ClientRequestOptions
   },
@@ -565,10 +570,10 @@ export function useGetMfaBackupCodesStatus(
   const queryKey = getGetMfaBackupCodesStatusQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.mfa['backup-codes'].status.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

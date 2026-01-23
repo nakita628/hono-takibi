@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -14,9 +14,11 @@ import { client } from '../clients/spotify'
 export function useGetAlbums(
   args: InferRequestType<typeof client.albums.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.albums.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.albums.$get>,
+      Error,
+      InferResponseType<typeof client.albums.$get>,
+      readonly ['/albums', InferRequestType<typeof client.albums.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -26,9 +28,9 @@ export function useGetAlbums(
   const queryKey = getGetAlbumsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.albums.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -38,8 +40,8 @@ export function useGetAlbums(
 /**
  * Generates TanStack Query cache key for GET /albums
  */
-export function getGetAlbumsQueryKey(args?: InferRequestType<typeof client.albums.$get>) {
-  return ['/albums', ...(args ? [args] : [])] as const
+export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
+  return ['/albums', args] as const
 }
 
 /**
@@ -52,9 +54,11 @@ export function getGetAlbumsQueryKey(args?: InferRequestType<typeof client.album
 export function useGetAlbumsId(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.albums)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.albums)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.albums)[':id']['$get']>,
+      readonly ['/albums/:id', InferRequestType<(typeof client.albums)[':id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -64,9 +68,9 @@ export function useGetAlbumsId(
   const queryKey = getGetAlbumsIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.albums[':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -77,9 +81,9 @@ export function useGetAlbumsId(
  * Generates TanStack Query cache key for GET /albums/{id}
  */
 export function getGetAlbumsIdQueryKey(
-  args?: InferRequestType<(typeof client.albums)[':id']['$get']>,
+  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
 ) {
-  return ['/albums/:id', ...(args ? [args] : [])] as const
+  return ['/albums/:id', args] as const
 }
 
 /**
@@ -93,9 +97,14 @@ export function getGetAlbumsIdQueryKey(
 export function useGetAlbumsIdTracks(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>,
+      Error,
+      InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>,
+      readonly [
+        '/albums/:id/tracks',
+        InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -105,9 +114,9 @@ export function useGetAlbumsIdTracks(
   const queryKey = getGetAlbumsIdTracksQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.albums[':id'].tracks.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -118,9 +127,9 @@ export function useGetAlbumsIdTracks(
  * Generates TanStack Query cache key for GET /albums/{id}/tracks
  */
 export function getGetAlbumsIdTracksQueryKey(
-  args?: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
+  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  return ['/albums/:id/tracks', ...(args ? [args] : [])] as const
+  return ['/albums/:id/tracks', args] as const
 }
 
 /**
@@ -133,9 +142,11 @@ export function getGetAlbumsIdTracksQueryKey(
 export function useGetArtists(
   args: InferRequestType<typeof client.artists.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.artists.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.artists.$get>,
+      Error,
+      InferResponseType<typeof client.artists.$get>,
+      readonly ['/artists', InferRequestType<typeof client.artists.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -145,9 +156,9 @@ export function useGetArtists(
   const queryKey = getGetArtistsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.artists.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -157,8 +168,8 @@ export function useGetArtists(
 /**
  * Generates TanStack Query cache key for GET /artists
  */
-export function getGetArtistsQueryKey(args?: InferRequestType<typeof client.artists.$get>) {
-  return ['/artists', ...(args ? [args] : [])] as const
+export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
+  return ['/artists', args] as const
 }
 
 /**
@@ -171,9 +182,11 @@ export function getGetArtistsQueryKey(args?: InferRequestType<typeof client.arti
 export function useGetArtistsId(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.artists)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.artists)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.artists)[':id']['$get']>,
+      readonly ['/artists/:id', InferRequestType<(typeof client.artists)[':id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -183,9 +196,9 @@ export function useGetArtistsId(
   const queryKey = getGetArtistsIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.artists[':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -196,9 +209,9 @@ export function useGetArtistsId(
  * Generates TanStack Query cache key for GET /artists/{id}
  */
 export function getGetArtistsIdQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
 ) {
-  return ['/artists/:id', ...(args ? [args] : [])] as const
+  return ['/artists/:id', args] as const
 }
 
 /**
@@ -211,9 +224,14 @@ export function getGetArtistsIdQueryKey(
 export function useGetArtistsIdAlbums(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.artists)[':id']['albums']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.artists)[':id']['albums']['$get']>,
+      Error,
+      InferResponseType<(typeof client.artists)[':id']['albums']['$get']>,
+      readonly [
+        '/artists/:id/albums',
+        InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -223,9 +241,9 @@ export function useGetArtistsIdAlbums(
   const queryKey = getGetArtistsIdAlbumsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.artists[':id'].albums.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -236,9 +254,9 @@ export function useGetArtistsIdAlbums(
  * Generates TanStack Query cache key for GET /artists/{id}/albums
  */
 export function getGetArtistsIdAlbumsQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  return ['/artists/:id/albums', ...(args ? [args] : [])] as const
+  return ['/artists/:id/albums', args] as const
 }
 
 /**
@@ -251,12 +269,14 @@ export function getGetArtistsIdAlbumsQueryKey(
 export function useGetArtistsIdRelatedArtists(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
+      Error,
+      InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
+      readonly [
+        '/artists/:id/related-artists',
+        InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -266,10 +286,10 @@ export function useGetArtistsIdRelatedArtists(
   const queryKey = getGetArtistsIdRelatedArtistsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.artists[':id']['related-artists'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -280,9 +300,9 @@ export function useGetArtistsIdRelatedArtists(
  * Generates TanStack Query cache key for GET /artists/{id}/related-artists
  */
 export function getGetArtistsIdRelatedArtistsQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  return ['/artists/:id/related-artists', ...(args ? [args] : [])] as const
+  return ['/artists/:id/related-artists', args] as const
 }
 
 /**
@@ -295,12 +315,14 @@ export function getGetArtistsIdRelatedArtistsQueryKey(
 export function useGetArtistsIdTopTracks(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+      Error,
+      InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+      readonly [
+        '/artists/:id/top-tracks',
+        InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -310,10 +332,10 @@ export function useGetArtistsIdTopTracks(
   const queryKey = getGetArtistsIdTopTracksQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.artists[':id']['top-tracks'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -324,9 +346,9 @@ export function useGetArtistsIdTopTracks(
  * Generates TanStack Query cache key for GET /artists/{id}/top-tracks
  */
 export function getGetArtistsIdTopTracksQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  return ['/artists/:id/top-tracks', ...(args ? [args] : [])] as const
+  return ['/artists/:id/top-tracks', args] as const
 }
 
 /**
@@ -339,9 +361,14 @@ export function getGetArtistsIdTopTracksQueryKey(
 export function useGetAudioAnalysisId(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>,
+      readonly [
+        '/audio-analysis/:id',
+        InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -351,9 +378,9 @@ export function useGetAudioAnalysisId(
   const queryKey = getGetAudioAnalysisIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['audio-analysis'][':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -364,9 +391,9 @@ export function useGetAudioAnalysisId(
  * Generates TanStack Query cache key for GET /audio-analysis/{id}
  */
 export function getGetAudioAnalysisIdQueryKey(
-  args?: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
+  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  return ['/audio-analysis/:id', ...(args ? [args] : [])] as const
+  return ['/audio-analysis/:id', args] as const
 }
 
 /**
@@ -379,9 +406,11 @@ export function getGetAudioAnalysisIdQueryKey(
 export function useGetAudioFeatures(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['audio-features']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['audio-features']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['audio-features']['$get']>,
+      readonly ['/audio-features', InferRequestType<(typeof client)['audio-features']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -391,9 +420,9 @@ export function useGetAudioFeatures(
   const queryKey = getGetAudioFeaturesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['audio-features'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -404,9 +433,9 @@ export function useGetAudioFeatures(
  * Generates TanStack Query cache key for GET /audio-features
  */
 export function getGetAudioFeaturesQueryKey(
-  args?: InferRequestType<(typeof client)['audio-features']['$get']>,
+  args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  return ['/audio-features', ...(args ? [args] : [])] as const
+  return ['/audio-features', args] as const
 }
 
 /**
@@ -420,9 +449,14 @@ export function getGetAudioFeaturesQueryKey(
 export function useGetAudioFeaturesId(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['audio-features'][':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['audio-features'][':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['audio-features'][':id']['$get']>,
+      readonly [
+        '/audio-features/:id',
+        InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -432,9 +466,9 @@ export function useGetAudioFeaturesId(
   const queryKey = getGetAudioFeaturesIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['audio-features'][':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -445,9 +479,9 @@ export function useGetAudioFeaturesId(
  * Generates TanStack Query cache key for GET /audio-features/{id}
  */
 export function getGetAudioFeaturesIdQueryKey(
-  args?: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
+  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  return ['/audio-features/:id', ...(args ? [args] : [])] as const
+  return ['/audio-features/:id', args] as const
 }
 
 /**
@@ -461,9 +495,11 @@ export function getGetAudioFeaturesIdQueryKey(
 export function useGetAudiobooks(
   args: InferRequestType<typeof client.audiobooks.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.audiobooks.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.audiobooks.$get>,
+      Error,
+      InferResponseType<typeof client.audiobooks.$get>,
+      readonly ['/audiobooks', InferRequestType<typeof client.audiobooks.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -473,9 +509,9 @@ export function useGetAudiobooks(
   const queryKey = getGetAudiobooksQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.audiobooks.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -485,8 +521,8 @@ export function useGetAudiobooks(
 /**
  * Generates TanStack Query cache key for GET /audiobooks
  */
-export function getGetAudiobooksQueryKey(args?: InferRequestType<typeof client.audiobooks.$get>) {
-  return ['/audiobooks', ...(args ? [args] : [])] as const
+export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
+  return ['/audiobooks', args] as const
 }
 
 /**
@@ -500,9 +536,11 @@ export function getGetAudiobooksQueryKey(args?: InferRequestType<typeof client.a
 export function useGetAudiobooksId(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.audiobooks)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.audiobooks)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.audiobooks)[':id']['$get']>,
+      readonly ['/audiobooks/:id', InferRequestType<(typeof client.audiobooks)[':id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -512,9 +550,9 @@ export function useGetAudiobooksId(
   const queryKey = getGetAudiobooksIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.audiobooks[':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -525,9 +563,9 @@ export function useGetAudiobooksId(
  * Generates TanStack Query cache key for GET /audiobooks/{id}
  */
 export function getGetAudiobooksIdQueryKey(
-  args?: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
+  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
 ) {
-  return ['/audiobooks/:id', ...(args ? [args] : [])] as const
+  return ['/audiobooks/:id', args] as const
 }
 
 /**
@@ -541,12 +579,14 @@ export function getGetAudiobooksIdQueryKey(
 export function useGetAudiobooksIdChapters(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+      Error,
+      InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+      readonly [
+        '/audiobooks/:id/chapters',
+        InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -556,10 +596,10 @@ export function useGetAudiobooksIdChapters(
   const queryKey = getGetAudiobooksIdChaptersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.audiobooks[':id'].chapters.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -570,9 +610,9 @@ export function useGetAudiobooksIdChapters(
  * Generates TanStack Query cache key for GET /audiobooks/{id}/chapters
  */
 export function getGetAudiobooksIdChaptersQueryKey(
-  args?: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  return ['/audiobooks/:id/chapters', ...(args ? [args] : [])] as const
+  return ['/audiobooks/:id/chapters', args] as const
 }
 
 /**
@@ -585,9 +625,11 @@ export function getGetAudiobooksIdChaptersQueryKey(
 export function useGetBrowseCategories(
   args: InferRequestType<typeof client.browse.categories.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.browse.categories.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.browse.categories.$get>,
+      Error,
+      InferResponseType<typeof client.browse.categories.$get>,
+      readonly ['/browse/categories', InferRequestType<typeof client.browse.categories.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -597,9 +639,9 @@ export function useGetBrowseCategories(
   const queryKey = getGetBrowseCategoriesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.browse.categories.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -610,9 +652,9 @@ export function useGetBrowseCategories(
  * Generates TanStack Query cache key for GET /browse/categories
  */
 export function getGetBrowseCategoriesQueryKey(
-  args?: InferRequestType<typeof client.browse.categories.$get>,
+  args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  return ['/browse/categories', ...(args ? [args] : [])] as const
+  return ['/browse/categories', args] as const
 }
 
 /**
@@ -625,12 +667,14 @@ export function getGetBrowseCategoriesQueryKey(
 export function useGetBrowseCategoriesCategoryId(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
+      readonly [
+        '/browse/categories/:category_id',
+        InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -640,10 +684,10 @@ export function useGetBrowseCategoriesCategoryId(
   const queryKey = getGetBrowseCategoriesCategoryIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.browse.categories[':category_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -654,9 +698,9 @@ export function useGetBrowseCategoriesCategoryId(
  * Generates TanStack Query cache key for GET /browse/categories/{category_id}
  */
 export function getGetBrowseCategoriesCategoryIdQueryKey(
-  args?: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  return ['/browse/categories/:category_id', ...(args ? [args] : [])] as const
+  return ['/browse/categories/:category_id', args] as const
 }
 
 /**
@@ -669,12 +713,14 @@ export function getGetBrowseCategoriesCategoryIdQueryKey(
 export function useGetBrowseCategoriesCategoryIdPlaylists(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+      Error,
+      InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+      readonly [
+        '/browse/categories/:category_id/playlists',
+        InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -684,10 +730,10 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
   const queryKey = getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.browse.categories[':category_id'].playlists.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -698,9 +744,9 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
  * Generates TanStack Query cache key for GET /browse/categories/{category_id}/playlists
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
-  args?: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  return ['/browse/categories/:category_id/playlists', ...(args ? [args] : [])] as const
+  return ['/browse/categories/:category_id/playlists', args] as const
 }
 
 /**
@@ -713,12 +759,14 @@ export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
 export function useGetBrowseFeaturedPlaylists(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
+      Error,
+      InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
+      readonly [
+        '/browse/featured-playlists',
+        InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -728,10 +776,10 @@ export function useGetBrowseFeaturedPlaylists(
   const queryKey = getGetBrowseFeaturedPlaylistsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.browse['featured-playlists'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -742,9 +790,9 @@ export function useGetBrowseFeaturedPlaylists(
  * Generates TanStack Query cache key for GET /browse/featured-playlists
  */
 export function getGetBrowseFeaturedPlaylistsQueryKey(
-  args?: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
+  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  return ['/browse/featured-playlists', ...(args ? [args] : [])] as const
+  return ['/browse/featured-playlists', args] as const
 }
 
 /**
@@ -757,9 +805,14 @@ export function getGetBrowseFeaturedPlaylistsQueryKey(
 export function useGetBrowseNewReleases(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.browse)['new-releases']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.browse)['new-releases']['$get']>,
+      Error,
+      InferResponseType<(typeof client.browse)['new-releases']['$get']>,
+      readonly [
+        '/browse/new-releases',
+        InferRequestType<(typeof client.browse)['new-releases']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -769,9 +822,9 @@ export function useGetBrowseNewReleases(
   const queryKey = getGetBrowseNewReleasesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.browse['new-releases'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -782,9 +835,9 @@ export function useGetBrowseNewReleases(
  * Generates TanStack Query cache key for GET /browse/new-releases
  */
 export function getGetBrowseNewReleasesQueryKey(
-  args?: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
+  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  return ['/browse/new-releases', ...(args ? [args] : [])] as const
+  return ['/browse/new-releases', args] as const
 }
 
 /**
@@ -798,9 +851,11 @@ export function getGetBrowseNewReleasesQueryKey(
 export function useGetChapters(
   args: InferRequestType<typeof client.chapters.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.chapters.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.chapters.$get>,
+      Error,
+      InferResponseType<typeof client.chapters.$get>,
+      readonly ['/chapters', InferRequestType<typeof client.chapters.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -810,9 +865,9 @@ export function useGetChapters(
   const queryKey = getGetChaptersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.chapters.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -822,8 +877,8 @@ export function useGetChapters(
 /**
  * Generates TanStack Query cache key for GET /chapters
  */
-export function getGetChaptersQueryKey(args?: InferRequestType<typeof client.chapters.$get>) {
-  return ['/chapters', ...(args ? [args] : [])] as const
+export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
+  return ['/chapters', args] as const
 }
 
 /**
@@ -837,9 +892,11 @@ export function getGetChaptersQueryKey(args?: InferRequestType<typeof client.cha
 export function useGetChaptersId(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.chapters)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.chapters)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.chapters)[':id']['$get']>,
+      readonly ['/chapters/:id', InferRequestType<(typeof client.chapters)[':id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -849,9 +906,9 @@ export function useGetChaptersId(
   const queryKey = getGetChaptersIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.chapters[':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -862,9 +919,9 @@ export function useGetChaptersId(
  * Generates TanStack Query cache key for GET /chapters/{id}
  */
 export function getGetChaptersIdQueryKey(
-  args?: InferRequestType<(typeof client.chapters)[':id']['$get']>,
+  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
 ) {
-  return ['/chapters/:id', ...(args ? [args] : [])] as const
+  return ['/chapters/:id', args] as const
 }
 
 /**
@@ -877,9 +934,11 @@ export function getGetChaptersIdQueryKey(
 export function useGetEpisodes(
   args: InferRequestType<typeof client.episodes.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.episodes.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.episodes.$get>,
+      Error,
+      InferResponseType<typeof client.episodes.$get>,
+      readonly ['/episodes', InferRequestType<typeof client.episodes.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -889,9 +948,9 @@ export function useGetEpisodes(
   const queryKey = getGetEpisodesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.episodes.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -901,8 +960,8 @@ export function useGetEpisodes(
 /**
  * Generates TanStack Query cache key for GET /episodes
  */
-export function getGetEpisodesQueryKey(args?: InferRequestType<typeof client.episodes.$get>) {
-  return ['/episodes', ...(args ? [args] : [])] as const
+export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
+  return ['/episodes', args] as const
 }
 
 /**
@@ -916,9 +975,11 @@ export function getGetEpisodesQueryKey(args?: InferRequestType<typeof client.epi
 export function useGetEpisodesId(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.episodes)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.episodes)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.episodes)[':id']['$get']>,
+      readonly ['/episodes/:id', InferRequestType<(typeof client.episodes)[':id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -928,9 +989,9 @@ export function useGetEpisodesId(
   const queryKey = getGetEpisodesIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.episodes[':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -941,9 +1002,9 @@ export function useGetEpisodesId(
  * Generates TanStack Query cache key for GET /episodes/{id}
  */
 export function getGetEpisodesIdQueryKey(
-  args?: InferRequestType<(typeof client.episodes)[':id']['$get']>,
+  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
 ) {
-  return ['/episodes/:id', ...(args ? [args] : [])] as const
+  return ['/episodes/:id', args] as const
 }
 
 /**
@@ -955,9 +1016,11 @@ export function getGetEpisodesIdQueryKey(
  */
 export function useGetMarkets(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.markets.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.markets.$get>,
+      Error,
+      InferResponseType<typeof client.markets.$get>,
+      readonly ['/markets']
     >
     client?: ClientRequestOptions
   },
@@ -967,9 +1030,9 @@ export function useGetMarkets(
   const queryKey = getGetMarketsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.markets.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -993,9 +1056,11 @@ export function getGetMarketsQueryKey() {
  */
 export function useGetMe(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.$get>,
+      Error,
+      InferResponseType<typeof client.me.$get>,
+      readonly ['/me']
     >
     client?: ClientRequestOptions
   },
@@ -1005,9 +1070,9 @@ export function useGetMe(
   const queryKey = getGetMeQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1031,9 +1096,11 @@ export function getGetMeQueryKey() {
 export function useGetMeAlbums(
   args: InferRequestType<typeof client.me.albums.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.albums.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.albums.$get>,
+      Error,
+      InferResponseType<typeof client.me.albums.$get>,
+      readonly ['/me/albums', InferRequestType<typeof client.me.albums.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -1043,9 +1110,9 @@ export function useGetMeAlbums(
   const queryKey = getGetMeAlbumsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.albums.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1055,8 +1122,8 @@ export function useGetMeAlbums(
 /**
  * Generates TanStack Query cache key for GET /me/albums
  */
-export function getGetMeAlbumsQueryKey(args?: InferRequestType<typeof client.me.albums.$get>) {
-  return ['/me/albums', ...(args ? [args] : [])] as const
+export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
+  return ['/me/albums', args] as const
 }
 
 /**
@@ -1131,9 +1198,11 @@ export function useDeleteMeAlbums(
 export function useGetMeAlbumsContains(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.albums.contains.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.albums.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.albums.contains.$get>,
+      readonly ['/me/albums/contains', InferRequestType<typeof client.me.albums.contains.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -1143,9 +1212,9 @@ export function useGetMeAlbumsContains(
   const queryKey = getGetMeAlbumsContainsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.albums.contains.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1156,9 +1225,9 @@ export function useGetMeAlbumsContains(
  * Generates TanStack Query cache key for GET /me/albums/contains
  */
 export function getGetMeAlbumsContainsQueryKey(
-  args?: InferRequestType<typeof client.me.albums.contains.$get>,
+  args: InferRequestType<typeof client.me.albums.contains.$get>,
 ) {
-  return ['/me/albums/contains', ...(args ? [args] : [])] as const
+  return ['/me/albums/contains', args] as const
 }
 
 /**
@@ -1171,9 +1240,11 @@ export function getGetMeAlbumsContainsQueryKey(
 export function useGetMeAudiobooks(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.audiobooks.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.audiobooks.$get>,
+      Error,
+      InferResponseType<typeof client.me.audiobooks.$get>,
+      readonly ['/me/audiobooks', InferRequestType<typeof client.me.audiobooks.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -1183,9 +1254,9 @@ export function useGetMeAudiobooks(
   const queryKey = getGetMeAudiobooksQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.audiobooks.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1196,9 +1267,9 @@ export function useGetMeAudiobooks(
  * Generates TanStack Query cache key for GET /me/audiobooks
  */
 export function getGetMeAudiobooksQueryKey(
-  args?: InferRequestType<typeof client.me.audiobooks.$get>,
+  args: InferRequestType<typeof client.me.audiobooks.$get>,
 ) {
-  return ['/me/audiobooks', ...(args ? [args] : [])] as const
+  return ['/me/audiobooks', args] as const
 }
 
 /**
@@ -1274,9 +1345,14 @@ export function useDeleteMeAudiobooks(
 export function useGetMeAudiobooksContains(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.audiobooks.contains.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.audiobooks.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.audiobooks.contains.$get>,
+      readonly [
+        '/me/audiobooks/contains',
+        InferRequestType<typeof client.me.audiobooks.contains.$get>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1286,9 +1362,9 @@ export function useGetMeAudiobooksContains(
   const queryKey = getGetMeAudiobooksContainsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.audiobooks.contains.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1299,9 +1375,9 @@ export function useGetMeAudiobooksContains(
  * Generates TanStack Query cache key for GET /me/audiobooks/contains
  */
 export function getGetMeAudiobooksContainsQueryKey(
-  args?: InferRequestType<typeof client.me.audiobooks.contains.$get>,
+  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
 ) {
-  return ['/me/audiobooks/contains', ...(args ? [args] : [])] as const
+  return ['/me/audiobooks/contains', args] as const
 }
 
 /**
@@ -1315,9 +1391,11 @@ export function getGetMeAudiobooksContainsQueryKey(
 export function useGetMeEpisodes(
   args: InferRequestType<typeof client.me.episodes.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.episodes.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.episodes.$get>,
+      Error,
+      InferResponseType<typeof client.me.episodes.$get>,
+      readonly ['/me/episodes', InferRequestType<typeof client.me.episodes.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -1327,9 +1405,9 @@ export function useGetMeEpisodes(
   const queryKey = getGetMeEpisodesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.episodes.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1339,8 +1417,8 @@ export function useGetMeEpisodes(
 /**
  * Generates TanStack Query cache key for GET /me/episodes
  */
-export function getGetMeEpisodesQueryKey(args?: InferRequestType<typeof client.me.episodes.$get>) {
-  return ['/me/episodes', ...(args ? [args] : [])] as const
+export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
+  return ['/me/episodes', args] as const
 }
 
 /**
@@ -1418,9 +1496,11 @@ export function useDeleteMeEpisodes(
 export function useGetMeEpisodesContains(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.episodes.contains.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.episodes.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.episodes.contains.$get>,
+      readonly ['/me/episodes/contains', InferRequestType<typeof client.me.episodes.contains.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -1430,9 +1510,9 @@ export function useGetMeEpisodesContains(
   const queryKey = getGetMeEpisodesContainsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.episodes.contains.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1443,9 +1523,9 @@ export function useGetMeEpisodesContains(
  * Generates TanStack Query cache key for GET /me/episodes/contains
  */
 export function getGetMeEpisodesContainsQueryKey(
-  args?: InferRequestType<typeof client.me.episodes.contains.$get>,
+  args: InferRequestType<typeof client.me.episodes.contains.$get>,
 ) {
-  return ['/me/episodes/contains', ...(args ? [args] : [])] as const
+  return ['/me/episodes/contains', args] as const
 }
 
 /**
@@ -1458,9 +1538,11 @@ export function getGetMeEpisodesContainsQueryKey(
 export function useGetMeFollowing(
   args: InferRequestType<typeof client.me.following.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.following.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.following.$get>,
+      Error,
+      InferResponseType<typeof client.me.following.$get>,
+      readonly ['/me/following', InferRequestType<typeof client.me.following.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -1470,9 +1552,9 @@ export function useGetMeFollowing(
   const queryKey = getGetMeFollowingQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.following.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1482,10 +1564,8 @@ export function useGetMeFollowing(
 /**
  * Generates TanStack Query cache key for GET /me/following
  */
-export function getGetMeFollowingQueryKey(
-  args?: InferRequestType<typeof client.me.following.$get>,
-) {
-  return ['/me/following', ...(args ? [args] : [])] as const
+export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
+  return ['/me/following', args] as const
 }
 
 /**
@@ -1560,9 +1640,14 @@ export function useDeleteMeFollowing(
 export function useGetMeFollowingContains(
   args: InferRequestType<typeof client.me.following.contains.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.following.contains.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.following.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.following.contains.$get>,
+      readonly [
+        '/me/following/contains',
+        InferRequestType<typeof client.me.following.contains.$get>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1572,9 +1657,9 @@ export function useGetMeFollowingContains(
   const queryKey = getGetMeFollowingContainsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.following.contains.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1585,9 +1670,9 @@ export function useGetMeFollowingContains(
  * Generates TanStack Query cache key for GET /me/following/contains
  */
 export function getGetMeFollowingContainsQueryKey(
-  args?: InferRequestType<typeof client.me.following.contains.$get>,
+  args: InferRequestType<typeof client.me.following.contains.$get>,
 ) {
-  return ['/me/following/contains', ...(args ? [args] : [])] as const
+  return ['/me/following/contains', args] as const
 }
 
 /**
@@ -1600,9 +1685,11 @@ export function getGetMeFollowingContainsQueryKey(
 export function useGetMePlayer(
   args: InferRequestType<typeof client.me.player.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.player.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.player.$get>,
+      Error,
+      InferResponseType<typeof client.me.player.$get>,
+      readonly ['/me/player', InferRequestType<typeof client.me.player.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -1612,9 +1699,9 @@ export function useGetMePlayer(
   const queryKey = getGetMePlayerQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.player.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1624,8 +1711,8 @@ export function useGetMePlayer(
 /**
  * Generates TanStack Query cache key for GET /me/player
  */
-export function getGetMePlayerQueryKey(args?: InferRequestType<typeof client.me.player.$get>) {
-  return ['/me/player', ...(args ? [args] : [])] as const
+export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
+  return ['/me/player', args] as const
 }
 
 /**
@@ -1669,12 +1756,14 @@ export function usePutMePlayer(
 export function useGetMePlayerCurrentlyPlaying(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
+      Error,
+      InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
+      readonly [
+        '/me/player/currently-playing',
+        InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1684,10 +1773,10 @@ export function useGetMePlayerCurrentlyPlaying(
   const queryKey = getGetMePlayerCurrentlyPlayingQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.me.player['currently-playing'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1698,9 +1787,9 @@ export function useGetMePlayerCurrentlyPlaying(
  * Generates TanStack Query cache key for GET /me/player/currently-playing
  */
 export function getGetMePlayerCurrentlyPlayingQueryKey(
-  args?: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
+  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
 ) {
-  return ['/me/player/currently-playing', ...(args ? [args] : [])] as const
+  return ['/me/player/currently-playing', args] as const
 }
 
 /**
@@ -1712,9 +1801,11 @@ export function getGetMePlayerCurrentlyPlayingQueryKey(
  */
 export function useGetMePlayerDevices(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.player.devices.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.player.devices.$get>,
+      Error,
+      InferResponseType<typeof client.me.player.devices.$get>,
+      readonly ['/me/player/devices']
     >
     client?: ClientRequestOptions
   },
@@ -1724,9 +1815,9 @@ export function useGetMePlayerDevices(
   const queryKey = getGetMePlayerDevicesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.player.devices.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1874,9 +1965,11 @@ export function usePostMePlayerPrevious(
  */
 export function useGetMePlayerQueue(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.player.queue.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.player.queue.$get>,
+      Error,
+      InferResponseType<typeof client.me.player.queue.$get>,
+      readonly ['/me/player/queue']
     >
     client?: ClientRequestOptions
   },
@@ -1886,9 +1979,9 @@ export function useGetMePlayerQueue(
   const queryKey = getGetMePlayerQueueQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.player.queue.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1945,12 +2038,14 @@ export function usePostMePlayerQueue(
 export function useGetMePlayerRecentlyPlayed(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
+      Error,
+      InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
+      readonly [
+        '/me/player/recently-played',
+        InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1960,10 +2055,10 @@ export function useGetMePlayerRecentlyPlayed(
   const queryKey = getGetMePlayerRecentlyPlayedQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.me.player['recently-played'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1974,9 +2069,9 @@ export function useGetMePlayerRecentlyPlayed(
  * Generates TanStack Query cache key for GET /me/player/recently-played
  */
 export function getGetMePlayerRecentlyPlayedQueryKey(
-  args?: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
+  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
 ) {
-  return ['/me/player/recently-played', ...(args ? [args] : [])] as const
+  return ['/me/player/recently-played', args] as const
 }
 
 /**
@@ -2118,9 +2213,11 @@ export function usePutMePlayerVolume(
 export function useGetMePlaylists(
   args: InferRequestType<typeof client.me.playlists.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.playlists.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.playlists.$get>,
+      Error,
+      InferResponseType<typeof client.me.playlists.$get>,
+      readonly ['/me/playlists', InferRequestType<typeof client.me.playlists.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2130,9 +2227,9 @@ export function useGetMePlaylists(
   const queryKey = getGetMePlaylistsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.playlists.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2142,10 +2239,8 @@ export function useGetMePlaylists(
 /**
  * Generates TanStack Query cache key for GET /me/playlists
  */
-export function getGetMePlaylistsQueryKey(
-  args?: InferRequestType<typeof client.me.playlists.$get>,
-) {
-  return ['/me/playlists', ...(args ? [args] : [])] as const
+export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
+  return ['/me/playlists', args] as const
 }
 
 /**
@@ -2158,9 +2253,11 @@ export function getGetMePlaylistsQueryKey(
 export function useGetMeShows(
   args: InferRequestType<typeof client.me.shows.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.shows.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.shows.$get>,
+      Error,
+      InferResponseType<typeof client.me.shows.$get>,
+      readonly ['/me/shows', InferRequestType<typeof client.me.shows.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2170,9 +2267,9 @@ export function useGetMeShows(
   const queryKey = getGetMeShowsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.shows.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2182,8 +2279,8 @@ export function useGetMeShows(
 /**
  * Generates TanStack Query cache key for GET /me/shows
  */
-export function getGetMeShowsQueryKey(args?: InferRequestType<typeof client.me.shows.$get>) {
-  return ['/me/shows', ...(args ? [args] : [])] as const
+export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
+  return ['/me/shows', args] as const
 }
 
 /**
@@ -2258,9 +2355,11 @@ export function useDeleteMeShows(
 export function useGetMeShowsContains(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.shows.contains.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.shows.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.shows.contains.$get>,
+      readonly ['/me/shows/contains', InferRequestType<typeof client.me.shows.contains.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2270,9 +2369,9 @@ export function useGetMeShowsContains(
   const queryKey = getGetMeShowsContainsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.shows.contains.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2283,9 +2382,9 @@ export function useGetMeShowsContains(
  * Generates TanStack Query cache key for GET /me/shows/contains
  */
 export function getGetMeShowsContainsQueryKey(
-  args?: InferRequestType<typeof client.me.shows.contains.$get>,
+  args: InferRequestType<typeof client.me.shows.contains.$get>,
 ) {
-  return ['/me/shows/contains', ...(args ? [args] : [])] as const
+  return ['/me/shows/contains', args] as const
 }
 
 /**
@@ -2298,9 +2397,11 @@ export function getGetMeShowsContainsQueryKey(
 export function useGetMeTopType(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.me.top)[':type']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.me.top)[':type']['$get']>,
+      Error,
+      InferResponseType<(typeof client.me.top)[':type']['$get']>,
+      readonly ['/me/top/:type', InferRequestType<(typeof client.me.top)[':type']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -2310,9 +2411,9 @@ export function useGetMeTopType(
   const queryKey = getGetMeTopTypeQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.top[':type'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2323,9 +2424,9 @@ export function useGetMeTopType(
  * Generates TanStack Query cache key for GET /me/top/{type}
  */
 export function getGetMeTopTypeQueryKey(
-  args?: InferRequestType<(typeof client.me.top)[':type']['$get']>,
+  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  return ['/me/top/:type', ...(args ? [args] : [])] as const
+  return ['/me/top/:type', args] as const
 }
 
 /**
@@ -2338,9 +2439,11 @@ export function getGetMeTopTypeQueryKey(
 export function useGetMeTracks(
   args: InferRequestType<typeof client.me.tracks.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.tracks.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.tracks.$get>,
+      Error,
+      InferResponseType<typeof client.me.tracks.$get>,
+      readonly ['/me/tracks', InferRequestType<typeof client.me.tracks.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2350,9 +2453,9 @@ export function useGetMeTracks(
   const queryKey = getGetMeTracksQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.tracks.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2362,8 +2465,8 @@ export function useGetMeTracks(
 /**
  * Generates TanStack Query cache key for GET /me/tracks
  */
-export function getGetMeTracksQueryKey(args?: InferRequestType<typeof client.me.tracks.$get>) {
-  return ['/me/tracks', ...(args ? [args] : [])] as const
+export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
+  return ['/me/tracks', args] as const
 }
 
 /**
@@ -2438,9 +2541,11 @@ export function useDeleteMeTracks(
 export function useGetMeTracksContains(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.tracks.contains.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.me.tracks.contains.$get>,
+      Error,
+      InferResponseType<typeof client.me.tracks.contains.$get>,
+      readonly ['/me/tracks/contains', InferRequestType<typeof client.me.tracks.contains.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2450,9 +2555,9 @@ export function useGetMeTracksContains(
   const queryKey = getGetMeTracksContainsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.me.tracks.contains.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2463,9 +2568,9 @@ export function useGetMeTracksContains(
  * Generates TanStack Query cache key for GET /me/tracks/contains
  */
 export function getGetMeTracksContainsQueryKey(
-  args?: InferRequestType<typeof client.me.tracks.contains.$get>,
+  args: InferRequestType<typeof client.me.tracks.contains.$get>,
 ) {
-  return ['/me/tracks/contains', ...(args ? [args] : [])] as const
+  return ['/me/tracks/contains', args] as const
 }
 
 /**
@@ -2478,9 +2583,14 @@ export function getGetMeTracksContainsQueryKey(
 export function useGetPlaylistsPlaylistId(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>,
+      readonly [
+        '/playlists/:playlist_id',
+        InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2490,10 +2600,10 @@ export function useGetPlaylistsPlaylistId(
   const queryKey = getGetPlaylistsPlaylistIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.playlists[':playlist_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2504,9 +2614,9 @@ export function useGetPlaylistsPlaylistId(
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}
  */
 export function getGetPlaylistsPlaylistIdQueryKey(
-  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  return ['/playlists/:playlist_id', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id', args] as const
 }
 
 /**
@@ -2620,14 +2730,16 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['contains']['$get']>,
+      Error,
+      InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['contains']['$get']>,
+      readonly [
+        '/playlists/:playlist_id/followers/contains',
+        InferRequestType<
           (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2637,12 +2749,12 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
   const queryKey = getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.playlists[':playlist_id'].followers.contains.$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2653,11 +2765,11 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/followers/contains
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
 ) {
-  return ['/playlists/:playlist_id/followers/contains', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id/followers/contains', args] as const
 }
 
 /**
@@ -2670,12 +2782,14 @@ export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
 export function useGetPlaylistsPlaylistIdImages(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+      Error,
+      InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+      readonly [
+        '/playlists/:playlist_id/images',
+        InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2685,10 +2799,10 @@ export function useGetPlaylistsPlaylistIdImages(
   const queryKey = getGetPlaylistsPlaylistIdImagesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.playlists[':playlist_id'].images.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2699,9 +2813,9 @@ export function useGetPlaylistsPlaylistIdImages(
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/images
  */
 export function getGetPlaylistsPlaylistIdImagesQueryKey(
-  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  return ['/playlists/:playlist_id/images', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id/images', args] as const
 }
 
 /**
@@ -2746,12 +2860,14 @@ export function usePutPlaylistsPlaylistIdImages(
 export function useGetPlaylistsPlaylistIdTracks(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+      Error,
+      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+      readonly [
+        '/playlists/:playlist_id/tracks',
+        InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2761,10 +2877,10 @@ export function useGetPlaylistsPlaylistIdTracks(
   const queryKey = getGetPlaylistsPlaylistIdTracksQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.playlists[':playlist_id'].tracks.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2775,9 +2891,9 @@ export function useGetPlaylistsPlaylistIdTracks(
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/tracks
  */
 export function getGetPlaylistsPlaylistIdTracksQueryKey(
-  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
 ) {
-  return ['/playlists/:playlist_id/tracks', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id/tracks', args] as const
 }
 
 /**
@@ -2894,9 +3010,11 @@ export function useDeletePlaylistsPlaylistIdTracks(
 export function useGetRecommendations(
   args: InferRequestType<typeof client.recommendations.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.recommendations.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.recommendations.$get>,
+      Error,
+      InferResponseType<typeof client.recommendations.$get>,
+      readonly ['/recommendations', InferRequestType<typeof client.recommendations.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2906,9 +3024,9 @@ export function useGetRecommendations(
   const queryKey = getGetRecommendationsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.recommendations.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2919,9 +3037,9 @@ export function useGetRecommendations(
  * Generates TanStack Query cache key for GET /recommendations
  */
 export function getGetRecommendationsQueryKey(
-  args?: InferRequestType<typeof client.recommendations.$get>,
+  args: InferRequestType<typeof client.recommendations.$get>,
 ) {
-  return ['/recommendations', ...(args ? [args] : [])] as const
+  return ['/recommendations', args] as const
 }
 
 /**
@@ -2933,12 +3051,11 @@ export function getGetRecommendationsQueryKey(
  */
 export function useGetRecommendationsAvailableGenreSeeds(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
+      Error,
+      InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
+      readonly ['/recommendations/available-genre-seeds']
     >
     client?: ClientRequestOptions
   },
@@ -2948,12 +3065,12 @@ export function useGetRecommendationsAvailableGenreSeeds(
   const queryKey = getGetRecommendationsAvailableGenreSeedsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.recommendations['available-genre-seeds'].$get(undefined, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2979,9 +3096,11 @@ export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
 export function useGetSearch(
   args: InferRequestType<typeof client.search.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.search.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.search.$get>,
+      Error,
+      InferResponseType<typeof client.search.$get>,
+      readonly ['/search', InferRequestType<typeof client.search.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2991,9 +3110,9 @@ export function useGetSearch(
   const queryKey = getGetSearchQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3003,8 +3122,8 @@ export function useGetSearch(
 /**
  * Generates TanStack Query cache key for GET /search
  */
-export function getGetSearchQueryKey(args?: InferRequestType<typeof client.search.$get>) {
-  return ['/search', ...(args ? [args] : [])] as const
+export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
+  return ['/search', args] as const
 }
 
 /**
@@ -3017,9 +3136,11 @@ export function getGetSearchQueryKey(args?: InferRequestType<typeof client.searc
 export function useGetShows(
   args: InferRequestType<typeof client.shows.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.shows.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.shows.$get>,
+      Error,
+      InferResponseType<typeof client.shows.$get>,
+      readonly ['/shows', InferRequestType<typeof client.shows.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -3029,9 +3150,9 @@ export function useGetShows(
   const queryKey = getGetShowsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.shows.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3041,8 +3162,8 @@ export function useGetShows(
 /**
  * Generates TanStack Query cache key for GET /shows
  */
-export function getGetShowsQueryKey(args?: InferRequestType<typeof client.shows.$get>) {
-  return ['/shows', ...(args ? [args] : [])] as const
+export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
+  return ['/shows', args] as const
 }
 
 /**
@@ -3056,9 +3177,11 @@ export function getGetShowsQueryKey(args?: InferRequestType<typeof client.shows.
 export function useGetShowsId(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.shows)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.shows)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.shows)[':id']['$get']>,
+      readonly ['/shows/:id', InferRequestType<(typeof client.shows)[':id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -3068,9 +3191,9 @@ export function useGetShowsId(
   const queryKey = getGetShowsIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.shows[':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3081,9 +3204,9 @@ export function useGetShowsId(
  * Generates TanStack Query cache key for GET /shows/{id}
  */
 export function getGetShowsIdQueryKey(
-  args?: InferRequestType<(typeof client.shows)[':id']['$get']>,
+  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
 ) {
-  return ['/shows/:id', ...(args ? [args] : [])] as const
+  return ['/shows/:id', args] as const
 }
 
 /**
@@ -3096,9 +3219,14 @@ export function getGetShowsIdQueryKey(
 export function useGetShowsIdEpisodes(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>,
+      Error,
+      InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>,
+      readonly [
+        '/shows/:id/episodes',
+        InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3108,9 +3236,9 @@ export function useGetShowsIdEpisodes(
   const queryKey = getGetShowsIdEpisodesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.shows[':id'].episodes.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3121,9 +3249,9 @@ export function useGetShowsIdEpisodes(
  * Generates TanStack Query cache key for GET /shows/{id}/episodes
  */
 export function getGetShowsIdEpisodesQueryKey(
-  args?: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
+  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  return ['/shows/:id/episodes', ...(args ? [args] : [])] as const
+  return ['/shows/:id/episodes', args] as const
 }
 
 /**
@@ -3136,9 +3264,11 @@ export function getGetShowsIdEpisodesQueryKey(
 export function useGetTracks(
   args: InferRequestType<typeof client.tracks.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.tracks.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.tracks.$get>,
+      Error,
+      InferResponseType<typeof client.tracks.$get>,
+      readonly ['/tracks', InferRequestType<typeof client.tracks.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -3148,9 +3278,9 @@ export function useGetTracks(
   const queryKey = getGetTracksQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.tracks.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3160,8 +3290,8 @@ export function useGetTracks(
 /**
  * Generates TanStack Query cache key for GET /tracks
  */
-export function getGetTracksQueryKey(args?: InferRequestType<typeof client.tracks.$get>) {
-  return ['/tracks', ...(args ? [args] : [])] as const
+export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
+  return ['/tracks', args] as const
 }
 
 /**
@@ -3175,9 +3305,11 @@ export function getGetTracksQueryKey(args?: InferRequestType<typeof client.track
 export function useGetTracksId(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.tracks)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.tracks)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.tracks)[':id']['$get']>,
+      readonly ['/tracks/:id', InferRequestType<(typeof client.tracks)[':id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -3187,9 +3319,9 @@ export function useGetTracksId(
   const queryKey = getGetTracksIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.tracks[':id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3200,9 +3332,9 @@ export function useGetTracksId(
  * Generates TanStack Query cache key for GET /tracks/{id}
  */
 export function getGetTracksIdQueryKey(
-  args?: InferRequestType<(typeof client.tracks)[':id']['$get']>,
+  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
 ) {
-  return ['/tracks/:id', ...(args ? [args] : [])] as const
+  return ['/tracks/:id', args] as const
 }
 
 /**
@@ -3215,9 +3347,11 @@ export function getGetTracksIdQueryKey(
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.users)[':user_id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      readonly ['/users/:user_id', InferRequestType<(typeof client.users)[':user_id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -3227,9 +3361,9 @@ export function useGetUsersUserId(
   const queryKey = getGetUsersUserIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3240,9 +3374,9 @@ export function useGetUsersUserId(
  * Generates TanStack Query cache key for GET /users/{user_id}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['/users/:user_id', ...(args ? [args] : [])] as const
+  return ['/users/:user_id', args] as const
 }
 
 /**
@@ -3255,12 +3389,14 @@ export function getGetUsersUserIdQueryKey(
 export function useGetUsersUserIdPlaylists(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
+      readonly [
+        '/users/:user_id/playlists',
+        InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3270,10 +3406,10 @@ export function useGetUsersUserIdPlaylists(
   const queryKey = getGetUsersUserIdPlaylistsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.users[':user_id'].playlists.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3284,9 +3420,9 @@ export function useGetUsersUserIdPlaylists(
  * Generates TanStack Query cache key for GET /users/{user_id}/playlists
  */
 export function getGetUsersUserIdPlaylistsQueryKey(
-  args?: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
+  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  return ['/users/:user_id/playlists', ...(args ? [args] : [])] as const
+  return ['/users/:user_id/playlists', args] as const
 }
 
 /**

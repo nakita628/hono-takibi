@@ -1,6 +1,6 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-nullable'
 
@@ -13,7 +13,12 @@ import { client } from '../clients/openapi-nullable'
  */
 export function createGetNullable(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.nullable.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.nullable.$get>,
+      Error,
+      InferResponseType<typeof client.nullable.$get>,
+      readonly ['/nullable']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

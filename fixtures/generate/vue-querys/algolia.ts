@@ -1,6 +1,5 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
@@ -13,33 +12,20 @@ import { client } from '../clients/algolia'
  */
 export function useGetPath(
   args: InferRequestType<(typeof client)[':path']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)[':path']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPathQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client[':path'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client[':path'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /{path}
  */
-export function getGetPathQueryKey(args?: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['/:path', ...(args ? [args] : [])] as const
+export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
+  return ['/:path', args] as const
 }
 
 /**
@@ -49,28 +35,12 @@ export function getGetPathQueryKey(args?: InferRequestType<(typeof client)[':pat
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function usePutPath(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)[':path']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)[':path']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutPath(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)[':path']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client)[':path']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client[':path'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client[':path'].$put(args, clientOptions)) })
 }
 
 /**
@@ -80,28 +50,12 @@ export function usePutPath(
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function usePostPath(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)[':path']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)[':path']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostPath(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)[':path']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)[':path']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client[':path'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client[':path'].$post(args, clientOptions)) })
 }
 
 /**
@@ -111,28 +65,12 @@ export function usePostPath(
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function useDeletePath(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)[':path']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)[':path']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeletePath(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)[':path']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client)[':path']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client[':path'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client[':path'].$delete(args, clientOptions)) })
 }
 
 /**
@@ -145,30 +83,15 @@ export function useDeletePath(
  * This method lets you retrieve up to 1,000 hits.
  * If you need more, use the [`browse` operation](https://www.algolia.com/doc/rest-api/search/browse) or increase the `paginatedLimitedTo` index setting.
  */
-export function usePost1IndexesIndexNameQuery(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameQuery(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].query.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].query.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -185,29 +108,15 @@ export function usePost1IndexesIndexNameQuery(
  *
  * Use the helper `searchForHits` or `searchForFacets` to get the results in a more convenient format, if you already know the return type you want.
  */
-export function usePost1IndexesQueries(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesQueries(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes['*'].queries.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes['*'].queries.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -221,22 +130,7 @@ export function usePost1IndexesQueries(
  *   You can adjust this with the `sortFacetValueBy` parameter.
  * - Searching for facet values doesn't work if you have **more than 65 searchable facets and searchable attributes combined**.
  */
-export function usePost1IndexesIndexNameFacetsFacetNameQuery(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameFacetsFacetNameQuery(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<
         (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
@@ -246,16 +140,12 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(
     InferRequestType<
       (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
     >
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].facets[':facetName'].query.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(
+        client['1'].indexes[':indexName'].facets[':facetName'].query.$post(args, clientOptions),
+      ),
+  })
 }
 
 /**
@@ -289,30 +179,15 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(
  *
  * If you send these parameters with your browse requests, they'll be ignored.
  */
-export function usePost1IndexesIndexNameBrowse(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameBrowse(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].browse.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].browse.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -332,29 +207,15 @@ export function usePost1IndexesIndexNameBrowse(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexName(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexName(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -370,29 +231,15 @@ export function usePost1IndexesIndexName(
  * - If the index you want to delete is a replica index, you must first unlink it from its primary index before you can delete it.
  *   For more information, see [Delete replica indices](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/how-to/deleting-replicas).
  */
-export function useDelete1IndexesIndexName(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDelete1IndexesIndexName(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -406,39 +253,23 @@ export function useDelete1IndexesIndexName(
  */
 export function useGet1IndexesIndexNameObjectID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1IndexesIndexNameObjectIDQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].indexes[':indexName'][':objectID'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'][':objectID'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/indexes/{indexName}/{objectID}
  */
 export function getGet1IndexesIndexNameObjectIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/:objectID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/:objectID', args] as const
 }
 
 /**
@@ -453,31 +284,16 @@ export function getGet1IndexesIndexNameObjectIDQueryKey(
  * To update _some_ attributes of an existing record, use the [`partial` operation](https://www.algolia.com/doc/rest-api/search/partial-update-object) instead.
  * To add, update, or replace multiple records, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  */
-export function usePut1IndexesIndexNameObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePut1IndexesIndexNameObjectID(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -490,33 +306,16 @@ export function usePut1IndexesIndexNameObjectID(
  * To delete more than one record, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  * To delete records matching a query, use the [`deleteBy` operation](https://www.algolia.com/doc/rest-api/search/delete-by).
  */
-export function useDelete1IndexesIndexNameObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDelete1IndexesIndexNameObjectID(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'][':objectID'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -533,31 +332,16 @@ export function useDelete1IndexesIndexNameObjectID(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameDeleteByQuery(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameDeleteByQuery(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -568,30 +352,15 @@ export function usePost1IndexesIndexNameDeleteByQuery(
  * Deletes only the records from an index while keeping settings, synonyms, and rules.
  * This operation is resource-intensive and subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameClear(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameClear(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].clear.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].clear.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -627,22 +396,7 @@ export function usePost1IndexesIndexNameClear(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameObjectIDPartial(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameObjectIDPartial(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<
         (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
@@ -650,16 +404,12 @@ export function usePost1IndexesIndexNameObjectIDPartial(
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'][':objectID'].partial.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(
+        client['1'].indexes[':indexName'][':objectID'].partial.$post(args, clientOptions),
+      ),
+  })
 }
 
 /**
@@ -676,30 +426,15 @@ export function usePost1IndexesIndexNameObjectIDPartial(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameBatch(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].batch.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -714,29 +449,15 @@ export function usePost1IndexesIndexNameBatch(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesBatch(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes['*'].batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes['*'].batch.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -748,29 +469,15 @@ export function usePost1IndexesBatch(
  *
  * Records are returned in the same order as the requests.
  */
-export function usePost1IndexesObjects(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesObjects(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes['*'].objects.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes['*'].objects.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -782,39 +489,23 @@ export function usePost1IndexesObjects(
  */
 export function useGet1IndexesIndexNameSettings(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1IndexesIndexNameSettingsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].indexes[':indexName'].settings.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'].settings.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/indexes/{indexName}/settings
  */
 export function getGet1IndexesIndexNameSettingsQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/settings', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/settings', args] as const
 }
 
 /**
@@ -829,31 +520,16 @@ export function getGet1IndexesIndexNameSettingsQueryKey(
  *
  * For best performance, update the index settings before you add new records to your index.
  */
-export function usePut1IndexesIndexNameSettings(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePut1IndexesIndexNameSettings(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].settings.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].settings.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -869,45 +545,27 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-        >,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, clientOptions),
-        ),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(
+        client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, clientOptions),
+      ),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
  */
 export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
 ) {
-  return ['/1/indexes/:indexName/synonyms/:objectID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
 }
 
 /**
@@ -919,22 +577,7 @@ export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
  * Otherwise, the existing synonym is replaced.
  * To add multiple synonyms in a single API request, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-synonyms).
  */
-export function usePut1IndexesIndexNameSynonymsObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-      >
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePut1IndexesIndexNameSynonymsObjectID(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<
         (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
@@ -942,16 +585,12 @@ export function usePut1IndexesIndexNameSynonymsObjectID(
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms[':objectID'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(
+        client['1'].indexes[':indexName'].synonyms[':objectID'].$put(args, clientOptions),
+      ),
+  })
 }
 
 /**
@@ -962,22 +601,7 @@ export function usePut1IndexesIndexNameSynonymsObjectID(
  * Deletes a synonym by its ID.
  * To find the object IDs of your synonyms, use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-synonyms).
  */
-export function useDelete1IndexesIndexNameSynonymsObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDelete1IndexesIndexNameSynonymsObjectID(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<
         (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
@@ -987,16 +611,12 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(
     InferRequestType<
       (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
     >
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(
+        client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(args, clientOptions),
+      ),
+  })
 }
 
 /**
@@ -1009,35 +629,16 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameSynonymsBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameSynonymsBatch(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms.batch.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1047,35 +648,16 @@ export function usePost1IndexesIndexNameSynonymsBatch(
  *
  * Deletes all synonyms from the index.
  */
-export function usePost1IndexesIndexNameSynonymsClear(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameSynonymsClear(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms.clear.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1085,20 +667,7 @@ export function usePost1IndexesIndexNameSynonymsClear(
  *
  * Searches for synonyms in your index.
  */
-export function usePost1IndexesIndexNameSynonymsSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameSynonymsSearch(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<
         (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
@@ -1106,16 +675,10 @@ export function usePost1IndexesIndexNameSynonymsSearch(
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms.search.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1125,27 +688,12 @@ export function usePost1IndexesIndexNameSynonymsSearch(
  *
  * Lists all API keys associated with your Algolia application, including their permissions and restrictions.
  */
-export function useGet1Keys(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['keys']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGet1Keys(clientOptions?: ClientRequestOptions) {
   const queryKey = getGet1KeysQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].keys.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['1'].keys.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1162,28 +710,12 @@ export function getGet1KeysQueryKey() {
  *
  * Creates a new API key with specific permissions and restrictions.
  */
-export function usePost1Keys(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1Keys(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['keys']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['keys']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client['1'].keys.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client['1'].keys.$post(args, clientOptions)) })
 }
 
 /**
@@ -1199,35 +731,22 @@ export function usePost1Keys(
  */
 export function useGet1KeysKey(
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['keys'][':key']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1KeysKeyQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].keys[':key'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['1'].keys[':key'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/keys/{key}
  */
 export function getGet1KeysKeyQueryKey(
-  args?: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
 ) {
-  return ['/1/keys/:key', ...(args ? [args] : [])] as const
+  return ['/1/keys/:key', args] as const
 }
 
 /**
@@ -1239,29 +758,14 @@ export function getGet1KeysKeyQueryKey(
  *
  * Any unspecified attribute resets that attribute to its default value.
  */
-export function usePut1KeysKey(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys'][':key']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePut1KeysKey(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['keys'][':key']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].keys[':key'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client['1'].keys[':key'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -1271,29 +775,15 @@ export function usePut1KeysKey(
  *
  * Deletes the API key.
  */
-export function useDelete1KeysKey(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys'][':key']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDelete1KeysKey(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['keys'][':key']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].keys[':key'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].keys[':key'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -1308,29 +798,15 @@ export function useDelete1KeysKey(
  * Algolia stores up to 1,000 API keys per application.
  * If you create more, the oldest API keys are deleted and can't be restored.
  */
-export function usePost1KeysKeyRestore(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1KeysKeyRestore(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].keys[':key'].restore.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].keys[':key'].restore.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1345,45 +821,25 @@ export function useGet1IndexesIndexNameRulesObjectID(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-        >,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1IndexesIndexNameRulesObjectIDQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client['1'].indexes[':indexName'].rules[':objectID'].$get(args, clientOptions),
-        ),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
  */
 export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
 ) {
-  return ['/1/indexes/:indexName/rules/:objectID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/rules/:objectID', args] as const
 }
 
 /**
@@ -1396,35 +852,16 @@ export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
  *
  * To create or update more than one rule, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-rules).
  */
-export function usePut1IndexesIndexNameRulesObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePut1IndexesIndexNameRulesObjectID(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].rules[':objectID'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -1436,22 +873,7 @@ export function usePut1IndexesIndexNameRulesObjectID(
  * To find the object ID for rules,
  * use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-rules).
  */
-export function useDelete1IndexesIndexNameRulesObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDelete1IndexesIndexNameRulesObjectID(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<
         (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
@@ -1459,16 +881,12 @@ export function useDelete1IndexesIndexNameRulesObjectID(
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].rules[':objectID'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(
+        client['1'].indexes[':indexName'].rules[':objectID'].$delete(args, clientOptions),
+      ),
+  })
 }
 
 /**
@@ -1483,31 +901,16 @@ export function useDelete1IndexesIndexNameRulesObjectID(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameRulesBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameRulesBatch(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1517,31 +920,16 @@ export function usePost1IndexesIndexNameRulesBatch(
  *
  * Deletes all rules from the index.
  */
-export function usePost1IndexesIndexNameRulesClear(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameRulesClear(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1551,31 +939,16 @@ export function usePost1IndexesIndexNameRulesClear(
  *
  * Searches for rules in your index.
  */
-export function usePost1IndexesIndexNameRulesSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameRulesSearch(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].rules.search.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].rules.search.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1585,33 +958,16 @@ export function usePost1IndexesIndexNameRulesSearch(
  *
  * Adds or deletes multiple entries from your plurals, segmentation, or stop word dictionaries.
  */
-export function usePost1DictionariesDictionaryNameBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1DictionariesDictionaryNameBatch(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].dictionaries[':dictionaryName'].batch.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1621,35 +977,16 @@ export function usePost1DictionariesDictionaryNameBatch(
  *
  * Searches for standard and custom dictionary entries.
  */
-export function usePost1DictionariesDictionaryNameSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1DictionariesDictionaryNameSearch(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client['1'].dictionaries[':dictionaryName'].search.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1659,31 +996,13 @@ export function usePost1DictionariesDictionaryNameSearch(
  *
  * Retrieves the languages for which standard dictionary entries are turned off.
  */
-export function useGet1DictionariesSettings(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGet1DictionariesSettings(clientOptions?: ClientRequestOptions) {
   const queryKey = getGet1DictionariesSettingsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].dictionaries['*'].settings.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client['1'].dictionaries['*'].settings.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1700,29 +1019,15 @@ export function getGet1DictionariesSettingsQueryKey() {
  *
  * Turns standard stop word dictionary entries on or off for a given language.
  */
-export function usePut1DictionariesSettings(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePut1DictionariesSettings(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].dictionaries['*'].settings.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].dictionaries['*'].settings.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -1732,31 +1037,13 @@ export function usePut1DictionariesSettings(
  *
  * Lists supported languages with their supported dictionary types and number of custom entries.
  */
-export function useGet1DictionariesLanguages(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGet1DictionariesLanguages(clientOptions?: ClientRequestOptions) {
   const queryKey = getGet1DictionariesLanguagesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].dictionaries['*'].languages.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client['1'].dictionaries['*'].languages.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1778,38 +1065,22 @@ export function getGet1DictionariesLanguagesQueryKey() {
  */
 export function useGet1ClustersMapping(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1ClustersMappingQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].clusters.mapping.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['1'].clusters.mapping.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/clusters/mapping
  */
 export function getGet1ClustersMappingQueryKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
 ) {
-  return ['/1/clusters/mapping', ...(args ? [args] : [])] as const
+  return ['/1/clusters/mapping', args] as const
 }
 
 /**
@@ -1821,29 +1092,15 @@ export function getGet1ClustersMappingQueryKey(
  *
  * The time it takes to move a user is proportional to the amount of data linked to the user ID.
  */
-export function usePost1ClustersMapping(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1ClustersMapping(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].clusters.mapping.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1855,29 +1112,15 @@ export function usePost1ClustersMapping(
  *
  * **You can't move users with this operation**.
  */
-export function usePost1ClustersMappingBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1ClustersMappingBatch(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping.batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].clusters.mapping.batch.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1890,31 +1133,13 @@ export function usePost1ClustersMappingBatch(
  * Since it can take a few seconds to get the data from the different clusters,
  * the response isn't real-time.
  */
-export function useGet1ClustersMappingTop(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGet1ClustersMappingTop(clientOptions?: ClientRequestOptions) {
   const queryKey = getGet1ClustersMappingTopQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].clusters.mapping.top.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client['1'].clusters.mapping.top.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1936,39 +1161,23 @@ export function getGet1ClustersMappingTopQueryKey() {
  */
 export function useGet1ClustersMappingUserID(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1ClustersMappingUserIDQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].clusters.mapping[':userID'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client['1'].clusters.mapping[':userID'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/clusters/mapping/{userID}
  */
 export function getGet1ClustersMappingUserIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
 ) {
-  return ['/1/clusters/mapping/:userID', ...(args ? [args] : [])] as const
+  return ['/1/clusters/mapping/:userID', args] as const
 }
 
 /**
@@ -1978,31 +1187,16 @@ export function getGet1ClustersMappingUserIDQueryKey(
  *
  * Deletes a user ID and its associated data from the clusters.
  */
-export function useDelete1ClustersMappingUserID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDelete1ClustersMappingUserID(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -2012,27 +1206,12 @@ export function useDelete1ClustersMappingUserID(
  *
  * Lists the available clusters in a multi-cluster setup.
  */
-export function useGet1Clusters(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['clusters']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGet1Clusters(clientOptions?: ClientRequestOptions) {
   const queryKey = getGet1ClustersQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].clusters.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['1'].clusters.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -2052,29 +1231,15 @@ export function getGet1ClustersQueryKey() {
  *
  * To ensure rapid updates, the user IDs index isn't built at the same time as the mapping. Instead, it's built every 12 hours, at the same time as the update of user ID usage. For example, if you add or move a user ID, the search will show an old value until the next time the mapping is rebuilt (every 12 hours).
  */
-export function usePost1ClustersMappingSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1ClustersMappingSearch(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping.search.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].clusters.mapping.search.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -2086,39 +1251,23 @@ export function usePost1ClustersMappingSearch(
  */
 export function useGet1ClustersMappingPending(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1ClustersMappingPendingQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].clusters.mapping.pending.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client['1'].clusters.mapping.pending.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/clusters/mapping/pending
  */
 export function getGet1ClustersMappingPendingQueryKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
 ) {
-  return ['/1/clusters/mapping/pending', ...(args ? [args] : [])] as const
+  return ['/1/clusters/mapping/pending', args] as const
 }
 
 /**
@@ -2128,31 +1277,12 @@ export function getGet1ClustersMappingPendingQueryKey(
  *
  * Retrieves all allowed IP addresses with access to your application.
  */
-export function useGet1SecuritySources(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGet1SecuritySources(clientOptions?: ClientRequestOptions) {
   const queryKey = getGet1SecuritySourcesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].security.sources.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['1'].security.sources.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -2169,29 +1299,15 @@ export function getGet1SecuritySourcesQueryKey() {
  *
  * Replaces the list of allowed sources.
  */
-export function usePut1SecuritySources(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['security']['sources']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['security']['sources']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePut1SecuritySources(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['security']['sources']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['security']['sources']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].security.sources.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].security.sources.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -2201,29 +1317,15 @@ export function usePut1SecuritySources(
  *
  * Adds a source to the list of allowed sources.
  */
-export function usePost1SecuritySourcesAppend(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1SecuritySourcesAppend(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].security.sources.append.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].security.sources.append.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -2233,31 +1335,16 @@ export function usePost1SecuritySourcesAppend(
  *
  * Deletes a source from the list of allowed sources.
  */
-export function useDelete1SecuritySourcesSource(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDelete1SecuritySourcesSource(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].security.sources[':source'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].security.sources[':source'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -2273,33 +1360,20 @@ export function useDelete1SecuritySourcesSource(
  */
 export function useGet1Logs(
   args: InferRequestType<(typeof client)['1']['logs']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['logs']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1LogsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].logs.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['1'].logs.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/logs
  */
-export function getGet1LogsQueryKey(args?: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['/1/logs', ...(args ? [args] : [])] as const
+export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
+  return ['/1/logs', args] as const
 }
 
 /**
@@ -2311,35 +1385,22 @@ export function getGet1LogsQueryKey(args?: InferRequestType<(typeof client)['1']
  */
 export function useGet1TaskTaskID(
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1TaskTaskIDQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].task[':taskID'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['1'].task[':taskID'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/task/{taskID}
  */
 export function getGet1TaskTaskIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/task/:taskID', ...(args ? [args] : [])] as const
+  return ['/1/task/:taskID', args] as const
 }
 
 /**
@@ -2357,39 +1418,23 @@ export function getGet1TaskTaskIDQueryKey(
  */
 export function useGet1IndexesIndexNameTaskTaskID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1IndexesIndexNameTaskTaskIDQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].indexes[':indexName'].task[':taskID'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'].task[':taskID'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/indexes/{indexName}/task/{taskID}
  */
 export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/task/:taskID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/task/:taskID', args] as const
 }
 
 /**
@@ -2422,31 +1467,16 @@ export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameOperation(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePost1IndexesIndexNameOperation(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
     | undefined,
     Error,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].operation.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['1'].indexes[':indexName'].operation.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -2460,35 +1490,22 @@ export function usePost1IndexesIndexNameOperation(
  */
 export function useGet1Indexes(
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['indexes']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGet1IndexesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].indexes.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['1'].indexes.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /1/indexes
  */
 export function getGet1IndexesQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
 ) {
-  return ['/1/indexes', ...(args ? [args] : [])] as const
+  return ['/1/indexes', args] as const
 }
 
 /**
@@ -2500,35 +1517,22 @@ export function getGet1IndexesQueryKey(
  */
 export function useGetWaitForApiKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.waitForApiKey.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetWaitForApiKeyQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.waitForApiKey.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.waitForApiKey.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /waitForApiKey
  */
 export function getGetWaitForApiKeyQueryKey(
-  args?: InferRequestType<typeof client.waitForApiKey.$get>,
+  args: InferRequestType<typeof client.waitForApiKey.$get>,
 ) {
-  return ['/waitForApiKey', ...(args ? [args] : [])] as const
+  return ['/waitForApiKey', args] as const
 }
 
 /**
@@ -2542,33 +1546,20 @@ export function getGetWaitForApiKeyQueryKey(
  */
 export function useGetWaitForTask(
   args: InferRequestType<typeof client.waitForTask.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.waitForTask.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetWaitForTaskQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.waitForTask.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.waitForTask.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /waitForTask
  */
-export function getGetWaitForTaskQueryKey(args?: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['/waitForTask', ...(args ? [args] : [])] as const
+export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
+  return ['/waitForTask', args] as const
 }
 
 /**
@@ -2580,35 +1571,22 @@ export function getGetWaitForTaskQueryKey(args?: InferRequestType<typeof client.
  */
 export function useGetWaitForAppTask(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.waitForAppTask.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetWaitForAppTaskQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.waitForAppTask.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.waitForAppTask.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /waitForAppTask
  */
 export function getGetWaitForAppTaskQueryKey(
-  args?: InferRequestType<typeof client.waitForAppTask.$get>,
+  args: InferRequestType<typeof client.waitForAppTask.$get>,
 ) {
-  return ['/waitForAppTask', ...(args ? [args] : [])] as const
+  return ['/waitForAppTask', args] as const
 }
 
 /**
@@ -2624,35 +1602,22 @@ export function getGetWaitForAppTaskQueryKey(
  */
 export function useGetBrowseObjects(
   args: InferRequestType<typeof client.browseObjects.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.browseObjects.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetBrowseObjectsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.browseObjects.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.browseObjects.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /browseObjects
  */
 export function getGetBrowseObjectsQueryKey(
-  args?: InferRequestType<typeof client.browseObjects.$get>,
+  args: InferRequestType<typeof client.browseObjects.$get>,
 ) {
-  return ['/browseObjects', ...(args ? [args] : [])] as const
+  return ['/browseObjects', args] as const
 }
 
 /**
@@ -2676,35 +1641,22 @@ export function getGetBrowseObjectsQueryKey(
  */
 export function useGetGenerateSecuredApiKey(
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.generateSecuredApiKey.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetGenerateSecuredApiKeyQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.generateSecuredApiKey.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.generateSecuredApiKey.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /generateSecuredApiKey
  */
 export function getGetGenerateSecuredApiKeyQueryKey(
-  args?: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  return ['/generateSecuredApiKey', ...(args ? [args] : [])] as const
+  return ['/generateSecuredApiKey', args] as const
 }
 
 /**
@@ -2716,35 +1668,22 @@ export function getGetGenerateSecuredApiKeyQueryKey(
  */
 export function useGetAccountCopyIndex(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.accountCopyIndex.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAccountCopyIndexQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.accountCopyIndex.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.accountCopyIndex.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /accountCopyIndex
  */
 export function getGetAccountCopyIndexQueryKey(
-  args?: InferRequestType<typeof client.accountCopyIndex.$get>,
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return ['/accountCopyIndex', ...(args ? [args] : [])] as const
+  return ['/accountCopyIndex', args] as const
 }
 
 /**
@@ -2771,35 +1710,22 @@ export function getGetAccountCopyIndexQueryKey(
  */
 export function useGetReplaceAllObjects(
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.replaceAllObjects.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetReplaceAllObjectsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.replaceAllObjects.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.replaceAllObjects.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /replaceAllObjects
  */
 export function getGetReplaceAllObjectsQueryKey(
-  args?: InferRequestType<typeof client.replaceAllObjects.$get>,
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return ['/replaceAllObjects', ...(args ? [args] : [])] as const
+  return ['/replaceAllObjects', args] as const
 }
 
 /**
@@ -2823,39 +1749,23 @@ export function getGetReplaceAllObjectsQueryKey(
  */
 export function useGetReplaceAllObjectsWithTransformation(
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetReplaceAllObjectsWithTransformationQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.replaceAllObjectsWithTransformation.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.replaceAllObjectsWithTransformation.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /replaceAllObjectsWithTransformation
  */
 export function getGetReplaceAllObjectsWithTransformationQueryKey(
-  args?: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  return ['/replaceAllObjectsWithTransformation', ...(args ? [args] : [])] as const
+  return ['/replaceAllObjectsWithTransformation', args] as const
 }
 
 /**
@@ -2867,35 +1777,22 @@ export function getGetReplaceAllObjectsWithTransformationQueryKey(
  */
 export function useGetChunkedBatch(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.chunkedBatch.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetChunkedBatchQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.chunkedBatch.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.chunkedBatch.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /chunkedBatch
  */
 export function getGetChunkedBatchQueryKey(
-  args?: InferRequestType<typeof client.chunkedBatch.$get>,
+  args: InferRequestType<typeof client.chunkedBatch.$get>,
 ) {
-  return ['/chunkedBatch', ...(args ? [args] : [])] as const
+  return ['/chunkedBatch', args] as const
 }
 
 /**
@@ -2907,33 +1804,20 @@ export function getGetChunkedBatchQueryKey(
  */
 export function useGetSaveObjects(
   args: InferRequestType<typeof client.saveObjects.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.saveObjects.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetSaveObjectsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.saveObjects.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.saveObjects.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /saveObjects
  */
-export function getGetSaveObjectsQueryKey(args?: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['/saveObjects', ...(args ? [args] : [])] as const
+export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
+  return ['/saveObjects', args] as const
 }
 
 /**
@@ -2945,36 +1829,23 @@ export function getGetSaveObjectsQueryKey(args?: InferRequestType<typeof client.
  */
 export function useGetSaveObjectsWithTransformation(
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.saveObjectsWithTransformation.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetSaveObjectsWithTransformationQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.saveObjectsWithTransformation.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.saveObjectsWithTransformation.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /saveObjectsWithTransformation
  */
 export function getGetSaveObjectsWithTransformationQueryKey(
-  args?: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
 ) {
-  return ['/saveObjectsWithTransformation', ...(args ? [args] : [])] as const
+  return ['/saveObjectsWithTransformation', args] as const
 }
 
 /**
@@ -2984,28 +1855,12 @@ export function getGetSaveObjectsWithTransformationQueryKey(
  *
  * Helper: Deletes every records for the given objectIDs. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objectIDs in it.
  */
-export function usePostDeleteObjects(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.deleteObjects.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.deleteObjects.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostDeleteObjects(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.deleteObjects.$post> | undefined,
     Error,
     InferRequestType<typeof client.deleteObjects.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.deleteObjects.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.deleteObjects.$post(args, clientOptions)) })
 }
 
 /**
@@ -3015,29 +1870,15 @@ export function usePostDeleteObjects(
  *
  * Helper: Replaces object content of all the given objects according to their respective `objectID` field. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objects in it.
  */
-export function usePostPartialUpdateObjects(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.partialUpdateObjects.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.partialUpdateObjects.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostPartialUpdateObjects(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.partialUpdateObjects.$post> | undefined,
     Error,
     InferRequestType<typeof client.partialUpdateObjects.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.partialUpdateObjects.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.partialUpdateObjects.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -3048,28 +1889,16 @@ export function usePostPartialUpdateObjects(
  * Helper: Similar to the `partialUpdateObjects` method but requires a Push connector (https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/connectors/push) to be created first, in order to transform records before indexing them to Algolia. The `region` must have been passed to the client instantiation method.
  */
 export function usePostPartialUpdateObjectsWithTransformation(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
   return useMutation<
     InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post> | undefined,
     Error,
     InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.partialUpdateObjectsWithTransformation.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.partialUpdateObjectsWithTransformation.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -3081,33 +1910,20 @@ export function usePostPartialUpdateObjectsWithTransformation(
  */
 export function useGetIndexExists(
   args: InferRequestType<typeof client.indexExists.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.indexExists.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetIndexExistsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.indexExists.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.indexExists.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /indexExists
  */
-export function getGetIndexExistsQueryKey(args?: InferRequestType<typeof client.indexExists.$get>) {
-  return ['/indexExists', ...(args ? [args] : [])] as const
+export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
+  return ['/indexExists', args] as const
 }
 
 /**
@@ -3119,33 +1935,20 @@ export function getGetIndexExistsQueryKey(args?: InferRequestType<typeof client.
  */
 export function useGetSetClientApiKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.setClientApiKey.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetSetClientApiKeyQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.setClientApiKey.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.setClientApiKey.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /setClientApiKey
  */
 export function getGetSetClientApiKeyQueryKey(
-  args?: InferRequestType<typeof client.setClientApiKey.$get>,
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
 ) {
-  return ['/setClientApiKey', ...(args ? [args] : [])] as const
+  return ['/setClientApiKey', args] as const
 }

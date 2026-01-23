@@ -1,6 +1,6 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 
@@ -14,7 +14,12 @@ import { client } from '../clients/fizz-buzz'
 export function createGetFizzbuzz(
   args: InferRequestType<typeof client.fizzbuzz.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.fizzbuzz.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.fizzbuzz.$get>,
+      Error,
+      InferResponseType<typeof client.fizzbuzz.$get>,
+      readonly ['/fizzbuzz', InferRequestType<typeof client.fizzbuzz.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -35,6 +40,6 @@ export function createGetFizzbuzz(
 /**
  * Generates Svelte Query cache key for GET /fizzbuzz
  */
-export function getGetFizzbuzzQueryKey(args?: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['/fizzbuzz', ...(args ? [args] : [])] as const
+export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
+  return ['/fizzbuzz', args] as const
 }

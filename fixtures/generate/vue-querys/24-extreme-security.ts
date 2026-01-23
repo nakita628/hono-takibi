@@ -1,6 +1,5 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
@@ -9,27 +8,12 @@ import { client } from '../clients/24-extreme-security'
  *
  * Completely public endpoint
  */
-export function useGetPublic(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.public.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetPublic(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetPublicQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -44,27 +28,12 @@ export function getGetPublicQueryKey() {
  *
  * Single authentication required
  */
-export function useGetSingleAuth(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['single-auth']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSingleAuth(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSingleAuthQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['single-auth'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['single-auth'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -79,27 +48,12 @@ export function getGetSingleAuthQueryKey() {
  *
  * Any of these auth methods works (OR)
  */
-export function useGetAnyAuth(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['any-auth']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetAnyAuth(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetAnyAuthQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['any-auth'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['any-auth'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -114,27 +68,12 @@ export function getGetAnyAuthQueryKey() {
  *
  * All of these auth methods required (AND)
  */
-export function useGetAllAuth(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['all-auth']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetAllAuth(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetAllAuthQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['all-auth'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['all-auth'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -149,27 +88,12 @@ export function getGetAllAuthQueryKey() {
  *
  * Complex AND/OR security requirements
  */
-export function useGetComplexAuth(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['complex-auth']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetComplexAuth(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetComplexAuthQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['complex-auth'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['complex-auth'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -184,27 +108,12 @@ export function getGetComplexAuthQueryKey() {
  *
  * OAuth with many specific scopes
  */
-export function useGetScopedOauth(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['scoped-oauth']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetScopedOauth(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetScopedOauthQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['scoped-oauth'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['scoped-oauth'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -219,28 +128,13 @@ export function getGetScopedOauthQueryKey() {
  *
  * Path level + operation level security
  */
-export function useGetMixedLevelSecurity(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['mixed-level-security']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetMixedLevelSecurityQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['mixed-level-security'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client['mixed-level-security'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -255,29 +149,15 @@ export function getGetMixedLevelSecurityQueryKey() {
  *
  * Admin-only security
  */
-export function usePutMixedLevelSecurity(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client['mixed-level-security'].$put(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async () =>
+      parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -285,29 +165,15 @@ export function usePutMixedLevelSecurity(
  *
  * Different security for POST
  */
-export function usePostMixedLevelSecurity(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client['mixed-level-security'].$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async () =>
+      parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -315,29 +181,15 @@ export function usePostMixedLevelSecurity(
  *
  * Super admin security
  */
-export function useDeleteMixedLevelSecurity(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client['mixed-level-security'].$delete(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async () =>
+      parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -345,27 +197,12 @@ export function useDeleteMixedLevelSecurity(
  *
  * Override global security with public
  */
-export function useGetOverrideGlobal(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['override-global']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetOverrideGlobal(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetOverrideGlobalQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['override-global'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['override-global'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -380,28 +217,12 @@ export function getGetOverrideGlobalQueryKey() {
  *
  * Optional auth with enhanced access if authenticated
  */
-export function useGetOptionalEnhanced(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['optional-enhanced']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetOptionalEnhanced(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetOptionalEnhancedQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['optional-enhanced'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['optional-enhanced'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -416,27 +237,12 @@ export function getGetOptionalEnhancedQueryKey() {
  *
  * Multi-tenant with org-level auth
  */
-export function useGetMultiTenant(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['multi-tenant']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetMultiTenant(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetMultiTenantQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['multi-tenant'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['multi-tenant'].$get(undefined, clientOptions)),
+  })
 }
 
 /**

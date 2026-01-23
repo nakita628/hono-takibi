@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
@@ -16,7 +16,16 @@ export function createGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
       InferResponseType<
         (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+      >,
+      readonly [
+        '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
+        InferRequestType<
+          (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -45,14 +54,11 @@ export function createGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
  * Generates Svelte Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
 ) {
-  return [
-    '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/organizations/:orgId/departments/:deptId/teams/:teamId/members', args] as const
 }
 
 /**
@@ -105,7 +111,9 @@ export function createGetReportsOrganizationSummary(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.reports)['organization-summary']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.reports)['organization-summary']['$get']>,
+      readonly ['/reports/organization-summary']
     >
     client?: ClientRequestOptions
   },

@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
@@ -9,7 +9,12 @@ import { client } from '../clients/02-simple-schemas'
  */
 export function createGetUsers(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.users.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.users.$get>,
+      Error,
+      InferResponseType<typeof client.users.$get>,
+      readonly ['/users']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -67,7 +72,12 @@ export function createPostUsers(
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      readonly ['/users/:userId', InferRequestType<(typeof client.users)[':userId']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -89,7 +99,7 @@ export function createGetUsersUserId(
  * Generates Svelte Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['/users/:userId', ...(args ? [args] : [])] as const
+  return ['/users/:userId', args] as const
 }

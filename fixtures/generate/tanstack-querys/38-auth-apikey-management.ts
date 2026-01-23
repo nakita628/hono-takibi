@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
@@ -12,9 +12,11 @@ import { client } from '../clients/38-auth-apikey-management'
 export function useGetApiKeys(
   args: InferRequestType<(typeof client)['api-keys']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['api-keys']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['api-keys']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['api-keys']['$get']>,
+      readonly ['/api-keys', InferRequestType<(typeof client)['api-keys']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -24,9 +26,9 @@ export function useGetApiKeys(
   const queryKey = getGetApiKeysQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['api-keys'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -36,10 +38,8 @@ export function useGetApiKeys(
 /**
  * Generates TanStack Query cache key for GET /api-keys
  */
-export function getGetApiKeysQueryKey(
-  args?: InferRequestType<(typeof client)['api-keys']['$get']>,
-) {
-  return ['/api-keys', ...(args ? [args] : [])] as const
+export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
+  return ['/api-keys', args] as const
 }
 
 /**
@@ -79,9 +79,11 @@ export function usePostApiKeys(
 export function useGetApiKeysKeyId(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
+      readonly ['/api-keys/:keyId', InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -91,9 +93,9 @@ export function useGetApiKeysKeyId(
   const queryKey = getGetApiKeysKeyIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['api-keys'][':keyId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -104,9 +106,9 @@ export function useGetApiKeysKeyId(
  * Generates TanStack Query cache key for GET /api-keys/{keyId}
  */
 export function getGetApiKeysKeyIdQueryKey(
-  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
 ) {
-  return ['/api-keys/:keyId', ...(args ? [args] : [])] as const
+  return ['/api-keys/:keyId', args] as const
 }
 
 /**
@@ -237,12 +239,14 @@ export function usePostApiKeysKeyIdRotate(
 export function useGetApiKeysKeyIdUsage(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+      readonly [
+        '/api-keys/:keyId/usage',
+        InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -252,10 +256,10 @@ export function useGetApiKeysKeyIdUsage(
   const queryKey = getGetApiKeysKeyIdUsageQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['api-keys'][':keyId'].usage.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -266,9 +270,9 @@ export function useGetApiKeysKeyIdUsage(
  * Generates TanStack Query cache key for GET /api-keys/{keyId}/usage
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
-  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
 ) {
-  return ['/api-keys/:keyId/usage', ...(args ? [args] : [])] as const
+  return ['/api-keys/:keyId/usage', args] as const
 }
 
 /**
@@ -279,12 +283,14 @@ export function getGetApiKeysKeyIdUsageQueryKey(
 export function useGetApiKeysKeyIdRateLimitCurrent(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+      readonly [
+        '/api-keys/:keyId/rate-limit/current',
+        InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -294,10 +300,10 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
   const queryKey = getGetApiKeysKeyIdRateLimitCurrentQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['api-keys'][':keyId']['rate-limit'].current.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -308,9 +314,9 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
  * Generates TanStack Query cache key for GET /api-keys/{keyId}/rate-limit/current
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
-  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  return ['/api-keys/:keyId/rate-limit/current', ...(args ? [args] : [])] as const
+  return ['/api-keys/:keyId/rate-limit/current', args] as const
 }
 
 /**
@@ -350,9 +356,11 @@ export function usePostApiKeysVerify(
  */
 export function useGetScopes(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.scopes.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.scopes.$get>,
+      Error,
+      InferResponseType<typeof client.scopes.$get>,
+      readonly ['/scopes']
     >
     client?: ClientRequestOptions
   },
@@ -362,9 +370,9 @@ export function useGetScopes(
   const queryKey = getGetScopesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.scopes.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

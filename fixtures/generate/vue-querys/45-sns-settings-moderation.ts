@@ -1,6 +1,5 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
@@ -9,27 +8,12 @@ import { client } from '../clients/45-sns-settings-moderation'
  *
  * アカウント設定取得
  */
-export function useGetSettingsAccount(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.settings.account.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSettingsAccount(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSettingsAccountQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.settings.account.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.settings.account.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -44,29 +28,14 @@ export function getGetSettingsAccountQueryKey() {
  *
  * アカウント設定更新
  */
-export function usePutSettingsAccount(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.settings.account.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.settings.account.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutSettingsAccount(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.settings.account.$put> | undefined,
     Error,
     InferRequestType<typeof client.settings.account.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings.account.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.settings.account.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -76,35 +45,22 @@ export function usePutSettingsAccount(
  */
 export function useGetSettingsUsernameCheck(
   args: InferRequestType<typeof client.settings.username.check.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.settings.username.check.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetSettingsUsernameCheckQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.settings.username.check.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.settings.username.check.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /settings/username/check
  */
 export function getGetSettingsUsernameCheckQueryKey(
-  args?: InferRequestType<typeof client.settings.username.check.$get>,
+  args: InferRequestType<typeof client.settings.username.check.$get>,
 ) {
-  return ['/settings/username/check', ...(args ? [args] : [])] as const
+  return ['/settings/username/check', args] as const
 }
 
 /**
@@ -112,27 +68,12 @@ export function getGetSettingsUsernameCheckQueryKey(
  *
  * プライバシー設定取得
  */
-export function useGetSettingsPrivacy(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.settings.privacy.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSettingsPrivacy(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSettingsPrivacyQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.settings.privacy.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.settings.privacy.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -147,29 +88,14 @@ export function getGetSettingsPrivacyQueryKey() {
  *
  * プライバシー設定更新
  */
-export function usePutSettingsPrivacy(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.settings.privacy.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.settings.privacy.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutSettingsPrivacy(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.settings.privacy.$put> | undefined,
     Error,
     InferRequestType<typeof client.settings.privacy.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings.privacy.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.settings.privacy.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -177,31 +103,13 @@ export function usePutSettingsPrivacy(
  *
  * コンテンツ設定取得
  */
-export function useGetSettingsContentPreferences(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.settings)['content-preferences']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSettingsContentPreferences(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSettingsContentPreferencesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.settings['content-preferences'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.settings['content-preferences'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -216,29 +124,15 @@ export function getGetSettingsContentPreferencesQueryKey() {
  *
  * コンテンツ設定更新
  */
-export function usePutSettingsContentPreferences(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.settings)['content-preferences']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.settings)['content-preferences']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutSettingsContentPreferences(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.settings)['content-preferences']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.settings)['content-preferences']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings['content-preferences'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.settings['content-preferences'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -246,28 +140,13 @@ export function usePutSettingsContentPreferences(
  *
  * ミュートワード一覧取得
  */
-export function useGetSettingsMutedWords(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.settings)['muted-words']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSettingsMutedWords(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSettingsMutedWordsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.settings['muted-words'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.settings['muted-words'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -282,29 +161,15 @@ export function getGetSettingsMutedWordsQueryKey() {
  *
  * ミュートワード追加
  */
-export function usePostSettingsMutedWords(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.settings)['muted-words']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.settings)['muted-words']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostSettingsMutedWords(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.settings)['muted-words']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.settings)['muted-words']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings['muted-words'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.settings['muted-words'].$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -312,29 +177,15 @@ export function usePostSettingsMutedWords(
  *
  * ミュートワード削除
  */
-export function useDeleteSettingsMutedWordsWordId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteSettingsMutedWordsWordId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings['muted-words'][':wordId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.settings['muted-words'][':wordId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -342,27 +193,12 @@ export function useDeleteSettingsMutedWordsWordId(
  *
  * ログインセッション一覧
  */
-export function useGetSettingsSessions(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.settings.sessions.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSettingsSessions(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSettingsSessionsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.settings.sessions.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.settings.sessions.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -377,29 +213,15 @@ export function getGetSettingsSessionsQueryKey() {
  *
  * セッション無効化
  */
-export function useDeleteSettingsSessionsSessionId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteSettingsSessionsSessionId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings.sessions[':sessionId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.settings.sessions[':sessionId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -407,28 +229,13 @@ export function useDeleteSettingsSessionsSessionId(
  *
  * 連携アプリ一覧
  */
-export function useGetSettingsConnectedApps(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.settings)['connected-apps']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSettingsConnectedApps(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSettingsConnectedAppsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.settings['connected-apps'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.settings['connected-apps'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -443,30 +250,15 @@ export function getGetSettingsConnectedAppsQueryKey() {
  *
  * 連携アプリ解除
  */
-export function useDeleteSettingsConnectedAppsAppId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteSettingsConnectedAppsAppId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings['connected-apps'][':appId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.settings['connected-apps'][':appId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -474,29 +266,15 @@ export function useDeleteSettingsConnectedAppsAppId(
  *
  * データエクスポートリクエスト
  */
-export function usePostSettingsDataExport(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.settings)['data-export']['$post']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostSettingsDataExport(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.settings)['data-export']['$post']> | undefined,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client.settings['data-export'].$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async () =>
+      parseResponse(client.settings['data-export'].$post(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -506,39 +284,23 @@ export function usePostSettingsDataExport(
  */
 export function useGetSettingsDataExportRequestId(
   args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetSettingsDataExportRequestIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.settings['data-export'][':requestId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.settings['data-export'][':requestId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /settings/data-export/{requestId}
  */
 export function getGetSettingsDataExportRequestIdQueryKey(
-  args?: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
 ) {
-  return ['/settings/data-export/:requestId', ...(args ? [args] : [])] as const
+  return ['/settings/data-export/:requestId', args] as const
 }
 
 /**
@@ -546,29 +308,15 @@ export function getGetSettingsDataExportRequestIdQueryKey(
  *
  * アカウント一時停止
  */
-export function usePostSettingsDeactivate(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.settings.deactivate.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.settings.deactivate.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostSettingsDeactivate(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.settings.deactivate.$post> | undefined,
     Error,
     InferRequestType<typeof client.settings.deactivate.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.settings.deactivate.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.settings.deactivate.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -576,28 +324,12 @@ export function usePostSettingsDeactivate(
  *
  * 通報作成
  */
-export function usePostReports(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.reports.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.reports.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostReports(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.reports.$post> | undefined,
     Error,
     InferRequestType<typeof client.reports.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.reports.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.reports.$post(args, clientOptions)) })
 }
 
 /**
@@ -607,35 +339,22 @@ export function usePostReports(
  */
 export function useGetReportsReportId(
   args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.reports)[':reportId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetReportsReportIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.reports[':reportId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.reports[':reportId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /reports/{reportId}
  */
 export function getGetReportsReportIdQueryKey(
-  args?: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
 ) {
-  return ['/reports/:reportId', ...(args ? [args] : [])] as const
+  return ['/reports/:reportId', args] as const
 }
 
 /**
@@ -647,35 +366,22 @@ export function getGetReportsReportIdQueryKey(
  */
 export function useGetModerationQueue(
   args: InferRequestType<typeof client.moderation.queue.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.moderation.queue.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetModerationQueueQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.moderation.queue.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.moderation.queue.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /moderation/queue
  */
 export function getGetModerationQueueQueryKey(
-  args?: InferRequestType<typeof client.moderation.queue.$get>,
+  args: InferRequestType<typeof client.moderation.queue.$get>,
 ) {
-  return ['/moderation/queue', ...(args ? [args] : [])] as const
+  return ['/moderation/queue', args] as const
 }
 
 /**
@@ -685,39 +391,23 @@ export function getGetModerationQueueQueryKey(
  */
 export function useGetModerationItemsItemId(
   args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetModerationItemsItemIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.moderation.items[':itemId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.moderation.items[':itemId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /moderation/items/{itemId}
  */
 export function getGetModerationItemsItemIdQueryKey(
-  args?: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
 ) {
-  return ['/moderation/items/:itemId', ...(args ? [args] : [])] as const
+  return ['/moderation/items/:itemId', args] as const
 }
 
 /**
@@ -725,29 +415,15 @@ export function getGetModerationItemsItemIdQueryKey(
  *
  * モデレーションアクション実行
  */
-export function usePostModerationItemsItemIdAction(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.moderation.items)[':itemId']['action']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostModerationItemsItemIdAction(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.moderation.items)[':itemId']['action']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.moderation.items[':itemId'].action.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.moderation.items[':itemId'].action.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -757,39 +433,23 @@ export function usePostModerationItemsItemIdAction(
  */
 export function useGetModerationUsersUserIdHistory(
   args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetModerationUsersUserIdHistoryQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.moderation.users[':userId'].history.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.moderation.users[':userId'].history.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /moderation/users/{userId}/history
  */
 export function getGetModerationUsersUserIdHistoryQueryKey(
-  args?: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
 ) {
-  return ['/moderation/users/:userId/history', ...(args ? [args] : [])] as const
+  return ['/moderation/users/:userId/history', args] as const
 }
 
 /**
@@ -797,30 +457,15 @@ export function getGetModerationUsersUserIdHistoryQueryKey(
  *
  * ユーザー凍結
  */
-export function usePostModerationUsersUserIdSuspend(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostModerationUsersUserIdSuspend(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.moderation.users)[':userId']['suspend']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.moderation.users[':userId'].suspend.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.moderation.users[':userId'].suspend.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -828,31 +473,16 @@ export function usePostModerationUsersUserIdSuspend(
  *
  * ユーザー凍結解除
  */
-export function usePostModerationUsersUserIdUnsuspend(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostModerationUsersUserIdUnsuspend(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
     | undefined,
     Error,
     InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.moderation.users[':userId'].unsuspend.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.moderation.users[':userId'].unsuspend.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -862,36 +492,22 @@ export function usePostModerationUsersUserIdUnsuspend(
  */
 export function useGetAnalyticsPostsPostId(
   args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAnalyticsPostsPostIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.analytics.posts[':postId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.analytics.posts[':postId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /analytics/posts/{postId}
  */
 export function getGetAnalyticsPostsPostIdQueryKey(
-  args?: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
 ) {
-  return ['/analytics/posts/:postId', ...(args ? [args] : [])] as const
+  return ['/analytics/posts/:postId', args] as const
 }
 
 /**
@@ -901,35 +517,22 @@ export function getGetAnalyticsPostsPostIdQueryKey(
  */
 export function useGetAnalyticsAccount(
   args: InferRequestType<typeof client.analytics.account.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.analytics.account.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAnalyticsAccountQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.analytics.account.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.analytics.account.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /analytics/account
  */
 export function getGetAnalyticsAccountQueryKey(
-  args?: InferRequestType<typeof client.analytics.account.$get>,
+  args: InferRequestType<typeof client.analytics.account.$get>,
 ) {
-  return ['/analytics/account', ...(args ? [args] : [])] as const
+  return ['/analytics/account', args] as const
 }
 
 /**
@@ -939,35 +542,22 @@ export function getGetAnalyticsAccountQueryKey(
  */
 export function useGetAnalyticsFollowers(
   args: InferRequestType<typeof client.analytics.followers.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.analytics.followers.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAnalyticsFollowersQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.analytics.followers.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.analytics.followers.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /analytics/followers
  */
 export function getGetAnalyticsFollowersQueryKey(
-  args?: InferRequestType<typeof client.analytics.followers.$get>,
+  args: InferRequestType<typeof client.analytics.followers.$get>,
 ) {
-  return ['/analytics/followers', ...(args ? [args] : [])] as const
+  return ['/analytics/followers', args] as const
 }
 
 /**
@@ -977,33 +567,20 @@ export function getGetAnalyticsFollowersQueryKey(
  */
 export function useGetAnalyticsTopPosts(
   args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.analytics)['top-posts']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAnalyticsTopPostsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.analytics['top-posts'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.analytics['top-posts'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /analytics/top-posts
  */
 export function getGetAnalyticsTopPostsQueryKey(
-  args?: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
+  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
 ) {
-  return ['/analytics/top-posts', ...(args ? [args] : [])] as const
+  return ['/analytics/top-posts', args] as const
 }

@@ -1,6 +1,5 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -9,33 +8,20 @@ import { client } from '../clients/06-headers'
  */
 export function useGetResources(
   args: InferRequestType<typeof client.resources.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.resources.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetResourcesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.resources.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.resources.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /resources
  */
-export function getGetResourcesQueryKey(args?: InferRequestType<typeof client.resources.$get>) {
-  return ['/resources', ...(args ? [args] : [])] as const
+export function getGetResourcesQueryKey(args: InferRequestType<typeof client.resources.$get>) {
+  return ['/resources', args] as const
 }
 
 /**
@@ -43,63 +29,35 @@ export function getGetResourcesQueryKey(args?: InferRequestType<typeof client.re
  */
 export function useGetResourcesId(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.resources)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetResourcesIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /resources/{id}
  */
 export function getGetResourcesIdQueryKey(
-  args?: InferRequestType<(typeof client.resources)[':id']['$get']>,
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  return ['/resources/:id', ...(args ? [args] : [])] as const
+  return ['/resources/:id', args] as const
 }
 
 /**
  * PUT /resources/{id}
  */
-export function usePutResourcesId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.resources)[':id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutResourcesId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.resources)[':id']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.resources[':id'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.resources[':id'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -107,33 +65,20 @@ export function usePutResourcesId(
  */
 export function useGetDownloadId(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.download)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetDownloadIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /download/{id}
  */
 export function getGetDownloadIdQueryKey(
-  args?: InferRequestType<(typeof client.download)[':id']['$get']>,
+  args: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
-  return ['/download/:id', ...(args ? [args] : [])] as const
+  return ['/download/:id', args] as const
 }

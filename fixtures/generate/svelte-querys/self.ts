@@ -1,6 +1,6 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/self'
 
@@ -9,7 +9,12 @@ import { client } from '../clients/self'
  */
 export function createGetCategories(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.categories.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.categories.$get>,
+      Error,
+      InferResponseType<typeof client.categories.$get>,
+      readonly ['/categories']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

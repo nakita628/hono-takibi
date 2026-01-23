@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
@@ -11,7 +11,12 @@ import { client } from '../clients/24-extreme-security'
  */
 export function createGetPublic(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.public.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.public.$get>,
+      Error,
+      InferResponseType<typeof client.public.$get>,
+      readonly ['/public']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -43,7 +48,12 @@ export function getGetPublicQueryKey() {
  */
 export function createGetSingleAuth(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['single-auth']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['single-auth']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['single-auth']['$get']>,
+      readonly ['/single-auth']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -75,7 +85,12 @@ export function getGetSingleAuthQueryKey() {
  */
 export function createGetAnyAuth(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['any-auth']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['any-auth']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['any-auth']['$get']>,
+      readonly ['/any-auth']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -107,7 +122,12 @@ export function getGetAnyAuthQueryKey() {
  */
 export function createGetAllAuth(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['all-auth']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['all-auth']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['all-auth']['$get']>,
+      readonly ['/all-auth']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -139,7 +159,12 @@ export function getGetAllAuthQueryKey() {
  */
 export function createGetComplexAuth(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['complex-auth']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['complex-auth']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['complex-auth']['$get']>,
+      readonly ['/complex-auth']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -171,7 +196,12 @@ export function getGetComplexAuthQueryKey() {
  */
 export function createGetScopedOauth(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['scoped-oauth']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['scoped-oauth']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['scoped-oauth']['$get']>,
+      readonly ['/scoped-oauth']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -205,7 +235,9 @@ export function createGetMixedLevelSecurity(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['mixed-level-security']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['mixed-level-security']['$get']>,
+      readonly ['/mixed-level-security']
     >
     client?: ClientRequestOptions
   },
@@ -329,7 +361,12 @@ export function createDeleteMixedLevelSecurity(
  */
 export function createGetOverrideGlobal(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['override-global']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['override-global']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['override-global']['$get']>,
+      readonly ['/override-global']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -363,7 +400,9 @@ export function createGetOptionalEnhanced(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['optional-enhanced']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['optional-enhanced']['$get']>,
+      readonly ['/optional-enhanced']
     >
     client?: ClientRequestOptions
   },
@@ -397,7 +436,12 @@ export function getGetOptionalEnhancedQueryKey() {
  */
 export function createGetMultiTenant(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['multi-tenant']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['multi-tenant']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['multi-tenant']['$get']>,
+      readonly ['/multi-tenant']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

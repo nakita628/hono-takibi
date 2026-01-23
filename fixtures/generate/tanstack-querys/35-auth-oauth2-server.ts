@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
@@ -15,9 +15,11 @@ import { client } from '../clients/35-auth-oauth2-server'
 export function useGetOauthAuthorize(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.oauth.authorize.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.oauth.authorize.$get>,
+      Error,
+      InferResponseType<typeof client.oauth.authorize.$get>,
+      readonly ['/oauth/authorize', InferRequestType<typeof client.oauth.authorize.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -27,9 +29,9 @@ export function useGetOauthAuthorize(
   const queryKey = getGetOauthAuthorizeQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.oauth.authorize.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -40,9 +42,9 @@ export function useGetOauthAuthorize(
  * Generates TanStack Query cache key for GET /oauth/authorize
  */
 export function getGetOauthAuthorizeQueryKey(
-  args?: InferRequestType<typeof client.oauth.authorize.$get>,
+  args: InferRequestType<typeof client.oauth.authorize.$get>,
 ) {
-  return ['/oauth/authorize', ...(args ? [args] : [])] as const
+  return ['/oauth/authorize', args] as const
 }
 
 /**
@@ -181,9 +183,11 @@ export function usePostOauthDeviceCode(
  */
 export function useGetOauthUserinfo(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.oauth.userinfo.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.oauth.userinfo.$get>,
+      Error,
+      InferResponseType<typeof client.oauth.userinfo.$get>,
+      readonly ['/oauth/userinfo']
     >
     client?: ClientRequestOptions
   },
@@ -193,9 +197,9 @@ export function useGetOauthUserinfo(
   const queryKey = getGetOauthUserinfoQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.oauth.userinfo.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -218,12 +222,11 @@ export function getGetOauthUserinfoQueryKey() {
  */
 export function useGetWellKnownOpenidConfiguration(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
+      readonly ['/.well-known/openid-configuration']
     >
     client?: ClientRequestOptions
   },
@@ -233,10 +236,10 @@ export function useGetWellKnownOpenidConfiguration(
   const queryKey = getGetWellKnownOpenidConfigurationQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['.well-known']['openid-configuration'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -259,12 +262,11 @@ export function getGetWellKnownOpenidConfigurationQueryKey() {
  */
 export function useGetWellKnownJwksJson(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
+      readonly ['/.well-known/jwks.json']
     >
     client?: ClientRequestOptions
   },
@@ -274,10 +276,10 @@ export function useGetWellKnownJwksJson(
   const queryKey = getGetWellKnownJwksJsonQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['.well-known']['jwks.json'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -298,9 +300,11 @@ export function getGetWellKnownJwksJsonQueryKey() {
  */
 export function useGetOauthClients(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.oauth.clients.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.oauth.clients.$get>,
+      Error,
+      InferResponseType<typeof client.oauth.clients.$get>,
+      readonly ['/oauth/clients']
     >
     client?: ClientRequestOptions
   },
@@ -310,9 +314,9 @@ export function useGetOauthClients(
   const queryKey = getGetOauthClientsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.oauth.clients.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -363,9 +367,14 @@ export function usePostOauthClients(
 export function useGetOauthClientsClientId(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
+      readonly [
+        '/oauth/clients/:clientId',
+        InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -375,10 +384,10 @@ export function useGetOauthClientsClientId(
   const queryKey = getGetOauthClientsClientIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.oauth.clients[':clientId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -389,9 +398,9 @@ export function useGetOauthClientsClientId(
  * Generates TanStack Query cache key for GET /oauth/clients/{clientId}
  */
 export function getGetOauthClientsClientIdQueryKey(
-  args?: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
 ) {
-  return ['/oauth/clients/:clientId', ...(args ? [args] : [])] as const
+  return ['/oauth/clients/:clientId', args] as const
 }
 
 /**
@@ -493,9 +502,11 @@ export function usePostOauthClientsClientIdSecret(
  */
 export function useGetOauthConsents(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.oauth.consents.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.oauth.consents.$get>,
+      Error,
+      InferResponseType<typeof client.oauth.consents.$get>,
+      readonly ['/oauth/consents']
     >
     client?: ClientRequestOptions
   },
@@ -505,9 +516,9 @@ export function useGetOauthConsents(
   const queryKey = getGetOauthConsentsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.oauth.consents.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
@@ -14,7 +14,12 @@ import { client } from '../clients/algolia'
 export function createGetPath(
   args: InferRequestType<(typeof client)[':path']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)[':path']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)[':path']['$get']>,
+      Error,
+      InferResponseType<(typeof client)[':path']['$get']>,
+      readonly ['/:path', InferRequestType<(typeof client)[':path']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -35,8 +40,8 @@ export function createGetPath(
 /**
  * Generates Svelte Query cache key for GET /{path}
  */
-export function getGetPathQueryKey(args?: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['/:path', ...(args ? [args] : [])] as const
+export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
+  return ['/:path', args] as const
 }
 
 /**
@@ -406,7 +411,12 @@ export function createGet1IndexesIndexNameObjectID(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+      readonly [
+        '/1/indexes/:indexName/:objectID',
+        InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -430,9 +440,9 @@ export function createGet1IndexesIndexNameObjectID(
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/{objectID}
  */
 export function getGet1IndexesIndexNameObjectIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/:objectID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/:objectID', args] as const
 }
 
 /**
@@ -779,7 +789,12 @@ export function createGet1IndexesIndexNameSettings(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+      readonly [
+        '/1/indexes/:indexName/settings',
+        InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -803,9 +818,9 @@ export function createGet1IndexesIndexNameSettings(
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/settings
  */
 export function getGet1IndexesIndexNameSettingsQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/settings', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/settings', args] as const
 }
 
 /**
@@ -865,7 +880,16 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
       InferResponseType<
         (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+      >,
+      readonly [
+        '/1/indexes/:indexName/synonyms/:objectID',
+        InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -891,11 +915,11 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
  */
 export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
 ) {
-  return ['/1/indexes/:indexName/synonyms/:objectID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
 }
 
 /**
@@ -1115,7 +1139,12 @@ export function createPost1IndexesIndexNameSynonymsSearch(
  */
 export function createGet1Keys(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['1']['keys']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['1']['keys']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['keys']['$get']>,
+      readonly ['/1/keys']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1187,7 +1216,9 @@ export function createGet1KeysKey(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['keys'][':key']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['keys'][':key']['$get']>,
+      readonly ['/1/keys/:key', InferRequestType<(typeof client)['1']['keys'][':key']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -1210,9 +1241,9 @@ export function createGet1KeysKey(
  * Generates Svelte Query cache key for GET /1/keys/{key}
  */
 export function getGet1KeysKeyQueryKey(
-  args?: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
 ) {
-  return ['/1/keys/:key', ...(args ? [args] : [])] as const
+  return ['/1/keys/:key', args] as const
 }
 
 /**
@@ -1335,7 +1366,16 @@ export function createGet1IndexesIndexNameRulesObjectID(
       InferResponseType<
         (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
       >,
-      Error
+      Error,
+      InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+      >,
+      readonly [
+        '/1/indexes/:indexName/rules/:objectID',
+        InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+        >,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1361,11 +1401,11 @@ export function createGet1IndexesIndexNameRulesObjectID(
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
  */
 export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
 ) {
-  return ['/1/indexes/:indexName/rules/:objectID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/rules/:objectID', args] as const
 }
 
 /**
@@ -1645,7 +1685,9 @@ export function createGet1DictionariesSettings(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
+      readonly ['/1/dictionaries/*/settings']
     >
     client?: ClientRequestOptions
   },
@@ -1715,7 +1757,9 @@ export function createGet1DictionariesLanguages(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
+      readonly ['/1/dictionaries/*/languages']
     >
     client?: ClientRequestOptions
   },
@@ -1757,7 +1801,12 @@ export function createGet1ClustersMapping(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
+      readonly [
+        '/1/clusters/mapping',
+        InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1780,9 +1829,9 @@ export function createGet1ClustersMapping(
  * Generates Svelte Query cache key for GET /1/clusters/mapping
  */
 export function getGet1ClustersMappingQueryKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
 ) {
-  return ['/1/clusters/mapping', ...(args ? [args] : [])] as const
+  return ['/1/clusters/mapping', args] as const
 }
 
 /**
@@ -1867,7 +1916,9 @@ export function createGet1ClustersMappingTop(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
+      readonly ['/1/clusters/mapping/top']
     >
     client?: ClientRequestOptions
   },
@@ -1909,7 +1960,12 @@ export function createGet1ClustersMappingUserID(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+      readonly [
+        '/1/clusters/mapping/:userID',
+        InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1933,9 +1989,9 @@ export function createGet1ClustersMappingUserID(
  * Generates Svelte Query cache key for GET /1/clusters/mapping/{userID}
  */
 export function getGet1ClustersMappingUserIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
 ) {
-  return ['/1/clusters/mapping/:userID', ...(args ? [args] : [])] as const
+  return ['/1/clusters/mapping/:userID', args] as const
 }
 
 /**
@@ -1981,7 +2037,12 @@ export function createDelete1ClustersMappingUserID(
  */
 export function createGet1Clusters(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['1']['clusters']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['1']['clusters']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['clusters']['$get']>,
+      readonly ['/1/clusters']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2053,7 +2114,12 @@ export function createGet1ClustersMappingPending(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+      readonly [
+        '/1/clusters/mapping/pending',
+        InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2077,9 +2143,9 @@ export function createGet1ClustersMappingPending(
  * Generates Svelte Query cache key for GET /1/clusters/mapping/pending
  */
 export function getGet1ClustersMappingPendingQueryKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
 ) {
-  return ['/1/clusters/mapping/pending', ...(args ? [args] : [])] as const
+  return ['/1/clusters/mapping/pending', args] as const
 }
 
 /**
@@ -2093,7 +2159,9 @@ export function createGet1SecuritySources(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
+      readonly ['/1/security/sources']
     >
     client?: ClientRequestOptions
   },
@@ -2232,7 +2300,12 @@ export function createDelete1SecuritySourcesSource(
 export function createGet1Logs(
   args: InferRequestType<(typeof client)['1']['logs']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['1']['logs']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['1']['logs']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['logs']['$get']>,
+      readonly ['/1/logs', InferRequestType<(typeof client)['1']['logs']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2253,8 +2326,8 @@ export function createGet1Logs(
 /**
  * Generates Svelte Query cache key for GET /1/logs
  */
-export function getGet1LogsQueryKey(args?: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['/1/logs', ...(args ? [args] : [])] as const
+export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
+  return ['/1/logs', args] as const
 }
 
 /**
@@ -2269,7 +2342,12 @@ export function createGet1TaskTaskID(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>,
+      readonly [
+        '/1/task/:taskID',
+        InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2292,9 +2370,9 @@ export function createGet1TaskTaskID(
  * Generates Svelte Query cache key for GET /1/task/{taskID}
  */
 export function getGet1TaskTaskIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/task/:taskID', ...(args ? [args] : [])] as const
+  return ['/1/task/:taskID', args] as const
 }
 
 /**
@@ -2315,7 +2393,12 @@ export function createGet1IndexesIndexNameTaskTaskID(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+      readonly [
+        '/1/indexes/:indexName/task/:taskID',
+        InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2339,9 +2422,9 @@ export function createGet1IndexesIndexNameTaskTaskID(
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/task/{taskID}
  */
 export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/task/:taskID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/task/:taskID', args] as const
 }
 
 /**
@@ -2413,7 +2496,12 @@ export function createPost1IndexesIndexNameOperation(
 export function createGet1Indexes(
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['1']['indexes']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['1']['indexes']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['indexes']['$get']>,
+      readonly ['/1/indexes', InferRequestType<(typeof client)['1']['indexes']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2435,9 +2523,9 @@ export function createGet1Indexes(
  * Generates Svelte Query cache key for GET /1/indexes
  */
 export function getGet1IndexesQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
 ) {
-  return ['/1/indexes', ...(args ? [args] : [])] as const
+  return ['/1/indexes', args] as const
 }
 
 /**
@@ -2450,7 +2538,12 @@ export function getGet1IndexesQueryKey(
 export function createGetWaitForApiKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.waitForApiKey.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.waitForApiKey.$get>,
+      Error,
+      InferResponseType<typeof client.waitForApiKey.$get>,
+      readonly ['/waitForApiKey', InferRequestType<typeof client.waitForApiKey.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2472,9 +2565,9 @@ export function createGetWaitForApiKey(
  * Generates Svelte Query cache key for GET /waitForApiKey
  */
 export function getGetWaitForApiKeyQueryKey(
-  args?: InferRequestType<typeof client.waitForApiKey.$get>,
+  args: InferRequestType<typeof client.waitForApiKey.$get>,
 ) {
-  return ['/waitForApiKey', ...(args ? [args] : [])] as const
+  return ['/waitForApiKey', args] as const
 }
 
 /**
@@ -2489,7 +2582,12 @@ export function getGetWaitForApiKeyQueryKey(
 export function createGetWaitForTask(
   args: InferRequestType<typeof client.waitForTask.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.waitForTask.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.waitForTask.$get>,
+      Error,
+      InferResponseType<typeof client.waitForTask.$get>,
+      readonly ['/waitForTask', InferRequestType<typeof client.waitForTask.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2510,8 +2608,8 @@ export function createGetWaitForTask(
 /**
  * Generates Svelte Query cache key for GET /waitForTask
  */
-export function getGetWaitForTaskQueryKey(args?: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['/waitForTask', ...(args ? [args] : [])] as const
+export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
+  return ['/waitForTask', args] as const
 }
 
 /**
@@ -2524,7 +2622,12 @@ export function getGetWaitForTaskQueryKey(args?: InferRequestType<typeof client.
 export function createGetWaitForAppTask(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.waitForAppTask.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.waitForAppTask.$get>,
+      Error,
+      InferResponseType<typeof client.waitForAppTask.$get>,
+      readonly ['/waitForAppTask', InferRequestType<typeof client.waitForAppTask.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2546,9 +2649,9 @@ export function createGetWaitForAppTask(
  * Generates Svelte Query cache key for GET /waitForAppTask
  */
 export function getGetWaitForAppTaskQueryKey(
-  args?: InferRequestType<typeof client.waitForAppTask.$get>,
+  args: InferRequestType<typeof client.waitForAppTask.$get>,
 ) {
-  return ['/waitForAppTask', ...(args ? [args] : [])] as const
+  return ['/waitForAppTask', args] as const
 }
 
 /**
@@ -2565,7 +2668,12 @@ export function getGetWaitForAppTaskQueryKey(
 export function createGetBrowseObjects(
   args: InferRequestType<typeof client.browseObjects.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.browseObjects.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.browseObjects.$get>,
+      Error,
+      InferResponseType<typeof client.browseObjects.$get>,
+      readonly ['/browseObjects', InferRequestType<typeof client.browseObjects.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2587,9 +2695,9 @@ export function createGetBrowseObjects(
  * Generates Svelte Query cache key for GET /browseObjects
  */
 export function getGetBrowseObjectsQueryKey(
-  args?: InferRequestType<typeof client.browseObjects.$get>,
+  args: InferRequestType<typeof client.browseObjects.$get>,
 ) {
-  return ['/browseObjects', ...(args ? [args] : [])] as const
+  return ['/browseObjects', args] as const
 }
 
 /**
@@ -2614,7 +2722,15 @@ export function getGetBrowseObjectsQueryKey(
 export function createGetGenerateSecuredApiKey(
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.generateSecuredApiKey.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.generateSecuredApiKey.$get>,
+      Error,
+      InferResponseType<typeof client.generateSecuredApiKey.$get>,
+      readonly [
+        '/generateSecuredApiKey',
+        InferRequestType<typeof client.generateSecuredApiKey.$get>,
+      ]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2636,9 +2752,9 @@ export function createGetGenerateSecuredApiKey(
  * Generates Svelte Query cache key for GET /generateSecuredApiKey
  */
 export function getGetGenerateSecuredApiKeyQueryKey(
-  args?: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  return ['/generateSecuredApiKey', ...(args ? [args] : [])] as const
+  return ['/generateSecuredApiKey', args] as const
 }
 
 /**
@@ -2651,7 +2767,12 @@ export function getGetGenerateSecuredApiKeyQueryKey(
 export function createGetAccountCopyIndex(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.accountCopyIndex.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.accountCopyIndex.$get>,
+      Error,
+      InferResponseType<typeof client.accountCopyIndex.$get>,
+      readonly ['/accountCopyIndex', InferRequestType<typeof client.accountCopyIndex.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2673,9 +2794,9 @@ export function createGetAccountCopyIndex(
  * Generates Svelte Query cache key for GET /accountCopyIndex
  */
 export function getGetAccountCopyIndexQueryKey(
-  args?: InferRequestType<typeof client.accountCopyIndex.$get>,
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return ['/accountCopyIndex', ...(args ? [args] : [])] as const
+  return ['/accountCopyIndex', args] as const
 }
 
 /**
@@ -2703,7 +2824,12 @@ export function getGetAccountCopyIndexQueryKey(
 export function createGetReplaceAllObjects(
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.replaceAllObjects.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.replaceAllObjects.$get>,
+      Error,
+      InferResponseType<typeof client.replaceAllObjects.$get>,
+      readonly ['/replaceAllObjects', InferRequestType<typeof client.replaceAllObjects.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2725,9 +2851,9 @@ export function createGetReplaceAllObjects(
  * Generates Svelte Query cache key for GET /replaceAllObjects
  */
 export function getGetReplaceAllObjectsQueryKey(
-  args?: InferRequestType<typeof client.replaceAllObjects.$get>,
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return ['/replaceAllObjects', ...(args ? [args] : [])] as const
+  return ['/replaceAllObjects', args] as const
 }
 
 /**
@@ -2754,7 +2880,12 @@ export function createGetReplaceAllObjectsWithTransformation(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
-      Error
+      Error,
+      InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
+      readonly [
+        '/replaceAllObjectsWithTransformation',
+        InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2778,9 +2909,9 @@ export function createGetReplaceAllObjectsWithTransformation(
  * Generates Svelte Query cache key for GET /replaceAllObjectsWithTransformation
  */
 export function getGetReplaceAllObjectsWithTransformationQueryKey(
-  args?: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  return ['/replaceAllObjectsWithTransformation', ...(args ? [args] : [])] as const
+  return ['/replaceAllObjectsWithTransformation', args] as const
 }
 
 /**
@@ -2793,7 +2924,12 @@ export function getGetReplaceAllObjectsWithTransformationQueryKey(
 export function createGetChunkedBatch(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.chunkedBatch.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.chunkedBatch.$get>,
+      Error,
+      InferResponseType<typeof client.chunkedBatch.$get>,
+      readonly ['/chunkedBatch', InferRequestType<typeof client.chunkedBatch.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2815,9 +2951,9 @@ export function createGetChunkedBatch(
  * Generates Svelte Query cache key for GET /chunkedBatch
  */
 export function getGetChunkedBatchQueryKey(
-  args?: InferRequestType<typeof client.chunkedBatch.$get>,
+  args: InferRequestType<typeof client.chunkedBatch.$get>,
 ) {
-  return ['/chunkedBatch', ...(args ? [args] : [])] as const
+  return ['/chunkedBatch', args] as const
 }
 
 /**
@@ -2830,7 +2966,12 @@ export function getGetChunkedBatchQueryKey(
 export function createGetSaveObjects(
   args: InferRequestType<typeof client.saveObjects.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.saveObjects.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.saveObjects.$get>,
+      Error,
+      InferResponseType<typeof client.saveObjects.$get>,
+      readonly ['/saveObjects', InferRequestType<typeof client.saveObjects.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -2851,8 +2992,8 @@ export function createGetSaveObjects(
 /**
  * Generates Svelte Query cache key for GET /saveObjects
  */
-export function getGetSaveObjectsQueryKey(args?: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['/saveObjects', ...(args ? [args] : [])] as const
+export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
+  return ['/saveObjects', args] as const
 }
 
 /**
@@ -2867,7 +3008,12 @@ export function createGetSaveObjectsWithTransformation(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<typeof client.saveObjectsWithTransformation.$get>,
-      Error
+      Error,
+      InferResponseType<typeof client.saveObjectsWithTransformation.$get>,
+      readonly [
+        '/saveObjectsWithTransformation',
+        InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2891,9 +3037,9 @@ export function createGetSaveObjectsWithTransformation(
  * Generates Svelte Query cache key for GET /saveObjectsWithTransformation
  */
 export function getGetSaveObjectsWithTransformationQueryKey(
-  args?: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
 ) {
-  return ['/saveObjectsWithTransformation', ...(args ? [args] : [])] as const
+  return ['/saveObjectsWithTransformation', args] as const
 }
 
 /**
@@ -3001,7 +3147,12 @@ export function createPostPartialUpdateObjectsWithTransformation(
 export function createGetIndexExists(
   args: InferRequestType<typeof client.indexExists.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.indexExists.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.indexExists.$get>,
+      Error,
+      InferResponseType<typeof client.indexExists.$get>,
+      readonly ['/indexExists', InferRequestType<typeof client.indexExists.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -3022,8 +3173,8 @@ export function createGetIndexExists(
 /**
  * Generates Svelte Query cache key for GET /indexExists
  */
-export function getGetIndexExistsQueryKey(args?: InferRequestType<typeof client.indexExists.$get>) {
-  return ['/indexExists', ...(args ? [args] : [])] as const
+export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
+  return ['/indexExists', args] as const
 }
 
 /**
@@ -3036,7 +3187,12 @@ export function getGetIndexExistsQueryKey(args?: InferRequestType<typeof client.
 export function createGetSetClientApiKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.setClientApiKey.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.setClientApiKey.$get>,
+      Error,
+      InferResponseType<typeof client.setClientApiKey.$get>,
+      readonly ['/setClientApiKey', InferRequestType<typeof client.setClientApiKey.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -3058,7 +3214,7 @@ export function createGetSetClientApiKey(
  * Generates Svelte Query cache key for GET /setClientApiKey
  */
 export function getGetSetClientApiKeyQueryKey(
-  args?: InferRequestType<typeof client.setClientApiKey.$get>,
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
 ) {
-  return ['/setClientApiKey', ...(args ? [args] : [])] as const
+  return ['/setClientApiKey', args] as const
 }

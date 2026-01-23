@@ -1,6 +1,6 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/additional'
 
@@ -13,7 +13,12 @@ import { client } from '../clients/additional'
  */
 export function createGetPassthrough(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.passthrough.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.passthrough.$get>,
+      Error,
+      InferResponseType<typeof client.passthrough.$get>,
+      readonly ['/passthrough']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

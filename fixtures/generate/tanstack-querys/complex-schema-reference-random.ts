@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-schema-reference-random'
 
@@ -11,9 +11,11 @@ import { client } from '../clients/complex-schema-reference-random'
  */
 export function useGetTest(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.test.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.test.$get>,
+      Error,
+      InferResponseType<typeof client.test.$get>,
+      readonly ['/test']
     >
     client?: ClientRequestOptions
   },
@@ -23,9 +25,9 @@ export function useGetTest(
   const queryKey = getGetTestQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.test.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

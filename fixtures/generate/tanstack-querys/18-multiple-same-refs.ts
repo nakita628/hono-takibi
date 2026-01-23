@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -10,9 +10,11 @@ import { client } from '../clients/18-multiple-same-refs'
 export function useGetDocuments(
   args: InferRequestType<typeof client.documents.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.documents.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.documents.$get>,
+      Error,
+      InferResponseType<typeof client.documents.$get>,
+      readonly ['/documents', InferRequestType<typeof client.documents.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -22,9 +24,9 @@ export function useGetDocuments(
   const queryKey = getGetDocumentsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.documents.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -34,8 +36,8 @@ export function useGetDocuments(
 /**
  * Generates TanStack Query cache key for GET /documents
  */
-export function getGetDocumentsQueryKey(args?: InferRequestType<typeof client.documents.$get>) {
-  return ['/documents', ...(args ? [args] : [])] as const
+export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.documents.$get>) {
+  return ['/documents', args] as const
 }
 
 /**
@@ -71,9 +73,14 @@ export function usePostDocuments(
 export function useGetDocumentsDocumentId(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.documents)[':documentId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.documents)[':documentId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.documents)[':documentId']['$get']>,
+      readonly [
+        '/documents/:documentId',
+        InferRequestType<(typeof client.documents)[':documentId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -83,9 +90,9 @@ export function useGetDocumentsDocumentId(
   const queryKey = getGetDocumentsDocumentIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.documents[':documentId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -96,9 +103,9 @@ export function useGetDocumentsDocumentId(
  * Generates TanStack Query cache key for GET /documents/{documentId}
  */
 export function getGetDocumentsDocumentIdQueryKey(
-  args?: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
+  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
-  return ['/documents/:documentId', ...(args ? [args] : [])] as const
+  return ['/documents/:documentId', args] as const
 }
 
 /**
@@ -135,12 +142,14 @@ export function usePutDocumentsDocumentId(
 export function useGetDocumentsDocumentIdVersions(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>,
+      Error,
+      InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>,
+      readonly [
+        '/documents/:documentId/versions',
+        InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -150,10 +159,10 @@ export function useGetDocumentsDocumentIdVersions(
   const queryKey = getGetDocumentsDocumentIdVersionsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.documents[':documentId'].versions.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -164,9 +173,9 @@ export function useGetDocumentsDocumentIdVersions(
  * Generates TanStack Query cache key for GET /documents/{documentId}/versions
  */
 export function getGetDocumentsDocumentIdVersionsQueryKey(
-  args?: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
+  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
-  return ['/documents/:documentId/versions', ...(args ? [args] : [])] as const
+  return ['/documents/:documentId/versions', args] as const
 }
 
 /**
@@ -203,12 +212,14 @@ export function usePostDocumentsDocumentIdShare(
 export function useGetUsersUserIdDocuments(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.users)[':userId']['documents']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.users)[':userId']['documents']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':userId']['documents']['$get']>,
+      readonly [
+        '/users/:userId/documents',
+        InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -218,10 +229,10 @@ export function useGetUsersUserIdDocuments(
   const queryKey = getGetUsersUserIdDocumentsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.users[':userId'].documents.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -232,9 +243,9 @@ export function useGetUsersUserIdDocuments(
  * Generates TanStack Query cache key for GET /users/{userId}/documents
  */
 export function getGetUsersUserIdDocumentsQueryKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
 ) {
-  return ['/users/:userId/documents', ...(args ? [args] : [])] as const
+  return ['/users/:userId/documents', args] as const
 }
 
 /**
@@ -269,9 +280,11 @@ export function usePostCompare(
  */
 export function useGetTemplates(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.templates.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.templates.$get>,
+      Error,
+      InferResponseType<typeof client.templates.$get>,
+      readonly ['/templates']
     >
     client?: ClientRequestOptions
   },
@@ -281,9 +294,9 @@ export function useGetTemplates(
   const queryKey = getGetTemplatesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.templates.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

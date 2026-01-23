@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
 
@@ -9,7 +9,12 @@ import { client } from '../clients/07-examples'
  */
 export function createGetProducts(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.products.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.products.$get>,
+      Error,
+      InferResponseType<typeof client.products.$get>,
+      readonly ['/products']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -69,7 +74,12 @@ export function createGetProductsProductId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.products)[':productId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.products)[':productId']['$get']>,
+      readonly [
+        '/products/:productId',
+        InferRequestType<(typeof client.products)[':productId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -92,7 +102,7 @@ export function createGetProductsProductId(
  * Generates Svelte Query cache key for GET /products/{productId}
  */
 export function getGetProductsProductIdQueryKey(
-  args?: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return ['/products/:productId', ...(args ? [args] : [])] as const
+  return ['/products/:productId', args] as const
 }

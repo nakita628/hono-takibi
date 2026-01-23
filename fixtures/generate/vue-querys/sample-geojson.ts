@@ -1,6 +1,5 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/sample-geojson'
 
@@ -11,27 +10,12 @@ import { client } from '../clients/sample-geojson'
  *
  * This endpoint is used to check if the server is working properly.
  */
-export function useGet(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.index.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGet(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -50,31 +34,18 @@ export function getGetQueryKey() {
  */
 export function useGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.projects.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetProjectsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /projects
  */
-export function getGetProjectsQueryKey(args?: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', ...(args ? [args] : [])] as const
+export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
+  return ['/projects', args] as const
 }

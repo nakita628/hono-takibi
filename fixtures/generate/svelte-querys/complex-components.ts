@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-components'
 
@@ -41,7 +41,12 @@ export function createPostAuthToken(
 export function createGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.users.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.users.$get>,
+      Error,
+      InferResponseType<typeof client.users.$get>,
+      readonly ['/users', InferRequestType<typeof client.users.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -62,8 +67,8 @@ export function createGetUsers(
 /**
  * Generates Svelte Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
-  return ['/users', ...(args ? [args] : [])] as const
+export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['/users', args] as const
 }
 
 /**
@@ -103,7 +108,12 @@ export function createPostUsers(
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      readonly ['/users/:userId', InferRequestType<(typeof client.users)[':userId']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -125,9 +135,9 @@ export function createGetUsersUserId(
  * Generates Svelte Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['/users/:userId', ...(args ? [args] : [])] as const
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -170,7 +180,12 @@ export function createGetCompaniesCompanyId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.companies)[':companyId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.companies)[':companyId']['$get']>,
+      readonly [
+        '/companies/:companyId',
+        InferRequestType<(typeof client.companies)[':companyId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -193,9 +208,9 @@ export function createGetCompaniesCompanyId(
  * Generates Svelte Query cache key for GET /companies/{companyId}
  */
 export function getGetCompaniesCompanyIdQueryKey(
-  args?: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
+  args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
 ) {
-  return ['/companies/:companyId', ...(args ? [args] : [])] as const
+  return ['/companies/:companyId', args] as const
 }
 
 /**
@@ -206,7 +221,12 @@ export function getGetCompaniesCompanyIdQueryKey(
 export function createGetOrders(
   args: InferRequestType<typeof client.orders.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.orders.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.orders.$get>,
+      Error,
+      InferResponseType<typeof client.orders.$get>,
+      readonly ['/orders', InferRequestType<typeof client.orders.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -227,8 +247,8 @@ export function createGetOrders(
 /**
  * Generates Svelte Query cache key for GET /orders
  */
-export function getGetOrdersQueryKey(args?: InferRequestType<typeof client.orders.$get>) {
-  return ['/orders', ...(args ? [args] : [])] as const
+export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
+  return ['/orders', args] as const
 }
 
 /**
@@ -268,7 +288,12 @@ export function createPostOrders(
 export function createGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.orders)[':orderId']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.orders)[':orderId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.orders)[':orderId']['$get']>,
+      readonly ['/orders/:orderId', InferRequestType<(typeof client.orders)[':orderId']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -290,9 +315,9 @@ export function createGetOrdersOrderId(
  * Generates Svelte Query cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdQueryKey(
-  args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return ['/orders/:orderId', ...(args ? [args] : [])] as const
+  return ['/orders/:orderId', args] as const
 }
 
 /**
@@ -303,7 +328,12 @@ export function getGetOrdersOrderIdQueryKey(
 export function createGetFilesFileId(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.files)[':fileId']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.files)[':fileId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['$get']>,
+      readonly ['/files/:fileId', InferRequestType<(typeof client.files)[':fileId']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -325,9 +355,9 @@ export function createGetFilesFileId(
  * Generates Svelte Query cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return ['/files/:fileId', ...(args ? [args] : [])] as const
+  return ['/files/:fileId', args] as const
 }
 
 /**

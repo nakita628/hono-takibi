@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/44-sns-notifications-dm-search'
 
@@ -12,7 +12,12 @@ import { client } from '../clients/44-sns-notifications-dm-search'
 export function createGetNotifications(
   args: InferRequestType<typeof client.notifications.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.notifications.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.notifications.$get>,
+      Error,
+      InferResponseType<typeof client.notifications.$get>,
+      readonly ['/notifications', InferRequestType<typeof client.notifications.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -34,9 +39,9 @@ export function createGetNotifications(
  * Generates Svelte Query cache key for GET /notifications
  */
 export function getGetNotificationsQueryKey(
-  args?: InferRequestType<typeof client.notifications.$get>,
+  args: InferRequestType<typeof client.notifications.$get>,
 ) {
-  return ['/notifications', ...(args ? [args] : [])] as const
+  return ['/notifications', args] as const
 }
 
 /**
@@ -48,7 +53,9 @@ export function createGetNotificationsUnreadCount(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
+      readonly ['/notifications/unread-count']
     >
     client?: ClientRequestOptions
   },
@@ -112,7 +119,12 @@ export function createPostNotificationsMarkRead(
  */
 export function createGetNotificationsSettings(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.notifications.settings.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.notifications.settings.$get>,
+      Error,
+      InferResponseType<typeof client.notifications.settings.$get>,
+      readonly ['/notifications/settings']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -176,7 +188,12 @@ export function createPutNotificationsSettings(
 export function createGetDmConversations(
   args: InferRequestType<typeof client.dm.conversations.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.dm.conversations.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.dm.conversations.$get>,
+      Error,
+      InferResponseType<typeof client.dm.conversations.$get>,
+      readonly ['/dm/conversations', InferRequestType<typeof client.dm.conversations.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -198,9 +215,9 @@ export function createGetDmConversations(
  * Generates Svelte Query cache key for GET /dm/conversations
  */
 export function getGetDmConversationsQueryKey(
-  args?: InferRequestType<typeof client.dm.conversations.$get>,
+  args: InferRequestType<typeof client.dm.conversations.$get>,
 ) {
-  return ['/dm/conversations', ...(args ? [args] : [])] as const
+  return ['/dm/conversations', args] as const
 }
 
 /**
@@ -243,7 +260,12 @@ export function createGetDmConversationsConversationId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>,
+      readonly [
+        '/dm/conversations/:conversationId',
+        InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -267,9 +289,9 @@ export function createGetDmConversationsConversationId(
  * Generates Svelte Query cache key for GET /dm/conversations/{conversationId}
  */
 export function getGetDmConversationsConversationIdQueryKey(
-  args?: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
+  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
 ) {
-  return ['/dm/conversations/:conversationId', ...(args ? [args] : [])] as const
+  return ['/dm/conversations/:conversationId', args] as const
 }
 
 /**
@@ -312,7 +334,12 @@ export function createGetDmConversationsConversationIdMessages(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
+      readonly [
+        '/dm/conversations/:conversationId/messages',
+        InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -338,9 +365,9 @@ export function createGetDmConversationsConversationIdMessages(
  * Generates Svelte Query cache key for GET /dm/conversations/{conversationId}/messages
  */
 export function getGetDmConversationsConversationIdMessagesQueryKey(
-  args?: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
+  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
 ) {
-  return ['/dm/conversations/:conversationId/messages', ...(args ? [args] : [])] as const
+  return ['/dm/conversations/:conversationId/messages', args] as const
 }
 
 /**
@@ -543,7 +570,12 @@ export function createDeleteDmMessagesMessageIdReactions(
  */
 export function createGetDmUnreadCount(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.dm)['unread-count']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.dm)['unread-count']['$get']>,
+      Error,
+      InferResponseType<(typeof client.dm)['unread-count']['$get']>,
+      readonly ['/dm/unread-count']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -576,7 +608,12 @@ export function getGetDmUnreadCountQueryKey() {
 export function createGetSearchPosts(
   args: InferRequestType<typeof client.search.posts.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.search.posts.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.search.posts.$get>,
+      Error,
+      InferResponseType<typeof client.search.posts.$get>,
+      readonly ['/search/posts', InferRequestType<typeof client.search.posts.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -597,10 +634,8 @@ export function createGetSearchPosts(
 /**
  * Generates Svelte Query cache key for GET /search/posts
  */
-export function getGetSearchPostsQueryKey(
-  args?: InferRequestType<typeof client.search.posts.$get>,
-) {
-  return ['/search/posts', ...(args ? [args] : [])] as const
+export function getGetSearchPostsQueryKey(args: InferRequestType<typeof client.search.posts.$get>) {
+  return ['/search/posts', args] as const
 }
 
 /**
@@ -611,7 +646,12 @@ export function getGetSearchPostsQueryKey(
 export function createGetSearchUsers(
   args: InferRequestType<typeof client.search.users.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.search.users.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.search.users.$get>,
+      Error,
+      InferResponseType<typeof client.search.users.$get>,
+      readonly ['/search/users', InferRequestType<typeof client.search.users.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -632,10 +672,8 @@ export function createGetSearchUsers(
 /**
  * Generates Svelte Query cache key for GET /search/users
  */
-export function getGetSearchUsersQueryKey(
-  args?: InferRequestType<typeof client.search.users.$get>,
-) {
-  return ['/search/users', ...(args ? [args] : [])] as const
+export function getGetSearchUsersQueryKey(args: InferRequestType<typeof client.search.users.$get>) {
+  return ['/search/users', args] as const
 }
 
 /**
@@ -646,7 +684,12 @@ export function getGetSearchUsersQueryKey(
 export function createGetSearchHashtags(
   args: InferRequestType<typeof client.search.hashtags.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.search.hashtags.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.search.hashtags.$get>,
+      Error,
+      InferResponseType<typeof client.search.hashtags.$get>,
+      readonly ['/search/hashtags', InferRequestType<typeof client.search.hashtags.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -668,9 +711,9 @@ export function createGetSearchHashtags(
  * Generates Svelte Query cache key for GET /search/hashtags
  */
 export function getGetSearchHashtagsQueryKey(
-  args?: InferRequestType<typeof client.search.hashtags.$get>,
+  args: InferRequestType<typeof client.search.hashtags.$get>,
 ) {
-  return ['/search/hashtags', ...(args ? [args] : [])] as const
+  return ['/search/hashtags', args] as const
 }
 
 /**
@@ -680,7 +723,12 @@ export function getGetSearchHashtagsQueryKey(
  */
 export function createGetSearchRecent(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.search.recent.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.search.recent.$get>,
+      Error,
+      InferResponseType<typeof client.search.recent.$get>,
+      readonly ['/search/recent']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -743,7 +791,12 @@ export function createDeleteSearchRecent(
 export function createGetTrends(
   args: InferRequestType<typeof client.trends.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.trends.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.trends.$get>,
+      Error,
+      InferResponseType<typeof client.trends.$get>,
+      readonly ['/trends', InferRequestType<typeof client.trends.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -764,8 +817,8 @@ export function createGetTrends(
 /**
  * Generates Svelte Query cache key for GET /trends
  */
-export function getGetTrendsQueryKey(args?: InferRequestType<typeof client.trends.$get>) {
-  return ['/trends', ...(args ? [args] : [])] as const
+export function getGetTrendsQueryKey(args: InferRequestType<typeof client.trends.$get>) {
+  return ['/trends', args] as const
 }
 
 /**
@@ -775,7 +828,12 @@ export function getGetTrendsQueryKey(args?: InferRequestType<typeof client.trend
  */
 export function createGetTrendsLocations(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.trends.locations.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.trends.locations.$get>,
+      Error,
+      InferResponseType<typeof client.trends.locations.$get>,
+      readonly ['/trends/locations']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -808,7 +866,12 @@ export function getGetTrendsLocationsQueryKey() {
 export function createGetSuggestionsUsers(
   args: InferRequestType<typeof client.suggestions.users.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.suggestions.users.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.suggestions.users.$get>,
+      Error,
+      InferResponseType<typeof client.suggestions.users.$get>,
+      readonly ['/suggestions/users', InferRequestType<typeof client.suggestions.users.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -830,9 +893,9 @@ export function createGetSuggestionsUsers(
  * Generates Svelte Query cache key for GET /suggestions/users
  */
 export function getGetSuggestionsUsersQueryKey(
-  args?: InferRequestType<typeof client.suggestions.users.$get>,
+  args: InferRequestType<typeof client.suggestions.users.$get>,
 ) {
-  return ['/suggestions/users', ...(args ? [args] : [])] as const
+  return ['/suggestions/users', args] as const
 }
 
 /**
@@ -872,7 +935,12 @@ export function createPostSuggestionsUsersUserIdHide(
  */
 export function createGetSuggestionsTopics(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.suggestions.topics.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.suggestions.topics.$get>,
+      Error,
+      InferResponseType<typeof client.suggestions.topics.$get>,
+      readonly ['/suggestions/topics']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

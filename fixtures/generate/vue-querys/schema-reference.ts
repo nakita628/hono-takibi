@@ -1,6 +1,5 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/schema-reference'
 
@@ -9,27 +8,12 @@ import { client } from '../clients/schema-reference'
  *
  * Sample Endpoint
  */
-export function useGetExample(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.example.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetExample(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetExampleQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.example.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.example.$get(undefined, clientOptions)),
+  })
 }
 
 /**

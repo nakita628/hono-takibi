@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
@@ -141,7 +141,12 @@ export function createPostWebauthnAuthenticateVerify(
  */
 export function createGetWebauthnCredentials(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.webauthn.credentials.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.webauthn.credentials.$get>,
+      Error,
+      InferResponseType<typeof client.webauthn.credentials.$get>,
+      readonly ['/webauthn/credentials']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -177,7 +182,12 @@ export function createGetWebauthnCredentialsCredentialId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+      readonly [
+        '/webauthn/credentials/:credentialId',
+        InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -201,9 +211,9 @@ export function createGetWebauthnCredentialsCredentialId(
  * Generates Svelte Query cache key for GET /webauthn/credentials/{credentialId}
  */
 export function getGetWebauthnCredentialsCredentialIdQueryKey(
-  args?: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
-  return ['/webauthn/credentials/:credentialId', ...(args ? [args] : [])] as const
+  return ['/webauthn/credentials/:credentialId', args] as const
 }
 
 /**
@@ -281,7 +291,12 @@ export function createPatchWebauthnCredentialsCredentialId(
  */
 export function createGetWebauthnSettings(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.webauthn.settings.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.webauthn.settings.$get>,
+      Error,
+      InferResponseType<typeof client.webauthn.settings.$get>,
+      readonly ['/webauthn/settings']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -313,7 +328,12 @@ export function getGetWebauthnSettingsQueryKey() {
  */
 export function createGetWebauthnSettingsRp(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.webauthn.settings.rp.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.webauthn.settings.rp.$get>,
+      Error,
+      InferResponseType<typeof client.webauthn.settings.rp.$get>,
+      readonly ['/webauthn/settings/rp']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -378,7 +398,12 @@ export function createPutWebauthnSettingsRp(
  */
 export function createGetWebauthnAuthenticators(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.webauthn.authenticators.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.webauthn.authenticators.$get>,
+      Error,
+      InferResponseType<typeof client.webauthn.authenticators.$get>,
+      readonly ['/webauthn/authenticators']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

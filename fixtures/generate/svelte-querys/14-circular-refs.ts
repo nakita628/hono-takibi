@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
@@ -9,7 +9,12 @@ import { client } from '../clients/14-circular-refs'
  */
 export function createGetTrees(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.trees.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.trees.$get>,
+      Error,
+      InferResponseType<typeof client.trees.$get>,
+      readonly ['/trees']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -66,7 +71,12 @@ export function createPostTrees(
  */
 export function createGetGraphs(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.graphs.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.graphs.$get>,
+      Error,
+      InferResponseType<typeof client.graphs.$get>,
+      readonly ['/graphs']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -96,7 +106,12 @@ export function getGetGraphsQueryKey() {
  */
 export function createGetLinkedLists(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['linked-lists']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['linked-lists']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['linked-lists']['$get']>,
+      readonly ['/linked-lists']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -126,7 +141,12 @@ export function getGetLinkedListsQueryKey() {
  */
 export function createGetSocialNetwork(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['social-network']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['social-network']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['social-network']['$get']>,
+      readonly ['/social-network']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -156,7 +176,12 @@ export function getGetSocialNetworkQueryKey() {
  */
 export function createGetFileSystem(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['file-system']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['file-system']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['file-system']['$get']>,
+      readonly ['/file-system']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -186,7 +211,12 @@ export function getGetFileSystemQueryKey() {
  */
 export function createGetComments(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.comments.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.comments.$get>,
+      Error,
+      InferResponseType<typeof client.comments.$get>,
+      readonly ['/comments']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -216,7 +246,12 @@ export function getGetCommentsQueryKey() {
  */
 export function createGetPolymorphic(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.polymorphic.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.polymorphic.$get>,
+      Error,
+      InferResponseType<typeof client.polymorphic.$get>,
+      readonly ['/polymorphic']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -246,7 +281,12 @@ export function getGetPolymorphicQueryKey() {
  */
 export function createGetCategories(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.categories.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.categories.$get>,
+      Error,
+      InferResponseType<typeof client.categories.$get>,
+      readonly ['/categories']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -276,7 +316,12 @@ export function getGetCategoriesQueryKey() {
  */
 export function createGetWorkflow(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.workflow.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.workflow.$get>,
+      Error,
+      InferResponseType<typeof client.workflow.$get>,
+      readonly ['/workflow']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

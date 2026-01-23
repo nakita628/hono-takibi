@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/17-mixed-inline-refs'
 
@@ -10,7 +10,12 @@ import { client } from '../clients/17-mixed-inline-refs'
 export function createGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.users.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.users.$get>,
+      Error,
+      InferResponseType<typeof client.users.$get>,
+      readonly ['/users', InferRequestType<typeof client.users.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -31,8 +36,8 @@ export function createGetUsers(
 /**
  * Generates Svelte Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
-  return ['/users', ...(args ? [args] : [])] as const
+export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['/users', args] as const
 }
 
 /**
@@ -68,7 +73,12 @@ export function createPostUsers(
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      readonly ['/users/:userId', InferRequestType<(typeof client.users)[':userId']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -90,9 +100,9 @@ export function createGetUsersUserId(
  * Generates Svelte Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['/users/:userId', ...(args ? [args] : [])] as const
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -130,7 +140,12 @@ export function createGetProductsProductIdVariants(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.products)[':productId']['variants']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.products)[':productId']['variants']['$get']>,
+      readonly [
+        '/products/:productId/variants',
+        InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -154,9 +169,9 @@ export function createGetProductsProductIdVariants(
  * Generates Svelte Query cache key for GET /products/{productId}/variants
  */
 export function getGetProductsProductIdVariantsQueryKey(
-  args?: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
+  args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
 ) {
-  return ['/products/:productId/variants', ...(args ? [args] : [])] as const
+  return ['/products/:productId/variants', args] as const
 }
 
 /**

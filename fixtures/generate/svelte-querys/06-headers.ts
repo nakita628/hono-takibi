@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -10,7 +10,12 @@ import { client } from '../clients/06-headers'
 export function createGetResources(
   args: InferRequestType<typeof client.resources.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.resources.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.resources.$get>,
+      Error,
+      InferResponseType<typeof client.resources.$get>,
+      readonly ['/resources', InferRequestType<typeof client.resources.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -31,8 +36,8 @@ export function createGetResources(
 /**
  * Generates Svelte Query cache key for GET /resources
  */
-export function getGetResourcesQueryKey(args?: InferRequestType<typeof client.resources.$get>) {
-  return ['/resources', ...(args ? [args] : [])] as const
+export function getGetResourcesQueryKey(args: InferRequestType<typeof client.resources.$get>) {
+  return ['/resources', args] as const
 }
 
 /**
@@ -41,7 +46,12 @@ export function getGetResourcesQueryKey(args?: InferRequestType<typeof client.re
 export function createGetResourcesId(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.resources)[':id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.resources)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.resources)[':id']['$get']>,
+      readonly ['/resources/:id', InferRequestType<(typeof client.resources)[':id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -63,9 +73,9 @@ export function createGetResourcesId(
  * Generates Svelte Query cache key for GET /resources/{id}
  */
 export function getGetResourcesIdQueryKey(
-  args?: InferRequestType<(typeof client.resources)[':id']['$get']>,
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  return ['/resources/:id', ...(args ? [args] : [])] as const
+  return ['/resources/:id', args] as const
 }
 
 /**
@@ -102,7 +112,12 @@ export function createPutResourcesId(
 export function createGetDownloadId(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.download)[':id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.download)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.download)[':id']['$get']>,
+      readonly ['/download/:id', InferRequestType<(typeof client.download)[':id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -124,7 +139,7 @@ export function createGetDownloadId(
  * Generates Svelte Query cache key for GET /download/{id}
  */
 export function getGetDownloadIdQueryKey(
-  args?: InferRequestType<(typeof client.download)[':id']['$get']>,
+  args: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
-  return ['/download/:id', ...(args ? [args] : [])] as const
+  return ['/download/:id', args] as const
 }

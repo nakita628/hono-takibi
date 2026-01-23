@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-literal'
 
@@ -13,9 +13,11 @@ import { client } from '../clients/openapi-literal'
  */
 export function useGetPrimitive(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.primitive.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.primitive.$get>,
+      Error,
+      InferResponseType<typeof client.primitive.$get>,
+      readonly ['/primitive']
     >
     client?: ClientRequestOptions
   },
@@ -25,9 +27,9 @@ export function useGetPrimitive(
   const queryKey = getGetPrimitiveQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.primitive.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

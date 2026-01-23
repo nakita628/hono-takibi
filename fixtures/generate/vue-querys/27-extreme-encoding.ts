@@ -1,35 +1,19 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
 /**
  * POST /encoding-test
  */
-export function usePostEncodingTest(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['encoding-test']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['encoding-test']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostEncodingTest(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['encoding-test']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['encoding-test']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['encoding-test'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client['encoding-test'].$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -37,89 +21,47 @@ export function usePostEncodingTest(
  */
 export function useGetContentNegotiation(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['content-negotiation']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetContentNegotiationQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['content-negotiation'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['content-negotiation'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /content-negotiation
  */
 export function getGetContentNegotiationQueryKey(
-  args?: InferRequestType<(typeof client)['content-negotiation']['$get']>,
+  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  return ['/content-negotiation', ...(args ? [args] : [])] as const
+  return ['/content-negotiation', args] as const
 }
 
 /**
  * POST /binary-variations
  */
-export function usePostBinaryVariations(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['binary-variations']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['binary-variations']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostBinaryVariations(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['binary-variations']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['binary-variations']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['binary-variations'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['binary-variations'].$post(args, clientOptions)),
+  })
 }
 
 /**
  * GET /streaming
  */
-export function useGetStreaming(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.streaming.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetStreaming(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetStreamingQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.streaming.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.streaming.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -132,83 +74,37 @@ export function getGetStreamingQueryKey() {
 /**
  * POST /streaming
  */
-export function usePostStreaming(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.streaming.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.streaming.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostStreaming(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.streaming.$post> | undefined,
     Error,
     InferRequestType<typeof client.streaming.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.streaming.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.streaming.$post(args, clientOptions)) })
 }
 
 /**
  * POST /url-encoded-complex
  */
-export function usePostUrlEncodedComplex(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['url-encoded-complex']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['url-encoded-complex']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostUrlEncodedComplex(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['url-encoded-complex']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['url-encoded-complex']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['url-encoded-complex'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client['url-encoded-complex'].$post(args, clientOptions)),
+  })
 }
 
 /**
  * GET /response-encoding
  */
-export function useGetResponseEncoding(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['response-encoding']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetResponseEncoding(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetResponseEncodingQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['response-encoding'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['response-encoding'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -221,27 +117,12 @@ export function getGetResponseEncodingQueryKey() {
 /**
  * POST /schema-encoding
  */
-export function usePostSchemaEncoding(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['schema-encoding']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['schema-encoding']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostSchemaEncoding(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client)['schema-encoding']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client)['schema-encoding']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['schema-encoding'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client['schema-encoding'].$post(args, clientOptions)),
+  })
 }

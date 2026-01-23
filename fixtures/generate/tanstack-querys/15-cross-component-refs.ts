@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -10,9 +10,11 @@ import { client } from '../clients/15-cross-component-refs'
 export function useGetEntities(
   args: InferRequestType<typeof client.entities.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.entities.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.entities.$get>,
+      Error,
+      InferResponseType<typeof client.entities.$get>,
+      readonly ['/entities', InferRequestType<typeof client.entities.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -22,9 +24,9 @@ export function useGetEntities(
   const queryKey = getGetEntitiesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.entities.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -34,8 +36,8 @@ export function useGetEntities(
 /**
  * Generates TanStack Query cache key for GET /entities
  */
-export function getGetEntitiesQueryKey(args?: InferRequestType<typeof client.entities.$get>) {
-  return ['/entities', ...(args ? [args] : [])] as const
+export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.entities.$get>) {
+  return ['/entities', args] as const
 }
 
 /**
@@ -71,9 +73,14 @@ export function usePostEntities(
 export function useGetEntitiesEntityId(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.entities)[':entityId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.entities)[':entityId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.entities)[':entityId']['$get']>,
+      readonly [
+        '/entities/:entityId',
+        InferRequestType<(typeof client.entities)[':entityId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -83,9 +90,9 @@ export function useGetEntitiesEntityId(
   const queryKey = getGetEntitiesEntityIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.entities[':entityId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -96,9 +103,9 @@ export function useGetEntitiesEntityId(
  * Generates TanStack Query cache key for GET /entities/{entityId}
  */
 export function getGetEntitiesEntityIdQueryKey(
-  args?: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
+  args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
-  return ['/entities/:entityId', ...(args ? [args] : [])] as const
+  return ['/entities/:entityId', args] as const
 }
 
 /**
@@ -163,12 +170,14 @@ export function useDeleteEntitiesEntityId(
 export function useGetEntitiesEntityIdRelationships(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+      Error,
+      InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+      readonly [
+        '/entities/:entityId/relationships',
+        InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -178,10 +187,10 @@ export function useGetEntitiesEntityIdRelationships(
   const queryKey = getGetEntitiesEntityIdRelationshipsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.entities[':entityId'].relationships.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -192,9 +201,9 @@ export function useGetEntitiesEntityIdRelationships(
  * Generates TanStack Query cache key for GET /entities/{entityId}/relationships
  */
 export function getGetEntitiesEntityIdRelationshipsQueryKey(
-  args?: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+  args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
-  return ['/entities/:entityId/relationships', ...(args ? [args] : [])] as const
+  return ['/entities/:entityId/relationships', args] as const
 }
 
 /**

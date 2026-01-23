@@ -1,33 +1,17 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
 /**
  * GET /trees
  */
-export function useGetTrees(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.trees.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetTrees(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetTreesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.trees.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.trees.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -40,54 +24,23 @@ export function getGetTreesQueryKey() {
 /**
  * POST /trees
  */
-export function usePostTrees(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.trees.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.trees.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostTrees(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.trees.$post> | undefined,
     Error,
     InferRequestType<typeof client.trees.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.trees.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.trees.$post(args, clientOptions)) })
 }
 
 /**
  * GET /graphs
  */
-export function useGetGraphs(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.graphs.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetGraphs(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetGraphsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.graphs.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.graphs.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -100,27 +53,12 @@ export function getGetGraphsQueryKey() {
 /**
  * GET /linked-lists
  */
-export function useGetLinkedLists(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['linked-lists']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetLinkedLists(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetLinkedListsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['linked-lists'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['linked-lists'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -133,27 +71,12 @@ export function getGetLinkedListsQueryKey() {
 /**
  * GET /social-network
  */
-export function useGetSocialNetwork(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['social-network']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSocialNetwork(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSocialNetworkQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['social-network'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['social-network'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -166,27 +89,12 @@ export function getGetSocialNetworkQueryKey() {
 /**
  * GET /file-system
  */
-export function useGetFileSystem(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['file-system']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetFileSystem(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetFileSystemQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['file-system'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['file-system'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -199,27 +107,12 @@ export function getGetFileSystemQueryKey() {
 /**
  * GET /comments
  */
-export function useGetComments(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.comments.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetComments(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetCommentsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.comments.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.comments.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -232,27 +125,12 @@ export function getGetCommentsQueryKey() {
 /**
  * GET /polymorphic
  */
-export function useGetPolymorphic(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.polymorphic.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetPolymorphic(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetPolymorphicQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.polymorphic.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.polymorphic.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -265,27 +143,12 @@ export function getGetPolymorphicQueryKey() {
 /**
  * GET /categories
  */
-export function useGetCategories(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.categories.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetCategories(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetCategoriesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -298,27 +161,12 @@ export function getGetCategoriesQueryKey() {
 /**
  * GET /workflow
  */
-export function useGetWorkflow(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.workflow.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetWorkflow(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetWorkflowQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.workflow.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.workflow.$get(undefined, clientOptions)),
+  })
 }
 
 /**

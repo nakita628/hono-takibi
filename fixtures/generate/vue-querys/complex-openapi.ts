@@ -1,6 +1,5 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-openapi'
 
@@ -9,27 +8,12 @@ import { client } from '../clients/complex-openapi'
  *
  * List all users
  */
-export function useGetUsers(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.users.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetUsers(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetUsersQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.users.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.users.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -44,28 +28,12 @@ export function getGetUsersQueryKey() {
  *
  * Create a new user
  */
-export function usePostUsers(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.users.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.users.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostUsers(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.users.$post> | undefined,
     Error,
     InferRequestType<typeof client.users.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.users.$post(args, clientOptions)) })
 }
 
 /**
@@ -75,35 +43,22 @@ export function usePostUsers(
  */
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetUsersUserIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['/users/:userId', ...(args ? [args] : [])] as const
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -111,29 +66,14 @@ export function getGetUsersUserIdQueryKey(
  *
  * Update an existing user
  */
-export function usePutUsersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.users)[':userId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':userId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutUsersUserId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.users)[':userId']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.users)[':userId']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.users[':userId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.users[':userId'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -141,29 +81,14 @@ export function usePutUsersUserId(
  *
  * Delete a user
  */
-export function useDeleteUsersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':userId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteUsersUserId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.users)[':userId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.users[':userId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.users[':userId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -171,27 +96,12 @@ export function useDeleteUsersUserId(
  *
  * List all orders
  */
-export function useGetOrders(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.orders.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetOrders(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetOrdersQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.orders.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.orders.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -206,26 +116,10 @@ export function getGetOrdersQueryKey() {
  *
  * Create a new order
  */
-export function usePostOrders(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.orders.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.orders.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostOrders(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.orders.$post> | undefined,
     Error,
     InferRequestType<typeof client.orders.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.orders.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.orders.$post(args, clientOptions)) })
 }

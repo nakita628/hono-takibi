@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -10,7 +10,12 @@ import { client } from '../clients/18-multiple-same-refs'
 export function createGetDocuments(
   args: InferRequestType<typeof client.documents.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.documents.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.documents.$get>,
+      Error,
+      InferResponseType<typeof client.documents.$get>,
+      readonly ['/documents', InferRequestType<typeof client.documents.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -31,8 +36,8 @@ export function createGetDocuments(
 /**
  * Generates Svelte Query cache key for GET /documents
  */
-export function getGetDocumentsQueryKey(args?: InferRequestType<typeof client.documents.$get>) {
-  return ['/documents', ...(args ? [args] : [])] as const
+export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.documents.$get>) {
+  return ['/documents', args] as const
 }
 
 /**
@@ -70,7 +75,12 @@ export function createGetDocumentsDocumentId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.documents)[':documentId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.documents)[':documentId']['$get']>,
+      readonly [
+        '/documents/:documentId',
+        InferRequestType<(typeof client.documents)[':documentId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -93,9 +103,9 @@ export function createGetDocumentsDocumentId(
  * Generates Svelte Query cache key for GET /documents/{documentId}
  */
 export function getGetDocumentsDocumentIdQueryKey(
-  args?: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
+  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
-  return ['/documents/:documentId', ...(args ? [args] : [])] as const
+  return ['/documents/:documentId', args] as const
 }
 
 /**
@@ -134,7 +144,12 @@ export function createGetDocumentsDocumentIdVersions(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>,
+      readonly [
+        '/documents/:documentId/versions',
+        InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -158,9 +173,9 @@ export function createGetDocumentsDocumentIdVersions(
  * Generates Svelte Query cache key for GET /documents/{documentId}/versions
  */
 export function getGetDocumentsDocumentIdVersionsQueryKey(
-  args?: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
+  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
-  return ['/documents/:documentId/versions', ...(args ? [args] : [])] as const
+  return ['/documents/:documentId/versions', args] as const
 }
 
 /**
@@ -199,7 +214,12 @@ export function createGetUsersUserIdDocuments(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.users)[':userId']['documents']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.users)[':userId']['documents']['$get']>,
+      readonly [
+        '/users/:userId/documents',
+        InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -223,9 +243,9 @@ export function createGetUsersUserIdDocuments(
  * Generates Svelte Query cache key for GET /users/{userId}/documents
  */
 export function getGetUsersUserIdDocumentsQueryKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
 ) {
-  return ['/users/:userId/documents', ...(args ? [args] : [])] as const
+  return ['/users/:userId/documents', args] as const
 }
 
 /**
@@ -260,7 +280,12 @@ export function createPostCompare(
  */
 export function createGetTemplates(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.templates.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.templates.$get>,
+      Error,
+      InferResponseType<typeof client.templates.$get>,
+      readonly ['/templates']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

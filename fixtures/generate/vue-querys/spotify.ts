@@ -1,6 +1,5 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -13,33 +12,20 @@ import { client } from '../clients/spotify'
  */
 export function useGetAlbums(
   args: InferRequestType<typeof client.albums.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.albums.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAlbumsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.albums.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.albums.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /albums
  */
-export function getGetAlbumsQueryKey(args?: InferRequestType<typeof client.albums.$get>) {
-  return ['/albums', ...(args ? [args] : [])] as const
+export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
+  return ['/albums', args] as const
 }
 
 /**
@@ -51,35 +37,22 @@ export function getGetAlbumsQueryKey(args?: InferRequestType<typeof client.album
  */
 export function useGetAlbumsId(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.albums)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAlbumsIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.albums[':id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.albums[':id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /albums/{id}
  */
 export function getGetAlbumsIdQueryKey(
-  args?: InferRequestType<(typeof client.albums)[':id']['$get']>,
+  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
 ) {
-  return ['/albums/:id', ...(args ? [args] : [])] as const
+  return ['/albums/:id', args] as const
 }
 
 /**
@@ -92,35 +65,22 @@ export function getGetAlbumsIdQueryKey(
  */
 export function useGetAlbumsIdTracks(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAlbumsIdTracksQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.albums[':id'].tracks.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.albums[':id'].tracks.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /albums/{id}/tracks
  */
 export function getGetAlbumsIdTracksQueryKey(
-  args?: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
+  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  return ['/albums/:id/tracks', ...(args ? [args] : [])] as const
+  return ['/albums/:id/tracks', args] as const
 }
 
 /**
@@ -132,33 +92,20 @@ export function getGetAlbumsIdTracksQueryKey(
  */
 export function useGetArtists(
   args: InferRequestType<typeof client.artists.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.artists.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetArtistsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.artists.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.artists.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /artists
  */
-export function getGetArtistsQueryKey(args?: InferRequestType<typeof client.artists.$get>) {
-  return ['/artists', ...(args ? [args] : [])] as const
+export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
+  return ['/artists', args] as const
 }
 
 /**
@@ -170,35 +117,22 @@ export function getGetArtistsQueryKey(args?: InferRequestType<typeof client.arti
  */
 export function useGetArtistsId(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.artists)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetArtistsIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.artists[':id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.artists[':id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /artists/{id}
  */
 export function getGetArtistsIdQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
 ) {
-  return ['/artists/:id', ...(args ? [args] : [])] as const
+  return ['/artists/:id', args] as const
 }
 
 /**
@@ -210,35 +144,22 @@ export function getGetArtistsIdQueryKey(
  */
 export function useGetArtistsIdAlbums(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.artists)[':id']['albums']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetArtistsIdAlbumsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.artists[':id'].albums.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.artists[':id'].albums.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /artists/{id}/albums
  */
 export function getGetArtistsIdAlbumsQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  return ['/artists/:id/albums', ...(args ? [args] : [])] as const
+  return ['/artists/:id/albums', args] as const
 }
 
 /**
@@ -250,39 +171,23 @@ export function getGetArtistsIdAlbumsQueryKey(
  */
 export function useGetArtistsIdRelatedArtists(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetArtistsIdRelatedArtistsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.artists[':id']['related-artists'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.artists[':id']['related-artists'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /artists/{id}/related-artists
  */
 export function getGetArtistsIdRelatedArtistsQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  return ['/artists/:id/related-artists', ...(args ? [args] : [])] as const
+  return ['/artists/:id/related-artists', args] as const
 }
 
 /**
@@ -294,39 +199,23 @@ export function getGetArtistsIdRelatedArtistsQueryKey(
  */
 export function useGetArtistsIdTopTracks(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetArtistsIdTopTracksQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.artists[':id']['top-tracks'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.artists[':id']['top-tracks'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /artists/{id}/top-tracks
  */
 export function getGetArtistsIdTopTracksQueryKey(
-  args?: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  return ['/artists/:id/top-tracks', ...(args ? [args] : [])] as const
+  return ['/artists/:id/top-tracks', args] as const
 }
 
 /**
@@ -338,35 +227,22 @@ export function getGetArtistsIdTopTracksQueryKey(
  */
 export function useGetAudioAnalysisId(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAudioAnalysisIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['audio-analysis'][':id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['audio-analysis'][':id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /audio-analysis/{id}
  */
 export function getGetAudioAnalysisIdQueryKey(
-  args?: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
+  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  return ['/audio-analysis/:id', ...(args ? [args] : [])] as const
+  return ['/audio-analysis/:id', args] as const
 }
 
 /**
@@ -378,35 +254,22 @@ export function getGetAudioAnalysisIdQueryKey(
  */
 export function useGetAudioFeatures(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['audio-features']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAudioFeaturesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['audio-features'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['audio-features'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /audio-features
  */
 export function getGetAudioFeaturesQueryKey(
-  args?: InferRequestType<(typeof client)['audio-features']['$get']>,
+  args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  return ['/audio-features', ...(args ? [args] : [])] as const
+  return ['/audio-features', args] as const
 }
 
 /**
@@ -419,35 +282,22 @@ export function getGetAudioFeaturesQueryKey(
  */
 export function useGetAudioFeaturesId(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['audio-features'][':id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAudioFeaturesIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['audio-features'][':id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['audio-features'][':id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /audio-features/{id}
  */
 export function getGetAudioFeaturesIdQueryKey(
-  args?: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
+  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  return ['/audio-features/:id', ...(args ? [args] : [])] as const
+  return ['/audio-features/:id', args] as const
 }
 
 /**
@@ -460,33 +310,20 @@ export function getGetAudioFeaturesIdQueryKey(
  */
 export function useGetAudiobooks(
   args: InferRequestType<typeof client.audiobooks.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.audiobooks.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAudiobooksQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.audiobooks.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.audiobooks.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /audiobooks
  */
-export function getGetAudiobooksQueryKey(args?: InferRequestType<typeof client.audiobooks.$get>) {
-  return ['/audiobooks', ...(args ? [args] : [])] as const
+export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
+  return ['/audiobooks', args] as const
 }
 
 /**
@@ -499,35 +336,22 @@ export function getGetAudiobooksQueryKey(args?: InferRequestType<typeof client.a
  */
 export function useGetAudiobooksId(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.audiobooks)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAudiobooksIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.audiobooks[':id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.audiobooks[':id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /audiobooks/{id}
  */
 export function getGetAudiobooksIdQueryKey(
-  args?: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
+  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
 ) {
-  return ['/audiobooks/:id', ...(args ? [args] : [])] as const
+  return ['/audiobooks/:id', args] as const
 }
 
 /**
@@ -540,39 +364,22 @@ export function getGetAudiobooksIdQueryKey(
  */
 export function useGetAudiobooksIdChapters(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetAudiobooksIdChaptersQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.audiobooks[':id'].chapters.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.audiobooks[':id'].chapters.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /audiobooks/{id}/chapters
  */
 export function getGetAudiobooksIdChaptersQueryKey(
-  args?: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  return ['/audiobooks/:id/chapters', ...(args ? [args] : [])] as const
+  return ['/audiobooks/:id/chapters', args] as const
 }
 
 /**
@@ -584,35 +391,22 @@ export function getGetAudiobooksIdChaptersQueryKey(
  */
 export function useGetBrowseCategories(
   args: InferRequestType<typeof client.browse.categories.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.browse.categories.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetBrowseCategoriesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.browse.categories.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.browse.categories.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /browse/categories
  */
 export function getGetBrowseCategoriesQueryKey(
-  args?: InferRequestType<typeof client.browse.categories.$get>,
+  args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  return ['/browse/categories', ...(args ? [args] : [])] as const
+  return ['/browse/categories', args] as const
 }
 
 /**
@@ -624,39 +418,23 @@ export function getGetBrowseCategoriesQueryKey(
  */
 export function useGetBrowseCategoriesCategoryId(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetBrowseCategoriesCategoryIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.browse.categories[':category_id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.browse.categories[':category_id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /browse/categories/{category_id}
  */
 export function getGetBrowseCategoriesCategoryIdQueryKey(
-  args?: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  return ['/browse/categories/:category_id', ...(args ? [args] : [])] as const
+  return ['/browse/categories/:category_id', args] as const
 }
 
 /**
@@ -668,39 +446,23 @@ export function getGetBrowseCategoriesCategoryIdQueryKey(
  */
 export function useGetBrowseCategoriesCategoryIdPlaylists(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.browse.categories[':category_id'].playlists.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.browse.categories[':category_id'].playlists.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /browse/categories/{category_id}/playlists
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
-  args?: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  return ['/browse/categories/:category_id/playlists', ...(args ? [args] : [])] as const
+  return ['/browse/categories/:category_id/playlists', args] as const
 }
 
 /**
@@ -712,39 +474,23 @@ export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
  */
 export function useGetBrowseFeaturedPlaylists(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetBrowseFeaturedPlaylistsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.browse['featured-playlists'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.browse['featured-playlists'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /browse/featured-playlists
  */
 export function getGetBrowseFeaturedPlaylistsQueryKey(
-  args?: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
+  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  return ['/browse/featured-playlists', ...(args ? [args] : [])] as const
+  return ['/browse/featured-playlists', args] as const
 }
 
 /**
@@ -756,35 +502,22 @@ export function getGetBrowseFeaturedPlaylistsQueryKey(
  */
 export function useGetBrowseNewReleases(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.browse)['new-releases']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetBrowseNewReleasesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.browse['new-releases'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.browse['new-releases'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /browse/new-releases
  */
 export function getGetBrowseNewReleasesQueryKey(
-  args?: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
+  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  return ['/browse/new-releases', ...(args ? [args] : [])] as const
+  return ['/browse/new-releases', args] as const
 }
 
 /**
@@ -797,33 +530,20 @@ export function getGetBrowseNewReleasesQueryKey(
  */
 export function useGetChapters(
   args: InferRequestType<typeof client.chapters.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.chapters.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetChaptersQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.chapters.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.chapters.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /chapters
  */
-export function getGetChaptersQueryKey(args?: InferRequestType<typeof client.chapters.$get>) {
-  return ['/chapters', ...(args ? [args] : [])] as const
+export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
+  return ['/chapters', args] as const
 }
 
 /**
@@ -836,35 +556,22 @@ export function getGetChaptersQueryKey(args?: InferRequestType<typeof client.cha
  */
 export function useGetChaptersId(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.chapters)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetChaptersIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.chapters[':id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.chapters[':id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /chapters/{id}
  */
 export function getGetChaptersIdQueryKey(
-  args?: InferRequestType<(typeof client.chapters)[':id']['$get']>,
+  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
 ) {
-  return ['/chapters/:id', ...(args ? [args] : [])] as const
+  return ['/chapters/:id', args] as const
 }
 
 /**
@@ -876,33 +583,20 @@ export function getGetChaptersIdQueryKey(
  */
 export function useGetEpisodes(
   args: InferRequestType<typeof client.episodes.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.episodes.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetEpisodesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.episodes.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.episodes.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /episodes
  */
-export function getGetEpisodesQueryKey(args?: InferRequestType<typeof client.episodes.$get>) {
-  return ['/episodes', ...(args ? [args] : [])] as const
+export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
+  return ['/episodes', args] as const
 }
 
 /**
@@ -915,35 +609,22 @@ export function getGetEpisodesQueryKey(args?: InferRequestType<typeof client.epi
  */
 export function useGetEpisodesId(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.episodes)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetEpisodesIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.episodes[':id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.episodes[':id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /episodes/{id}
  */
 export function getGetEpisodesIdQueryKey(
-  args?: InferRequestType<(typeof client.episodes)[':id']['$get']>,
+  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
 ) {
-  return ['/episodes/:id', ...(args ? [args] : [])] as const
+  return ['/episodes/:id', args] as const
 }
 
 /**
@@ -953,27 +634,12 @@ export function getGetEpisodesIdQueryKey(
  *
  * Get the list of markets where Spotify is available.
  */
-export function useGetMarkets(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.markets.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetMarkets(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetMarketsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.markets.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.markets.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -991,27 +657,12 @@ export function getGetMarketsQueryKey() {
  * Get detailed profile information about the current user (including the
  * current user's username).
  */
-export function useGetMe(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetMe(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetMeQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1030,33 +681,20 @@ export function getGetMeQueryKey() {
  */
 export function useGetMeAlbums(
   args: InferRequestType<typeof client.me.albums.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.albums.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeAlbumsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.albums.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.albums.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/albums
  */
-export function getGetMeAlbumsQueryKey(args?: InferRequestType<typeof client.me.albums.$get>) {
-  return ['/me/albums', ...(args ? [args] : [])] as const
+export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
+  return ['/me/albums', args] as const
 }
 
 /**
@@ -1066,28 +704,12 @@ export function getGetMeAlbumsQueryKey(args?: InferRequestType<typeof client.me.
  *
  * Save one or more albums to the current user's 'Your Music' library.
  */
-export function usePutMeAlbums(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.albums.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.albums.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMeAlbums(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.albums.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.albums.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.albums.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.albums.$put(args, clientOptions)) })
 }
 
 /**
@@ -1097,28 +719,12 @@ export function usePutMeAlbums(
  *
  * Remove one or more albums from the current user's 'Your Music' library.
  */
-export function useDeleteMeAlbums(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.albums.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.albums.$delete>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteMeAlbums(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.albums.$delete> | undefined,
     Error,
     InferRequestType<typeof client.me.albums.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.albums.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.albums.$delete(args, clientOptions)) })
 }
 
 /**
@@ -1130,35 +736,22 @@ export function useDeleteMeAlbums(
  */
 export function useGetMeAlbumsContains(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.albums.contains.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeAlbumsContainsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.albums.contains.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.albums.contains.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/albums/contains
  */
 export function getGetMeAlbumsContainsQueryKey(
-  args?: InferRequestType<typeof client.me.albums.contains.$get>,
+  args: InferRequestType<typeof client.me.albums.contains.$get>,
 ) {
-  return ['/me/albums/contains', ...(args ? [args] : [])] as const
+  return ['/me/albums/contains', args] as const
 }
 
 /**
@@ -1170,35 +763,22 @@ export function getGetMeAlbumsContainsQueryKey(
  */
 export function useGetMeAudiobooks(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.audiobooks.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeAudiobooksQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.audiobooks.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.audiobooks.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/audiobooks
  */
 export function getGetMeAudiobooksQueryKey(
-  args?: InferRequestType<typeof client.me.audiobooks.$get>,
+  args: InferRequestType<typeof client.me.audiobooks.$get>,
 ) {
-  return ['/me/audiobooks', ...(args ? [args] : [])] as const
+  return ['/me/audiobooks', args] as const
 }
 
 /**
@@ -1208,28 +788,12 @@ export function getGetMeAudiobooksQueryKey(
  *
  * Save one or more audiobooks to the current Spotify user's library.
  */
-export function usePutMeAudiobooks(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.audiobooks.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.audiobooks.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMeAudiobooks(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.audiobooks.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.audiobooks.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.audiobooks.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.audiobooks.$put(args, clientOptions)) })
 }
 
 /**
@@ -1239,29 +803,14 @@ export function usePutMeAudiobooks(
  *
  * Remove one or more audiobooks from the Spotify user's library.
  */
-export function useDeleteMeAudiobooks(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.audiobooks.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.audiobooks.$delete>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteMeAudiobooks(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.audiobooks.$delete> | undefined,
     Error,
     InferRequestType<typeof client.me.audiobooks.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.audiobooks.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.me.audiobooks.$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -1273,35 +822,22 @@ export function useDeleteMeAudiobooks(
  */
 export function useGetMeAudiobooksContains(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.audiobooks.contains.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeAudiobooksContainsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.audiobooks.contains.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.audiobooks.contains.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/audiobooks/contains
  */
 export function getGetMeAudiobooksContainsQueryKey(
-  args?: InferRequestType<typeof client.me.audiobooks.contains.$get>,
+  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
 ) {
-  return ['/me/audiobooks/contains', ...(args ? [args] : [])] as const
+  return ['/me/audiobooks/contains', args] as const
 }
 
 /**
@@ -1314,33 +850,20 @@ export function getGetMeAudiobooksContainsQueryKey(
  */
 export function useGetMeEpisodes(
   args: InferRequestType<typeof client.me.episodes.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.episodes.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeEpisodesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.episodes.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.episodes.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/episodes
  */
-export function getGetMeEpisodesQueryKey(args?: InferRequestType<typeof client.me.episodes.$get>) {
-  return ['/me/episodes', ...(args ? [args] : [])] as const
+export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
+  return ['/me/episodes', args] as const
 }
 
 /**
@@ -1351,28 +874,12 @@ export function getGetMeEpisodesQueryKey(args?: InferRequestType<typeof client.m
  * Save one or more episodes to the current user's library.<br/>
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
-export function usePutMeEpisodes(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.episodes.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.episodes.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMeEpisodes(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.episodes.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.episodes.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.episodes.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.episodes.$put(args, clientOptions)) })
 }
 
 /**
@@ -1383,28 +890,12 @@ export function usePutMeEpisodes(
  * Remove one or more episodes from the current user's library.<br/>
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
-export function useDeleteMeEpisodes(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.episodes.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.episodes.$delete>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteMeEpisodes(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.episodes.$delete> | undefined,
     Error,
     InferRequestType<typeof client.me.episodes.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.episodes.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.episodes.$delete(args, clientOptions)) })
 }
 
 /**
@@ -1417,35 +908,22 @@ export function useDeleteMeEpisodes(
  */
 export function useGetMeEpisodesContains(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.episodes.contains.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeEpisodesContainsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.episodes.contains.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.episodes.contains.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/episodes/contains
  */
 export function getGetMeEpisodesContainsQueryKey(
-  args?: InferRequestType<typeof client.me.episodes.contains.$get>,
+  args: InferRequestType<typeof client.me.episodes.contains.$get>,
 ) {
-  return ['/me/episodes/contains', ...(args ? [args] : [])] as const
+  return ['/me/episodes/contains', args] as const
 }
 
 /**
@@ -1457,35 +935,20 @@ export function getGetMeEpisodesContainsQueryKey(
  */
 export function useGetMeFollowing(
   args: InferRequestType<typeof client.me.following.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.following.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeFollowingQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.following.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.following.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/following
  */
-export function getGetMeFollowingQueryKey(
-  args?: InferRequestType<typeof client.me.following.$get>,
-) {
-  return ['/me/following', ...(args ? [args] : [])] as const
+export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
+  return ['/me/following', args] as const
 }
 
 /**
@@ -1495,28 +958,12 @@ export function getGetMeFollowingQueryKey(
  *
  * Add the current user as a follower of one or more artists or other Spotify users.
  */
-export function usePutMeFollowing(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.following.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.following.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMeFollowing(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.following.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.following.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.following.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.following.$put(args, clientOptions)) })
 }
 
 /**
@@ -1526,28 +973,12 @@ export function usePutMeFollowing(
  *
  * Remove the current user as a follower of one or more artists or other Spotify users.
  */
-export function useDeleteMeFollowing(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.following.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.following.$delete>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteMeFollowing(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.following.$delete> | undefined,
     Error,
     InferRequestType<typeof client.me.following.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.following.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.following.$delete(args, clientOptions)) })
 }
 
 /**
@@ -1559,35 +990,22 @@ export function useDeleteMeFollowing(
  */
 export function useGetMeFollowingContains(
   args: InferRequestType<typeof client.me.following.contains.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.following.contains.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeFollowingContainsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.following.contains.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.following.contains.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/following/contains
  */
 export function getGetMeFollowingContainsQueryKey(
-  args?: InferRequestType<typeof client.me.following.contains.$get>,
+  args: InferRequestType<typeof client.me.following.contains.$get>,
 ) {
-  return ['/me/following/contains', ...(args ? [args] : [])] as const
+  return ['/me/following/contains', args] as const
 }
 
 /**
@@ -1599,33 +1017,20 @@ export function getGetMeFollowingContainsQueryKey(
  */
 export function useGetMePlayer(
   args: InferRequestType<typeof client.me.player.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.player.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMePlayerQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.player.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.player.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/player
  */
-export function getGetMePlayerQueryKey(args?: InferRequestType<typeof client.me.player.$get>) {
-  return ['/me/player', ...(args ? [args] : [])] as const
+export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
+  return ['/me/player', args] as const
 }
 
 /**
@@ -1635,28 +1040,12 @@ export function getGetMePlayerQueryKey(args?: InferRequestType<typeof client.me.
  *
  * Transfer playback to a new device and determine if it should start playing.
  */
-export function usePutMePlayer(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.player.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMePlayer(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.player.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.player.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.player.$put(args, clientOptions)) })
 }
 
 /**
@@ -1668,39 +1057,23 @@ export function usePutMePlayer(
  */
 export function useGetMePlayerCurrentlyPlaying(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMePlayerCurrentlyPlayingQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.me.player['currently-playing'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.me.player['currently-playing'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/player/currently-playing
  */
 export function getGetMePlayerCurrentlyPlayingQueryKey(
-  args?: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
+  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
 ) {
-  return ['/me/player/currently-playing', ...(args ? [args] : [])] as const
+  return ['/me/player/currently-playing', args] as const
 }
 
 /**
@@ -1710,27 +1083,12 @@ export function getGetMePlayerCurrentlyPlayingQueryKey(
  *
  * Get information about a user’s available devices.
  */
-export function useGetMePlayerDevices(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.player.devices.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetMePlayerDevices(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetMePlayerDevicesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.player.devices.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.player.devices.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1747,28 +1105,12 @@ export function getGetMePlayerDevicesQueryKey() {
  *
  * Skips to next track in the user’s queue.
  */
-export function usePostMePlayerNext(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.player.next.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.next.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostMePlayerNext(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.player.next.$post> | undefined,
     Error,
     InferRequestType<typeof client.me.player.next.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.next.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.player.next.$post(args, clientOptions)) })
 }
 
 /**
@@ -1778,28 +1120,12 @@ export function usePostMePlayerNext(
  *
  * Pause playback on the user's account.
  */
-export function usePutMePlayerPause(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.player.pause.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.pause.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMePlayerPause(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.player.pause.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.player.pause.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.pause.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.player.pause.$put(args, clientOptions)) })
 }
 
 /**
@@ -1809,28 +1135,12 @@ export function usePutMePlayerPause(
  *
  * Start a new context or resume current playback on the user's active device.
  */
-export function usePutMePlayerPlay(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.player.play.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.play.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMePlayerPlay(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.player.play.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.player.play.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.play.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.player.play.$put(args, clientOptions)) })
 }
 
 /**
@@ -1840,29 +1150,14 @@ export function usePutMePlayerPlay(
  *
  * Skips to previous track in the user’s queue.
  */
-export function usePostMePlayerPrevious(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.player.previous.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.previous.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostMePlayerPrevious(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.player.previous.$post> | undefined,
     Error,
     InferRequestType<typeof client.me.player.previous.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.player.previous.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.me.player.previous.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1872,27 +1167,12 @@ export function usePostMePlayerPrevious(
  *
  * Get the list of objects that make up the user's queue.
  */
-export function useGetMePlayerQueue(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.player.queue.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetMePlayerQueue(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetMePlayerQueueQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.player.queue.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.player.queue.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1909,29 +1189,14 @@ export function getGetMePlayerQueueQueryKey() {
  *
  * Add an item to the end of the user's current playback queue.
  */
-export function usePostMePlayerQueue(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.player.queue.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.queue.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostMePlayerQueue(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.player.queue.$post> | undefined,
     Error,
     InferRequestType<typeof client.me.player.queue.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.player.queue.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.me.player.queue.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -1944,39 +1209,23 @@ export function usePostMePlayerQueue(
  */
 export function useGetMePlayerRecentlyPlayed(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMePlayerRecentlyPlayedQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.me.player['recently-played'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.me.player['recently-played'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/player/recently-played
  */
 export function getGetMePlayerRecentlyPlayedQueryKey(
-  args?: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
+  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
 ) {
-  return ['/me/player/recently-played', ...(args ? [args] : [])] as const
+  return ['/me/player/recently-played', args] as const
 }
 
 /**
@@ -1987,29 +1236,14 @@ export function getGetMePlayerRecentlyPlayedQueryKey(
  * Set the repeat mode for the user's playback. Options are repeat-track,
  * repeat-context, and off.
  */
-export function usePutMePlayerRepeat(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.player.repeat.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.repeat.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMePlayerRepeat(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.player.repeat.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.player.repeat.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.player.repeat.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.me.player.repeat.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -2019,28 +1253,12 @@ export function usePutMePlayerRepeat(
  *
  * Seeks to the given position in the user’s currently playing track.
  */
-export function usePutMePlayerSeek(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.player.seek.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.seek.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMePlayerSeek(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.player.seek.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.player.seek.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.seek.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.player.seek.$put(args, clientOptions)) })
 }
 
 /**
@@ -2050,29 +1268,14 @@ export function usePutMePlayerSeek(
  *
  * Toggle shuffle on or off for user’s playback.
  */
-export function usePutMePlayerShuffle(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.shuffle.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMePlayerShuffle(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.player.shuffle.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.player.shuffle.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.me.player.shuffle.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -2082,29 +1285,14 @@ export function usePutMePlayerShuffle(
  *
  * Set the volume for the user’s current playback device.
  */
-export function usePutMePlayerVolume(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.player.volume.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.volume.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMePlayerVolume(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.player.volume.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.player.volume.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.me.player.volume.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.me.player.volume.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -2117,35 +1305,20 @@ export function usePutMePlayerVolume(
  */
 export function useGetMePlaylists(
   args: InferRequestType<typeof client.me.playlists.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.playlists.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMePlaylistsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.playlists.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.playlists.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/playlists
  */
-export function getGetMePlaylistsQueryKey(
-  args?: InferRequestType<typeof client.me.playlists.$get>,
-) {
-  return ['/me/playlists', ...(args ? [args] : [])] as const
+export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
+  return ['/me/playlists', args] as const
 }
 
 /**
@@ -2157,33 +1330,20 @@ export function getGetMePlaylistsQueryKey(
  */
 export function useGetMeShows(
   args: InferRequestType<typeof client.me.shows.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.shows.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeShowsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.shows.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.shows.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/shows
  */
-export function getGetMeShowsQueryKey(args?: InferRequestType<typeof client.me.shows.$get>) {
-  return ['/me/shows', ...(args ? [args] : [])] as const
+export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
+  return ['/me/shows', args] as const
 }
 
 /**
@@ -2193,28 +1353,12 @@ export function getGetMeShowsQueryKey(args?: InferRequestType<typeof client.me.s
  *
  * Save one or more shows to current Spotify user's library.
  */
-export function usePutMeShows(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.shows.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.shows.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMeShows(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.shows.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.shows.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.shows.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.shows.$put(args, clientOptions)) })
 }
 
 /**
@@ -2224,28 +1368,12 @@ export function usePutMeShows(
  *
  * Delete one or more shows from current Spotify user's library.
  */
-export function useDeleteMeShows(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.shows.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.shows.$delete>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteMeShows(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.shows.$delete> | undefined,
     Error,
     InferRequestType<typeof client.me.shows.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.shows.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.shows.$delete(args, clientOptions)) })
 }
 
 /**
@@ -2257,35 +1385,22 @@ export function useDeleteMeShows(
  */
 export function useGetMeShowsContains(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.shows.contains.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeShowsContainsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.shows.contains.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.shows.contains.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/shows/contains
  */
 export function getGetMeShowsContainsQueryKey(
-  args?: InferRequestType<typeof client.me.shows.contains.$get>,
+  args: InferRequestType<typeof client.me.shows.contains.$get>,
 ) {
-  return ['/me/shows/contains', ...(args ? [args] : [])] as const
+  return ['/me/shows/contains', args] as const
 }
 
 /**
@@ -2297,35 +1412,22 @@ export function getGetMeShowsContainsQueryKey(
  */
 export function useGetMeTopType(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.me.top)[':type']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeTopTypeQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.top[':type'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.top[':type'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/top/{type}
  */
 export function getGetMeTopTypeQueryKey(
-  args?: InferRequestType<(typeof client.me.top)[':type']['$get']>,
+  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  return ['/me/top/:type', ...(args ? [args] : [])] as const
+  return ['/me/top/:type', args] as const
 }
 
 /**
@@ -2337,33 +1439,20 @@ export function getGetMeTopTypeQueryKey(
  */
 export function useGetMeTracks(
   args: InferRequestType<typeof client.me.tracks.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.tracks.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeTracksQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.tracks.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.tracks.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/tracks
  */
-export function getGetMeTracksQueryKey(args?: InferRequestType<typeof client.me.tracks.$get>) {
-  return ['/me/tracks', ...(args ? [args] : [])] as const
+export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
+  return ['/me/tracks', args] as const
 }
 
 /**
@@ -2373,28 +1462,12 @@ export function getGetMeTracksQueryKey(args?: InferRequestType<typeof client.me.
  *
  * Save one or more tracks to the current user's 'Your Music' library.
  */
-export function usePutMeTracks(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.tracks.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.tracks.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutMeTracks(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.tracks.$put> | undefined,
     Error,
     InferRequestType<typeof client.me.tracks.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.tracks.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.tracks.$put(args, clientOptions)) })
 }
 
 /**
@@ -2404,28 +1477,12 @@ export function usePutMeTracks(
  *
  * Remove one or more tracks from the current user's 'Your Music' library.
  */
-export function useDeleteMeTracks(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.me.tracks.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.tracks.$delete>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteMeTracks(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.me.tracks.$delete> | undefined,
     Error,
     InferRequestType<typeof client.me.tracks.$delete>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.tracks.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.me.tracks.$delete(args, clientOptions)) })
 }
 
 /**
@@ -2437,35 +1494,22 @@ export function useDeleteMeTracks(
  */
 export function useGetMeTracksContains(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.me.tracks.contains.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMeTracksContainsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.me.tracks.contains.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.me.tracks.contains.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /me/tracks/contains
  */
 export function getGetMeTracksContainsQueryKey(
-  args?: InferRequestType<typeof client.me.tracks.contains.$get>,
+  args: InferRequestType<typeof client.me.tracks.contains.$get>,
 ) {
-  return ['/me/tracks/contains', ...(args ? [args] : [])] as const
+  return ['/me/tracks/contains', args] as const
 }
 
 /**
@@ -2477,36 +1521,22 @@ export function getGetMeTracksContainsQueryKey(
  */
 export function useGetPlaylistsPlaylistId(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPlaylistsPlaylistIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.playlists[':playlist_id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.playlists[':playlist_id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /playlists/{playlist_id}
  */
 export function getGetPlaylistsPlaylistIdQueryKey(
-  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  return ['/playlists/:playlist_id', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id', args] as const
 }
 
 /**
@@ -2517,29 +1547,15 @@ export function getGetPlaylistsPlaylistIdQueryKey(
  * Change a playlist's name and public/private state. (The user must, of
  * course, own the playlist.)
  */
-export function usePutPlaylistsPlaylistId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutPlaylistsPlaylistId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.playlists)[':playlist_id']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.playlists[':playlist_id'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -2549,29 +1565,15 @@ export function usePutPlaylistsPlaylistId(
  *
  * Add the current user as a follower of a playlist.
  */
-export function usePutPlaylistsPlaylistIdFollowers(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutPlaylistsPlaylistIdFollowers(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].followers.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.playlists[':playlist_id'].followers.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -2581,31 +1583,16 @@ export function usePutPlaylistsPlaylistIdFollowers(
  *
  * Remove the current user as a follower of a playlist.
  */
-export function useDeletePlaylistsPlaylistIdFollowers(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeletePlaylistsPlaylistIdFollowers(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
     | undefined,
     Error,
     InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].followers.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.playlists[':playlist_id'].followers.$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -2619,45 +1606,25 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
   args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
-          (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
-        >,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.playlists[':playlist_id'].followers.contains.$get(args, clientOptions),
-        ),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.playlists[':playlist_id'].followers.contains.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /playlists/{playlist_id}/followers/contains
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
 ) {
-  return ['/playlists/:playlist_id/followers/contains', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id/followers/contains', args] as const
 }
 
 /**
@@ -2669,39 +1636,23 @@ export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
  */
 export function useGetPlaylistsPlaylistIdImages(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPlaylistsPlaylistIdImagesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.playlists[':playlist_id'].images.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.playlists[':playlist_id'].images.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /playlists/{playlist_id}/images
  */
 export function getGetPlaylistsPlaylistIdImagesQueryKey(
-  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  return ['/playlists/:playlist_id/images', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id/images', args] as const
 }
 
 /**
@@ -2711,29 +1662,15 @@ export function getGetPlaylistsPlaylistIdImagesQueryKey(
  *
  * Replace the image used to represent a specific playlist.
  */
-export function usePutPlaylistsPlaylistIdImages(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutPlaylistsPlaylistIdImages(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].images.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.playlists[':playlist_id'].images.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -2745,39 +1682,23 @@ export function usePutPlaylistsPlaylistIdImages(
  */
 export function useGetPlaylistsPlaylistIdTracks(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPlaylistsPlaylistIdTracksQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.playlists[':playlist_id'].tracks.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /playlists/{playlist_id}/tracks
  */
 export function getGetPlaylistsPlaylistIdTracksQueryKey(
-  args?: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
 ) {
-  return ['/playlists/:playlist_id/tracks', ...(args ? [args] : [])] as const
+  return ['/playlists/:playlist_id/tracks', args] as const
 }
 
 /**
@@ -2793,29 +1714,15 @@ export function getGetPlaylistsPlaylistIdTracksQueryKey(
  * **Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters.
  * These operations can't be applied together in a single request.
  */
-export function usePutPlaylistsPlaylistIdTracks(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutPlaylistsPlaylistIdTracks(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.playlists[':playlist_id'].tracks.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -2825,29 +1732,15 @@ export function usePutPlaylistsPlaylistIdTracks(
  *
  * Add one or more items to a user's playlist.
  */
-export function usePostPlaylistsPlaylistIdTracks(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostPlaylistsPlaylistIdTracks(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.playlists[':playlist_id'].tracks.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -2857,29 +1750,15 @@ export function usePostPlaylistsPlaylistIdTracks(
  *
  * Remove one or more items from a user's playlist.
  */
-export function useDeletePlaylistsPlaylistIdTracks(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeletePlaylistsPlaylistIdTracks(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -2893,35 +1772,22 @@ export function useDeletePlaylistsPlaylistIdTracks(
  */
 export function useGetRecommendations(
   args: InferRequestType<typeof client.recommendations.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.recommendations.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetRecommendationsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.recommendations.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.recommendations.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /recommendations
  */
 export function getGetRecommendationsQueryKey(
-  args?: InferRequestType<typeof client.recommendations.$get>,
+  args: InferRequestType<typeof client.recommendations.$get>,
 ) {
-  return ['/recommendations', ...(args ? [args] : [])] as const
+  return ['/recommendations', args] as const
 }
 
 /**
@@ -2931,33 +1797,13 @@ export function getGetRecommendationsQueryKey(
  *
  * Retrieve a list of available genres seed parameter values for [recommendations](/documentation/web-api/reference/get-recommendations).
  */
-export function useGetRecommendationsAvailableGenreSeeds(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetRecommendationsAvailableGenreSeeds(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetRecommendationsAvailableGenreSeedsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.recommendations['available-genre-seeds'].$get(undefined, clientOptions),
-        ),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.recommendations['available-genre-seeds'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -2978,33 +1824,20 @@ export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
  */
 export function useGetSearch(
   args: InferRequestType<typeof client.search.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.search.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetSearchQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /search
  */
-export function getGetSearchQueryKey(args?: InferRequestType<typeof client.search.$get>) {
-  return ['/search', ...(args ? [args] : [])] as const
+export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
+  return ['/search', args] as const
 }
 
 /**
@@ -3016,33 +1849,20 @@ export function getGetSearchQueryKey(args?: InferRequestType<typeof client.searc
  */
 export function useGetShows(
   args: InferRequestType<typeof client.shows.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.shows.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetShowsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.shows.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.shows.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /shows
  */
-export function getGetShowsQueryKey(args?: InferRequestType<typeof client.shows.$get>) {
-  return ['/shows', ...(args ? [args] : [])] as const
+export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
+  return ['/shows', args] as const
 }
 
 /**
@@ -3055,35 +1875,22 @@ export function getGetShowsQueryKey(args?: InferRequestType<typeof client.shows.
  */
 export function useGetShowsId(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.shows)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetShowsIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.shows[':id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.shows[':id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /shows/{id}
  */
 export function getGetShowsIdQueryKey(
-  args?: InferRequestType<(typeof client.shows)[':id']['$get']>,
+  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
 ) {
-  return ['/shows/:id', ...(args ? [args] : [])] as const
+  return ['/shows/:id', args] as const
 }
 
 /**
@@ -3095,35 +1902,22 @@ export function getGetShowsIdQueryKey(
  */
 export function useGetShowsIdEpisodes(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetShowsIdEpisodesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.shows[':id'].episodes.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.shows[':id'].episodes.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /shows/{id}/episodes
  */
 export function getGetShowsIdEpisodesQueryKey(
-  args?: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
+  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  return ['/shows/:id/episodes', ...(args ? [args] : [])] as const
+  return ['/shows/:id/episodes', args] as const
 }
 
 /**
@@ -3135,33 +1929,20 @@ export function getGetShowsIdEpisodesQueryKey(
  */
 export function useGetTracks(
   args: InferRequestType<typeof client.tracks.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.tracks.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetTracksQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.tracks.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.tracks.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /tracks
  */
-export function getGetTracksQueryKey(args?: InferRequestType<typeof client.tracks.$get>) {
-  return ['/tracks', ...(args ? [args] : [])] as const
+export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
+  return ['/tracks', args] as const
 }
 
 /**
@@ -3174,35 +1955,22 @@ export function getGetTracksQueryKey(args?: InferRequestType<typeof client.track
  */
 export function useGetTracksId(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.tracks)[':id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetTracksIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.tracks[':id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.tracks[':id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /tracks/{id}
  */
 export function getGetTracksIdQueryKey(
-  args?: InferRequestType<(typeof client.tracks)[':id']['$get']>,
+  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
 ) {
-  return ['/tracks/:id', ...(args ? [args] : [])] as const
+  return ['/tracks/:id', args] as const
 }
 
 /**
@@ -3214,35 +1982,22 @@ export function getGetTracksIdQueryKey(
  */
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.users)[':user_id']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetUsersUserIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /users/{user_id}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['/users/:user_id', ...(args ? [args] : [])] as const
+  return ['/users/:user_id', args] as const
 }
 
 /**
@@ -3254,39 +2009,23 @@ export function getGetUsersUserIdQueryKey(
  */
 export function useGetUsersUserIdPlaylists(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetUsersUserIdPlaylistsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.users[':user_id'].playlists.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.users[':user_id'].playlists.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /users/{user_id}/playlists
  */
 export function getGetUsersUserIdPlaylistsQueryKey(
-  args?: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
+  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  return ['/users/:user_id/playlists', ...(args ? [args] : [])] as const
+  return ['/users/:user_id/playlists', args] as const
 }
 
 /**
@@ -3297,27 +2036,13 @@ export function getGetUsersUserIdPlaylistsQueryKey(
  * Create a playlist for a Spotify user. (The playlist will be empty until
  * you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).)
  */
-export function usePostUsersUserIdPlaylists(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostUsersUserIdPlaylists(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.users[':user_id'].playlists.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.users[':user_id'].playlists.$post(args, clientOptions)),
+  })
 }

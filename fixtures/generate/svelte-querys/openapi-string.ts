@@ -1,6 +1,6 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-string'
 
@@ -13,7 +13,12 @@ import { client } from '../clients/openapi-string'
  */
 export function createGetString(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.string.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.string.$get>,
+      Error,
+      InferResponseType<typeof client.string.$get>,
+      readonly ['/string']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

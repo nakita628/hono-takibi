@@ -1,6 +1,5 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-schema-reference'
 
@@ -9,27 +8,12 @@ import { client } from '../clients/complex-schema-reference'
  *
  * Test endpoint for comprehensive schema references
  */
-export function useGetTest(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.test.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetTest(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetTestQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.test.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.test.$get(undefined, clientOptions)),
+  })
 }
 
 /**

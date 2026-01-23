@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
@@ -14,9 +14,11 @@ import { client } from '../clients/algolia'
 export function useGetPath(
   args: InferRequestType<(typeof client)[':path']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)[':path']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)[':path']['$get']>,
+      Error,
+      InferResponseType<(typeof client)[':path']['$get']>,
+      readonly ['/:path', InferRequestType<(typeof client)[':path']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -26,9 +28,9 @@ export function useGetPath(
   const queryKey = getGetPathQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client[':path'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -38,8 +40,8 @@ export function useGetPath(
 /**
  * Generates TanStack Query cache key for GET /{path}
  */
-export function getGetPathQueryKey(args?: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['/:path', ...(args ? [args] : [])] as const
+export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
+  return ['/:path', args] as const
 }
 
 /**
@@ -407,12 +409,14 @@ export function useDelete1IndexesIndexName(
 export function useGet1IndexesIndexNameObjectID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+      readonly [
+        '/1/indexes/:indexName/:objectID',
+        InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -422,10 +426,10 @@ export function useGet1IndexesIndexNameObjectID(
   const queryKey = getGet1IndexesIndexNameObjectIDQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['1'].indexes[':indexName'][':objectID'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -436,9 +440,9 @@ export function useGet1IndexesIndexNameObjectID(
  * Generates TanStack Query cache key for GET /1/indexes/{indexName}/{objectID}
  */
 export function getGet1IndexesIndexNameObjectIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/:objectID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/:objectID', args] as const
 }
 
 /**
@@ -783,12 +787,14 @@ export function usePost1IndexesObjects(
 export function useGet1IndexesIndexNameSettings(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+      readonly [
+        '/1/indexes/:indexName/settings',
+        InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -798,10 +804,10 @@ export function useGet1IndexesIndexNameSettings(
   const queryKey = getGet1IndexesIndexNameSettingsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['1'].indexes[':indexName'].settings.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -812,9 +818,9 @@ export function useGet1IndexesIndexNameSettings(
  * Generates TanStack Query cache key for GET /1/indexes/{indexName}/settings
  */
 export function getGet1IndexesIndexNameSettingsQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/settings', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/settings', args] as const
 }
 
 /**
@@ -870,14 +876,20 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+      >,
+      readonly [
+        '/1/indexes/:indexName/synonyms/:objectID',
+        InferRequestType<
           (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -887,12 +899,12 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
   const queryKey = getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -903,11 +915,11 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
  * Generates TanStack Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
  */
 export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
 ) {
-  return ['/1/indexes/:indexName/synonyms/:objectID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
 }
 
 /**
@@ -1127,9 +1139,11 @@ export function usePost1IndexesIndexNameSynonymsSearch(
  */
 export function useGet1Keys(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['keys']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['keys']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['keys']['$get']>,
+      readonly ['/1/keys']
     >
     client?: ClientRequestOptions
   },
@@ -1139,9 +1153,9 @@ export function useGet1Keys(
   const queryKey = getGet1KeysQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['1'].keys.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1200,9 +1214,11 @@ export function usePost1Keys(
 export function useGet1KeysKey(
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['keys'][':key']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['keys'][':key']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['keys'][':key']['$get']>,
+      readonly ['/1/keys/:key', InferRequestType<(typeof client)['1']['keys'][':key']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -1212,9 +1228,9 @@ export function useGet1KeysKey(
   const queryKey = getGet1KeysKeyQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['1'].keys[':key'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1225,9 +1241,9 @@ export function useGet1KeysKey(
  * Generates TanStack Query cache key for GET /1/keys/{key}
  */
 export function getGet1KeysKeyQueryKey(
-  args?: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
 ) {
-  return ['/1/keys/:key', ...(args ? [args] : [])] as const
+  return ['/1/keys/:key', args] as const
 }
 
 /**
@@ -1346,14 +1362,20 @@ export function useGet1IndexesIndexNameRulesObjectID(
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+      >,
+      readonly [
+        '/1/indexes/:indexName/rules/:objectID',
+        InferRequestType<
           (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1363,12 +1385,12 @@ export function useGet1IndexesIndexNameRulesObjectID(
   const queryKey = getGet1IndexesIndexNameRulesObjectIDQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client['1'].indexes[':indexName'].rules[':objectID'].$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1379,11 +1401,11 @@ export function useGet1IndexesIndexNameRulesObjectID(
  * Generates TanStack Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
  */
 export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
 ) {
-  return ['/1/indexes/:indexName/rules/:objectID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/rules/:objectID', args] as const
 }
 
 /**
@@ -1661,12 +1683,11 @@ export function usePost1DictionariesDictionaryNameSearch(
  */
 export function useGet1DictionariesSettings(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
+      readonly ['/1/dictionaries/*/settings']
     >
     client?: ClientRequestOptions
   },
@@ -1676,10 +1697,10 @@ export function useGet1DictionariesSettings(
   const queryKey = getGet1DictionariesSettingsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['1'].dictionaries['*'].settings.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1734,12 +1755,11 @@ export function usePut1DictionariesSettings(
  */
 export function useGet1DictionariesLanguages(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
+      readonly ['/1/dictionaries/*/languages']
     >
     client?: ClientRequestOptions
   },
@@ -1749,10 +1769,10 @@ export function useGet1DictionariesLanguages(
   const queryKey = getGet1DictionariesLanguagesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['1'].dictionaries['*'].languages.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1779,12 +1799,14 @@ export function getGet1DictionariesLanguagesQueryKey() {
 export function useGet1ClustersMapping(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
+      readonly [
+        '/1/clusters/mapping',
+        InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1794,9 +1816,9 @@ export function useGet1ClustersMapping(
   const queryKey = getGet1ClustersMappingQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['1'].clusters.mapping.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1807,9 +1829,9 @@ export function useGet1ClustersMapping(
  * Generates TanStack Query cache key for GET /1/clusters/mapping
  */
 export function getGet1ClustersMappingQueryKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
 ) {
-  return ['/1/clusters/mapping', ...(args ? [args] : [])] as const
+  return ['/1/clusters/mapping', args] as const
 }
 
 /**
@@ -1892,12 +1914,11 @@ export function usePost1ClustersMappingBatch(
  */
 export function useGet1ClustersMappingTop(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
+      readonly ['/1/clusters/mapping/top']
     >
     client?: ClientRequestOptions
   },
@@ -1907,10 +1928,10 @@ export function useGet1ClustersMappingTop(
   const queryKey = getGet1ClustersMappingTopQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['1'].clusters.mapping.top.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1937,12 +1958,14 @@ export function getGet1ClustersMappingTopQueryKey() {
 export function useGet1ClustersMappingUserID(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+      readonly [
+        '/1/clusters/mapping/:userID',
+        InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1952,10 +1975,10 @@ export function useGet1ClustersMappingUserID(
   const queryKey = getGet1ClustersMappingUserIDQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['1'].clusters.mapping[':userID'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1966,9 +1989,9 @@ export function useGet1ClustersMappingUserID(
  * Generates TanStack Query cache key for GET /1/clusters/mapping/{userID}
  */
 export function getGet1ClustersMappingUserIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
 ) {
-  return ['/1/clusters/mapping/:userID', ...(args ? [args] : [])] as const
+  return ['/1/clusters/mapping/:userID', args] as const
 }
 
 /**
@@ -2014,9 +2037,11 @@ export function useDelete1ClustersMappingUserID(
  */
 export function useGet1Clusters(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['clusters']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['clusters']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['clusters']['$get']>,
+      readonly ['/1/clusters']
     >
     client?: ClientRequestOptions
   },
@@ -2026,9 +2051,9 @@ export function useGet1Clusters(
   const queryKey = getGet1ClustersQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['1'].clusters.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2087,12 +2112,14 @@ export function usePost1ClustersMappingSearch(
 export function useGet1ClustersMappingPending(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+      readonly [
+        '/1/clusters/mapping/pending',
+        InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2102,10 +2129,10 @@ export function useGet1ClustersMappingPending(
   const queryKey = getGet1ClustersMappingPendingQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['1'].clusters.mapping.pending.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2116,9 +2143,9 @@ export function useGet1ClustersMappingPending(
  * Generates TanStack Query cache key for GET /1/clusters/mapping/pending
  */
 export function getGet1ClustersMappingPendingQueryKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
 ) {
-  return ['/1/clusters/mapping/pending', ...(args ? [args] : [])] as const
+  return ['/1/clusters/mapping/pending', args] as const
 }
 
 /**
@@ -2130,12 +2157,11 @@ export function getGet1ClustersMappingPendingQueryKey(
  */
 export function useGet1SecuritySources(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
+      readonly ['/1/security/sources']
     >
     client?: ClientRequestOptions
   },
@@ -2145,10 +2171,10 @@ export function useGet1SecuritySources(
   const queryKey = getGet1SecuritySourcesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['1'].security.sources.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2274,9 +2300,11 @@ export function useDelete1SecuritySourcesSource(
 export function useGet1Logs(
   args: InferRequestType<(typeof client)['1']['logs']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['logs']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['logs']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['logs']['$get']>,
+      readonly ['/1/logs', InferRequestType<(typeof client)['1']['logs']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -2286,9 +2314,9 @@ export function useGet1Logs(
   const queryKey = getGet1LogsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['1'].logs.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2298,8 +2326,8 @@ export function useGet1Logs(
 /**
  * Generates TanStack Query cache key for GET /1/logs
  */
-export function getGet1LogsQueryKey(args?: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['/1/logs', ...(args ? [args] : [])] as const
+export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
+  return ['/1/logs', args] as const
 }
 
 /**
@@ -2312,9 +2340,14 @@ export function getGet1LogsQueryKey(args?: InferRequestType<(typeof client)['1']
 export function useGet1TaskTaskID(
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>,
+      readonly [
+        '/1/task/:taskID',
+        InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2324,9 +2357,9 @@ export function useGet1TaskTaskID(
   const queryKey = getGet1TaskTaskIDQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['1'].task[':taskID'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2337,9 +2370,9 @@ export function useGet1TaskTaskID(
  * Generates TanStack Query cache key for GET /1/task/{taskID}
  */
 export function getGet1TaskTaskIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/task/:taskID', ...(args ? [args] : [])] as const
+  return ['/1/task/:taskID', args] as const
 }
 
 /**
@@ -2358,12 +2391,14 @@ export function getGet1TaskTaskIDQueryKey(
 export function useGet1IndexesIndexNameTaskTaskID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+      readonly [
+        '/1/indexes/:indexName/task/:taskID',
+        InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2373,10 +2408,10 @@ export function useGet1IndexesIndexNameTaskTaskID(
   const queryKey = getGet1IndexesIndexNameTaskTaskIDQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['1'].indexes[':indexName'].task[':taskID'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2387,9 +2422,9 @@ export function useGet1IndexesIndexNameTaskTaskID(
  * Generates TanStack Query cache key for GET /1/indexes/{indexName}/task/{taskID}
  */
 export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/task/:taskID', ...(args ? [args] : [])] as const
+  return ['/1/indexes/:indexName/task/:taskID', args] as const
 }
 
 /**
@@ -2461,9 +2496,11 @@ export function usePost1IndexesIndexNameOperation(
 export function useGet1Indexes(
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['1']['indexes']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['1']['indexes']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['1']['indexes']['$get']>,
+      readonly ['/1/indexes', InferRequestType<(typeof client)['1']['indexes']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -2473,9 +2510,9 @@ export function useGet1Indexes(
   const queryKey = getGet1IndexesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['1'].indexes.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2486,9 +2523,9 @@ export function useGet1Indexes(
  * Generates TanStack Query cache key for GET /1/indexes
  */
 export function getGet1IndexesQueryKey(
-  args?: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
 ) {
-  return ['/1/indexes', ...(args ? [args] : [])] as const
+  return ['/1/indexes', args] as const
 }
 
 /**
@@ -2501,9 +2538,11 @@ export function getGet1IndexesQueryKey(
 export function useGetWaitForApiKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.waitForApiKey.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.waitForApiKey.$get>,
+      Error,
+      InferResponseType<typeof client.waitForApiKey.$get>,
+      readonly ['/waitForApiKey', InferRequestType<typeof client.waitForApiKey.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2513,9 +2552,9 @@ export function useGetWaitForApiKey(
   const queryKey = getGetWaitForApiKeyQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.waitForApiKey.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2526,9 +2565,9 @@ export function useGetWaitForApiKey(
  * Generates TanStack Query cache key for GET /waitForApiKey
  */
 export function getGetWaitForApiKeyQueryKey(
-  args?: InferRequestType<typeof client.waitForApiKey.$get>,
+  args: InferRequestType<typeof client.waitForApiKey.$get>,
 ) {
-  return ['/waitForApiKey', ...(args ? [args] : [])] as const
+  return ['/waitForApiKey', args] as const
 }
 
 /**
@@ -2543,9 +2582,11 @@ export function getGetWaitForApiKeyQueryKey(
 export function useGetWaitForTask(
   args: InferRequestType<typeof client.waitForTask.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.waitForTask.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.waitForTask.$get>,
+      Error,
+      InferResponseType<typeof client.waitForTask.$get>,
+      readonly ['/waitForTask', InferRequestType<typeof client.waitForTask.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2555,9 +2596,9 @@ export function useGetWaitForTask(
   const queryKey = getGetWaitForTaskQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.waitForTask.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2567,8 +2608,8 @@ export function useGetWaitForTask(
 /**
  * Generates TanStack Query cache key for GET /waitForTask
  */
-export function getGetWaitForTaskQueryKey(args?: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['/waitForTask', ...(args ? [args] : [])] as const
+export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
+  return ['/waitForTask', args] as const
 }
 
 /**
@@ -2581,9 +2622,11 @@ export function getGetWaitForTaskQueryKey(args?: InferRequestType<typeof client.
 export function useGetWaitForAppTask(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.waitForAppTask.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.waitForAppTask.$get>,
+      Error,
+      InferResponseType<typeof client.waitForAppTask.$get>,
+      readonly ['/waitForAppTask', InferRequestType<typeof client.waitForAppTask.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2593,9 +2636,9 @@ export function useGetWaitForAppTask(
   const queryKey = getGetWaitForAppTaskQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.waitForAppTask.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2606,9 +2649,9 @@ export function useGetWaitForAppTask(
  * Generates TanStack Query cache key for GET /waitForAppTask
  */
 export function getGetWaitForAppTaskQueryKey(
-  args?: InferRequestType<typeof client.waitForAppTask.$get>,
+  args: InferRequestType<typeof client.waitForAppTask.$get>,
 ) {
-  return ['/waitForAppTask', ...(args ? [args] : [])] as const
+  return ['/waitForAppTask', args] as const
 }
 
 /**
@@ -2625,9 +2668,11 @@ export function getGetWaitForAppTaskQueryKey(
 export function useGetBrowseObjects(
   args: InferRequestType<typeof client.browseObjects.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.browseObjects.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.browseObjects.$get>,
+      Error,
+      InferResponseType<typeof client.browseObjects.$get>,
+      readonly ['/browseObjects', InferRequestType<typeof client.browseObjects.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2637,9 +2682,9 @@ export function useGetBrowseObjects(
   const queryKey = getGetBrowseObjectsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.browseObjects.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2650,9 +2695,9 @@ export function useGetBrowseObjects(
  * Generates TanStack Query cache key for GET /browseObjects
  */
 export function getGetBrowseObjectsQueryKey(
-  args?: InferRequestType<typeof client.browseObjects.$get>,
+  args: InferRequestType<typeof client.browseObjects.$get>,
 ) {
-  return ['/browseObjects', ...(args ? [args] : [])] as const
+  return ['/browseObjects', args] as const
 }
 
 /**
@@ -2677,9 +2722,14 @@ export function getGetBrowseObjectsQueryKey(
 export function useGetGenerateSecuredApiKey(
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.generateSecuredApiKey.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.generateSecuredApiKey.$get>,
+      Error,
+      InferResponseType<typeof client.generateSecuredApiKey.$get>,
+      readonly [
+        '/generateSecuredApiKey',
+        InferRequestType<typeof client.generateSecuredApiKey.$get>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2689,9 +2739,9 @@ export function useGetGenerateSecuredApiKey(
   const queryKey = getGetGenerateSecuredApiKeyQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.generateSecuredApiKey.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2702,9 +2752,9 @@ export function useGetGenerateSecuredApiKey(
  * Generates TanStack Query cache key for GET /generateSecuredApiKey
  */
 export function getGetGenerateSecuredApiKeyQueryKey(
-  args?: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  return ['/generateSecuredApiKey', ...(args ? [args] : [])] as const
+  return ['/generateSecuredApiKey', args] as const
 }
 
 /**
@@ -2717,9 +2767,11 @@ export function getGetGenerateSecuredApiKeyQueryKey(
 export function useGetAccountCopyIndex(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.accountCopyIndex.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.accountCopyIndex.$get>,
+      Error,
+      InferResponseType<typeof client.accountCopyIndex.$get>,
+      readonly ['/accountCopyIndex', InferRequestType<typeof client.accountCopyIndex.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2729,9 +2781,9 @@ export function useGetAccountCopyIndex(
   const queryKey = getGetAccountCopyIndexQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.accountCopyIndex.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2742,9 +2794,9 @@ export function useGetAccountCopyIndex(
  * Generates TanStack Query cache key for GET /accountCopyIndex
  */
 export function getGetAccountCopyIndexQueryKey(
-  args?: InferRequestType<typeof client.accountCopyIndex.$get>,
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return ['/accountCopyIndex', ...(args ? [args] : [])] as const
+  return ['/accountCopyIndex', args] as const
 }
 
 /**
@@ -2772,9 +2824,11 @@ export function getGetAccountCopyIndexQueryKey(
 export function useGetReplaceAllObjects(
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.replaceAllObjects.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.replaceAllObjects.$get>,
+      Error,
+      InferResponseType<typeof client.replaceAllObjects.$get>,
+      readonly ['/replaceAllObjects', InferRequestType<typeof client.replaceAllObjects.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2784,9 +2838,9 @@ export function useGetReplaceAllObjects(
   const queryKey = getGetReplaceAllObjectsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.replaceAllObjects.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2797,9 +2851,9 @@ export function useGetReplaceAllObjects(
  * Generates TanStack Query cache key for GET /replaceAllObjects
  */
 export function getGetReplaceAllObjectsQueryKey(
-  args?: InferRequestType<typeof client.replaceAllObjects.$get>,
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return ['/replaceAllObjects', ...(args ? [args] : [])] as const
+  return ['/replaceAllObjects', args] as const
 }
 
 /**
@@ -2824,12 +2878,14 @@ export function getGetReplaceAllObjectsQueryKey(
 export function useGetReplaceAllObjectsWithTransformation(
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
+      Error,
+      InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
+      readonly [
+        '/replaceAllObjectsWithTransformation',
+        InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2839,10 +2895,10 @@ export function useGetReplaceAllObjectsWithTransformation(
   const queryKey = getGetReplaceAllObjectsWithTransformationQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.replaceAllObjectsWithTransformation.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2853,9 +2909,9 @@ export function useGetReplaceAllObjectsWithTransformation(
  * Generates TanStack Query cache key for GET /replaceAllObjectsWithTransformation
  */
 export function getGetReplaceAllObjectsWithTransformationQueryKey(
-  args?: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  return ['/replaceAllObjectsWithTransformation', ...(args ? [args] : [])] as const
+  return ['/replaceAllObjectsWithTransformation', args] as const
 }
 
 /**
@@ -2868,9 +2924,11 @@ export function getGetReplaceAllObjectsWithTransformationQueryKey(
 export function useGetChunkedBatch(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.chunkedBatch.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.chunkedBatch.$get>,
+      Error,
+      InferResponseType<typeof client.chunkedBatch.$get>,
+      readonly ['/chunkedBatch', InferRequestType<typeof client.chunkedBatch.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2880,9 +2938,9 @@ export function useGetChunkedBatch(
   const queryKey = getGetChunkedBatchQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.chunkedBatch.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2893,9 +2951,9 @@ export function useGetChunkedBatch(
  * Generates TanStack Query cache key for GET /chunkedBatch
  */
 export function getGetChunkedBatchQueryKey(
-  args?: InferRequestType<typeof client.chunkedBatch.$get>,
+  args: InferRequestType<typeof client.chunkedBatch.$get>,
 ) {
-  return ['/chunkedBatch', ...(args ? [args] : [])] as const
+  return ['/chunkedBatch', args] as const
 }
 
 /**
@@ -2908,9 +2966,11 @@ export function getGetChunkedBatchQueryKey(
 export function useGetSaveObjects(
   args: InferRequestType<typeof client.saveObjects.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.saveObjects.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.saveObjects.$get>,
+      Error,
+      InferResponseType<typeof client.saveObjects.$get>,
+      readonly ['/saveObjects', InferRequestType<typeof client.saveObjects.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -2920,9 +2980,9 @@ export function useGetSaveObjects(
   const queryKey = getGetSaveObjectsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.saveObjects.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2932,8 +2992,8 @@ export function useGetSaveObjects(
 /**
  * Generates TanStack Query cache key for GET /saveObjects
  */
-export function getGetSaveObjectsQueryKey(args?: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['/saveObjects', ...(args ? [args] : [])] as const
+export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
+  return ['/saveObjects', args] as const
 }
 
 /**
@@ -2946,9 +3006,14 @@ export function getGetSaveObjectsQueryKey(args?: InferRequestType<typeof client.
 export function useGetSaveObjectsWithTransformation(
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.saveObjectsWithTransformation.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.saveObjectsWithTransformation.$get>,
+      Error,
+      InferResponseType<typeof client.saveObjectsWithTransformation.$get>,
+      readonly [
+        '/saveObjectsWithTransformation',
+        InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2958,10 +3023,10 @@ export function useGetSaveObjectsWithTransformation(
   const queryKey = getGetSaveObjectsWithTransformationQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.saveObjectsWithTransformation.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2972,9 +3037,9 @@ export function useGetSaveObjectsWithTransformation(
  * Generates TanStack Query cache key for GET /saveObjectsWithTransformation
  */
 export function getGetSaveObjectsWithTransformationQueryKey(
-  args?: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
 ) {
-  return ['/saveObjectsWithTransformation', ...(args ? [args] : [])] as const
+  return ['/saveObjectsWithTransformation', args] as const
 }
 
 /**
@@ -3082,9 +3147,11 @@ export function usePostPartialUpdateObjectsWithTransformation(
 export function useGetIndexExists(
   args: InferRequestType<typeof client.indexExists.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.indexExists.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.indexExists.$get>,
+      Error,
+      InferResponseType<typeof client.indexExists.$get>,
+      readonly ['/indexExists', InferRequestType<typeof client.indexExists.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -3094,9 +3161,9 @@ export function useGetIndexExists(
   const queryKey = getGetIndexExistsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.indexExists.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3106,8 +3173,8 @@ export function useGetIndexExists(
 /**
  * Generates TanStack Query cache key for GET /indexExists
  */
-export function getGetIndexExistsQueryKey(args?: InferRequestType<typeof client.indexExists.$get>) {
-  return ['/indexExists', ...(args ? [args] : [])] as const
+export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
+  return ['/indexExists', args] as const
 }
 
 /**
@@ -3120,9 +3187,11 @@ export function getGetIndexExistsQueryKey(args?: InferRequestType<typeof client.
 export function useGetSetClientApiKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.setClientApiKey.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.setClientApiKey.$get>,
+      Error,
+      InferResponseType<typeof client.setClientApiKey.$get>,
+      readonly ['/setClientApiKey', InferRequestType<typeof client.setClientApiKey.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -3132,9 +3201,9 @@ export function useGetSetClientApiKey(
   const queryKey = getGetSetClientApiKeyQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.setClientApiKey.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3145,7 +3214,7 @@ export function useGetSetClientApiKey(
  * Generates TanStack Query cache key for GET /setClientApiKey
  */
 export function getGetSetClientApiKeyQueryKey(
-  args?: InferRequestType<typeof client.setClientApiKey.$get>,
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
 ) {
-  return ['/setClientApiKey', ...(args ? [args] : [])] as const
+  return ['/setClientApiKey', args] as const
 }

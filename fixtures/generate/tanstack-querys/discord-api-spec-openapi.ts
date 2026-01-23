@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/discord-api-spec-openapi'
 
@@ -9,9 +9,11 @@ import { client } from '../clients/discord-api-spec-openapi'
  */
 export function useGetApplicationsMe(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.applications)['@me']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.applications)['@me']['$get']>,
+      Error,
+      InferResponseType<(typeof client.applications)['@me']['$get']>,
+      readonly ['/applications/@me']
     >
     client?: ClientRequestOptions
   },
@@ -21,9 +23,9 @@ export function useGetApplicationsMe(
   const queryKey = getGetApplicationsMeQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.applications['@me'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -71,12 +73,14 @@ export function usePatchApplicationsMe(
 export function useGetApplicationsApplicationId(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.applications)[':application_id']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.applications)[':application_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.applications)[':application_id']['$get']>,
+      readonly [
+        '/applications/:application_id',
+        InferRequestType<(typeof client.applications)[':application_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -86,10 +90,10 @@ export function useGetApplicationsApplicationId(
   const queryKey = getGetApplicationsApplicationIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.applications[':application_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -100,9 +104,9 @@ export function useGetApplicationsApplicationId(
  * Generates TanStack Query cache key for GET /applications/{application_id}
  */
 export function getGetApplicationsApplicationIdQueryKey(
-  args?: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
+  args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
 ) {
-  return ['/applications/:application_id', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id', args] as const
 }
 
 /**
@@ -141,14 +145,20 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
     (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/activity-instances/:instance_id',
+        InferRequestType<
           (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -158,6 +168,7 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
   const queryKey = getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -166,7 +177,6 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -177,14 +187,11 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
  * Generates TanStack Query cache key for GET /applications/{application_id}/activity-instances/{instance_id}
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/activity-instances/:instance_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/activity-instances/:instance_id', args] as const
 }
 
 /**
@@ -225,12 +232,14 @@ export function usePostApplicationsApplicationIdAttachment(
 export function useGetApplicationsApplicationIdCommands(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>,
+      Error,
+      InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>,
+      readonly [
+        '/applications/:application_id/commands',
+        InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -240,10 +249,10 @@ export function useGetApplicationsApplicationIdCommands(
   const queryKey = getGetApplicationsApplicationIdCommandsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.applications[':application_id'].commands.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -254,9 +263,9 @@ export function useGetApplicationsApplicationIdCommands(
  * Generates TanStack Query cache key for GET /applications/{application_id}/commands
  */
 export function getGetApplicationsApplicationIdCommandsQueryKey(
-  args?: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
+  args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
 ) {
-  return ['/applications/:application_id/commands', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id/commands', args] as const
 }
 
 /**
@@ -327,14 +336,20 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
     (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/commands/:command_id',
+        InferRequestType<
           (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -344,12 +359,12 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
   const queryKey = getGetApplicationsApplicationIdCommandsCommandIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.applications[':application_id'].commands[':command_id'].$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -360,11 +375,11 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
  * Generates TanStack Query cache key for GET /applications/{application_id}/commands/{command_id}
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
   >,
 ) {
-  return ['/applications/:application_id/commands/:command_id', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id/commands/:command_id', args] as const
 }
 
 /**
@@ -459,12 +474,14 @@ export function usePatchApplicationsApplicationIdCommandsCommandId(
 export function useGetApplicationsApplicationIdEmojis(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
+      Error,
+      InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
+      readonly [
+        '/applications/:application_id/emojis',
+        InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -474,10 +491,10 @@ export function useGetApplicationsApplicationIdEmojis(
   const queryKey = getGetApplicationsApplicationIdEmojisQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.applications[':application_id'].emojis.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -488,9 +505,9 @@ export function useGetApplicationsApplicationIdEmojis(
  * Generates TanStack Query cache key for GET /applications/{application_id}/emojis
  */
 export function getGetApplicationsApplicationIdEmojisQueryKey(
-  args?: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
+  args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
 ) {
-  return ['/applications/:application_id/emojis', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id/emojis', args] as const
 }
 
 /**
@@ -531,14 +548,20 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
     (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/emojis/:emoji_id',
+        InferRequestType<
           (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -548,12 +571,12 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
   const queryKey = getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.applications[':application_id'].emojis[':emoji_id'].$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -564,11 +587,11 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
  * Generates TanStack Query cache key for GET /applications/{application_id}/emojis/{emoji_id}
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
   >,
 ) {
-  return ['/applications/:application_id/emojis/:emoji_id', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id/emojis/:emoji_id', args] as const
 }
 
 /**
@@ -657,12 +680,14 @@ export function usePatchApplicationsApplicationIdEmojisEmojiId(
 export function useGetApplicationsApplicationIdEntitlements(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
+      Error,
+      InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
+      readonly [
+        '/applications/:application_id/entitlements',
+        InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -672,12 +697,12 @@ export function useGetApplicationsApplicationIdEntitlements(
   const queryKey = getGetApplicationsApplicationIdEntitlementsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.applications[':application_id'].entitlements.$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -688,9 +713,9 @@ export function useGetApplicationsApplicationIdEntitlements(
  * Generates TanStack Query cache key for GET /applications/{application_id}/entitlements
  */
 export function getGetApplicationsApplicationIdEntitlementsQueryKey(
-  args?: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
+  args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
 ) {
-  return ['/applications/:application_id/entitlements', ...(args ? [args] : [])] as const
+  return ['/applications/:application_id/entitlements', args] as const
 }
 
 /**
@@ -733,14 +758,20 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
     (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/entitlements/:entitlement_id',
+        InferRequestType<
           (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -750,6 +781,7 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
   const queryKey = getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -758,7 +790,6 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -769,14 +800,11 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
  * Generates TanStack Query cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/entitlements/:entitlement_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/entitlements/:entitlement_id', args] as const
 }
 
 /**
@@ -873,14 +901,20 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/guilds/:guild_id/commands',
+        InferRequestType<
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -890,6 +924,7 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
   const queryKey = getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -898,7 +933,6 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -909,14 +943,11 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
  * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/guilds/:guild_id/commands',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/guilds/:guild_id/commands', args] as const
 }
 
 /**
@@ -1013,14 +1044,20 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/guilds/:guild_id/commands/permissions',
+        InferRequestType<
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1030,6 +1067,7 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
   const queryKey = getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -1038,7 +1076,6 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1049,14 +1086,11 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
  * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/guilds/:guild_id/commands/permissions',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/guilds/:guild_id/commands/permissions', args] as const
 }
 
 /**
@@ -1067,14 +1101,20 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/guilds/:guild_id/commands/:command_id',
+        InferRequestType<
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1084,6 +1124,7 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
   const queryKey = getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -1092,7 +1133,6 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1103,14 +1143,11 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
  * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/guilds/:guild_id/commands/:command_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/guilds/:guild_id/commands/:command_id', args] as const
 }
 
 /**
@@ -1206,14 +1243,20 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
+        InferRequestType<
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1224,6 +1267,7 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
     getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -1231,7 +1275,6 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
             ':command_id'
           ].permissions.$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1242,13 +1285,13 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
  * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
   >,
 ) {
   return [
     '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
-    ...(args ? [args] : []),
+    args,
   ] as const
 }
 
@@ -1302,14 +1345,20 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
     (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+      >,
+      readonly [
+        '/applications/:application_id/role-connections/metadata',
+        InferRequestType<
           (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1319,6 +1368,7 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
   const queryKey = getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -1327,7 +1377,6 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1338,14 +1387,11 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
  * Generates TanStack Query cache key for GET /applications/{application_id}/role-connections/metadata
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
   >,
 ) {
-  return [
-    '/applications/:application_id/role-connections/metadata',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/applications/:application_id/role-connections/metadata', args] as const
 }
 
 /**
@@ -1397,9 +1443,14 @@ export function usePutApplicationsApplicationIdRoleConnectionsMetadata(
 export function useGetChannelsChannelId(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.channels)[':channel_id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.channels)[':channel_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['$get']>,
+      readonly [
+        '/channels/:channel_id',
+        InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1409,9 +1460,9 @@ export function useGetChannelsChannelId(
   const queryKey = getGetChannelsChannelIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.channels[':channel_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1422,9 +1473,9 @@ export function useGetChannelsChannelId(
  * Generates TanStack Query cache key for GET /channels/{channel_id}
  */
 export function getGetChannelsChannelIdQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
 ) {
-  return ['/channels/:channel_id', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id', args] as const
 }
 
 /**
@@ -1517,12 +1568,14 @@ export function usePostChannelsChannelIdFollowers(
 export function useGetChannelsChannelIdInvites(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
+      readonly [
+        '/channels/:channel_id/invites',
+        InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1532,10 +1585,10 @@ export function useGetChannelsChannelIdInvites(
   const queryKey = getGetChannelsChannelIdInvitesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.channels[':channel_id'].invites.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1546,9 +1599,9 @@ export function useGetChannelsChannelIdInvites(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/invites
  */
 export function getGetChannelsChannelIdInvitesQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
 ) {
-  return ['/channels/:channel_id/invites', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/invites', args] as const
 }
 
 /**
@@ -1585,12 +1638,14 @@ export function usePostChannelsChannelIdInvites(
 export function useGetChannelsChannelIdMessages(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
+      readonly [
+        '/channels/:channel_id/messages',
+        InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1600,10 +1655,10 @@ export function useGetChannelsChannelIdMessages(
   const queryKey = getGetChannelsChannelIdMessagesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.channels[':channel_id'].messages.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1614,9 +1669,9 @@ export function useGetChannelsChannelIdMessages(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/messages
  */
 export function getGetChannelsChannelIdMessagesQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
 ) {
-  return ['/channels/:channel_id/messages', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/messages', args] as const
 }
 
 /**
@@ -1687,12 +1742,14 @@ export function usePostChannelsChannelIdMessagesBulkDelete(
 export function useGetChannelsChannelIdMessagesPins(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
+      readonly [
+        '/channels/:channel_id/messages/pins',
+        InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1702,10 +1759,10 @@ export function useGetChannelsChannelIdMessagesPins(
   const queryKey = getGetChannelsChannelIdMessagesPinsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.channels[':channel_id'].messages.pins.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1716,9 +1773,9 @@ export function useGetChannelsChannelIdMessagesPins(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/messages/pins
  */
 export function getGetChannelsChannelIdMessagesPinsQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
 ) {
-  return ['/channels/:channel_id/messages/pins', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/messages/pins', args] as const
 }
 
 /**
@@ -1812,14 +1869,16 @@ export function useGetChannelsChannelIdMessagesMessageId(
     (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$get']>,
+      readonly [
+        '/channels/:channel_id/messages/:message_id',
+        InferRequestType<
           (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -1829,12 +1888,12 @@ export function useGetChannelsChannelIdMessagesMessageId(
   const queryKey = getGetChannelsChannelIdMessagesMessageIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -1845,11 +1904,11 @@ export function useGetChannelsChannelIdMessagesMessageId(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/messages/{message_id}
  */
 export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
   >,
 ) {
-  return ['/channels/:channel_id/messages/:message_id', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/messages/:message_id', args] as const
 }
 
 /**
@@ -2020,14 +2079,20 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
     (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/messages/:message_id/reactions/:emoji_name',
+        InferRequestType<
           (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2037,6 +2102,7 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
   const queryKey = getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -2045,7 +2111,6 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2056,14 +2121,11 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
   >,
 ) {
-  return [
-    '/channels/:channel_id/messages/:message_id/reactions/:emoji_name',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name', args] as const
 }
 
 /**
@@ -2367,12 +2429,14 @@ export function useDeleteChannelsChannelIdPermissionsOverwriteId(
 export function useGetChannelsChannelIdPins(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+      readonly [
+        '/channels/:channel_id/pins',
+        InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2382,10 +2446,10 @@ export function useGetChannelsChannelIdPins(
   const queryKey = getGetChannelsChannelIdPinsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.channels[':channel_id'].pins.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2396,9 +2460,9 @@ export function useGetChannelsChannelIdPins(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/pins
  */
 export function getGetChannelsChannelIdPinsQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
 ) {
-  return ['/channels/:channel_id/pins', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/pins', args] as const
 }
 
 /**
@@ -2473,14 +2537,20 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
     (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/polls/:message_id/answers/:answer_id',
+        InferRequestType<
           (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2490,6 +2560,7 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
   const queryKey = getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -2498,7 +2569,6 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2509,14 +2579,11 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
   >,
 ) {
-  return [
-    '/channels/:channel_id/polls/:message_id/answers/:answer_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/channels/:channel_id/polls/:message_id/answers/:answer_id', args] as const
 }
 
 /**
@@ -2665,12 +2732,14 @@ export function usePostChannelsChannelIdSendSoundboardSound(
 export function useGetChannelsChannelIdThreadMembers(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
+      readonly [
+        '/channels/:channel_id/thread-members',
+        InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2680,10 +2749,10 @@ export function useGetChannelsChannelIdThreadMembers(
   const queryKey = getGetChannelsChannelIdThreadMembersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.channels[':channel_id']['thread-members'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2694,9 +2763,9 @@ export function useGetChannelsChannelIdThreadMembers(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/thread-members
  */
 export function getGetChannelsChannelIdThreadMembersQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
 ) {
-  return ['/channels/:channel_id/thread-members', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/thread-members', args] as const
 }
 
 /**
@@ -2773,14 +2842,20 @@ export function useGetChannelsChannelIdThreadMembersUserId(
     (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/thread-members/:user_id',
+        InferRequestType<
           (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2790,12 +2865,12 @@ export function useGetChannelsChannelIdThreadMembersUserId(
   const queryKey = getGetChannelsChannelIdThreadMembersUserIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.channels[':channel_id']['thread-members'][':user_id'].$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2806,11 +2881,11 @@ export function useGetChannelsChannelIdThreadMembersUserId(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/thread-members/{user_id}
  */
 export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
   >,
 ) {
-  return ['/channels/:channel_id/thread-members/:user_id', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/thread-members/:user_id', args] as const
 }
 
 /**
@@ -2930,14 +3005,20 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
     (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/threads/archived/private',
+        InferRequestType<
           (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2947,12 +3028,12 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
   const queryKey = getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.channels[':channel_id'].threads.archived.private.$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -2963,11 +3044,11 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/threads/archived/private
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
   >,
 ) {
-  return ['/channels/:channel_id/threads/archived/private', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/threads/archived/private', args] as const
 }
 
 /**
@@ -2978,14 +3059,20 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
     (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/threads/archived/public',
+        InferRequestType<
           (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -2995,12 +3082,12 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
   const queryKey = getGetChannelsChannelIdThreadsArchivedPublicQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.channels[':channel_id'].threads.archived.public.$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3011,11 +3098,11 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/threads/archived/public
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
 ) {
-  return ['/channels/:channel_id/threads/archived/public', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/threads/archived/public', args] as const
 }
 
 /**
@@ -3024,12 +3111,14 @@ export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
 export function useGetChannelsChannelIdThreadsSearch(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
+      readonly [
+        '/channels/:channel_id/threads/search',
+        InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3039,10 +3128,10 @@ export function useGetChannelsChannelIdThreadsSearch(
   const queryKey = getGetChannelsChannelIdThreadsSearchQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.channels[':channel_id'].threads.search.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3053,9 +3142,9 @@ export function useGetChannelsChannelIdThreadsSearch(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/threads/search
  */
 export function getGetChannelsChannelIdThreadsSearchQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
 ) {
-  return ['/channels/:channel_id/threads/search', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/threads/search', args] as const
 }
 
 /**
@@ -3094,14 +3183,20 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
     (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+      >,
+      readonly [
+        '/channels/:channel_id/users/@me/threads/archived/private',
+        InferRequestType<
           (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3111,6 +3206,7 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
   const queryKey = getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -3119,7 +3215,6 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3130,14 +3225,11 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
   >,
 ) {
-  return [
-    '/channels/:channel_id/users/@me/threads/archived/private',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/channels/:channel_id/users/@me/threads/archived/private', args] as const
 }
 
 /**
@@ -3146,12 +3238,14 @@ export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
 export function useGetChannelsChannelIdWebhooks(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
+      Error,
+      InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
+      readonly [
+        '/channels/:channel_id/webhooks',
+        InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3161,10 +3255,10 @@ export function useGetChannelsChannelIdWebhooks(
   const queryKey = getGetChannelsChannelIdWebhooksQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.channels[':channel_id'].webhooks.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3175,9 +3269,9 @@ export function useGetChannelsChannelIdWebhooks(
  * Generates TanStack Query cache key for GET /channels/{channel_id}/webhooks
  */
 export function getGetChannelsChannelIdWebhooksQueryKey(
-  args?: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
+  args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
 ) {
-  return ['/channels/:channel_id/webhooks', ...(args ? [args] : [])] as const
+  return ['/channels/:channel_id/webhooks', args] as const
 }
 
 /**
@@ -3213,9 +3307,11 @@ export function usePostChannelsChannelIdWebhooks(
  */
 export function useGetGateway(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.gateway.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.gateway.$get>,
+      Error,
+      InferResponseType<typeof client.gateway.$get>,
+      readonly ['/gateway']
     >
     client?: ClientRequestOptions
   },
@@ -3225,9 +3321,9 @@ export function useGetGateway(
   const queryKey = getGetGatewayQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.gateway.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3246,9 +3342,11 @@ export function getGetGatewayQueryKey() {
  */
 export function useGetGatewayBot(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.gateway.bot.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.gateway.bot.$get>,
+      Error,
+      InferResponseType<typeof client.gateway.bot.$get>,
+      readonly ['/gateway/bot']
     >
     client?: ClientRequestOptions
   },
@@ -3258,9 +3356,9 @@ export function useGetGatewayBot(
   const queryKey = getGetGatewayBotQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.gateway.bot.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3280,9 +3378,14 @@ export function getGetGatewayBotQueryKey() {
 export function useGetGuildsTemplatesCode(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.guilds.templates)[':code']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds.templates)[':code']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds.templates)[':code']['$get']>,
+      readonly [
+        '/guilds/templates/:code',
+        InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3292,10 +3395,10 @@ export function useGetGuildsTemplatesCode(
   const queryKey = getGetGuildsTemplatesCodeQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds.templates[':code'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3306,9 +3409,9 @@ export function useGetGuildsTemplatesCode(
  * Generates TanStack Query cache key for GET /guilds/templates/{code}
  */
 export function getGetGuildsTemplatesCodeQueryKey(
-  args?: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
+  args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
 ) {
-  return ['/guilds/templates/:code', ...(args ? [args] : [])] as const
+  return ['/guilds/templates/:code', args] as const
 }
 
 /**
@@ -3317,9 +3420,11 @@ export function getGetGuildsTemplatesCodeQueryKey(
 export function useGetGuildsGuildId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.guilds)[':guild_id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['$get']>,
+      readonly ['/guilds/:guild_id', InferRequestType<(typeof client.guilds)[':guild_id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -3329,9 +3434,9 @@ export function useGetGuildsGuildId(
   const queryKey = getGetGuildsGuildIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.guilds[':guild_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3342,9 +3447,9 @@ export function useGetGuildsGuildId(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}
  */
 export function getGetGuildsGuildIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id', args] as const
 }
 
 /**
@@ -3381,12 +3486,14 @@ export function usePatchGuildsGuildId(
 export function useGetGuildsGuildIdAuditLogs(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+      readonly [
+        '/guilds/:guild_id/audit-logs',
+        InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3396,10 +3503,10 @@ export function useGetGuildsGuildIdAuditLogs(
   const queryKey = getGetGuildsGuildIdAuditLogsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id']['audit-logs'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3410,9 +3517,9 @@ export function useGetGuildsGuildIdAuditLogs(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/audit-logs
  */
 export function getGetGuildsGuildIdAuditLogsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
 ) {
-  return ['/guilds/:guild_id/audit-logs', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/audit-logs', args] as const
 }
 
 /**
@@ -3421,12 +3528,14 @@ export function getGetGuildsGuildIdAuditLogsQueryKey(
 export function useGetGuildsGuildIdAutoModerationRules(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
+      readonly [
+        '/guilds/:guild_id/auto-moderation/rules',
+        InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3436,12 +3545,12 @@ export function useGetGuildsGuildIdAutoModerationRules(
   const queryKey = getGetGuildsGuildIdAutoModerationRulesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.guilds[':guild_id']['auto-moderation'].rules.$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3452,9 +3561,9 @@ export function useGetGuildsGuildIdAutoModerationRules(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/auto-moderation/rules
  */
 export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
 ) {
-  return ['/guilds/:guild_id/auto-moderation/rules', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/auto-moderation/rules', args] as const
 }
 
 /**
@@ -3497,14 +3606,20 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
     (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+      >,
+      readonly [
+        '/guilds/:guild_id/auto-moderation/rules/:rule_id',
+        InferRequestType<
           (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3514,12 +3629,12 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
   const queryKey = getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3530,11 +3645,11 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
   >,
 ) {
-  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id', args] as const
 }
 
 /**
@@ -3629,12 +3744,14 @@ export function usePatchGuildsGuildIdAutoModerationRulesRuleId(
 export function useGetGuildsGuildIdBans(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+      readonly [
+        '/guilds/:guild_id/bans',
+        InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3644,9 +3761,9 @@ export function useGetGuildsGuildIdBans(
   const queryKey = getGetGuildsGuildIdBansQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.guilds[':guild_id'].bans.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3657,9 +3774,9 @@ export function useGetGuildsGuildIdBans(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/bans
  */
 export function getGetGuildsGuildIdBansQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
 ) {
-  return ['/guilds/:guild_id/bans', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/bans', args] as const
 }
 
 /**
@@ -3668,12 +3785,14 @@ export function getGetGuildsGuildIdBansQueryKey(
 export function useGetGuildsGuildIdBansUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/bans/:user_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3683,10 +3802,10 @@ export function useGetGuildsGuildIdBansUserId(
   const queryKey = getGetGuildsGuildIdBansUserIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].bans[':user_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3697,9 +3816,9 @@ export function useGetGuildsGuildIdBansUserId(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/bans/{user_id}
  */
 export function getGetGuildsGuildIdBansUserIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/bans/:user_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/bans/:user_id', args] as const
 }
 
 /**
@@ -3795,12 +3914,14 @@ export function usePostGuildsGuildIdBulkBan(
 export function useGetGuildsGuildIdChannels(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+      readonly [
+        '/guilds/:guild_id/channels',
+        InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3810,10 +3931,10 @@ export function useGetGuildsGuildIdChannels(
   const queryKey = getGetGuildsGuildIdChannelsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].channels.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3824,9 +3945,9 @@ export function useGetGuildsGuildIdChannels(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/channels
  */
 export function getGetGuildsGuildIdChannelsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
 ) {
-  return ['/guilds/:guild_id/channels', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/channels', args] as const
 }
 
 /**
@@ -3891,12 +4012,14 @@ export function usePatchGuildsGuildIdChannels(
 export function useGetGuildsGuildIdEmojis(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+      readonly [
+        '/guilds/:guild_id/emojis',
+        InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3906,10 +4029,10 @@ export function useGetGuildsGuildIdEmojis(
   const queryKey = getGetGuildsGuildIdEmojisQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].emojis.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3920,9 +4043,9 @@ export function useGetGuildsGuildIdEmojis(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/emojis
  */
 export function getGetGuildsGuildIdEmojisQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
 ) {
-  return ['/guilds/:guild_id/emojis', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/emojis', args] as const
 }
 
 /**
@@ -3959,12 +4082,14 @@ export function usePostGuildsGuildIdEmojis(
 export function useGetGuildsGuildIdEmojisEmojiId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/emojis/:emoji_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -3974,10 +4099,10 @@ export function useGetGuildsGuildIdEmojisEmojiId(
   const queryKey = getGetGuildsGuildIdEmojisEmojiIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -3988,9 +4113,9 @@ export function useGetGuildsGuildIdEmojisEmojiId(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
  */
 export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/emojis/:emoji_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/emojis/:emoji_id', args] as const
 }
 
 /**
@@ -4061,12 +4186,14 @@ export function usePatchGuildsGuildIdEmojisEmojiId(
 export function useGetGuildsGuildIdIntegrations(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
+      readonly [
+        '/guilds/:guild_id/integrations',
+        InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4076,10 +4203,10 @@ export function useGetGuildsGuildIdIntegrations(
   const queryKey = getGetGuildsGuildIdIntegrationsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].integrations.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4090,9 +4217,9 @@ export function useGetGuildsGuildIdIntegrations(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/integrations
  */
 export function getGetGuildsGuildIdIntegrationsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
 ) {
-  return ['/guilds/:guild_id/integrations', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/integrations', args] as const
 }
 
 /**
@@ -4141,12 +4268,14 @@ export function useDeleteGuildsGuildIdIntegrationsIntegrationId(
 export function useGetGuildsGuildIdInvites(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+      readonly [
+        '/guilds/:guild_id/invites',
+        InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4156,10 +4285,10 @@ export function useGetGuildsGuildIdInvites(
   const queryKey = getGetGuildsGuildIdInvitesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].invites.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4170,9 +4299,9 @@ export function useGetGuildsGuildIdInvites(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/invites
  */
 export function getGetGuildsGuildIdInvitesQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
 ) {
-  return ['/guilds/:guild_id/invites', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/invites', args] as const
 }
 
 /**
@@ -4181,12 +4310,14 @@ export function getGetGuildsGuildIdInvitesQueryKey(
 export function useGetGuildsGuildIdMembers(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
+      readonly [
+        '/guilds/:guild_id/members',
+        InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4196,10 +4327,10 @@ export function useGetGuildsGuildIdMembers(
   const queryKey = getGetGuildsGuildIdMembersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].members.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4210,9 +4341,9 @@ export function useGetGuildsGuildIdMembers(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/members
  */
 export function getGetGuildsGuildIdMembersQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
 ) {
-  return ['/guilds/:guild_id/members', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/members', args] as const
 }
 
 /**
@@ -4250,12 +4381,14 @@ export function usePatchGuildsGuildIdMembersMe(
 export function useGetGuildsGuildIdMembersSearch(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+      readonly [
+        '/guilds/:guild_id/members/search',
+        InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4265,10 +4398,10 @@ export function useGetGuildsGuildIdMembersSearch(
   const queryKey = getGetGuildsGuildIdMembersSearchQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].members.search.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4279,9 +4412,9 @@ export function useGetGuildsGuildIdMembersSearch(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/members/search
  */
 export function getGetGuildsGuildIdMembersSearchQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
 ) {
-  return ['/guilds/:guild_id/members/search', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/members/search', args] as const
 }
 
 /**
@@ -4290,12 +4423,14 @@ export function getGetGuildsGuildIdMembersSearchQueryKey(
 export function useGetGuildsGuildIdMembersUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/members/:user_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4305,10 +4440,10 @@ export function useGetGuildsGuildIdMembersUserId(
   const queryKey = getGetGuildsGuildIdMembersUserIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].members[':user_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4319,9 +4454,9 @@ export function useGetGuildsGuildIdMembersUserId(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/members/{user_id}
  */
 export function getGetGuildsGuildIdMembersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/members/:user_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/members/:user_id', args] as const
 }
 
 /**
@@ -4508,12 +4643,14 @@ export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(
 export function useGetGuildsGuildIdNewMemberWelcome(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
+      readonly [
+        '/guilds/:guild_id/new-member-welcome',
+        InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4523,10 +4660,10 @@ export function useGetGuildsGuildIdNewMemberWelcome(
   const queryKey = getGetGuildsGuildIdNewMemberWelcomeQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id']['new-member-welcome'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4537,9 +4674,9 @@ export function useGetGuildsGuildIdNewMemberWelcome(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/new-member-welcome
  */
 export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
 ) {
-  return ['/guilds/:guild_id/new-member-welcome', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/new-member-welcome', args] as const
 }
 
 /**
@@ -4548,12 +4685,14 @@ export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
 export function useGetGuildsGuildIdOnboarding(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
+      readonly [
+        '/guilds/:guild_id/onboarding',
+        InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4563,10 +4702,10 @@ export function useGetGuildsGuildIdOnboarding(
   const queryKey = getGetGuildsGuildIdOnboardingQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].onboarding.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4577,9 +4716,9 @@ export function useGetGuildsGuildIdOnboarding(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/onboarding
  */
 export function getGetGuildsGuildIdOnboardingQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
 ) {
-  return ['/guilds/:guild_id/onboarding', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/onboarding', args] as const
 }
 
 /**
@@ -4616,12 +4755,14 @@ export function usePutGuildsGuildIdOnboarding(
 export function useGetGuildsGuildIdPreview(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+      readonly [
+        '/guilds/:guild_id/preview',
+        InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4631,10 +4772,10 @@ export function useGetGuildsGuildIdPreview(
   const queryKey = getGetGuildsGuildIdPreviewQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].preview.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4645,9 +4786,9 @@ export function useGetGuildsGuildIdPreview(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/preview
  */
 export function getGetGuildsGuildIdPreviewQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
 ) {
-  return ['/guilds/:guild_id/preview', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/preview', args] as const
 }
 
 /**
@@ -4656,12 +4797,14 @@ export function getGetGuildsGuildIdPreviewQueryKey(
 export function useGetGuildsGuildIdPrune(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
+      readonly [
+        '/guilds/:guild_id/prune',
+        InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4671,10 +4814,10 @@ export function useGetGuildsGuildIdPrune(
   const queryKey = getGetGuildsGuildIdPruneQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].prune.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4685,9 +4828,9 @@ export function useGetGuildsGuildIdPrune(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/prune
  */
 export function getGetGuildsGuildIdPruneQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
 ) {
-  return ['/guilds/:guild_id/prune', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/prune', args] as const
 }
 
 /**
@@ -4724,12 +4867,14 @@ export function usePostGuildsGuildIdPrune(
 export function useGetGuildsGuildIdRegions(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+      readonly [
+        '/guilds/:guild_id/regions',
+        InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4739,10 +4884,10 @@ export function useGetGuildsGuildIdRegions(
   const queryKey = getGetGuildsGuildIdRegionsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].regions.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4753,9 +4898,9 @@ export function useGetGuildsGuildIdRegions(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/regions
  */
 export function getGetGuildsGuildIdRegionsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
 ) {
-  return ['/guilds/:guild_id/regions', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/regions', args] as const
 }
 
 /**
@@ -4764,12 +4909,14 @@ export function getGetGuildsGuildIdRegionsQueryKey(
 export function useGetGuildsGuildIdRoles(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
+      readonly [
+        '/guilds/:guild_id/roles',
+        InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4779,10 +4926,10 @@ export function useGetGuildsGuildIdRoles(
   const queryKey = getGetGuildsGuildIdRolesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].roles.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4793,9 +4940,9 @@ export function useGetGuildsGuildIdRoles(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/roles
  */
 export function getGetGuildsGuildIdRolesQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
 ) {
-  return ['/guilds/:guild_id/roles', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/roles', args] as const
 }
 
 /**
@@ -4860,12 +5007,14 @@ export function usePatchGuildsGuildIdRoles(
 export function useGetGuildsGuildIdRolesRoleId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/roles/:role_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4875,10 +5024,10 @@ export function useGetGuildsGuildIdRolesRoleId(
   const queryKey = getGetGuildsGuildIdRolesRoleIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].roles[':role_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4889,9 +5038,9 @@ export function useGetGuildsGuildIdRolesRoleId(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/roles/{role_id}
  */
 export function getGetGuildsGuildIdRolesRoleIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/roles/:role_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/roles/:role_id', args] as const
 }
 
 /**
@@ -4960,12 +5109,14 @@ export function usePatchGuildsGuildIdRolesRoleId(
 export function useGetGuildsGuildIdScheduledEvents(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
+      readonly [
+        '/guilds/:guild_id/scheduled-events',
+        InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -4975,10 +5126,10 @@ export function useGetGuildsGuildIdScheduledEvents(
   const queryKey = getGetGuildsGuildIdScheduledEventsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id']['scheduled-events'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -4989,9 +5140,9 @@ export function useGetGuildsGuildIdScheduledEvents(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/scheduled-events
  */
 export function getGetGuildsGuildIdScheduledEventsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
 ) {
-  return ['/guilds/:guild_id/scheduled-events', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/scheduled-events', args] as const
 }
 
 /**
@@ -5031,14 +5182,20 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+      >,
+      readonly [
+        '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id',
+        InferRequestType<
           (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5048,6 +5205,7 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
   const queryKey = getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -5056,7 +5214,6 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -5067,14 +5224,11 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
   >,
 ) {
-  return [
-    '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id', args] as const
 }
 
 /**
@@ -5171,14 +5325,20 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+      >,
+      readonly [
+        '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users',
+        InferRequestType<
           (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5188,6 +5348,7 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
   const queryKey = getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -5196,7 +5357,6 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -5207,14 +5367,11 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
   >,
 ) {
-  return [
-    '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users', args] as const
 }
 
 /**
@@ -5223,12 +5380,14 @@ export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQuer
 export function useGetGuildsGuildIdSoundboardSounds(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
+      readonly [
+        '/guilds/:guild_id/soundboard-sounds',
+        InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5238,10 +5397,10 @@ export function useGetGuildsGuildIdSoundboardSounds(
   const queryKey = getGetGuildsGuildIdSoundboardSoundsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -5252,9 +5411,9 @@ export function useGetGuildsGuildIdSoundboardSounds(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/soundboard-sounds
  */
 export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
 ) {
-  return ['/guilds/:guild_id/soundboard-sounds', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/soundboard-sounds', args] as const
 }
 
 /**
@@ -5295,14 +5454,20 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
     (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+      >,
+      readonly [
+        '/guilds/:guild_id/soundboard-sounds/:sound_id',
+        InferRequestType<
           (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5312,12 +5477,12 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
   const queryKey = getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -5328,11 +5493,11 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
   >,
 ) {
-  return ['/guilds/:guild_id/soundboard-sounds/:sound_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/soundboard-sounds/:sound_id', args] as const
 }
 
 /**
@@ -5427,12 +5592,14 @@ export function usePatchGuildsGuildIdSoundboardSoundsSoundId(
 export function useGetGuildsGuildIdStickers(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+      readonly [
+        '/guilds/:guild_id/stickers',
+        InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5442,10 +5609,10 @@ export function useGetGuildsGuildIdStickers(
   const queryKey = getGetGuildsGuildIdStickersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].stickers.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -5456,9 +5623,9 @@ export function useGetGuildsGuildIdStickers(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/stickers
  */
 export function getGetGuildsGuildIdStickersQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
 ) {
-  return ['/guilds/:guild_id/stickers', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/stickers', args] as const
 }
 
 /**
@@ -5495,12 +5662,14 @@ export function usePostGuildsGuildIdStickers(
 export function useGetGuildsGuildIdStickersStickerId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/stickers/:sticker_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5510,10 +5679,10 @@ export function useGetGuildsGuildIdStickersStickerId(
   const queryKey = getGetGuildsGuildIdStickersStickerIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -5524,9 +5693,9 @@ export function useGetGuildsGuildIdStickersStickerId(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
  */
 export function getGetGuildsGuildIdStickersStickerIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/stickers/:sticker_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/stickers/:sticker_id', args] as const
 }
 
 /**
@@ -5599,12 +5768,14 @@ export function usePatchGuildsGuildIdStickersStickerId(
 export function useGetGuildsGuildIdTemplates(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+      readonly [
+        '/guilds/:guild_id/templates',
+        InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5614,10 +5785,10 @@ export function useGetGuildsGuildIdTemplates(
   const queryKey = getGetGuildsGuildIdTemplatesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].templates.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -5628,9 +5799,9 @@ export function useGetGuildsGuildIdTemplates(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/templates
  */
 export function getGetGuildsGuildIdTemplatesQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
 ) {
-  return ['/guilds/:guild_id/templates', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/templates', args] as const
 }
 
 /**
@@ -5757,12 +5928,14 @@ export function usePatchGuildsGuildIdTemplatesCode(
 export function useGetGuildsGuildIdThreadsActive(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+      readonly [
+        '/guilds/:guild_id/threads/active',
+        InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5772,10 +5945,10 @@ export function useGetGuildsGuildIdThreadsActive(
   const queryKey = getGetGuildsGuildIdThreadsActiveQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].threads.active.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -5786,9 +5959,9 @@ export function useGetGuildsGuildIdThreadsActive(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/threads/active
  */
 export function getGetGuildsGuildIdThreadsActiveQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
 ) {
-  return ['/guilds/:guild_id/threads/active', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/threads/active', args] as const
 }
 
 /**
@@ -5797,12 +5970,14 @@ export function getGetGuildsGuildIdThreadsActiveQueryKey(
 export function useGetGuildsGuildIdVanityUrl(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
+      readonly [
+        '/guilds/:guild_id/vanity-url',
+        InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5812,10 +5987,10 @@ export function useGetGuildsGuildIdVanityUrl(
   const queryKey = getGetGuildsGuildIdVanityUrlQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id']['vanity-url'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -5826,9 +6001,9 @@ export function useGetGuildsGuildIdVanityUrl(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/vanity-url
  */
 export function getGetGuildsGuildIdVanityUrlQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
 ) {
-  return ['/guilds/:guild_id/vanity-url', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/vanity-url', args] as const
 }
 
 /**
@@ -5837,12 +6012,14 @@ export function getGetGuildsGuildIdVanityUrlQueryKey(
 export function useGetGuildsGuildIdVoiceStatesMe(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
+      readonly [
+        '/guilds/:guild_id/voice-states/@me',
+        InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5852,10 +6029,10 @@ export function useGetGuildsGuildIdVoiceStatesMe(
   const queryKey = getGetGuildsGuildIdVoiceStatesMeQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -5866,9 +6043,9 @@ export function useGetGuildsGuildIdVoiceStatesMe(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/voice-states/@me
  */
 export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
 ) {
-  return ['/guilds/:guild_id/voice-states/@me', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/voice-states/@me', args] as const
 }
 
 /**
@@ -5909,12 +6086,14 @@ export function usePatchGuildsGuildIdVoiceStatesMe(
 export function useGetGuildsGuildIdVoiceStatesUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
+      readonly [
+        '/guilds/:guild_id/voice-states/:user_id',
+        InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5924,12 +6103,12 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
   const queryKey = getGetGuildsGuildIdVoiceStatesUserIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.guilds[':guild_id']['voice-states'][':user_id'].$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -5940,9 +6119,9 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/voice-states/{user_id}
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
 ) {
-  return ['/guilds/:guild_id/voice-states/:user_id', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/voice-states/:user_id', args] as const
 }
 
 /**
@@ -5983,12 +6162,14 @@ export function usePatchGuildsGuildIdVoiceStatesUserId(
 export function useGetGuildsGuildIdWebhooks(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+      readonly [
+        '/guilds/:guild_id/webhooks',
+        InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -5998,10 +6179,10 @@ export function useGetGuildsGuildIdWebhooks(
   const queryKey = getGetGuildsGuildIdWebhooksQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].webhooks.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -6012,9 +6193,9 @@ export function useGetGuildsGuildIdWebhooks(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/webhooks
  */
 export function getGetGuildsGuildIdWebhooksQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
 ) {
-  return ['/guilds/:guild_id/webhooks', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/webhooks', args] as const
 }
 
 /**
@@ -6023,12 +6204,14 @@ export function getGetGuildsGuildIdWebhooksQueryKey(
 export function useGetGuildsGuildIdWelcomeScreen(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
+      readonly [
+        '/guilds/:guild_id/welcome-screen',
+        InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -6038,10 +6221,10 @@ export function useGetGuildsGuildIdWelcomeScreen(
   const queryKey = getGetGuildsGuildIdWelcomeScreenQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id']['welcome-screen'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -6052,9 +6235,9 @@ export function useGetGuildsGuildIdWelcomeScreen(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/welcome-screen
  */
 export function getGetGuildsGuildIdWelcomeScreenQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
 ) {
-  return ['/guilds/:guild_id/welcome-screen', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/welcome-screen', args] as const
 }
 
 /**
@@ -6092,12 +6275,14 @@ export function usePatchGuildsGuildIdWelcomeScreen(
 export function useGetGuildsGuildIdWidget(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+      readonly [
+        '/guilds/:guild_id/widget',
+        InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -6107,10 +6292,10 @@ export function useGetGuildsGuildIdWidget(
   const queryKey = getGetGuildsGuildIdWidgetQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id'].widget.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -6121,9 +6306,9 @@ export function useGetGuildsGuildIdWidget(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/widget
  */
 export function getGetGuildsGuildIdWidgetQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
 ) {
-  return ['/guilds/:guild_id/widget', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/widget', args] as const
 }
 
 /**
@@ -6160,12 +6345,14 @@ export function usePatchGuildsGuildIdWidget(
 export function useGetGuildsGuildIdWidgetJson(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+      readonly [
+        '/guilds/:guild_id/widget.json',
+        InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -6175,10 +6362,10 @@ export function useGetGuildsGuildIdWidgetJson(
   const queryKey = getGetGuildsGuildIdWidgetJsonQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id']['widget.json'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -6189,9 +6376,9 @@ export function useGetGuildsGuildIdWidgetJson(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/widget.json
  */
 export function getGetGuildsGuildIdWidgetJsonQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
 ) {
-  return ['/guilds/:guild_id/widget.json', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/widget.json', args] as const
 }
 
 /**
@@ -6200,12 +6387,14 @@ export function getGetGuildsGuildIdWidgetJsonQueryKey(
 export function useGetGuildsGuildIdWidgetPng(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
+      Error,
+      InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
+      readonly [
+        '/guilds/:guild_id/widget.png',
+        InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -6215,10 +6404,10 @@ export function useGetGuildsGuildIdWidgetPng(
   const queryKey = getGetGuildsGuildIdWidgetPngQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.guilds[':guild_id']['widget.png'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -6229,9 +6418,9 @@ export function useGetGuildsGuildIdWidgetPng(
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/widget.png
  */
 export function getGetGuildsGuildIdWidgetPngQueryKey(
-  args?: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
+  args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
 ) {
-  return ['/guilds/:guild_id/widget.png', ...(args ? [args] : [])] as const
+  return ['/guilds/:guild_id/widget.png', args] as const
 }
 
 /**
@@ -6283,9 +6472,11 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(
 export function useGetInvitesCode(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.invites)[':code']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.invites)[':code']['$get']>,
+      Error,
+      InferResponseType<(typeof client.invites)[':code']['$get']>,
+      readonly ['/invites/:code', InferRequestType<(typeof client.invites)[':code']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -6295,9 +6486,9 @@ export function useGetInvitesCode(
   const queryKey = getGetInvitesCodeQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.invites[':code'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -6308,9 +6499,9 @@ export function useGetInvitesCode(
  * Generates TanStack Query cache key for GET /invites/{code}
  */
 export function getGetInvitesCodeQueryKey(
-  args?: InferRequestType<(typeof client.invites)[':code']['$get']>,
+  args: InferRequestType<(typeof client.invites)[':code']['$get']>,
 ) {
-  return ['/invites/:code', ...(args ? [args] : [])] as const
+  return ['/invites/:code', args] as const
 }
 
 /**
@@ -6401,9 +6592,14 @@ export function usePostLobbies(
 export function useGetLobbiesLobbyId(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>,
+      readonly [
+        '/lobbies/:lobby_id',
+        InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -6413,9 +6609,9 @@ export function useGetLobbiesLobbyId(
   const queryKey = getGetLobbiesLobbyIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.lobbies[':lobby_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -6426,9 +6622,9 @@ export function useGetLobbiesLobbyId(
  * Generates TanStack Query cache key for GET /lobbies/{lobby_id}
  */
 export function getGetLobbiesLobbyIdQueryKey(
-  args?: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
+  args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
 ) {
-  return ['/lobbies/:lobby_id', ...(args ? [args] : [])] as const
+  return ['/lobbies/:lobby_id', args] as const
 }
 
 /**
@@ -6690,12 +6886,14 @@ export function usePostLobbiesLobbyIdMembersUserIdInvites(
 export function useGetLobbiesLobbyIdMessages(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+      Error,
+      InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+      readonly [
+        '/lobbies/:lobby_id/messages',
+        InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -6705,10 +6903,10 @@ export function useGetLobbiesLobbyIdMessages(
   const queryKey = getGetLobbiesLobbyIdMessagesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.lobbies[':lobby_id'].messages.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -6719,9 +6917,9 @@ export function useGetLobbiesLobbyIdMessages(
  * Generates TanStack Query cache key for GET /lobbies/{lobby_id}/messages
  */
 export function getGetLobbiesLobbyIdMessagesQueryKey(
-  args?: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+  args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
 ) {
-  return ['/lobbies/:lobby_id/messages', ...(args ? [args] : [])] as const
+  return ['/lobbies/:lobby_id/messages', args] as const
 }
 
 /**
@@ -6757,9 +6955,11 @@ export function usePostLobbiesLobbyIdMessages(
  */
 export function useGetOauth2Me(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.oauth2)['@me']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.oauth2)['@me']['$get']>,
+      Error,
+      InferResponseType<(typeof client.oauth2)['@me']['$get']>,
+      readonly ['/oauth2/@me']
     >
     client?: ClientRequestOptions
   },
@@ -6769,9 +6969,9 @@ export function useGetOauth2Me(
   const queryKey = getGetOauth2MeQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.oauth2['@me'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -6790,9 +6990,11 @@ export function getGetOauth2MeQueryKey() {
  */
 export function useGetOauth2ApplicationsMe(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>,
+      Error,
+      InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>,
+      readonly ['/oauth2/applications/@me']
     >
     client?: ClientRequestOptions
   },
@@ -6802,10 +7004,10 @@ export function useGetOauth2ApplicationsMe(
   const queryKey = getGetOauth2ApplicationsMeQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.oauth2.applications['@me'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -6824,9 +7026,11 @@ export function getGetOauth2ApplicationsMeQueryKey() {
  */
 export function useGetOauth2Keys(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.oauth2.keys.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.oauth2.keys.$get>,
+      Error,
+      InferResponseType<typeof client.oauth2.keys.$get>,
+      readonly ['/oauth2/keys']
     >
     client?: ClientRequestOptions
   },
@@ -6836,9 +7040,9 @@ export function useGetOauth2Keys(
   const queryKey = getGetOauth2KeysQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.oauth2.keys.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -6857,9 +7061,11 @@ export function getGetOauth2KeysQueryKey() {
  */
 export function useGetOauth2Userinfo(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.oauth2.userinfo.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.oauth2.userinfo.$get>,
+      Error,
+      InferResponseType<typeof client.oauth2.userinfo.$get>,
+      readonly ['/oauth2/userinfo']
     >
     client?: ClientRequestOptions
   },
@@ -6869,9 +7075,9 @@ export function useGetOauth2Userinfo(
   const queryKey = getGetOauth2UserinfoQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.oauth2.userinfo.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7020,12 +7226,11 @@ export function usePostPartnerSdkTokenBot(
  */
 export function useGetSoundboardDefaultSounds(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
+      readonly ['/soundboard-default-sounds']
     >
     client?: ClientRequestOptions
   },
@@ -7035,10 +7240,10 @@ export function useGetSoundboardDefaultSounds(
   const queryKey = getGetSoundboardDefaultSoundsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['soundboard-default-sounds'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7086,12 +7291,14 @@ export function usePostStageInstances(
 export function useGetStageInstancesChannelId(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
+      readonly [
+        '/stage-instances/:channel_id',
+        InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7101,10 +7308,10 @@ export function useGetStageInstancesChannelId(
   const queryKey = getGetStageInstancesChannelIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['stage-instances'][':channel_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7115,9 +7322,9 @@ export function useGetStageInstancesChannelId(
  * Generates TanStack Query cache key for GET /stage-instances/{channel_id}
  */
 export function getGetStageInstancesChannelIdQueryKey(
-  args?: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
+  args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
 ) {
-  return ['/stage-instances/:channel_id', ...(args ? [args] : [])] as const
+  return ['/stage-instances/:channel_id', args] as const
 }
 
 /**
@@ -7181,9 +7388,11 @@ export function usePatchStageInstancesChannelId(
  */
 export function useGetStickerPacks(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['sticker-packs']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['sticker-packs']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['sticker-packs']['$get']>,
+      readonly ['/sticker-packs']
     >
     client?: ClientRequestOptions
   },
@@ -7193,9 +7402,9 @@ export function useGetStickerPacks(
   const queryKey = getGetStickerPacksQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['sticker-packs'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7215,12 +7424,14 @@ export function getGetStickerPacksQueryKey() {
 export function useGetStickerPacksPackId(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+      readonly [
+        '/sticker-packs/:pack_id',
+        InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7230,10 +7441,10 @@ export function useGetStickerPacksPackId(
   const queryKey = getGetStickerPacksPackIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['sticker-packs'][':pack_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7244,9 +7455,9 @@ export function useGetStickerPacksPackId(
  * Generates TanStack Query cache key for GET /sticker-packs/{pack_id}
  */
 export function getGetStickerPacksPackIdQueryKey(
-  args?: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+  args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
 ) {
-  return ['/sticker-packs/:pack_id', ...(args ? [args] : [])] as const
+  return ['/sticker-packs/:pack_id', args] as const
 }
 
 /**
@@ -7255,9 +7466,14 @@ export function getGetStickerPacksPackIdQueryKey(
 export function useGetStickersStickerId(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>,
+      readonly [
+        '/stickers/:sticker_id',
+        InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7267,9 +7483,9 @@ export function useGetStickersStickerId(
   const queryKey = getGetStickersStickerIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.stickers[':sticker_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7280,9 +7496,9 @@ export function useGetStickersStickerId(
  * Generates TanStack Query cache key for GET /stickers/{sticker_id}
  */
 export function getGetStickersStickerIdQueryKey(
-  args?: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
+  args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
 ) {
-  return ['/stickers/:sticker_id', ...(args ? [args] : [])] as const
+  return ['/stickers/:sticker_id', args] as const
 }
 
 /**
@@ -7290,9 +7506,11 @@ export function getGetStickersStickerIdQueryKey(
  */
 export function useGetUsersMe(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.users)['@me']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.users)['@me']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)['@me']['$get']>,
+      readonly ['/users/@me']
     >
     client?: ClientRequestOptions
   },
@@ -7302,9 +7520,9 @@ export function useGetUsersMe(
   const queryKey = getGetUsersMeQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users['@me'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7353,14 +7571,20 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
     (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+      >,
+      readonly [
+        '/users/@me/applications/:application_id/entitlements',
+        InferRequestType<
           (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7370,6 +7594,7 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
   const queryKey = getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -7378,7 +7603,6 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7389,11 +7613,11 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
  * Generates TanStack Query cache key for GET /users/@me/applications/{application_id}/entitlements
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
   >,
 ) {
-  return ['/users/@me/applications/:application_id/entitlements', ...(args ? [args] : [])] as const
+  return ['/users/@me/applications/:application_id/entitlements', args] as const
 }
 
 /**
@@ -7404,14 +7628,20 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
     (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
+      >,
+      readonly [
+        '/users/@me/applications/:application_id/role-connection',
+        InferRequestType<
           (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7421,6 +7651,7 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
   const queryKey = getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -7429,7 +7660,6 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7440,14 +7670,11 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
  * Generates TanStack Query cache key for GET /users/@me/applications/{application_id}/role-connection
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
 ) {
-  return [
-    '/users/@me/applications/:application_id/role-connection',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/users/@me/applications/:application_id/role-connection', args] as const
 }
 
 /**
@@ -7569,12 +7796,11 @@ export function usePostUsersMeChannels(
  */
 export function useGetUsersMeConnections(
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
+      readonly ['/users/@me/connections']
     >
     client?: ClientRequestOptions
   },
@@ -7584,10 +7810,10 @@ export function useGetUsersMeConnections(
   const queryKey = getGetUsersMeConnectionsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.users['@me'].connections.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7607,9 +7833,14 @@ export function getGetUsersMeConnectionsQueryKey() {
 export function useGetUsersMeGuilds(
   args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.users)['@me']['guilds']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.users)['@me']['guilds']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)['@me']['guilds']['$get']>,
+      readonly [
+        '/users/@me/guilds',
+        InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7619,9 +7850,9 @@ export function useGetUsersMeGuilds(
   const queryKey = getGetUsersMeGuildsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users['@me'].guilds.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7632,9 +7863,9 @@ export function useGetUsersMeGuilds(
  * Generates TanStack Query cache key for GET /users/@me/guilds
  */
 export function getGetUsersMeGuildsQueryKey(
-  args?: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
+  args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
 ) {
-  return ['/users/@me/guilds', ...(args ? [args] : [])] as const
+  return ['/users/@me/guilds', args] as const
 }
 
 /**
@@ -7671,12 +7902,14 @@ export function useDeleteUsersMeGuildsGuildId(
 export function useGetUsersMeGuildsGuildIdMember(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
+      readonly [
+        '/users/@me/guilds/:guild_id/member',
+        InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7686,10 +7919,10 @@ export function useGetUsersMeGuildsGuildIdMember(
   const queryKey = getGetUsersMeGuildsGuildIdMemberQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.users['@me'].guilds[':guild_id'].member.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7700,9 +7933,9 @@ export function useGetUsersMeGuildsGuildIdMember(
  * Generates TanStack Query cache key for GET /users/@me/guilds/{guild_id}/member
  */
 export function getGetUsersMeGuildsGuildIdMemberQueryKey(
-  args?: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
+  args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
 ) {
-  return ['/users/@me/guilds/:guild_id/member', ...(args ? [args] : [])] as const
+  return ['/users/@me/guilds/:guild_id/member', args] as const
 }
 
 /**
@@ -7711,9 +7944,11 @@ export function getGetUsersMeGuildsGuildIdMemberQueryKey(
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.users)[':user_id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      readonly ['/users/:user_id', InferRequestType<(typeof client.users)[':user_id']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -7723,9 +7958,9 @@ export function useGetUsersUserId(
   const queryKey = getGetUsersUserIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7736,9 +7971,9 @@ export function useGetUsersUserId(
  * Generates TanStack Query cache key for GET /users/{user_id}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['/users/:user_id', ...(args ? [args] : [])] as const
+  return ['/users/:user_id', args] as const
 }
 
 /**
@@ -7746,9 +7981,11 @@ export function getGetUsersUserIdQueryKey(
  */
 export function useGetVoiceRegions(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.voice.regions.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.voice.regions.$get>,
+      Error,
+      InferResponseType<typeof client.voice.regions.$get>,
+      readonly ['/voice/regions']
     >
     client?: ClientRequestOptions
   },
@@ -7758,9 +7995,9 @@ export function useGetVoiceRegions(
   const queryKey = getGetVoiceRegionsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.voice.regions.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7780,9 +8017,14 @@ export function getGetVoiceRegionsQueryKey() {
 export function useGetWebhooksWebhookId(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>,
+      readonly [
+        '/webhooks/:webhook_id',
+        InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7792,9 +8034,9 @@ export function useGetWebhooksWebhookId(
   const queryKey = getGetWebhooksWebhookIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.webhooks[':webhook_id'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7805,9 +8047,9 @@ export function useGetWebhooksWebhookId(
  * Generates TanStack Query cache key for GET /webhooks/{webhook_id}
  */
 export function getGetWebhooksWebhookIdQueryKey(
-  args?: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
+  args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
 ) {
-  return ['/webhooks/:webhook_id', ...(args ? [args] : [])] as const
+  return ['/webhooks/:webhook_id', args] as const
 }
 
 /**
@@ -7872,12 +8114,14 @@ export function usePatchWebhooksWebhookId(
 export function useGetWebhooksWebhookIdWebhookToken(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
+      Error,
+      InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
+      readonly [
+        '/webhooks/:webhook_id/:webhook_token',
+        InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -7887,10 +8131,10 @@ export function useGetWebhooksWebhookIdWebhookToken(
   const queryKey = getGetWebhooksWebhookIdWebhookTokenQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -7901,9 +8145,9 @@ export function useGetWebhooksWebhookIdWebhookToken(
  * Generates TanStack Query cache key for GET /webhooks/{webhook_id}/{webhook_token}
  */
 export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
-  args?: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
+  args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
 ) {
-  return ['/webhooks/:webhook_id/:webhook_token', ...(args ? [args] : [])] as const
+  return ['/webhooks/:webhook_id/:webhook_token', args] as const
 }
 
 /**
@@ -8046,14 +8290,20 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+      >,
+      readonly [
+        '/webhooks/:webhook_id/:webhook_token/messages/@original',
+        InferRequestType<
           (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -8063,6 +8313,7 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
   const queryKey = getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -8071,7 +8322,6 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -8082,14 +8332,11 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
  * Generates TanStack Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
   >,
 ) {
-  return [
-    '/webhooks/:webhook_id/:webhook_token/messages/@original',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/webhooks/:webhook_id/:webhook_token/messages/@original', args] as const
 }
 
 /**
@@ -8186,14 +8433,20 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+      >,
+      readonly [
+        '/webhooks/:webhook_id/:webhook_token/messages/:message_id',
+        InferRequestType<
           (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -8203,6 +8456,7 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
   const queryKey = getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
@@ -8211,7 +8465,6 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
             clientOptions,
           ),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -8222,14 +8475,11 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
  * Generates TanStack Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
   >,
 ) {
-  return [
-    '/webhooks/:webhook_id/:webhook_token/messages/:message_id',
-    ...(args ? [args] : []),
-  ] as const
+  return ['/webhooks/:webhook_id/:webhook_token/messages/:message_id', args] as const
 }
 
 /**

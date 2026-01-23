@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/abcde'
 
@@ -11,9 +11,11 @@ import { client } from '../clients/abcde'
  */
 export function useGetExample(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.example.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.example.$get>,
+      Error,
+      InferResponseType<typeof client.example.$get>,
+      readonly ['/example']
     >
     client?: ClientRequestOptions
   },
@@ -23,9 +25,9 @@ export function useGetExample(
   const queryKey = getGetExampleQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.example.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

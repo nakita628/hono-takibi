@@ -1,6 +1,5 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -9,60 +8,31 @@ import { client } from '../clients/18-multiple-same-refs'
  */
 export function useGetDocuments(
   args: InferRequestType<typeof client.documents.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.documents.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetDocumentsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.documents.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.documents.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /documents
  */
-export function getGetDocumentsQueryKey(args?: InferRequestType<typeof client.documents.$get>) {
-  return ['/documents', ...(args ? [args] : [])] as const
+export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.documents.$get>) {
+  return ['/documents', args] as const
 }
 
 /**
  * POST /documents
  */
-export function usePostDocuments(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.documents.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.documents.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostDocuments(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.documents.$post> | undefined,
     Error,
     InferRequestType<typeof client.documents.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.documents.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.documents.$post(args, clientOptions)) })
 }
 
 /**
@@ -70,63 +40,36 @@ export function usePostDocuments(
  */
 export function useGetDocumentsDocumentId(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.documents)[':documentId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetDocumentsDocumentIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.documents[':documentId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.documents[':documentId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /documents/{documentId}
  */
 export function getGetDocumentsDocumentIdQueryKey(
-  args?: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
+  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
-  return ['/documents/:documentId', ...(args ? [args] : [])] as const
+  return ['/documents/:documentId', args] as const
 }
 
 /**
  * PUT /documents/{documentId}
  */
-export function usePutDocumentsDocumentId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.documents)[':documentId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.documents)[':documentId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutDocumentsDocumentId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.documents)[':documentId']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.documents)[':documentId']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.documents[':documentId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.documents[':documentId'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -134,67 +77,37 @@ export function usePutDocumentsDocumentId(
  */
 export function useGetDocumentsDocumentIdVersions(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetDocumentsDocumentIdVersionsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.documents[':documentId'].versions.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.documents[':documentId'].versions.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /documents/{documentId}/versions
  */
 export function getGetDocumentsDocumentIdVersionsQueryKey(
-  args?: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
+  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
-  return ['/documents/:documentId/versions', ...(args ? [args] : [])] as const
+  return ['/documents/:documentId/versions', args] as const
 }
 
 /**
  * POST /documents/{documentId}/share
  */
-export function usePostDocumentsDocumentIdShare(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.documents)[':documentId']['share']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostDocumentsDocumentIdShare(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.documents)[':documentId']['share']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.documents[':documentId'].share.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.documents[':documentId'].share.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -202,92 +115,44 @@ export function usePostDocumentsDocumentIdShare(
  */
 export function useGetUsersUserIdDocuments(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.users)[':userId']['documents']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetUsersUserIdDocumentsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.users[':userId'].documents.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.users[':userId'].documents.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /users/{userId}/documents
  */
 export function getGetUsersUserIdDocumentsQueryKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
 ) {
-  return ['/users/:userId/documents', ...(args ? [args] : [])] as const
+  return ['/users/:userId/documents', args] as const
 }
 
 /**
  * POST /compare
  */
-export function usePostCompare(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.compare.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.compare.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostCompare(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.compare.$post> | undefined,
     Error,
     InferRequestType<typeof client.compare.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.compare.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.compare.$post(args, clientOptions)) })
 }
 
 /**
  * GET /templates
  */
-export function useGetTemplates(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.templates.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetTemplates(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetTemplatesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.templates.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.templates.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -300,53 +165,21 @@ export function getGetTemplatesQueryKey() {
 /**
  * POST /templates
  */
-export function usePostTemplates(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.templates.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.templates.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostTemplates(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.templates.$post> | undefined,
     Error,
     InferRequestType<typeof client.templates.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.templates.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.templates.$post(args, clientOptions)) })
 }
 
 /**
  * POST /workflows
  */
-export function usePostWorkflows(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.workflows.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.workflows.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostWorkflows(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.workflows.$post> | undefined,
     Error,
     InferRequestType<typeof client.workflows.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.workflows.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.workflows.$post(args, clientOptions)) })
 }

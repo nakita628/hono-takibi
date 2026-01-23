@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
@@ -40,7 +40,12 @@ export function createGetContentNegotiation(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['content-negotiation']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['content-negotiation']['$get']>,
+      readonly [
+        '/content-negotiation',
+        InferRequestType<(typeof client)['content-negotiation']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -63,9 +68,9 @@ export function createGetContentNegotiation(
  * Generates Svelte Query cache key for GET /content-negotiation
  */
 export function getGetContentNegotiationQueryKey(
-  args?: InferRequestType<(typeof client)['content-negotiation']['$get']>,
+  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  return ['/content-negotiation', ...(args ? [args] : [])] as const
+  return ['/content-negotiation', args] as const
 }
 
 /**
@@ -101,7 +106,12 @@ export function createPostBinaryVariations(
  */
 export function createGetStreaming(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.streaming.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.streaming.$get>,
+      Error,
+      InferResponseType<typeof client.streaming.$get>,
+      readonly ['/streaming']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -188,7 +198,9 @@ export function createGetResponseEncoding(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['response-encoding']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['response-encoding']['$get']>,
+      readonly ['/response-encoding']
     >
     client?: ClientRequestOptions
   },

@@ -1,6 +1,6 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-boolean'
 
@@ -13,7 +13,12 @@ import { client } from '../clients/openapi-boolean'
  */
 export function createGetBoolean(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.boolean.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.boolean.$get>,
+      Error,
+      InferResponseType<typeof client.boolean.$get>,
+      readonly ['/boolean']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

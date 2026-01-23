@@ -1,33 +1,17 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
 /**
  * GET /class
  */
-export function useGetClass(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.class.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetClass(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetClassQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.class.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.class.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -40,27 +24,12 @@ export function getGetClassQueryKey() {
 /**
  * GET /interface
  */
-export function useGetInterface(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.interface.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetInterface(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetInterfaceQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.interface.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.interface.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -73,27 +42,12 @@ export function getGetInterfaceQueryKey() {
 /**
  * GET /type
  */
-export function useGetType(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.type.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetType(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetTypeQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.type.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.type.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -106,50 +60,21 @@ export function getGetTypeQueryKey() {
 /**
  * POST /function
  */
-export function usePostFunction(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.function.$post> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<InferResponseType<typeof client.function.$post> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.function.$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostFunction(clientOptions?: ClientRequestOptions) {
+  return useMutation<InferResponseType<typeof client.function.$post> | undefined, Error, void>({
+    mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
+  })
 }
 
 /**
  * GET /return
  */
-export function useGetReturn(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.return.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetReturn(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetReturnQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.return.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.return.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -162,27 +87,12 @@ export function getGetReturnQueryKey() {
 /**
  * GET /import
  */
-export function useGetImport(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.import.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetImport(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetImportQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.import.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.import.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -195,27 +105,12 @@ export function getGetImportQueryKey() {
 /**
  * GET /export
  */
-export function useGetExport(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.export.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetExport(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetExportQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.export.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.export.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -228,27 +123,12 @@ export function getGetExportQueryKey() {
 /**
  * GET /default
  */
-export function useGetDefault(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.default.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetDefault(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetDefaultQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.default.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.default.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -261,73 +141,30 @@ export function getGetDefaultQueryKey() {
 /**
  * POST /new
  */
-export function usePostNew(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.new.$post> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<InferResponseType<typeof client.new.$post> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.new.$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostNew(clientOptions?: ClientRequestOptions) {
+  return useMutation<InferResponseType<typeof client.new.$post> | undefined, Error, void>({
+    mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
+  })
 }
 
 /**
  * DELETE /delete
  */
-export function useDeleteDelete(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.delete.$delete> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<InferResponseType<typeof client.delete.$delete> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.delete.$delete(undefined, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteDelete(clientOptions?: ClientRequestOptions) {
+  return useMutation<InferResponseType<typeof client.delete.$delete> | undefined, Error, void>({
+    mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
+  })
 }
 
 /**
  * GET /void
  */
-export function useGetVoid(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.void.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetVoid(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetVoidQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.void.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.void.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -340,27 +177,12 @@ export function getGetVoidQueryKey() {
 /**
  * GET /null
  */
-export function useGetNull(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.null.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetNull(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetNullQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.null.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.null.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -373,27 +195,12 @@ export function getGetNullQueryKey() {
 /**
  * GET /true
  */
-export function useGetTrue(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.true.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetTrue(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetTrueQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.true.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.true.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -406,27 +213,12 @@ export function getGetTrueQueryKey() {
 /**
  * GET /false
  */
-export function useGetFalse(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.false.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetFalse(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetFalseQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.false.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.false.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -439,27 +231,12 @@ export function getGetFalseQueryKey() {
 /**
  * GET /if
  */
-export function useGetIf(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.if.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetIf(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetIfQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.if.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.if.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -472,27 +249,12 @@ export function getGetIfQueryKey() {
 /**
  * GET /else
  */
-export function useGetElse(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.else.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetElse(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetElseQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.else.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.else.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -505,27 +267,12 @@ export function getGetElseQueryKey() {
 /**
  * GET /for
  */
-export function useGetFor(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.for.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetFor(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetForQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.for.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.for.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -538,27 +285,12 @@ export function getGetForQueryKey() {
 /**
  * GET /while
  */
-export function useGetWhile(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.while.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetWhile(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetWhileQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.while.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.while.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -571,27 +303,12 @@ export function getGetWhileQueryKey() {
 /**
  * GET /switch
  */
-export function useGetSwitch(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.switch.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSwitch(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSwitchQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.switch.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.switch.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -604,27 +321,12 @@ export function getGetSwitchQueryKey() {
 /**
  * GET /case
  */
-export function useGetCase(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.case.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetCase(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetCaseQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.case.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.case.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -637,27 +339,12 @@ export function getGetCaseQueryKey() {
 /**
  * GET /break
  */
-export function useGetBreak(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.break.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetBreak(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetBreakQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.break.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.break.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -670,27 +357,12 @@ export function getGetBreakQueryKey() {
 /**
  * GET /continue
  */
-export function useGetContinue(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.continue.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetContinue(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetContinueQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.continue.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.continue.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -703,27 +375,12 @@ export function getGetContinueQueryKey() {
 /**
  * GET /try
  */
-export function useGetTry(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.try.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetTry(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetTryQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.try.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.try.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -736,27 +393,12 @@ export function getGetTryQueryKey() {
 /**
  * GET /catch
  */
-export function useGetCatch(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.catch.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetCatch(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetCatchQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.catch.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.catch.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -769,27 +411,12 @@ export function getGetCatchQueryKey() {
 /**
  * GET /finally
  */
-export function useGetFinally(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.finally.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetFinally(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetFinallyQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.finally.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.finally.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -802,27 +429,12 @@ export function getGetFinallyQueryKey() {
 /**
  * GET /throw
  */
-export function useGetThrow(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.throw.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetThrow(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetThrowQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.throw.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.throw.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -835,27 +447,12 @@ export function getGetThrowQueryKey() {
 /**
  * GET /async
  */
-export function useGetAsync(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.async.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetAsync(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetAsyncQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.async.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.async.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -868,27 +465,12 @@ export function getGetAsyncQueryKey() {
 /**
  * GET /await
  */
-export function useGetAwait(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.await.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetAwait(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetAwaitQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.await.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.await.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -901,27 +483,12 @@ export function getGetAwaitQueryKey() {
 /**
  * GET /yield
  */
-export function useGetYield(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.yield.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetYield(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetYieldQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.yield.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.yield.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -934,27 +501,12 @@ export function getGetYieldQueryKey() {
 /**
  * GET /static
  */
-export function useGetStatic(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.static.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetStatic(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetStaticQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.static.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.static.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -967,27 +519,12 @@ export function getGetStaticQueryKey() {
 /**
  * GET /public
  */
-export function useGetPublic(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.public.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetPublic(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetPublicQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1000,27 +537,12 @@ export function getGetPublicQueryKey() {
 /**
  * GET /private
  */
-export function useGetPrivate(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.private.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetPrivate(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetPrivateQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.private.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.private.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1033,27 +555,12 @@ export function getGetPrivateQueryKey() {
 /**
  * GET /protected
  */
-export function useGetProtected(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.protected.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetProtected(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetProtectedQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1066,27 +573,12 @@ export function getGetProtectedQueryKey() {
 /**
  * GET /abstract
  */
-export function useGetAbstract(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.abstract.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetAbstract(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetAbstractQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.abstract.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.abstract.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1099,27 +591,12 @@ export function getGetAbstractQueryKey() {
 /**
  * GET /final
  */
-export function useGetFinal(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.final.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetFinal(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetFinalQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.final.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.final.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1132,27 +609,12 @@ export function getGetFinalQueryKey() {
 /**
  * GET /extends
  */
-export function useGetExtends(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.extends.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetExtends(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetExtendsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.extends.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.extends.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1165,27 +627,12 @@ export function getGetExtendsQueryKey() {
 /**
  * GET /implements
  */
-export function useGetImplements(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.implements.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetImplements(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetImplementsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.implements.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.implements.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1198,27 +645,12 @@ export function getGetImplementsQueryKey() {
 /**
  * GET /package
  */
-export function useGetPackage(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.package.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetPackage(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetPackageQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.package.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.package.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1231,27 +663,12 @@ export function getGetPackageQueryKey() {
 /**
  * GET /enum
  */
-export function useGetEnum(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.enum.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetEnum(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetEnumQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.enum.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.enum.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1264,27 +681,12 @@ export function getGetEnumQueryKey() {
 /**
  * GET /const
  */
-export function useGetConst(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.const.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetConst(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetConstQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.const.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.const.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1297,27 +699,12 @@ export function getGetConstQueryKey() {
 /**
  * GET /let
  */
-export function useGetLet(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.let.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetLet(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetLetQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.let.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.let.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1330,27 +717,12 @@ export function getGetLetQueryKey() {
 /**
  * GET /var
  */
-export function useGetVar(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.var.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetVar(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetVarQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.var.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.var.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1363,27 +735,12 @@ export function getGetVarQueryKey() {
 /**
  * GET /this
  */
-export function useGetThis(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.this.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetThis(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetThisQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.this.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.this.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1396,27 +753,12 @@ export function getGetThisQueryKey() {
 /**
  * GET /super
  */
-export function useGetSuper(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.super.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSuper(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSuperQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.super.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.super.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1429,27 +771,12 @@ export function getGetSuperQueryKey() {
 /**
  * GET /self
  */
-export function useGetSelf(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.self.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSelf(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSelfQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.self.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.self.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1462,27 +789,12 @@ export function getGetSelfQueryKey() {
 /**
  * GET /constructor
  */
-export function useGetConstructor(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.constructor.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetConstructor(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetConstructorQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.constructor.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.constructor.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1495,27 +807,12 @@ export function getGetConstructorQueryKey() {
 /**
  * GET /prototype
  */
-export function useGetPrototype(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.prototype.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetPrototype(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetPrototypeQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.prototype.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.prototype.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1528,27 +825,12 @@ export function getGetPrototypeQueryKey() {
 /**
  * GET /toString
  */
-export function useGetToString(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.toString.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetToString(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetToStringQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.toString.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.toString.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1561,27 +843,12 @@ export function getGetToStringQueryKey() {
 /**
  * GET /valueOf
  */
-export function useGetValueOf(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.valueOf.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetValueOf(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetValueOfQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.valueOf.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.valueOf.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1594,27 +861,12 @@ export function getGetValueOfQueryKey() {
 /**
  * GET /hasOwnProperty
  */
-export function useGetHasOwnProperty(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.hasOwnProperty.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetHasOwnProperty(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetHasOwnPropertyQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.hasOwnProperty.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.hasOwnProperty.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -1627,27 +879,12 @@ export function getGetHasOwnPropertyQueryKey() {
 /**
  * GET /name-collisions
  */
-export function useGetNameCollisions(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['name-collisions']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetNameCollisions(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetNameCollisionsQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['name-collisions'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['name-collisions'].$get(undefined, clientOptions)),
+  })
 }
 
 /**

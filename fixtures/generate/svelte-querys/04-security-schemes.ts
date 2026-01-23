@@ -1,6 +1,6 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/04-security-schemes'
 
@@ -9,7 +9,12 @@ import { client } from '../clients/04-security-schemes'
  */
 export function createGetPublic(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.public.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.public.$get>,
+      Error,
+      InferResponseType<typeof client.public.$get>,
+      readonly ['/public']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -39,7 +44,12 @@ export function getGetPublicQueryKey() {
  */
 export function createGetProtected(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.protected.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.protected.$get>,
+      Error,
+      InferResponseType<typeof client.protected.$get>,
+      readonly ['/protected']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -69,7 +79,12 @@ export function getGetProtectedQueryKey() {
  */
 export function createGetAdmin(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.admin.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.admin.$get>,
+      Error,
+      InferResponseType<typeof client.admin.$get>,
+      readonly ['/admin']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -99,7 +114,12 @@ export function getGetAdminQueryKey() {
  */
 export function createGetOauthResource(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['oauth-resource']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['oauth-resource']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['oauth-resource']['$get']>,
+      readonly ['/oauth-resource']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -129,7 +149,12 @@ export function getGetOauthResourceQueryKey() {
  */
 export function createGetMultiAuth(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['multi-auth']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['multi-auth']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['multi-auth']['$get']>,
+      readonly ['/multi-auth']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

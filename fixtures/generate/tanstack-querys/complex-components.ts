@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-components'
 
@@ -41,9 +41,11 @@ export function usePostAuthToken(
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.users.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.users.$get>,
+      Error,
+      InferResponseType<typeof client.users.$get>,
+      readonly ['/users', InferRequestType<typeof client.users.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -53,9 +55,9 @@ export function useGetUsers(
   const queryKey = getGetUsersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -65,8 +67,8 @@ export function useGetUsers(
 /**
  * Generates TanStack Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
-  return ['/users', ...(args ? [args] : [])] as const
+export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['/users', args] as const
 }
 
 /**
@@ -106,9 +108,11 @@ export function usePostUsers(
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':userId']['$get']>,
+      readonly ['/users/:userId', InferRequestType<(typeof client.users)[':userId']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -118,9 +122,9 @@ export function useGetUsersUserId(
   const queryKey = getGetUsersUserIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -131,9 +135,9 @@ export function useGetUsersUserId(
  * Generates TanStack Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['/users/:userId', ...(args ? [args] : [])] as const
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -174,9 +178,14 @@ export function usePatchUsersUserId(
 export function useGetCompaniesCompanyId(
   args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.companies)[':companyId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.companies)[':companyId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.companies)[':companyId']['$get']>,
+      readonly [
+        '/companies/:companyId',
+        InferRequestType<(typeof client.companies)[':companyId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -186,9 +195,9 @@ export function useGetCompaniesCompanyId(
   const queryKey = getGetCompaniesCompanyIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.companies[':companyId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -199,9 +208,9 @@ export function useGetCompaniesCompanyId(
  * Generates TanStack Query cache key for GET /companies/{companyId}
  */
 export function getGetCompaniesCompanyIdQueryKey(
-  args?: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
+  args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
 ) {
-  return ['/companies/:companyId', ...(args ? [args] : [])] as const
+  return ['/companies/:companyId', args] as const
 }
 
 /**
@@ -212,9 +221,11 @@ export function getGetCompaniesCompanyIdQueryKey(
 export function useGetOrders(
   args: InferRequestType<typeof client.orders.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.orders.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.orders.$get>,
+      Error,
+      InferResponseType<typeof client.orders.$get>,
+      readonly ['/orders', InferRequestType<typeof client.orders.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -224,9 +235,9 @@ export function useGetOrders(
   const queryKey = getGetOrdersQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.orders.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -236,8 +247,8 @@ export function useGetOrders(
 /**
  * Generates TanStack Query cache key for GET /orders
  */
-export function getGetOrdersQueryKey(args?: InferRequestType<typeof client.orders.$get>) {
-  return ['/orders', ...(args ? [args] : [])] as const
+export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
+  return ['/orders', args] as const
 }
 
 /**
@@ -277,9 +288,11 @@ export function usePostOrders(
 export function useGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.orders)[':orderId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.orders)[':orderId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.orders)[':orderId']['$get']>,
+      readonly ['/orders/:orderId', InferRequestType<(typeof client.orders)[':orderId']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -289,9 +302,9 @@ export function useGetOrdersOrderId(
   const queryKey = getGetOrdersOrderIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -302,9 +315,9 @@ export function useGetOrdersOrderId(
  * Generates TanStack Query cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdQueryKey(
-  args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return ['/orders/:orderId', ...(args ? [args] : [])] as const
+  return ['/orders/:orderId', args] as const
 }
 
 /**
@@ -315,9 +328,11 @@ export function getGetOrdersOrderIdQueryKey(
 export function useGetFilesFileId(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.files)[':fileId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.files)[':fileId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['$get']>,
+      readonly ['/files/:fileId', InferRequestType<(typeof client.files)[':fileId']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -327,9 +342,9 @@ export function useGetFilesFileId(
   const queryKey = getGetFilesFileIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -340,9 +355,9 @@ export function useGetFilesFileId(
  * Generates TanStack Query cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return ['/files/:fileId', ...(args ? [args] : [])] as const
+  return ['/files/:fileId', args] as const
 }
 
 /**

@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
@@ -12,9 +12,11 @@ import { client } from '../clients/34-practical-storage-api'
 export function useGetFiles(
   args: InferRequestType<typeof client.files.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.files.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.files.$get>,
+      Error,
+      InferResponseType<typeof client.files.$get>,
+      readonly ['/files', InferRequestType<typeof client.files.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -24,9 +26,9 @@ export function useGetFiles(
   const queryKey = getGetFilesQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.files.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -36,8 +38,8 @@ export function useGetFiles(
 /**
  * Generates TanStack Query cache key for GET /files
  */
-export function getGetFilesQueryKey(args?: InferRequestType<typeof client.files.$get>) {
-  return ['/files', ...(args ? [args] : [])] as const
+export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$get>) {
+  return ['/files', args] as const
 }
 
 /**
@@ -175,9 +177,11 @@ export function usePostFilesUploadMultipartUploadIdComplete(
 export function useGetFilesFileId(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.files)[':fileId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.files)[':fileId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['$get']>,
+      readonly ['/files/:fileId', InferRequestType<(typeof client.files)[':fileId']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -187,9 +191,9 @@ export function useGetFilesFileId(
   const queryKey = getGetFilesFileIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -200,9 +204,9 @@ export function useGetFilesFileId(
  * Generates TanStack Query cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return ['/files/:fileId', ...(args ? [args] : [])] as const
+  return ['/files/:fileId', args] as const
 }
 
 /**
@@ -273,12 +277,14 @@ export function usePatchFilesFileId(
 export function useGetFilesFileIdDownload(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
+      readonly [
+        '/files/:fileId/download',
+        InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -288,10 +294,10 @@ export function useGetFilesFileIdDownload(
   const queryKey = getGetFilesFileIdDownloadQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.files[':fileId'].download.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -302,9 +308,9 @@ export function useGetFilesFileIdDownload(
  * Generates TanStack Query cache key for GET /files/{fileId}/download
  */
 export function getGetFilesFileIdDownloadQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
 ) {
-  return ['/files/:fileId/download', ...(args ? [args] : [])] as const
+  return ['/files/:fileId/download', args] as const
 }
 
 /**
@@ -315,12 +321,14 @@ export function getGetFilesFileIdDownloadQueryKey(
 export function useGetFilesFileIdDownloadUrl(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
+      readonly [
+        '/files/:fileId/download-url',
+        InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -330,10 +338,10 @@ export function useGetFilesFileIdDownloadUrl(
   const queryKey = getGetFilesFileIdDownloadUrlQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.files[':fileId']['download-url'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -344,9 +352,9 @@ export function useGetFilesFileIdDownloadUrl(
  * Generates TanStack Query cache key for GET /files/{fileId}/download-url
  */
 export function getGetFilesFileIdDownloadUrlQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  return ['/files/:fileId/download-url', ...(args ? [args] : [])] as const
+  return ['/files/:fileId/download-url', args] as const
 }
 
 /**
@@ -417,12 +425,14 @@ export function usePostFilesFileIdMove(
 export function useGetFilesFileIdThumbnail(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+      readonly [
+        '/files/:fileId/thumbnail',
+        InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -432,10 +442,10 @@ export function useGetFilesFileIdThumbnail(
   const queryKey = getGetFilesFileIdThumbnailQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.files[':fileId'].thumbnail.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -446,9 +456,9 @@ export function useGetFilesFileIdThumbnail(
  * Generates TanStack Query cache key for GET /files/{fileId}/thumbnail
  */
 export function getGetFilesFileIdThumbnailQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
 ) {
-  return ['/files/:fileId/thumbnail', ...(args ? [args] : [])] as const
+  return ['/files/:fileId/thumbnail', args] as const
 }
 
 /**
@@ -488,9 +498,14 @@ export function usePostFolders(
 export function useGetFoldersFolderId(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.folders)[':folderId']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.folders)[':folderId']['$get']>,
+      Error,
+      InferResponseType<(typeof client.folders)[':folderId']['$get']>,
+      readonly [
+        '/folders/:folderId',
+        InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -500,9 +515,9 @@ export function useGetFoldersFolderId(
   const queryKey = getGetFoldersFolderIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.folders[':folderId'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -513,9 +528,9 @@ export function useGetFoldersFolderId(
  * Generates TanStack Query cache key for GET /folders/{folderId}
  */
 export function getGetFoldersFolderIdQueryKey(
-  args?: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
 ) {
-  return ['/folders/:folderId', ...(args ? [args] : [])] as const
+  return ['/folders/:folderId', args] as const
 }
 
 /**
@@ -586,9 +601,14 @@ export function usePatchFoldersFolderId(
 export function useGetFilesFileIdShare(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.files)[':fileId']['share']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.files)[':fileId']['share']['$get']>,
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['share']['$get']>,
+      readonly [
+        '/files/:fileId/share',
+        InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -598,9 +618,9 @@ export function useGetFilesFileIdShare(
   const queryKey = getGetFilesFileIdShareQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.files[':fileId'].share.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -611,9 +631,9 @@ export function useGetFilesFileIdShare(
  * Generates TanStack Query cache key for GET /files/{fileId}/share
  */
 export function getGetFilesFileIdShareQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
 ) {
-  return ['/files/:fileId/share', ...(args ? [args] : [])] as const
+  return ['/files/:fileId/share', args] as const
 }
 
 /**
@@ -714,12 +734,14 @@ export function usePostFilesFileIdShareLink(
 export function useGetFilesFileIdVersions(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
+      Error,
+      InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
+      readonly [
+        '/files/:fileId/versions',
+        InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -729,10 +751,10 @@ export function useGetFilesFileIdVersions(
   const queryKey = getGetFilesFileIdVersionsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client.files[':fileId'].versions.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -743,9 +765,9 @@ export function useGetFilesFileIdVersions(
  * Generates TanStack Query cache key for GET /files/{fileId}/versions
  */
 export function getGetFilesFileIdVersionsQueryKey(
-  args?: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
 ) {
-  return ['/files/:fileId/versions', ...(args ? [args] : [])] as const
+  return ['/files/:fileId/versions', args] as const
 }
 
 /**
@@ -796,9 +818,11 @@ export function usePostFilesFileIdVersionsVersionIdRestore(
 export function useGetTrash(
   args: InferRequestType<typeof client.trash.$get>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.trash.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.trash.$get>,
+      Error,
+      InferResponseType<typeof client.trash.$get>,
+      readonly ['/trash', InferRequestType<typeof client.trash.$get>]
     >
     client?: ClientRequestOptions
   },
@@ -808,9 +832,9 @@ export function useGetTrash(
   const queryKey = getGetTrashQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.trash.$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -820,8 +844,8 @@ export function useGetTrash(
 /**
  * Generates TanStack Query cache key for GET /trash
  */
-export function getGetTrashQueryKey(args?: InferRequestType<typeof client.trash.$get>) {
-  return ['/trash', ...(args ? [args] : [])] as const
+export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$get>) {
+  return ['/trash', args] as const
 }
 
 /**
@@ -886,9 +910,11 @@ export function usePostTrashFileIdRestore(
  */
 export function useGetStorageUsage(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.storage.usage.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.storage.usage.$get>,
+      Error,
+      InferResponseType<typeof client.storage.usage.$get>,
+      readonly ['/storage/usage']
     >
     client?: ClientRequestOptions
   },
@@ -898,9 +924,9 @@ export function useGetStorageUsage(
   const queryKey = getGetStorageUsageQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.storage.usage.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
@@ -9,9 +9,11 @@ import { client } from '../clients/12-edge-cases'
  */
 export function useGetAllMethods(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['all-methods']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['all-methods']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['all-methods']['$get']>,
+      readonly ['/all-methods']
     >
     client?: ClientRequestOptions
   },
@@ -21,9 +23,9 @@ export function useGetAllMethods(
   const queryKey = getGetAllMethodsQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['all-methods'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -240,14 +242,20 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<
+    query?: UseQueryOptions<
+      InferResponseType<
+        (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
+      >,
+      Error,
+      InferResponseType<
+        (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
+      >,
+      readonly [
+        '/users/:userId/posts/:postId/comments/:commentId',
+        InferRequestType<
           (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
         >,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -257,12 +265,12 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
   const queryKey = getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(
           client.users[':userId'].posts[':postId'].comments[':commentId'].$get(args, clientOptions),
         ),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -273,11 +281,11 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
  * Generates TanStack Query cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
 ) {
-  return ['/users/:userId/posts/:postId/comments/:commentId', ...(args ? [args] : [])] as const
+  return ['/users/:userId/posts/:postId/comments/:commentId', args] as const
 }
 
 /**
@@ -286,12 +294,14 @@ export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
 export function useGetParamsTestPathParam(
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>,
+      readonly [
+        '/params-test/:pathParam',
+        InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -301,10 +311,10 @@ export function useGetParamsTestPathParam(
   const queryKey = getGetParamsTestPathParamQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () =>
         parseResponse(client['params-test'][':pathParam'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -315,9 +325,9 @@ export function useGetParamsTestPathParam(
  * Generates TanStack Query cache key for GET /params-test/{pathParam}
  */
 export function getGetParamsTestPathParamQueryKey(
-  args?: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
+  args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
-  return ['/params-test/:pathParam', ...(args ? [args] : [])] as const
+  return ['/params-test/:pathParam', args] as const
 }
 
 /**
@@ -352,9 +362,11 @@ export function usePostNoContent(
  */
 export function useGetMultiContent(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['multi-content']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['multi-content']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['multi-content']['$get']>,
+      readonly ['/multi-content']
     >
     client?: ClientRequestOptions
   },
@@ -364,9 +376,9 @@ export function useGetMultiContent(
   const queryKey = getGetMultiContentQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['multi-content'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -413,9 +425,11 @@ export function usePostMultiContent(
  */
 export function useGetResponseRanges(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['response-ranges']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['response-ranges']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['response-ranges']['$get']>,
+      readonly ['/response-ranges']
     >
     client?: ClientRequestOptions
   },
@@ -425,9 +439,9 @@ export function useGetResponseRanges(
   const queryKey = getGetResponseRangesQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['response-ranges'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -448,9 +462,11 @@ export function getGetResponseRangesQueryKey() {
  */
 export function useGetDeprecated(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.deprecated.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.deprecated.$get>,
+      Error,
+      InferResponseType<typeof client.deprecated.$get>,
+      readonly ['/deprecated']
     >
     client?: ClientRequestOptions
   },
@@ -460,9 +476,9 @@ export function useGetDeprecated(
   const queryKey = getGetDeprecatedQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.deprecated.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -483,9 +499,11 @@ export function getGetDeprecatedQueryKey() {
  */
 export function useGetNoOperationId(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['no-operation-id']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['no-operation-id']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['no-operation-id']['$get']>,
+      readonly ['/no-operation-id']
     >
     client?: ClientRequestOptions
   },
@@ -495,9 +513,9 @@ export function useGetNoOperationId(
   const queryKey = getGetNoOperationIdQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['no-operation-id'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -543,9 +561,11 @@ export function usePostEmptyBody(
  */
 export function useGetCircular(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.circular.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.circular.$get>,
+      Error,
+      InferResponseType<typeof client.circular.$get>,
+      readonly ['/circular']
     >
     client?: ClientRequestOptions
   },
@@ -555,9 +575,9 @@ export function useGetCircular(
   const queryKey = getGetCircularQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.circular.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -576,9 +596,11 @@ export function getGetCircularQueryKey() {
  */
 export function useGetDeepNesting(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['deep-nesting']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['deep-nesting']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['deep-nesting']['$get']>,
+      readonly ['/deep-nesting']
     >
     client?: ClientRequestOptions
   },
@@ -588,9 +610,9 @@ export function useGetDeepNesting(
   const queryKey = getGetDeepNestingQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['deep-nesting'].$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -610,9 +632,11 @@ export function getGetDeepNestingQueryKey() {
 export function useGetArrayParams(
   args: InferRequestType<(typeof client)['array-params']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['array-params']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['array-params']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['array-params']['$get']>,
+      readonly ['/array-params', InferRequestType<(typeof client)['array-params']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -622,9 +646,9 @@ export function useGetArrayParams(
   const queryKey = getGetArrayParamsQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['array-params'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -635,9 +659,9 @@ export function useGetArrayParams(
  * Generates TanStack Query cache key for GET /array-params
  */
 export function getGetArrayParamsQueryKey(
-  args?: InferRequestType<(typeof client)['array-params']['$get']>,
+  args: InferRequestType<(typeof client)['array-params']['$get']>,
 ) {
-  return ['/array-params', ...(args ? [args] : [])] as const
+  return ['/array-params', args] as const
 }
 
 /**
@@ -646,9 +670,11 @@ export function getGetArrayParamsQueryKey(
 export function useGetObjectParam(
   args: InferRequestType<(typeof client)['object-param']['$get']>,
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['object-param']['$get']>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<(typeof client)['object-param']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['object-param']['$get']>,
+      readonly ['/object-param', InferRequestType<(typeof client)['object-param']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -658,9 +684,9 @@ export function useGetObjectParam(
   const queryKey = getGetObjectParamQueryKey(args)
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client['object-param'].$get(args, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )
@@ -671,7 +697,7 @@ export function useGetObjectParam(
  * Generates TanStack Query cache key for GET /object-param
  */
 export function getGetObjectParamQueryKey(
-  args?: InferRequestType<(typeof client)['object-param']['$get']>,
+  args: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
-  return ['/object-param', ...(args ? [args] : [])] as const
+  return ['/object-param', args] as const
 }

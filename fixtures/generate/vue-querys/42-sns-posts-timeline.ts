@@ -1,6 +1,5 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/42-sns-posts-timeline'
 
@@ -13,33 +12,20 @@ import { client } from '../clients/42-sns-posts-timeline'
  */
 export function useGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.posts.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPostsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.posts.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.posts.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /posts
  */
-export function getGetPostsQueryKey(args?: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', ...(args ? [args] : [])] as const
+export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', args] as const
 }
 
 /**
@@ -47,28 +33,12 @@ export function getGetPostsQueryKey(args?: InferRequestType<typeof client.posts.
  *
  * 投稿作成
  */
-export function usePostPosts(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.posts.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.posts.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostPosts(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.posts.$post> | undefined,
     Error,
     InferRequestType<typeof client.posts.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.posts.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.posts.$post(args, clientOptions)) })
 }
 
 /**
@@ -78,35 +48,22 @@ export function usePostPosts(
  */
 export function useGetPostsPostId(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.posts)[':postId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPostsPostIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.posts[':postId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.posts[':postId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /posts/{postId}
  */
 export function getGetPostsPostIdQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return ['/posts/:postId', ...(args ? [args] : [])] as const
+  return ['/posts/:postId', args] as const
 }
 
 /**
@@ -114,29 +71,14 @@ export function getGetPostsPostIdQueryKey(
  *
  * 投稿削除
  */
-export function useDeletePostsPostId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeletePostsPostId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.posts)[':postId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.posts)[':postId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.posts[':postId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -148,35 +90,22 @@ export function useDeletePostsPostId(
  */
 export function useGetPostsPostIdThread(
   args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.posts)[':postId']['thread']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPostsPostIdThreadQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.posts[':postId'].thread.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.posts[':postId'].thread.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /posts/{postId}/thread
  */
 export function getGetPostsPostIdThreadQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
 ) {
-  return ['/posts/:postId/thread', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/thread', args] as const
 }
 
 /**
@@ -188,38 +117,22 @@ export function getGetPostsPostIdThreadQueryKey(
  */
 export function useGetPostsPostIdContext(
   args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.posts)[':postId']['context']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPostsPostIdContextQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.posts[':postId'].context.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.posts[':postId'].context.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /posts/{postId}/context
  */
 export function getGetPostsPostIdContextQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
 ) {
-  return ['/posts/:postId/context', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/context', args] as const
 }
 
 /**
@@ -231,35 +144,22 @@ export function getGetPostsPostIdContextQueryKey(
  */
 export function useGetTimelineHome(
   args: InferRequestType<typeof client.timeline.home.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.timeline.home.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetTimelineHomeQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.timeline.home.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.timeline.home.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /timeline/home
  */
 export function getGetTimelineHomeQueryKey(
-  args?: InferRequestType<typeof client.timeline.home.$get>,
+  args: InferRequestType<typeof client.timeline.home.$get>,
 ) {
-  return ['/timeline/home', ...(args ? [args] : [])] as const
+  return ['/timeline/home', args] as const
 }
 
 /**
@@ -271,35 +171,22 @@ export function getGetTimelineHomeQueryKey(
  */
 export function useGetTimelineForYou(
   args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.timeline)['for-you']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetTimelineForYouQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.timeline['for-you'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.timeline['for-you'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /timeline/for-you
  */
 export function getGetTimelineForYouQueryKey(
-  args?: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
+  args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
 ) {
-  return ['/timeline/for-you', ...(args ? [args] : [])] as const
+  return ['/timeline/for-you', args] as const
 }
 
 /**
@@ -309,35 +196,22 @@ export function getGetTimelineForYouQueryKey(
  */
 export function useGetTimelineUserUserId(
   args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.timeline.user)[':userId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetTimelineUserUserIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.timeline.user[':userId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.timeline.user[':userId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /timeline/user/{userId}
  */
 export function getGetTimelineUserUserIdQueryKey(
-  args?: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
+  args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
 ) {
-  return ['/timeline/user/:userId', ...(args ? [args] : [])] as const
+  return ['/timeline/user/:userId', args] as const
 }
 
 /**
@@ -347,39 +221,23 @@ export function getGetTimelineUserUserIdQueryKey(
  */
 export function useGetTimelineHashtagHashtag(
   args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetTimelineHashtagHashtagQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.timeline.hashtag[':hashtag'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.timeline.hashtag[':hashtag'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /timeline/hashtag/{hashtag}
  */
 export function getGetTimelineHashtagHashtagQueryKey(
-  args?: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
+  args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
 ) {
-  return ['/timeline/hashtag/:hashtag', ...(args ? [args] : [])] as const
+  return ['/timeline/hashtag/:hashtag', args] as const
 }
 
 /**
@@ -387,29 +245,15 @@ export function getGetTimelineHashtagHashtagQueryKey(
  *
  * いいね
  */
-export function usePostPostsPostIdLike(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['like']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['like']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostPostsPostIdLike(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.posts)[':postId']['like']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.posts)[':postId']['like']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].like.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.posts[':postId'].like.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -417,29 +261,15 @@ export function usePostPostsPostIdLike(
  *
  * いいね解除
  */
-export function useDeletePostsPostIdLike(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['like']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeletePostsPostIdLike(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.posts)[':postId']['like']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].like.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.posts[':postId'].like.$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -447,29 +277,15 @@ export function useDeletePostsPostIdLike(
  *
  * リポスト
  */
-export function usePostPostsPostIdRepost(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['repost']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostPostsPostIdRepost(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.posts)[':postId']['repost']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].repost.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.posts[':postId'].repost.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -477,29 +293,15 @@ export function usePostPostsPostIdRepost(
  *
  * リポスト解除
  */
-export function useDeletePostsPostIdRepost(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['repost']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeletePostsPostIdRepost(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.posts)[':postId']['repost']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].repost.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.posts[':postId'].repost.$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -507,29 +309,15 @@ export function useDeletePostsPostIdRepost(
  *
  * 引用投稿
  */
-export function usePostPostsPostIdQuote(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['quote']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostPostsPostIdQuote(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.posts)[':postId']['quote']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].quote.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.posts[':postId'].quote.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -537,29 +325,15 @@ export function usePostPostsPostIdQuote(
  *
  * ブックマーク追加
  */
-export function usePostPostsPostIdBookmark(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['bookmark']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostPostsPostIdBookmark(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.posts)[':postId']['bookmark']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].bookmark.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.posts[':postId'].bookmark.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -567,29 +341,15 @@ export function usePostPostsPostIdBookmark(
  *
  * ブックマーク解除
  */
-export function useDeletePostsPostIdBookmark(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['bookmark']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeletePostsPostIdBookmark(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.posts)[':postId']['bookmark']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].bookmark.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.posts[':postId'].bookmark.$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -599,33 +359,20 @@ export function useDeletePostsPostIdBookmark(
  */
 export function useGetBookmarks(
   args: InferRequestType<typeof client.bookmarks.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.bookmarks.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetBookmarksQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.bookmarks.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.bookmarks.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /bookmarks
  */
-export function getGetBookmarksQueryKey(args?: InferRequestType<typeof client.bookmarks.$get>) {
-  return ['/bookmarks', ...(args ? [args] : [])] as const
+export function getGetBookmarksQueryKey(args: InferRequestType<typeof client.bookmarks.$get>) {
+  return ['/bookmarks', args] as const
 }
 
 /**
@@ -635,35 +382,22 @@ export function getGetBookmarksQueryKey(args?: InferRequestType<typeof client.bo
  */
 export function useGetPostsPostIdLikes(
   args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.posts)[':postId']['likes']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPostsPostIdLikesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.posts[':postId'].likes.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.posts[':postId'].likes.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /posts/{postId}/likes
  */
 export function getGetPostsPostIdLikesQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
 ) {
-  return ['/posts/:postId/likes', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/likes', args] as const
 }
 
 /**
@@ -673,38 +407,22 @@ export function getGetPostsPostIdLikesQueryKey(
  */
 export function useGetPostsPostIdReposts(
   args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.posts)[':postId']['reposts']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPostsPostIdRepostsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.posts[':postId'].reposts.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.posts[':postId'].reposts.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /posts/{postId}/reposts
  */
 export function getGetPostsPostIdRepostsQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
 ) {
-  return ['/posts/:postId/reposts', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/reposts', args] as const
 }
 
 /**
@@ -714,35 +432,22 @@ export function getGetPostsPostIdRepostsQueryKey(
  */
 export function useGetPostsPostIdQuotes(
   args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.posts)[':postId']['quotes']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPostsPostIdQuotesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.posts[':postId'].quotes.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.posts[':postId'].quotes.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /posts/{postId}/quotes
  */
 export function getGetPostsPostIdQuotesQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
 ) {
-  return ['/posts/:postId/quotes', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/quotes', args] as const
 }
 
 /**
@@ -752,38 +457,22 @@ export function getGetPostsPostIdQuotesQueryKey(
  */
 export function useGetPostsPostIdReplies(
   args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.posts)[':postId']['replies']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetPostsPostIdRepliesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.posts[':postId'].replies.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.posts[':postId'].replies.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /posts/{postId}/replies
  */
 export function getGetPostsPostIdRepliesQueryKey(
-  args?: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
+  args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
 ) {
-  return ['/posts/:postId/replies', ...(args ? [args] : [])] as const
+  return ['/posts/:postId/replies', args] as const
 }
 
 /**
@@ -791,29 +480,15 @@ export function getGetPostsPostIdRepliesQueryKey(
  *
  * 返信投稿
  */
-export function usePostPostsPostIdReplies(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['replies']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostPostsPostIdReplies(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.posts)[':postId']['replies']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].replies.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.posts[':postId'].replies.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -821,28 +496,12 @@ export function usePostPostsPostIdReplies(
  *
  * メディアアップロード
  */
-export function usePostMediaUpload(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.media.upload.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.media.upload.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostMediaUpload(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.media.upload.$post> | undefined,
     Error,
     InferRequestType<typeof client.media.upload.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.media.upload.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.media.upload.$post(args, clientOptions)) })
 }
 
 /**
@@ -852,35 +511,22 @@ export function usePostMediaUpload(
  */
 export function useGetMediaMediaId(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.media)[':mediaId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMediaMediaIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.media[':mediaId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.media[':mediaId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /media/{mediaId}
  */
 export function getGetMediaMediaIdQueryKey(
-  args?: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return ['/media/:mediaId', ...(args ? [args] : [])] as const
+  return ['/media/:mediaId', args] as const
 }
 
 /**
@@ -888,27 +534,12 @@ export function getGetMediaMediaIdQueryKey(
  *
  * メディア情報更新
  */
-export function usePatchMediaMediaId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.media)[':mediaId']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.media)[':mediaId']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePatchMediaMediaId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.media)[':mediaId']['$patch']> | undefined,
     Error,
     InferRequestType<(typeof client.media)[':mediaId']['$patch']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.media[':mediaId'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.media[':mediaId'].$patch(args, clientOptions)),
+  })
 }

@@ -64,7 +64,12 @@ import { client } from '../client'
  */
 export function createGetHono(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.hono.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.hono.$get>,
+      Error,
+      InferResponseType<typeof client.hono.$get>,
+      readonly ['/hono']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -99,7 +104,12 @@ export function getGetHonoQueryKey() {
 export function createGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.users.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.users.$get>,
+      Error,
+      InferResponseType<typeof client.users.$get>,
+      readonly ['/users', InferRequestType<typeof client.users.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -120,8 +130,8 @@ export function createGetUsers(
 /**
  * Generates Svelte Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
-  return ['/users', ...(args ? [args] : [])] as const
+export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['/users', args] as const
 }
 
 /**
@@ -203,7 +213,12 @@ import { client } from '../client'
  */
 export function createGetHono(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.hono.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.hono.$get>,
+      Error,
+      InferResponseType<typeof client.hono.$get>,
+      readonly ['/hono']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -248,7 +263,12 @@ import { client } from '../client'
 export function createGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.users.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.users.$get>,
+      Error,
+      InferResponseType<typeof client.users.$get>,
+      readonly ['/users', InferRequestType<typeof client.users.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -269,8 +289,8 @@ export function createGetUsers(
 /**
  * Generates Svelte Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
-  return ['/users', ...(args ? [args] : [])] as const
+export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
+  return ['/users', args] as const
 }
 `
       expect(createGetUsers).toBe(createGetUsersExpected)
@@ -367,7 +387,12 @@ import { authClient } from '../api'
  */
 export function createGetUsers(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof authClient.users.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof authClient.users.$get>,
+      Error,
+      InferResponseType<typeof authClient.users.$get>,
+      readonly ['/users']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -442,7 +467,12 @@ import { client } from '../client'
  */
 export function createGetPing(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.ping.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.ping.$get>,
+      Error,
+      InferResponseType<typeof client.ping.$get>,
+      readonly ['/ping']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -537,7 +567,12 @@ import { client } from '../client'
  */
 export function createGetHonoX(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['hono-x']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['hono-x']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['hono-x']['$get']>,
+      readonly ['/hono-x']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -614,7 +649,12 @@ import { client } from '../client'
 export function createGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.users)[':id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.users)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.users)[':id']['$get']>,
+      readonly ['/users/:id', InferRequestType<(typeof client.users)[':id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -636,9 +676,9 @@ export function createGetUsersId(
  * Generates Svelte Query cache key for GET /users/{id}
  */
 export function getGetUsersIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':id']['$get']>,
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
-  return ['/users/:id', ...(args ? [args] : [])] as const
+  return ['/users/:id', args] as const
 }
 
 /**
@@ -855,7 +895,12 @@ export function createGetUsersUserIdPostsPostId(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.users)[':userId']['posts'][':postId']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.users)[':userId']['posts'][':postId']['$get']>,
+      readonly [
+        '/users/:userId/posts/:postId',
+        InferRequestType<(typeof client.users)[':userId']['posts'][':postId']['$get']>,
+      ]
     >
     client?: ClientRequestOptions
   },
@@ -879,9 +924,9 @@ export function createGetUsersUserIdPostsPostId(
  * Generates Svelte Query cache key for GET /users/{userId}/posts/{postId}
  */
 export function getGetUsersUserIdPostsPostIdQueryKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['posts'][':postId']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['posts'][':postId']['$get']>,
 ) {
-  return ['/users/:userId/posts/:postId', ...(args ? [args] : [])] as const
+  return ['/users/:userId/posts/:postId', args] as const
 }
 `
       expect(code).toBe(expected)
@@ -937,7 +982,9 @@ export function createGetUsersIdPosts(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client.users)[':id']['posts']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client.users)[':id']['posts']['$get']>,
+      readonly ['/users/:id/posts', InferRequestType<(typeof client.users)[':id']['posts']['$get']>]
     >
     client?: ClientRequestOptions
   },
@@ -960,9 +1007,9 @@ export function createGetUsersIdPosts(
  * Generates Svelte Query cache key for GET /users/{id}/posts
  */
 export function getGetUsersIdPostsQueryKey(
-  args?: InferRequestType<(typeof client.users)[':id']['posts']['$get']>,
+  args: InferRequestType<(typeof client.users)[':id']['posts']['$get']>,
 ) {
-  return ['/users/:id/posts', ...(args ? [args] : [])] as const
+  return ['/users/:id/posts', args] as const
 }
 `
       expect(code).toBe(expected)
@@ -1010,7 +1057,12 @@ import { client } from '../client'
  */
 export function createGetApiV1Users(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.api.v1.users.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.api.v1.users.$get>,
+      Error,
+      InferResponseType<typeof client.api.v1.users.$get>,
+      readonly ['/api/v1/users']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1081,7 +1133,12 @@ import { apiClient } from '../api'
  */
 export function createGetUsers(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof apiClient.users.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof apiClient.users.$get>,
+      Error,
+      InferResponseType<typeof apiClient.users.$get>,
+      readonly ['/users']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1185,7 +1242,12 @@ import { client } from '../client'
 export function createGetResourcesId(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client.resources)[':id']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client.resources)[':id']['$get']>,
+      Error,
+      InferResponseType<(typeof client.resources)[':id']['$get']>,
+      readonly ['/resources/:id', InferRequestType<(typeof client.resources)[':id']['$get']>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1207,9 +1269,9 @@ export function createGetResourcesId(
  * Generates Svelte Query cache key for GET /resources/{id}
  */
 export function getGetResourcesIdQueryKey(
-  args?: InferRequestType<(typeof client.resources)[':id']['$get']>,
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  return ['/resources/:id', ...(args ? [args] : [])] as const
+  return ['/resources/:id', args] as const
 }
 
 /**

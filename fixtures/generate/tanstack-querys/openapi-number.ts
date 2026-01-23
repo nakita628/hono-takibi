@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-number'
 
@@ -13,9 +13,11 @@ import { client } from '../clients/openapi-number'
  */
 export function useGetNumber(
   options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.number.$get>, Error>,
-      'queryKey' | 'queryFn' | 'initialData'
+    query?: UseQueryOptions<
+      InferResponseType<typeof client.number.$get>,
+      Error,
+      InferResponseType<typeof client.number.$get>,
+      readonly ['/number']
     >
     client?: ClientRequestOptions
   },
@@ -25,9 +27,9 @@ export function useGetNumber(
   const queryKey = getGetNumberQueryKey()
   const query = useQuery(
     {
+      ...queryOptions,
       queryKey,
       queryFn: async () => parseResponse(client.number.$get(undefined, clientOptions)),
-      ...queryOptions,
     },
     queryClient,
   )

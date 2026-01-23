@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
@@ -9,7 +9,12 @@ import { client } from '../clients/28-reserved-words'
  */
 export function createGetClass(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.class.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.class.$get>,
+      Error,
+      InferResponseType<typeof client.class.$get>,
+      readonly ['/class']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -39,7 +44,12 @@ export function getGetClassQueryKey() {
  */
 export function createGetInterface(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.interface.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.interface.$get>,
+      Error,
+      InferResponseType<typeof client.interface.$get>,
+      readonly ['/interface']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -69,7 +79,12 @@ export function getGetInterfaceQueryKey() {
  */
 export function createGetType(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.type.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.type.$get>,
+      Error,
+      InferResponseType<typeof client.type.$get>,
+      readonly ['/type']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -122,7 +137,12 @@ export function createPostFunction(
  */
 export function createGetReturn(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.return.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.return.$get>,
+      Error,
+      InferResponseType<typeof client.return.$get>,
+      readonly ['/return']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -152,7 +172,12 @@ export function getGetReturnQueryKey() {
  */
 export function createGetImport(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.import.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.import.$get>,
+      Error,
+      InferResponseType<typeof client.import.$get>,
+      readonly ['/import']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -182,7 +207,12 @@ export function getGetImportQueryKey() {
  */
 export function createGetExport(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.export.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.export.$get>,
+      Error,
+      InferResponseType<typeof client.export.$get>,
+      readonly ['/export']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -212,7 +242,12 @@ export function getGetExportQueryKey() {
  */
 export function createGetDefault(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.default.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.default.$get>,
+      Error,
+      InferResponseType<typeof client.default.$get>,
+      readonly ['/default']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -288,7 +323,12 @@ export function createDeleteDelete(
  */
 export function createGetVoid(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.void.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.void.$get>,
+      Error,
+      InferResponseType<typeof client.void.$get>,
+      readonly ['/void']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -318,7 +358,12 @@ export function getGetVoidQueryKey() {
  */
 export function createGetNull(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.null.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.null.$get>,
+      Error,
+      InferResponseType<typeof client.null.$get>,
+      readonly ['/null']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -348,7 +393,12 @@ export function getGetNullQueryKey() {
  */
 export function createGetTrue(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.true.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.true.$get>,
+      Error,
+      InferResponseType<typeof client.true.$get>,
+      readonly ['/true']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -378,7 +428,12 @@ export function getGetTrueQueryKey() {
  */
 export function createGetFalse(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.false.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.false.$get>,
+      Error,
+      InferResponseType<typeof client.false.$get>,
+      readonly ['/false']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -408,7 +463,12 @@ export function getGetFalseQueryKey() {
  */
 export function createGetIf(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.if.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.if.$get>,
+      Error,
+      InferResponseType<typeof client.if.$get>,
+      readonly ['/if']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -438,7 +498,12 @@ export function getGetIfQueryKey() {
  */
 export function createGetElse(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.else.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.else.$get>,
+      Error,
+      InferResponseType<typeof client.else.$get>,
+      readonly ['/else']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -468,7 +533,12 @@ export function getGetElseQueryKey() {
  */
 export function createGetFor(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.for.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.for.$get>,
+      Error,
+      InferResponseType<typeof client.for.$get>,
+      readonly ['/for']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -498,7 +568,12 @@ export function getGetForQueryKey() {
  */
 export function createGetWhile(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.while.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.while.$get>,
+      Error,
+      InferResponseType<typeof client.while.$get>,
+      readonly ['/while']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -528,7 +603,12 @@ export function getGetWhileQueryKey() {
  */
 export function createGetSwitch(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.switch.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.switch.$get>,
+      Error,
+      InferResponseType<typeof client.switch.$get>,
+      readonly ['/switch']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -558,7 +638,12 @@ export function getGetSwitchQueryKey() {
  */
 export function createGetCase(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.case.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.case.$get>,
+      Error,
+      InferResponseType<typeof client.case.$get>,
+      readonly ['/case']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -588,7 +673,12 @@ export function getGetCaseQueryKey() {
  */
 export function createGetBreak(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.break.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.break.$get>,
+      Error,
+      InferResponseType<typeof client.break.$get>,
+      readonly ['/break']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -618,7 +708,12 @@ export function getGetBreakQueryKey() {
  */
 export function createGetContinue(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.continue.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.continue.$get>,
+      Error,
+      InferResponseType<typeof client.continue.$get>,
+      readonly ['/continue']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -648,7 +743,12 @@ export function getGetContinueQueryKey() {
  */
 export function createGetTry(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.try.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.try.$get>,
+      Error,
+      InferResponseType<typeof client.try.$get>,
+      readonly ['/try']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -678,7 +778,12 @@ export function getGetTryQueryKey() {
  */
 export function createGetCatch(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.catch.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.catch.$get>,
+      Error,
+      InferResponseType<typeof client.catch.$get>,
+      readonly ['/catch']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -708,7 +813,12 @@ export function getGetCatchQueryKey() {
  */
 export function createGetFinally(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.finally.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.finally.$get>,
+      Error,
+      InferResponseType<typeof client.finally.$get>,
+      readonly ['/finally']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -738,7 +848,12 @@ export function getGetFinallyQueryKey() {
  */
 export function createGetThrow(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.throw.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.throw.$get>,
+      Error,
+      InferResponseType<typeof client.throw.$get>,
+      readonly ['/throw']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -768,7 +883,12 @@ export function getGetThrowQueryKey() {
  */
 export function createGetAsync(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.async.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.async.$get>,
+      Error,
+      InferResponseType<typeof client.async.$get>,
+      readonly ['/async']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -798,7 +918,12 @@ export function getGetAsyncQueryKey() {
  */
 export function createGetAwait(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.await.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.await.$get>,
+      Error,
+      InferResponseType<typeof client.await.$get>,
+      readonly ['/await']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -828,7 +953,12 @@ export function getGetAwaitQueryKey() {
  */
 export function createGetYield(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.yield.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.yield.$get>,
+      Error,
+      InferResponseType<typeof client.yield.$get>,
+      readonly ['/yield']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -858,7 +988,12 @@ export function getGetYieldQueryKey() {
  */
 export function createGetStatic(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.static.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.static.$get>,
+      Error,
+      InferResponseType<typeof client.static.$get>,
+      readonly ['/static']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -888,7 +1023,12 @@ export function getGetStaticQueryKey() {
  */
 export function createGetPublic(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.public.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.public.$get>,
+      Error,
+      InferResponseType<typeof client.public.$get>,
+      readonly ['/public']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -918,7 +1058,12 @@ export function getGetPublicQueryKey() {
  */
 export function createGetPrivate(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.private.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.private.$get>,
+      Error,
+      InferResponseType<typeof client.private.$get>,
+      readonly ['/private']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -948,7 +1093,12 @@ export function getGetPrivateQueryKey() {
  */
 export function createGetProtected(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.protected.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.protected.$get>,
+      Error,
+      InferResponseType<typeof client.protected.$get>,
+      readonly ['/protected']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -978,7 +1128,12 @@ export function getGetProtectedQueryKey() {
  */
 export function createGetAbstract(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.abstract.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.abstract.$get>,
+      Error,
+      InferResponseType<typeof client.abstract.$get>,
+      readonly ['/abstract']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1008,7 +1163,12 @@ export function getGetAbstractQueryKey() {
  */
 export function createGetFinal(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.final.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.final.$get>,
+      Error,
+      InferResponseType<typeof client.final.$get>,
+      readonly ['/final']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1038,7 +1198,12 @@ export function getGetFinalQueryKey() {
  */
 export function createGetExtends(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.extends.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.extends.$get>,
+      Error,
+      InferResponseType<typeof client.extends.$get>,
+      readonly ['/extends']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1068,7 +1233,12 @@ export function getGetExtendsQueryKey() {
  */
 export function createGetImplements(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.implements.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.implements.$get>,
+      Error,
+      InferResponseType<typeof client.implements.$get>,
+      readonly ['/implements']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1098,7 +1268,12 @@ export function getGetImplementsQueryKey() {
  */
 export function createGetPackage(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.package.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.package.$get>,
+      Error,
+      InferResponseType<typeof client.package.$get>,
+      readonly ['/package']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1128,7 +1303,12 @@ export function getGetPackageQueryKey() {
  */
 export function createGetEnum(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.enum.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.enum.$get>,
+      Error,
+      InferResponseType<typeof client.enum.$get>,
+      readonly ['/enum']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1158,7 +1338,12 @@ export function getGetEnumQueryKey() {
  */
 export function createGetConst(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.const.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.const.$get>,
+      Error,
+      InferResponseType<typeof client.const.$get>,
+      readonly ['/const']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1188,7 +1373,12 @@ export function getGetConstQueryKey() {
  */
 export function createGetLet(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.let.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.let.$get>,
+      Error,
+      InferResponseType<typeof client.let.$get>,
+      readonly ['/let']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1218,7 +1408,12 @@ export function getGetLetQueryKey() {
  */
 export function createGetVar(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.var.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.var.$get>,
+      Error,
+      InferResponseType<typeof client.var.$get>,
+      readonly ['/var']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1248,7 +1443,12 @@ export function getGetVarQueryKey() {
  */
 export function createGetThis(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.this.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.this.$get>,
+      Error,
+      InferResponseType<typeof client.this.$get>,
+      readonly ['/this']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1278,7 +1478,12 @@ export function getGetThisQueryKey() {
  */
 export function createGetSuper(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.super.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.super.$get>,
+      Error,
+      InferResponseType<typeof client.super.$get>,
+      readonly ['/super']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1308,7 +1513,12 @@ export function getGetSuperQueryKey() {
  */
 export function createGetSelf(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.self.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.self.$get>,
+      Error,
+      InferResponseType<typeof client.self.$get>,
+      readonly ['/self']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1338,7 +1548,12 @@ export function getGetSelfQueryKey() {
  */
 export function createGetConstructor(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.constructor.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.constructor.$get>,
+      Error,
+      InferResponseType<typeof client.constructor.$get>,
+      readonly ['/constructor']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1368,7 +1583,12 @@ export function getGetConstructorQueryKey() {
  */
 export function createGetPrototype(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.prototype.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.prototype.$get>,
+      Error,
+      InferResponseType<typeof client.prototype.$get>,
+      readonly ['/prototype']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1398,7 +1618,12 @@ export function getGetPrototypeQueryKey() {
  */
 export function createGetToString(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.toString.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.toString.$get>,
+      Error,
+      InferResponseType<typeof client.toString.$get>,
+      readonly ['/toString']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1428,7 +1653,12 @@ export function getGetToStringQueryKey() {
  */
 export function createGetValueOf(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.valueOf.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.valueOf.$get>,
+      Error,
+      InferResponseType<typeof client.valueOf.$get>,
+      readonly ['/valueOf']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1458,7 +1688,12 @@ export function getGetValueOfQueryKey() {
  */
 export function createGetHasOwnProperty(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.hasOwnProperty.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.hasOwnProperty.$get>,
+      Error,
+      InferResponseType<typeof client.hasOwnProperty.$get>,
+      readonly ['/hasOwnProperty']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -1488,7 +1723,12 @@ export function getGetHasOwnPropertyQueryKey() {
  */
 export function createGetNameCollisions(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['name-collisions']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['name-collisions']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['name-collisions']['$get']>,
+      readonly ['/name-collisions']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,

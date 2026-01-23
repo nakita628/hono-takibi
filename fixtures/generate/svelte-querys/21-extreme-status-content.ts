@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
@@ -11,7 +11,9 @@ export function createGetExtremeResponses(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['extreme-responses']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['extreme-responses']['$get']>,
+      readonly ['/extreme-responses']
     >
     client?: ClientRequestOptions
   },

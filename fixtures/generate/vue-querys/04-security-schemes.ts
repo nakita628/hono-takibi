@@ -1,33 +1,17 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/04-security-schemes'
 
 /**
  * GET /public
  */
-export function useGetPublic(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.public.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetPublic(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetPublicQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -40,27 +24,12 @@ export function getGetPublicQueryKey() {
 /**
  * GET /protected
  */
-export function useGetProtected(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.protected.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetProtected(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetProtectedQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -73,27 +42,12 @@ export function getGetProtectedQueryKey() {
 /**
  * GET /admin
  */
-export function useGetAdmin(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.admin.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetAdmin(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetAdminQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.admin.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.admin.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -106,27 +60,12 @@ export function getGetAdminQueryKey() {
 /**
  * GET /oauth-resource
  */
-export function useGetOauthResource(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['oauth-resource']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetOauthResource(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetOauthResourceQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['oauth-resource'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['oauth-resource'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -139,27 +78,12 @@ export function getGetOauthResourceQueryKey() {
 /**
  * GET /multi-auth
  */
-export function useGetMultiAuth(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client)['multi-auth']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetMultiAuth(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetMultiAuthQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client['multi-auth'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client['multi-auth'].$get(undefined, clientOptions)),
+  })
 }
 
 /**

@@ -1,6 +1,6 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/test'
 
@@ -13,7 +13,12 @@ import { client } from '../clients/test'
  */
 export function createGetHono(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.hono.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.hono.$get>,
+      Error,
+      InferResponseType<typeof client.hono.$get>,
+      readonly ['/hono']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -47,7 +52,12 @@ export function getGetHonoQueryKey() {
  */
 export function createGetHonoX(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<(typeof client)['hono-x']['$get']>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<(typeof client)['hono-x']['$get']>,
+      Error,
+      InferResponseType<(typeof client)['hono-x']['$get']>,
+      readonly ['/hono-x']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -83,7 +93,9 @@ export function createGetZodOpenapiHono(
   options?: {
     query?: CreateQueryOptions<
       InferResponseType<(typeof client)['zod-openapi-hono']['$get']>,
-      Error
+      Error,
+      InferResponseType<(typeof client)['zod-openapi-hono']['$get']>,
+      readonly ['/zod-openapi-hono']
     >
     client?: ClientRequestOptions
   },

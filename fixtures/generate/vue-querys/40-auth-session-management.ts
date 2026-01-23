@@ -1,6 +1,5 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
@@ -13,33 +12,20 @@ import { client } from '../clients/40-auth-session-management'
  */
 export function useGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.sessions.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetSessionsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /sessions
  */
-export function getGetSessionsQueryKey(args?: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', ...(args ? [args] : [])] as const
+export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
+  return ['/sessions', args] as const
 }
 
 /**
@@ -49,28 +35,12 @@ export function getGetSessionsQueryKey(args?: InferRequestType<typeof client.ses
  *
  * 認証成功後にセッションを作成
  */
-export function usePostSessions(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.sessions.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostSessions(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.sessions.$post> | undefined,
     Error,
     InferRequestType<typeof client.sessions.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.sessions.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.sessions.$post(args, clientOptions)) })
 }
 
 /**
@@ -78,27 +48,12 @@ export function usePostSessions(
  *
  * 現在のセッション取得
  */
-export function useGetSessionsCurrent(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.sessions.current.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSessionsCurrent(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSessionsCurrentQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -113,29 +68,15 @@ export function getGetSessionsCurrentQueryKey() {
  *
  * 現在のセッション終了（ログアウト）
  */
-export function useDeleteSessionsCurrent(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.current.$delete> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteSessionsCurrent(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.sessions.current.$delete> | undefined,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client.sessions.current.$delete(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async () =>
+      parseResponse(client.sessions.current.$delete(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -145,29 +86,15 @@ export function useDeleteSessionsCurrent(
  *
  * リフレッシュトークンを使用してセッションを更新
  */
-export function usePostSessionsCurrentRefresh(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.current.refresh.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.sessions.current.refresh.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostSessionsCurrentRefresh(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.sessions.current.refresh.$post> | undefined,
     Error,
     InferRequestType<typeof client.sessions.current.refresh.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.current.refresh.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.sessions.current.refresh.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -177,29 +104,15 @@ export function usePostSessionsCurrentRefresh(
  *
  * アクティブなセッションの有効期限を延長
  */
-export function usePostSessionsCurrentExtend(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.current.extend.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.sessions.current.extend.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostSessionsCurrentExtend(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.sessions.current.extend.$post> | undefined,
     Error,
     InferRequestType<typeof client.sessions.current.extend.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.current.extend.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.sessions.current.extend.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -209,29 +122,15 @@ export function usePostSessionsCurrentExtend(
  *
  * ユーザーアクティビティを記録してアイドルタイムアウトをリセット
  */
-export function usePostSessionsCurrentActivity(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.current.activity.$post> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostSessionsCurrentActivity(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.sessions.current.activity.$post> | undefined,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client.sessions.current.activity.$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async () =>
+      parseResponse(client.sessions.current.activity.$post(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -241,35 +140,22 @@ export function usePostSessionsCurrentActivity(
  */
 export function useGetSessionsSessionId(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.sessions)[':sessionId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetSessionsSessionIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /sessions/{sessionId}
  */
 export function getGetSessionsSessionIdQueryKey(
-  args?: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  return ['/sessions/:sessionId', ...(args ? [args] : [])] as const
+  return ['/sessions/:sessionId', args] as const
 }
 
 /**
@@ -279,29 +165,15 @@ export function getGetSessionsSessionIdQueryKey(
  *
  * 指定したセッションを強制的に終了
  */
-export function useDeleteSessionsSessionId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteSessionsSessionId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions[':sessionId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -311,29 +183,15 @@ export function useDeleteSessionsSessionId(
  *
  * 現在のセッション以外の全セッションを無効化
  */
-export function usePostSessionsRevokeAll(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.sessions)['revoke-all']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostSessionsRevokeAll(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.sessions)['revoke-all']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions['revoke-all'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.sessions['revoke-all'].$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -343,29 +201,14 @@ export function usePostSessionsRevokeAll(
  *
  * セッショントークンの有効性を検証
  */
-export function usePostSessionsValidate(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.validate.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.sessions.validate.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostSessionsValidate(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.sessions.validate.$post> | undefined,
     Error,
     InferRequestType<typeof client.sessions.validate.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.validate.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.sessions.validate.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -375,35 +218,22 @@ export function usePostSessionsValidate(
  */
 export function useGetSessionsHistory(
   args: InferRequestType<typeof client.sessions.history.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.sessions.history.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetSessionsHistoryQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /sessions/history
  */
 export function getGetSessionsHistoryQueryKey(
-  args?: InferRequestType<typeof client.sessions.history.$get>,
+  args: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  return ['/sessions/history', ...(args ? [args] : [])] as const
+  return ['/sessions/history', args] as const
 }
 
 /**
@@ -415,39 +245,23 @@ export function getGetSessionsHistoryQueryKey(
  */
 export function useGetSessionsSecurityEvents(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.sessions)['security-events']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetSessionsSecurityEventsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /sessions/security-events
  */
 export function getGetSessionsSecurityEventsQueryKey(
-  args?: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
+  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return ['/sessions/security-events', ...(args ? [args] : [])] as const
+  return ['/sessions/security-events', args] as const
 }
 
 /**
@@ -455,27 +269,12 @@ export function getGetSessionsSecurityEventsQueryKey(
  *
  * セッションポリシー取得
  */
-export function useGetSessionsPolicies(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.sessions.policies.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSessionsPolicies(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSessionsPoliciesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -490,29 +289,14 @@ export function getGetSessionsPoliciesQueryKey() {
  *
  * セッションポリシー更新
  */
-export function usePutSessionsPolicies(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.sessions.policies.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.sessions.policies.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutSessionsPolicies(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.sessions.policies.$put> | undefined,
     Error,
     InferRequestType<typeof client.sessions.policies.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions.policies.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.sessions.policies.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -520,31 +304,13 @@ export function usePutSessionsPolicies(
  *
  * 信頼済みデバイス一覧
  */
-export function useGetSessionsTrustedDevices(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetSessionsTrustedDevices(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetSessionsTrustedDevicesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -559,29 +325,15 @@ export function getGetSessionsTrustedDevicesQueryKey() {
  *
  * 現在のデバイスを信頼
  */
-export function usePostSessionsTrustedDevices(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.sessions)['trusted-devices']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostSessionsTrustedDevices(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.sessions)['trusted-devices']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.sessions['trusted-devices'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.sessions['trusted-devices'].$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -589,31 +341,14 @@ export function usePostSessionsTrustedDevices(
  *
  * 信頼済みデバイス削除
  */
-export function useDeleteSessionsTrustedDevicesDeviceId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteSessionsTrustedDevicesDeviceId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
     | undefined,
     Error,
     InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(
-          client.sessions['trusted-devices'][':deviceId'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(args, clientOptions)),
+  })
 }

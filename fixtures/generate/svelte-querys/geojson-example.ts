@@ -1,6 +1,6 @@
-import type { CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/geojson-example'
 
@@ -13,7 +13,12 @@ import { client } from '../clients/geojson-example'
  */
 export function createGet(
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.index.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.index.$get>,
+      Error,
+      InferResponseType<typeof client.index.$get>,
+      readonly ['/']
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -48,7 +53,12 @@ export function getGetQueryKey() {
 export function createGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
   options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.projects.$get>, Error>
+    query?: CreateQueryOptions<
+      InferResponseType<typeof client.projects.$get>,
+      Error,
+      InferResponseType<typeof client.projects.$get>,
+      readonly ['/projects', InferRequestType<typeof client.projects.$get>]
+    >
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
@@ -69,6 +79,6 @@ export function createGetProjects(
 /**
  * Generates Svelte Query cache key for GET /projects
  */
-export function getGetProjectsQueryKey(args?: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', ...(args ? [args] : [])] as const
+export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
+  return ['/projects', args] as const
 }

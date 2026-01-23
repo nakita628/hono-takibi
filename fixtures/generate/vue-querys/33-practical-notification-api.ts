@@ -1,6 +1,5 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/vue-query'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/33-practical-notification-api'
 
@@ -11,35 +10,22 @@ import { client } from '../clients/33-practical-notification-api'
  */
 export function useGetNotifications(
   args: InferRequestType<typeof client.notifications.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.notifications.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetNotificationsQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.notifications.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.notifications.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /notifications
  */
 export function getGetNotificationsQueryKey(
-  args?: InferRequestType<typeof client.notifications.$get>,
+  args: InferRequestType<typeof client.notifications.$get>,
 ) {
-  return ['/notifications', ...(args ? [args] : [])] as const
+  return ['/notifications', args] as const
 }
 
 /**
@@ -49,39 +35,23 @@ export function getGetNotificationsQueryKey(
  */
 export function useGetNotificationsNotificationId(
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.notifications)[':notificationId']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetNotificationsNotificationIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.notifications[':notificationId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.notifications[':notificationId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /notifications/{notificationId}
  */
 export function getGetNotificationsNotificationIdQueryKey(
-  args?: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
+  args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
 ) {
-  return ['/notifications/:notificationId', ...(args ? [args] : [])] as const
+  return ['/notifications/:notificationId', args] as const
 }
 
 /**
@@ -89,29 +59,15 @@ export function getGetNotificationsNotificationIdQueryKey(
  *
  * 通知削除
  */
-export function useDeleteNotificationsNotificationId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.notifications)[':notificationId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteNotificationsNotificationId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.notifications)[':notificationId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.notifications[':notificationId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.notifications[':notificationId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -119,31 +75,16 @@ export function useDeleteNotificationsNotificationId(
  *
  * 既読にする
  */
-export function usePostNotificationsNotificationIdRead(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.notifications)[':notificationId']['read']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.notifications)[':notificationId']['read']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostNotificationsNotificationIdRead(clientOptions?: ClientRequestOptions) {
   return useMutation<
     | InferResponseType<(typeof client.notifications)[':notificationId']['read']['$post']>
     | undefined,
     Error,
     InferRequestType<(typeof client.notifications)[':notificationId']['read']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.notifications[':notificationId'].read.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.notifications[':notificationId'].read.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -151,29 +92,15 @@ export function usePostNotificationsNotificationIdRead(
  *
  * 全て既読にする
  */
-export function usePostNotificationsReadAll(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.notifications)['read-all']['$post']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostNotificationsReadAll(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.notifications)['read-all']['$post']> | undefined,
     Error,
     void
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async () =>
-        parseResponse(client.notifications['read-all'].$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async () =>
+      parseResponse(client.notifications['read-all'].$post(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -181,31 +108,13 @@ export function usePostNotificationsReadAll(
  *
  * 未読件数取得
  */
-export function useGetNotificationsUnreadCount(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<
-        InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
-        Error
-      >,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetNotificationsUnreadCount(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetNotificationsUnreadCountQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.notifications['unread-count'].$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () =>
+      parseResponse(client.notifications['unread-count'].$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -222,28 +131,12 @@ export function getGetNotificationsUnreadCountQueryKey() {
  *
  * 指定したチャンネルでメッセージを送信します
  */
-export function usePostMessagesSend(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.messages.send.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.messages.send.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostMessagesSend(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.messages.send.$post> | undefined,
     Error,
     InferRequestType<typeof client.messages.send.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.messages.send.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.messages.send.$post(args, clientOptions)) })
 }
 
 /**
@@ -251,29 +144,15 @@ export function usePostMessagesSend(
  *
  * 一括メッセージ送信
  */
-export function usePostMessagesSendBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.messages)['send-batch']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.messages)['send-batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostMessagesSendBatch(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.messages)['send-batch']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.messages)['send-batch']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.messages['send-batch'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.messages['send-batch'].$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -283,35 +162,22 @@ export function usePostMessagesSendBatch(
  */
 export function useGetMessagesMessageId(
   args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.messages)[':messageId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetMessagesMessageIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.messages[':messageId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.messages[':messageId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /messages/{messageId}
  */
 export function getGetMessagesMessageIdQueryKey(
-  args?: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
+  args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
 ) {
-  return ['/messages/:messageId', ...(args ? [args] : [])] as const
+  return ['/messages/:messageId', args] as const
 }
 
 /**
@@ -321,33 +187,20 @@ export function getGetMessagesMessageIdQueryKey(
  */
 export function useGetTemplates(
   args: InferRequestType<typeof client.templates.$get>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.templates.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetTemplatesQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.templates.$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.templates.$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /templates
  */
-export function getGetTemplatesQueryKey(args?: InferRequestType<typeof client.templates.$get>) {
-  return ['/templates', ...(args ? [args] : [])] as const
+export function getGetTemplatesQueryKey(args: InferRequestType<typeof client.templates.$get>) {
+  return ['/templates', args] as const
 }
 
 /**
@@ -355,28 +208,12 @@ export function getGetTemplatesQueryKey(args?: InferRequestType<typeof client.te
  *
  * テンプレート作成
  */
-export function usePostTemplates(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.templates.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.templates.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostTemplates(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.templates.$post> | undefined,
     Error,
     InferRequestType<typeof client.templates.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.templates.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.templates.$post(args, clientOptions)) })
 }
 
 /**
@@ -386,35 +223,22 @@ export function usePostTemplates(
  */
 export function useGetTemplatesTemplateId(
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.templates)[':templateId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetTemplatesTemplateIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.templates[':templateId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.templates[':templateId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /templates/{templateId}
  */
 export function getGetTemplatesTemplateIdQueryKey(
-  args?: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
+  args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
 ) {
-  return ['/templates/:templateId', ...(args ? [args] : [])] as const
+  return ['/templates/:templateId', args] as const
 }
 
 /**
@@ -422,29 +246,15 @@ export function getGetTemplatesTemplateIdQueryKey(
  *
  * テンプレート更新
  */
-export function usePutTemplatesTemplateId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.templates)[':templateId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.templates)[':templateId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutTemplatesTemplateId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.templates)[':templateId']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.templates)[':templateId']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.templates[':templateId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.templates[':templateId'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -452,29 +262,15 @@ export function usePutTemplatesTemplateId(
  *
  * テンプレート削除
  */
-export function useDeleteTemplatesTemplateId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.templates)[':templateId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.templates)[':templateId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteTemplatesTemplateId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.templates)[':templateId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.templates)[':templateId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.templates[':templateId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.templates[':templateId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -482,29 +278,15 @@ export function useDeleteTemplatesTemplateId(
  *
  * テンプレートプレビュー
  */
-export function usePostTemplatesTemplateIdPreview(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.templates)[':templateId']['preview']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostTemplatesTemplateIdPreview(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.templates)[':templateId']['preview']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.templates[':templateId'].preview.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.templates[':templateId'].preview.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -512,28 +294,12 @@ export function usePostTemplatesTemplateIdPreview(
  *
  * チャンネル設定取得
  */
-export function useGetChannelsPreferences(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.channels.preferences.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetChannelsPreferences(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetChannelsPreferencesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.channels.preferences.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.channels.preferences.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -548,29 +314,15 @@ export function getGetChannelsPreferencesQueryKey() {
  *
  * チャンネル設定更新
  */
-export function usePutChannelsPreferences(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.channels.preferences.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.channels.preferences.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutChannelsPreferences(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.channels.preferences.$put> | undefined,
     Error,
     InferRequestType<typeof client.channels.preferences.$put>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.channels.preferences.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.channels.preferences.$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -578,27 +330,12 @@ export function usePutChannelsPreferences(
  *
  * デバイス一覧取得
  */
-export function useGetChannelsDevices(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.channels.devices.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetChannelsDevices(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetChannelsDevicesQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.channels.devices.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.channels.devices.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -613,29 +350,14 @@ export function getGetChannelsDevicesQueryKey() {
  *
  * デバイス登録
  */
-export function usePostChannelsDevices(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.channels.devices.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.channels.devices.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostChannelsDevices(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.channels.devices.$post> | undefined,
     Error,
     InferRequestType<typeof client.channels.devices.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.channels.devices.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) => parseResponse(client.channels.devices.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -643,29 +365,15 @@ export function usePostChannelsDevices(
  *
  * デバイス登録解除
  */
-export function useDeleteChannelsDevicesDeviceId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.channels.devices)[':deviceId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteChannelsDevicesDeviceId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.channels.devices)[':deviceId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.channels.devices[':deviceId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.channels.devices[':deviceId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -673,27 +381,12 @@ export function useDeleteChannelsDevicesDeviceId(
  *
  * Webhook一覧取得
  */
-export function useGetWebhooks(
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<typeof client.webhooks.$get>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
+export function useGetWebhooks(clientOptions?: ClientRequestOptions) {
   const queryKey = getGetWebhooksQueryKey()
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.webhooks.$get(undefined, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.webhooks.$get(undefined, clientOptions)),
+  })
 }
 
 /**
@@ -708,28 +401,12 @@ export function getGetWebhooksQueryKey() {
  *
  * Webhook作成
  */
-export function usePostWebhooks(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.webhooks.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.webhooks.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostWebhooks(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.webhooks.$post> | undefined,
     Error,
     InferRequestType<typeof client.webhooks.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.webhooks.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({ mutationFn: async (args) => parseResponse(client.webhooks.$post(args, clientOptions)) })
 }
 
 /**
@@ -739,35 +416,22 @@ export function usePostWebhooks(
  */
 export function useGetWebhooksWebhookId(
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
-  options?: {
-    query?: Omit<
-      UseQueryOptions<InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>, Error>,
-      'queryKey' | 'queryFn'
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
+  clientOptions?: ClientRequestOptions,
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
   const queryKey = getGetWebhooksWebhookIdQueryKey(args)
-  const query = useQuery(
-    {
-      queryKey,
-      queryFn: async () => parseResponse(client.webhooks[':webhookId'].$get(args, clientOptions)),
-      ...queryOptions,
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey,
+    queryFn: async () => parseResponse(client.webhooks[':webhookId'].$get(args, clientOptions)),
+  })
 }
 
 /**
  * Generates Vue Query cache key for GET /webhooks/{webhookId}
  */
 export function getGetWebhooksWebhookIdQueryKey(
-  args?: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
+  args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
 ) {
-  return ['/webhooks/:webhookId', ...(args ? [args] : [])] as const
+  return ['/webhooks/:webhookId', args] as const
 }
 
 /**
@@ -775,29 +439,15 @@ export function getGetWebhooksWebhookIdQueryKey(
  *
  * Webhook更新
  */
-export function usePutWebhooksWebhookId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.webhooks)[':webhookId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePutWebhooksWebhookId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.webhooks)[':webhookId']['$put']> | undefined,
     Error,
     InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webhooks[':webhookId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.webhooks[':webhookId'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -805,29 +455,15 @@ export function usePutWebhooksWebhookId(
  *
  * Webhook削除
  */
-export function useDeleteWebhooksWebhookId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.webhooks)[':webhookId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useDeleteWebhooksWebhookId(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.webhooks)[':webhookId']['$delete']> | undefined,
     Error,
     InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webhooks[':webhookId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.webhooks[':webhookId'].$delete(args, clientOptions)),
+  })
 }
 
 /**
@@ -835,27 +471,13 @@ export function useDeleteWebhooksWebhookId(
  *
  * Webhookテスト送信
  */
-export function usePostWebhooksWebhookIdTest(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.webhooks)[':webhookId']['test']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function usePostWebhooksWebhookIdTest(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<(typeof client.webhooks)[':webhookId']['test']['$post']> | undefined,
     Error,
     InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webhooks[':webhookId'].test.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+  >({
+    mutationFn: async (args) =>
+      parseResponse(client.webhooks[':webhookId'].test.$post(args, clientOptions)),
+  })
 }
