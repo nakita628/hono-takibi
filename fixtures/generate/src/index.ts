@@ -3,6 +3,7 @@ import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { rpc } from 'hono-takibi/rpc'
 import { swr } from 'hono-takibi/swr'
+import { tanstackQuery } from 'hono-takibi/tanstack-query'
 import { type as generateType } from 'hono-takibi/type'
 import {
   __dirname,
@@ -67,8 +68,8 @@ async function main() {
 
   console.log(`${routeResults.length} routes generated successfully`)
 
-  // Type, Client, RPC, SWR generation (parallel)
-  console.log('Generating types, clients, rpcs, and swrs...')
+  // Type, Client, RPC, SWR, TanStack Query generation (parallel)
+  console.log('Generating types, clients, rpcs, swrs, and tanstack-querys...')
   const generateResults = await Promise.all(
     files.map(async (file) => {
       const baseName = file.replace(/\.(yaml|json|tsp)$/i, '')
@@ -102,6 +103,22 @@ async function main() {
         return { file, success: false, error: `SWR generation error: ${swrResult.error}` }
       }
 
+      // Generate TanStack Query hooks file
+      const tanstackQueryOutput = join(__dirname, '../tanstack-querys', `${baseName}.ts`)
+      const tanstackQueryResult = await tanstackQuery(
+        openAPI,
+        tanstackQueryOutput,
+        `../clients/${baseName}`,
+        false,
+      )
+      if (!tanstackQueryResult.ok) {
+        return {
+          file,
+          success: false,
+          error: `TanStack Query generation error: ${tanstackQueryResult.error}`,
+        }
+      }
+
       // Generate Client file with simple hc pattern
       const clientOutput = join(__dirname, '../clients', `${baseName}.ts`)
       const clientCode = `import { hc } from 'hono/client'
@@ -119,13 +136,13 @@ export const client = hc<typeof routes>('/')
     (r): r is { file: string; success: false; error: string } => !r.success,
   )
 
-  printFailures(genFailures, generateResults.length, 'type/rpc/swr files')
+  printFailures(genFailures, generateResults.length, 'type/rpc/swr/tanstack-query files')
 
   if (genFailures.length > 0) {
     process.exit(1)
   }
 
-  console.log(`${generateResults.length} type/rpc/swr sets generated successfully`)
+  console.log(`${generateResults.length} type/rpc/swr/tanstack-query sets generated successfully`)
 }
 
 main()

@@ -100,6 +100,12 @@ type Config = {
     readonly split?: boolean
     readonly client?: string
   }
+  readonly 'tanstack-query'?: {
+    readonly output: string | `${string}.ts`
+    readonly import: string
+    readonly split?: boolean
+    readonly client?: string
+  }
 }
 
 /**
@@ -416,6 +422,47 @@ export function parseConfig(
     }
   }
 
+  // tanstack-query
+  if (config['tanstack-query'] !== undefined) {
+    if (typeof config['tanstack-query'].output !== 'string') {
+      return {
+        ok: false,
+        error: `Invalid output format for tanstack-query: ${String(config['tanstack-query'].output)}`,
+      }
+    }
+    if (typeof config['tanstack-query'].import !== 'string') {
+      return {
+        ok: false,
+        error: `Invalid import format for tanstack-query: ${String(config['tanstack-query'].import)}`,
+      }
+    }
+    if (
+      config['tanstack-query'].split !== undefined &&
+      typeof config['tanstack-query'].split !== 'boolean'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid split format for tanstack-query: ${String(config['tanstack-query'].split)}`,
+      }
+    }
+    if (
+      config['tanstack-query'].client !== undefined &&
+      typeof config['tanstack-query'].client !== 'string'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid client format for tanstack-query: ${String(config['tanstack-query'].client)}`,
+      }
+    }
+    // split: true requires directory (no .ts)
+    if (config['tanstack-query'].split === true && isTs(config['tanstack-query'].output)) {
+      return {
+        ok: false,
+        error: `Invalid tanstack-query output path for split mode (must be a directory, not .ts): ${config['tanstack-query'].output}`,
+      }
+    }
+  }
+
   const result = {
     ...config,
     ...(config['zod-openapi'] && {
@@ -544,6 +591,15 @@ export function parseConfig(
           config.swr.split !== true && !isTs(config.swr.output)
             ? `${config.swr.output}/index.ts`
             : config.swr.output,
+      },
+    }),
+    ...(config['tanstack-query'] && {
+      'tanstack-query': {
+        ...config['tanstack-query'],
+        output:
+          config['tanstack-query'].split !== true && !isTs(config['tanstack-query'].output)
+            ? `${config['tanstack-query'].output}/index.ts`
+            : config['tanstack-query'].output,
       },
     }),
   }

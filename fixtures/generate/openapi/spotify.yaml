@@ -7284,7 +7284,6 @@ components:
           tokenUrl: https://accounts.spotify.com/api/token
       type: oauth2
   x-spotify-policy:
-    $ref: ../policies.yaml
     Attribution: {}
     Broadcasting: {}
     CommercialStreaming: {}
