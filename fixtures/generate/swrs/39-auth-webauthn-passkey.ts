@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
 /**
@@ -151,7 +151,7 @@ export function useGetWebauthnCredentials(options?: {
  * Generates SWR cache key for GET /webauthn/credentials
  */
 export function getGetWebauthnCredentialsKey() {
-  return ['GET', '/webauthn/credentials'] as const
+  return ['/webauthn/credentials'] as const
 }
 
 /**
@@ -189,9 +189,9 @@ export function useGetWebauthnCredentialsCredentialId(
  * Generates SWR cache key for GET /webauthn/credentials/{credentialId}
  */
 export function getGetWebauthnCredentialsCredentialIdKey(
-  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+  args?: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
-  return ['GET', '/webauthn/credentials/:credentialId', args] as const
+  return ['/webauthn/credentials/:credentialId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -281,7 +281,7 @@ export function useGetWebauthnSettings(options?: {
  * Generates SWR cache key for GET /webauthn/settings
  */
 export function getGetWebauthnSettingsKey() {
-  return ['GET', '/webauthn/settings'] as const
+  return ['/webauthn/settings'] as const
 }
 
 /**
@@ -311,7 +311,7 @@ export function useGetWebauthnSettingsRp(options?: {
  * Generates SWR cache key for GET /webauthn/settings/rp
  */
 export function getGetWebauthnSettingsRpKey() {
-  return ['GET', '/webauthn/settings/rp'] as const
+  return ['/webauthn/settings/rp'] as const
 }
 
 /**
@@ -369,5 +369,5 @@ export function useGetWebauthnAuthenticators(options?: {
  * Generates SWR cache key for GET /webauthn/authenticators
  */
 export function getGetWebauthnAuthenticatorsKey() {
-  return ['GET', '/webauthn/authenticators'] as const
+  return ['/webauthn/authenticators'] as const
 }

@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
 /**
@@ -35,8 +35,8 @@ export function useGetProjects(
 /**
  * Generates SWR cache key for GET /projects
  */
-export function getGetProjectsKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['GET', '/projects', args] as const
+export function getGetProjectsKey(args?: InferRequestType<typeof client.projects.$get>) {
+  return ['/projects', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -95,9 +95,9 @@ export function useGetProjectsProjectId(
  * Generates SWR cache key for GET /projects/{projectId}
  */
 export function getGetProjectsProjectIdKey(
-  args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
+  args?: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
 ) {
-  return ['GET', '/projects/:projectId', args] as const
+  return ['/projects/:projectId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -186,9 +186,9 @@ export function useGetProjectsProjectIdMembers(
  * Generates SWR cache key for GET /projects/{projectId}/members
  */
 export function getGetProjectsProjectIdMembersKey(
-  args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
+  args?: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
 ) {
-  return ['GET', '/projects/:projectId/members', args] as const
+  return ['/projects/:projectId/members', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -251,9 +251,9 @@ export function useGetProjectsProjectIdTasks(
  * Generates SWR cache key for GET /projects/{projectId}/tasks
  */
 export function getGetProjectsProjectIdTasksKey(
-  args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+  args?: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
 ) {
-  return ['GET', '/projects/:projectId/tasks', args] as const
+  return ['/projects/:projectId/tasks', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -313,9 +313,9 @@ export function useGetTasksTaskId(
  * Generates SWR cache key for GET /tasks/{taskId}
  */
 export function getGetTasksTaskIdKey(
-  args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
+  args?: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
 ) {
-  return ['GET', '/tasks/:taskId', args] as const
+  return ['/tasks/:taskId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -430,9 +430,9 @@ export function useGetTasksTaskIdComments(
  * Generates SWR cache key for GET /tasks/{taskId}/comments
  */
 export function getGetTasksTaskIdCommentsKey(
-  args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+  args?: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
 ) {
-  return ['GET', '/tasks/:taskId/comments', args] as const
+  return ['/tasks/:taskId/comments', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -495,9 +495,9 @@ export function useGetTasksTaskIdTimeEntries(
  * Generates SWR cache key for GET /tasks/{taskId}/time-entries
  */
 export function getGetTasksTaskIdTimeEntriesKey(
-  args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+  args?: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
 ) {
-  return ['GET', '/tasks/:taskId/time-entries', args] as const
+  return ['/tasks/:taskId/time-entries', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -561,9 +561,9 @@ export function useGetProjectsProjectIdMilestones(
  * Generates SWR cache key for GET /projects/{projectId}/milestones
  */
 export function getGetProjectsProjectIdMilestonesKey(
-  args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+  args?: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
 ) {
-  return ['GET', '/projects/:projectId/milestones', args] as const
+  return ['/projects/:projectId/milestones', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -620,7 +620,7 @@ export function useGetTeams(options?: {
  * Generates SWR cache key for GET /teams
  */
 export function getGetTeamsKey() {
-  return ['GET', '/teams'] as const
+  return ['/teams'] as const
 }
 
 /**

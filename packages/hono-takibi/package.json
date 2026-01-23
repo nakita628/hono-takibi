@@ -52,6 +52,10 @@
       "types": "./dist/core/tanstack-query/index.d.ts",
       "import": "./dist/core/tanstack-query/index.js"
     },
+    "./svelte-query": {
+      "types": "./dist/core/svelte-query/index.d.ts",
+      "import": "./dist/core/svelte-query/index.js"
+    },
     "./type": {
       "types": "./dist/core/type/index.d.ts",
       "import": "./dist/core/type/index.js"

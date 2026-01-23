@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/sample-geojson'
 
@@ -38,7 +38,7 @@ export function useGet(
  * Generates TanStack Query cache key for GET /
  */
 export function getGetQueryKey() {
-  return ['GET', '/'] as const
+  return ['/'] as const
 }
 
 /**
@@ -75,6 +75,6 @@ export function useGetProjects(
 /**
  * Generates TanStack Query cache key for GET /projects
  */
-export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['GET', '/projects', args] as const
+export function getGetProjectsQueryKey(args?: InferRequestType<typeof client.projects.$get>) {
+  return ['/projects', ...(args ? [args] : [])] as const
 }

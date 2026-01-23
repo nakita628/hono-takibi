@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
 /**
@@ -31,7 +31,7 @@ export function useGetEntities(options?: {
  * Generates SWR cache key for GET /entities
  */
 export function getGetEntitiesKey() {
-  return ['GET', '/entities'] as const
+  return ['/entities'] as const
 }
 
 /**
@@ -83,7 +83,7 @@ export function useGetGraph(options?: {
  * Generates SWR cache key for GET /graph
  */
 export function getGetGraphKey() {
-  return ['GET', '/graph'] as const
+  return ['/graph'] as const
 }
 
 /**

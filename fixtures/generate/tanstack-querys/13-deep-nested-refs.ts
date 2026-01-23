@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
@@ -48,11 +48,14 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
  * Generates TanStack Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
 ) {
-  return ['GET', '/organizations/:orgId/departments/:deptId/teams/:teamId/members', args] as const
+  return [
+    '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -132,5 +135,5 @@ export function useGetReportsOrganizationSummary(
  * Generates TanStack Query cache key for GET /reports/organization-summary
  */
 export function getGetReportsOrganizationSummaryQueryKey() {
-  return ['GET', '/reports/organization-summary'] as const
+  return ['/reports/organization-summary'] as const
 }

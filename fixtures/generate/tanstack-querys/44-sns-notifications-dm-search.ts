@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/44-sns-notifications-dm-search'
 
@@ -37,9 +37,9 @@ export function useGetNotifications(
  * Generates TanStack Query cache key for GET /notifications
  */
 export function getGetNotificationsQueryKey(
-  args: InferRequestType<typeof client.notifications.$get>,
+  args?: InferRequestType<typeof client.notifications.$get>,
 ) {
-  return ['GET', '/notifications', args] as const
+  return ['/notifications', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -78,7 +78,7 @@ export function useGetNotificationsUnreadCount(
  * Generates TanStack Query cache key for GET /notifications/unread-count
  */
 export function getGetNotificationsUnreadCountQueryKey() {
-  return ['GET', '/notifications/unread-count'] as const
+  return ['/notifications/unread-count'] as const
 }
 
 /**
@@ -144,7 +144,7 @@ export function useGetNotificationsSettings(
  * Generates TanStack Query cache key for GET /notifications/settings
  */
 export function getGetNotificationsSettingsQueryKey() {
-  return ['GET', '/notifications/settings'] as const
+  return ['/notifications/settings'] as const
 }
 
 /**
@@ -210,9 +210,9 @@ export function useGetDmConversations(
  * Generates TanStack Query cache key for GET /dm/conversations
  */
 export function getGetDmConversationsQueryKey(
-  args: InferRequestType<typeof client.dm.conversations.$get>,
+  args?: InferRequestType<typeof client.dm.conversations.$get>,
 ) {
-  return ['GET', '/dm/conversations', args] as const
+  return ['/dm/conversations', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -282,9 +282,9 @@ export function useGetDmConversationsConversationId(
  * Generates TanStack Query cache key for GET /dm/conversations/{conversationId}
  */
 export function getGetDmConversationsConversationIdQueryKey(
-  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
+  args?: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
 ) {
-  return ['GET', '/dm/conversations/:conversationId', args] as const
+  return ['/dm/conversations/:conversationId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -356,9 +356,9 @@ export function useGetDmConversationsConversationIdMessages(
  * Generates TanStack Query cache key for GET /dm/conversations/{conversationId}/messages
  */
 export function getGetDmConversationsConversationIdMessagesQueryKey(
-  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
+  args?: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
 ) {
-  return ['GET', '/dm/conversations/:conversationId/messages', args] as const
+  return ['/dm/conversations/:conversationId/messages', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -586,7 +586,7 @@ export function useGetDmUnreadCount(
  * Generates TanStack Query cache key for GET /dm/unread-count
  */
 export function getGetDmUnreadCountQueryKey() {
-  return ['GET', '/dm/unread-count'] as const
+  return ['/dm/unread-count'] as const
 }
 
 /**
@@ -621,8 +621,10 @@ export function useGetSearchPosts(
 /**
  * Generates TanStack Query cache key for GET /search/posts
  */
-export function getGetSearchPostsQueryKey(args: InferRequestType<typeof client.search.posts.$get>) {
-  return ['GET', '/search/posts', args] as const
+export function getGetSearchPostsQueryKey(
+  args?: InferRequestType<typeof client.search.posts.$get>,
+) {
+  return ['/search/posts', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -657,8 +659,10 @@ export function useGetSearchUsers(
 /**
  * Generates TanStack Query cache key for GET /search/users
  */
-export function getGetSearchUsersQueryKey(args: InferRequestType<typeof client.search.users.$get>) {
-  return ['GET', '/search/users', args] as const
+export function getGetSearchUsersQueryKey(
+  args?: InferRequestType<typeof client.search.users.$get>,
+) {
+  return ['/search/users', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -694,9 +698,9 @@ export function useGetSearchHashtags(
  * Generates TanStack Query cache key for GET /search/hashtags
  */
 export function getGetSearchHashtagsQueryKey(
-  args: InferRequestType<typeof client.search.hashtags.$get>,
+  args?: InferRequestType<typeof client.search.hashtags.$get>,
 ) {
-  return ['GET', '/search/hashtags', args] as const
+  return ['/search/hashtags', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -731,7 +735,7 @@ export function useGetSearchRecent(
  * Generates TanStack Query cache key for GET /search/recent
  */
 export function getGetSearchRecentQueryKey() {
-  return ['GET', '/search/recent'] as const
+  return ['/search/recent'] as const
 }
 
 /**
@@ -796,8 +800,8 @@ export function useGetTrends(
 /**
  * Generates TanStack Query cache key for GET /trends
  */
-export function getGetTrendsQueryKey(args: InferRequestType<typeof client.trends.$get>) {
-  return ['GET', '/trends', args] as const
+export function getGetTrendsQueryKey(args?: InferRequestType<typeof client.trends.$get>) {
+  return ['/trends', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -832,7 +836,7 @@ export function useGetTrendsLocations(
  * Generates TanStack Query cache key for GET /trends/locations
  */
 export function getGetTrendsLocationsQueryKey() {
-  return ['GET', '/trends/locations'] as const
+  return ['/trends/locations'] as const
 }
 
 /**
@@ -868,9 +872,9 @@ export function useGetSuggestionsUsers(
  * Generates TanStack Query cache key for GET /suggestions/users
  */
 export function getGetSuggestionsUsersQueryKey(
-  args: InferRequestType<typeof client.suggestions.users.$get>,
+  args?: InferRequestType<typeof client.suggestions.users.$get>,
 ) {
-  return ['GET', '/suggestions/users', args] as const
+  return ['/suggestions/users', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -935,7 +939,7 @@ export function useGetSuggestionsTopics(
  * Generates TanStack Query cache key for GET /suggestions/topics
  */
 export function getGetSuggestionsTopicsQueryKey() {
-  return ['GET', '/suggestions/topics'] as const
+  return ['/suggestions/topics'] as const
 }
 
 /**

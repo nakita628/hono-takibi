@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
@@ -36,8 +36,10 @@ export function useGetApiKeys(
 /**
  * Generates TanStack Query cache key for GET /api-keys
  */
-export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
-  return ['GET', '/api-keys', args] as const
+export function getGetApiKeysQueryKey(
+  args?: InferRequestType<(typeof client)['api-keys']['$get']>,
+) {
+  return ['/api-keys', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -102,9 +104,9 @@ export function useGetApiKeysKeyId(
  * Generates TanStack Query cache key for GET /api-keys/{keyId}
  */
 export function getGetApiKeysKeyIdQueryKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
 ) {
-  return ['GET', '/api-keys/:keyId', args] as const
+  return ['/api-keys/:keyId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -264,9 +266,9 @@ export function useGetApiKeysKeyIdUsage(
  * Generates TanStack Query cache key for GET /api-keys/{keyId}/usage
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
 ) {
-  return ['GET', '/api-keys/:keyId/usage', args] as const
+  return ['/api-keys/:keyId/usage', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -306,9 +308,9 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
  * Generates TanStack Query cache key for GET /api-keys/{keyId}/rate-limit/current
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
-  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+  args?: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  return ['GET', '/api-keys/:keyId/rate-limit/current', args] as const
+  return ['/api-keys/:keyId/rate-limit/current', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -373,5 +375,5 @@ export function useGetScopes(
  * Generates TanStack Query cache key for GET /scopes
  */
 export function getGetScopesQueryKey() {
-  return ['GET', '/scopes'] as const
+  return ['/scopes'] as const
 }

@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
 /**
@@ -31,7 +31,7 @@ export function useGetUsers(options?: {
  * Generates SWR cache key for GET /users
  */
 export function getGetUsersKey() {
-  return ['GET', '/users'] as const
+  return ['/users'] as const
 }
 
 /**
@@ -86,7 +86,7 @@ export function useGetUsersUserId(
  * Generates SWR cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['GET', '/users/:userId', args] as const
+  return ['/users/:userId', ...(args ? [args] : [])] as const
 }

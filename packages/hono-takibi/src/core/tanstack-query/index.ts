@@ -119,13 +119,13 @@ const makeHookCode = (
     hookCode = `${docs}
 export function ${hookName}(${argsSig}${optionsSig}){const{query:queryOptions,client:clientOptions}=options??{};const queryKey=${keyGetterCall};const query=useQuery({queryKey,queryFn:async()=>parseResponse(${clientCall}),...queryOptions},queryClient);return{...query,queryKey}}`
 
-    // Key getter for GET
+    // Key getter for GET (orval style: optional args with conditional spread)
     if (hasArgs) {
       keyGetterCode = `${keyDocs}
-export function ${queryKeyGetterName}(args:${inferRequestType}){return['GET','${honoPath}',args]as const}`
+export function ${queryKeyGetterName}(args?:${inferRequestType}){return['${honoPath}',...(args?[args]:[])]as const}`
     } else {
       keyGetterCode = `${keyDocs}
-export function ${queryKeyGetterName}(){return['GET','${honoPath}']as const}`
+export function ${queryKeyGetterName}(){return['${honoPath}']as const}`
     }
   } else {
     // useMutation hook for POST/PUT/DELETE/PATCH (Orval style)

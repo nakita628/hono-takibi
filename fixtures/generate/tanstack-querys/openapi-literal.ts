@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-literal'
 
@@ -38,5 +38,5 @@ export function useGetPrimitive(
  * Generates TanStack Query cache key for GET /primitive
  */
 export function getGetPrimitiveQueryKey() {
-  return ['GET', '/primitive'] as const
+  return ['/primitive'] as const
 }

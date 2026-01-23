@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
@@ -38,8 +38,8 @@ export function useGetPath(
 /**
  * Generates TanStack Query cache key for GET /{path}
  */
-export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['GET', '/:path', args] as const
+export function getGetPathQueryKey(args?: InferRequestType<(typeof client)[':path']['$get']>) {
+  return ['/:path', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -436,9 +436,9 @@ export function useGet1IndexesIndexNameObjectID(
  * Generates TanStack Query cache key for GET /1/indexes/{indexName}/{objectID}
  */
 export function getGet1IndexesIndexNameObjectIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
 ) {
-  return ['GET', '/1/indexes/:indexName/:objectID', args] as const
+  return ['/1/indexes/:indexName/:objectID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -812,9 +812,9 @@ export function useGet1IndexesIndexNameSettings(
  * Generates TanStack Query cache key for GET /1/indexes/{indexName}/settings
  */
 export function getGet1IndexesIndexNameSettingsQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
 ) {
-  return ['GET', '/1/indexes/:indexName/settings', args] as const
+  return ['/1/indexes/:indexName/settings', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -903,11 +903,11 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
  * Generates TanStack Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
  */
 export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
 ) {
-  return ['GET', '/1/indexes/:indexName/synonyms/:objectID', args] as const
+  return ['/1/indexes/:indexName/synonyms/:objectID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1152,7 +1152,7 @@ export function useGet1Keys(
  * Generates TanStack Query cache key for GET /1/keys
  */
 export function getGet1KeysQueryKey() {
-  return ['GET', '/1/keys'] as const
+  return ['/1/keys'] as const
 }
 
 /**
@@ -1225,9 +1225,9 @@ export function useGet1KeysKey(
  * Generates TanStack Query cache key for GET /1/keys/{key}
  */
 export function getGet1KeysKeyQueryKey(
-  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
 ) {
-  return ['GET', '/1/keys/:key', args] as const
+  return ['/1/keys/:key', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1379,11 +1379,11 @@ export function useGet1IndexesIndexNameRulesObjectID(
  * Generates TanStack Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
  */
 export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
 ) {
-  return ['GET', '/1/indexes/:indexName/rules/:objectID', args] as const
+  return ['/1/indexes/:indexName/rules/:objectID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1690,7 +1690,7 @@ export function useGet1DictionariesSettings(
  * Generates TanStack Query cache key for GET /1/dictionaries/[*]/settings
  */
 export function getGet1DictionariesSettingsQueryKey() {
-  return ['GET', '/1/dictionaries/*/settings'] as const
+  return ['/1/dictionaries/*/settings'] as const
 }
 
 /**
@@ -1763,7 +1763,7 @@ export function useGet1DictionariesLanguages(
  * Generates TanStack Query cache key for GET /1/dictionaries/[*]/languages
  */
 export function getGet1DictionariesLanguagesQueryKey() {
-  return ['GET', '/1/dictionaries/*/languages'] as const
+  return ['/1/dictionaries/*/languages'] as const
 }
 
 /**
@@ -1807,9 +1807,9 @@ export function useGet1ClustersMapping(
  * Generates TanStack Query cache key for GET /1/clusters/mapping
  */
 export function getGet1ClustersMappingQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
 ) {
-  return ['GET', '/1/clusters/mapping', args] as const
+  return ['/1/clusters/mapping', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1921,7 +1921,7 @@ export function useGet1ClustersMappingTop(
  * Generates TanStack Query cache key for GET /1/clusters/mapping/top
  */
 export function getGet1ClustersMappingTopQueryKey() {
-  return ['GET', '/1/clusters/mapping/top'] as const
+  return ['/1/clusters/mapping/top'] as const
 }
 
 /**
@@ -1966,9 +1966,9 @@ export function useGet1ClustersMappingUserID(
  * Generates TanStack Query cache key for GET /1/clusters/mapping/{userID}
  */
 export function getGet1ClustersMappingUserIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
 ) {
-  return ['GET', '/1/clusters/mapping/:userID', args] as const
+  return ['/1/clusters/mapping/:userID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2039,7 +2039,7 @@ export function useGet1Clusters(
  * Generates TanStack Query cache key for GET /1/clusters
  */
 export function getGet1ClustersQueryKey() {
-  return ['GET', '/1/clusters'] as const
+  return ['/1/clusters'] as const
 }
 
 /**
@@ -2116,9 +2116,9 @@ export function useGet1ClustersMappingPending(
  * Generates TanStack Query cache key for GET /1/clusters/mapping/pending
  */
 export function getGet1ClustersMappingPendingQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
 ) {
-  return ['GET', '/1/clusters/mapping/pending', args] as const
+  return ['/1/clusters/mapping/pending', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2159,7 +2159,7 @@ export function useGet1SecuritySources(
  * Generates TanStack Query cache key for GET /1/security/sources
  */
 export function getGet1SecuritySourcesQueryKey() {
-  return ['GET', '/1/security/sources'] as const
+  return ['/1/security/sources'] as const
 }
 
 /**
@@ -2298,8 +2298,8 @@ export function useGet1Logs(
 /**
  * Generates TanStack Query cache key for GET /1/logs
  */
-export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['GET', '/1/logs', args] as const
+export function getGet1LogsQueryKey(args?: InferRequestType<(typeof client)['1']['logs']['$get']>) {
+  return ['/1/logs', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2337,9 +2337,9 @@ export function useGet1TaskTaskID(
  * Generates TanStack Query cache key for GET /1/task/{taskID}
  */
 export function getGet1TaskTaskIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
 ) {
-  return ['GET', '/1/task/:taskID', args] as const
+  return ['/1/task/:taskID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2387,9 +2387,9 @@ export function useGet1IndexesIndexNameTaskTaskID(
  * Generates TanStack Query cache key for GET /1/indexes/{indexName}/task/{taskID}
  */
 export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return ['GET', '/1/indexes/:indexName/task/:taskID', args] as const
+  return ['/1/indexes/:indexName/task/:taskID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2486,9 +2486,9 @@ export function useGet1Indexes(
  * Generates TanStack Query cache key for GET /1/indexes
  */
 export function getGet1IndexesQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+  args?: InferRequestType<(typeof client)['1']['indexes']['$get']>,
 ) {
-  return ['GET', '/1/indexes', args] as const
+  return ['/1/indexes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2526,9 +2526,9 @@ export function useGetWaitForApiKey(
  * Generates TanStack Query cache key for GET /waitForApiKey
  */
 export function getGetWaitForApiKeyQueryKey(
-  args: InferRequestType<typeof client.waitForApiKey.$get>,
+  args?: InferRequestType<typeof client.waitForApiKey.$get>,
 ) {
-  return ['GET', '/waitForApiKey', args] as const
+  return ['/waitForApiKey', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2567,8 +2567,8 @@ export function useGetWaitForTask(
 /**
  * Generates TanStack Query cache key for GET /waitForTask
  */
-export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['GET', '/waitForTask', args] as const
+export function getGetWaitForTaskQueryKey(args?: InferRequestType<typeof client.waitForTask.$get>) {
+  return ['/waitForTask', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2606,9 +2606,9 @@ export function useGetWaitForAppTask(
  * Generates TanStack Query cache key for GET /waitForAppTask
  */
 export function getGetWaitForAppTaskQueryKey(
-  args: InferRequestType<typeof client.waitForAppTask.$get>,
+  args?: InferRequestType<typeof client.waitForAppTask.$get>,
 ) {
-  return ['GET', '/waitForAppTask', args] as const
+  return ['/waitForAppTask', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2650,9 +2650,9 @@ export function useGetBrowseObjects(
  * Generates TanStack Query cache key for GET /browseObjects
  */
 export function getGetBrowseObjectsQueryKey(
-  args: InferRequestType<typeof client.browseObjects.$get>,
+  args?: InferRequestType<typeof client.browseObjects.$get>,
 ) {
-  return ['GET', '/browseObjects', args] as const
+  return ['/browseObjects', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2702,9 +2702,9 @@ export function useGetGenerateSecuredApiKey(
  * Generates TanStack Query cache key for GET /generateSecuredApiKey
  */
 export function getGetGenerateSecuredApiKeyQueryKey(
-  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+  args?: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  return ['GET', '/generateSecuredApiKey', args] as const
+  return ['/generateSecuredApiKey', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2742,9 +2742,9 @@ export function useGetAccountCopyIndex(
  * Generates TanStack Query cache key for GET /accountCopyIndex
  */
 export function getGetAccountCopyIndexQueryKey(
-  args: InferRequestType<typeof client.accountCopyIndex.$get>,
+  args?: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return ['GET', '/accountCopyIndex', args] as const
+  return ['/accountCopyIndex', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2797,9 +2797,9 @@ export function useGetReplaceAllObjects(
  * Generates TanStack Query cache key for GET /replaceAllObjects
  */
 export function getGetReplaceAllObjectsQueryKey(
-  args: InferRequestType<typeof client.replaceAllObjects.$get>,
+  args?: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return ['GET', '/replaceAllObjects', args] as const
+  return ['/replaceAllObjects', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2853,9 +2853,9 @@ export function useGetReplaceAllObjectsWithTransformation(
  * Generates TanStack Query cache key for GET /replaceAllObjectsWithTransformation
  */
 export function getGetReplaceAllObjectsWithTransformationQueryKey(
-  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+  args?: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  return ['GET', '/replaceAllObjectsWithTransformation', args] as const
+  return ['/replaceAllObjectsWithTransformation', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2893,9 +2893,9 @@ export function useGetChunkedBatch(
  * Generates TanStack Query cache key for GET /chunkedBatch
  */
 export function getGetChunkedBatchQueryKey(
-  args: InferRequestType<typeof client.chunkedBatch.$get>,
+  args?: InferRequestType<typeof client.chunkedBatch.$get>,
 ) {
-  return ['GET', '/chunkedBatch', args] as const
+  return ['/chunkedBatch', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2932,8 +2932,8 @@ export function useGetSaveObjects(
 /**
  * Generates TanStack Query cache key for GET /saveObjects
  */
-export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['GET', '/saveObjects', args] as const
+export function getGetSaveObjectsQueryKey(args?: InferRequestType<typeof client.saveObjects.$get>) {
+  return ['/saveObjects', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2972,9 +2972,9 @@ export function useGetSaveObjectsWithTransformation(
  * Generates TanStack Query cache key for GET /saveObjectsWithTransformation
  */
 export function getGetSaveObjectsWithTransformationQueryKey(
-  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+  args?: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
 ) {
-  return ['GET', '/saveObjectsWithTransformation', args] as const
+  return ['/saveObjectsWithTransformation', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3106,8 +3106,8 @@ export function useGetIndexExists(
 /**
  * Generates TanStack Query cache key for GET /indexExists
  */
-export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
-  return ['GET', '/indexExists', args] as const
+export function getGetIndexExistsQueryKey(args?: InferRequestType<typeof client.indexExists.$get>) {
+  return ['/indexExists', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3145,7 +3145,7 @@ export function useGetSetClientApiKey(
  * Generates TanStack Query cache key for GET /setClientApiKey
  */
 export function getGetSetClientApiKeyQueryKey(
-  args: InferRequestType<typeof client.setClientApiKey.$get>,
+  args?: InferRequestType<typeof client.setClientApiKey.$get>,
 ) {
-  return ['GET', '/setClientApiKey', args] as const
+  return ['/setClientApiKey', ...(args ? [args] : [])] as const
 }

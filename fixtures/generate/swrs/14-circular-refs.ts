@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
 /**
@@ -31,7 +31,7 @@ export function useGetTrees(options?: {
  * Generates SWR cache key for GET /trees
  */
 export function getGetTreesKey() {
-  return ['GET', '/trees'] as const
+  return ['/trees'] as const
 }
 
 /**
@@ -83,7 +83,7 @@ export function useGetGraphs(options?: {
  * Generates SWR cache key for GET /graphs
  */
 export function getGetGraphsKey() {
-  return ['GET', '/graphs'] as const
+  return ['/graphs'] as const
 }
 
 /**
@@ -111,7 +111,7 @@ export function useGetLinkedLists(options?: {
  * Generates SWR cache key for GET /linked-lists
  */
 export function getGetLinkedListsKey() {
-  return ['GET', '/linked-lists'] as const
+  return ['/linked-lists'] as const
 }
 
 /**
@@ -139,7 +139,7 @@ export function useGetSocialNetwork(options?: {
  * Generates SWR cache key for GET /social-network
  */
 export function getGetSocialNetworkKey() {
-  return ['GET', '/social-network'] as const
+  return ['/social-network'] as const
 }
 
 /**
@@ -167,7 +167,7 @@ export function useGetFileSystem(options?: {
  * Generates SWR cache key for GET /file-system
  */
 export function getGetFileSystemKey() {
-  return ['GET', '/file-system'] as const
+  return ['/file-system'] as const
 }
 
 /**
@@ -195,7 +195,7 @@ export function useGetComments(options?: {
  * Generates SWR cache key for GET /comments
  */
 export function getGetCommentsKey() {
-  return ['GET', '/comments'] as const
+  return ['/comments'] as const
 }
 
 /**
@@ -223,7 +223,7 @@ export function useGetPolymorphic(options?: {
  * Generates SWR cache key for GET /polymorphic
  */
 export function getGetPolymorphicKey() {
-  return ['GET', '/polymorphic'] as const
+  return ['/polymorphic'] as const
 }
 
 /**
@@ -251,7 +251,7 @@ export function useGetCategories(options?: {
  * Generates SWR cache key for GET /categories
  */
 export function getGetCategoriesKey() {
-  return ['GET', '/categories'] as const
+  return ['/categories'] as const
 }
 
 /**
@@ -279,5 +279,5 @@ export function useGetWorkflow(options?: {
  * Generates SWR cache key for GET /workflow
  */
 export function getGetWorkflowKey() {
-  return ['GET', '/workflow'] as const
+  return ['/workflow'] as const
 }

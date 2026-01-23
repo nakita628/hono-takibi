@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/abcde'
 
@@ -36,5 +36,5 @@ export function useGetExample(
  * Generates TanStack Query cache key for GET /example
  */
 export function getGetExampleQueryKey() {
-  return ['GET', '/example'] as const
+  return ['/example'] as const
 }

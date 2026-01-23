@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/01-minimal'
 
@@ -34,5 +34,5 @@ export function useGetHealth(
  * Generates TanStack Query cache key for GET /health
  */
 export function getGetHealthQueryKey() {
-  return ['GET', '/health'] as const
+  return ['/health'] as const
 }

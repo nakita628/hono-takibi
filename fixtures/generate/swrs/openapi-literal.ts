@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-literal'
 
 /**
@@ -33,5 +33,5 @@ export function useGetPrimitive(options?: {
  * Generates SWR cache key for GET /primitive
  */
 export function getGetPrimitiveKey() {
-  return ['GET', '/primitive'] as const
+  return ['/primitive'] as const
 }

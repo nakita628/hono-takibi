@@ -86,7 +86,7 @@ export function useGetHono(options?: {
  * Generates SWR cache key for GET /hono
  */
 export function getGetHonoKey() {
-  return ['GET', '/hono'] as const
+  return ['/hono'] as const
 }
 
 /**
@@ -120,8 +120,8 @@ export function useGetUsers(
 /**
  * Generates SWR cache key for GET /users
  */
-export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['GET', '/users', args] as const
+export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>) {
+  return ['/users', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -220,7 +220,7 @@ export function useGetHono(options?: {
  * Generates SWR cache key for GET /hono
  */
 export function getGetHonoKey() {
-  return ['GET', '/hono'] as const
+  return ['/hono'] as const
 }
 `
       expect(useGetHono).toBe(useGetHonoExpected)
@@ -264,8 +264,8 @@ export function useGetUsers(
 /**
  * Generates SWR cache key for GET /users
  */
-export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['GET', '/users', args] as const
+export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>) {
+  return ['/users', ...(args ? [args] : [])] as const
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
@@ -376,7 +376,7 @@ export function useGetUsers(options?: {
  * Generates SWR cache key for GET /users
  */
 export function getGetUsersKey() {
-  return ['GET', '/users'] as const
+  return ['/users'] as const
 }
 `
       expect(code).toBe(expected)
@@ -451,7 +451,7 @@ export function useGetPing(options?: {
  * Generates SWR cache key for GET /ping
  */
 export function getGetPingKey() {
-  return ['GET', '/ping'] as const
+  return ['/ping'] as const
 }
 
 /**
@@ -535,7 +535,7 @@ export function useGetHonoX(options?: {
  * Generates SWR cache key for GET /hono-x
  */
 export function getGetHonoXKey() {
-  return ['GET', '/hono-x'] as const
+  return ['/hono-x'] as const
 }
 `
       expect(code).toBe(expected)
@@ -613,8 +613,8 @@ export function useGetUsersId(
 /**
  * Generates SWR cache key for GET /users/{id}
  */
-export function getGetUsersIdKey(args: InferRequestType<(typeof client.users)[':id']['$get']>) {
-  return ['GET', '/users/:id', args] as const
+export function getGetUsersIdKey(args?: InferRequestType<(typeof client.users)[':id']['$get']>) {
+  return ['/users/:id', ...(args ? [args] : [])] as const
 }
 
 /**

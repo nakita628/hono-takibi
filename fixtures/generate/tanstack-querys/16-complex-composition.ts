@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
@@ -88,7 +88,7 @@ export function useGetConfigs(
  * Generates TanStack Query cache key for GET /configs
  */
 export function getGetConfigsQueryKey() {
-  return ['GET', '/configs'] as const
+  return ['/configs'] as const
 }
 
 /**

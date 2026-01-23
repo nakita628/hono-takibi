@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -36,7 +36,7 @@ export function useGetStream(
  * Generates TanStack Query cache key for GET /stream
  */
 export function getGetStreamQueryKey() {
-  return ['GET', '/stream'] as const
+  return ['/stream'] as const
 }
 
 /**
@@ -135,5 +135,5 @@ export function useGetDeprecatedEndpoint(
  * Generates TanStack Query cache key for GET /deprecated-endpoint
  */
 export function getGetDeprecatedEndpointQueryKey() {
-  return ['GET', '/deprecated-endpoint'] as const
+  return ['/deprecated-endpoint'] as const
 }

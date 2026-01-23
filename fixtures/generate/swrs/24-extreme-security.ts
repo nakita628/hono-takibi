@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
 /**
@@ -33,7 +33,7 @@ export function useGetPublic(options?: {
  * Generates SWR cache key for GET /public
  */
 export function getGetPublicKey() {
-  return ['GET', '/public'] as const
+  return ['/public'] as const
 }
 
 /**
@@ -63,7 +63,7 @@ export function useGetSingleAuth(options?: {
  * Generates SWR cache key for GET /single-auth
  */
 export function getGetSingleAuthKey() {
-  return ['GET', '/single-auth'] as const
+  return ['/single-auth'] as const
 }
 
 /**
@@ -93,7 +93,7 @@ export function useGetAnyAuth(options?: {
  * Generates SWR cache key for GET /any-auth
  */
 export function getGetAnyAuthKey() {
-  return ['GET', '/any-auth'] as const
+  return ['/any-auth'] as const
 }
 
 /**
@@ -123,7 +123,7 @@ export function useGetAllAuth(options?: {
  * Generates SWR cache key for GET /all-auth
  */
 export function getGetAllAuthKey() {
-  return ['GET', '/all-auth'] as const
+  return ['/all-auth'] as const
 }
 
 /**
@@ -153,7 +153,7 @@ export function useGetComplexAuth(options?: {
  * Generates SWR cache key for GET /complex-auth
  */
 export function getGetComplexAuthKey() {
-  return ['GET', '/complex-auth'] as const
+  return ['/complex-auth'] as const
 }
 
 /**
@@ -183,7 +183,7 @@ export function useGetScopedOauth(options?: {
  * Generates SWR cache key for GET /scoped-oauth
  */
 export function getGetScopedOauthKey() {
-  return ['GET', '/scoped-oauth'] as const
+  return ['/scoped-oauth'] as const
 }
 
 /**
@@ -213,7 +213,7 @@ export function useGetMixedLevelSecurity(options?: {
  * Generates SWR cache key for GET /mixed-level-security
  */
 export function getGetMixedLevelSecurityKey() {
-  return ['GET', '/mixed-level-security'] as const
+  return ['/mixed-level-security'] as const
 }
 
 /**
@@ -321,7 +321,7 @@ export function useGetOverrideGlobal(options?: {
  * Generates SWR cache key for GET /override-global
  */
 export function getGetOverrideGlobalKey() {
-  return ['GET', '/override-global'] as const
+  return ['/override-global'] as const
 }
 
 /**
@@ -351,7 +351,7 @@ export function useGetOptionalEnhanced(options?: {
  * Generates SWR cache key for GET /optional-enhanced
  */
 export function getGetOptionalEnhancedKey() {
-  return ['GET', '/optional-enhanced'] as const
+  return ['/optional-enhanced'] as const
 }
 
 /**
@@ -381,5 +381,5 @@ export function useGetMultiTenant(options?: {
  * Generates SWR cache key for GET /multi-tenant
  */
 export function getGetMultiTenantKey() {
-  return ['GET', '/multi-tenant'] as const
+  return ['/multi-tenant'] as const
 }

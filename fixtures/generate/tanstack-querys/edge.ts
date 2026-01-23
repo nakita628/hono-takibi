@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -65,8 +65,8 @@ export function useGetSearch(
 /**
  * Generates TanStack Query cache key for GET /search
  */
-export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['GET', '/search', args] as const
+export function getGetSearchQueryKey(args?: InferRequestType<typeof client.search.$get>) {
+  return ['/search', ...(args ? [args] : [])] as const
 }
 
 /**

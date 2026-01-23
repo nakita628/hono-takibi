@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/example'
 
 /**
@@ -31,5 +31,5 @@ export function useGetSample(options?: {
  * Generates SWR cache key for GET /sample
  */
 export function getGetSampleKey() {
-  return ['GET', '/sample'] as const
+  return ['/sample'] as const
 }

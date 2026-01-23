@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { rpc } from 'hono-takibi/rpc'
+import { svelteQuery } from 'hono-takibi/svelte-query'
 import { swr } from 'hono-takibi/swr'
 import { tanstackQuery } from 'hono-takibi/tanstack-query'
 import { type as generateType } from 'hono-takibi/type'
@@ -68,8 +69,8 @@ async function main() {
 
   console.log(`${routeResults.length} routes generated successfully`)
 
-  // Type, Client, RPC, SWR, TanStack Query generation (parallel)
-  console.log('Generating types, clients, rpcs, swrs, and tanstack-querys...')
+  // Type, Client, RPC, SWR, TanStack Query, Svelte Query generation (parallel)
+  console.log('Generating types, clients, rpcs, swrs, tanstack-querys, and svelte-querys...')
   const generateResults = await Promise.all(
     files.map(async (file) => {
       const baseName = file.replace(/\.(yaml|json|tsp)$/i, '')
@@ -119,6 +120,22 @@ async function main() {
         }
       }
 
+      // Generate Svelte Query hooks file
+      const svelteQueryOutput = join(__dirname, '../svelte-querys', `${baseName}.ts`)
+      const svelteQueryResult = await svelteQuery(
+        openAPI,
+        svelteQueryOutput,
+        `../clients/${baseName}`,
+        false,
+      )
+      if (!svelteQueryResult.ok) {
+        return {
+          file,
+          success: false,
+          error: `Svelte Query generation error: ${svelteQueryResult.error}`,
+        }
+      }
+
       // Generate Client file with simple hc pattern
       const clientOutput = join(__dirname, '../clients', `${baseName}.ts`)
       const clientCode = `import { hc } from 'hono/client'
@@ -136,13 +153,19 @@ export const client = hc<typeof routes>('/')
     (r): r is { file: string; success: false; error: string } => !r.success,
   )
 
-  printFailures(genFailures, generateResults.length, 'type/rpc/swr/tanstack-query files')
+  printFailures(
+    genFailures,
+    generateResults.length,
+    'type/rpc/swr/tanstack-query/svelte-query files',
+  )
 
   if (genFailures.length > 0) {
     process.exit(1)
   }
 
-  console.log(`${generateResults.length} type/rpc/swr/tanstack-query sets generated successfully`)
+  console.log(
+    `${generateResults.length} type/rpc/swr/tanstack-query/svelte-query sets generated successfully`,
+  )
 }
 
 main()

@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 
@@ -38,6 +38,6 @@ export function useGetFizzbuzz(
 /**
  * Generates TanStack Query cache key for GET /fizzbuzz
  */
-export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['GET', '/fizzbuzz', args] as const
+export function getGetFizzbuzzQueryKey(args?: InferRequestType<typeof client.fizzbuzz.$get>) {
+  return ['/fizzbuzz', ...(args ? [args] : [])] as const
 }

@@ -10,6 +10,7 @@
     "rpc": "tsx src/rpc.ts",
     "swr": "tsx src/swr.ts",
     "tanstack-query": "tsx src/tanstack-query.ts",
+    "svelte-query": "tsx src/svelte-query.ts",
     "client": "tsx src/client.ts",
     "typecheck": "tsgo --noEmit"
   },
@@ -29,6 +30,7 @@
     "hono": "^4.11.3",
     "hono-takibi": "workspace:^",
     "@tanstack/react-query": "^5.66.0",
+    "@tanstack/svelte-query": "^5.66.0",
     "swr": "^2.3.8",
     "typescript": "^5.9.3"
   }

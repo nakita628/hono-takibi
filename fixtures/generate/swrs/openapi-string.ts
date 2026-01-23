@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-string'
 
 /**
@@ -33,5 +33,5 @@ export function useGetString(options?: {
  * Generates SWR cache key for GET /string
  */
 export function getGetStringKey() {
-  return ['GET', '/string'] as const
+  return ['/string'] as const
 }

@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
 /**
@@ -33,8 +33,8 @@ export function useGetItems(
 /**
  * Generates SWR cache key for GET /items
  */
-export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['GET', '/items', args] as const
+export function getGetItemsKey(args?: InferRequestType<typeof client.items.$get>) {
+  return ['/items', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -65,9 +65,9 @@ export function useGetItemsItemId(
  * Generates SWR cache key for GET /items/{itemId}
  */
 export function getGetItemsItemIdKey(
-  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  args?: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  return ['GET', '/items/:itemId', args] as const
+  return ['/items/:itemId', ...(args ? [args] : [])] as const
 }
 
 /**

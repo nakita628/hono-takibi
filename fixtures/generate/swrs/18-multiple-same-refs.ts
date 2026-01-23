@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
 /**
@@ -33,8 +33,8 @@ export function useGetDocuments(
 /**
  * Generates SWR cache key for GET /documents
  */
-export function getGetDocumentsKey(args: InferRequestType<typeof client.documents.$get>) {
-  return ['GET', '/documents', args] as const
+export function getGetDocumentsKey(args?: InferRequestType<typeof client.documents.$get>) {
+  return ['/documents', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -89,9 +89,9 @@ export function useGetDocumentsDocumentId(
  * Generates SWR cache key for GET /documents/{documentId}
  */
 export function getGetDocumentsDocumentIdKey(
-  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
+  args?: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
-  return ['GET', '/documents/:documentId', args] as const
+  return ['/documents/:documentId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -150,9 +150,9 @@ export function useGetDocumentsDocumentIdVersions(
  * Generates SWR cache key for GET /documents/{documentId}/versions
  */
 export function getGetDocumentsDocumentIdVersionsKey(
-  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
+  args?: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
-  return ['GET', '/documents/:documentId/versions', args] as const
+  return ['/documents/:documentId/versions', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -211,9 +211,9 @@ export function useGetUsersUserIdDocuments(
  * Generates SWR cache key for GET /users/{userId}/documents
  */
 export function getGetUsersUserIdDocumentsKey(
-  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
 ) {
-  return ['GET', '/users/:userId/documents', args] as const
+  return ['/users/:userId/documents', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -265,7 +265,7 @@ export function useGetTemplates(options?: {
  * Generates SWR cache key for GET /templates
  */
 export function getGetTemplatesKey() {
-  return ['GET', '/templates'] as const
+  return ['/templates'] as const
 }
 
 /**

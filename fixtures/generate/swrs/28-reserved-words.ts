@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
 /**
@@ -31,7 +31,7 @@ export function useGetClass(options?: {
  * Generates SWR cache key for GET /class
  */
 export function getGetClassKey() {
-  return ['GET', '/class'] as const
+  return ['/class'] as const
 }
 
 /**
@@ -59,7 +59,7 @@ export function useGetInterface(options?: {
  * Generates SWR cache key for GET /interface
  */
 export function getGetInterfaceKey() {
-  return ['GET', '/interface'] as const
+  return ['/interface'] as const
 }
 
 /**
@@ -87,7 +87,7 @@ export function useGetType(options?: {
  * Generates SWR cache key for GET /type
  */
 export function getGetTypeKey() {
-  return ['GET', '/type'] as const
+  return ['/type'] as const
 }
 
 /**
@@ -134,7 +134,7 @@ export function useGetReturn(options?: {
  * Generates SWR cache key for GET /return
  */
 export function getGetReturnKey() {
-  return ['GET', '/return'] as const
+  return ['/return'] as const
 }
 
 /**
@@ -162,7 +162,7 @@ export function useGetImport(options?: {
  * Generates SWR cache key for GET /import
  */
 export function getGetImportKey() {
-  return ['GET', '/import'] as const
+  return ['/import'] as const
 }
 
 /**
@@ -190,7 +190,7 @@ export function useGetExport(options?: {
  * Generates SWR cache key for GET /export
  */
 export function getGetExportKey() {
-  return ['GET', '/export'] as const
+  return ['/export'] as const
 }
 
 /**
@@ -218,7 +218,7 @@ export function useGetDefault(options?: {
  * Generates SWR cache key for GET /default
  */
 export function getGetDefaultKey() {
-  return ['GET', '/default'] as const
+  return ['/default'] as const
 }
 
 /**
@@ -279,7 +279,7 @@ export function useGetVoid(options?: {
  * Generates SWR cache key for GET /void
  */
 export function getGetVoidKey() {
-  return ['GET', '/void'] as const
+  return ['/void'] as const
 }
 
 /**
@@ -307,7 +307,7 @@ export function useGetNull(options?: {
  * Generates SWR cache key for GET /null
  */
 export function getGetNullKey() {
-  return ['GET', '/null'] as const
+  return ['/null'] as const
 }
 
 /**
@@ -335,7 +335,7 @@ export function useGetTrue(options?: {
  * Generates SWR cache key for GET /true
  */
 export function getGetTrueKey() {
-  return ['GET', '/true'] as const
+  return ['/true'] as const
 }
 
 /**
@@ -363,7 +363,7 @@ export function useGetFalse(options?: {
  * Generates SWR cache key for GET /false
  */
 export function getGetFalseKey() {
-  return ['GET', '/false'] as const
+  return ['/false'] as const
 }
 
 /**
@@ -391,7 +391,7 @@ export function useGetIf(options?: {
  * Generates SWR cache key for GET /if
  */
 export function getGetIfKey() {
-  return ['GET', '/if'] as const
+  return ['/if'] as const
 }
 
 /**
@@ -419,7 +419,7 @@ export function useGetElse(options?: {
  * Generates SWR cache key for GET /else
  */
 export function getGetElseKey() {
-  return ['GET', '/else'] as const
+  return ['/else'] as const
 }
 
 /**
@@ -447,7 +447,7 @@ export function useGetFor(options?: {
  * Generates SWR cache key for GET /for
  */
 export function getGetForKey() {
-  return ['GET', '/for'] as const
+  return ['/for'] as const
 }
 
 /**
@@ -475,7 +475,7 @@ export function useGetWhile(options?: {
  * Generates SWR cache key for GET /while
  */
 export function getGetWhileKey() {
-  return ['GET', '/while'] as const
+  return ['/while'] as const
 }
 
 /**
@@ -503,7 +503,7 @@ export function useGetSwitch(options?: {
  * Generates SWR cache key for GET /switch
  */
 export function getGetSwitchKey() {
-  return ['GET', '/switch'] as const
+  return ['/switch'] as const
 }
 
 /**
@@ -531,7 +531,7 @@ export function useGetCase(options?: {
  * Generates SWR cache key for GET /case
  */
 export function getGetCaseKey() {
-  return ['GET', '/case'] as const
+  return ['/case'] as const
 }
 
 /**
@@ -559,7 +559,7 @@ export function useGetBreak(options?: {
  * Generates SWR cache key for GET /break
  */
 export function getGetBreakKey() {
-  return ['GET', '/break'] as const
+  return ['/break'] as const
 }
 
 /**
@@ -587,7 +587,7 @@ export function useGetContinue(options?: {
  * Generates SWR cache key for GET /continue
  */
 export function getGetContinueKey() {
-  return ['GET', '/continue'] as const
+  return ['/continue'] as const
 }
 
 /**
@@ -615,7 +615,7 @@ export function useGetTry(options?: {
  * Generates SWR cache key for GET /try
  */
 export function getGetTryKey() {
-  return ['GET', '/try'] as const
+  return ['/try'] as const
 }
 
 /**
@@ -643,7 +643,7 @@ export function useGetCatch(options?: {
  * Generates SWR cache key for GET /catch
  */
 export function getGetCatchKey() {
-  return ['GET', '/catch'] as const
+  return ['/catch'] as const
 }
 
 /**
@@ -671,7 +671,7 @@ export function useGetFinally(options?: {
  * Generates SWR cache key for GET /finally
  */
 export function getGetFinallyKey() {
-  return ['GET', '/finally'] as const
+  return ['/finally'] as const
 }
 
 /**
@@ -699,7 +699,7 @@ export function useGetThrow(options?: {
  * Generates SWR cache key for GET /throw
  */
 export function getGetThrowKey() {
-  return ['GET', '/throw'] as const
+  return ['/throw'] as const
 }
 
 /**
@@ -727,7 +727,7 @@ export function useGetAsync(options?: {
  * Generates SWR cache key for GET /async
  */
 export function getGetAsyncKey() {
-  return ['GET', '/async'] as const
+  return ['/async'] as const
 }
 
 /**
@@ -755,7 +755,7 @@ export function useGetAwait(options?: {
  * Generates SWR cache key for GET /await
  */
 export function getGetAwaitKey() {
-  return ['GET', '/await'] as const
+  return ['/await'] as const
 }
 
 /**
@@ -783,7 +783,7 @@ export function useGetYield(options?: {
  * Generates SWR cache key for GET /yield
  */
 export function getGetYieldKey() {
-  return ['GET', '/yield'] as const
+  return ['/yield'] as const
 }
 
 /**
@@ -811,7 +811,7 @@ export function useGetStatic(options?: {
  * Generates SWR cache key for GET /static
  */
 export function getGetStaticKey() {
-  return ['GET', '/static'] as const
+  return ['/static'] as const
 }
 
 /**
@@ -839,7 +839,7 @@ export function useGetPublic(options?: {
  * Generates SWR cache key for GET /public
  */
 export function getGetPublicKey() {
-  return ['GET', '/public'] as const
+  return ['/public'] as const
 }
 
 /**
@@ -867,7 +867,7 @@ export function useGetPrivate(options?: {
  * Generates SWR cache key for GET /private
  */
 export function getGetPrivateKey() {
-  return ['GET', '/private'] as const
+  return ['/private'] as const
 }
 
 /**
@@ -895,7 +895,7 @@ export function useGetProtected(options?: {
  * Generates SWR cache key for GET /protected
  */
 export function getGetProtectedKey() {
-  return ['GET', '/protected'] as const
+  return ['/protected'] as const
 }
 
 /**
@@ -923,7 +923,7 @@ export function useGetAbstract(options?: {
  * Generates SWR cache key for GET /abstract
  */
 export function getGetAbstractKey() {
-  return ['GET', '/abstract'] as const
+  return ['/abstract'] as const
 }
 
 /**
@@ -951,7 +951,7 @@ export function useGetFinal(options?: {
  * Generates SWR cache key for GET /final
  */
 export function getGetFinalKey() {
-  return ['GET', '/final'] as const
+  return ['/final'] as const
 }
 
 /**
@@ -979,7 +979,7 @@ export function useGetExtends(options?: {
  * Generates SWR cache key for GET /extends
  */
 export function getGetExtendsKey() {
-  return ['GET', '/extends'] as const
+  return ['/extends'] as const
 }
 
 /**
@@ -1007,7 +1007,7 @@ export function useGetImplements(options?: {
  * Generates SWR cache key for GET /implements
  */
 export function getGetImplementsKey() {
-  return ['GET', '/implements'] as const
+  return ['/implements'] as const
 }
 
 /**
@@ -1035,7 +1035,7 @@ export function useGetPackage(options?: {
  * Generates SWR cache key for GET /package
  */
 export function getGetPackageKey() {
-  return ['GET', '/package'] as const
+  return ['/package'] as const
 }
 
 /**
@@ -1063,7 +1063,7 @@ export function useGetEnum(options?: {
  * Generates SWR cache key for GET /enum
  */
 export function getGetEnumKey() {
-  return ['GET', '/enum'] as const
+  return ['/enum'] as const
 }
 
 /**
@@ -1091,7 +1091,7 @@ export function useGetConst(options?: {
  * Generates SWR cache key for GET /const
  */
 export function getGetConstKey() {
-  return ['GET', '/const'] as const
+  return ['/const'] as const
 }
 
 /**
@@ -1119,7 +1119,7 @@ export function useGetLet(options?: {
  * Generates SWR cache key for GET /let
  */
 export function getGetLetKey() {
-  return ['GET', '/let'] as const
+  return ['/let'] as const
 }
 
 /**
@@ -1147,7 +1147,7 @@ export function useGetVar(options?: {
  * Generates SWR cache key for GET /var
  */
 export function getGetVarKey() {
-  return ['GET', '/var'] as const
+  return ['/var'] as const
 }
 
 /**
@@ -1175,7 +1175,7 @@ export function useGetThis(options?: {
  * Generates SWR cache key for GET /this
  */
 export function getGetThisKey() {
-  return ['GET', '/this'] as const
+  return ['/this'] as const
 }
 
 /**
@@ -1203,7 +1203,7 @@ export function useGetSuper(options?: {
  * Generates SWR cache key for GET /super
  */
 export function getGetSuperKey() {
-  return ['GET', '/super'] as const
+  return ['/super'] as const
 }
 
 /**
@@ -1231,7 +1231,7 @@ export function useGetSelf(options?: {
  * Generates SWR cache key for GET /self
  */
 export function getGetSelfKey() {
-  return ['GET', '/self'] as const
+  return ['/self'] as const
 }
 
 /**
@@ -1259,7 +1259,7 @@ export function useGetConstructor(options?: {
  * Generates SWR cache key for GET /constructor
  */
 export function getGetConstructorKey() {
-  return ['GET', '/constructor'] as const
+  return ['/constructor'] as const
 }
 
 /**
@@ -1287,7 +1287,7 @@ export function useGetPrototype(options?: {
  * Generates SWR cache key for GET /prototype
  */
 export function getGetPrototypeKey() {
-  return ['GET', '/prototype'] as const
+  return ['/prototype'] as const
 }
 
 /**
@@ -1315,7 +1315,7 @@ export function useGetToString(options?: {
  * Generates SWR cache key for GET /toString
  */
 export function getGetToStringKey() {
-  return ['GET', '/toString'] as const
+  return ['/toString'] as const
 }
 
 /**
@@ -1343,7 +1343,7 @@ export function useGetValueOf(options?: {
  * Generates SWR cache key for GET /valueOf
  */
 export function getGetValueOfKey() {
-  return ['GET', '/valueOf'] as const
+  return ['/valueOf'] as const
 }
 
 /**
@@ -1371,7 +1371,7 @@ export function useGetHasOwnProperty(options?: {
  * Generates SWR cache key for GET /hasOwnProperty
  */
 export function getGetHasOwnPropertyKey() {
-  return ['GET', '/hasOwnProperty'] as const
+  return ['/hasOwnProperty'] as const
 }
 
 /**
@@ -1399,5 +1399,5 @@ export function useGetNameCollisions(options?: {
  * Generates SWR cache key for GET /name-collisions
  */
 export function getGetNameCollisionsKey() {
-  return ['GET', '/name-collisions'] as const
+  return ['/name-collisions'] as const
 }

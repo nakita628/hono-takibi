@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -101,9 +101,9 @@ export function useGetPetFindByStatus(
  * Generates TanStack Query cache key for GET /pet/findByStatus
  */
 export function getGetPetFindByStatusQueryKey(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+  args?: InferRequestType<typeof client.pet.findByStatus.$get>,
 ) {
-  return ['GET', '/pet/findByStatus', args] as const
+  return ['/pet/findByStatus', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -141,9 +141,9 @@ export function useGetPetFindByTags(
  * Generates TanStack Query cache key for GET /pet/findByTags
  */
 export function getGetPetFindByTagsQueryKey(
-  args: InferRequestType<typeof client.pet.findByTags.$get>,
+  args?: InferRequestType<typeof client.pet.findByTags.$get>,
 ) {
-  return ['GET', '/pet/findByTags', args] as const
+  return ['/pet/findByTags', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -181,9 +181,9 @@ export function useGetPetPetId(
  * Generates TanStack Query cache key for GET /pet/{petId}
  */
 export function getGetPetPetIdQueryKey(
-  args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
+  args?: InferRequestType<(typeof client.pet)[':petId']['$get']>,
 ) {
-  return ['GET', '/pet/:petId', args] as const
+  return ['/pet/:petId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -311,7 +311,7 @@ export function useGetStoreInventory(
  * Generates TanStack Query cache key for GET /store/inventory
  */
 export function getGetStoreInventoryQueryKey() {
-  return ['GET', '/store/inventory'] as const
+  return ['/store/inventory'] as const
 }
 
 /**
@@ -380,9 +380,9 @@ export function useGetStoreOrderOrderId(
  * Generates TanStack Query cache key for GET /store/order/{orderId}
  */
 export function getGetStoreOrderOrderIdQueryKey(
-  args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
+  args?: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
 ) {
-  return ['GET', '/store/order/:orderId', args] as const
+  return ['/store/order/:orderId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -512,8 +512,8 @@ export function useGetUserLogin(
 /**
  * Generates TanStack Query cache key for GET /user/login
  */
-export function getGetUserLoginQueryKey(args: InferRequestType<typeof client.user.login.$get>) {
-  return ['GET', '/user/login', args] as const
+export function getGetUserLoginQueryKey(args?: InferRequestType<typeof client.user.login.$get>) {
+  return ['/user/login', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -548,7 +548,7 @@ export function useGetUserLogout(
  * Generates TanStack Query cache key for GET /user/logout
  */
 export function getGetUserLogoutQueryKey() {
-  return ['GET', '/user/logout'] as const
+  return ['/user/logout'] as const
 }
 
 /**
@@ -584,9 +584,9 @@ export function useGetUserUsername(
  * Generates TanStack Query cache key for GET /user/{username}
  */
 export function getGetUserUsernameQueryKey(
-  args: InferRequestType<(typeof client.user)[':username']['$get']>,
+  args?: InferRequestType<(typeof client.user)[':username']['$get']>,
 ) {
-  return ['GET', '/user/:username', args] as const
+  return ['/user/:username', ...(args ? [args] : [])] as const
 }
 
 /**

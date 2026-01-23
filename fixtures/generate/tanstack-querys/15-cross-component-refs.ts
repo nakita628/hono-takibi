@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -34,8 +34,8 @@ export function useGetEntities(
 /**
  * Generates TanStack Query cache key for GET /entities
  */
-export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.entities.$get>) {
-  return ['GET', '/entities', args] as const
+export function getGetEntitiesQueryKey(args?: InferRequestType<typeof client.entities.$get>) {
+  return ['/entities', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -96,9 +96,9 @@ export function useGetEntitiesEntityId(
  * Generates TanStack Query cache key for GET /entities/{entityId}
  */
 export function getGetEntitiesEntityIdQueryKey(
-  args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
+  args?: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
-  return ['GET', '/entities/:entityId', args] as const
+  return ['/entities/:entityId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -192,9 +192,9 @@ export function useGetEntitiesEntityIdRelationships(
  * Generates TanStack Query cache key for GET /entities/{entityId}/relationships
  */
 export function getGetEntitiesEntityIdRelationshipsQueryKey(
-  args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+  args?: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
-  return ['GET', '/entities/:entityId/relationships', args] as const
+  return ['/entities/:entityId/relationships', ...(args ? [args] : [])] as const
 }
 
 /**

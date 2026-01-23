@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
@@ -40,9 +40,9 @@ export function useGetOauthAuthorize(
  * Generates TanStack Query cache key for GET /oauth/authorize
  */
 export function getGetOauthAuthorizeQueryKey(
-  args: InferRequestType<typeof client.oauth.authorize.$get>,
+  args?: InferRequestType<typeof client.oauth.authorize.$get>,
 ) {
-  return ['GET', '/oauth/authorize', args] as const
+  return ['/oauth/authorize', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -206,7 +206,7 @@ export function useGetOauthUserinfo(
  * Generates TanStack Query cache key for GET /oauth/userinfo
  */
 export function getGetOauthUserinfoQueryKey() {
-  return ['GET', '/oauth/userinfo'] as const
+  return ['/oauth/userinfo'] as const
 }
 
 /**
@@ -247,7 +247,7 @@ export function useGetWellKnownOpenidConfiguration(
  * Generates TanStack Query cache key for GET /.well-known/openid-configuration
  */
 export function getGetWellKnownOpenidConfigurationQueryKey() {
-  return ['GET', '/.well-known/openid-configuration'] as const
+  return ['/.well-known/openid-configuration'] as const
 }
 
 /**
@@ -288,7 +288,7 @@ export function useGetWellKnownJwksJson(
  * Generates TanStack Query cache key for GET /.well-known/jwks.json
  */
 export function getGetWellKnownJwksJsonQueryKey() {
-  return ['GET', '/.well-known/jwks.json'] as const
+  return ['/.well-known/jwks.json'] as const
 }
 
 /**
@@ -323,7 +323,7 @@ export function useGetOauthClients(
  * Generates TanStack Query cache key for GET /oauth/clients
  */
 export function getGetOauthClientsQueryKey() {
-  return ['GET', '/oauth/clients'] as const
+  return ['/oauth/clients'] as const
 }
 
 /**
@@ -389,9 +389,9 @@ export function useGetOauthClientsClientId(
  * Generates TanStack Query cache key for GET /oauth/clients/{clientId}
  */
 export function getGetOauthClientsClientIdQueryKey(
-  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+  args?: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
 ) {
-  return ['GET', '/oauth/clients/:clientId', args] as const
+  return ['/oauth/clients/:clientId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -518,7 +518,7 @@ export function useGetOauthConsents(
  * Generates TanStack Query cache key for GET /oauth/consents
  */
 export function getGetOauthConsentsQueryKey() {
-  return ['GET', '/oauth/consents'] as const
+  return ['/oauth/consents'] as const
 }
 
 /**

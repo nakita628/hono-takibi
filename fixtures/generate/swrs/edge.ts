@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
 /**
@@ -61,8 +61,8 @@ export function useGetSearch(
 /**
  * Generates SWR cache key for GET /search
  */
-export function getGetSearchKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['GET', '/search', args] as const
+export function getGetSearchKey(args?: InferRequestType<typeof client.search.$get>) {
+  return ['/search', ...(args ? [args] : [])] as const
 }
 
 /**

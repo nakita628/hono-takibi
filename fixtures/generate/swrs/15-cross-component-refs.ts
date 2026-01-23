@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
 /**
@@ -33,8 +33,8 @@ export function useGetEntities(
 /**
  * Generates SWR cache key for GET /entities
  */
-export function getGetEntitiesKey(args: InferRequestType<typeof client.entities.$get>) {
-  return ['GET', '/entities', args] as const
+export function getGetEntitiesKey(args?: InferRequestType<typeof client.entities.$get>) {
+  return ['/entities', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -89,9 +89,9 @@ export function useGetEntitiesEntityId(
  * Generates SWR cache key for GET /entities/{entityId}
  */
 export function getGetEntitiesEntityIdKey(
-  args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
+  args?: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
-  return ['GET', '/entities/:entityId', args] as const
+  return ['/entities/:entityId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -174,9 +174,9 @@ export function useGetEntitiesEntityIdRelationships(
  * Generates SWR cache key for GET /entities/{entityId}/relationships
  */
 export function getGetEntitiesEntityIdRelationshipsKey(
-  args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+  args?: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
-  return ['GET', '/entities/:entityId/relationships', args] as const
+  return ['/entities/:entityId/relationships', ...(args ? [args] : [])] as const
 }
 
 /**

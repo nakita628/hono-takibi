@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
 /**
@@ -35,7 +35,7 @@ export function useGet(options?: {
  * Generates SWR cache key for GET /
  */
 export function getGetKey() {
-  return ['GET', '/'] as const
+  return ['/'] as const
 }
 
 /**
@@ -69,8 +69,8 @@ export function useGetPosts(
 /**
  * Generates SWR cache key for GET /posts
  */
-export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['GET', '/posts', args] as const
+export function getGetPostsKey(args?: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', ...(args ? [args] : [])] as const
 }
 
 /**

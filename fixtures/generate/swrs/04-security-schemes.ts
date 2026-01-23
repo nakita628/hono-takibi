@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/04-security-schemes'
 
 /**
@@ -29,7 +29,7 @@ export function useGetPublic(options?: {
  * Generates SWR cache key for GET /public
  */
 export function getGetPublicKey() {
-  return ['GET', '/public'] as const
+  return ['/public'] as const
 }
 
 /**
@@ -57,7 +57,7 @@ export function useGetProtected(options?: {
  * Generates SWR cache key for GET /protected
  */
 export function getGetProtectedKey() {
-  return ['GET', '/protected'] as const
+  return ['/protected'] as const
 }
 
 /**
@@ -85,7 +85,7 @@ export function useGetAdmin(options?: {
  * Generates SWR cache key for GET /admin
  */
 export function getGetAdminKey() {
-  return ['GET', '/admin'] as const
+  return ['/admin'] as const
 }
 
 /**
@@ -113,7 +113,7 @@ export function useGetOauthResource(options?: {
  * Generates SWR cache key for GET /oauth-resource
  */
 export function getGetOauthResourceKey() {
-  return ['GET', '/oauth-resource'] as const
+  return ['/oauth-resource'] as const
 }
 
 /**
@@ -141,5 +141,5 @@ export function useGetMultiAuth(options?: {
  * Generates SWR cache key for GET /multi-auth
  */
 export function getGetMultiAuthKey() {
-  return ['GET', '/multi-auth'] as const
+  return ['/multi-auth'] as const
 }

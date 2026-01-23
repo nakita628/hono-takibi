@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
 
 /**
@@ -37,8 +37,8 @@ export function useGetProducts(
 /**
  * Generates SWR cache key for GET /products
  */
-export function getGetProductsKey(args: InferRequestType<typeof client.products.$get>) {
-  return ['GET', '/products', args] as const
+export function getGetProductsKey(args?: InferRequestType<typeof client.products.$get>) {
+  return ['/products', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -97,9 +97,9 @@ export function useGetProductsProductId(
  * Generates SWR cache key for GET /products/{productId}
  */
 export function getGetProductsProductIdKey(
-  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  args?: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return ['GET', '/products/:productId', args] as const
+  return ['/products/:productId', ...(args ? [args] : [])] as const
 }
 
 /**

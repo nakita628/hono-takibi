@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-openapi'
 
@@ -36,7 +36,7 @@ export function useGetUsers(
  * Generates TanStack Query cache key for GET /users
  */
 export function getGetUsersQueryKey() {
-  return ['GET', '/users'] as const
+  return ['/users'] as const
 }
 
 /**
@@ -101,9 +101,9 @@ export function useGetUsersUserId(
  * Generates TanStack Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['GET', '/users/:userId', args] as const
+  return ['/users/:userId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -198,7 +198,7 @@ export function useGetOrders(
  * Generates TanStack Query cache key for GET /orders
  */
 export function getGetOrdersQueryKey() {
-  return ['GET', '/orders'] as const
+  return ['/orders'] as const
 }
 
 /**

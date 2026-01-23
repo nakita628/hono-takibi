@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/twilio_api_v2010'
 
@@ -43,9 +43,9 @@ export function useGet20100401AccountsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts.json
  */
 export function getGet20100401AccountsJsonQueryKey(
-  args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
+  args?: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
 ) {
-  return ['GET', '/2010-04-01/Accounts.json', args] as const
+  return ['/2010-04-01/Accounts.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -119,9 +119,9 @@ export function useGet20100401AccountsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{Sid}.json
  */
 export function getGet20100401AccountsSidJsonQueryKey(
-  args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
+  args?: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -198,11 +198,11 @@ export function useGet20100401AccountsAccountSidAddressesJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
  */
 export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Addresses.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Addresses.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -292,11 +292,11 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -433,11 +433,11 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
  */
 export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Applications.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Applications.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -535,11 +535,14 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -684,14 +687,13 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid}.json
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps/:ConnectAppSid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -743,11 +745,14 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -794,11 +799,14 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -845,14 +853,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -900,14 +907,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Local.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -957,14 +963,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/MachineToMachine.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1012,14 +1017,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Mobile.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1067,14 +1071,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/National.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1122,14 +1125,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/SharedCost.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1177,14 +1179,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/TollFree.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1232,14 +1233,13 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Voip.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1288,11 +1288,11 @@ export function useGet20100401AccountsAccountSidBalanceJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
  */
 export function getGet20100401AccountsAccountSidBalanceJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Balance.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Balance.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1340,11 +1340,11 @@ export function useGet20100401AccountsAccountSidCallsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
  */
 export function getGet20100401AccountsAccountSidCallsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Calls.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Calls.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1436,11 +1436,11 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1585,11 +1585,14 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -1635,14 +1638,13 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1690,14 +1692,13 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -1749,11 +1750,14 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -1850,14 +1854,13 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2001,11 +2004,14 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -2099,11 +2105,11 @@ export function useGet20100401AccountsAccountSidConferencesJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
  */
 export function getGet20100401AccountsAccountSidConferencesJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Conferences.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Conferences.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2154,14 +2160,13 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2213,14 +2218,13 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2364,11 +2368,14 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -2513,11 +2520,11 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
  */
 export function getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/ConnectApps.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/ConnectApps.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2564,14 +2571,13 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
  */
 export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Addresses/:AddressSid/DependentPhoneNumbers.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2623,11 +2629,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -2772,11 +2781,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -2876,14 +2888,13 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -2981,14 +2992,13 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3088,14 +3098,13 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3149,14 +3158,13 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3204,11 +3212,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -3298,11 +3309,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -3392,14 +3406,13 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3487,11 +3500,11 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3621,11 +3634,11 @@ export function useGet20100401AccountsAccountSidKeysJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
  */
 export function getGet20100401AccountsAccountSidKeysJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Keys.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Keys.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -3713,14 +3726,13 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3818,11 +3830,14 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -3872,14 +3887,13 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid}.json
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -3977,11 +3991,14 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -4029,11 +4046,11 @@ export function useGet20100401AccountsAccountSidMessagesJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
  */
 export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Messages.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Messages.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4131,11 +4148,11 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4322,11 +4339,11 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
  */
 export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SigningKeys.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4424,11 +4441,14 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -4479,11 +4499,11 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
  */
 export function getGet20100401AccountsAccountSidNotificationsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Notifications.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Notifications.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -4534,11 +4554,14 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -4683,11 +4706,14 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -4781,14 +4807,13 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid}.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -4932,14 +4957,13 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5126,11 +5150,11 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5272,11 +5296,11 @@ export function useGet20100401AccountsAccountSidQueuesJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
  */
 export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Queues.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Queues.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5463,11 +5487,11 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5562,11 +5586,11 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
  */
 export function getGet20100401AccountsAccountSidRecordingsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Recordings.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Recordings.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -5617,14 +5641,13 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5722,14 +5745,13 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5783,14 +5805,13 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5890,14 +5911,13 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -5951,14 +5971,13 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:PayloadSid/Data.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6006,14 +6025,13 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6103,14 +6121,13 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6162,11 +6179,14 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -6264,11 +6284,11 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -6315,11 +6335,14 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -6458,14 +6481,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6565,14 +6587,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6672,14 +6693,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6779,14 +6799,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6886,14 +6905,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -6993,14 +7011,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7098,14 +7115,13 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7205,14 +7221,13 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7356,11 +7371,14 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -7458,11 +7476,14 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -7607,14 +7628,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7712,14 +7732,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -7817,11 +7836,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -7919,11 +7938,14 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -8068,11 +8090,14 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -8170,14 +8195,13 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8324,14 +8348,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8429,14 +8452,13 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8536,14 +8558,13 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -8643,14 +8664,13 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
   >,
 ) {
   return [
-    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
-    args,
+    ...(args ? [args] : []),
   ] as const
 }
 
@@ -9026,11 +9046,14 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9128,11 +9151,11 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
  */
 export function getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Transcriptions.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Transcriptions.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -9183,11 +9206,11 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records.json', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -9234,11 +9257,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9285,11 +9311,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9336,11 +9365,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9387,11 +9419,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9438,11 +9473,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9489,11 +9527,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9540,11 +9581,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9591,11 +9635,14 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9646,11 +9693,14 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
  */
 export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json', args] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -9791,11 +9841,11 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
  * Generates TanStack Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
  */
 export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
   >,
 ) {
-  return ['GET', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json', args] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json', ...(args ? [args] : [])] as const
 }
 
 /**

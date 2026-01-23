@@ -16,6 +16,7 @@
     "fixtures-readonly": "pnpm -F @fixtures/generate readonly-route",
     "fixtures-type": "pnpm -F @fixtures/generate type",
     "fixtures-rpc": "pnpm -F @fixtures/generate rpc",
+    "fixtures-svelte-query": "pnpm -F @fixtures/generate svelte-query",
     "fixtures-typecheck": "pnpm -F @fixtures/generate typecheck",
     "tsgo": "pnpm -F @fixtures/generate typecheck",
     "test": "vitest run",

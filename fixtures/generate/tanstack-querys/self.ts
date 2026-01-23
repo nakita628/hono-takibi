@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/self'
 
@@ -34,5 +34,5 @@ export function useGetCategories(
  * Generates TanStack Query cache key for GET /categories
  */
 export function getGetCategoriesQueryKey() {
-  return ['GET', '/categories'] as const
+  return ['/categories'] as const
 }

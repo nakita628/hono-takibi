@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
 
@@ -43,9 +43,9 @@ export function useGetSocialAuthorizeProvider(
  * Generates TanStack Query cache key for GET /social/authorize/{provider}
  */
 export function getGetSocialAuthorizeProviderQueryKey(
-  args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
+  args?: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
 ) {
-  return ['GET', '/social/authorize/:provider', args] as const
+  return ['/social/authorize/:provider', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -87,9 +87,9 @@ export function useGetSocialCallbackProvider(
  * Generates TanStack Query cache key for GET /social/callback/{provider}
  */
 export function getGetSocialCallbackProviderQueryKey(
-  args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
+  args?: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
 ) {
-  return ['GET', '/social/callback/:provider', args] as const
+  return ['/social/callback/:provider', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -187,7 +187,7 @@ export function useGetProviders(
  * Generates TanStack Query cache key for GET /providers
  */
 export function getGetProvidersQueryKey() {
-  return ['GET', '/providers'] as const
+  return ['/providers'] as const
 }
 
 /**
@@ -222,7 +222,7 @@ export function useGetProvidersAdmin(
  * Generates TanStack Query cache key for GET /providers/admin
  */
 export function getGetProvidersAdminQueryKey() {
-  return ['GET', '/providers/admin'] as const
+  return ['/providers/admin'] as const
 }
 
 /**
@@ -288,9 +288,9 @@ export function useGetProvidersProviderId(
  * Generates TanStack Query cache key for GET /providers/{providerId}
  */
 export function getGetProvidersProviderIdQueryKey(
-  args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
+  args?: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
 ) {
-  return ['GET', '/providers/:providerId', args] as const
+  return ['/providers/:providerId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -415,7 +415,7 @@ export function useGetAccountLinked(
  * Generates TanStack Query cache key for GET /account/linked
  */
 export function getGetAccountLinkedQueryKey() {
-  return ['GET', '/account/linked'] as const
+  return ['/account/linked'] as const
 }
 
 /**
@@ -512,7 +512,7 @@ export function useGetEnterpriseSso(
  * Generates TanStack Query cache key for GET /enterprise/sso
  */
 export function getGetEnterpriseSsoQueryKey() {
-  return ['GET', '/enterprise/sso'] as const
+  return ['/enterprise/sso'] as const
 }
 
 /**
@@ -581,9 +581,9 @@ export function useGetEnterpriseSsoConfigId(
  * Generates TanStack Query cache key for GET /enterprise/sso/{configId}
  */
 export function getGetEnterpriseSsoConfigIdQueryKey(
-  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
+  args?: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
 ) {
-  return ['GET', '/enterprise/sso/:configId', args] as const
+  return ['/enterprise/sso/:configId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -683,9 +683,9 @@ export function useGetEnterpriseSsoDomainLookup(
  * Generates TanStack Query cache key for GET /enterprise/sso/domain-lookup
  */
 export function getGetEnterpriseSsoDomainLookupQueryKey(
-  args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+  args?: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
 ) {
-  return ['GET', '/enterprise/sso/domain-lookup', args] as const
+  return ['/enterprise/sso/domain-lookup', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -727,7 +727,7 @@ export function useGetEnterpriseSsoConfigIdMetadata(
  * Generates TanStack Query cache key for GET /enterprise/sso/{configId}/metadata
  */
 export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
-  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
+  args?: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
 ) {
-  return ['GET', '/enterprise/sso/:configId/metadata', args] as const
+  return ['/enterprise/sso/:configId/metadata', ...(args ? [args] : [])] as const
 }

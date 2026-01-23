@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/01-minimal'
 
 /**
@@ -29,5 +29,5 @@ export function useGetHealth(options?: {
  * Generates SWR cache key for GET /health
  */
 export function getGetHealthKey() {
-  return ['GET', '/health'] as const
+  return ['/health'] as const
 }

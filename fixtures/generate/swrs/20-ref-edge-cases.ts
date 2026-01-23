@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 
 /**
@@ -31,8 +31,8 @@ export function useGetTest(
 /**
  * Generates SWR cache key for GET /test
  */
-export function getGetTestKey(args: InferRequestType<typeof client.test.$get>) {
-  return ['GET', '/test', args] as const
+export function getGetTestKey(args?: InferRequestType<typeof client.test.$get>) {
+  return ['/test', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -60,7 +60,7 @@ export function useGetEmptyRefs(options?: {
  * Generates SWR cache key for GET /empty-refs
  */
 export function getGetEmptyRefsKey() {
-  return ['GET', '/empty-refs'] as const
+  return ['/empty-refs'] as const
 }
 
 /**
@@ -88,7 +88,7 @@ export function useGetUnicodeRefs(options?: {
  * Generates SWR cache key for GET /unicode-refs
  */
 export function getGetUnicodeRefsKey() {
-  return ['GET', '/unicode-refs'] as const
+  return ['/unicode-refs'] as const
 }
 
 /**
@@ -116,7 +116,7 @@ export function useGetSpecialChars(options?: {
  * Generates SWR cache key for GET /special-chars
  */
 export function getGetSpecialCharsKey() {
-  return ['GET', '/special-chars'] as const
+  return ['/special-chars'] as const
 }
 
 /**
@@ -144,7 +144,7 @@ export function useGetNumericStart(options?: {
  * Generates SWR cache key for GET /numeric-start
  */
 export function getGetNumericStartKey() {
-  return ['GET', '/numeric-start'] as const
+  return ['/numeric-start'] as const
 }
 
 /**
@@ -172,7 +172,7 @@ export function useGetRefInAllof(options?: {
  * Generates SWR cache key for GET /ref-in-allof
  */
 export function getGetRefInAllofKey() {
-  return ['GET', '/ref-in-allof'] as const
+  return ['/ref-in-allof'] as const
 }
 
 /**
@@ -200,7 +200,7 @@ export function useGetDeeplyNested(options?: {
  * Generates SWR cache key for GET /deeply-nested
  */
 export function getGetDeeplyNestedKey() {
-  return ['GET', '/deeply-nested'] as const
+  return ['/deeply-nested'] as const
 }
 
 /**
@@ -228,5 +228,5 @@ export function useGetSameNameDiffContext(options?: {
  * Generates SWR cache key for GET /same-name-diff-context
  */
 export function getGetSameNameDiffContextKey() {
-  return ['GET', '/same-name-diff-context'] as const
+  return ['/same-name-diff-context'] as const
 }

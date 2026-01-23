@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
 /**
@@ -33,7 +33,7 @@ export function useGetMfaStatus(options?: {
  * Generates SWR cache key for GET /mfa/status
  */
 export function getGetMfaStatusKey() {
-  return ['GET', '/mfa/status'] as const
+  return ['/mfa/status'] as const
 }
 
 /**
@@ -63,7 +63,7 @@ export function useGetMfaMethods(options?: {
  * Generates SWR cache key for GET /mfa/methods
  */
 export function getGetMfaMethodsKey() {
-  return ['GET', '/mfa/methods'] as const
+  return ['/mfa/methods'] as const
 }
 
 /**
@@ -389,7 +389,7 @@ export function useGetMfaWebauthnCredentials(options?: {
  * Generates SWR cache key for GET /mfa/webauthn/credentials
  */
 export function getGetMfaWebauthnCredentialsKey() {
-  return ['GET', '/mfa/webauthn/credentials'] as const
+  return ['/mfa/webauthn/credentials'] as const
 }
 
 /**
@@ -505,7 +505,7 @@ export function useGetMfaBackupCodesStatus(options?: {
  * Generates SWR cache key for GET /mfa/backup-codes/status
  */
 export function getGetMfaBackupCodesStatusKey() {
-  return ['GET', '/mfa/backup-codes/status'] as const
+  return ['/mfa/backup-codes/status'] as const
 }
 
 /**

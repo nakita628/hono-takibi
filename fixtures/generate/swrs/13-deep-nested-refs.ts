@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
 /**
@@ -51,11 +51,14 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
  * Generates SWR cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(
-  args: InferRequestType<
+  args?: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
 ) {
-  return ['GET', '/organizations/:orgId/departments/:deptId/teams/:teamId/members', args] as const
+  return [
+    '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
+    ...(args ? [args] : []),
+  ] as const
 }
 
 /**
@@ -125,5 +128,5 @@ export function useGetReportsOrganizationSummary(options?: {
  * Generates SWR cache key for GET /reports/organization-summary
  */
 export function getGetReportsOrganizationSummaryKey() {
-  return ['GET', '/reports/organization-summary'] as const
+  return ['/reports/organization-summary'] as const
 }

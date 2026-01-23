@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
 /**
@@ -33,7 +33,7 @@ export function useGetStream(options?: {
  * Generates SWR cache key for GET /stream
  */
 export function getGetStreamKey() {
-  return ['GET', '/stream'] as const
+  return ['/stream'] as const
 }
 
 /**
@@ -119,5 +119,5 @@ export function useGetDeprecatedEndpoint(options?: {
  * Generates SWR cache key for GET /deprecated-endpoint
  */
 export function getGetDeprecatedEndpointKey() {
-  return ['GET', '/deprecated-endpoint'] as const
+  return ['/deprecated-endpoint'] as const
 }

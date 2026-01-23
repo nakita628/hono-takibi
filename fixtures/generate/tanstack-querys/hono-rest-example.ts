@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
@@ -38,7 +38,7 @@ export function useGet(
  * Generates TanStack Query cache key for GET /
  */
 export function getGetQueryKey() {
-  return ['GET', '/'] as const
+  return ['/'] as const
 }
 
 /**
@@ -75,8 +75,8 @@ export function useGetPosts(
 /**
  * Generates TanStack Query cache key for GET /posts
  */
-export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['GET', '/posts', args] as const
+export function getGetPostsQueryKey(args?: InferRequestType<typeof client.posts.$get>) {
+  return ['/posts', ...(args ? [args] : [])] as const
 }
 
 /**

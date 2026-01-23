@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/17-mixed-inline-refs'
 
@@ -34,8 +34,8 @@ export function useGetUsers(
 /**
  * Generates TanStack Query cache key for GET /users
  */
-export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['GET', '/users', args] as const
+export function getGetUsersQueryKey(args?: InferRequestType<typeof client.users.$get>) {
+  return ['/users', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -96,9 +96,9 @@ export function useGetUsersUserId(
  * Generates TanStack Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
-  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['GET', '/users/:userId', args] as const
+  return ['/users/:userId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -163,9 +163,9 @@ export function useGetProductsProductIdVariants(
  * Generates TanStack Query cache key for GET /products/{productId}/variants
  */
 export function getGetProductsProductIdVariantsQueryKey(
-  args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
+  args?: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
 ) {
-  return ['GET', '/products/:productId/variants', args] as const
+  return ['/products/:productId/variants', ...(args ? [args] : [])] as const
 }
 
 /**

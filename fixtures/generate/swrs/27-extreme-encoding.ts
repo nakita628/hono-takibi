@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
 /**
@@ -58,9 +58,9 @@ export function useGetContentNegotiation(
  * Generates SWR cache key for GET /content-negotiation
  */
 export function getGetContentNegotiationKey(
-  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
+  args?: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  return ['GET', '/content-negotiation', args] as const
+  return ['/content-negotiation', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -112,7 +112,7 @@ export function useGetStreaming(options?: {
  * Generates SWR cache key for GET /streaming
  */
 export function getGetStreamingKey() {
-  return ['GET', '/streaming'] as const
+  return ['/streaming'] as const
 }
 
 /**
@@ -188,7 +188,7 @@ export function useGetResponseEncoding(options?: {
  * Generates SWR cache key for GET /response-encoding
  */
 export function getGetResponseEncodingKey() {
-  return ['GET', '/response-encoding'] as const
+  return ['/response-encoding'] as const
 }
 
 /**

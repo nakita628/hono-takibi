@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
 /**
@@ -79,7 +79,7 @@ export function useGetConfigs(options?: {
  * Generates SWR cache key for GET /configs
  */
 export function getGetConfigsKey() {
-  return ['GET', '/configs'] as const
+  return ['/configs'] as const
 }
 
 /**

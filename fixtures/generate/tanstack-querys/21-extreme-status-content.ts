@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
@@ -35,7 +35,7 @@ export function useGetExtremeResponses(
  * Generates TanStack Query cache key for GET /extreme-responses
  */
 export function getGetExtremeResponsesQueryKey() {
-  return ['GET', '/extreme-responses'] as const
+  return ['/extreme-responses'] as const
 }
 
 /**

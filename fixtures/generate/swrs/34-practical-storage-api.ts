@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
 /**
@@ -35,8 +35,8 @@ export function useGetFiles(
 /**
  * Generates SWR cache key for GET /files
  */
-export function getGetFilesKey(args: InferRequestType<typeof client.files.$get>) {
-  return ['GET', '/files', args] as const
+export function getGetFilesKey(args?: InferRequestType<typeof client.files.$get>) {
+  return ['/files', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -180,9 +180,9 @@ export function useGetFilesFileId(
  * Generates SWR cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return ['GET', '/files/:fileId', args] as const
+  return ['/files/:fileId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -270,9 +270,9 @@ export function useGetFilesFileIdDownload(
  * Generates SWR cache key for GET /files/{fileId}/download
  */
 export function getGetFilesFileIdDownloadKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
 ) {
-  return ['GET', '/files/:fileId/download', args] as const
+  return ['/files/:fileId/download', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -308,9 +308,9 @@ export function useGetFilesFileIdDownloadUrl(
  * Generates SWR cache key for GET /files/{fileId}/download-url
  */
 export function getGetFilesFileIdDownloadUrlKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  return ['GET', '/files/:fileId/download-url', args] as const
+  return ['/files/:fileId/download-url', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -398,9 +398,9 @@ export function useGetFilesFileIdThumbnail(
  * Generates SWR cache key for GET /files/{fileId}/thumbnail
  */
 export function getGetFilesFileIdThumbnailKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
 ) {
-  return ['GET', '/files/:fileId/thumbnail', args] as const
+  return ['/files/:fileId/thumbnail', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -459,9 +459,9 @@ export function useGetFoldersFolderId(
  * Generates SWR cache key for GET /folders/{folderId}
  */
 export function getGetFoldersFolderIdKey(
-  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+  args?: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
 ) {
-  return ['GET', '/folders/:folderId', args] as const
+  return ['/folders/:folderId', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -546,9 +546,9 @@ export function useGetFilesFileIdShare(
  * Generates SWR cache key for GET /files/{fileId}/share
  */
 export function getGetFilesFileIdShareKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
 ) {
-  return ['GET', '/files/:fileId/share', args] as const
+  return ['/files/:fileId/share', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -664,9 +664,9 @@ export function useGetFilesFileIdVersions(
  * Generates SWR cache key for GET /files/{fileId}/versions
  */
 export function getGetFilesFileIdVersionsKey(
-  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+  args?: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
 ) {
-  return ['GET', '/files/:fileId/versions', args] as const
+  return ['/files/:fileId/versions', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -731,8 +731,8 @@ export function useGetTrash(
 /**
  * Generates SWR cache key for GET /trash
  */
-export function getGetTrashKey(args: InferRequestType<typeof client.trash.$get>) {
-  return ['GET', '/trash', args] as const
+export function getGetTrashKey(args?: InferRequestType<typeof client.trash.$get>) {
+  return ['/trash', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -810,5 +810,5 @@ export function useGetStorageUsage(options?: {
  * Generates SWR cache key for GET /storage/usage
  */
 export function getGetStorageUsageKey() {
-  return ['GET', '/storage/usage'] as const
+  return ['/storage/usage'] as const
 }

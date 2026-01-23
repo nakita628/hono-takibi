@@ -1,6 +1,6 @@
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-string'
 
@@ -38,5 +38,5 @@ export function useGetString(
  * Generates TanStack Query cache key for GET /string
  */
 export function getGetStringQueryKey() {
-  return ['GET', '/string'] as const
+  return ['/string'] as const
 }
