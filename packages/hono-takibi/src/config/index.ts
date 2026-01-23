@@ -112,6 +112,12 @@ type Config = {
     readonly split?: boolean
     readonly client?: string
   }
+  readonly 'vue-query'?: {
+    readonly output: string | `${string}.ts`
+    readonly import: string
+    readonly split?: boolean
+    readonly client?: string
+  }
 }
 
 /**
@@ -510,6 +516,44 @@ export function parseConfig(
     }
   }
 
+  // vue-query
+  if (config['vue-query'] !== undefined) {
+    if (typeof config['vue-query'].output !== 'string') {
+      return {
+        ok: false,
+        error: `Invalid output format for vue-query: ${String(config['vue-query'].output)}`,
+      }
+    }
+    if (typeof config['vue-query'].import !== 'string') {
+      return {
+        ok: false,
+        error: `Invalid import format for vue-query: ${String(config['vue-query'].import)}`,
+      }
+    }
+    if (config['vue-query'].split !== undefined && typeof config['vue-query'].split !== 'boolean') {
+      return {
+        ok: false,
+        error: `Invalid split format for vue-query: ${String(config['vue-query'].split)}`,
+      }
+    }
+    if (
+      config['vue-query'].client !== undefined &&
+      typeof config['vue-query'].client !== 'string'
+    ) {
+      return {
+        ok: false,
+        error: `Invalid client format for vue-query: ${String(config['vue-query'].client)}`,
+      }
+    }
+    // split: true requires directory (no .ts)
+    if (config['vue-query'].split === true && isTs(config['vue-query'].output)) {
+      return {
+        ok: false,
+        error: `Invalid vue-query output path for split mode (must be a directory, not .ts): ${config['vue-query'].output}`,
+      }
+    }
+  }
+
   const result = {
     ...config,
     ...(config['zod-openapi'] && {
@@ -656,6 +700,15 @@ export function parseConfig(
           config['svelte-query'].split !== true && !isTs(config['svelte-query'].output)
             ? `${config['svelte-query'].output}/index.ts`
             : config['svelte-query'].output,
+      },
+    }),
+    ...(config['vue-query'] && {
+      'vue-query': {
+        ...config['vue-query'],
+        output:
+          config['vue-query'].split !== true && !isTs(config['vue-query'].output)
+            ? `${config['vue-query'].output}/index.ts`
+            : config['vue-query'].output,
       },
     }),
   }

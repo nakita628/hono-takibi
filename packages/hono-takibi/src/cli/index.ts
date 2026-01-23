@@ -39,6 +39,7 @@ import {
   takibi,
   tanstackQuery,
   type,
+  vueQuery,
 } from '../core/index.js'
 import { parseOpenAPI } from '../openapi/index.js'
 
@@ -246,6 +247,7 @@ export async function honoTakibi(): Promise<
     swrResult,
     tanstackQueryResult,
     svelteQueryResult,
+    vueQueryResult,
   ] = await Promise.all([
     config['zod-openapi']?.output
       ? takibi(openAPI, config['zod-openapi'].output, false, false, '/', {
@@ -390,6 +392,15 @@ export async function honoTakibi(): Promise<
           config['svelte-query'].client ?? 'client',
         )
       : Promise.resolve(undefined),
+    config['vue-query']
+      ? vueQuery(
+          openAPI,
+          config['vue-query'].output,
+          config['vue-query'].import,
+          config['vue-query'].split ?? false,
+          config['vue-query'].client ?? 'client',
+        )
+      : Promise.resolve(undefined),
   ])
 
   if (takibiResult && !takibiResult.ok) return { ok: false, error: takibiResult.error }
@@ -412,6 +423,7 @@ export async function honoTakibi(): Promise<
     return { ok: false, error: tanstackQueryResult.error }
   if (svelteQueryResult && !svelteQueryResult.ok)
     return { ok: false, error: svelteQueryResult.error }
+  if (vueQueryResult && !vueQueryResult.ok) return { ok: false, error: vueQueryResult.error }
 
   const results = [
     takibiResult?.value,
@@ -430,6 +442,7 @@ export async function honoTakibi(): Promise<
     swrResult?.value,
     tanstackQueryResult?.value,
     svelteQueryResult?.value,
+    vueQueryResult?.value,
   ].filter((v) => v !== undefined)
 
   return { ok: true, value: results.join('\n') }
