@@ -1,6 +1,6 @@
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { svelteQuery } from 'hono-takibi/svelte-query'
+import { vueQuery } from 'hono-takibi/vue-query'
 import { __dirname, getOpenAPIFiles, parseOpenAPI, printFailures, WORKERS } from './common'
 
 /* ─────────────────────────────── Main ─────────────────────────────── */
@@ -8,7 +8,7 @@ import { __dirname, getOpenAPIFiles, parseOpenAPI, printFailures, WORKERS } from
 async function main() {
   const files = await getOpenAPIFiles()
 
-  console.log('Generating Svelte Query hooks...')
+  console.log('Generating Vue Query hooks...')
   const queue = [...files]
   const results: (
     | { readonly ok: true; readonly value: string }
@@ -32,18 +32,18 @@ async function main() {
 
         const openAPI = parseResult.value
 
-        // Generate Svelte Query hooks file
-        const svelteQueryOutput = join(__dirname, '../svelte-querys', `${baseName}.ts`)
-        const svelteQueryResult = await svelteQuery(
+        // Generate Vue Query hooks file
+        const vueQueryOutput = join(__dirname, '../vue-querys', `${baseName}.ts`)
+        const vueQueryResult = await vueQuery(
           openAPI,
-          svelteQueryOutput,
+          vueQueryOutput,
           `../clients/${baseName}`,
           false,
         )
-        if (!svelteQueryResult.ok) {
+        if (!vueQueryResult.ok) {
           results.push({
             ok: false,
-            error: `${file}: Svelte Query generation error: ${svelteQueryResult.error}`,
+            error: `${file}: Vue Query generation error: ${vueQueryResult.error}`,
           })
           continue
         }
@@ -64,13 +64,13 @@ export const client = hc<typeof routes>('/')
 
   const failures = results.filter((r): r is { readonly ok: false; readonly error: string } => !r.ok)
 
-  printFailures(failures, results.length, 'svelte-query files')
+  printFailures(failures, results.length, 'vue-query files')
 
   if (failures.length > 0) {
     process.exit(1)
   }
 
-  console.log(`${results.length} Svelte Query sets generated successfully`)
+  console.log(`${results.length} Vue Query sets generated successfully`)
 }
 
 main()

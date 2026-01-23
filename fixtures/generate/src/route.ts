@@ -1,7 +1,11 @@
 import { spawn } from 'node:child_process'
-import { getOpenAPIFiles, printFailures, type Result, WORKERS } from './common'
+import { getOpenAPIFiles, printFailures, WORKERS } from './common'
 
-const runRoute = (file: string): Promise<Result> =>
+const runRoute = (
+  file: string,
+): Promise<
+  { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
+> =>
   new Promise((resolve) => {
     const chunks: Buffer[] = []
     const child = spawn(
@@ -16,8 +20,8 @@ const runRoute = (file: string): Promise<Result> =>
     child.on('close', (code) => {
       resolve(
         code === 0
-          ? { file, success: true }
-          : { file, success: false, stderr: Buffer.concat(chunks).toString() },
+          ? { ok: true, value: file }
+          : { ok: false, error: `${file}: ${Buffer.concat(chunks).toString()}` },
       )
     })
   })
@@ -25,7 +29,10 @@ const runRoute = (file: string): Promise<Result> =>
 async function main() {
   const files = await getOpenAPIFiles()
   const queue = [...files]
-  const results: Result[] = []
+  const results: (
+    | { readonly ok: true; readonly value: string }
+    | { readonly ok: false; readonly error: string }
+  )[] = []
 
   console.log('Generating routes...')
   await Promise.all(
@@ -37,7 +44,7 @@ async function main() {
     }),
   )
 
-  const failures = results.filter((r): r is Extract<Result, { success: false }> => !r.success)
+  const failures = results.filter((r): r is { readonly ok: false; readonly error: string } => !r.ok)
   printFailures(failures, results.length, 'route files')
 
   if (failures.length > 0) {
