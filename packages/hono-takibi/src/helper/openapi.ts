@@ -40,7 +40,7 @@ import type {
 } from '../openapi/index.js'
 import {
   ensureSuffix,
-  getToSafeIdentifier,
+  makeSafeKey,
   requestParamsArray,
   toIdentifierPascalCase,
 } from '../utils/index.js'
@@ -746,14 +746,14 @@ export function makeParameters(parameters: readonly Parameter[]): {
 
     // Handle $ref
     if (param.$ref) {
-      acc[param.in][getToSafeIdentifier(param.name)] = makeRef(param.$ref)
+      acc[param.in][makeSafeKey(param.name)] = makeRef(param.$ref)
       return acc
     }
 
     // Handle parameters with content instead of schema (OpenAPI 3.x)
     const schema = param.schema ?? getSchemaFromContent(param.content)
     if (!schema) {
-      acc[param.in][getToSafeIdentifier(param.name)] = 'z.any()'
+      acc[param.in][makeSafeKey(param.name)] = 'z.any()'
       return acc
     }
 
@@ -769,7 +769,7 @@ export function makeParameters(parameters: readonly Parameter[]): {
             ? `z.coerce.${baseSchema.replace('z.', '')}`
             : baseSchema
 
-    acc[param.in][getToSafeIdentifier(param.name)] = z
+    acc[param.in][makeSafeKey(param.name)] = z
     return acc
   }, {})
 }

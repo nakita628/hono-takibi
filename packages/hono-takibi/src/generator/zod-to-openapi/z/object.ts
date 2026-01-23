@@ -1,5 +1,5 @@
 import type { Schema } from '../../../openapi/index.js'
-import { getToSafeIdentifier } from '../../../utils/index.js'
+import { makeSafeKey } from '../../../utils/index.js'
 import { zodToOpenAPI } from '../index.js'
 
 /**
@@ -57,7 +57,7 @@ export function object(schema: Schema): string {
     ? Object.entries(schema.properties)
         .map(([key, propSchema]) => {
           const isRequired = Array.isArray(schema.required) && schema.required.includes(key)
-          const safeKey = getToSafeIdentifier(key)
+          const safeKey = makeSafeKey(key)
           const z = zodToOpenAPI(propSchema, isRequired ? undefined : { isOptional: true })
           return `${safeKey}:${z}`
         })

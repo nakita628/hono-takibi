@@ -63,7 +63,7 @@ export function app(openapi: OpenAPI, output: `${string}.ts`, basePath: string):
     importSection,
     appInit,
     apiInit,
-    'export type AddType=typeof api',
+    'export type AppType=typeof api',
     'export default app',
   ].join('\n\n')
 }
