@@ -1,4 +1,4 @@
-# nakita628-todo
+# Takibi Todo
 
 Todo app built with Hono + React + Cloudflare Workers
 

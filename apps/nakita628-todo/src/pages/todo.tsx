@@ -1,50 +1,49 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Link } from 'react-router'
+import { useSWRConfig } from 'swr'
 import type { Todo } from '@/api/routes'
-import { deleteApiTodoId, getApiTodo, postApiTodo, putApiTodoId } from '@/rpc'
+import {
+  getGetApiTodoKey,
+  useDeleteApiTodoId,
+  useGetApiTodo,
+  usePostApiTodo,
+  usePutApiTodoId,
+} from '@/generated/swr'
 
 export function TodoPage() {
-  const [todos, setTodos] = useState<Todo[]>([])
   const [newContent, setNewContent] = useState('')
-  const [loading, setLoading] = useState(true)
+  const { mutate } = useSWRConfig()
 
-  const fetchTodos = useCallback(async () => {
-    const res = await getApiTodo({ query: {} })
-    if (res.status === 200) {
-      const data = await res.json()
-      setTodos(data)
-    }
-    setLoading(false)
-  }, [])
-
-  useEffect(() => {
-    fetchTodos()
-  }, [fetchTodos])
+  const { data, isLoading } = useGetApiTodo({ query: {} })
+  const todos: Todo[] = Array.isArray(data) ? data : []
+  const { trigger: createTodo } = usePostApiTodo()
+  const { trigger: updateTodo } = usePutApiTodoId()
+  const { trigger: deleteTodo } = useDeleteApiTodoId()
 
   const handleAddTodo = useCallback(async () => {
     if (!newContent.trim()) return
-    await postApiTodo({ json: { content: newContent } })
+    await createTodo({ json: { content: newContent } })
     setNewContent('')
-    fetchTodos()
-  }, [newContent, fetchTodos])
+    mutate(getGetApiTodoKey({ query: {} }))
+  }, [newContent, createTodo, mutate])
 
   const handleToggleTodo = useCallback(
     async (id: string, completed: number) => {
-      await putApiTodoId({
+      await updateTodo({
         param: { id },
         json: { completed: completed === 0 ? 1 : 0 },
       })
-      fetchTodos()
+      mutate(getGetApiTodoKey({ query: {} }))
     },
-    [fetchTodos],
+    [updateTodo, mutate],
   )
 
   const handleRemoveTodo = useCallback(
     async (id: string) => {
-      await deleteApiTodoId({ param: { id } })
-      fetchTodos()
+      await deleteTodo({ param: { id } })
+      mutate(getGetApiTodoKey({ query: {} }))
     },
-    [fetchTodos],
+    [deleteTodo, mutate],
   )
 
   const handleKeyDown = useCallback(
@@ -56,7 +55,7 @@ export function TodoPage() {
     [handleAddTodo],
   )
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className='min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 flex items-center justify-center'>
         <div className='text-gray-600 text-lg'>Loading...</div>

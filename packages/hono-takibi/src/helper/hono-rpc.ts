@@ -241,6 +241,50 @@ export type OperationLike = {
 export const isOperationLike = (v: unknown): v is OperationLike => isRecord(v) && 'responses' in v
 
 /**
+ * Extract success status codes (2xx) from operation responses.
+ *
+ * Returns the first 2xx status code found, with preference for:
+ * 1. 200 (OK)
+ * 2. 201 (Created)
+ * 3. 204 (No Content)
+ * 4. Other 2xx codes in order
+ *
+ * @param op - Operation object
+ * @returns First success status code or undefined if none found
+ *
+ * @example
+ * ```ts
+ * const op = { responses: { '200': {...}, '404': {...} } }
+ * getSuccessStatusCode(op)
+ * // => 200
+ *
+ * const createOp = { responses: { '201': {...}, '400': {...} } }
+ * getSuccessStatusCode(createOp)
+ * // => 201
+ * ```
+ */
+export const getSuccessStatusCode = (op: OperationLike): number | undefined => {
+  const responses = op.responses
+  if (!isRecord(responses)) return undefined
+
+  const statusCodes = Object.keys(responses)
+    .map((s) => Number.parseInt(s, 10))
+    .filter((code) => !Number.isNaN(code) && code >= 200 && code < 300)
+    .sort((a, b) => {
+      // Prioritize common success codes
+      const priority = [200, 201, 204]
+      const aIndex = priority.indexOf(a)
+      const bIndex = priority.indexOf(b)
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
+      if (aIndex !== -1) return -1
+      if (bIndex !== -1) return 1
+      return a - b
+    })
+
+  return statusCodes[0]
+}
+
+/**
  * HTTP methods supported by OpenAPI.
  */
 export type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
@@ -476,17 +520,31 @@ export const buildInferRequestType = (
  * @param clientName - Client variable name
  * @param pathResult - Formatted path result
  * @param method - HTTP method
+ * @param statusCode - Optional status code to filter response type (e.g., 200, 201)
  * @returns TypeScript type expression string
+ *
+ * @example
+ * ```ts
+ * // Without status code (all responses)
+ * buildInferResponseType('client', pathResult, 'get')
+ * // => 'InferResponseType<typeof client.users.$get>'
+ *
+ * // With status code (only 200 response)
+ * buildInferResponseType('client', pathResult, 'get', 200)
+ * // => 'InferResponseType<typeof client.users.$get, 200>'
+ * ```
  */
 export const buildInferResponseType = (
   clientName: string,
   pathResult: FormatPathResult,
   method: HttpMethod,
+  statusCode?: number,
 ): string => {
   const { runtimePath, typeofPrefix, bracketSuffix, hasBracket } = pathResult
+  const statusSuffix = statusCode !== undefined ? `,${statusCode}` : ''
   return hasBracket
-    ? `InferResponseType<(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']>`
-    : `InferResponseType<typeof ${clientName}${runtimePath}.$${method}>`
+    ? `InferResponseType<(typeof ${clientName}${typeofPrefix})${bracketSuffix}['$${method}']${statusSuffix}>`
+    : `InferResponseType<typeof ${clientName}${runtimePath}.$${method}${statusSuffix}>`
 }
 
 /* ─────────────────────────────── Parameter analysis ─────────────────────────────── */

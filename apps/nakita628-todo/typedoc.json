@@ -4,7 +4,7 @@
   "entryPointStrategy": "expand",
   "out": "nakita628-todo-docs",
   "plugin": ["typedoc-plugin-mermaid"],
-  "name": "Nakita628 Todo API Documentation",
+  "name": "Takibi Todo API Documentation",
   "includeVersion": true,
   "excludePrivate": true,
   "excludeProtected": true,

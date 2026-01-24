@@ -1,46 +1,41 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router'
+import { useSWRConfig } from 'swr'
 import type { Todo } from '@/api/routes'
-import { deleteApiTodoId, getApiTodo, postApiTodo } from '@/rpc'
+import {
+  getGetApiTodoKey,
+  useDeleteApiTodoId,
+  useGetApiTodo,
+  usePostApiTodo,
+} from '@/generated/swr'
 
 function App() {
   const [content, setContent] = useState('')
-  const [todos, setTodos] = useState<Todo[]>([])
-  const [loading, setLoading] = useState(true)
+  const { mutate } = useSWRConfig()
 
-  const fetchTodos = useCallback(async () => {
-    const res = await getApiTodo({ query: {} })
-    if (res.status === 200) {
-      const data = await res.json()
-      setTodos(data)
-    }
-    setLoading(false)
-  }, [])
-
-  useEffect(() => {
-    fetchTodos()
-  }, [fetchTodos])
+  const { data, isLoading } = useGetApiTodo({ query: {} })
+  const todos: Todo[] = Array.isArray(data) ? data : []
+  const { trigger: createTodo } = usePostApiTodo()
+  const { trigger: deleteTodo } = useDeleteApiTodoId()
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
       if (!content.trim()) return
 
-      const res = await postApiTodo({ json: { content } })
-      if (res.ok) {
-        setContent('')
-        fetchTodos()
-      }
+      await createTodo({ json: { content } })
+      setContent('')
+      mutate(getGetApiTodoKey({ query: {} }))
     },
-    [content, fetchTodos],
+    [content, createTodo, mutate],
   )
 
   const handleRemoveTodo = useCallback(
     async (id: string) => {
-      await deleteApiTodoId({ param: { id } })
-      fetchTodos()
+      await deleteTodo({ param: { id } })
+      mutate(getGetApiTodoKey({ query: {} }))
     },
-    [fetchTodos],
+    [deleteTodo, mutate],
   )
 
   const recentTodos = useMemo(() => todos.slice(0, 5), [todos])
@@ -50,7 +45,7 @@ function App() {
       <div className='max-w-2xl mx-auto'>
         <div className='text-center mb-8'>
           <h1 className='text-5xl font-bold text-gray-800 mb-2'>
-            <span className='text-orange-500'>Hono</span> Todo
+            <span className='text-orange-500'>Takibi</span> Todo
           </h1>
           <p className='text-gray-600'>Fast and lightweight task management</p>
         </div>
@@ -85,7 +80,7 @@ function App() {
             </Link>
           </div>
 
-          {loading ? (
+          {isLoading ? (
             <div className='text-center py-8'>
               <div className='text-gray-400'>Loading...</div>
             </div>
@@ -138,7 +133,7 @@ function App() {
           ) : null}
         </div>
 
-        <div className='mt-6 text-center text-gray-400 text-sm'>Powered by Hono</div>
+        <div className='mt-6 text-center text-gray-400 text-sm'>Powered by Takibi</div>
       </div>
     </div>
   )

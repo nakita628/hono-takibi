@@ -24,7 +24,7 @@
 import path from 'node:path'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { isRecord, methodPath } from '../utils/index.js'
-import type { HttpMethod, OperationDeps, PathItemLike } from './index.js'
+import type { HttpMethod, OperationDeps, OperationLike, PathItemLike } from './index.js'
 import {
   buildInferRequestType,
   buildInferResponseType,
@@ -32,6 +32,7 @@ import {
   core,
   createOperationDeps,
   formatPath,
+  getSuccessStatusCode,
   HTTP_METHODS,
   isOpenAPIPaths,
   isOperationLike,
@@ -142,6 +143,17 @@ const makeQueryKeyGetterName = (method: string, pathStr: string): string => {
   return `get${funcName.charAt(0).toUpperCase()}${funcName.slice(1)}QueryKey`
 }
 
+/* ─────────────────────────────── Fetcher Helper ─────────────────────────────── */
+
+/**
+ * Builds fetcher expression that throws on error responses.
+ *
+ * @param clientCall - Client method call expression
+ * @returns Fetcher function body with error handling
+ */
+const buildFetcher = (clientCall: string): string =>
+  `{const res=await ${clientCall};if(!res.ok)throw new Error(res.statusText);return parseResponse(res)}`
+
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
 
 const makeQueryHookCode = (
@@ -171,8 +183,9 @@ const makeQueryHookCode = (
     const clientCall = hasArgs
       ? `${clientPath}.$${method}(args,clientOptions)`
       : `${clientPath}.$${method}(undefined,clientOptions)`
+    const fetcherBody = buildFetcher(clientCall)
     const hookCode = `${docs}
-export function ${hookName}(${argsSig}clientOptions?:ClientRequestOptions){const queryKey=${keyGetterCall};return ${config.queryFn}({queryKey,queryFn:async()=>parseResponse(${clientCall})})}`
+export function ${hookName}(${argsSig}clientOptions?:ClientRequestOptions){const queryKey=${keyGetterCall};return ${config.queryFn}({queryKey,queryFn:async()=>${fetcherBody}})}`
     const keyGetterCode = hasArgs
       ? `${keyDocs}
 export function ${queryKeyGetterName}(args:${inferRequestType}){return['${honoPath}',args]as const}`
@@ -191,9 +204,10 @@ export function ${queryKeyGetterName}(){return['${honoPath}']as const}`
   const clientCall = hasArgs
     ? `${clientPath}.$${method}(args,clientOptions)`
     : `${clientPath}.$${method}(undefined,clientOptions)`
+  const fetcherBody = buildFetcher(clientCall)
 
   const hookCode = `${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const{query:queryOptions,client:clientOptions}=options??{};const queryKey=${keyGetterCall};const query=${config.queryFn}({...queryOptions,queryKey,queryFn:async()=>parseResponse(${clientCall})},queryClient);return{...query,queryKey}}`
+export function ${hookName}(${argsSig}${optionsSig}){const{query:queryOptions,client:clientOptions}=options??{};const queryKey=${keyGetterCall};const query=${config.queryFn}({...queryOptions,queryKey,queryFn:async()=>${fetcherBody}},queryClient);return{...query,queryKey}}`
 
   const keyGetterCode = hasArgs
     ? `${keyDocs}
@@ -219,11 +233,15 @@ const makeMutationHookCode = (
   // Vue Query: simplified mutation hook without options to avoid type conflicts
   if (config.omitQueryKeyType) {
     if (hasArgs) {
+      const clientCall = `${clientPath}.$${method}(args,clientOptions)`
+      const fetcherBody = buildFetcher(clientCall)
       return `${docs}
-export function ${hookName}(clientOptions?:ClientRequestOptions){return ${config.mutationFn}<${inferResponseType}|undefined,Error,${inferRequestType}>({mutationFn:async(args)=>parseResponse(${clientPath}.$${method}(args,clientOptions))})}`
+export function ${hookName}(clientOptions?:ClientRequestOptions){return ${config.mutationFn}<${inferResponseType}|undefined,Error,${inferRequestType}>({mutationFn:async(args)=>${fetcherBody}})}`
     }
+    const clientCall = `${clientPath}.$${method}(undefined,clientOptions)`
+    const fetcherBody = buildFetcher(clientCall)
     return `${docs}
-export function ${hookName}(clientOptions?:ClientRequestOptions){return ${config.mutationFn}<${inferResponseType}|undefined,Error,void>({mutationFn:async()=>parseResponse(${clientPath}.$${method}(undefined,clientOptions))})}`
+export function ${hookName}(clientOptions?:ClientRequestOptions){return ${config.mutationFn}<${inferResponseType}|undefined,Error,void>({mutationFn:async()=>${fetcherBody}})}`
   }
 
   // TanStack/Svelte Query: full options support
@@ -231,13 +249,17 @@ export function ${hookName}(clientOptions?:ClientRequestOptions){return ${config
   if (hasArgs) {
     const mutationOptionsType = `${config.mutationOptionsType}<${inferResponseType}|undefined,Error,${inferRequestType}>`
     const optionsSig = `options?:{mutation?:${mutationOptionsType};client?:ClientRequestOptions},queryClient?:QueryClient`
+    const clientCall = `${clientPath}.$${method}(args,options?.client)`
+    const fetcherBody = buildFetcher(clientCall)
     return `${docs}
-export function ${hookName}(${optionsSig}){return ${config.mutationFn}<${inferResponseType}|undefined,Error,${inferRequestType}>({...options?.mutation,mutationFn:async(args)=>parseResponse(${clientPath}.$${method}(args,options?.client))},queryClient)}`
+export function ${hookName}(${optionsSig}){return ${config.mutationFn}<${inferResponseType}|undefined,Error,${inferRequestType}>({...options?.mutation,mutationFn:async(args)=>${fetcherBody}},queryClient)}`
   }
   const mutationOptionsType = `${config.mutationOptionsType}<${inferResponseType}|undefined,Error,void>`
   const optionsSig = `options?:{mutation?:${mutationOptionsType};client?:ClientRequestOptions},queryClient?:QueryClient`
+  const clientCall = `${clientPath}.$${method}(undefined,options?.client)`
+  const fetcherBody = buildFetcher(clientCall)
   return `${docs}
-export function ${hookName}(${optionsSig}){return ${config.mutationFn}<${inferResponseType}|undefined,Error,void>({...options?.mutation,mutationFn:async()=>parseResponse(${clientPath}.$${method}(undefined,options?.client))},queryClient)}`
+export function ${hookName}(${optionsSig}){return ${config.mutationFn}<${inferResponseType}|undefined,Error,void>({...options?.mutation,mutationFn:async()=>${fetcherBody}},queryClient)}`
 }
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
@@ -258,8 +280,11 @@ const makeHookCode = (
   const hasArgs = operationHasArgs(item, op, deps)
   const isQuery = method === 'get'
 
+  // Get success status code for typed response (only 2xx responses)
+  const successStatus = getSuccessStatusCode(op as OperationLike)
+
   const inferRequestType = buildInferRequestType(deps.client, pathResult, method)
-  const inferResponseType = buildInferResponseType(deps.client, pathResult, method)
+  const inferResponseType = buildInferResponseType(deps.client, pathResult, method, successStatus)
 
   // Convert {param} to :param for key path display
   const honoPath = pathStr.replace(/\{([^}]+)\}/g, ':$1')

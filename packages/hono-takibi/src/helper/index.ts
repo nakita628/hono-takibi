@@ -25,6 +25,7 @@ export {
   esc,
   formatJsDocLines,
   formatPath,
+  getSuccessStatusCode,
   HTTP_METHODS,
   hasSchemaProp,
   isOpenAPIPaths,

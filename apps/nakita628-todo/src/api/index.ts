@@ -69,7 +69,7 @@ if (import.meta.env.DEV) {
   app.doc('/api/doc', {
     openapi: '3.0.0',
     info: {
-      title: 'Hono Todo API',
+      title: 'Takibi Todo API',
       version: '1.0.0',
     },
   })

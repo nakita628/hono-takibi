@@ -8,7 +8,7 @@ app.get('*', (c) => {
         <head>
           <meta charSet='utf-8' />
           <meta content='width=device-width, initial-scale=1' name='viewport' />
-          <title>Todo App</title>
+          <title>Takibi Todo</title>
           {import.meta.env.PROD ? (
             <>
               <link rel='stylesheet' href='/static/main.css' />

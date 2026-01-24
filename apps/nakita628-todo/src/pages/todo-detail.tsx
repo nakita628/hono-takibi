@@ -1,7 +1,21 @@
-import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import type { Todo } from '@/api/routes'
-import { getApiTodoId } from '@/rpc'
+import { useGetApiTodoId } from '@/generated/swr'
+
+/**
+ * Type guard to check if the response is a valid Todo object.
+ */
+function isTodo(data: unknown): data is Todo {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'id' in data &&
+    'content' in data &&
+    'completed' in data &&
+    'createdAt' in data &&
+    'updatedAt' in data
+  )
+}
 
 /**
  * Formats an ISO date string into a human-readable format.
@@ -22,32 +36,14 @@ function formatDate(dateString: string): string {
 
 export function TodoDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const [todo, setTodo] = useState<Todo | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchTodo = async () => {
-      if (!id) {
-        setError('No ID provided')
-        setLoading(false)
-        return
-      }
+  const { data, isLoading, error } = useGetApiTodoId(
+    { param: { id: id ?? '' } },
+    { swr: { enabled: !!id } },
+  )
+  const todo: Todo | undefined = isTodo(data) ? data : undefined
 
-      const res = await getApiTodoId({ param: { id } })
-      if (res.ok) {
-        const data = await res.json()
-        setTodo(data)
-      } else {
-        setError('Todo not found')
-      }
-      setLoading(false)
-    }
-
-    fetchTodo()
-  }, [id])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className='min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 flex items-center justify-center'>
         <div className='text-gray-600 text-lg'>Loading...</div>
@@ -68,7 +64,7 @@ export function TodoDetailPage() {
             </Link>
           </div>
           <div className='bg-white rounded-2xl shadow-xl p-6'>
-            <p className='text-red-500 text-center'>{error || 'Todo not found'}</p>
+            <p className='text-red-500 text-center'>Todo not found</p>
           </div>
         </div>
       </div>

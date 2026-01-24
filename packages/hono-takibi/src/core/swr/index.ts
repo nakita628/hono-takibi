@@ -22,7 +22,7 @@
  * @link https://hono.dev/docs/guides/rpc
  */
 import path from 'node:path'
-import type { HttpMethod, OperationDeps, PathItemLike } from '../../helper/index.js'
+import type { HttpMethod, OperationDeps, OperationLike, PathItemLike } from '../../helper/index.js'
 import {
   buildInferRequestType,
   buildInferResponseType,
@@ -30,6 +30,7 @@ import {
   core,
   createOperationDeps,
   formatPath,
+  getSuccessStatusCode,
   HTTP_METHODS,
   isOpenAPIPaths,
   isOperationLike,
@@ -71,6 +72,15 @@ const toKeyGetterName = (method: string, pathStr: string): string => {
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
 
+/**
+ * Builds fetcher expression that throws on error responses.
+ *
+ * @param clientCall - Client method call expression
+ * @returns Fetcher function body with error handling
+ */
+const buildFetcher = (clientCall: string): string =>
+  `{const res=await ${clientCall};if(!res.ok)throw new Error(res.statusText);return parseResponse(res)}`
+
 const makeHookCode = (
   pathStr: string,
   method: HttpMethod,
@@ -86,8 +96,11 @@ const makeHookCode = (
   const hasArgs = operationHasArgs(item, op, deps)
   const isQuery = method === 'get'
 
+  // Get success status code for typed response (only 2xx responses)
+  const successStatus = getSuccessStatusCode(op as OperationLike)
+
   const inferRequestType = buildInferRequestType(deps.client, pathResult, method)
-  const inferResponseType = buildInferResponseType(deps.client, pathResult, method)
+  const inferResponseType = buildInferResponseType(deps.client, pathResult, method, successStatus)
 
   // Convert {param} to :param for key path display
   const honoPath = pathStr.replace(/\{([^}]+)\}/g, ':$1')
@@ -115,9 +128,10 @@ const makeHookCode = (
     const clientCall = hasArgs
       ? `${deps.client}${pathResult.runtimePath}.$${method}(args,clientOptions)`
       : `${deps.client}${pathResult.runtimePath}.$${method}(undefined,clientOptions)`
+    const fetcherBody = buildFetcher(clientCall)
 
     hookCode = `${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const isEnabled=swrOptions?.enabled!==false;const swrKey=swrOptions?.swrKey??(isEnabled?${keyGetterCall}:null);const query=useSWR<${inferResponseType},Error>(swrKey,async()=>parseResponse(${clientCall}),swrOptions);return{swrKey,...query}}`
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const isEnabled=swrOptions?.enabled!==false;const swrKey=swrOptions?.swrKey??(isEnabled?${keyGetterCall}:null);const query=useSWR<${inferResponseType},Error>(swrKey,async()=>${fetcherBody},swrOptions);return{swrKey,...query}}`
 
     // Key getter for GET (orval style: optional args with conditional spread)
     if (hasArgs) {
@@ -133,13 +147,17 @@ export function ${keyGetterName}(){return['${honoPath}']as const}`
     const mutationKey = `'${methodUpper} ${honoPath}'`
 
     if (hasArgs) {
+      const clientCall = `${deps.client}${pathResult.runtimePath}.$${method}(arg,options?.client)`
+      const fetcherBody = buildFetcher(clientCall)
       const optionsSig = `options?:{swr?:SWRMutationConfiguration<${inferResponseType},Error,string,${inferRequestType}>;client?:ClientRequestOptions}`
       hookCode = `${docs}
-export function ${hookName}(${optionsSig}){return useSWRMutation<${inferResponseType},Error,string,${inferRequestType}>(${mutationKey},async(_,{arg})=>parseResponse(${deps.client}${pathResult.runtimePath}.$${method}(arg,options?.client)),options?.swr)}`
+export function ${hookName}(${optionsSig}){return useSWRMutation<${inferResponseType},Error,string,${inferRequestType}>(${mutationKey},async(_,{arg})=>${fetcherBody},options?.swr)}`
     } else {
+      const clientCall = `${deps.client}${pathResult.runtimePath}.$${method}(undefined,options?.client)`
+      const fetcherBody = buildFetcher(clientCall)
       const optionsSig = `options?:{swr?:SWRMutationConfiguration<${inferResponseType},Error,string,void>;client?:ClientRequestOptions}`
       hookCode = `${docs}
-export function ${hookName}(${optionsSig}){return useSWRMutation<${inferResponseType},Error,string,void>(${mutationKey},async()=>parseResponse(${deps.client}${pathResult.runtimePath}.$${method}(undefined,options?.client)),options?.swr)}`
+export function ${hookName}(${optionsSig}){return useSWRMutation<${inferResponseType},Error,string,void>(${mutationKey},async()=>${fetcherBody},options?.swr)}`
     }
 
     // No key getter for mutations
