@@ -361,58 +361,6 @@ export default defineConfig({
 
 ## Client Library Integrations
 
-Hono Takibi supports generating type-safe hooks for popular data-fetching libraries. All integrations leverage [Hono RPC](https://hono.dev/docs/guides/rpc) for end-to-end type safety.
-
-### Design Principles
-
-Generated code follows these principles:
-
-- **RESTful Conventions**: HTTP methods map to semantic operations (GET=read, POST=create, PUT=update, DELETE=remove)
-- **Type Safety**: Full TypeScript inference via Hono RPC's `InferRequestType` and `InferResponseType`
-- **Cache Management**: Automatic query key generation for cache invalidation
-- **Flexibility**: Customizable client imports and hook options
-
-### Naming Conventions
-
-| HTTP Method | Path | React/Vue/SWR Hook | Svelte Function | Query Key Getter |
-|-------------|------|-------------------|-----------------|------------------|
-| GET | `/users` | `useGetUsers` | `createGetUsers` | `getGetUsersQueryKey` |
-| POST | `/users` | `usePostUsers` | `createPostUsers` | - |
-| GET | `/users/{userId}` | `useGetUsersUserId` | `createGetUsersUserId` | `getGetUsersUserIdQueryKey` |
-| PUT | `/users/{userId}` | `usePutUsersUserId` | `createPutUsersUserId` | - |
-| DELETE | `/users/{userId}` | `useDeleteUsersUserId` | `createDeleteUsersUserId` | - |
-| PATCH | `/posts/{postId}` | `usePatchPostsPostId` | `createPatchPostsPostId` | - |
-
-### Configuration Options
-
-Each client library configuration supports these options:
-
-| Option | Type | Required | Description |
-|--------|------|----------|-------------|
-| `output` | `string` | Yes | Output directory (with `split: true`) or file path |
-| `import` | `string` | Yes | Import path for your Hono RPC client |
-| `split` | `boolean` | No | `true` = separate files per endpoint, `false` = single file |
-| `client` | `string` | No | Custom variable name for the client (default: `client`) |
-
-**Example with custom client name:**
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchemas: true },
-  'tanstack-query': {
-    output: './src/hooks',
-    import: '../api/hono-client',  // Your client location
-    client: 'api',                  // Custom name: import { api } from '../api/hono-client'
-    split: true,
-  },
-})
-```
-
-### Supported Libraries
-
 | Library | Package | Config Key |
 |---------|---------|------------|
 | [TanStack Query](https://tanstack.com/query/latest) (React) | `@tanstack/react-query` | `tanstack-query` |
@@ -421,8 +369,6 @@ export default defineConfig({
 | [Vue Query](https://tanstack.com/query/latest/docs/framework/vue/overview) | `@tanstack/vue-query` | `vue-query` |
 
 ### TanStack Query (React)
-
-Generates `useQuery` and `useMutation` hooks following [TanStack Query best practices](https://tanstack.com/query/latest/docs/framework/react/guides/queries).
 
 ```ts
 import { defineConfig } from 'hono-takibi/config'
@@ -434,141 +380,39 @@ export default defineConfig({
 })
 ```
 
-### Svelte Query
-
-Generates `createQuery` and `createMutation` functions following [Svelte Query patterns](https://tanstack.com/query/latest/docs/framework/svelte/overview).
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchemas: true },
-  'svelte-query': { output: './src/hooks', import: '../client', split: true },
-})
-```
-
-### SWR
-
-Generates `useSWR` and `useSWRMutation` hooks following [SWR best practices](https://swr.vercel.app/docs/getting-started).
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchemas: true },
-  swr: { output: './src/hooks', import: '../client', split: true },
-})
-```
-
-### Vue Query
-
-Generates `useQuery` and `useMutation` composables following [Vue Query patterns](https://tanstack.com/query/latest/docs/framework/vue/overview).
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchemas: true },
-  'vue-query': { output: './src/hooks', import: '../client', split: true },
-})
-```
-
-### Full Example with Multiple Libraries
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/index.ts',
-    exportSchemas: true,
-    exportSchemasTypes: true,
-  },
-  rpc: {
-    output: './src/rpc',
-    import: '../client',
-    split: true,
-  },
-  'tanstack-query': {
-    output: './src/hooks/react',
-    import: '../../client',
-    split: true,
-  },
-  'svelte-query': {
-    output: './src/hooks/svelte',
-    import: '../../client',
-    split: true,
-  },
-  swr: {
-    output: './src/hooks/swr',
-    import: '../../client',
-    split: true,
-  },
-  'vue-query': {
-    output: './src/hooks/vue',
-    import: '../../client',
-    split: true,
-  },
-})
-```
-
----
-
-## Pet Store Example (Real Generated Code)
-
-The following examples show actual generated hooks from the [Swagger Pet Store](https://petstore.swagger.io/) OpenAPI specification.
-
-### TanStack Query (React)
+Generated code:
 
 ```ts
 import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import { client } from '../clients/pet-store'
+import { client } from '../client'
 
-/**
- * PUT /pet
- *
- * Update an existing pet
- *
- * Update an existing pet by Id
- */
-export function usePutPet(
+export function getGetPetFindByStatusQueryKey(
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+) {
+  return ['GET', '/pet/findByStatus', args] as const
+}
+
+export function useGetPetFindByStatus(
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
   options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.pet.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.pet.$put>
-    >
+    query?: UseQueryOptions<InferResponseType<typeof client.pet.findByStatus.$get> | undefined>
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.pet.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.pet.$put>
-  >(
+  return useQuery<InferResponseType<typeof client.pet.findByStatus.$get> | undefined>(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.pet.$put(args, options?.client)),
+      queryKey: getGetPetFindByStatusQueryKey(args),
+      queryFn: async () => parseResponse(client.pet.findByStatus.$get(args, options?.client)),
+      ...options?.query,
     },
     queryClient,
   )
 }
 
-/**
- * POST /pet
- *
- * Add a new pet to the store
- *
- * Add a new pet to the store
- */
 export function usePostPet(
   options?: {
     mutation?: UseMutationOptions<
@@ -592,127 +436,53 @@ export function usePostPet(
     queryClient,
   )
 }
-
-// ... useGetPetFindByStatus, useGetPetPetId, useDeletePetPetId, useGetStoreInventory, etc.
-```
-
-### SWR
-
-```ts
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import useSWRMutation from 'swr/mutation'
-import { client } from '../clients/pet-store'
-
-/**
- * PUT /pet
- *
- * Update an existing pet
- *
- * Update an existing pet by Id
- */
-export function usePutPet(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.pet.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.pet.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.pet.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.pet.$put>
-  >(
-    'PUT /pet',
-    async (_, { arg }) => parseResponse(client.pet.$put(arg, options?.client)),
-    options?.swr,
-  )
-}
-
-/**
- * POST /pet
- *
- * Add a new pet to the store
- *
- * Add a new pet to the store
- */
-export function usePostPet(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.pet.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.pet.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.pet.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.pet.$post>
-  >(
-    'POST /pet',
-    async (_, { arg }) => parseResponse(client.pet.$post(arg, options?.client)),
-    options?.swr,
-  )
-}
-
-// ... useGetPetFindByStatus, useGetPetPetId, useDeletePetPetId, useGetStoreInventory, etc.
 ```
 
 ### Svelte Query
+
+```ts
+import { defineConfig } from 'hono-takibi/config'
+
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/index.ts', exportSchemas: true },
+  'svelte-query': { output: './src/hooks', import: '../client', split: true },
+})
+```
+
+Generated code:
 
 ```ts
 import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation, createQuery } from '@tanstack/svelte-query'
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import { client } from '../clients/pet-store'
+import { client } from '../client'
 
-/**
- * PUT /pet
- *
- * Update an existing pet
- *
- * Update an existing pet by Id
- */
-export function createPutPet(
+export function getGetPetFindByStatusQueryKey(
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+) {
+  return ['GET', '/pet/findByStatus', args] as const
+}
+
+export function createGetPetFindByStatus(
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
   options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.pet.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.pet.$put>
-    >
+    query?: CreateQueryOptions<InferResponseType<typeof client.pet.findByStatus.$get> | undefined>
     client?: ClientRequestOptions
   },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.pet.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.pet.$put>
-  >(
+  return createQuery<InferResponseType<typeof client.pet.findByStatus.$get> | undefined>(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.pet.$put(args, options?.client)),
+      queryKey: getGetPetFindByStatusQueryKey(args),
+      queryFn: async () => parseResponse(client.pet.findByStatus.$get(args, options?.client)),
+      ...options?.query,
     },
     queryClient,
   )
 }
 
-/**
- * POST /pet
- *
- * Add a new pet to the store
- *
- * Add a new pet to the store
- */
 export function createPostPet(
   options?: {
     mutation?: CreateMutationOptions<
@@ -736,40 +506,109 @@ export function createPostPet(
     queryClient,
   )
 }
+```
 
-// ... createGetPetFindByStatus, createGetPetPetId, createDeletePetPetId, createGetStoreInventory, etc.
+### SWR
+
+```ts
+import { defineConfig } from 'hono-takibi/config'
+
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/index.ts', exportSchemas: true },
+  swr: { output: './src/hooks', import: '../client', split: true },
+})
+```
+
+Generated code:
+
+```ts
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
+import { client } from '../client'
+
+export function getGetPetFindByStatusKey(
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+): Key {
+  return ['GET', '/pet/findByStatus', args] as const
+}
+
+export function useGetPetFindByStatus(
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+  options?: {
+    swr?: SWRConfiguration<InferResponseType<typeof client.pet.findByStatus.$get>>
+    client?: ClientRequestOptions
+  },
+) {
+  return useSWR<InferResponseType<typeof client.pet.findByStatus.$get>>(
+    getGetPetFindByStatusKey(args),
+    async () => parseResponse(client.pet.findByStatus.$get(args, options?.client)),
+    options?.swr,
+  )
+}
+
+export function usePostPet(options?: {
+  swr?: SWRMutationConfiguration<
+    InferResponseType<typeof client.pet.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.pet.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  return useSWRMutation<
+    InferResponseType<typeof client.pet.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.pet.$post>
+  >(
+    'POST /pet',
+    async (_, { arg }) => parseResponse(client.pet.$post(arg, options?.client)),
+    options?.swr,
+  )
+}
 ```
 
 ### Vue Query
 
 ```ts
+import { defineConfig } from 'hono-takibi/config'
+
+export default defineConfig({
+  input: 'openapi.yaml',
+  'zod-openapi': { output: './src/index.ts', exportSchemas: true },
+  'vue-query': { output: './src/hooks', import: '../client', split: true },
+})
+```
+
+Generated code:
+
+```ts
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import { client } from '../clients/pet-store'
+import { client } from '../client'
 
-/**
- * PUT /pet
- *
- * Update an existing pet
- *
- * Update an existing pet by Id
- */
-export function usePutPet(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.pet.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.pet.$put>
-  >({ mutationFn: async (args) => parseResponse(client.pet.$put(args, clientOptions)) })
+export function getGetPetFindByStatusQueryKey(
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+) {
+  return ['GET', '/pet/findByStatus', args] as const
 }
 
-/**
- * POST /pet
- *
- * Add a new pet to the store
- *
- * Add a new pet to the store
- */
+export function useGetPetFindByStatus(
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return useQuery<InferResponseType<typeof client.pet.findByStatus.$get> | undefined>({
+    queryKey: getGetPetFindByStatusQueryKey(args),
+    queryFn: async () => parseResponse(client.pet.findByStatus.$get(args, clientOptions)),
+  })
+}
+
 export function usePostPet(clientOptions?: ClientRequestOptions) {
   return useMutation<
     InferResponseType<typeof client.pet.$post> | undefined,
@@ -777,8 +616,6 @@ export function usePostPet(clientOptions?: ClientRequestOptions) {
     InferRequestType<typeof client.pet.$post>
   >({ mutationFn: async (args) => parseResponse(client.pet.$post(args, clientOptions)) })
 }
-
-// ... useGetPetFindByStatus, useGetPetPetId, useDeletePetPetId, useGetStoreInventory, etc.
 ```
 
 ---
