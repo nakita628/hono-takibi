@@ -10,12 +10,7 @@
 
   "customizations": {
     "vscode": {
-      "extensions": [
-        "typespec.typespec-vscode",
-        "Hono.hono",
-        "ms-playwright.playwright",
-        "mongodb.mongodb-vscode"
-      ]
+      "extensions": ["typespec.typespec-vscode", "Hono.hono", "ms-playwright.playwright"]
     }
   },
 

@@ -1,7 +1,6 @@
 import { serve } from '@hono/node-server'
-import { hc } from 'hono/client'
-import { DetailedError, parseResponse } from 'hono/client'
-import { app, type AppType } from './server'
+import { DetailedError, hc, parseResponse } from 'hono/client'
+import { type AppType, app } from './server'
 
 /**
  * Run actual parseResponse tests and log the behavior.
