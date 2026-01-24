@@ -1,0 +1,20 @@
+{
+  "name": "@fixtures/rpc",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsgo --noEmit",
+    "run": "tsx src/run-parse-response.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "@typescript/native-preview": "7.0.0-dev.20260107.1",
+    "tsx": "^4.21.0"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.4",
+    "hono": "^4.11.3",
+    "vitest": "^4.0.16"
+  }
+}
