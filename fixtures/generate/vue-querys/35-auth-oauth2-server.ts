@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
@@ -40,11 +40,10 @@ export function getGetOauthAuthorizeQueryKey(
  * Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。
  */
 export function usePostOauthToken(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.oauth.token.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.token.$post>
-  >({ mutationFn: async (args) => parseResponse(client.oauth.token.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.oauth.token.$post>) =>
+      parseResponse(client.oauth.token.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -55,11 +54,10 @@ export function usePostOauthToken(clientOptions?: ClientRequestOptions) {
  * アクセストークンまたはリフレッシュトークンを無効化します（RFC 7009）
  */
 export function usePostOauthRevoke(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.oauth.revoke.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.revoke.$post>
-  >({ mutationFn: async (args) => parseResponse(client.oauth.revoke.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.oauth.revoke.$post>) =>
+      parseResponse(client.oauth.revoke.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -70,12 +68,9 @@ export function usePostOauthRevoke(clientOptions?: ClientRequestOptions) {
  * トークンの有効性と情報を取得します（RFC 7662）
  */
 export function usePostOauthIntrospect(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.oauth.introspect.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.introspect.$post>
-  >({
-    mutationFn: async (args) => parseResponse(client.oauth.introspect.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.oauth.introspect.$post>) =>
+      parseResponse(client.oauth.introspect.$post(args, clientOptions)),
   })
 }
 
@@ -87,12 +82,9 @@ export function usePostOauthIntrospect(clientOptions?: ClientRequestOptions) {
  * デバイスフロー用の認可コードを発行します（RFC 8628）
  */
 export function usePostOauthDeviceCode(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.oauth.device.code.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.device.code.$post>
-  >({
-    mutationFn: async (args) => parseResponse(client.oauth.device.code.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.oauth.device.code.$post>) =>
+      parseResponse(client.oauth.device.code.$post(args, clientOptions)),
   })
 }
 
@@ -190,11 +182,10 @@ export function getGetOauthClientsQueryKey() {
  * クライアント作成
  */
 export function usePostOauthClients(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.oauth.clients.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.clients.$post>
-  >({ mutationFn: async (args) => parseResponse(client.oauth.clients.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.oauth.clients.$post>) =>
+      parseResponse(client.oauth.clients.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -228,13 +219,10 @@ export function getGetOauthClientsClientIdQueryKey(
  * クライアント更新
  */
 export function usePutOauthClientsClientId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.oauth.clients[':clientId'].$put(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
+    ) => parseResponse(client.oauth.clients[':clientId'].$put(args, clientOptions)),
   })
 }
 
@@ -244,13 +232,10 @@ export function usePutOauthClientsClientId(clientOptions?: ClientRequestOptions)
  * クライアント削除
  */
 export function useDeleteOauthClientsClientId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.oauth.clients[':clientId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
+    ) => parseResponse(client.oauth.clients[':clientId'].$delete(args, clientOptions)),
   })
 }
 
@@ -260,13 +245,10 @@ export function useDeleteOauthClientsClientId(clientOptions?: ClientRequestOptio
  * クライアントシークレット再生成
  */
 export function usePostOauthClientsClientIdSecret(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.oauth.clients[':clientId'].secret.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+    ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(args, clientOptions)),
   })
 }
 
@@ -300,12 +282,9 @@ export function getGetOauthConsentsQueryKey() {
  * アプリケーションへのアクセス許可を取り消します
  */
 export function useDeleteOauthConsentsClientId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.oauth.consents[':clientId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
+    ) => parseResponse(client.oauth.consents[':clientId'].$delete(args, clientOptions)),
   })
 }

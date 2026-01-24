@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
@@ -25,11 +25,10 @@ export function getGetUsersQueryKey() {
  * POST /users
  */
 export function usePostUsers(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >({ mutationFn: async (args) => parseResponse(client.users.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+      parseResponse(client.users.$post(args, clientOptions)),
+  })
 }
 
 /**

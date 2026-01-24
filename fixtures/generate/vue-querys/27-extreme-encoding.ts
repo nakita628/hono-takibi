@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
@@ -7,12 +7,9 @@ import { client } from '../clients/27-extreme-encoding'
  * POST /encoding-test
  */
 export function usePostEncodingTest(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['encoding-test']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['encoding-test']['$post']>
-  >({
-    mutationFn: async (args) => parseResponse(client['encoding-test'].$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['encoding-test']['$post']>) =>
+      parseResponse(client['encoding-test'].$post(args, clientOptions)),
   })
 }
 
@@ -43,12 +40,8 @@ export function getGetContentNegotiationQueryKey(
  * POST /binary-variations
  */
 export function usePostBinaryVariations(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['binary-variations']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['binary-variations']['$post']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['binary-variations']['$post']>) =>
       parseResponse(client['binary-variations'].$post(args, clientOptions)),
   })
 }
@@ -75,23 +68,18 @@ export function getGetStreamingQueryKey() {
  * POST /streaming
  */
 export function usePostStreaming(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.streaming.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.streaming.$post>
-  >({ mutationFn: async (args) => parseResponse(client.streaming.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.streaming.$post>) =>
+      parseResponse(client.streaming.$post(args, clientOptions)),
+  })
 }
 
 /**
  * POST /url-encoded-complex
  */
 export function usePostUrlEncodedComplex(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['url-encoded-complex']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['url-encoded-complex']['$post']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['url-encoded-complex']['$post']>) =>
       parseResponse(client['url-encoded-complex'].$post(args, clientOptions)),
   })
 }
@@ -118,11 +106,8 @@ export function getGetResponseEncodingQueryKey() {
  * POST /schema-encoding
  */
 export function usePostSchemaEncoding(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['schema-encoding']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['schema-encoding']['$post']>
-  >({
-    mutationFn: async (args) => parseResponse(client['schema-encoding'].$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['schema-encoding']['$post']>) =>
+      parseResponse(client['schema-encoding'].$post(args, clientOptions)),
   })
 }

@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
@@ -8,24 +8,13 @@ import { client } from '../clients/08-links'
  * POST /orders
  */
 export function createPostOrders(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.orders.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.orders.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.orders.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.orders.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.orders.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+        parseResponse(client.orders.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -73,24 +62,12 @@ export function getGetOrdersOrderIdQueryKey(
  * DELETE /orders/{orderId}
  */
 export function createDeleteOrdersOrderId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.orders)[':orderId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.orders)[':orderId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.orders)[':orderId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.orders)[':orderId']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.orders)[':orderId']['$delete']>) =>
         parseResponse(client.orders[':orderId'].$delete(args, options?.client)),
     },
     queryClient,

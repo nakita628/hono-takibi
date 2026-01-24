@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/42-sns-posts-timeline'
 
@@ -50,24 +50,13 @@ export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$
  * 投稿作成
  */
 export function usePostPosts(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.posts.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.posts.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.posts.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.posts.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.posts.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
+        parseResponse(client.posts.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -119,24 +108,12 @@ export function getGetPostsPostIdQueryKey(
  * 投稿削除
  */
 export function useDeletePostsPostId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':postId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':postId']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['$delete']>) =>
         parseResponse(client.posts[':postId'].$delete(args, options?.client)),
     },
     queryClient,
@@ -410,25 +387,14 @@ export function getGetTimelineHashtagHashtagQueryKey(
  * いいね
  */
 export function usePostPostsPostIdLike(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['like']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['like']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':postId']['like']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':postId']['like']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].like.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.posts)[':postId']['like']['$post']>,
+      ) => parseResponse(client.posts[':postId'].like.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -440,25 +406,14 @@ export function usePostPostsPostIdLike(
  * いいね解除
  */
 export function useDeletePostsPostIdLike(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['like']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':postId']['like']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].like.$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>,
+      ) => parseResponse(client.posts[':postId'].like.$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -470,25 +425,14 @@ export function useDeletePostsPostIdLike(
  * リポスト
  */
 export function usePostPostsPostIdRepost(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['repost']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':postId']['repost']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].repost.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>,
+      ) => parseResponse(client.posts[':postId'].repost.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -500,25 +444,14 @@ export function usePostPostsPostIdRepost(
  * リポスト解除
  */
 export function useDeletePostsPostIdRepost(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['repost']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':postId']['repost']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].repost.$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>,
+      ) => parseResponse(client.posts[':postId'].repost.$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -530,25 +463,14 @@ export function useDeletePostsPostIdRepost(
  * 引用投稿
  */
 export function usePostPostsPostIdQuote(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['quote']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':postId']['quote']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].quote.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>,
+      ) => parseResponse(client.posts[':postId'].quote.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -560,25 +482,14 @@ export function usePostPostsPostIdQuote(
  * ブックマーク追加
  */
 export function usePostPostsPostIdBookmark(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['bookmark']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':postId']['bookmark']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].bookmark.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>,
+      ) => parseResponse(client.posts[':postId'].bookmark.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -590,25 +501,14 @@ export function usePostPostsPostIdBookmark(
  * ブックマーク解除
  */
 export function useDeletePostsPostIdBookmark(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['bookmark']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':postId']['bookmark']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].bookmark.$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>,
+      ) => parseResponse(client.posts[':postId'].bookmark.$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -830,25 +730,14 @@ export function getGetPostsPostIdRepliesQueryKey(
  * 返信投稿
  */
 export function usePostPostsPostIdReplies(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':postId']['replies']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':postId']['replies']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.posts[':postId'].replies.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>,
+      ) => parseResponse(client.posts[':postId'].replies.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -860,24 +749,13 @@ export function usePostPostsPostIdReplies(
  * メディアアップロード
  */
 export function usePostMediaUpload(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.media.upload.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.media.upload.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.media.upload.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.media.upload.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.media.upload.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.media.upload.$post>) =>
+        parseResponse(client.media.upload.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -929,24 +807,12 @@ export function getGetMediaMediaIdQueryKey(
  * メディア情報更新
  */
 export function usePatchMediaMediaId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.media)[':mediaId']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.media)[':mediaId']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.media)[':mediaId']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.media)[':mediaId']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.media)[':mediaId']['$patch']>) =>
         parseResponse(client.media[':mediaId'].$patch(args, options?.client)),
     },
     queryClient,

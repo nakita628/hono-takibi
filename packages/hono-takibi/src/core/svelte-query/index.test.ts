@@ -50,7 +50,7 @@ describe('svelteQuery', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -142,24 +142,13 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  * Create a new user.
  */
 export function createPostUsers(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.users.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.users.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+        parseResponse(client.users.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -301,8 +290,8 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
         'utf-8',
       )
       const createPostUsersExpected = `import { createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -314,24 +303,13 @@ import { client } from '../client'
  * Create a new user.
  */
 export function createPostUsers(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.users.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.users.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+        parseResponse(client.users.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -455,7 +433,7 @@ describe('svelteQuery (no args operations)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -503,21 +481,11 @@ export function getGetPingQueryKey() {
  * Post ping
  */
 export function createPostPing(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.ping.$post> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<InferResponseType<typeof client.ping.$post> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.ping.$post(undefined, options?.client)),
-    },
+  return createMutation(
+    { mutationFn: async () => parseResponse(client.ping.$post(undefined, options?.client)) },
     queryClient,
   )
 }
@@ -636,7 +604,7 @@ describe('svelteQuery (path parameters)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -687,24 +655,13 @@ export function getGetUsersIdQueryKey(
  * Delete user
  */
 export function createDeleteUsersId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.users)[':id']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.users)[':id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':id']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users[':id'].$delete(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client.users)[':id']['$delete']>) =>
+        parseResponse(client.users[':id'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -780,8 +737,8 @@ describe('svelteQuery (PUT/PATCH methods)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateMutationOptions } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -791,24 +748,13 @@ import { client } from '../client'
  * Replace user
  */
 export function createPutUsersId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.users)[':id']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.users)[':id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':id']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users[':id'].$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client.users)[':id']['$put']>) =>
+        parseResponse(client.users[':id'].$put(args, options?.client)),
     },
     queryClient,
   )
@@ -820,24 +766,13 @@ export function createPutUsersId(
  * Update user
  */
 export function createPatchUsersId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.users)[':id']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.users)[':id']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':id']['$patch']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users[':id'].$patch(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client.users)[':id']['$patch']>) =>
+        parseResponse(client.users[':id'].$patch(args, options?.client)),
     },
     queryClient,
   )
@@ -1229,7 +1164,7 @@ describe('svelteQuery (all HTTP methods)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -1280,24 +1215,12 @@ export function getGetResourcesIdQueryKey(
  * Replace resource
  */
 export function createPutResourcesId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.resources)[':id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.resources)[':id']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
         parseResponse(client.resources[':id'].$put(args, options?.client)),
     },
     queryClient,
@@ -1310,24 +1233,12 @@ export function createPutResourcesId(
  * Create resource
  */
 export function createPostResourcesId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.resources)[':id']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.resources)[':id']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.resources)[':id']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.resources)[':id']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$post']>) =>
         parseResponse(client.resources[':id'].$post(args, options?.client)),
     },
     queryClient,
@@ -1340,24 +1251,12 @@ export function createPostResourcesId(
  * Delete resource
  */
 export function createDeleteResourcesId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.resources)[':id']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.resources)[':id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.resources)[':id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.resources)[':id']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$delete']>) =>
         parseResponse(client.resources[':id'].$delete(args, options?.client)),
     },
     queryClient,
@@ -1370,24 +1269,12 @@ export function createDeleteResourcesId(
  * Update resource
  */
 export function createPatchResourcesId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.resources)[':id']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.resources)[':id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.resources)[':id']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.resources)[':id']['$patch']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$patch']>) =>
         parseResponse(client.resources[':id'].$patch(args, options?.client)),
     },
     queryClient,

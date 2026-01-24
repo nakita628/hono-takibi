@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
@@ -51,11 +51,8 @@ export function getGetItemsItemIdQueryKey(
  * DELETE /items/{itemId}
  */
 export function useDeleteItemsItemId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.items)[':itemId']['$delete']>
-  >({
-    mutationFn: async (args) => parseResponse(client.items[':itemId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) =>
+      parseResponse(client.items[':itemId'].$delete(args, clientOptions)),
   })
 }

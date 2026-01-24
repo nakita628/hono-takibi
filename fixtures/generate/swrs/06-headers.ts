@@ -1,9 +1,8 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
 /**
@@ -12,22 +11,21 @@ import { client } from '../clients/06-headers'
 export function useGetResources(
   args: InferRequestType<typeof client.resources.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.resources.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetResourcesKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.resources.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.resources.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.resources.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -43,22 +41,21 @@ export function getGetResourcesKey(args?: InferRequestType<typeof client.resourc
 export function useGetResourcesId(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.resources)[':id']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetResourcesIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.resources)[':id']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -73,24 +70,13 @@ export function getGetResourcesIdKey(
 /**
  * PUT /resources/{id}
  */
-export function usePutResourcesId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.resources)[':id']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.resources)[':id']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.resources)[':id']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.resources)[':id']['$put']>
-  >(
+export function usePutResourcesId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /resources/:id',
-    async (_, { arg }) => parseResponse(client.resources[':id'].$put(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.resources)[':id']['$put']> },
+    ) => parseResponse(client.resources[':id'].$put(arg, options?.client)),
   )
 }
 
@@ -100,22 +86,21 @@ export function usePutResourcesId(options?: {
 export function useGetDownloadId(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.download)[':id']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetDownloadIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.download)[':id']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**

@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/17-mixed-inline-refs'
 
@@ -44,24 +44,13 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  * POST /users
  */
 export function usePostUsers(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.users.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.users.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+        parseResponse(client.users.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -109,24 +98,13 @@ export function getGetUsersUserIdQueryKey(
  * POST /orders
  */
 export function usePostOrders(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.orders.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.orders.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.orders.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.orders.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.orders.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+        parseResponse(client.orders.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -178,24 +156,12 @@ export function getGetProductsProductIdVariantsQueryKey(
  * POST /reports/generate
  */
 export function usePostReportsGenerate(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.reports.generate.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.reports.generate.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.reports.generate.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.reports.generate.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.reports.generate.$post>) =>
         parseResponse(client.reports.generate.$post(args, options?.client)),
     },
     queryClient,
@@ -206,24 +172,13 @@ export function usePostReportsGenerate(
  * POST /webhooks/test
  */
 export function usePostWebhooksTest(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.webhooks.test.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.webhooks.test.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.webhooks.test.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webhooks.test.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.webhooks.test.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.webhooks.test.$post>) =>
+        parseResponse(client.webhooks.test.$post(args, options?.client)),
     },
     queryClient,
   )

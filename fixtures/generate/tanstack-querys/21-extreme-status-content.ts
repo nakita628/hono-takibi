@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
@@ -44,25 +44,14 @@ export function getGetExtremeResponsesQueryKey() {
  * POST /multipart-variations
  */
 export function usePostMultipartVariations(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['multipart-variations']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['multipart-variations']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['multipart-variations']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['multipart-variations']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['multipart-variations'].$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['multipart-variations']['$post']>,
+      ) => parseResponse(client['multipart-variations'].$post(args, options?.client)),
     },
     queryClient,
   )
@@ -72,24 +61,12 @@ export function usePostMultipartVariations(
  * POST /charset-variations
  */
 export function usePostCharsetVariations(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['charset-variations']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['charset-variations']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['charset-variations']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['charset-variations']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client)['charset-variations']['$post']>) =>
         parseResponse(client['charset-variations'].$post(args, options?.client)),
     },
     queryClient,

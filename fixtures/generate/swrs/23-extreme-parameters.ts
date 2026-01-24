@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/23-extreme-parameters'
 
 /**
@@ -12,12 +12,7 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
     (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
   >,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<
-        (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
-      >,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
@@ -25,22 +20,19 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
   const isEnabled = swrOptions?.enabled !== false
   const swrKey =
     swrOptions?.swrKey ?? (isEnabled ? getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Key(args) : null)
-  const query = useSWR<
-    InferResponseType<
-      (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
-    >,
-    Error
-  >(
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
-          ':p10'
-        ].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
+            ':p10'
+          ].$get(args, clientOptions),
+        ),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -63,22 +55,21 @@ export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Key(
 export function useGetQueryStyles(
   args: InferRequestType<(typeof client)['query-styles']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client)['query-styles']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetQueryStylesKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client)['query-styles']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client['query-styles'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['query-styles'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -96,10 +87,7 @@ export function getGetQueryStylesKey(
 export function useGetPathStylesSimpleLabelMatrix(
   args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
@@ -107,18 +95,17 @@ export function useGetPathStylesSimpleLabelMatrix(
   const isEnabled = swrOptions?.enabled !== false
   const swrKey =
     swrOptions?.swrKey ?? (isEnabled ? getGetPathStylesSimpleLabelMatrixKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () =>
-      parseResponse(
-        client['path-styles'][':simple'][':label'][':matrix'].$get(args, clientOptions),
-      ),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(
+          client['path-styles'][':simple'][':label'][':matrix'].$get(args, clientOptions),
+        ),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -136,22 +123,21 @@ export function getGetPathStylesSimpleLabelMatrixKey(
 export function useGetHeaderStyles(
   args: InferRequestType<(typeof client)['header-styles']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client)['header-styles']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetHeaderStylesKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client)['header-styles']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client['header-styles'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['header-styles'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -169,22 +155,21 @@ export function getGetHeaderStylesKey(
 export function useGetCookieStyles(
   args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client)['cookie-styles']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCookieStylesKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client)['cookie-styles']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client['cookie-styles'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['cookie-styles'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -202,22 +187,21 @@ export function getGetCookieStylesKey(
 export function useGetManyQueryParams(
   args: InferRequestType<(typeof client)['many-query-params']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client)['many-query-params']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetManyQueryParamsKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client)['many-query-params']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client['many-query-params'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['many-query-params'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -235,22 +219,21 @@ export function getGetManyQueryParamsKey(
 export function useGetParameterContent(
   args: InferRequestType<(typeof client)['parameter-content']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client)['parameter-content']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetParameterContentKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client)['parameter-content']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client['parameter-content'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['parameter-content'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -268,22 +251,21 @@ export function getGetParameterContentKey(
 export function useGetDeprecatedParams(
   args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client)['deprecated-params']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetDeprecatedParamsKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client)['deprecated-params']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client['deprecated-params'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['deprecated-params'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -301,22 +283,21 @@ export function getGetDeprecatedParamsKey(
 export function useGetExamplesParams(
   args: InferRequestType<(typeof client)['examples-params']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client)['examples-params']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetExamplesParamsKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client)['examples-params']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client['examples-params'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['examples-params'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**

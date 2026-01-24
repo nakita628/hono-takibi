@@ -1,9 +1,8 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
 /**
@@ -16,22 +15,21 @@ import { client } from '../clients/40-auth-session-management'
 export function useGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.sessions.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.sessions.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.sessions.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.sessions.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -48,24 +46,11 @@ export function getGetSessionsKey(args?: InferRequestType<typeof client.sessions
  *
  * 認証成功後にセッションを作成
  */
-export function usePostSessions(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.sessions.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.sessions.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.sessions.$post>
-  >(
+export function usePostSessions(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /sessions',
-    async (_, { arg }) => parseResponse(client.sessions.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.sessions.$post> }) =>
+      parseResponse(client.sessions.$post(arg, options?.client)),
   )
 }
 
@@ -75,21 +60,20 @@ export function usePostSessions(options?: {
  * 現在のセッション取得
  */
 export function useGetSessionsCurrent(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.sessions.current.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsCurrentKey() : null)
-  const query = useSWR<InferResponseType<typeof client.sessions.current.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -104,24 +88,9 @@ export function getGetSessionsCurrentKey() {
  *
  * 現在のセッション終了（ログアウト）
  */
-export function useDeleteSessionsCurrent(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.current.$delete>,
-    Error,
-    string,
-    void
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.sessions.current.$delete>,
-    Error,
-    string,
-    void
-  >(
-    'DELETE /sessions/current',
-    async () => parseResponse(client.sessions.current.$delete(undefined, options?.client)),
-    options?.swr,
+export function useDeleteSessionsCurrent(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation('DELETE /sessions/current', async () =>
+    parseResponse(client.sessions.current.$delete(undefined, options?.client)),
   )
 }
 
@@ -132,25 +101,13 @@ export function useDeleteSessionsCurrent(options?: {
  *
  * リフレッシュトークンを使用してセッションを更新
  */
-export function usePostSessionsCurrentRefresh(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.current.refresh.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.sessions.current.refresh.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.sessions.current.refresh.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.sessions.current.refresh.$post>
-  >(
+export function usePostSessionsCurrentRefresh(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /sessions/current/refresh',
-    async (_, { arg }) =>
-      parseResponse(client.sessions.current.refresh.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<typeof client.sessions.current.refresh.$post> },
+    ) => parseResponse(client.sessions.current.refresh.$post(arg, options?.client)),
   )
 }
 
@@ -161,24 +118,13 @@ export function usePostSessionsCurrentRefresh(options?: {
  *
  * アクティブなセッションの有効期限を延長
  */
-export function usePostSessionsCurrentExtend(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.current.extend.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.sessions.current.extend.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.sessions.current.extend.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.sessions.current.extend.$post>
-  >(
+export function usePostSessionsCurrentExtend(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /sessions/current/extend',
-    async (_, { arg }) => parseResponse(client.sessions.current.extend.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<typeof client.sessions.current.extend.$post> },
+    ) => parseResponse(client.sessions.current.extend.$post(arg, options?.client)),
   )
 }
 
@@ -189,24 +135,9 @@ export function usePostSessionsCurrentExtend(options?: {
  *
  * ユーザーアクティビティを記録してアイドルタイムアウトをリセット
  */
-export function usePostSessionsCurrentActivity(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.current.activity.$post>,
-    Error,
-    string,
-    void
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.sessions.current.activity.$post>,
-    Error,
-    string,
-    void
-  >(
-    'POST /sessions/current/activity',
-    async () => parseResponse(client.sessions.current.activity.$post(undefined, options?.client)),
-    options?.swr,
+export function usePostSessionsCurrentActivity(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation('POST /sessions/current/activity', async () =>
+    parseResponse(client.sessions.current.activity.$post(undefined, options?.client)),
   )
 }
 
@@ -218,22 +149,21 @@ export function usePostSessionsCurrentActivity(options?: {
 export function useGetSessionsSessionId(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.sessions)[':sessionId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsSessionIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.sessions)[':sessionId']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -252,25 +182,13 @@ export function getGetSessionsSessionIdKey(
  *
  * 指定したセッションを強制的に終了
  */
-export function useDeleteSessionsSessionId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.sessions)[':sessionId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.sessions)[':sessionId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
-  >(
+export function useDeleteSessionsSessionId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /sessions/:sessionId',
-    async (_, { arg }) =>
-      parseResponse(client.sessions[':sessionId'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']> },
+    ) => parseResponse(client.sessions[':sessionId'].$delete(arg, options?.client)),
   )
 }
 
@@ -281,24 +199,13 @@ export function useDeleteSessionsSessionId(options?: {
  *
  * 現在のセッション以外の全セッションを無効化
  */
-export function usePostSessionsRevokeAll(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.sessions)['revoke-all']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.sessions)['revoke-all']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
-  >(
+export function usePostSessionsRevokeAll(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /sessions/revoke-all',
-    async (_, { arg }) => parseResponse(client.sessions['revoke-all'].$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.sessions)['revoke-all']['$post']> },
+    ) => parseResponse(client.sessions['revoke-all'].$post(arg, options?.client)),
   )
 }
 
@@ -309,24 +216,11 @@ export function usePostSessionsRevokeAll(options?: {
  *
  * セッショントークンの有効性を検証
  */
-export function usePostSessionsValidate(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.validate.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.sessions.validate.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.sessions.validate.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.sessions.validate.$post>
-  >(
+export function usePostSessionsValidate(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /sessions/validate',
-    async (_, { arg }) => parseResponse(client.sessions.validate.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.sessions.validate.$post> }) =>
+      parseResponse(client.sessions.validate.$post(arg, options?.client)),
   )
 }
 
@@ -338,22 +232,21 @@ export function usePostSessionsValidate(options?: {
 export function useGetSessionsHistory(
   args: InferRequestType<typeof client.sessions.history.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.sessions.history.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsHistoryKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.sessions.history.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -375,25 +268,21 @@ export function getGetSessionsHistoryKey(
 export function useGetSessionsSecurityEvents(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.sessions)['security-events']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsSecurityEventsKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.sessions)['security-events']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () => parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -411,21 +300,20 @@ export function getGetSessionsSecurityEventsKey(
  * セッションポリシー取得
  */
 export function useGetSessionsPolicies(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.sessions.policies.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsPoliciesKey() : null)
-  const query = useSWR<InferResponseType<typeof client.sessions.policies.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -440,24 +328,11 @@ export function getGetSessionsPoliciesKey() {
  *
  * セッションポリシー更新
  */
-export function usePutSessionsPolicies(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.sessions.policies.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.sessions.policies.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.sessions.policies.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.sessions.policies.$put>
-  >(
+export function usePutSessionsPolicies(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /sessions/policies',
-    async (_, { arg }) => parseResponse(client.sessions.policies.$put(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.sessions.policies.$put> }) =>
+      parseResponse(client.sessions.policies.$put(arg, options?.client)),
   )
 }
 
@@ -467,24 +342,20 @@ export function usePutSessionsPolicies(options?: {
  * 信頼済みデバイス一覧
  */
 export function useGetSessionsTrustedDevices(options?: {
-  swr?: SWRConfiguration<
-    InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
-    Error
-  > & { swrKey?: Key; enabled?: boolean }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsTrustedDevicesKey() : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () => parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -499,25 +370,13 @@ export function getGetSessionsTrustedDevicesKey() {
  *
  * 現在のデバイスを信頼
  */
-export function usePostSessionsTrustedDevices(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.sessions)['trusted-devices']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.sessions)['trusted-devices']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
-  >(
+export function usePostSessionsTrustedDevices(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /sessions/trusted-devices',
-    async (_, { arg }) =>
-      parseResponse(client.sessions['trusted-devices'].$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']> },
+    ) => parseResponse(client.sessions['trusted-devices'].$post(arg, options?.client)),
   )
 }
 
@@ -527,23 +386,18 @@ export function usePostSessionsTrustedDevices(options?: {
  * 信頼済みデバイス削除
  */
 export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-  >
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-  >(
+  return useSWRMutation(
     'DELETE /sessions/trusted-devices/:deviceId',
-    async (_, { arg }) =>
+    async (
+      _: string,
+      {
+        arg,
+      }: {
+        arg: InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
+      },
+    ) =>
       parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(arg, options?.client)),
-    options?.swr,
   )
 }

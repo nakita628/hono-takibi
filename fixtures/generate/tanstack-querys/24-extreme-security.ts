@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
@@ -270,23 +270,11 @@ export function getGetMixedLevelSecurityQueryKey() {
  * Admin-only security
  */
 export function usePutMixedLevelSecurity(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () =>
         parseResponse(client['mixed-level-security'].$put(undefined, options?.client)),
     },
@@ -300,23 +288,11 @@ export function usePutMixedLevelSecurity(
  * Different security for POST
  */
 export function usePostMixedLevelSecurity(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () =>
         parseResponse(client['mixed-level-security'].$post(undefined, options?.client)),
     },
@@ -330,23 +306,11 @@ export function usePostMixedLevelSecurity(
  * Super admin security
  */
 export function useDeleteMixedLevelSecurity(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () =>
         parseResponse(client['mixed-level-security'].$delete(undefined, options?.client)),
     },

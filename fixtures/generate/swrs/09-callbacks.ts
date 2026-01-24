@@ -1,7 +1,6 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
 
 /**
@@ -9,24 +8,11 @@ import { client } from '../clients/09-callbacks'
  *
  * Register a webhook endpoint
  */
-export function usePostWebhooks(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.webhooks.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.webhooks.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.webhooks.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.webhooks.$post>
-  >(
+export function usePostWebhooks(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /webhooks',
-    async (_, { arg }) => parseResponse(client.webhooks.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.webhooks.$post> }) =>
+      parseResponse(client.webhooks.$post(arg, options?.client)),
   )
 }
 
@@ -35,24 +21,11 @@ export function usePostWebhooks(options?: {
  *
  * Create a subscription with payment callbacks
  */
-export function usePostSubscriptions(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.subscriptions.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.subscriptions.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.subscriptions.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.subscriptions.$post>
-  >(
+export function usePostSubscriptions(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /subscriptions',
-    async (_, { arg }) => parseResponse(client.subscriptions.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.subscriptions.$post> }) =>
+      parseResponse(client.subscriptions.$post(arg, options?.client)),
   )
 }
 
@@ -61,24 +34,11 @@ export function usePostSubscriptions(options?: {
  *
  * Create an async job with progress callbacks
  */
-export function usePostJobs(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.jobs.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.jobs.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.jobs.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.jobs.$post>
-  >(
+export function usePostJobs(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /jobs',
-    async (_, { arg }) => parseResponse(client.jobs.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.jobs.$post> }) =>
+      parseResponse(client.jobs.$post(arg, options?.client)),
   )
 }
 
@@ -87,24 +47,14 @@ export function usePostJobs(options?: {
  *
  * Trigger data sync with callbacks
  */
-export function usePostIntegrationsIntegrationIdSync(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
-  >(
+export function usePostIntegrationsIntegrationIdSync(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /integrations/:integrationId/sync',
-    async (_, { arg }) =>
-      parseResponse(client.integrations[':integrationId'].sync.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      {
+        arg,
+      }: { arg: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']> },
+    ) => parseResponse(client.integrations[':integrationId'].sync.$post(arg, options?.client)),
   )
 }

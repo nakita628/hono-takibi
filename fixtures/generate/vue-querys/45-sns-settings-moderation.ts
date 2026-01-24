@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
@@ -29,12 +29,9 @@ export function getGetSettingsAccountQueryKey() {
  * アカウント設定更新
  */
 export function usePutSettingsAccount(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.settings.account.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.settings.account.$put>
-  >({
-    mutationFn: async (args) => parseResponse(client.settings.account.$put(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.settings.account.$put>) =>
+      parseResponse(client.settings.account.$put(args, clientOptions)),
   })
 }
 
@@ -89,12 +86,9 @@ export function getGetSettingsPrivacyQueryKey() {
  * プライバシー設定更新
  */
 export function usePutSettingsPrivacy(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.settings.privacy.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.settings.privacy.$put>
-  >({
-    mutationFn: async (args) => parseResponse(client.settings.privacy.$put(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.settings.privacy.$put>) =>
+      parseResponse(client.settings.privacy.$put(args, clientOptions)),
   })
 }
 
@@ -125,13 +119,10 @@ export function getGetSettingsContentPreferencesQueryKey() {
  * コンテンツ設定更新
  */
 export function usePutSettingsContentPreferences(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.settings)['content-preferences']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.settings)['content-preferences']['$put']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.settings['content-preferences'].$put(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.settings)['content-preferences']['$put']>,
+    ) => parseResponse(client.settings['content-preferences'].$put(args, clientOptions)),
   })
 }
 
@@ -162,12 +153,8 @@ export function getGetSettingsMutedWordsQueryKey() {
  * ミュートワード追加
  */
 export function usePostSettingsMutedWords(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.settings)['muted-words']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.settings)['muted-words']['$post']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.settings)['muted-words']['$post']>) =>
       parseResponse(client.settings['muted-words'].$post(args, clientOptions)),
   })
 }
@@ -178,13 +165,10 @@ export function usePostSettingsMutedWords(clientOptions?: ClientRequestOptions) 
  * ミュートワード削除
  */
 export function useDeleteSettingsMutedWordsWordId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.settings['muted-words'][':wordId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>,
+    ) => parseResponse(client.settings['muted-words'][':wordId'].$delete(args, clientOptions)),
   })
 }
 
@@ -214,13 +198,10 @@ export function getGetSettingsSessionsQueryKey() {
  * セッション無効化
  */
 export function useDeleteSettingsSessionsSessionId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.settings.sessions[':sessionId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>,
+    ) => parseResponse(client.settings.sessions[':sessionId'].$delete(args, clientOptions)),
   })
 }
 
@@ -251,13 +232,10 @@ export function getGetSettingsConnectedAppsQueryKey() {
  * 連携アプリ解除
  */
 export function useDeleteSettingsConnectedAppsAppId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.settings['connected-apps'][':appId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>,
+    ) => parseResponse(client.settings['connected-apps'][':appId'].$delete(args, clientOptions)),
   })
 }
 
@@ -267,11 +245,7 @@ export function useDeleteSettingsConnectedAppsAppId(clientOptions?: ClientReques
  * データエクスポートリクエスト
  */
 export function usePostSettingsDataExport(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.settings)['data-export']['$post']> | undefined,
-    Error,
-    void
-  >({
+  return useMutation({
     mutationFn: async () =>
       parseResponse(client.settings['data-export'].$post(undefined, clientOptions)),
   })
@@ -309,12 +283,8 @@ export function getGetSettingsDataExportRequestIdQueryKey(
  * アカウント一時停止
  */
 export function usePostSettingsDeactivate(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.settings.deactivate.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.settings.deactivate.$post>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.settings.deactivate.$post>) =>
       parseResponse(client.settings.deactivate.$post(args, clientOptions)),
   })
 }
@@ -325,11 +295,10 @@ export function usePostSettingsDeactivate(clientOptions?: ClientRequestOptions) 
  * 通報作成
  */
 export function usePostReports(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.reports.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.reports.$post>
-  >({ mutationFn: async (args) => parseResponse(client.reports.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.reports.$post>) =>
+      parseResponse(client.reports.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -416,13 +385,10 @@ export function getGetModerationItemsItemIdQueryKey(
  * モデレーションアクション実行
  */
 export function usePostModerationItemsItemIdAction(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.moderation.items)[':itemId']['action']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.moderation.items[':itemId'].action.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
+    ) => parseResponse(client.moderation.items[':itemId'].action.$post(args, clientOptions)),
   })
 }
 
@@ -458,13 +424,10 @@ export function getGetModerationUsersUserIdHistoryQueryKey(
  * ユーザー凍結
  */
 export function usePostModerationUsersUserIdSuspend(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.moderation.users)[':userId']['suspend']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.moderation.users[':userId'].suspend.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
+    ) => parseResponse(client.moderation.users[':userId'].suspend.$post(args, clientOptions)),
   })
 }
 
@@ -474,14 +437,10 @@ export function usePostModerationUsersUserIdSuspend(clientOptions?: ClientReques
  * ユーザー凍結解除
  */
 export function usePostModerationUsersUserIdUnsuspend(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    | InferResponseType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.moderation.users[':userId'].unsuspend.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>,
+    ) => parseResponse(client.moderation.users[':userId'].unsuspend.$post(args, clientOptions)),
   })
 }
 

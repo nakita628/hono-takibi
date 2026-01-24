@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "target": "ESNext",
+      "module": "ESNext",
+      "moduleResolution": "Bundler",
+      "strict": true,
+      "exactOptionalPropertyTypes": true,
+      "skipLibCheck": true,
+      "paths": {
+        "@/*": ["./src/*"]
+      },
+      "types": ["vite/client", "./worker-configuration.d.ts"]
+    },
+    "exclude": ["vite.config.ts"]
+  }
+  

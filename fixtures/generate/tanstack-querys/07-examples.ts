@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
 
@@ -43,24 +43,13 @@ export function getGetProductsQueryKey() {
  * POST /products
  */
 export function usePostProducts(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.products.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.products.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.products.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.products.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.products.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
+        parseResponse(client.products.$post(args, options?.client)),
     },
     queryClient,
   )

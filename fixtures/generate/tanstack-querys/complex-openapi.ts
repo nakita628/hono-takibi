@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-openapi'
 
@@ -47,24 +47,13 @@ export function getGetUsersQueryKey() {
  * Create a new user
  */
 export function usePostUsers(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.users.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.users.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+        parseResponse(client.users.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -116,24 +105,12 @@ export function getGetUsersUserIdQueryKey(
  * Update an existing user
  */
 export function usePutUsersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.users)[':userId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':userId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$put']>) =>
         parseResponse(client.users[':userId'].$put(args, options?.client)),
     },
     queryClient,
@@ -146,24 +123,12 @@ export function usePutUsersUserId(
  * Delete a user
  */
 export function useDeleteUsersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':userId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$delete']>) =>
         parseResponse(client.users[':userId'].$delete(args, options?.client)),
     },
     queryClient,
@@ -213,24 +178,13 @@ export function getGetOrdersQueryKey() {
  * Create a new order
  */
 export function usePostOrders(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.orders.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.orders.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.orders.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.orders.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.orders.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+        parseResponse(client.orders.$post(args, options?.client)),
     },
     queryClient,
   )

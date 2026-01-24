@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-nullable'
 
 /**
@@ -12,21 +12,20 @@ import { client } from '../clients/openapi-nullable'
  * zod nullable
  */
 export function useGetNullable(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.nullable.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetNullableKey() : null)
-  const query = useSWR<InferResponseType<typeof client.nullable.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.nullable.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.nullable.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**

@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-components'
 
@@ -9,11 +9,10 @@ import { client } from '../clients/complex-components'
  * Issue access token
  */
 export function usePostAuthToken(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.auth.token.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.auth.token.$post>
-  >({ mutationFn: async (args) => parseResponse(client.auth.token.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.auth.token.$post>) =>
+      parseResponse(client.auth.token.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -45,11 +44,10 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  * Create user
  */
 export function usePostUsers(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >({ mutationFn: async (args) => parseResponse(client.users.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+      parseResponse(client.users.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -83,12 +81,9 @@ export function getGetUsersUserIdQueryKey(
  * Update user (partial)
  */
 export function usePatchUsersUserId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['$patch']>
-  >({
-    mutationFn: async (args) => parseResponse(client.users[':userId'].$patch(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$patch']>) =>
+      parseResponse(client.users[':userId'].$patch(args, clientOptions)),
   })
 }
 
@@ -146,11 +141,10 @@ export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders
  * Create order (and optionally trigger callback)
  */
 export function usePostOrders(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.orders.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.orders.$post>
-  >({ mutationFn: async (args) => parseResponse(client.orders.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+      parseResponse(client.orders.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -209,9 +203,8 @@ export function getGetFilesFileIdQueryKey(
  * Create webhook subscription
  */
 export function usePostSubscriptions(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.subscriptions.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.subscriptions.$post>
-  >({ mutationFn: async (args) => parseResponse(client.subscriptions.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.subscriptions.$post>) =>
+      parseResponse(client.subscriptions.$post(args, clientOptions)),
+  })
 }

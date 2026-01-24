@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -12,24 +12,13 @@ import { client } from '../clients/pet-store'
  * Update an existing pet by Id
  */
 export function createPutPet(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.pet.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.pet.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.pet.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.pet.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.pet.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.pet.$put>) =>
+        parseResponse(client.pet.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -43,24 +32,13 @@ export function createPutPet(
  * Add a new pet to the store
  */
 export function createPostPet(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.pet.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.pet.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.pet.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.pet.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.pet.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.pet.$post>) =>
+        parseResponse(client.pet.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -198,24 +176,13 @@ export function getGetPetPetIdQueryKey(
  * Updates a pet in the store with form data
  */
 export function createPostPetPetId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.pet)[':petId']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.pet)[':petId']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.pet)[':petId']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.pet)[':petId']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.pet[':petId'].$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client.pet)[':petId']['$post']>) =>
+        parseResponse(client.pet[':petId'].$post(args, options?.client)),
     },
     queryClient,
   )
@@ -229,24 +196,12 @@ export function createPostPetPetId(
  * delete a pet
  */
 export function createDeletePetPetId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.pet)[':petId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.pet)[':petId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.pet)[':petId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.pet)[':petId']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.pet)[':petId']['$delete']>) =>
         parseResponse(client.pet[':petId'].$delete(args, options?.client)),
     },
     queryClient,
@@ -259,25 +214,14 @@ export function createDeletePetPetId(
  * uploads an image
  */
 export function createPostPetPetIdUploadImage(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.pet[':petId'].uploadImage.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
+      ) => parseResponse(client.pet[':petId'].uploadImage.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -330,24 +274,13 @@ export function getGetStoreInventoryQueryKey() {
  * Place a new order in the store
  */
 export function createPostStoreOrder(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.store.order.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.store.order.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.store.order.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.store.order.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.store.order.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.store.order.$post>) =>
+        parseResponse(client.store.order.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -406,25 +339,14 @@ export function getGetStoreOrderOrderIdQueryKey(
  * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  */
 export function createDeleteStoreOrderOrderId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.store.order)[':orderId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.store.order)[':orderId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.store.order)[':orderId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.store.order)[':orderId']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.store.order[':orderId'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
+      ) => parseResponse(client.store.order[':orderId'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -438,24 +360,13 @@ export function createDeleteStoreOrderOrderId(
  * This can only be done by the logged in user.
  */
 export function createPostUser(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.user.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.user.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.user.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.user.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.user.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.user.$post>) =>
+        parseResponse(client.user.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -469,24 +380,12 @@ export function createPostUser(
  * Creates list of users with given input array
  */
 export function createPostUserCreateWithList(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.user.createWithList.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.user.createWithList.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.user.createWithList.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.user.createWithList.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.user.createWithList.$post>) =>
         parseResponse(client.user.createWithList.$post(args, options?.client)),
     },
     queryClient,
@@ -616,24 +515,12 @@ export function getGetUserUsernameQueryKey(
  * This can only be done by the logged in user.
  */
 export function createPutUserUsername(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.user)[':username']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.user)[':username']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.user)[':username']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.user)[':username']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.user)[':username']['$put']>) =>
         parseResponse(client.user[':username'].$put(args, options?.client)),
     },
     queryClient,
@@ -648,24 +535,12 @@ export function createPutUserUsername(
  * This can only be done by the logged in user.
  */
 export function createDeleteUserUsername(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.user)[':username']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.user)[':username']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.user)[':username']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.user)[':username']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.user)[':username']['$delete']>) =>
         parseResponse(client.user[':username'].$delete(args, options?.client)),
     },
     queryClient,

@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -43,24 +43,13 @@ export function getGetEntitiesQueryKey() {
  * POST /process
  */
 export function createPostProcess(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.process.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.process.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.process.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.process.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.process.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.process.$post>) =>
+        parseResponse(client.process.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -105,24 +94,13 @@ export function getGetGraphQueryKey() {
  * POST /transform
  */
 export function createPostTransform(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.transform.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.transform.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.transform.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.transform.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.transform.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.transform.$post>) =>
+        parseResponse(client.transform.$post(args, options?.client)),
     },
     queryClient,
   )

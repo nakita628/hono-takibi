@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/43-sns-users-relationships'
 
@@ -126,11 +126,10 @@ export function getGetMeQueryKey() {
  * プロフィール更新
  */
 export function usePatchMe(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.me.$patch> | undefined,
-    Error,
-    InferRequestType<typeof client.me.$patch>
-  >({ mutationFn: async (args) => parseResponse(client.me.$patch(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.$patch>) =>
+      parseResponse(client.me.$patch(args, clientOptions)),
+  })
 }
 
 /**
@@ -139,11 +138,10 @@ export function usePatchMe(clientOptions?: ClientRequestOptions) {
  * アバターアップロード
  */
 export function usePostMeAvatar(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.me.avatar.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.me.avatar.$post>
-  >({ mutationFn: async (args) => parseResponse(client.me.avatar.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.avatar.$post>) =>
+      parseResponse(client.me.avatar.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -152,7 +150,7 @@ export function usePostMeAvatar(clientOptions?: ClientRequestOptions) {
  * アバター削除
  */
 export function useDeleteMeAvatar(clientOptions?: ClientRequestOptions) {
-  return useMutation<InferResponseType<typeof client.me.avatar.$delete> | undefined, Error, void>({
+  return useMutation({
     mutationFn: async () => parseResponse(client.me.avatar.$delete(undefined, clientOptions)),
   })
 }
@@ -163,11 +161,10 @@ export function useDeleteMeAvatar(clientOptions?: ClientRequestOptions) {
  * バナー画像アップロード
  */
 export function usePostMeBanner(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.me.banner.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.me.banner.$post>
-  >({ mutationFn: async (args) => parseResponse(client.me.banner.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.banner.$post>) =>
+      parseResponse(client.me.banner.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -176,7 +173,7 @@ export function usePostMeBanner(clientOptions?: ClientRequestOptions) {
  * バナー画像削除
  */
 export function useDeleteMeBanner(clientOptions?: ClientRequestOptions) {
-  return useMutation<InferResponseType<typeof client.me.banner.$delete> | undefined, Error, void>({
+  return useMutation({
     mutationFn: async () => parseResponse(client.me.banner.$delete(undefined, clientOptions)),
   })
 }
@@ -187,13 +184,10 @@ export function useDeleteMeBanner(clientOptions?: ClientRequestOptions) {
  * フォロー
  */
 export function usePostUsersUserIdFollow(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['follow']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['follow']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.users[':userId'].follow.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
+    ) => parseResponse(client.users[':userId'].follow.$post(args, clientOptions)),
   })
 }
 
@@ -203,13 +197,10 @@ export function usePostUsersUserIdFollow(clientOptions?: ClientRequestOptions) {
  * フォロー解除
  */
 export function useDeleteUsersUserIdFollow(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['follow']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.users[':userId'].follow.$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
+    ) => parseResponse(client.users[':userId'].follow.$delete(args, clientOptions)),
   })
 }
 
@@ -271,13 +262,10 @@ export function getGetUsersUserIdFollowingQueryKey(
  * 自分のフォロワーから削除
  */
 export function usePostUsersUserIdFollowersRemove(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['followers']['remove']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.users[':userId'].followers.remove.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
+    ) => parseResponse(client.users[':userId'].followers.remove.$post(args, clientOptions)),
   })
 }
 
@@ -339,13 +327,10 @@ export function getGetFollowRequestsQueryKey(
  * フォローリクエスト承認
  */
 export function usePostFollowRequestsUserIdAccept(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['follow-requests'][':userId']['accept']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client['follow-requests'][':userId'].accept.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
+    ) => parseResponse(client['follow-requests'][':userId'].accept.$post(args, clientOptions)),
   })
 }
 
@@ -355,13 +340,10 @@ export function usePostFollowRequestsUserIdAccept(clientOptions?: ClientRequestO
  * フォローリクエスト拒否
  */
 export function usePostFollowRequestsUserIdReject(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['follow-requests'][':userId']['reject']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client['follow-requests'][':userId'].reject.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
+    ) => parseResponse(client['follow-requests'][':userId'].reject.$post(args, clientOptions)),
   })
 }
 
@@ -371,13 +353,10 @@ export function usePostFollowRequestsUserIdReject(clientOptions?: ClientRequestO
  * ブロック
  */
 export function usePostUsersUserIdBlock(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['block']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['block']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.users[':userId'].block.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
+    ) => parseResponse(client.users[':userId'].block.$post(args, clientOptions)),
   })
 }
 
@@ -387,13 +366,10 @@ export function usePostUsersUserIdBlock(clientOptions?: ClientRequestOptions) {
  * ブロック解除
  */
 export function useDeleteUsersUserIdBlock(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['block']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['block']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.users[':userId'].block.$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
+    ) => parseResponse(client.users[':userId'].block.$delete(args, clientOptions)),
   })
 }
 
@@ -403,12 +379,8 @@ export function useDeleteUsersUserIdBlock(clientOptions?: ClientRequestOptions) 
  * ミュート
  */
 export function usePostUsersUserIdMute(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['mute']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['mute']['$post']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>) =>
       parseResponse(client.users[':userId'].mute.$post(args, clientOptions)),
   })
 }
@@ -419,13 +391,10 @@ export function usePostUsersUserIdMute(clientOptions?: ClientRequestOptions) {
  * ミュート解除
  */
 export function useDeleteUsersUserIdMute(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['mute']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.users[':userId'].mute.$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
+    ) => parseResponse(client.users[':userId'].mute.$delete(args, clientOptions)),
   })
 }
 
@@ -501,11 +470,10 @@ export function getGetListsQueryKey() {
  * リスト作成
  */
 export function usePostLists(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.lists.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.lists.$post>
-  >({ mutationFn: async (args) => parseResponse(client.lists.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.lists.$post>) =>
+      parseResponse(client.lists.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -539,12 +507,9 @@ export function getGetListsListIdQueryKey(
  * リスト更新
  */
 export function usePutListsListId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.lists)[':listId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.lists)[':listId']['$put']>
-  >({
-    mutationFn: async (args) => parseResponse(client.lists[':listId'].$put(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.lists)[':listId']['$put']>) =>
+      parseResponse(client.lists[':listId'].$put(args, clientOptions)),
   })
 }
 
@@ -554,12 +519,9 @@ export function usePutListsListId(clientOptions?: ClientRequestOptions) {
  * リスト削除
  */
 export function useDeleteListsListId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.lists)[':listId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.lists)[':listId']['$delete']>
-  >({
-    mutationFn: async (args) => parseResponse(client.lists[':listId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.lists)[':listId']['$delete']>) =>
+      parseResponse(client.lists[':listId'].$delete(args, clientOptions)),
   })
 }
 
@@ -594,13 +556,10 @@ export function getGetListsListIdMembersQueryKey(
  * リストにメンバー追加
  */
 export function usePostListsListIdMembers(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.lists)[':listId']['members']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.lists)[':listId']['members']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.lists[':listId'].members.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
+    ) => parseResponse(client.lists[':listId'].members.$post(args, clientOptions)),
   })
 }
 
@@ -610,14 +569,10 @@ export function usePostListsListIdMembers(clientOptions?: ClientRequestOptions) 
  * リストからメンバー削除
  */
 export function useDeleteListsListIdMembersUserId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    | InferResponseType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.lists[':listId'].members[':userId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>,
+    ) => parseResponse(client.lists[':listId'].members[':userId'].$delete(args, clientOptions)),
   })
 }
 

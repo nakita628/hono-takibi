@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -47,24 +47,13 @@ export function getGetStreamQueryKey() {
  * GraphQL endpoint
  */
 export function usePostGraphql(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.graphql.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.graphql.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.graphql.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.graphql.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.graphql.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.graphql.$post>) =>
+        parseResponse(client.graphql.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -76,24 +65,12 @@ export function usePostGraphql(
  * gRPC-Gateway endpoint
  */
 export function usePostGrpcGateway(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['grpc-gateway']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['grpc-gateway']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['grpc-gateway']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['grpc-gateway']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client)['grpc-gateway']['$post']>) =>
         parseResponse(client['grpc-gateway'].$post(args, options?.client)),
     },
     queryClient,

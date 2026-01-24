@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -1134,24 +1134,13 @@ export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.a
  * Save one or more albums to the current user's 'Your Music' library.
  */
 export function createPutMeAlbums(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.albums.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.albums.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.albums.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.albums.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.albums.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.albums.$put>) =>
+        parseResponse(client.me.albums.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -1165,24 +1154,13 @@ export function createPutMeAlbums(
  * Remove one or more albums from the current user's 'Your Music' library.
  */
 export function createDeleteMeAlbums(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.albums.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.albums.$delete>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.albums.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.albums.$delete>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.albums.$delete(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.albums.$delete>) =>
+        parseResponse(client.me.albums.$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -1280,24 +1258,13 @@ export function getGetMeAudiobooksQueryKey(
  * Save one or more audiobooks to the current Spotify user's library.
  */
 export function createPutMeAudiobooks(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.audiobooks.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.audiobooks.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.audiobooks.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.audiobooks.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.audiobooks.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$put>) =>
+        parseResponse(client.me.audiobooks.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -1311,24 +1278,12 @@ export function createPutMeAudiobooks(
  * Remove one or more audiobooks from the Spotify user's library.
  */
 export function createDeleteMeAudiobooks(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.audiobooks.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.audiobooks.$delete>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.audiobooks.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.audiobooks.$delete>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$delete>) =>
         parseResponse(client.me.audiobooks.$delete(args, options?.client)),
     },
     queryClient,
@@ -1430,24 +1385,13 @@ export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
 export function createPutMeEpisodes(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.episodes.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.episodes.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.episodes.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.episodes.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.episodes.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.episodes.$put>) =>
+        parseResponse(client.me.episodes.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -1462,24 +1406,13 @@ export function createPutMeEpisodes(
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
 export function createDeleteMeEpisodes(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.episodes.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.episodes.$delete>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.episodes.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.episodes.$delete>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.episodes.$delete(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.episodes.$delete>) =>
+        parseResponse(client.me.episodes.$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -1576,24 +1509,13 @@ export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.m
  * Add the current user as a follower of one or more artists or other Spotify users.
  */
 export function createPutMeFollowing(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.following.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.following.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.following.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.following.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.following.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.following.$put>) =>
+        parseResponse(client.me.following.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -1607,24 +1529,13 @@ export function createPutMeFollowing(
  * Remove the current user as a follower of one or more artists or other Spotify users.
  */
 export function createDeleteMeFollowing(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.following.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.following.$delete>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.following.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.following.$delete>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.following.$delete(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.following.$delete>) =>
+        parseResponse(client.me.following.$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -1723,24 +1634,13 @@ export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.p
  * Transfer playback to a new device and determine if it should start playing.
  */
 export function createPutMePlayer(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.player.$put>) =>
+        parseResponse(client.me.player.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -1839,24 +1739,13 @@ export function getGetMePlayerDevicesQueryKey() {
  * Skips to next track in the user’s queue.
  */
 export function createPostMePlayerNext(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.next.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.next.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.next.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.next.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.next.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.player.next.$post>) =>
+        parseResponse(client.me.player.next.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -1870,24 +1759,13 @@ export function createPostMePlayerNext(
  * Pause playback on the user's account.
  */
 export function createPutMePlayerPause(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.pause.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.pause.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.pause.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.pause.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.pause.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.player.pause.$put>) =>
+        parseResponse(client.me.player.pause.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -1901,24 +1779,13 @@ export function createPutMePlayerPause(
  * Start a new context or resume current playback on the user's active device.
  */
 export function createPutMePlayerPlay(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.play.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.play.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.play.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.play.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.play.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.player.play.$put>) =>
+        parseResponse(client.me.player.play.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -1932,24 +1799,12 @@ export function createPutMePlayerPlay(
  * Skips to previous track in the user’s queue.
  */
 export function createPostMePlayerPrevious(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.previous.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.previous.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.previous.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.previous.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.me.player.previous.$post>) =>
         parseResponse(client.me.player.previous.$post(args, options?.client)),
     },
     queryClient,
@@ -2003,24 +1858,12 @@ export function getGetMePlayerQueueQueryKey() {
  * Add an item to the end of the user's current playback queue.
  */
 export function createPostMePlayerQueue(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.queue.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.queue.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.queue.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.queue.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.me.player.queue.$post>) =>
         parseResponse(client.me.player.queue.$post(args, options?.client)),
     },
     queryClient,
@@ -2083,24 +1926,12 @@ export function getGetMePlayerRecentlyPlayedQueryKey(
  * repeat-context, and off.
  */
 export function createPutMePlayerRepeat(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.repeat.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.repeat.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.repeat.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.repeat.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.me.player.repeat.$put>) =>
         parseResponse(client.me.player.repeat.$put(args, options?.client)),
     },
     queryClient,
@@ -2115,24 +1946,13 @@ export function createPutMePlayerRepeat(
  * Seeks to the given position in the user’s currently playing track.
  */
 export function createPutMePlayerSeek(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.seek.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.seek.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.seek.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.seek.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.player.seek.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.player.seek.$put>) =>
+        parseResponse(client.me.player.seek.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -2146,24 +1966,12 @@ export function createPutMePlayerSeek(
  * Toggle shuffle on or off for user’s playback.
  */
 export function createPutMePlayerShuffle(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.shuffle.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.shuffle.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.me.player.shuffle.$put>) =>
         parseResponse(client.me.player.shuffle.$put(args, options?.client)),
     },
     queryClient,
@@ -2178,24 +1986,12 @@ export function createPutMePlayerShuffle(
  * Set the volume for the user’s current playback device.
  */
 export function createPutMePlayerVolume(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.player.volume.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.player.volume.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.player.volume.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.player.volume.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.me.player.volume.$put>) =>
         parseResponse(client.me.player.volume.$put(args, options?.client)),
     },
     queryClient,
@@ -2291,24 +2087,13 @@ export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.sh
  * Save one or more shows to current Spotify user's library.
  */
 export function createPutMeShows(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.shows.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.shows.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.shows.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.shows.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.shows.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.shows.$put>) =>
+        parseResponse(client.me.shows.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -2322,24 +2107,13 @@ export function createPutMeShows(
  * Delete one or more shows from current Spotify user's library.
  */
 export function createDeleteMeShows(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.shows.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.shows.$delete>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.shows.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.shows.$delete>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.shows.$delete(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.shows.$delete>) =>
+        parseResponse(client.me.shows.$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -2477,24 +2251,13 @@ export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.t
  * Save one or more tracks to the current user's 'Your Music' library.
  */
 export function createPutMeTracks(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.tracks.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.me.tracks.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.tracks.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.me.tracks.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.tracks.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.tracks.$put>) =>
+        parseResponse(client.me.tracks.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -2508,24 +2271,13 @@ export function createPutMeTracks(
  * Remove one or more tracks from the current user's 'Your Music' library.
  */
 export function createDeleteMeTracks(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.me.tracks.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.me.tracks.$delete>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.me.tracks.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.me.tracks.$delete>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.me.tracks.$delete(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.me.tracks.$delete>) =>
+        parseResponse(client.me.tracks.$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -2628,25 +2380,14 @@ export function getGetPlaylistsPlaylistIdQueryKey(
  * course, own the playlist.)
  */
 export function createPutPlaylistsPlaylistId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
+      ) => parseResponse(client.playlists[':playlist_id'].$put(args, options?.client)),
     },
     queryClient,
   )
@@ -2660,25 +2401,14 @@ export function createPutPlaylistsPlaylistId(
  * Add the current user as a follower of a playlist.
  */
 export function createPutPlaylistsPlaylistIdFollowers(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].followers.$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+      ) => parseResponse(client.playlists[':playlist_id'].followers.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -2692,27 +2422,14 @@ export function createPutPlaylistsPlaylistIdFollowers(
  * Remove the current user as a follower of a playlist.
  */
 export function createDeletePlaylistsPlaylistIdFollowers(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].followers.$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
+      ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -2826,25 +2543,14 @@ export function getGetPlaylistsPlaylistIdImagesQueryKey(
  * Replace the image used to represent a specific playlist.
  */
 export function createPutPlaylistsPlaylistIdImages(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].images.$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+      ) => parseResponse(client.playlists[':playlist_id'].images.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -2910,25 +2616,14 @@ export function getGetPlaylistsPlaylistIdTracksQueryKey(
  * These operations can't be applied together in a single request.
  */
 export function createPutPlaylistsPlaylistIdTracks(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+      ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -2942,25 +2637,14 @@ export function createPutPlaylistsPlaylistIdTracks(
  * Add one or more items to a user's playlist.
  */
 export function createPostPlaylistsPlaylistIdTracks(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+      ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -2974,25 +2658,14 @@ export function createPostPlaylistsPlaylistIdTracks(
  * Remove one or more items from a user's playlist.
  */
 export function createDeletePlaylistsPlaylistIdTracks(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+      ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -3434,25 +3107,14 @@ export function getGetUsersUserIdPlaylistsQueryKey(
  * you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).)
  */
 export function createPostUsersUserIdPlaylists(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.users[':user_id'].playlists.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+      ) => parseResponse(client.users[':user_id'].playlists.$post(args, options?.client)),
     },
     queryClient,
   )

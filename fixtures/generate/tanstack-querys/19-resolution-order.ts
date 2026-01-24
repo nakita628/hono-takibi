@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -43,24 +43,13 @@ export function getGetEntitiesQueryKey() {
  * POST /process
  */
 export function usePostProcess(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.process.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.process.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.process.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.process.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.process.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.process.$post>) =>
+        parseResponse(client.process.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -105,24 +94,13 @@ export function getGetGraphQueryKey() {
  * POST /transform
  */
 export function usePostTransform(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.transform.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.transform.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.transform.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.transform.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.transform.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.transform.$post>) =>
+        parseResponse(client.transform.$post(args, options?.client)),
     },
     queryClient,
   )

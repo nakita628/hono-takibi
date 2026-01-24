@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
@@ -11,12 +11,8 @@ import { client } from '../clients/39-auth-webauthn-passkey'
  * パスキー登録のためのPublicKeyCredentialCreationOptionsを生成
  */
 export function usePostWebauthnRegisterOptions(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.webauthn.register.options.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webauthn.register.options.$post>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.webauthn.register.options.$post>) =>
       parseResponse(client.webauthn.register.options.$post(args, clientOptions)),
   })
 }
@@ -29,12 +25,8 @@ export function usePostWebauthnRegisterOptions(clientOptions?: ClientRequestOpti
  * クライアントから送信された認証情報を検証し、パスキーを登録
  */
 export function usePostWebauthnRegisterVerify(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.webauthn.register.verify.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webauthn.register.verify.$post>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.webauthn.register.verify.$post>) =>
       parseResponse(client.webauthn.register.verify.$post(args, clientOptions)),
   })
 }
@@ -47,12 +39,8 @@ export function usePostWebauthnRegisterVerify(clientOptions?: ClientRequestOptio
  * パスキー認証のためのPublicKeyCredentialRequestOptionsを生成
  */
 export function usePostWebauthnAuthenticateOptions(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.webauthn.authenticate.options.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webauthn.authenticate.options.$post>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.options.$post>) =>
       parseResponse(client.webauthn.authenticate.options.$post(args, clientOptions)),
   })
 }
@@ -65,12 +53,8 @@ export function usePostWebauthnAuthenticateOptions(clientOptions?: ClientRequest
  * クライアントから送信された認証レスポンスを検証
  */
 export function usePostWebauthnAuthenticateVerify(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.webauthn.authenticate.verify.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webauthn.authenticate.verify.$post>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.verify.$post>) =>
       parseResponse(client.webauthn.authenticate.verify.$post(args, clientOptions)),
   })
 }
@@ -131,13 +115,10 @@ export function getGetWebauthnCredentialsCredentialIdQueryKey(
  * パスキーを削除（少なくとも1つは残す必要がある場合あり）
  */
 export function useDeleteWebauthnCredentialsCredentialId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
+    ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
   })
 }
 
@@ -149,13 +130,10 @@ export function useDeleteWebauthnCredentialsCredentialId(clientOptions?: ClientR
  * パスキーの名前などを更新
  */
 export function usePatchWebauthnCredentialsCredentialId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+    ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
   })
 }
 
@@ -207,12 +185,8 @@ export function getGetWebauthnSettingsRpQueryKey() {
  * リライングパーティ情報更新
  */
 export function usePutWebauthnSettingsRp(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.webauthn.settings.rp.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.webauthn.settings.rp.$put>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.webauthn.settings.rp.$put>) =>
       parseResponse(client.webauthn.settings.rp.$put(args, clientOptions)),
   })
 }

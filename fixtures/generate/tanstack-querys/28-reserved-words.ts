@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
@@ -113,21 +113,11 @@ export function getGetTypeQueryKey() {
  * POST /function
  */
 export function usePostFunction(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.function.$post> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<InferResponseType<typeof client.function.$post> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.function.$post(undefined, options?.client)),
-    },
+  return useMutation(
+    { mutationFn: async () => parseResponse(client.function.$post(undefined, options?.client)) },
     queryClient,
   )
 }
@@ -275,22 +265,9 @@ export function getGetDefaultQueryKey() {
 /**
  * POST /new
  */
-export function usePostNew(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.new.$post> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<InferResponseType<typeof client.new.$post> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.new.$post(undefined, options?.client)),
-    },
+export function usePostNew(options?: { client?: ClientRequestOptions }, queryClient?: QueryClient) {
+  return useMutation(
+    { mutationFn: async () => parseResponse(client.new.$post(undefined, options?.client)) },
     queryClient,
   )
 }
@@ -299,21 +276,11 @@ export function usePostNew(
  * DELETE /delete
  */
 export function useDeleteDelete(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.delete.$delete> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<InferResponseType<typeof client.delete.$delete> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.delete.$delete(undefined, options?.client)),
-    },
+  return useMutation(
+    { mutationFn: async () => parseResponse(client.delete.$delete(undefined, options?.client)) },
     queryClient,
   )
 }

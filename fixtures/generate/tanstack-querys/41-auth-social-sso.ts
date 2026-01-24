@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
 
@@ -104,24 +104,13 @@ export function getGetSocialCallbackProviderQueryKey(
  * 認可コードをアクセストークンに交換
  */
 export function usePostSocialToken(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.social.token.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.social.token.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.social.token.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.social.token.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.social.token.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.social.token.$post>) =>
+        parseResponse(client.social.token.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -135,24 +124,12 @@ export function usePostSocialToken(
  * モバイルアプリから直接取得したトークンを検証
  */
 export function usePostSocialTokenNative(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.social.token.native.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.social.token.native.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.social.token.native.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.social.token.native.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.social.token.native.$post>) =>
         parseResponse(client.social.token.native.$post(args, options?.client)),
     },
     queryClient,
@@ -239,24 +216,12 @@ export function getGetProvidersAdminQueryKey() {
  * プロバイダー追加
  */
 export function usePostProvidersAdmin(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.providers.admin.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.providers.admin.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.providers.admin.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.providers.admin.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.providers.admin.$post>) =>
         parseResponse(client.providers.admin.$post(args, options?.client)),
     },
     queryClient,
@@ -312,25 +277,14 @@ export function getGetProvidersProviderIdQueryKey(
  * プロバイダー更新
  */
 export function usePutProvidersProviderId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.providers)[':providerId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.providers)[':providerId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.providers)[':providerId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.providers)[':providerId']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.providers[':providerId'].$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.providers)[':providerId']['$put']>,
+      ) => parseResponse(client.providers[':providerId'].$put(args, options?.client)),
     },
     queryClient,
   )
@@ -342,25 +296,14 @@ export function usePutProvidersProviderId(
  * プロバイダー削除
  */
 export function useDeleteProvidersProviderId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.providers)[':providerId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.providers)[':providerId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.providers)[':providerId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.providers)[':providerId']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.providers[':providerId'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.providers)[':providerId']['$delete']>,
+      ) => parseResponse(client.providers[':providerId'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -372,25 +315,14 @@ export function useDeleteProvidersProviderId(
  * プロバイダー接続テスト
  */
 export function usePostProvidersProviderIdTest(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.providers)[':providerId']['test']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.providers)[':providerId']['test']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.providers[':providerId'].test.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
+      ) => parseResponse(client.providers[':providerId'].test.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -441,25 +373,14 @@ export function getGetAccountLinkedQueryKey() {
  * 既存アカウントにソーシャルアカウントを連携
  */
 export function usePostAccountLinkProvider(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.account.link)[':provider']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.account.link)[':provider']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.account.link)[':provider']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.account.link)[':provider']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.account.link[':provider'].$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
+      ) => parseResponse(client.account.link[':provider'].$post(args, options?.client)),
     },
     queryClient,
   )
@@ -471,25 +392,14 @@ export function usePostAccountLinkProvider(
  * アカウント連携解除
  */
 export function useDeleteAccountLinkProvider(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.account.link)[':provider']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.account.link)[':provider']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.account.link)[':provider']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.account.link)[':provider']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.account.link[':provider'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
+      ) => parseResponse(client.account.link[':provider'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -538,24 +448,13 @@ export function getGetEnterpriseSsoQueryKey() {
  * エンタープライズSSO設定作成
  */
 export function usePostEnterpriseSso(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.enterprise.sso.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.enterprise.sso.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.enterprise.sso.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.enterprise.sso.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.enterprise.sso.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.enterprise.sso.$post>) =>
+        parseResponse(client.enterprise.sso.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -611,25 +510,14 @@ export function getGetEnterpriseSsoConfigIdQueryKey(
  * エンタープライズSSO設定更新
  */
 export function usePutEnterpriseSsoConfigId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.enterprise.sso)[':configId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.enterprise.sso)[':configId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.enterprise.sso[':configId'].$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
+      ) => parseResponse(client.enterprise.sso[':configId'].$put(args, options?.client)),
     },
     queryClient,
   )
@@ -641,25 +529,14 @@ export function usePutEnterpriseSsoConfigId(
  * エンタープライズSSO設定削除
  */
 export function useDeleteEnterpriseSsoConfigId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.enterprise.sso)[':configId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.enterprise.sso)[':configId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.enterprise.sso[':configId'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,
+      ) => parseResponse(client.enterprise.sso[':configId'].$delete(args, options?.client)),
     },
     queryClient,
   )

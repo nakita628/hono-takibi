@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
@@ -150,11 +150,7 @@ export function getGetMixedLevelSecurityQueryKey() {
  * Admin-only security
  */
 export function usePutMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
-    Error,
-    void
-  >({
+  return useMutation({
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
   })
@@ -166,11 +162,7 @@ export function usePutMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
  * Different security for POST
  */
 export function usePostMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
-    Error,
-    void
-  >({
+  return useMutation({
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
   })
@@ -182,11 +174,7 @@ export function usePostMixedLevelSecurity(clientOptions?: ClientRequestOptions) 
  * Super admin security
  */
 export function useDeleteMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
-    Error,
-    void
-  >({
+  return useMutation({
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
   })

@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/abcde'
 
 /**
@@ -10,21 +10,20 @@ import { client } from '../clients/abcde'
  * Get example data
  */
 export function useGetExample(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.example.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetExampleKey() : null)
-  const query = useSWR<InferResponseType<typeof client.example.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.example.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.example.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**

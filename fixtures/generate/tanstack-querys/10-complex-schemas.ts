@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { QueryClient, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/10-complex-schemas'
 
@@ -8,24 +8,13 @@ import { client } from '../clients/10-complex-schemas'
  * POST /events
  */
 export function usePostEvents(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.events.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.events.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.events.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.events.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.events.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.events.$post>) =>
+        parseResponse(client.events.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -35,24 +24,13 @@ export function usePostEvents(
  * POST /notifications
  */
 export function usePostNotifications(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.notifications.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.notifications.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.notifications.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.notifications.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.notifications.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.notifications.$post>) =>
+        parseResponse(client.notifications.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -62,24 +40,13 @@ export function usePostNotifications(
  * POST /shapes
  */
 export function usePostShapes(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.shapes.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.shapes.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.shapes.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.shapes.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.shapes.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.shapes.$post>) =>
+        parseResponse(client.shapes.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -89,24 +56,13 @@ export function usePostShapes(
  * POST /documents
  */
 export function usePostDocuments(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.documents.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.documents.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.documents.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.documents.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.documents.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.documents.$post>) =>
+        parseResponse(client.documents.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -116,24 +72,13 @@ export function usePostDocuments(
  * POST /mixed
  */
 export function usePostMixed(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mixed.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mixed.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mixed.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mixed.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.mixed.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.mixed.$post>) =>
+        parseResponse(client.mixed.$post(args, options?.client)),
     },
     queryClient,
   )

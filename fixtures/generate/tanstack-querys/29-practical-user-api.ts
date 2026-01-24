@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
@@ -12,24 +12,13 @@ import { client } from '../clients/29-practical-user-api'
  * メールアドレスとパスワードで新規ユーザーを登録します
  */
 export function usePostAuthRegister(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.auth.register.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.auth.register.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.auth.register.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.auth.register.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.auth.register.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.auth.register.$post>) =>
+        parseResponse(client.auth.register.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -43,24 +32,13 @@ export function usePostAuthRegister(
  * メールアドレスとパスワードで認証し、JWTトークンを取得します
  */
 export function usePostAuthLogin(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.auth.login.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.auth.login.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.auth.login.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.auth.login.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.auth.login.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.auth.login.$post>) =>
+        parseResponse(client.auth.login.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -74,24 +52,13 @@ export function usePostAuthLogin(
  * リフレッシュトークンを使用して新しいアクセストークンを取得します
  */
 export function usePostAuthRefresh(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.auth.refresh.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.auth.refresh.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.auth.refresh.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.auth.refresh.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.auth.refresh.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.auth.refresh.$post>) =>
+        parseResponse(client.auth.refresh.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -103,21 +70,11 @@ export function usePostAuthRefresh(
  * ログアウト
  */
 export function usePostAuthLogout(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.auth.logout.$post> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<InferResponseType<typeof client.auth.logout.$post> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.auth.logout.$post(undefined, options?.client)),
-    },
+  return useMutation(
+    { mutationFn: async () => parseResponse(client.auth.logout.$post(undefined, options?.client)) },
     queryClient,
   )
 }
@@ -130,24 +87,12 @@ export function usePostAuthLogout(
  * パスワードリセット用のメールを送信します
  */
 export function usePostAuthPasswordForgot(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.auth.password.forgot.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.auth.password.forgot.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.auth.password.forgot.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.auth.password.forgot.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.auth.password.forgot.$post>) =>
         parseResponse(client.auth.password.forgot.$post(args, options?.client)),
     },
     queryClient,
@@ -160,24 +105,12 @@ export function usePostAuthPasswordForgot(
  * パスワードリセット実行
  */
 export function usePostAuthPasswordReset(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.auth.password.reset.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.auth.password.reset.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.auth.password.reset.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.auth.password.reset.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.auth.password.reset.$post>) =>
         parseResponse(client.auth.password.reset.$post(args, options?.client)),
     },
     queryClient,
@@ -270,24 +203,12 @@ export function getGetUsersUserIdQueryKey(
  * ユーザー削除
  */
 export function useDeleteUsersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':userId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$delete']>) =>
         parseResponse(client.users[':userId'].$delete(args, options?.client)),
     },
     queryClient,
@@ -300,24 +221,12 @@ export function useDeleteUsersUserId(
  * ユーザー情報更新
  */
 export function usePatchUsersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.users)[':userId']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':userId']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':userId']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$patch']>) =>
         parseResponse(client.users[':userId'].$patch(args, options?.client)),
     },
     queryClient,
@@ -367,24 +276,13 @@ export function getGetUsersMeQueryKey() {
  * 現在のユーザー情報更新
  */
 export function usePatchUsersMe(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.users.me.$patch> | undefined,
-      Error,
-      InferRequestType<typeof client.users.me.$patch>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.users.me.$patch> | undefined,
-    Error,
-    InferRequestType<typeof client.users.me.$patch>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users.me.$patch(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.users.me.$patch>) =>
+        parseResponse(client.users.me.$patch(args, options?.client)),
     },
     queryClient,
   )
@@ -396,24 +294,12 @@ export function usePatchUsersMe(
  * パスワード変更
  */
 export function usePutUsersMePassword(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.users.me.password.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.users.me.password.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.users.me.password.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.users.me.password.$put>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.users.me.password.$put>) =>
         parseResponse(client.users.me.password.$put(args, options?.client)),
     },
     queryClient,
@@ -426,24 +312,13 @@ export function usePutUsersMePassword(
  * アバター画像アップロード
  */
 export function usePutUsersMeAvatar(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.users.me.avatar.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.users.me.avatar.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.users.me.avatar.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.users.me.avatar.$put>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users.me.avatar.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.users.me.avatar.$put>) =>
+        parseResponse(client.users.me.avatar.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -455,23 +330,11 @@ export function usePutUsersMeAvatar(
  * アバター画像削除
  */
 export function useDeleteUsersMeAvatar(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.users.me.avatar.$delete> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.users.me.avatar.$delete> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () =>
         parseResponse(client.users.me.avatar.$delete(undefined, options?.client)),
     },

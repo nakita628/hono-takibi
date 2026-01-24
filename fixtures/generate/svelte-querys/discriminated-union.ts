@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, QueryClient } from '@tanstack/svelte-query'
 import { createMutation } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { QueryClient, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/discriminated-union'
 
@@ -8,24 +8,13 @@ import { client } from '../clients/discriminated-union'
  * POST /messages
  */
 export function createPostMessages(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.messages.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.messages.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.messages.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.messages.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.messages.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.messages.$post>) =>
+        parseResponse(client.messages.$post(args, options?.client)),
     },
     queryClient,
   )

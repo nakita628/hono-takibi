@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -82,24 +82,12 @@ export function getGetResourcesIdQueryKey(
  * PUT /resources/{id}
  */
 export function createPutResourcesId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.resources)[':id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.resources)[':id']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
         parseResponse(client.resources[':id'].$put(args, options?.client)),
     },
     queryClient,

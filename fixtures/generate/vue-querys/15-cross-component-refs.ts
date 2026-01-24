@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -28,11 +28,10 @@ export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.enti
  * POST /entities
  */
 export function usePostEntities(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.entities.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.entities.$post>
-  >({ mutationFn: async (args) => parseResponse(client.entities.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.entities.$post>) =>
+      parseResponse(client.entities.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -62,12 +61,8 @@ export function getGetEntitiesEntityIdQueryKey(
  * PUT /entities/{entityId}
  */
 export function usePutEntitiesEntityId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.entities)[':entityId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.entities)[':entityId']['$put']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$put']>) =>
       parseResponse(client.entities[':entityId'].$put(args, clientOptions)),
   })
 }
@@ -76,12 +71,8 @@ export function usePutEntitiesEntityId(clientOptions?: ClientRequestOptions) {
  * DELETE /entities/{entityId}
  */
 export function useDeleteEntitiesEntityId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.entities)[':entityId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.entities)[':entityId']['$delete']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$delete']>) =>
       parseResponse(client.entities[':entityId'].$delete(args, clientOptions)),
   })
 }
@@ -114,13 +105,10 @@ export function getGetEntitiesEntityIdRelationshipsQueryKey(
  * POST /entities/{entityId}/relationships
  */
 export function usePostEntitiesEntityIdRelationships(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.entities)[':entityId']['relationships']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.entities[':entityId'].relationships.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
+    ) => parseResponse(client.entities[':entityId'].relationships.$post(args, clientOptions)),
   })
 }
 
@@ -128,9 +116,8 @@ export function usePostEntitiesEntityIdRelationships(clientOptions?: ClientReque
  * POST /batch
  */
 export function usePostBatch(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.batch.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.batch.$post>
-  >({ mutationFn: async (args) => parseResponse(client.batch.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.batch.$post>) =>
+      parseResponse(client.batch.$post(args, clientOptions)),
+  })
 }

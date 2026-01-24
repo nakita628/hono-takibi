@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
@@ -44,25 +44,14 @@ export function getGetExtremeResponsesQueryKey() {
  * POST /multipart-variations
  */
 export function createPostMultipartVariations(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['multipart-variations']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['multipart-variations']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['multipart-variations']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['multipart-variations']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['multipart-variations'].$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['multipart-variations']['$post']>,
+      ) => parseResponse(client['multipart-variations'].$post(args, options?.client)),
     },
     queryClient,
   )
@@ -72,24 +61,12 @@ export function createPostMultipartVariations(
  * POST /charset-variations
  */
 export function createPostCharsetVariations(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['charset-variations']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['charset-variations']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['charset-variations']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['charset-variations']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client)['charset-variations']['$post']>) =>
         parseResponse(client['charset-variations'].$post(args, options?.client)),
     },
     queryClient,

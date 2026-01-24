@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
@@ -25,11 +25,10 @@ export function getGetTreesQueryKey() {
  * POST /trees
  */
 export function usePostTrees(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.trees.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.trees.$post>
-  >({ mutationFn: async (args) => parseResponse(client.trees.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.trees.$post>) =>
+      parseResponse(client.trees.$post(args, clientOptions)),
+  })
 }
 
 /**

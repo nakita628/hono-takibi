@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
@@ -48,24 +48,13 @@ export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['ap
  * APIキー作成
  */
 export function createPostApiKeys(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['api-keys']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['api-keys']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['api-keys']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client['api-keys'].$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['$post']>) =>
+        parseResponse(client['api-keys'].$post(args, options?.client)),
     },
     queryClient,
   )
@@ -117,25 +106,14 @@ export function getGetApiKeysKeyIdQueryKey(
  * APIキー削除
  */
 export function createDeleteApiKeysKeyId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['api-keys'][':keyId'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
+      ) => parseResponse(client['api-keys'][':keyId'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -147,24 +125,12 @@ export function createDeleteApiKeysKeyId(
  * APIキー更新
  */
 export function createPatchApiKeysKeyId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>) =>
         parseResponse(client['api-keys'][':keyId'].$patch(args, options?.client)),
     },
     queryClient,
@@ -177,25 +143,14 @@ export function createPatchApiKeysKeyId(
  * APIキー無効化
  */
 export function createPostApiKeysKeyIdRevoke(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['api-keys'][':keyId'].revoke.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+      ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -207,25 +162,14 @@ export function createPostApiKeysKeyIdRevoke(
  * APIキーローテーション
  */
 export function createPostApiKeysKeyIdRotate(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['api-keys'][':keyId'].rotate.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+      ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -325,24 +269,12 @@ export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
  * APIキー検証
  */
 export function createPostApiKeysVerify(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['api-keys']['verify']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['api-keys']['verify']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['api-keys']['verify']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['api-keys']['verify']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) =>
         parseResponse(client['api-keys'].verify.$post(args, options?.client)),
     },
     queryClient,

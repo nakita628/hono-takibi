@@ -1,0 +1,18 @@
+{
+  "name": "nakita628-sveltekit-todo",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite dev --host"
+  },
+  "devDependencies": {
+    "@sveltejs/kit": "^2.50.1",
+    "svelte": "^5.48.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "tailwindcss": "^4.1.18"
+  }
+}

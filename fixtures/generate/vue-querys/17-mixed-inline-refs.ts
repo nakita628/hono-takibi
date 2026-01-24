@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/17-mixed-inline-refs'
 
@@ -28,11 +28,10 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  * POST /users
  */
 export function usePostUsers(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >({ mutationFn: async (args) => parseResponse(client.users.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+      parseResponse(client.users.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -62,11 +61,10 @@ export function getGetUsersUserIdQueryKey(
  * POST /orders
  */
 export function usePostOrders(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.orders.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.orders.$post>
-  >({ mutationFn: async (args) => parseResponse(client.orders.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+      parseResponse(client.orders.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -97,12 +95,9 @@ export function getGetProductsProductIdVariantsQueryKey(
  * POST /reports/generate
  */
 export function usePostReportsGenerate(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.reports.generate.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.reports.generate.$post>
-  >({
-    mutationFn: async (args) => parseResponse(client.reports.generate.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.reports.generate.$post>) =>
+      parseResponse(client.reports.generate.$post(args, clientOptions)),
   })
 }
 
@@ -110,9 +105,8 @@ export function usePostReportsGenerate(clientOptions?: ClientRequestOptions) {
  * POST /webhooks/test
  */
 export function usePostWebhooksTest(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.webhooks.test.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webhooks.test.$post>
-  >({ mutationFn: async (args) => parseResponse(client.webhooks.test.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.webhooks.test.$post>) =>
+      parseResponse(client.webhooks.test.$post(args, clientOptions)),
+  })
 }

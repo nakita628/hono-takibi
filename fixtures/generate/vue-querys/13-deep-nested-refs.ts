@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
@@ -42,17 +42,12 @@ export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQuery
 export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
   clientOptions?: ClientRequestOptions,
 ) {
-  return useMutation<
-    | InferResponseType<
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
         (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-    >
-  >({
-    mutationFn: async (args) =>
+      >,
+    ) =>
       parseResponse(
         client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$post(
           args,

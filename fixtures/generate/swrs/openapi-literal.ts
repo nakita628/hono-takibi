@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-literal'
 
 /**
@@ -12,21 +12,20 @@ import { client } from '../clients/openapi-literal'
  * zod primitive
  */
 export function useGetPrimitive(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.primitive.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPrimitiveKey() : null)
-  const query = useSWR<InferResponseType<typeof client.primitive.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.primitive.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.primitive.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**

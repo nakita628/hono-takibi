@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
@@ -25,12 +25,8 @@ export function getGetExtremeResponsesQueryKey() {
  * POST /multipart-variations
  */
 export function usePostMultipartVariations(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['multipart-variations']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['multipart-variations']['$post']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['multipart-variations']['$post']>) =>
       parseResponse(client['multipart-variations'].$post(args, clientOptions)),
   })
 }
@@ -39,12 +35,8 @@ export function usePostMultipartVariations(clientOptions?: ClientRequestOptions)
  * POST /charset-variations
  */
 export function usePostCharsetVariations(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['charset-variations']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['charset-variations']['$post']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['charset-variations']['$post']>) =>
       parseResponse(client['charset-variations'].$post(args, clientOptions)),
   })
 }

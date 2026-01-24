@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
@@ -84,24 +84,13 @@ export function getGetMfaMethodsQueryKey() {
  * 優先MFA方式設定
  */
 export function usePutMfaPreferred(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.preferred.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.preferred.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.preferred.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.preferred.$put>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.mfa.preferred.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.mfa.preferred.$put>) =>
+        parseResponse(client.mfa.preferred.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -115,24 +104,13 @@ export function usePutMfaPreferred(
  * TOTP認証の設定を開始し、QRコードとシークレットを取得します
  */
 export function usePostMfaTotpSetup(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.totp.setup.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.totp.setup.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.totp.setup.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.totp.setup.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.mfa.totp.setup.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.mfa.totp.setup.$post>) =>
+        parseResponse(client.mfa.totp.setup.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -146,24 +124,12 @@ export function usePostMfaTotpSetup(
  * TOTPコードを検証して設定を完了します
  */
 export function usePostMfaTotpVerify(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.totp.verify.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.totp.verify.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.totp.verify.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.totp.verify.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.mfa.totp.verify.$post>) =>
         parseResponse(client.mfa.totp.verify.$post(args, options?.client)),
     },
     queryClient,
@@ -176,24 +142,13 @@ export function usePostMfaTotpVerify(
  * TOTP無効化
  */
 export function useDeleteMfaTotp(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.totp.$delete> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.totp.$delete>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.totp.$delete> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.totp.$delete>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.mfa.totp.$delete(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.mfa.totp.$delete>) =>
+        parseResponse(client.mfa.totp.$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -207,24 +162,13 @@ export function useDeleteMfaTotp(
  * 電話番号を登録し、確認コードを送信します
  */
 export function usePostMfaSmsSetup(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.sms.setup.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.sms.setup.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.sms.setup.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.sms.setup.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.mfa.sms.setup.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.mfa.sms.setup.$post>) =>
+        parseResponse(client.mfa.sms.setup.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -236,24 +180,13 @@ export function usePostMfaSmsSetup(
  * SMS認証設定確認
  */
 export function usePostMfaSmsVerify(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.sms.verify.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.sms.verify.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.sms.verify.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.sms.verify.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.mfa.sms.verify.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.mfa.sms.verify.$post>) =>
+        parseResponse(client.mfa.sms.verify.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -265,24 +198,12 @@ export function usePostMfaSmsVerify(
  * SMS認証削除
  */
 export function useDeleteMfaSmsMethodId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.mfa.sms)[':methodId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.mfa.sms)[':methodId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>) =>
         parseResponse(client.mfa.sms[':methodId'].$delete(args, options?.client)),
     },
     queryClient,
@@ -295,24 +216,12 @@ export function useDeleteMfaSmsMethodId(
  * メール認証設定開始
  */
 export function usePostMfaEmailSetup(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.email.setup.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.email.setup.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.email.setup.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.email.setup.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.mfa.email.setup.$post>) =>
         parseResponse(client.mfa.email.setup.$post(args, options?.client)),
     },
     queryClient,
@@ -325,24 +234,12 @@ export function usePostMfaEmailSetup(
  * メール認証設定確認
  */
 export function usePostMfaEmailVerify(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.email.verify.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.email.verify.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.email.verify.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.email.verify.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.mfa.email.verify.$post>) =>
         parseResponse(client.mfa.email.verify.$post(args, options?.client)),
     },
     queryClient,
@@ -357,25 +254,14 @@ export function usePostMfaEmailVerify(
  * WebAuthn認証器登録のためのオプションを取得します
  */
 export function usePostMfaWebauthnRegisterOptions(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.webauthn.register.options.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.webauthn.register.options.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.webauthn.register.options.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.webauthn.register.options.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.mfa.webauthn.register.options.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<typeof client.mfa.webauthn.register.options.$post>,
+      ) => parseResponse(client.mfa.webauthn.register.options.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -387,25 +273,14 @@ export function usePostMfaWebauthnRegisterOptions(
  * WebAuthn登録検証
  */
 export function usePostMfaWebauthnRegisterVerify(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.webauthn.register.verify.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.webauthn.register.verify.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.webauthn.register.verify.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.webauthn.register.verify.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.mfa.webauthn.register.verify.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<typeof client.mfa.webauthn.register.verify.$post>,
+      ) => parseResponse(client.mfa.webauthn.register.verify.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -455,26 +330,16 @@ export function getGetMfaWebauthnCredentialsQueryKey() {
  * WebAuthn認証器削除
  */
 export function useDeleteMfaWebauthnCredentialsCredentialId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.mfa.webauthn.credentials[':credentialId'].$delete(args, options?.client),
         ),
@@ -489,26 +354,14 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(
  * WebAuthn認証器更新
  */
 export function usePatchMfaWebauthnCredentialsCredentialId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>,
+      ) =>
         parseResponse(
           client.mfa.webauthn.credentials[':credentialId'].$patch(args, options?.client),
         ),
@@ -525,25 +378,14 @@ export function usePatchMfaWebauthnCredentialsCredentialId(
  * 新しいバックアップコードを生成します（既存のコードは無効化されます）
  */
 export function usePostMfaBackupCodesGenerate(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.mfa)['backup-codes']['generate']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.mfa)['backup-codes']['generate']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.mfa['backup-codes'].generate.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
+      ) => parseResponse(client.mfa['backup-codes'].generate.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -595,24 +437,13 @@ export function getGetMfaBackupCodesStatusQueryKey() {
  * ログイン時などにMFA認証チャレンジを作成します
  */
 export function usePostMfaChallenge(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.challenge.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.challenge.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.challenge.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.challenge.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.mfa.challenge.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.mfa.challenge.$post>) =>
+        parseResponse(client.mfa.challenge.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -626,24 +457,12 @@ export function usePostMfaChallenge(
  * SMSまたはメールでMFAコードを送信します
  */
 export function usePostMfaChallengeSend(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.challenge.send.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.challenge.send.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.challenge.send.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.challenge.send.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.mfa.challenge.send.$post>) =>
         parseResponse(client.mfa.challenge.send.$post(args, options?.client)),
     },
     queryClient,
@@ -658,24 +477,13 @@ export function usePostMfaChallengeSend(
  * MFAコードを検証し、認証を完了します
  */
 export function usePostMfaVerify(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.verify.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.verify.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.verify.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.verify.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.mfa.verify.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.mfa.verify.$post>) =>
+        parseResponse(client.mfa.verify.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -687,25 +495,14 @@ export function usePostMfaVerify(
  * WebAuthn認証オプション取得
  */
 export function usePostMfaWebauthnAuthenticateOptions(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.webauthn.authenticate.options.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.webauthn.authenticate.options.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.mfa.webauthn.authenticate.options.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>,
+      ) => parseResponse(client.mfa.webauthn.authenticate.options.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -719,24 +516,13 @@ export function usePostMfaWebauthnAuthenticateOptions(
  * MFA認証器にアクセスできない場合のリカバリーを開始します
  */
 export function usePostMfaRecovery(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.recovery.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.recovery.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.recovery.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.recovery.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.mfa.recovery.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.mfa.recovery.$post>) =>
+        parseResponse(client.mfa.recovery.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -748,24 +534,12 @@ export function usePostMfaRecovery(
  * MFAリカバリー検証
  */
 export function usePostMfaRecoveryVerify(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.mfa.recovery.verify.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.mfa.recovery.verify.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.mfa.recovery.verify.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.recovery.verify.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.mfa.recovery.verify.$post>) =>
         parseResponse(client.mfa.recovery.verify.$post(args, options?.client)),
     },
     queryClient,

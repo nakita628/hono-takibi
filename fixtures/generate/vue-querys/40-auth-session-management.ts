@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
@@ -36,11 +36,10 @@ export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sess
  * 認証成功後にセッションを作成
  */
 export function usePostSessions(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.sessions.$post>
-  >({ mutationFn: async (args) => parseResponse(client.sessions.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.sessions.$post>) =>
+      parseResponse(client.sessions.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -69,11 +68,7 @@ export function getGetSessionsCurrentQueryKey() {
  * 現在のセッション終了（ログアウト）
  */
 export function useDeleteSessionsCurrent(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.current.$delete> | undefined,
-    Error,
-    void
-  >({
+  return useMutation({
     mutationFn: async () =>
       parseResponse(client.sessions.current.$delete(undefined, clientOptions)),
   })
@@ -87,12 +82,8 @@ export function useDeleteSessionsCurrent(clientOptions?: ClientRequestOptions) {
  * リフレッシュトークンを使用してセッションを更新
  */
 export function usePostSessionsCurrentRefresh(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.current.refresh.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.sessions.current.refresh.$post>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.sessions.current.refresh.$post>) =>
       parseResponse(client.sessions.current.refresh.$post(args, clientOptions)),
   })
 }
@@ -105,12 +96,8 @@ export function usePostSessionsCurrentRefresh(clientOptions?: ClientRequestOptio
  * アクティブなセッションの有効期限を延長
  */
 export function usePostSessionsCurrentExtend(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.current.extend.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.sessions.current.extend.$post>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.sessions.current.extend.$post>) =>
       parseResponse(client.sessions.current.extend.$post(args, clientOptions)),
   })
 }
@@ -123,11 +110,7 @@ export function usePostSessionsCurrentExtend(clientOptions?: ClientRequestOption
  * ユーザーアクティビティを記録してアイドルタイムアウトをリセット
  */
 export function usePostSessionsCurrentActivity(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.current.activity.$post> | undefined,
-    Error,
-    void
-  >({
+  return useMutation({
     mutationFn: async () =>
       parseResponse(client.sessions.current.activity.$post(undefined, clientOptions)),
   })
@@ -166,12 +149,8 @@ export function getGetSessionsSessionIdQueryKey(
  * 指定したセッションを強制的に終了
  */
 export function useDeleteSessionsSessionId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
       parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
   })
 }
@@ -184,12 +163,8 @@ export function useDeleteSessionsSessionId(clientOptions?: ClientRequestOptions)
  * 現在のセッション以外の全セッションを無効化
  */
 export function usePostSessionsRevokeAll(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.sessions)['revoke-all']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>) =>
       parseResponse(client.sessions['revoke-all'].$post(args, clientOptions)),
   })
 }
@@ -202,12 +177,9 @@ export function usePostSessionsRevokeAll(clientOptions?: ClientRequestOptions) {
  * セッショントークンの有効性を検証
  */
 export function usePostSessionsValidate(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.validate.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.sessions.validate.$post>
-  >({
-    mutationFn: async (args) => parseResponse(client.sessions.validate.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.sessions.validate.$post>) =>
+      parseResponse(client.sessions.validate.$post(args, clientOptions)),
   })
 }
 
@@ -290,12 +262,9 @@ export function getGetSessionsPoliciesQueryKey() {
  * セッションポリシー更新
  */
 export function usePutSessionsPolicies(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.sessions.policies.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.sessions.policies.$put>
-  >({
-    mutationFn: async (args) => parseResponse(client.sessions.policies.$put(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.sessions.policies.$put>) =>
+      parseResponse(client.sessions.policies.$put(args, clientOptions)),
   })
 }
 
@@ -326,13 +295,10 @@ export function getGetSessionsTrustedDevicesQueryKey() {
  * 現在のデバイスを信頼
  */
 export function usePostSessionsTrustedDevices(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.sessions)['trusted-devices']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.sessions['trusted-devices'].$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
+    ) => parseResponse(client.sessions['trusted-devices'].$post(args, clientOptions)),
   })
 }
 
@@ -342,13 +308,10 @@ export function usePostSessionsTrustedDevices(clientOptions?: ClientRequestOptio
  * 信頼済みデバイス削除
  */
 export function useDeleteSessionsTrustedDevicesDeviceId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    | InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>,
+    ) =>
       parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(args, clientOptions)),
   })
 }

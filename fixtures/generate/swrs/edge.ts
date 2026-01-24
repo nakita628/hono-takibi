@@ -1,9 +1,8 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
 /**
@@ -11,24 +10,11 @@ import { client } from '../clients/edge'
  *
  * Polymorphic object with discriminator
  */
-export function usePostPolymorphic(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.polymorphic.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.polymorphic.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.polymorphic.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.polymorphic.$post>
-  >(
+export function usePostPolymorphic(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /polymorphic',
-    async (_, { arg }) => parseResponse(client.polymorphic.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.polymorphic.$post> }) =>
+      parseResponse(client.polymorphic.$post(arg, options?.client)),
   )
 }
 
@@ -40,22 +26,21 @@ export function usePostPolymorphic(options?: {
 export function useGetSearch(
   args: InferRequestType<typeof client.search.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.search.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSearchKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.search.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.search.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.search.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -70,23 +55,10 @@ export function getGetSearchKey(args?: InferRequestType<typeof client.search.$ge
  *
  * Multi-step object definition using allOf
  */
-export function usePutMultiStep(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['multi-step']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['multi-step']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['multi-step']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['multi-step']['$put']>
-  >(
+export function usePutMultiStep(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /multi-step',
-    async (_, { arg }) => parseResponse(client['multi-step'].$put(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<(typeof client)['multi-step']['$put']> }) =>
+      parseResponse(client['multi-step'].$put(arg, options?.client)),
   )
 }

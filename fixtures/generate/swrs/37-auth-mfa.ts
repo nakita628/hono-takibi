@@ -1,9 +1,8 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
 /**
@@ -12,21 +11,20 @@ import { client } from '../clients/37-auth-mfa'
  * MFA設定状況取得
  */
 export function useGetMfaStatus(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.mfa.status.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaStatusKey() : null)
-  const query = useSWR<InferResponseType<typeof client.mfa.status.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.mfa.status.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.mfa.status.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -42,21 +40,20 @@ export function getGetMfaStatusKey() {
  * 登録済みMFA方式一覧
  */
 export function useGetMfaMethods(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.mfa.methods.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaMethodsKey() : null)
-  const query = useSWR<InferResponseType<typeof client.mfa.methods.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.mfa.methods.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.mfa.methods.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -71,24 +68,11 @@ export function getGetMfaMethodsKey() {
  *
  * 優先MFA方式設定
  */
-export function usePutMfaPreferred(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.preferred.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.preferred.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.preferred.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.preferred.$put>
-  >(
+export function usePutMfaPreferred(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /mfa/preferred',
-    async (_, { arg }) => parseResponse(client.mfa.preferred.$put(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.preferred.$put> }) =>
+      parseResponse(client.mfa.preferred.$put(arg, options?.client)),
   )
 }
 
@@ -99,24 +83,11 @@ export function usePutMfaPreferred(options?: {
  *
  * TOTP認証の設定を開始し、QRコードとシークレットを取得します
  */
-export function usePostMfaTotpSetup(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.totp.setup.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.totp.setup.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.totp.setup.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.totp.setup.$post>
-  >(
+export function usePostMfaTotpSetup(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/totp/setup',
-    async (_, { arg }) => parseResponse(client.mfa.totp.setup.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.totp.setup.$post> }) =>
+      parseResponse(client.mfa.totp.setup.$post(arg, options?.client)),
   )
 }
 
@@ -127,24 +98,11 @@ export function usePostMfaTotpSetup(options?: {
  *
  * TOTPコードを検証して設定を完了します
  */
-export function usePostMfaTotpVerify(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.totp.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.totp.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.totp.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.totp.verify.$post>
-  >(
+export function usePostMfaTotpVerify(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/totp/verify',
-    async (_, { arg }) => parseResponse(client.mfa.totp.verify.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.totp.verify.$post> }) =>
+      parseResponse(client.mfa.totp.verify.$post(arg, options?.client)),
   )
 }
 
@@ -153,24 +111,11 @@ export function usePostMfaTotpVerify(options?: {
  *
  * TOTP無効化
  */
-export function useDeleteMfaTotp(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.totp.$delete>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.totp.$delete>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.totp.$delete>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.totp.$delete>
-  >(
+export function useDeleteMfaTotp(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /mfa/totp',
-    async (_, { arg }) => parseResponse(client.mfa.totp.$delete(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.totp.$delete> }) =>
+      parseResponse(client.mfa.totp.$delete(arg, options?.client)),
   )
 }
 
@@ -181,24 +126,11 @@ export function useDeleteMfaTotp(options?: {
  *
  * 電話番号を登録し、確認コードを送信します
  */
-export function usePostMfaSmsSetup(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.sms.setup.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.sms.setup.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.sms.setup.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.sms.setup.$post>
-  >(
+export function usePostMfaSmsSetup(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/sms/setup',
-    async (_, { arg }) => parseResponse(client.mfa.sms.setup.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.sms.setup.$post> }) =>
+      parseResponse(client.mfa.sms.setup.$post(arg, options?.client)),
   )
 }
 
@@ -207,24 +139,11 @@ export function usePostMfaSmsSetup(options?: {
  *
  * SMS認証設定確認
  */
-export function usePostMfaSmsVerify(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.sms.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.sms.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.sms.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.sms.verify.$post>
-  >(
+export function usePostMfaSmsVerify(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/sms/verify',
-    async (_, { arg }) => parseResponse(client.mfa.sms.verify.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.sms.verify.$post> }) =>
+      parseResponse(client.mfa.sms.verify.$post(arg, options?.client)),
   )
 }
 
@@ -233,24 +152,13 @@ export function usePostMfaSmsVerify(options?: {
  *
  * SMS認証削除
  */
-export function useDeleteMfaSmsMethodId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.mfa.sms)[':methodId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.mfa.sms)[':methodId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>
-  >(
+export function useDeleteMfaSmsMethodId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /mfa/sms/:methodId',
-    async (_, { arg }) => parseResponse(client.mfa.sms[':methodId'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']> },
+    ) => parseResponse(client.mfa.sms[':methodId'].$delete(arg, options?.client)),
   )
 }
 
@@ -259,24 +167,11 @@ export function useDeleteMfaSmsMethodId(options?: {
  *
  * メール認証設定開始
  */
-export function usePostMfaEmailSetup(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.email.setup.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.email.setup.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.email.setup.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.email.setup.$post>
-  >(
+export function usePostMfaEmailSetup(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/email/setup',
-    async (_, { arg }) => parseResponse(client.mfa.email.setup.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.email.setup.$post> }) =>
+      parseResponse(client.mfa.email.setup.$post(arg, options?.client)),
   )
 }
 
@@ -285,24 +180,11 @@ export function usePostMfaEmailSetup(options?: {
  *
  * メール認証設定確認
  */
-export function usePostMfaEmailVerify(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.email.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.email.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.email.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.email.verify.$post>
-  >(
+export function usePostMfaEmailVerify(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/email/verify',
-    async (_, { arg }) => parseResponse(client.mfa.email.verify.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.email.verify.$post> }) =>
+      parseResponse(client.mfa.email.verify.$post(arg, options?.client)),
   )
 }
 
@@ -313,25 +195,13 @@ export function usePostMfaEmailVerify(options?: {
  *
  * WebAuthn認証器登録のためのオプションを取得します
  */
-export function usePostMfaWebauthnRegisterOptions(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.webauthn.register.options.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.webauthn.register.options.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.webauthn.register.options.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.webauthn.register.options.$post>
-  >(
+export function usePostMfaWebauthnRegisterOptions(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/webauthn/register/options',
-    async (_, { arg }) =>
-      parseResponse(client.mfa.webauthn.register.options.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<typeof client.mfa.webauthn.register.options.$post> },
+    ) => parseResponse(client.mfa.webauthn.register.options.$post(arg, options?.client)),
   )
 }
 
@@ -340,25 +210,13 @@ export function usePostMfaWebauthnRegisterOptions(options?: {
  *
  * WebAuthn登録検証
  */
-export function usePostMfaWebauthnRegisterVerify(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.webauthn.register.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.webauthn.register.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.webauthn.register.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.webauthn.register.verify.$post>
-  >(
+export function usePostMfaWebauthnRegisterVerify(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/webauthn/register/verify',
-    async (_, { arg }) =>
-      parseResponse(client.mfa.webauthn.register.verify.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<typeof client.mfa.webauthn.register.verify.$post> },
+    ) => parseResponse(client.mfa.webauthn.register.verify.$post(arg, options?.client)),
   )
 }
 
@@ -368,21 +226,20 @@ export function usePostMfaWebauthnRegisterVerify(options?: {
  * WebAuthn認証器一覧
  */
 export function useGetMfaWebauthnCredentials(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.mfa.webauthn.credentials.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaWebauthnCredentialsKey() : null)
-  const query = useSWR<InferResponseType<typeof client.mfa.webauthn.credentials.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.mfa.webauthn.credentials.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.mfa.webauthn.credentials.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -398,24 +255,19 @@ export function getGetMfaWebauthnCredentialsKey() {
  * WebAuthn認証器削除
  */
 export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
-  >
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
-  >(
+  return useSWRMutation(
     'DELETE /mfa/webauthn/credentials/:credentialId',
-    async (_, { arg }) =>
+    async (
+      _: string,
+      {
+        arg,
+      }: {
+        arg: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
+      },
+    ) =>
       parseResponse(client.mfa.webauthn.credentials[':credentialId'].$delete(arg, options?.client)),
-    options?.swr,
   )
 }
 
@@ -425,24 +277,19 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
  * WebAuthn認証器更新
  */
 export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
-  >
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
-  >(
+  return useSWRMutation(
     'PATCH /mfa/webauthn/credentials/:credentialId',
-    async (_, { arg }) =>
+    async (
+      _: string,
+      {
+        arg,
+      }: {
+        arg: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
+      },
+    ) =>
       parseResponse(client.mfa.webauthn.credentials[':credentialId'].$patch(arg, options?.client)),
-    options?.swr,
   )
 }
 
@@ -453,25 +300,13 @@ export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
  *
  * 新しいバックアップコードを生成します（既存のコードは無効化されます）
  */
-export function usePostMfaBackupCodesGenerate(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>
-  >(
+export function usePostMfaBackupCodesGenerate(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/backup-codes/generate',
-    async (_, { arg }) =>
-      parseResponse(client.mfa['backup-codes'].generate.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']> },
+    ) => parseResponse(client.mfa['backup-codes'].generate.$post(arg, options?.client)),
   )
 }
 
@@ -481,24 +316,20 @@ export function usePostMfaBackupCodesGenerate(options?: {
  * バックアップコード状況取得
  */
 export function useGetMfaBackupCodesStatus(options?: {
-  swr?: SWRConfiguration<
-    InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>,
-    Error
-  > & { swrKey?: Key; enabled?: boolean }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaBackupCodesStatusKey() : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () => parseResponse(client.mfa['backup-codes'].status.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.mfa['backup-codes'].status.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -515,24 +346,11 @@ export function getGetMfaBackupCodesStatusKey() {
  *
  * ログイン時などにMFA認証チャレンジを作成します
  */
-export function usePostMfaChallenge(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.challenge.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.challenge.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.challenge.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.challenge.$post>
-  >(
+export function usePostMfaChallenge(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/challenge',
-    async (_, { arg }) => parseResponse(client.mfa.challenge.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.challenge.$post> }) =>
+      parseResponse(client.mfa.challenge.$post(arg, options?.client)),
   )
 }
 
@@ -543,24 +361,11 @@ export function usePostMfaChallenge(options?: {
  *
  * SMSまたはメールでMFAコードを送信します
  */
-export function usePostMfaChallengeSend(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.challenge.send.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.challenge.send.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.challenge.send.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.challenge.send.$post>
-  >(
+export function usePostMfaChallengeSend(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/challenge/send',
-    async (_, { arg }) => parseResponse(client.mfa.challenge.send.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.challenge.send.$post> }) =>
+      parseResponse(client.mfa.challenge.send.$post(arg, options?.client)),
   )
 }
 
@@ -571,24 +376,11 @@ export function usePostMfaChallengeSend(options?: {
  *
  * MFAコードを検証し、認証を完了します
  */
-export function usePostMfaVerify(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.verify.$post>
-  >(
+export function usePostMfaVerify(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/verify',
-    async (_, { arg }) => parseResponse(client.mfa.verify.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.verify.$post> }) =>
+      parseResponse(client.mfa.verify.$post(arg, options?.client)),
   )
 }
 
@@ -597,25 +389,13 @@ export function usePostMfaVerify(options?: {
  *
  * WebAuthn認証オプション取得
  */
-export function usePostMfaWebauthnAuthenticateOptions(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.webauthn.authenticate.options.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.webauthn.authenticate.options.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>
-  >(
+export function usePostMfaWebauthnAuthenticateOptions(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/webauthn/authenticate/options',
-    async (_, { arg }) =>
-      parseResponse(client.mfa.webauthn.authenticate.options.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post> },
+    ) => parseResponse(client.mfa.webauthn.authenticate.options.$post(arg, options?.client)),
   )
 }
 
@@ -626,24 +406,11 @@ export function usePostMfaWebauthnAuthenticateOptions(options?: {
  *
  * MFA認証器にアクセスできない場合のリカバリーを開始します
  */
-export function usePostMfaRecovery(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.recovery.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.recovery.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.recovery.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.recovery.$post>
-  >(
+export function usePostMfaRecovery(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/recovery',
-    async (_, { arg }) => parseResponse(client.mfa.recovery.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.recovery.$post> }) =>
+      parseResponse(client.mfa.recovery.$post(arg, options?.client)),
   )
 }
 
@@ -652,23 +419,12 @@ export function usePostMfaRecovery(options?: {
  *
  * MFAリカバリー検証
  */
-export function usePostMfaRecoveryVerify(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mfa.recovery.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.recovery.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mfa.recovery.verify.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mfa.recovery.verify.$post>
-  >(
+export function usePostMfaRecoveryVerify(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mfa/recovery/verify',
-    async (_, { arg }) => parseResponse(client.mfa.recovery.verify.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<typeof client.mfa.recovery.verify.$post> },
+    ) => parseResponse(client.mfa.recovery.verify.$post(arg, options?.client)),
   )
 }

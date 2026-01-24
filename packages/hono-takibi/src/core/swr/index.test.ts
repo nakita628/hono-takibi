@@ -52,8 +52,7 @@ describe('swr', () => {
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -65,21 +64,20 @@ import { client } from '../client'
  * Simple ping for Hono
  */
 export function useGetHono(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.hono.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetHonoKey() : null)
-  const query = useSWR<InferResponseType<typeof client.hono.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.hono.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -99,22 +97,21 @@ export function getGetHonoKey() {
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.users.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.users.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.users.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -131,24 +128,11 @@ export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>
  *
  * Create a new user.
  */
-export function usePostUsers(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.users.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.$post>
-  >(
+export function usePostUsers(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /users',
-    async (_, { arg }) => parseResponse(client.users.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
+      parseResponse(client.users.$post(arg, options?.client)),
   )
 }
 `
@@ -187,7 +171,7 @@ export * from './usePostUsers'
       const useGetHono = fs.readFileSync(path.join(dir, 'swr', 'useGetHono.ts'), 'utf-8')
       const useGetHonoExpected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -199,21 +183,20 @@ import { client } from '../client'
  * Simple ping for Hono
  */
 export function useGetHono(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.hono.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetHonoKey() : null)
-  const query = useSWR<InferResponseType<typeof client.hono.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.hono.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -229,7 +212,7 @@ export function getGetHonoKey() {
       const useGetUsers = fs.readFileSync(path.join(dir, 'swr', 'useGetUsers.ts'), 'utf-8')
       const useGetUsersExpected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -243,22 +226,21 @@ import { client } from '../client'
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.users.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.users.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.users.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -273,8 +255,7 @@ export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>
       // Check POST hook file (mutation)
       const usePostUsers = fs.readFileSync(path.join(dir, 'swr', 'usePostUsers.ts'), 'utf-8')
       const usePostUsersExpected = `import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -285,24 +266,11 @@ import { client } from '../client'
  *
  * Create a new user.
  */
-export function usePostUsers(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.users.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.$post>
-  >(
+export function usePostUsers(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /users',
-    async (_, { arg }) => parseResponse(client.users.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
+      parseResponse(client.users.$post(arg, options?.client)),
   )
 }
 `
@@ -345,7 +313,7 @@ describe('swr (custom client name)', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
@@ -355,21 +323,20 @@ import { authClient } from '../api'
  * Get users
  */
 export function useGetUsers(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof authClient.users.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersKey() : null)
-  const query = useSWR<InferResponseType<typeof authClient.users.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(authClient.users.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(authClient.users.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -419,8 +386,7 @@ describe('swr (no args operations)', () => {
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -430,21 +396,20 @@ import { client } from '../client'
  * Ping
  */
 export function useGetPing(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.ping.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPingKey() : null)
-  const query = useSWR<InferResponseType<typeof client.ping.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.ping.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.ping.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -459,14 +424,9 @@ export function getGetPingKey() {
  *
  * Post ping
  */
-export function usePostPing(options?: {
-  swr?: SWRMutationConfiguration<InferResponseType<typeof client.ping.$post>, Error, string, void>
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<InferResponseType<typeof client.ping.$post>, Error, string, void>(
-    'POST /ping',
-    async () => parseResponse(client.ping.$post(undefined, options?.client)),
-    options?.swr,
+export function usePostPing(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation('POST /ping', async () =>
+    parseResponse(client.ping.$post(undefined, options?.client)),
   )
 }
 `
@@ -504,7 +464,7 @@ describe('swr (path with special characters)', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -514,21 +474,20 @@ import { client } from '../client'
  * HonoX
  */
 export function useGetHonoX(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['hono-x']['$get']>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetHonoXKey() : null)
-  const query = useSWR<InferResponseType<(typeof client)['hono-x']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -579,8 +538,7 @@ describe('swr (path parameters)', () => {
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -592,22 +550,21 @@ import { client } from '../client'
 export function useGetUsersId(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.users)[':id']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.users)[':id']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.users[':id'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users[':id'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -622,24 +579,13 @@ export function getGetUsersIdKey(args?: InferRequestType<(typeof client.users)['
  *
  * Delete user
  */
-export function useDeleteUsersId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':id']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.users)[':id']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.users)[':id']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.users)[':id']['$delete']>
-  >(
+export function useDeleteUsersId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /users/:id',
-    async (_, { arg }) => parseResponse(client.users[':id'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.users)[':id']['$delete']> },
+    ) => parseResponse(client.users[':id'].$delete(arg, options?.client)),
   )
 }
 `

@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
@@ -82,24 +82,12 @@ export function getGetItemsItemIdQueryKey(
  * DELETE /items/{itemId}
  */
 export function useDeleteItemsItemId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.items)[':itemId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.items)[':itemId']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) =>
         parseResponse(client.items[':itemId'].$delete(args, options?.client)),
     },
     queryClient,

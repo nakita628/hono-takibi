@@ -1,125 +1,59 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/10-complex-schemas'
 
 /**
  * POST /events
  */
-export function usePostEvents(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.events.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.events.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.events.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.events.$post>
-  >(
+export function usePostEvents(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /events',
-    async (_, { arg }) => parseResponse(client.events.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.events.$post> }) =>
+      parseResponse(client.events.$post(arg, options?.client)),
   )
 }
 
 /**
  * POST /notifications
  */
-export function usePostNotifications(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.notifications.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.notifications.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.notifications.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.notifications.$post>
-  >(
+export function usePostNotifications(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /notifications',
-    async (_, { arg }) => parseResponse(client.notifications.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.notifications.$post> }) =>
+      parseResponse(client.notifications.$post(arg, options?.client)),
   )
 }
 
 /**
  * POST /shapes
  */
-export function usePostShapes(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.shapes.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.shapes.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.shapes.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.shapes.$post>
-  >(
+export function usePostShapes(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /shapes',
-    async (_, { arg }) => parseResponse(client.shapes.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.shapes.$post> }) =>
+      parseResponse(client.shapes.$post(arg, options?.client)),
   )
 }
 
 /**
  * POST /documents
  */
-export function usePostDocuments(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.documents.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.documents.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.documents.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.documents.$post>
-  >(
+export function usePostDocuments(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /documents',
-    async (_, { arg }) => parseResponse(client.documents.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.documents.$post> }) =>
+      parseResponse(client.documents.$post(arg, options?.client)),
   )
 }
 
 /**
  * POST /mixed
  */
-export function usePostMixed(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.mixed.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mixed.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.mixed.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.mixed.$post>
-  >(
+export function usePostMixed(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /mixed',
-    async (_, { arg }) => parseResponse(client.mixed.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.mixed.$post> }) =>
+      parseResponse(client.mixed.$post(arg, options?.client)),
   )
 }

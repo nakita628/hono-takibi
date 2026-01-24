@@ -1,30 +1,28 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
 /**
  * GET /users
  */
 export function useGetUsers(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.users.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersKey() : null)
-  const query = useSWR<InferResponseType<typeof client.users.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.users.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -37,24 +35,11 @@ export function getGetUsersKey() {
 /**
  * POST /users
  */
-export function usePostUsers(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.users.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.$post>
-  >(
+export function usePostUsers(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /users',
-    async (_, { arg }) => parseResponse(client.users.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
+      parseResponse(client.users.$post(arg, options?.client)),
   )
 }
 
@@ -64,22 +49,21 @@ export function usePostUsers(options?: {
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.users)[':userId']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**

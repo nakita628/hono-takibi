@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -44,24 +44,13 @@ export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.doc
  * POST /documents
  */
 export function createPostDocuments(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.documents.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.documents.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.documents.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.documents.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.documents.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.documents.$post>) =>
+        parseResponse(client.documents.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -112,25 +101,14 @@ export function getGetDocumentsDocumentIdQueryKey(
  * PUT /documents/{documentId}
  */
 export function createPutDocumentsDocumentId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.documents)[':documentId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.documents)[':documentId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.documents)[':documentId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.documents)[':documentId']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.documents[':documentId'].$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.documents)[':documentId']['$put']>,
+      ) => parseResponse(client.documents[':documentId'].$put(args, options?.client)),
     },
     queryClient,
   )
@@ -182,25 +160,14 @@ export function getGetDocumentsDocumentIdVersionsQueryKey(
  * POST /documents/{documentId}/share
  */
 export function createPostDocumentsDocumentIdShare(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.documents)[':documentId']['share']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.documents)[':documentId']['share']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.documents[':documentId'].share.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>,
+      ) => parseResponse(client.documents[':documentId'].share.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -252,24 +219,13 @@ export function getGetUsersUserIdDocumentsQueryKey(
  * POST /compare
  */
 export function createPostCompare(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.compare.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.compare.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.compare.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.compare.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.compare.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.compare.$post>) =>
+        parseResponse(client.compare.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -314,24 +270,13 @@ export function getGetTemplatesQueryKey() {
  * POST /templates
  */
 export function createPostTemplates(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.templates.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.templates.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.templates.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.templates.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.templates.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.templates.$post>) =>
+        parseResponse(client.templates.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -341,24 +286,13 @@ export function createPostTemplates(
  * POST /workflows
  */
 export function createPostWorkflows(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.workflows.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.workflows.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.workflows.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.workflows.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.workflows.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.workflows.$post>) =>
+        parseResponse(client.workflows.$post(args, options?.client)),
     },
     queryClient,
   )

@@ -1,30 +1,28 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
 /**
  * GET /extreme-responses
  */
 export function useGetExtremeResponses(options?: {
-  swr?: SWRConfiguration<InferResponseType<(typeof client)['extreme-responses']['$get']>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetExtremeResponsesKey() : null)
-  const query = useSWR<InferResponseType<(typeof client)['extreme-responses']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client['extreme-responses'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['extreme-responses'].$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -37,47 +35,25 @@ export function getGetExtremeResponsesKey() {
 /**
  * POST /multipart-variations
  */
-export function usePostMultipartVariations(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['multipart-variations']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['multipart-variations']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['multipart-variations']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['multipart-variations']['$post']>
-  >(
+export function usePostMultipartVariations(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /multipart-variations',
-    async (_, { arg }) => parseResponse(client['multipart-variations'].$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client)['multipart-variations']['$post']> },
+    ) => parseResponse(client['multipart-variations'].$post(arg, options?.client)),
   )
 }
 
 /**
  * POST /charset-variations
  */
-export function usePostCharsetVariations(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client)['charset-variations']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['charset-variations']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client)['charset-variations']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client)['charset-variations']['$post']>
-  >(
+export function usePostCharsetVariations(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /charset-variations',
-    async (_, { arg }) => parseResponse(client['charset-variations'].$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client)['charset-variations']['$post']> },
+    ) => parseResponse(client['charset-variations'].$post(arg, options?.client)),
   )
 }

@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
@@ -51,25 +51,11 @@ export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function usePutPath(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)[':path']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)[':path']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<(typeof client)[':path']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client)[':path']['$put']>
-  >(
+export function usePutPath(options?: { client?: ClientRequestOptions }, queryClient?: QueryClient) {
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client[':path'].$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client)[':path']['$put']>) =>
+        parseResponse(client[':path'].$put(args, options?.client)),
     },
     queryClient,
   )
@@ -83,24 +69,13 @@ export function usePutPath(
  * This method lets you send requests to the Algolia REST API.
  */
 export function usePostPath(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)[':path']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)[':path']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)[':path']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)[':path']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client[':path'].$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client)[':path']['$post']>) =>
+        parseResponse(client[':path'].$post(args, options?.client)),
     },
     queryClient,
   )
@@ -114,24 +89,13 @@ export function usePostPath(
  * This method lets you send requests to the Algolia REST API.
  */
 export function useDeletePath(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)[':path']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)[':path']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)[':path']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client)[':path']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client[':path'].$delete(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client)[':path']['$delete']>) =>
+        parseResponse(client[':path'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -148,26 +112,14 @@ export function useDeletePath(
  * If you need more, use the [`browse` operation](https://www.algolia.com/doc/rest-api/search/browse) or increase the `paginatedLimitedTo` index setting.
  */
 export function usePost1IndexesIndexNameQuery(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].query.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+      ) => parseResponse(client['1'].indexes[':indexName'].query.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -188,25 +140,14 @@ export function usePost1IndexesIndexNameQuery(
  * Use the helper `searchForHits` or `searchForFacets` to get the results in a more convenient format, if you already know the return type you want.
  */
 export function usePost1IndexesQueries(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes['*'].queries.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+      ) => parseResponse(client['1'].indexes['*'].queries.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -224,34 +165,16 @@ export function usePost1IndexesQueries(
  * - Searching for facet values doesn't work if you have **more than 65 searchable facets and searchable attributes combined**.
  */
 export function usePost1IndexesIndexNameFacetsFacetNameQuery(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+        >,
+      ) =>
         parseResponse(
           client['1'].indexes[':indexName'].facets[':facetName'].query.$post(args, options?.client),
         ),
@@ -292,26 +215,14 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(
  * If you send these parameters with your browse requests, they'll be ignored.
  */
 export function usePost1IndexesIndexNameBrowse(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].browse.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+      ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -335,25 +246,14 @@ export function usePost1IndexesIndexNameBrowse(
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function usePost1IndexesIndexName(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+      ) => parseResponse(client['1'].indexes[':indexName'].$post(args, options?.client)),
     },
     queryClient,
   )
@@ -373,25 +273,14 @@ export function usePost1IndexesIndexName(
  *   For more information, see [Delete replica indices](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/how-to/deleting-replicas).
  */
 export function useDelete1IndexesIndexName(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+      ) => parseResponse(client['1'].indexes[':indexName'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -458,26 +347,14 @@ export function getGet1IndexesIndexNameObjectIDQueryKey(
  * To add, update, or replace multiple records, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  */
 export function usePut1IndexesIndexNameObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
+      ) =>
         parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(args, options?.client)),
     },
     queryClient,
@@ -495,26 +372,16 @@ export function usePut1IndexesIndexNameObjectID(
  * To delete records matching a query, use the [`deleteBy` operation](https://www.algolia.com/doc/rest-api/search/delete-by).
  */
 export function useDelete1IndexesIndexNameObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['1'].indexes[':indexName'][':objectID'].$delete(args, options?.client),
         ),
@@ -538,26 +405,16 @@ export function useDelete1IndexesIndexNameObjectID(
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function usePost1IndexesIndexNameDeleteByQuery(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
+        >,
+      ) =>
         parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(args, options?.client)),
     },
     queryClient,
@@ -573,26 +430,14 @@ export function usePost1IndexesIndexNameDeleteByQuery(
  * This operation is resource-intensive and subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function usePost1IndexesIndexNameClear(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].clear.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+      ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -632,32 +477,16 @@ export function usePost1IndexesIndexNameClear(
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function usePost1IndexesIndexNameObjectIDPartial(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+        >,
+      ) =>
         parseResponse(
           client['1'].indexes[':indexName'][':objectID'].partial.$post(args, options?.client),
         ),
@@ -681,26 +510,14 @@ export function usePost1IndexesIndexNameObjectIDPartial(
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function usePost1IndexesIndexNameBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].batch.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+      ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -719,25 +536,14 @@ export function usePost1IndexesIndexNameBatch(
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function usePost1IndexesBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes['*'].batch.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+      ) => parseResponse(client['1'].indexes['*'].batch.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -753,25 +559,14 @@ export function usePost1IndexesBatch(
  * Records are returned in the same order as the requests.
  */
 export function usePost1IndexesObjects(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes['*'].objects.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+      ) => parseResponse(client['1'].indexes['*'].objects.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -836,27 +631,14 @@ export function getGet1IndexesIndexNameSettingsQueryKey(
  * For best performance, update the index settings before you add new records to your index.
  */
 export function usePut1IndexesIndexNameSettings(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].settings.$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
+      ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -932,32 +714,16 @@ export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
  * To add multiple synonyms in a single API request, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-synonyms).
  */
 export function usePut1IndexesIndexNameSynonymsObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+        >,
+      ) =>
         parseResponse(
           client['1'].indexes[':indexName'].synonyms[':objectID'].$put(args, options?.client),
         ),
@@ -975,34 +741,16 @@ export function usePut1IndexesIndexNameSynonymsObjectID(
  * To find the object IDs of your synonyms, use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-synonyms).
  */
 export function useDelete1IndexesIndexNameSynonymsObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(args, options?.client),
         ),
@@ -1022,28 +770,16 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function usePost1IndexesIndexNameSynonymsBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+        >,
+      ) =>
         parseResponse(
           client['1'].indexes[':indexName'].synonyms.batch.$post(args, options?.client),
         ),
@@ -1060,28 +796,16 @@ export function usePost1IndexesIndexNameSynonymsBatch(
  * Deletes all synonyms from the index.
  */
 export function usePost1IndexesIndexNameSynonymsClear(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+        >,
+      ) =>
         parseResponse(
           client['1'].indexes[':indexName'].synonyms.clear.$post(args, options?.client),
         ),
@@ -1098,30 +822,16 @@ export function usePost1IndexesIndexNameSynonymsClear(
  * Searches for synonyms in your index.
  */
 export function usePost1IndexesIndexNameSynonymsSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+        >,
+      ) =>
         parseResponse(
           client['1'].indexes[':indexName'].synonyms.search.$post(args, options?.client),
         ),
@@ -1177,24 +887,13 @@ export function getGet1KeysQueryKey() {
  * Creates a new API key with specific permissions and restrictions.
  */
 export function usePost1Keys(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['keys']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['keys']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client['1'].keys.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client)['1']['keys']['$post']>) =>
+        parseResponse(client['1'].keys.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -1256,24 +955,12 @@ export function getGet1KeysKeyQueryKey(
  * Any unspecified attribute resets that attribute to its default value.
  */
 export function usePut1KeysKey(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys'][':key']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['keys'][':key']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>) =>
         parseResponse(client['1'].keys[':key'].$put(args, options?.client)),
     },
     queryClient,
@@ -1288,24 +975,12 @@ export function usePut1KeysKey(
  * Deletes the API key.
  */
 export function useDelete1KeysKey(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys'][':key']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['keys'][':key']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>) =>
         parseResponse(client['1'].keys[':key'].$delete(args, options?.client)),
     },
     queryClient,
@@ -1325,25 +1000,14 @@ export function useDelete1KeysKey(
  * If you create more, the oldest API keys are deleted and can't be restored.
  */
 export function usePost1KeysKeyRestore(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].keys[':key'].restore.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+      ) => parseResponse(client['1'].keys[':key'].restore.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -1419,28 +1083,16 @@ export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
  * To create or update more than one rule, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-rules).
  */
 export function usePut1IndexesIndexNameRulesObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+        >,
+      ) =>
         parseResponse(
           client['1'].indexes[':indexName'].rules[':objectID'].$put(args, options?.client),
         ),
@@ -1459,32 +1111,16 @@ export function usePut1IndexesIndexNameRulesObjectID(
  * use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-rules).
  */
 export function useDelete1IndexesIndexNameRulesObjectID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['1'].indexes[':indexName'].rules[':objectID'].$delete(args, options?.client),
         ),
@@ -1506,26 +1142,16 @@ export function useDelete1IndexesIndexNameRulesObjectID(
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function usePost1IndexesIndexNameRulesBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+        >,
+      ) =>
         parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(args, options?.client)),
     },
     queryClient,
@@ -1540,26 +1166,16 @@ export function usePost1IndexesIndexNameRulesBatch(
  * Deletes all rules from the index.
  */
 export function usePost1IndexesIndexNameRulesClear(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+        >,
+      ) =>
         parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, options?.client)),
     },
     queryClient,
@@ -1574,26 +1190,16 @@ export function usePost1IndexesIndexNameRulesClear(
  * Searches for rules in your index.
  */
 export function usePost1IndexesIndexNameRulesSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+        >,
+      ) =>
         parseResponse(client['1'].indexes[':indexName'].rules.search.$post(args, options?.client)),
     },
     queryClient,
@@ -1608,26 +1214,16 @@ export function usePost1IndexesIndexNameRulesSearch(
  * Adds or deletes multiple entries from your plurals, segmentation, or stop word dictionaries.
  */
 export function usePost1DictionariesDictionaryNameBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+        >,
+      ) =>
         parseResponse(
           client['1'].dictionaries[':dictionaryName'].batch.$post(args, options?.client),
         ),
@@ -1644,28 +1240,16 @@ export function usePost1DictionariesDictionaryNameBatch(
  * Searches for standard and custom dictionary entries.
  */
 export function usePost1DictionariesDictionaryNameSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+        >,
+      ) =>
         parseResponse(
           client['1'].dictionaries[':dictionaryName'].search.$post(args, options?.client),
         ),
@@ -1722,25 +1306,14 @@ export function getGet1DictionariesSettingsQueryKey() {
  * Turns standard stop word dictionary entries on or off for a given language.
  */
 export function usePut1DictionariesSettings(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].dictionaries['*'].settings.$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+      ) => parseResponse(client['1'].dictionaries['*'].settings.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -1844,25 +1417,14 @@ export function getGet1ClustersMappingQueryKey(
  * The time it takes to move a user is proportional to the amount of data linked to the user ID.
  */
 export function usePost1ClustersMapping(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
+      ) => parseResponse(client['1'].clusters.mapping.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -1878,25 +1440,14 @@ export function usePost1ClustersMapping(
  * **You can't move users with this operation**.
  */
 export function usePost1ClustersMappingBatch(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping.batch.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+      ) => parseResponse(client['1'].clusters.mapping.batch.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -2002,27 +1553,14 @@ export function getGet1ClustersMappingUserIDQueryKey(
  * Deletes a user ID and its associated data from the clusters.
  */
 export function useDelete1ClustersMappingUserID(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
+      ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -2078,25 +1616,14 @@ export function getGet1ClustersQueryKey() {
  * To ensure rapid updates, the user IDs index isn't built at the same time as the mapping. Instead, it's built every 12 hours, at the same time as the update of user ID usage. For example, if you add or move a user ID, the search will show an old value until the next time the mapping is rebuilt (every 12 hours).
  */
 export function usePost1ClustersMappingSearch(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].clusters.mapping.search.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+      ) => parseResponse(client['1'].clusters.mapping.search.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -2196,25 +1723,14 @@ export function getGet1SecuritySourcesQueryKey() {
  * Replaces the list of allowed sources.
  */
 export function usePut1SecuritySources(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['security']['sources']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['security']['sources']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['security']['sources']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['security']['sources']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].security.sources.$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
+      ) => parseResponse(client['1'].security.sources.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -2228,25 +1744,14 @@ export function usePut1SecuritySources(
  * Adds a source to the list of allowed sources.
  */
 export function usePost1SecuritySourcesAppend(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].security.sources.append.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
+      ) => parseResponse(client['1'].security.sources.append.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -2260,27 +1765,14 @@ export function usePost1SecuritySourcesAppend(
  * Deletes a source from the list of allowed sources.
  */
 export function useDelete1SecuritySourcesSource(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].security.sources[':source'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
+      ) => parseResponse(client['1'].security.sources[':source'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -2458,27 +1950,14 @@ export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function usePost1IndexesIndexNameOperation(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['1'].indexes[':indexName'].operation.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
+      ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -3050,24 +2529,13 @@ export function getGetSaveObjectsWithTransformationQueryKey(
  * Helper: Deletes every records for the given objectIDs. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objectIDs in it.
  */
 export function usePostDeleteObjects(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.deleteObjects.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.deleteObjects.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.deleteObjects.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.deleteObjects.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.deleteObjects.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.deleteObjects.$post>) =>
+        parseResponse(client.deleteObjects.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -3081,24 +2549,12 @@ export function usePostDeleteObjects(
  * Helper: Replaces object content of all the given objects according to their respective `objectID` field. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objects in it.
  */
 export function usePostPartialUpdateObjects(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.partialUpdateObjects.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.partialUpdateObjects.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.partialUpdateObjects.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.partialUpdateObjects.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.partialUpdateObjects.$post>) =>
         parseResponse(client.partialUpdateObjects.$post(args, options?.client)),
     },
     queryClient,
@@ -3113,24 +2569,14 @@ export function usePostPartialUpdateObjects(
  * Helper: Similar to the `partialUpdateObjects` method but requires a Push connector (https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/connectors/push) to be created first, in order to transform records before indexing them to Algolia. The `region` must have been passed to the client instantiation method.
  */
 export function usePostPartialUpdateObjectsWithTransformation(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+      ) =>
         parseResponse(client.partialUpdateObjectsWithTransformation.$post(args, options?.client)),
     },
     queryClient,

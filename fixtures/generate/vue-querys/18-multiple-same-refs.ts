@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -28,11 +28,10 @@ export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.doc
  * POST /documents
  */
 export function usePostDocuments(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.documents.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.documents.$post>
-  >({ mutationFn: async (args) => parseResponse(client.documents.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.documents.$post>) =>
+      parseResponse(client.documents.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -62,12 +61,8 @@ export function getGetDocumentsDocumentIdQueryKey(
  * PUT /documents/{documentId}
  */
 export function usePutDocumentsDocumentId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.documents)[':documentId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.documents)[':documentId']['$put']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.documents)[':documentId']['$put']>) =>
       parseResponse(client.documents[':documentId'].$put(args, clientOptions)),
   })
 }
@@ -100,13 +95,10 @@ export function getGetDocumentsDocumentIdVersionsQueryKey(
  * POST /documents/{documentId}/share
  */
 export function usePostDocumentsDocumentIdShare(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.documents)[':documentId']['share']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.documents[':documentId'].share.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>,
+    ) => parseResponse(client.documents[':documentId'].share.$post(args, clientOptions)),
   })
 }
 
@@ -137,11 +129,10 @@ export function getGetUsersUserIdDocumentsQueryKey(
  * POST /compare
  */
 export function usePostCompare(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.compare.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.compare.$post>
-  >({ mutationFn: async (args) => parseResponse(client.compare.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.compare.$post>) =>
+      parseResponse(client.compare.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -166,20 +157,18 @@ export function getGetTemplatesQueryKey() {
  * POST /templates
  */
 export function usePostTemplates(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.templates.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.templates.$post>
-  >({ mutationFn: async (args) => parseResponse(client.templates.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.templates.$post>) =>
+      parseResponse(client.templates.$post(args, clientOptions)),
+  })
 }
 
 /**
  * POST /workflows
  */
 export function usePostWorkflows(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.workflows.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.workflows.$post>
-  >({ mutationFn: async (args) => parseResponse(client.workflows.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.workflows.$post>) =>
+      parseResponse(client.workflows.$post(args, clientOptions)),
+  })
 }

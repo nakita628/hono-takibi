@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
@@ -43,24 +43,13 @@ export function getGetUsersQueryKey() {
  * POST /users
  */
 export function createPostUsers(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.users.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.users.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+        parseResponse(client.users.$post(args, options?.client)),
     },
     queryClient,
   )

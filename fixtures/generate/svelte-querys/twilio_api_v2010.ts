@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/twilio_api_v2010'
 
@@ -58,25 +58,14 @@ export function getGet20100401AccountsJsonQueryKey(
  * Create a new Twilio Subaccount from the account making the request
  */
 export function createPost20100401AccountsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['2010-04-01']['Accounts.json'].$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
+      ) => parseResponse(client['2010-04-01']['Accounts.json'].$post(args, options?.client)),
     },
     queryClient,
   )
@@ -136,26 +125,14 @@ export function getGet20100401AccountsSidJsonQueryKey(
  * Modify the properties of a given Account
  */
 export function createPost20100401AccountsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
+      ) => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(args, options?.client)),
     },
     queryClient,
   )
@@ -219,34 +196,16 @@ export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
  */
 export function createPost20100401AccountsAccountSidAddressesJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$post(
             args,
@@ -319,34 +278,16 @@ export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
 export function createPost20100401AccountsAccountSidAddressesSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$post(
             args,
@@ -362,34 +303,16 @@ export function createPost20100401AccountsAccountSidAddressesSidJson(
  * DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
 export function createDelete20100401AccountsAccountSidAddressesSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$delete(
             args,
@@ -470,34 +393,16 @@ export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
  * Create a new application within your account
  */
 export function createPost20100401AccountsAccountSidApplicationsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$post(
             args,
@@ -578,34 +483,16 @@ export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
  * Updates the application's properties
  */
 export function createPost20100401AccountsAccountSidApplicationsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$post(
             args,
@@ -625,34 +512,16 @@ export function createPost20100401AccountsAccountSidApplicationsSidJson(
  * Delete the application by the specified application sid
  */
 export function createDelete20100401AccountsAccountSidApplicationsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$delete(
             args,
@@ -1449,34 +1318,16 @@ export function getGet20100401AccountsAccountSidCallsJsonQueryKey(
  * Create a new outgoing call to phones, SIP-enabled endpoints or Twilio Client connections
  */
 export function createPost20100401AccountsAccountSidCallsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$post(args, options?.client),
         ),
@@ -1551,34 +1402,16 @@ export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
  * Initiates a call redirect or terminates a call
  */
 export function createPost20100401AccountsAccountSidCallsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$post(
             args,
@@ -1598,34 +1431,16 @@ export function createPost20100401AccountsAccountSidCallsSidJson(
  * Delete a Call record from your account. Once the record is deleted, it will no longer appear in the API and Account Portal logs.
  */
 export function createDelete20100401AccountsAccountSidCallsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$delete(
             args,
@@ -1880,34 +1695,16 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryK
  * Create a recording for the call
  */
 export function createPost20100401AccountsAccountSidCallsCallSidRecordingsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$post(
             args,
@@ -1987,34 +1784,16 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQue
  * Changes the status of the recording to paused, stopped, or in-progress. Note: Pass `Twilio.CURRENT` instead of recording sid to reference current active recording.
  */
 export function createPost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
             ':Sid.json'
@@ -2033,34 +1812,16 @@ export function createPost20100401AccountsAccountSidCallsCallSidRecordingsSidJso
  * Delete a recording from your account
  */
 export function createDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
             ':Sid.json'
@@ -2136,34 +1897,16 @@ export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
  */
 export function createPost20100401AccountsAccountSidConferencesSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$post(
             args,
@@ -2372,34 +2115,16 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
  * Changes the status of the recording to paused, stopped, or in-progress. Note: To use `Twilio.CURRENT`, pass it as recording sid.
  */
 export function createPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
             ':Sid.json'
@@ -2418,34 +2143,16 @@ export function createPost20100401AccountsAccountSidConferencesConferenceSidReco
  * Delete a recording from your account
  */
 export function createDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
             ':Sid.json'
@@ -2525,34 +2232,16 @@ export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
  * Update a connect-app with the specified parameters
  */
 export function createPost20100401AccountsAccountSidConnectAppsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$post(
             args,
@@ -2572,34 +2261,16 @@ export function createPost20100401AccountsAccountSidConnectAppsSidJson(
  * Delete an instance of a connect-app
  */
 export function createDelete20100401AccountsAccountSidConnectAppsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$delete(
             args,
@@ -2801,34 +2472,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQuery
  * Update an incoming-phone-number instance.
  */
 export function createPost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$post(
             args,
@@ -2848,34 +2501,16 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
  * Delete a phone-numbers belonging to the account used to make the request.
  */
 export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$delete(
             args,
@@ -2956,34 +2591,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey
  * Purchase a phone-number for the account.
  */
 export function createPost20100401AccountsAccountSidIncomingPhoneNumbersJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$post(
             args,
@@ -3069,34 +2686,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Remove the assignment of an Add-on installation from the Number specified.
  */
 export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
             ':ResourceSid'
@@ -3179,34 +2778,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  * Assign an Add-on installation to the Number specified.
  */
 export function createPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
             'AssignedAddOns.json'
@@ -3410,34 +2991,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQue
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
  */
 export function createPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$post(
             args,
@@ -3510,34 +3073,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQu
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
  */
 export function createPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$post(
             args,
@@ -3610,34 +3155,16 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
  */
 export function createPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$post(
             args,
@@ -3707,34 +3234,16 @@ export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
  * POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
 export function createPost20100401AccountsAccountSidKeysSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$post(
             args,
@@ -3750,34 +3259,16 @@ export function createPost20100401AccountsAccountSidKeysSidJson(
  * DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
 export function createDelete20100401AccountsAccountSidKeysSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$delete(
             args,
@@ -3847,32 +3338,16 @@ export function getGet20100401AccountsAccountSidKeysJsonQueryKey(
  * POST /2010-04-01/Accounts/{AccountSid}/Keys.json
  */
 export function createPost20100401AccountsAccountSidKeysJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$post(args, options?.client),
         ),
@@ -3949,34 +3424,16 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQu
  * Delete the Media resource.
  */
 export function createDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
             ':Sid.json'
@@ -4116,34 +3573,16 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
  * Dequeue a member from a queue and have the member's call begin executing the TwiML document at that URL
  */
 export function createPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
             ':CallSid.json'
@@ -4281,34 +3720,16 @@ export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
  * Send a message
  */
 export function createPost20100401AccountsAccountSidMessagesJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$post(
             args,
@@ -4389,34 +3810,16 @@ export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
  * Update a Message resource (used to redact Message `body` text and to cancel not-yet-sent messages)
  */
 export function createPost20100401AccountsAccountSidMessagesSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$post(
             args,
@@ -4436,34 +3839,16 @@ export function createPost20100401AccountsAccountSidMessagesSidJson(
  * Deletes a Message resource from your account
  */
 export function createDelete20100401AccountsAccountSidMessagesSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$delete(
             args,
@@ -4483,34 +3868,16 @@ export function createDelete20100401AccountsAccountSidMessagesSidJson(
  * Create Message Feedback to confirm a tracked user action was performed by the recipient of the associated Message
  */
 export function createPost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'][
             'Feedback.json'
@@ -4586,34 +3953,16 @@ export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
  * Create a new Signing Key for the account making the request.
  */
 export function createPost20100401AccountsAccountSidSigningKeysJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$post(
             args,
@@ -4816,34 +4165,16 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey
  * Updates the caller-id
  */
 export function createPost20100401AccountsAccountSidOutgoingCallerIdsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$post(
             args,
@@ -4863,34 +4194,16 @@ export function createPost20100401AccountsAccountSidOutgoingCallerIdsSidJson(
  * Delete the caller-id specified from the account
  */
 export function createDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$delete(
             args,
@@ -4967,34 +4280,16 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
  * POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
  */
 export function createPost20100401AccountsAccountSidOutgoingCallerIdsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$post(
             args,
@@ -5078,34 +4373,16 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
  * Update the properties of the participant
  */
 export function createPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
             ':CallSid.json'
@@ -5124,34 +4401,16 @@ export function createPost20100401AccountsAccountSidConferencesConferenceSidPart
  * Kick a participant from a given conference
  */
 export function createDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
             ':CallSid.json'
@@ -5230,34 +4489,16 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
  */
 export function createPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
             'Participants.json'
@@ -5276,34 +4517,16 @@ export function createPost20100401AccountsAccountSidConferencesConferenceSidPart
  * create an instance of payments. This will start a new payments session
  */
 export function createPost20100401AccountsAccountSidCallsCallSidPaymentsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Payments.json'].$post(
             args,
@@ -5323,34 +4546,16 @@ export function createPost20100401AccountsAccountSidCallsCallSidPaymentsJson(
  * update an instance of payments with different phases of payment flows.
  */
 export function createPost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Payments[
             ':Sid.json'
@@ -5430,34 +4635,16 @@ export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
  * Update the queue with the new parameters
  */
 export function createPost20100401AccountsAccountSidQueuesSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$post(
             args,
@@ -5477,34 +4664,16 @@ export function createPost20100401AccountsAccountSidQueuesSidJson(
  * Remove an empty queue
  */
 export function createDelete20100401AccountsAccountSidQueuesSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$delete(
             args,
@@ -5582,34 +4751,16 @@ export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
  * Create a queue
  */
 export function createPost20100401AccountsAccountSidQueuesJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$post(args, options?.client),
         ),
@@ -5626,34 +4777,16 @@ export function createPost20100401AccountsAccountSidQueuesJson(
  * Create a Transcription
  */
 export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
             'Transcriptions.json'
@@ -5672,34 +4805,16 @@ export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsJs
  * Stop a Transcription using either the SID of the Transcription resource or the `name` used when creating the resource
  */
 export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Transcriptions[
             ':Sid.json'
@@ -5779,34 +4894,16 @@ export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
  * Delete a recording from your account
  */
 export function createDelete20100401AccountsAccountSidRecordingsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$delete(
             args,
@@ -5948,34 +5045,16 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Delete a result and purge all associated Payloads
  */
 export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
             ':Sid.json'
@@ -6124,34 +5203,16 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  * Delete a payload from the result along with all associated Data
  */
 export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
             ':AddOnResultSid'
@@ -6358,34 +5419,16 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
  */
 export function createDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
             ':Sid.json'
@@ -6525,34 +5568,16 @@ export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
  * Update a short code with the following parameters
  */
 export function createPost20100401AccountsAccountSidSMSShortCodesSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$post(
             args,
@@ -6686,34 +5711,16 @@ export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
  * POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
  */
 export function createPost20100401AccountsAccountSidSigningKeysSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$post(
             args,
@@ -6729,34 +5736,16 @@ export function createPost20100401AccountsAccountSidSigningKeysSidJson(
  * DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
  */
 export function createDelete20100401AccountsAccountSidSigningKeysSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$delete(
             args,
@@ -6842,34 +5831,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  * Create a new credential list mapping resource
  */
 export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
             'CredentialListMappings.json'
@@ -6954,34 +5925,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  * Delete a credential list mapping from the requested domain
  */
 export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
             ':DomainSid'
@@ -7066,34 +6019,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  * Create a new IP Access Control List mapping
  */
 export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
             'IpAccessControlListMappings.json'
@@ -7178,34 +6113,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  * Delete an IP Access Control List mapping from the requested domain
  */
 export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
             ':DomainSid'
@@ -7290,34 +6207,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  * Create a new credential list mapping resource
  */
 export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
             'CredentialListMappings.json'
@@ -7402,34 +6301,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  * Delete a credential list mapping from the requested domain
  */
 export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
             ':DomainSid'
@@ -7512,34 +6393,16 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  * Create a new credential resource.
  */
 export function createPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
             'Credentials.json'
@@ -7624,34 +6487,16 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  * Update a credential resource.
  */
 export function createPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
             ':CredentialListSid'
@@ -7670,34 +6515,16 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsCredential
  * Delete a credential resource.
  */
 export function createDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
             ':CredentialListSid'
@@ -7777,34 +6604,16 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
  * Create a Credential List
  */
 export function createPost20100401AccountsAccountSidSIPCredentialListsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$post(
             args,
@@ -7885,34 +6694,16 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKe
  * Update a Credential List
  */
 export function createPost20100401AccountsAccountSidSIPCredentialListsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$post(
             args,
@@ -7932,34 +6723,16 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsSidJson(
  * Delete a Credential List
  */
 export function createDelete20100401AccountsAccountSidSIPCredentialListsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$delete(
             args,
@@ -8043,34 +6816,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  * Create a CredentialListMapping resource for an account.
  */
 export function createPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
             'CredentialListMappings.json'
@@ -8153,34 +6908,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  * Delete a CredentialListMapping resource from an account.
  */
 export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
             ':DomainSid'
@@ -8260,34 +6997,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
  * Create a new Domain
  */
 export function createPost20100401AccountsAccountSidSIPDomainsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$post(
             args,
@@ -8368,34 +7087,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
  * Update the attributes of a domain
  */
 export function createPost20100401AccountsAccountSidSIPDomainsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$post(
             args,
@@ -8415,34 +7116,16 @@ export function createPost20100401AccountsAccountSidSIPDomainsSidJson(
  * Delete an instance of a Domain
  */
 export function createDelete20100401AccountsAccountSidSIPDomainsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$delete(
             args,
@@ -8523,34 +7206,16 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQuery
  * Create a new IpAccessControlList resource
  */
 export function createPost20100401AccountsAccountSidSIPIpAccessControlListsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$post(
             args,
@@ -8631,34 +7296,16 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQu
  * Rename an IpAccessControlList
  */
 export function createPost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$post(
             args,
@@ -8678,34 +7325,16 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsSidJs
  * Delete an IpAccessControlList from the requested account
  */
 export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
             ':Sid.json'
@@ -8790,34 +7419,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  * Delete an IpAccessControlListMapping resource.
  */
 export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
             ':DomainSid'
@@ -8900,34 +7511,16 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  * Create a new IpAccessControlListMapping resource.
  */
 export function createPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
             'IpAccessControlListMappings.json'
@@ -9012,34 +7605,16 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  * Create a new IpAddress resource.
  */
 export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
             ':IpAccessControlListSid'
@@ -9124,34 +7699,16 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  * Update an IpAddress resource.
  */
 export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
             ':IpAccessControlListSid'
@@ -9170,34 +7727,16 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAcc
  * Delete an IpAddress resource.
  */
 export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
             ':IpAccessControlListSid'
@@ -9216,34 +7755,16 @@ export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsIpA
  * Create a Siprec
  */
 export function createPost20100401AccountsAccountSidCallsCallSidSiprecJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Siprec.json'].$post(
             args,
@@ -9263,34 +7784,16 @@ export function createPost20100401AccountsAccountSidCallsCallSidSiprecJson(
  * Stop a Siprec using either the SID of the Siprec resource or the `name` used when creating the resource
  */
 export function createPost20100401AccountsAccountSidCallsCallSidSiprecSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Siprec[':Sid.json'].$post(
             args,
@@ -9310,34 +7813,16 @@ export function createPost20100401AccountsAccountSidCallsCallSidSiprecSidJson(
  * Create a Stream
  */
 export function createPost20100401AccountsAccountSidCallsCallSidStreamsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Streams.json'].$post(
             args,
@@ -9357,34 +7842,16 @@ export function createPost20100401AccountsAccountSidCallsCallSidStreamsJson(
  * Stop a Stream using either the SID of the Stream resource or the `name` used when creating the resource
  */
 export function createPost20100401AccountsAccountSidCallsCallSidStreamsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Streams[':Sid.json'].$post(
             args,
@@ -9404,34 +7871,16 @@ export function createPost20100401AccountsAccountSidCallsCallSidStreamsSidJson(
  * Create a new token for ICE servers
  */
 export function createPost20100401AccountsAccountSidTokensJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$post(args, options?.client),
         ),
@@ -9509,34 +7958,16 @@ export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
  * Delete a transcription from the account used to make the request
  */
 export function createDelete20100401AccountsAccountSidTranscriptionsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$delete(
             args,
@@ -10195,34 +8626,16 @@ export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
  * Update an instance of a usage trigger
  */
 export function createPost20100401AccountsAccountSidUsageTriggersSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$post(
             args,
@@ -10238,34 +8651,16 @@ export function createPost20100401AccountsAccountSidUsageTriggersSidJson(
  * DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
  */
 export function createDelete20100401AccountsAccountSidUsageTriggersSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$delete(
             args,
@@ -10346,34 +8741,16 @@ export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
  * Create a new UsageTrigger
  */
 export function createPost20100401AccountsAccountSidUsageTriggersJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$post(
             args,
@@ -10393,34 +8770,16 @@ export function createPost20100401AccountsAccountSidUsageTriggersJson(
  * Create a new User Defined Message for the given Call SID.
  */
 export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
             'UserDefinedMessages.json'
@@ -10439,34 +8798,16 @@ export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessa
  * Subscribe to User Defined Messages for a given Call SID.
  */
 export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
             'UserDefinedMessageSubscriptions.json'
@@ -10485,34 +8826,16 @@ export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessa
  * Delete a specific User Defined Message Subscription.
  */
 export function createDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJson(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    | InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
-    >
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+        >,
+      ) =>
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[
             ':CallSid'

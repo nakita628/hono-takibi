@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
@@ -113,21 +113,11 @@ export function getGetTypeQueryKey() {
  * POST /function
  */
 export function createPostFunction(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.function.$post> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<InferResponseType<typeof client.function.$post> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.function.$post(undefined, options?.client)),
-    },
+  return createMutation(
+    { mutationFn: async () => parseResponse(client.function.$post(undefined, options?.client)) },
     queryClient,
   )
 }
@@ -276,21 +266,11 @@ export function getGetDefaultQueryKey() {
  * POST /new
  */
 export function createPostNew(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.new.$post> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<InferResponseType<typeof client.new.$post> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.new.$post(undefined, options?.client)),
-    },
+  return createMutation(
+    { mutationFn: async () => parseResponse(client.new.$post(undefined, options?.client)) },
     queryClient,
   )
 }
@@ -299,21 +279,11 @@ export function createPostNew(
  * DELETE /delete
  */
 export function createDeleteDelete(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.delete.$delete> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<InferResponseType<typeof client.delete.$delete> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.delete.$delete(undefined, options?.client)),
-    },
+  return createMutation(
+    { mutationFn: async () => parseResponse(client.delete.$delete(undefined, options?.client)) },
     queryClient,
   )
 }

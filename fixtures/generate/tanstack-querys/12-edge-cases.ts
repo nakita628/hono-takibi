@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
@@ -43,23 +43,11 @@ export function getGetAllMethodsQueryKey() {
  * PUT /all-methods
  */
 export function usePutAllMethods(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['all-methods']['$put']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['all-methods']['$put']> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () => parseResponse(client['all-methods'].$put(undefined, options?.client)),
     },
     queryClient,
@@ -70,23 +58,11 @@ export function usePutAllMethods(
  * POST /all-methods
  */
 export function usePostAllMethods(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['all-methods']['$post']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['all-methods']['$post']> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () =>
         parseResponse(client['all-methods'].$post(undefined, options?.client)),
     },
@@ -98,23 +74,11 @@ export function usePostAllMethods(
  * DELETE /all-methods
  */
 export function useDeleteAllMethods(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['all-methods']['$delete']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['all-methods']['$delete']> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () =>
         parseResponse(client['all-methods'].$delete(undefined, options?.client)),
     },
@@ -126,23 +90,11 @@ export function useDeleteAllMethods(
  * OPTIONS /all-methods
  */
 export function useOptionsAllMethods(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['all-methods']['$options']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['all-methods']['$options']> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () =>
         parseResponse(client['all-methods'].$options(undefined, options?.client)),
     },
@@ -154,23 +106,11 @@ export function useOptionsAllMethods(
  * HEAD /all-methods
  */
 export function useHeadAllMethods(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['all-methods']['$head']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['all-methods']['$head']> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () =>
         parseResponse(client['all-methods'].$head(undefined, options?.client)),
     },
@@ -182,23 +122,11 @@ export function useHeadAllMethods(
  * PATCH /all-methods
  */
 export function usePatchAllMethods(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['all-methods']['$patch']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['all-methods']['$patch']> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () =>
         parseResponse(client['all-methods'].$patch(undefined, options?.client)),
     },
@@ -210,23 +138,11 @@ export function usePatchAllMethods(
  * TRACE /all-methods
  */
 export function useTraceAllMethods(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['all-methods']['$trace']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['all-methods']['$trace']> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () =>
         parseResponse(client['all-methods'].$trace(undefined, options?.client)),
     },
@@ -334,23 +250,11 @@ export function getGetParamsTestPathParamQueryKey(
  * POST /no-content
  */
 export function usePostNoContent(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['no-content']['$post']> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['no-content']['$post']> | undefined,
-    Error,
-    void
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
       mutationFn: async () => parseResponse(client['no-content'].$post(undefined, options?.client)),
     },
     queryClient,
@@ -396,24 +300,12 @@ export function getGetMultiContentQueryKey() {
  * POST /multi-content
  */
 export function usePostMultiContent(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['multi-content']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['multi-content']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['multi-content']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['multi-content']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client)['multi-content']['$post']>) =>
         parseResponse(client['multi-content'].$post(args, options?.client)),
     },
     queryClient,
@@ -533,24 +425,13 @@ export function getGetNoOperationIdQueryKey() {
  * POST /empty-body
  */
 export function usePostEmptyBody(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['empty-body']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['empty-body']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['empty-body']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['empty-body']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client['empty-body'].$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client)['empty-body']['$post']>) =>
+        parseResponse(client['empty-body'].$post(args, options?.client)),
     },
     queryClient,
   )

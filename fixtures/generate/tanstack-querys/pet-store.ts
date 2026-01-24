@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -11,25 +11,11 @@ import { client } from '../clients/pet-store'
  *
  * Update an existing pet by Id
  */
-export function usePutPet(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.pet.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.pet.$put>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.pet.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.pet.$put>
-  >(
+export function usePutPet(options?: { client?: ClientRequestOptions }, queryClient?: QueryClient) {
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.pet.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.pet.$put>) =>
+        parseResponse(client.pet.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -42,25 +28,11 @@ export function usePutPet(
  *
  * Add a new pet to the store
  */
-export function usePostPet(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.pet.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.pet.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.pet.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.pet.$post>
-  >(
+export function usePostPet(options?: { client?: ClientRequestOptions }, queryClient?: QueryClient) {
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.pet.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.pet.$post>) =>
+        parseResponse(client.pet.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -198,24 +170,13 @@ export function getGetPetPetIdQueryKey(
  * Updates a pet in the store with form data
  */
 export function usePostPetPetId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.pet)[':petId']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.pet)[':petId']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.pet)[':petId']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.pet)[':petId']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.pet[':petId'].$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client.pet)[':petId']['$post']>) =>
+        parseResponse(client.pet[':petId'].$post(args, options?.client)),
     },
     queryClient,
   )
@@ -229,24 +190,12 @@ export function usePostPetPetId(
  * delete a pet
  */
 export function useDeletePetPetId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.pet)[':petId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.pet)[':petId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.pet)[':petId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.pet)[':petId']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.pet)[':petId']['$delete']>) =>
         parseResponse(client.pet[':petId'].$delete(args, options?.client)),
     },
     queryClient,
@@ -259,25 +208,14 @@ export function useDeletePetPetId(
  * uploads an image
  */
 export function usePostPetPetIdUploadImage(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.pet[':petId'].uploadImage.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
+      ) => parseResponse(client.pet[':petId'].uploadImage.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -330,24 +268,13 @@ export function getGetStoreInventoryQueryKey() {
  * Place a new order in the store
  */
 export function usePostStoreOrder(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.store.order.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.store.order.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.store.order.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.store.order.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.store.order.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.store.order.$post>) =>
+        parseResponse(client.store.order.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -406,25 +333,14 @@ export function getGetStoreOrderOrderIdQueryKey(
  * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  */
 export function useDeleteStoreOrderOrderId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.store.order)[':orderId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.store.order)[':orderId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.store.order)[':orderId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.store.order)[':orderId']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.store.order[':orderId'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
+      ) => parseResponse(client.store.order[':orderId'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -438,24 +354,13 @@ export function useDeleteStoreOrderOrderId(
  * This can only be done by the logged in user.
  */
 export function usePostUser(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.user.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.user.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.user.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.user.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.user.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.user.$post>) =>
+        parseResponse(client.user.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -469,24 +374,12 @@ export function usePostUser(
  * Creates list of users with given input array
  */
 export function usePostUserCreateWithList(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.user.createWithList.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.user.createWithList.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.user.createWithList.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.user.createWithList.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.user.createWithList.$post>) =>
         parseResponse(client.user.createWithList.$post(args, options?.client)),
     },
     queryClient,
@@ -616,24 +509,12 @@ export function getGetUserUsernameQueryKey(
  * This can only be done by the logged in user.
  */
 export function usePutUserUsername(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.user)[':username']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.user)[':username']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.user)[':username']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.user)[':username']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.user)[':username']['$put']>) =>
         parseResponse(client.user[':username'].$put(args, options?.client)),
     },
     queryClient,
@@ -648,24 +529,12 @@ export function usePutUserUsername(
  * This can only be done by the logged in user.
  */
 export function useDeleteUserUsername(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.user)[':username']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.user)[':username']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.user)[':username']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.user)[':username']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.user)[':username']['$delete']>) =>
         parseResponse(client.user[':username'].$delete(args, options?.client)),
     },
     queryClient,

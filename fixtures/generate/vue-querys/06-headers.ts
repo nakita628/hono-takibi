@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -51,12 +51,9 @@ export function getGetResourcesIdQueryKey(
  * PUT /resources/{id}
  */
 export function usePutResourcesId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.resources)[':id']['$put']>
-  >({
-    mutationFn: async (args) => parseResponse(client.resources[':id'].$put(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
+      parseResponse(client.resources[':id'].$put(args, clientOptions)),
   })
 }
 

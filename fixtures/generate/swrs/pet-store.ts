@@ -1,9 +1,8 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
 /**
@@ -13,24 +12,11 @@ import { client } from '../clients/pet-store'
  *
  * Update an existing pet by Id
  */
-export function usePutPet(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.pet.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.pet.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.pet.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.pet.$put>
-  >(
+export function usePutPet(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /pet',
-    async (_, { arg }) => parseResponse(client.pet.$put(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.pet.$put> }) =>
+      parseResponse(client.pet.$put(arg, options?.client)),
   )
 }
 
@@ -41,24 +27,11 @@ export function usePutPet(options?: {
  *
  * Add a new pet to the store
  */
-export function usePostPet(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.pet.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.pet.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.pet.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.pet.$post>
-  >(
+export function usePostPet(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /pet',
-    async (_, { arg }) => parseResponse(client.pet.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.pet.$post> }) =>
+      parseResponse(client.pet.$post(arg, options?.client)),
   )
 }
 
@@ -72,22 +45,21 @@ export function usePostPet(options?: {
 export function useGetPetFindByStatus(
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.pet.findByStatus.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPetFindByStatusKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.pet.findByStatus.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.pet.findByStatus.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.pet.findByStatus.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -109,22 +81,21 @@ export function getGetPetFindByStatusKey(
 export function useGetPetFindByTags(
   args: InferRequestType<typeof client.pet.findByTags.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.pet.findByTags.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPetFindByTagsKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.pet.findByTags.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.pet.findByTags.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.pet.findByTags.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -144,22 +115,21 @@ export function getGetPetFindByTagsKey(args?: InferRequestType<typeof client.pet
 export function useGetPetPetId(
   args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.pet)[':petId']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPetPetIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.pet)[':petId']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.pet[':petId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.pet[':petId'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -174,24 +144,11 @@ export function getGetPetPetIdKey(args?: InferRequestType<(typeof client.pet)[':
  *
  * Updates a pet in the store with form data
  */
-export function usePostPetPetId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.pet)[':petId']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.pet)[':petId']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.pet)[':petId']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.pet)[':petId']['$post']>
-  >(
+export function usePostPetPetId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /pet/:petId',
-    async (_, { arg }) => parseResponse(client.pet[':petId'].$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['$post']> }) =>
+      parseResponse(client.pet[':petId'].$post(arg, options?.client)),
   )
 }
 
@@ -202,24 +159,13 @@ export function usePostPetPetId(options?: {
  *
  * delete a pet
  */
-export function useDeletePetPetId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.pet)[':petId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.pet)[':petId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.pet)[':petId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.pet)[':petId']['$delete']>
-  >(
+export function useDeletePetPetId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /pet/:petId',
-    async (_, { arg }) => parseResponse(client.pet[':petId'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['$delete']> },
+    ) => parseResponse(client.pet[':petId'].$delete(arg, options?.client)),
   )
 }
 
@@ -228,25 +174,13 @@ export function useDeletePetPetId(options?: {
  *
  * uploads an image
  */
-export function usePostPetPetIdUploadImage(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>
-  >(
+export function usePostPetPetIdUploadImage(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /pet/:petId/uploadImage',
-    async (_, { arg }) =>
-      parseResponse(client.pet[':petId'].uploadImage.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']> },
+    ) => parseResponse(client.pet[':petId'].uploadImage.$post(arg, options?.client)),
   )
 }
 
@@ -258,21 +192,20 @@ export function usePostPetPetIdUploadImage(options?: {
  * Returns a map of status codes to quantities
  */
 export function useGetStoreInventory(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.store.inventory.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStoreInventoryKey() : null)
-  const query = useSWR<InferResponseType<typeof client.store.inventory.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.store.inventory.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.store.inventory.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -289,24 +222,11 @@ export function getGetStoreInventoryKey() {
  *
  * Place a new order in the store
  */
-export function usePostStoreOrder(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.store.order.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.store.order.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.store.order.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.store.order.$post>
-  >(
+export function usePostStoreOrder(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /store/order',
-    async (_, { arg }) => parseResponse(client.store.order.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.store.order.$post> }) =>
+      parseResponse(client.store.order.$post(arg, options?.client)),
   )
 }
 
@@ -320,22 +240,21 @@ export function usePostStoreOrder(options?: {
 export function useGetStoreOrderOrderId(
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.store.order)[':orderId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStoreOrderOrderIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.store.order)[':orderId']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.store.order[':orderId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.store.order[':orderId'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -354,25 +273,13 @@ export function getGetStoreOrderOrderIdKey(
  *
  * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  */
-export function useDeleteStoreOrderOrderId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.store.order)[':orderId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.store.order)[':orderId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.store.order)[':orderId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.store.order)[':orderId']['$delete']>
-  >(
+export function useDeleteStoreOrderOrderId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /store/order/:orderId',
-    async (_, { arg }) =>
-      parseResponse(client.store.order[':orderId'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.store.order)[':orderId']['$delete']> },
+    ) => parseResponse(client.store.order[':orderId'].$delete(arg, options?.client)),
   )
 }
 
@@ -383,24 +290,11 @@ export function useDeleteStoreOrderOrderId(options?: {
  *
  * This can only be done by the logged in user.
  */
-export function usePostUser(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.user.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.user.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.user.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.user.$post>
-  >(
+export function usePostUser(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /user',
-    async (_, { arg }) => parseResponse(client.user.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.user.$post> }) =>
+      parseResponse(client.user.$post(arg, options?.client)),
   )
 }
 
@@ -411,24 +305,13 @@ export function usePostUser(options?: {
  *
  * Creates list of users with given input array
  */
-export function usePostUserCreateWithList(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.user.createWithList.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.user.createWithList.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.user.createWithList.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.user.createWithList.$post>
-  >(
+export function usePostUserCreateWithList(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /user/createWithList',
-    async (_, { arg }) => parseResponse(client.user.createWithList.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<typeof client.user.createWithList.$post> },
+    ) => parseResponse(client.user.createWithList.$post(arg, options?.client)),
   )
 }
 
@@ -440,22 +323,21 @@ export function usePostUserCreateWithList(options?: {
 export function useGetUserLogin(
   args: InferRequestType<typeof client.user.login.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.user.login.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUserLoginKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.user.login.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.user.login.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.user.login.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -471,21 +353,20 @@ export function getGetUserLoginKey(args?: InferRequestType<typeof client.user.lo
  * Logs out current logged in user session
  */
 export function useGetUserLogout(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.user.logout.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUserLogoutKey() : null)
-  const query = useSWR<InferResponseType<typeof client.user.logout.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.user.logout.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.user.logout.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -503,22 +384,21 @@ export function getGetUserLogoutKey() {
 export function useGetUserUsername(
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.user)[':username']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUserUsernameKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.user)[':username']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.user[':username'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.user[':username'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -537,24 +417,13 @@ export function getGetUserUsernameKey(
  *
  * This can only be done by the logged in user.
  */
-export function usePutUserUsername(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.user)[':username']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.user)[':username']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.user)[':username']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.user)[':username']['$put']>
-  >(
+export function usePutUserUsername(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /user/:username',
-    async (_, { arg }) => parseResponse(client.user[':username'].$put(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.user)[':username']['$put']> },
+    ) => parseResponse(client.user[':username'].$put(arg, options?.client)),
   )
 }
 
@@ -565,23 +434,12 @@ export function usePutUserUsername(options?: {
  *
  * This can only be done by the logged in user.
  */
-export function useDeleteUserUsername(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.user)[':username']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.user)[':username']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.user)[':username']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.user)[':username']['$delete']>
-  >(
+export function useDeleteUserUsername(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /user/:username',
-    async (_, { arg }) => parseResponse(client.user[':username'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.user)[':username']['$delete']> },
+    ) => parseResponse(client.user[':username'].$delete(arg, options?.client)),
   )
 }

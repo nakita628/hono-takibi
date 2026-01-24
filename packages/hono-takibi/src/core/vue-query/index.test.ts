@@ -50,7 +50,7 @@ describe('vueQuery', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -109,11 +109,10 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  * Create a new user.
  */
 export function usePostUsers(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >({ mutationFn: async (args) => parseResponse(client.users.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+      parseResponse(client.users.$post(args, clientOptions)),
+  })
 }
 `
 
@@ -215,7 +214,7 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
       // Check POST hook file (mutation)
       const usePostUsers = fs.readFileSync(path.join(dir, 'hooks', 'usePostUsers.ts'), 'utf-8')
       const usePostUsersExpected = `import { useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -227,11 +226,10 @@ import { client } from '../client'
  * Create a new user.
  */
 export function usePostUsers(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >({ mutationFn: async (args) => parseResponse(client.users.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+      parseResponse(client.users.$post(args, clientOptions)),
+  })
 }
 `
       expect(usePostUsers).toBe(usePostUsersExpected)
@@ -334,7 +332,7 @@ describe('vueQuery (no args operations)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -364,7 +362,7 @@ export function getGetPingQueryKey() {
  * Post ping
  */
 export function usePostPing(clientOptions?: ClientRequestOptions) {
-  return useMutation<InferResponseType<typeof client.ping.$post> | undefined, Error, void>({
+  return useMutation({
     mutationFn: async () => parseResponse(client.ping.$post(undefined, clientOptions)),
   })
 }
@@ -465,7 +463,7 @@ describe('vueQuery (path parameters)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -500,11 +498,10 @@ export function getGetUsersIdQueryKey(
  * Delete user
  */
 export function useDeleteUsersId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':id']['$delete']>
-  >({ mutationFn: async (args) => parseResponse(client.users[':id'].$delete(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.users)[':id']['$delete']>) =>
+      parseResponse(client.users[':id'].$delete(args, clientOptions)),
+  })
 }
 `
       expect(code).toBe(expected)
@@ -577,7 +574,7 @@ describe('vueQuery (PUT/PATCH methods)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -587,11 +584,10 @@ import { client } from '../client'
  * Replace user
  */
 export function usePutUsersId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':id']['$put']>
-  >({ mutationFn: async (args) => parseResponse(client.users[':id'].$put(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.users)[':id']['$put']>) =>
+      parseResponse(client.users[':id'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -600,11 +596,10 @@ export function usePutUsersId(clientOptions?: ClientRequestOptions) {
  * Update user
  */
 export function usePatchUsersId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':id']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':id']['$patch']>
-  >({ mutationFn: async (args) => parseResponse(client.users[':id'].$patch(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.users)[':id']['$patch']>) =>
+      parseResponse(client.users[':id'].$patch(args, clientOptions)),
+  })
 }
 `
       expect(code).toBe(expected)

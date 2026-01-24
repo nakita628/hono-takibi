@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
 
@@ -9,11 +9,10 @@ import { client } from '../clients/09-callbacks'
  * Register a webhook endpoint
  */
 export function usePostWebhooks(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.webhooks.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webhooks.$post>
-  >({ mutationFn: async (args) => parseResponse(client.webhooks.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
+      parseResponse(client.webhooks.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -22,11 +21,10 @@ export function usePostWebhooks(clientOptions?: ClientRequestOptions) {
  * Create a subscription with payment callbacks
  */
 export function usePostSubscriptions(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.subscriptions.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.subscriptions.$post>
-  >({ mutationFn: async (args) => parseResponse(client.subscriptions.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.subscriptions.$post>) =>
+      parseResponse(client.subscriptions.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -35,11 +33,10 @@ export function usePostSubscriptions(clientOptions?: ClientRequestOptions) {
  * Create an async job with progress callbacks
  */
 export function usePostJobs(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.jobs.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.jobs.$post>
-  >({ mutationFn: async (args) => parseResponse(client.jobs.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.jobs.$post>) =>
+      parseResponse(client.jobs.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -48,12 +45,9 @@ export function usePostJobs(clientOptions?: ClientRequestOptions) {
  * Trigger data sync with callbacks
  */
 export function usePostIntegrationsIntegrationIdSync(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.integrations)[':integrationId']['sync']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.integrations[':integrationId'].sync.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
+    ) => parseResponse(client.integrations[':integrationId'].sync.$post(args, clientOptions)),
   })
 }

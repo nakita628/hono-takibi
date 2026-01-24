@@ -24,7 +24,7 @@
 import path from 'node:path'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
 import { isRecord, methodPath } from '../utils/index.js'
-import type { HttpMethod, OperationDeps, OperationLike, PathItemLike } from './index.js'
+import type { HttpMethod, OperationDeps, PathItemLike } from './index.js'
 import {
   buildInferRequestType,
   buildInferResponseType,
@@ -32,7 +32,6 @@ import {
   core,
   createOperationDeps,
   formatPath,
-  getSuccessStatusCode,
   HTTP_METHODS,
   isOpenAPIPaths,
   isOperationLike,
@@ -146,13 +145,16 @@ const makeQueryKeyGetterName = (method: string, pathStr: string): string => {
 /* ─────────────────────────────── Fetcher Helper ─────────────────────────────── */
 
 /**
- * Builds fetcher expression that throws on error responses.
+ * Builds fetcher expression using parseResponse.
  *
+ * parseResponse automatically throws DetailedError for non-OK responses,
+ * so no explicit error handling is needed.
+ *
+ * @see https://github.com/honojs/hono/pull/4314
  * @param clientCall - Client method call expression
- * @returns Fetcher function body with error handling
+ * @returns Fetcher function body
  */
-const buildFetcher = (clientCall: string): string =>
-  `{const res=await ${clientCall};if(!res.ok)throw new Error(res.statusText);return parseResponse(res)}`
+const buildFetcher = (clientCall: string): string => `parseResponse(${clientCall})`
 
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
 
@@ -224,7 +226,6 @@ const makeMutationHookCode = (
   hookName: string,
   hasArgs: boolean,
   inferRequestType: string,
-  inferResponseType: string,
   clientPath: string,
   method: string,
   docs: string,
@@ -236,30 +237,25 @@ const makeMutationHookCode = (
       const clientCall = `${clientPath}.$${method}(args,clientOptions)`
       const fetcherBody = buildFetcher(clientCall)
       return `${docs}
-export function ${hookName}(clientOptions?:ClientRequestOptions){return ${config.mutationFn}<${inferResponseType}|undefined,Error,${inferRequestType}>({mutationFn:async(args)=>${fetcherBody}})}`
+export function ${hookName}(clientOptions?:ClientRequestOptions){return ${config.mutationFn}({mutationFn:async(args:${inferRequestType})=>${fetcherBody}})}`
     }
     const clientCall = `${clientPath}.$${method}(undefined,clientOptions)`
     const fetcherBody = buildFetcher(clientCall)
     return `${docs}
-export function ${hookName}(clientOptions?:ClientRequestOptions){return ${config.mutationFn}<${inferResponseType}|undefined,Error,void>({mutationFn:async()=>${fetcherBody}})}`
+export function ${hookName}(clientOptions?:ClientRequestOptions){return ${config.mutationFn}({mutationFn:async()=>${fetcherBody}})}`
   }
 
   // TanStack/Svelte Query: full options support
-  // Note: TData includes undefined because parseResponse returns undefined for 204 No Content
   if (hasArgs) {
-    const mutationOptionsType = `${config.mutationOptionsType}<${inferResponseType}|undefined,Error,${inferRequestType}>`
-    const optionsSig = `options?:{mutation?:${mutationOptionsType};client?:ClientRequestOptions},queryClient?:QueryClient`
     const clientCall = `${clientPath}.$${method}(args,options?.client)`
     const fetcherBody = buildFetcher(clientCall)
     return `${docs}
-export function ${hookName}(${optionsSig}){return ${config.mutationFn}<${inferResponseType}|undefined,Error,${inferRequestType}>({...options?.mutation,mutationFn:async(args)=>${fetcherBody}},queryClient)}`
+export function ${hookName}(options?:{client?:ClientRequestOptions},queryClient?:QueryClient){return ${config.mutationFn}({mutationFn:async(args:${inferRequestType})=>${fetcherBody}},queryClient)}`
   }
-  const mutationOptionsType = `${config.mutationOptionsType}<${inferResponseType}|undefined,Error,void>`
-  const optionsSig = `options?:{mutation?:${mutationOptionsType};client?:ClientRequestOptions},queryClient?:QueryClient`
   const clientCall = `${clientPath}.$${method}(undefined,options?.client)`
   const fetcherBody = buildFetcher(clientCall)
   return `${docs}
-export function ${hookName}(${optionsSig}){return ${config.mutationFn}<${inferResponseType}|undefined,Error,void>({...options?.mutation,mutationFn:async()=>${fetcherBody}},queryClient)}`
+export function ${hookName}(options?:{client?:ClientRequestOptions},queryClient?:QueryClient){return ${config.mutationFn}({mutationFn:async()=>${fetcherBody}},queryClient)}`
 }
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
@@ -280,11 +276,8 @@ const makeHookCode = (
   const hasArgs = operationHasArgs(item, op, deps)
   const isQuery = method === 'get'
 
-  // Get success status code for typed response (only 2xx responses)
-  const successStatus = getSuccessStatusCode(op as OperationLike)
-
   const inferRequestType = buildInferRequestType(deps.client, pathResult, method)
-  const inferResponseType = buildInferResponseType(deps.client, pathResult, method, successStatus)
+  const inferResponseType = buildInferResponseType(deps.client, pathResult, method)
 
   // Convert {param} to :param for key path display
   const honoPath = pathStr.replace(/\{([^}]+)\}/g, ':$1')
@@ -315,7 +308,6 @@ const makeHookCode = (
     hookName,
     hasArgs,
     inferRequestType,
-    inferResponseType,
     clientPath,
     method,
     docs,
@@ -368,10 +360,10 @@ const makeHeader = (
   ]
 
   // Vue Query: simplified imports without QueryClient and options types
+  // Note: InferResponseType is not needed because mutations use type inference
   if (config.omitQueryKeyType) {
     const typeImportParts = [
       ...(needsInferRequestType ? ['InferRequestType'] : []),
-      ...(hasMutation ? ['InferResponseType'] : []),
       'ClientRequestOptions',
     ]
 
@@ -387,15 +379,17 @@ const makeHeader = (
   }
 
   // TanStack/Svelte Query: full imports
-  const queryTypeImports = [
-    'QueryClient',
-    ...(hasQuery ? [config.queryOptionsType] : []),
-    ...(hasMutation ? [config.mutationOptionsType] : []),
-  ]
+  // Note: mutationOptionsType is not needed because mutations use type inference
+  const queryTypeImports = ['QueryClient', ...(hasQuery ? [config.queryOptionsType] : [])]
 
-  const typeImports = needsInferRequestType
-    ? 'InferRequestType,InferResponseType,ClientRequestOptions'
-    : 'InferResponseType,ClientRequestOptions'
+  // InferResponseType is only needed for queries (for QueryOptions type parameters)
+  // Mutations use type inference, so they don't need InferResponseType
+  const typeImportParts = [
+    ...(needsInferRequestType ? ['InferRequestType'] : []),
+    ...(hasQuery ? ['InferResponseType'] : []),
+    'ClientRequestOptions',
+  ]
+  const typeImports = typeImportParts.join(',')
 
   const lines = [
     ...(queryImports.length > 0

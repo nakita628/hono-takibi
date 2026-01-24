@@ -30,7 +30,6 @@ import {
   core,
   createOperationDeps,
   formatPath,
-  getSuccessStatusCode,
   HTTP_METHODS,
   isOpenAPIPaths,
   isOperationLike,
@@ -73,13 +72,16 @@ const toKeyGetterName = (method: string, pathStr: string): string => {
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
 
 /**
- * Builds fetcher expression that throws on error responses.
+ * Builds fetcher expression using parseResponse.
  *
+ * parseResponse automatically throws DetailedError for non-OK responses,
+ * so no explicit error handling is needed.
+ *
+ * @see https://github.com/honojs/hono/pull/4314
  * @param clientCall - Client method call expression
- * @returns Fetcher function body with error handling
+ * @returns Fetcher function body
  */
-const buildFetcher = (clientCall: string): string =>
-  `{const res=await ${clientCall};if(!res.ok)throw new Error(res.statusText);return parseResponse(res)}`
+const buildFetcher = (clientCall: string): string => `parseResponse(${clientCall})`
 
 const makeHookCode = (
   pathStr: string,
@@ -96,11 +98,7 @@ const makeHookCode = (
   const hasArgs = operationHasArgs(item, op, deps)
   const isQuery = method === 'get'
 
-  // Get success status code for typed response (only 2xx responses)
-  const successStatus = getSuccessStatusCode(op as OperationLike)
-
   const inferRequestType = buildInferRequestType(deps.client, pathResult, method)
-  const inferResponseType = buildInferResponseType(deps.client, pathResult, method, successStatus)
 
   // Convert {param} to :param for key path display
   const honoPath = pathStr.replace(/\{([^}]+)\}/g, ':$1')
@@ -121,7 +119,7 @@ const makeHookCode = (
   if (isQuery) {
     // useSWR hook for GET (Orval-style pattern)
     const argsSig = hasArgs ? `args:${inferRequestType},` : ''
-    const swrConfigType = `SWRConfiguration<${inferResponseType},Error>&{swrKey?:Key;enabled?:boolean}`
+    const swrConfigType = 'SWRConfiguration&{swrKey?:Key;enabled?:boolean}'
     const optionsSig = `options?:{swr?:${swrConfigType};client?:ClientRequestOptions}`
 
     const keyGetterCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
@@ -131,7 +129,7 @@ const makeHookCode = (
     const fetcherBody = buildFetcher(clientCall)
 
     hookCode = `${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const isEnabled=swrOptions?.enabled!==false;const swrKey=swrOptions?.swrKey??(isEnabled?${keyGetterCall}:null);const query=useSWR<${inferResponseType},Error>(swrKey,async()=>${fetcherBody},swrOptions);return{swrKey,...query}}`
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const isEnabled=swrOptions?.enabled!==false;const swrKey=swrOptions?.swrKey??(isEnabled?${keyGetterCall}:null);return{swrKey,...useSWR(swrKey,async()=>${fetcherBody},swrOptions)}}`
 
     // Key getter for GET (orval style: optional args with conditional spread)
     if (hasArgs) {
@@ -149,15 +147,15 @@ export function ${keyGetterName}(){return['${honoPath}']as const}`
     if (hasArgs) {
       const clientCall = `${deps.client}${pathResult.runtimePath}.$${method}(arg,options?.client)`
       const fetcherBody = buildFetcher(clientCall)
-      const optionsSig = `options?:{swr?:SWRMutationConfiguration<${inferResponseType},Error,string,${inferRequestType}>;client?:ClientRequestOptions}`
+      const optionsSig = `options?:{client?:ClientRequestOptions}`
       hookCode = `${docs}
-export function ${hookName}(${optionsSig}){return useSWRMutation<${inferResponseType},Error,string,${inferRequestType}>(${mutationKey},async(_,{arg})=>${fetcherBody},options?.swr)}`
+export function ${hookName}(${optionsSig}){return useSWRMutation(${mutationKey},async(_:string,{arg}:{arg:${inferRequestType}})=>${fetcherBody})}`
     } else {
       const clientCall = `${deps.client}${pathResult.runtimePath}.$${method}(undefined,options?.client)`
       const fetcherBody = buildFetcher(clientCall)
-      const optionsSig = `options?:{swr?:SWRMutationConfiguration<${inferResponseType},Error,string,void>;client?:ClientRequestOptions}`
+      const optionsSig = `options?:{client?:ClientRequestOptions}`
       hookCode = `${docs}
-export function ${hookName}(${optionsSig}){return useSWRMutation<${inferResponseType},Error,string,void>(${mutationKey},async()=>${fetcherBody},options?.swr)}`
+export function ${hookName}(${optionsSig}){return useSWRMutation(${mutationKey},async()=>${fetcherBody})}`
     }
 
     // No key getter for mutations
@@ -198,7 +196,7 @@ const makeHeader = (
   importPath: string,
   hasQuery: boolean,
   hasMutation: boolean,
-  needsInferRequestType: boolean,
+  hasArgs: boolean,
   clientName: string,
 ): string => {
   const lines: string[] = []
@@ -210,14 +208,13 @@ const makeHeader = (
   }
   if (hasMutation) {
     lines.push("import useSWRMutation from'swr/mutation'")
-    lines.push("import type{SWRMutationConfiguration}from'swr/mutation'")
   }
 
-  // Hono client imports
-  const typeImports = needsInferRequestType
-    ? 'InferRequestType,InferResponseType,ClientRequestOptions'
-    : 'InferResponseType,ClientRequestOptions'
-  lines.push(`import type{${typeImports}}from'hono/client'`)
+  // Hono client imports - InferRequestType only needed when any hook has args
+  const typeImportParts: string[] = []
+  if (hasArgs) typeImportParts.push('InferRequestType')
+  typeImportParts.push('ClientRequestOptions')
+  lines.push(`import type{${typeImportParts.join(',')}}from'hono/client'`)
   lines.push("import{parseResponse}from'hono/client'")
   lines.push(`import{${clientName}}from'${importPath}'`)
 
@@ -289,8 +286,8 @@ export async function swr(
     const body = hookCodes.map(({ code }) => code).join('\n\n')
     const hasQuery = hookCodes.some(({ isQuery }) => isQuery)
     const hasMutation = hookCodes.some(({ isQuery }) => !isQuery)
-    const needsInferRequestType = hookCodes.some(({ hasArgs }) => hasArgs)
-    const header = makeHeader(importPath, hasQuery, hasMutation, needsInferRequestType, clientName)
+    const hasArgs = hookCodes.some((h) => h.hasArgs)
+    const header = makeHeader(importPath, hasQuery, hasMutation, hasArgs, clientName)
     const code = `${header}${body}${hookCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
     if (!coreResult.ok) return { ok: false, error: coreResult.error }

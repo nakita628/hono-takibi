@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -44,24 +44,13 @@ export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.enti
  * POST /entities
  */
 export function createPostEntities(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.entities.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.entities.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.entities.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.entities.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.entities.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.entities.$post>) =>
+        parseResponse(client.entities.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -112,24 +101,12 @@ export function getGetEntitiesEntityIdQueryKey(
  * PUT /entities/{entityId}
  */
 export function createPutEntitiesEntityId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.entities)[':entityId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.entities)[':entityId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.entities)[':entityId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.entities)[':entityId']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$put']>) =>
         parseResponse(client.entities[':entityId'].$put(args, options?.client)),
     },
     queryClient,
@@ -140,25 +117,14 @@ export function createPutEntitiesEntityId(
  * DELETE /entities/{entityId}
  */
 export function createDeleteEntitiesEntityId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.entities)[':entityId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.entities)[':entityId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.entities)[':entityId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.entities)[':entityId']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.entities[':entityId'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
+      ) => parseResponse(client.entities[':entityId'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -210,26 +176,14 @@ export function getGetEntitiesEntityIdRelationshipsQueryKey(
  * POST /entities/{entityId}/relationships
  */
 export function createPostEntitiesEntityIdRelationships(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<(typeof client.entities)[':entityId']['relationships']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.entities)[':entityId']['relationships']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.entities[':entityId'].relationships.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
+      ) => parseResponse(client.entities[':entityId'].relationships.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -239,24 +193,13 @@ export function createPostEntitiesEntityIdRelationships(
  * POST /batch
  */
 export function createPostBatch(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.batch.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.batch.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.batch.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.batch.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.batch.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.batch.$post>) =>
+        parseResponse(client.batch.$post(args, options?.client)),
     },
     queryClient,
   )

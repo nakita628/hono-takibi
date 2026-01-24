@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
 
@@ -25,11 +25,10 @@ export function getGetProductsQueryKey() {
  * POST /products
  */
 export function usePostProducts(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.products.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.products.$post>
-  >({ mutationFn: async (args) => parseResponse(client.products.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
+      parseResponse(client.products.$post(args, clientOptions)),
+  })
 }
 
 /**

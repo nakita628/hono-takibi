@@ -1,29 +1,15 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { SWRMutationConfiguration } from 'swr/mutation'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/22-extreme-validation'
 
 /**
  * POST /validate
  */
-export function usePostValidate(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.validate.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.validate.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.validate.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.validate.$post>
-  >(
+export function usePostValidate(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /validate',
-    async (_, { arg }) => parseResponse(client.validate.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.validate.$post> }) =>
+      parseResponse(client.validate.$post(arg, options?.client)),
   )
 }

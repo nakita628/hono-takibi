@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
@@ -56,24 +56,13 @@ export function getGetOauthAuthorizeQueryKey(
  * Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。
  */
 export function createPostOauthToken(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.oauth.token.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.oauth.token.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.oauth.token.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.token.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.oauth.token.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.oauth.token.$post>) =>
+        parseResponse(client.oauth.token.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -87,24 +76,13 @@ export function createPostOauthToken(
  * アクセストークンまたはリフレッシュトークンを無効化します（RFC 7009）
  */
 export function createPostOauthRevoke(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.oauth.revoke.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.oauth.revoke.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.oauth.revoke.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.revoke.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.oauth.revoke.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.oauth.revoke.$post>) =>
+        parseResponse(client.oauth.revoke.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -118,24 +96,12 @@ export function createPostOauthRevoke(
  * トークンの有効性と情報を取得します（RFC 7662）
  */
 export function createPostOauthIntrospect(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.oauth.introspect.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.oauth.introspect.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.oauth.introspect.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.introspect.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.oauth.introspect.$post>) =>
         parseResponse(client.oauth.introspect.$post(args, options?.client)),
     },
     queryClient,
@@ -150,24 +116,12 @@ export function createPostOauthIntrospect(
  * デバイスフロー用の認可コードを発行します（RFC 8628）
  */
 export function createPostOauthDeviceCode(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.oauth.device.code.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.oauth.device.code.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.oauth.device.code.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.device.code.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.oauth.device.code.$post>) =>
         parseResponse(client.oauth.device.code.$post(args, options?.client)),
     },
     queryClient,
@@ -336,24 +290,13 @@ export function getGetOauthClientsQueryKey() {
  * クライアント作成
  */
 export function createPostOauthClients(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.oauth.clients.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.oauth.clients.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.oauth.clients.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.oauth.clients.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.oauth.clients.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.oauth.clients.$post>) =>
+        parseResponse(client.oauth.clients.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -409,25 +352,14 @@ export function getGetOauthClientsClientIdQueryKey(
  * クライアント更新
  */
 export function createPutOauthClientsClientId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.clients[':clientId'].$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
+      ) => parseResponse(client.oauth.clients[':clientId'].$put(args, options?.client)),
     },
     queryClient,
   )
@@ -439,25 +371,14 @@ export function createPutOauthClientsClientId(
  * クライアント削除
  */
 export function createDeleteOauthClientsClientId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.clients[':clientId'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
+      ) => parseResponse(client.oauth.clients[':clientId'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -469,25 +390,14 @@ export function createDeleteOauthClientsClientId(
  * クライアントシークレット再生成
  */
 export function createPostOauthClientsClientIdSecret(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.clients[':clientId'].secret.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+      ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -540,25 +450,14 @@ export function getGetOauthConsentsQueryKey() {
  * アプリケーションへのアクセス許可を取り消します
  */
 export function createDeleteOauthConsentsClientId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.oauth.consents[':clientId'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
+      ) => parseResponse(client.oauth.consents[':clientId'].$delete(args, options?.client)),
     },
     queryClient,
   )

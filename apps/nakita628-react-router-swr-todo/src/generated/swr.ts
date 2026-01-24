@@ -44,7 +44,7 @@ export function getGetApiKey() {
 export function useGetApiTodo(
   args: InferRequestType<typeof client.api.todo.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.api.todo.$get>, Error> & {
+    swr?: SWRConfiguration<InferResponseType<typeof client.api.todo.$get, 200>, Error> & {
       swrKey?: Key
       enabled?: boolean
     }
@@ -54,7 +54,7 @@ export function useGetApiTodo(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApiTodoKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.api.todo.$get>, Error>(
+  const query = useSWR<InferResponseType<typeof client.api.todo.$get, 200>, Error>(
     swrKey,
     async () => parseResponse(client.api.todo.$get(args, clientOptions)),
     swrOptions,
@@ -76,7 +76,7 @@ export function getGetApiTodoKey(args?: InferRequestType<typeof client.api.todo.
  */
 export function usePostApiTodo(options?: {
   swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.api.todo.$post>,
+    InferResponseType<typeof client.api.todo.$post, 201>,
     Error,
     string,
     InferRequestType<typeof client.api.todo.$post>
@@ -84,7 +84,7 @@ export function usePostApiTodo(options?: {
   client?: ClientRequestOptions
 }) {
   return useSWRMutation<
-    InferResponseType<typeof client.api.todo.$post>,
+    InferResponseType<typeof client.api.todo.$post, 201>,
     Error,
     string,
     InferRequestType<typeof client.api.todo.$post>
@@ -103,17 +103,17 @@ export function usePostApiTodo(options?: {
 export function useGetApiTodoId(
   args: InferRequestType<(typeof client.api.todo)[':id']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.api.todo)[':id']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration<
+      InferResponseType<(typeof client.api.todo)[':id']['$get'], 200>,
+      Error
+    > & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApiTodoIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.api.todo)[':id']['$get']>, Error>(
+  const query = useSWR<InferResponseType<(typeof client.api.todo)[':id']['$get'], 200>, Error>(
     swrKey,
     async () => parseResponse(client.api.todo[':id'].$get(args, clientOptions)),
     swrOptions,
@@ -137,7 +137,7 @@ export function getGetApiTodoIdKey(
  */
 export function usePutApiTodoId(options?: {
   swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.api.todo)[':id']['$put']>,
+    InferResponseType<(typeof client.api.todo)[':id']['$put'], 204>,
     Error,
     string,
     InferRequestType<(typeof client.api.todo)[':id']['$put']>
@@ -145,7 +145,7 @@ export function usePutApiTodoId(options?: {
   client?: ClientRequestOptions
 }) {
   return useSWRMutation<
-    InferResponseType<(typeof client.api.todo)[':id']['$put']>,
+    InferResponseType<(typeof client.api.todo)[':id']['$put'], 204>,
     Error,
     string,
     InferRequestType<(typeof client.api.todo)[':id']['$put']>
@@ -163,7 +163,7 @@ export function usePutApiTodoId(options?: {
  */
 export function useDeleteApiTodoId(options?: {
   swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.api.todo)[':id']['$delete']>,
+    InferResponseType<(typeof client.api.todo)[':id']['$delete'], 204>,
     Error,
     string,
     InferRequestType<(typeof client.api.todo)[':id']['$delete']>
@@ -171,7 +171,7 @@ export function useDeleteApiTodoId(options?: {
   client?: ClientRequestOptions
 }) {
   return useSWRMutation<
-    InferResponseType<(typeof client.api.todo)[':id']['$delete']>,
+    InferResponseType<(typeof client.api.todo)[':id']['$delete'], 204>,
     Error,
     string,
     InferRequestType<(typeof client.api.todo)[':id']['$delete']>

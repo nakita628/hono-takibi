@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
@@ -91,24 +91,13 @@ export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$
  * Submit a new post with a maximum length of 140 characters.
  */
 export function usePostPosts(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.posts.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.posts.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.posts.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.posts.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.posts.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
+        parseResponse(client.posts.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -122,24 +111,13 @@ export function usePostPosts(
  * Update the content of an existing post identified by its unique ID.
  */
 export function usePutPostsId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':id']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':id']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.posts[':id'].$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$put']>) =>
+        parseResponse(client.posts[':id'].$put(args, options?.client)),
     },
     queryClient,
   )
@@ -153,24 +131,13 @@ export function usePutPostsId(
  * Delete an existing post identified by its unique ID.
  */
 export function useDeletePostsId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.posts[':id'].$delete(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$delete']>) =>
+        parseResponse(client.posts[':id'].$delete(args, options?.client)),
     },
     queryClient,
   )

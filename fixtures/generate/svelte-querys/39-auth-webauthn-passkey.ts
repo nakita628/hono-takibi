@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
@@ -12,24 +12,12 @@ import { client } from '../clients/39-auth-webauthn-passkey'
  * パスキー登録のためのPublicKeyCredentialCreationOptionsを生成
  */
 export function createPostWebauthnRegisterOptions(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.webauthn.register.options.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.webauthn.register.options.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.webauthn.register.options.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webauthn.register.options.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.webauthn.register.options.$post>) =>
         parseResponse(client.webauthn.register.options.$post(args, options?.client)),
     },
     queryClient,
@@ -44,24 +32,12 @@ export function createPostWebauthnRegisterOptions(
  * クライアントから送信された認証情報を検証し、パスキーを登録
  */
 export function createPostWebauthnRegisterVerify(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.webauthn.register.verify.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.webauthn.register.verify.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.webauthn.register.verify.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webauthn.register.verify.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.webauthn.register.verify.$post>) =>
         parseResponse(client.webauthn.register.verify.$post(args, options?.client)),
     },
     queryClient,
@@ -76,25 +52,14 @@ export function createPostWebauthnRegisterVerify(
  * パスキー認証のためのPublicKeyCredentialRequestOptionsを生成
  */
 export function createPostWebauthnAuthenticateOptions(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.webauthn.authenticate.options.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.webauthn.authenticate.options.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.webauthn.authenticate.options.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webauthn.authenticate.options.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webauthn.authenticate.options.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
+      ) => parseResponse(client.webauthn.authenticate.options.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -108,25 +73,14 @@ export function createPostWebauthnAuthenticateOptions(
  * クライアントから送信された認証レスポンスを検証
  */
 export function createPostWebauthnAuthenticateVerify(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.webauthn.authenticate.verify.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.webauthn.authenticate.verify.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.webauthn.authenticate.verify.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webauthn.authenticate.verify.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webauthn.authenticate.verify.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
+      ) => parseResponse(client.webauthn.authenticate.verify.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -224,25 +178,14 @@ export function getGetWebauthnCredentialsCredentialIdQueryKey(
  * パスキーを削除（少なくとも1つは残す必要がある場合あり）
  */
 export function createDeleteWebauthnCredentialsCredentialId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
+      ) =>
         parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, options?.client)),
     },
     queryClient,
@@ -257,25 +200,14 @@ export function createDeleteWebauthnCredentialsCredentialId(
  * パスキーの名前などを更新
  */
 export function createPatchWebauthnCredentialsCredentialId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+      ) =>
         parseResponse(client.webauthn.credentials[':credentialId'].$patch(args, options?.client)),
     },
     queryClient,
@@ -365,24 +297,12 @@ export function getGetWebauthnSettingsRpQueryKey() {
  * リライングパーティ情報更新
  */
 export function createPutWebauthnSettingsRp(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.webauthn.settings.rp.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.webauthn.settings.rp.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.webauthn.settings.rp.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.webauthn.settings.rp.$put>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<typeof client.webauthn.settings.rp.$put>) =>
         parseResponse(client.webauthn.settings.rp.$put(args, options?.client)),
     },
     queryClient,

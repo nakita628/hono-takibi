@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
@@ -61,7 +61,7 @@ export function getGetTypeQueryKey() {
  * POST /function
  */
 export function usePostFunction(clientOptions?: ClientRequestOptions) {
-  return useMutation<InferResponseType<typeof client.function.$post> | undefined, Error, void>({
+  return useMutation({
     mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
   })
 }
@@ -142,7 +142,7 @@ export function getGetDefaultQueryKey() {
  * POST /new
  */
 export function usePostNew(clientOptions?: ClientRequestOptions) {
-  return useMutation<InferResponseType<typeof client.new.$post> | undefined, Error, void>({
+  return useMutation({
     mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
   })
 }
@@ -151,7 +151,7 @@ export function usePostNew(clientOptions?: ClientRequestOptions) {
  * DELETE /delete
  */
 export function useDeleteDelete(clientOptions?: ClientRequestOptions) {
-  return useMutation<InferResponseType<typeof client.delete.$delete> | undefined, Error, void>({
+  return useMutation({
     mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
   })
 }

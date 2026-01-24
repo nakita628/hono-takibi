@@ -1,9 +1,8 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
 /**
@@ -13,24 +12,11 @@ import { client } from '../clients/29-practical-user-api'
  *
  * メールアドレスとパスワードで新規ユーザーを登録します
  */
-export function usePostAuthRegister(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.register.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.register.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.auth.register.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.register.$post>
-  >(
+export function usePostAuthRegister(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /auth/register',
-    async (_, { arg }) => parseResponse(client.auth.register.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.auth.register.$post> }) =>
+      parseResponse(client.auth.register.$post(arg, options?.client)),
   )
 }
 
@@ -41,24 +27,11 @@ export function usePostAuthRegister(options?: {
  *
  * メールアドレスとパスワードで認証し、JWTトークンを取得します
  */
-export function usePostAuthLogin(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.login.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.login.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.auth.login.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.login.$post>
-  >(
+export function usePostAuthLogin(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /auth/login',
-    async (_, { arg }) => parseResponse(client.auth.login.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.auth.login.$post> }) =>
+      parseResponse(client.auth.login.$post(arg, options?.client)),
   )
 }
 
@@ -69,24 +42,11 @@ export function usePostAuthLogin(options?: {
  *
  * リフレッシュトークンを使用して新しいアクセストークンを取得します
  */
-export function usePostAuthRefresh(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.refresh.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.refresh.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.auth.refresh.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.refresh.$post>
-  >(
+export function usePostAuthRefresh(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /auth/refresh',
-    async (_, { arg }) => parseResponse(client.auth.refresh.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.auth.refresh.$post> }) =>
+      parseResponse(client.auth.refresh.$post(arg, options?.client)),
   )
 }
 
@@ -95,19 +55,9 @@ export function usePostAuthRefresh(options?: {
  *
  * ログアウト
  */
-export function usePostAuthLogout(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.logout.$post>,
-    Error,
-    string,
-    void
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<InferResponseType<typeof client.auth.logout.$post>, Error, string, void>(
-    'POST /auth/logout',
-    async () => parseResponse(client.auth.logout.$post(undefined, options?.client)),
-    options?.swr,
+export function usePostAuthLogout(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation('POST /auth/logout', async () =>
+    parseResponse(client.auth.logout.$post(undefined, options?.client)),
   )
 }
 
@@ -118,24 +68,13 @@ export function usePostAuthLogout(options?: {
  *
  * パスワードリセット用のメールを送信します
  */
-export function usePostAuthPasswordForgot(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.password.forgot.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.password.forgot.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.auth.password.forgot.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.password.forgot.$post>
-  >(
+export function usePostAuthPasswordForgot(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /auth/password/forgot',
-    async (_, { arg }) => parseResponse(client.auth.password.forgot.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<typeof client.auth.password.forgot.$post> },
+    ) => parseResponse(client.auth.password.forgot.$post(arg, options?.client)),
   )
 }
 
@@ -144,24 +83,13 @@ export function usePostAuthPasswordForgot(options?: {
  *
  * パスワードリセット実行
  */
-export function usePostAuthPasswordReset(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.auth.password.reset.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.password.reset.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.auth.password.reset.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.auth.password.reset.$post>
-  >(
+export function usePostAuthPasswordReset(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /auth/password/reset',
-    async (_, { arg }) => parseResponse(client.auth.password.reset.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<typeof client.auth.password.reset.$post> },
+    ) => parseResponse(client.auth.password.reset.$post(arg, options?.client)),
   )
 }
 
@@ -175,22 +103,21 @@ export function usePostAuthPasswordReset(options?: {
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.users.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.users.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.users.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -208,22 +135,21 @@ export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<(typeof client.users)[':userId']['$get']>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.users)[':userId']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -240,24 +166,13 @@ export function getGetUsersUserIdKey(
  *
  * ユーザー削除
  */
-export function useDeleteUsersUserId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.users)[':userId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.users)[':userId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.users)[':userId']['$delete']>
-  >(
+export function useDeleteUsersUserId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /users/:userId',
-    async (_, { arg }) => parseResponse(client.users[':userId'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$delete']> },
+    ) => parseResponse(client.users[':userId'].$delete(arg, options?.client)),
   )
 }
 
@@ -266,24 +181,13 @@ export function useDeleteUsersUserId(options?: {
  *
  * ユーザー情報更新
  */
-export function usePatchUsersUserId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.users)[':userId']['$patch']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.users)[':userId']['$patch']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.users)[':userId']['$patch']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.users)[':userId']['$patch']>
-  >(
+export function usePatchUsersUserId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PATCH /users/:userId',
-    async (_, { arg }) => parseResponse(client.users[':userId'].$patch(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$patch']> },
+    ) => parseResponse(client.users[':userId'].$patch(arg, options?.client)),
   )
 }
 
@@ -293,21 +197,20 @@ export function usePatchUsersUserId(options?: {
  * 現在のユーザー情報取得
  */
 export function useGetUsersMe(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.users.me.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersMeKey() : null)
-  const query = useSWR<InferResponseType<typeof client.users.me.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.users.me.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users.me.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -322,24 +225,11 @@ export function getGetUsersMeKey() {
  *
  * 現在のユーザー情報更新
  */
-export function usePatchUsersMe(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.$patch>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.me.$patch>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.users.me.$patch>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.me.$patch>
-  >(
+export function usePatchUsersMe(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PATCH /users/me',
-    async (_, { arg }) => parseResponse(client.users.me.$patch(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.users.me.$patch> }) =>
+      parseResponse(client.users.me.$patch(arg, options?.client)),
   )
 }
 
@@ -348,24 +238,11 @@ export function usePatchUsersMe(options?: {
  *
  * パスワード変更
  */
-export function usePutUsersMePassword(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.password.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.me.password.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.users.me.password.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.me.password.$put>
-  >(
+export function usePutUsersMePassword(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /users/me/password',
-    async (_, { arg }) => parseResponse(client.users.me.password.$put(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.users.me.password.$put> }) =>
+      parseResponse(client.users.me.password.$put(arg, options?.client)),
   )
 }
 
@@ -374,24 +251,11 @@ export function usePutUsersMePassword(options?: {
  *
  * アバター画像アップロード
  */
-export function usePutUsersMeAvatar(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.avatar.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.me.avatar.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.users.me.avatar.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.users.me.avatar.$put>
-  >(
+export function usePutUsersMeAvatar(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /users/me/avatar',
-    async (_, { arg }) => parseResponse(client.users.me.avatar.$put(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.users.me.avatar.$put> }) =>
+      parseResponse(client.users.me.avatar.$put(arg, options?.client)),
   )
 }
 
@@ -400,23 +264,8 @@ export function usePutUsersMeAvatar(options?: {
  *
  * アバター画像削除
  */
-export function useDeleteUsersMeAvatar(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.me.avatar.$delete>,
-    Error,
-    string,
-    void
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.users.me.avatar.$delete>,
-    Error,
-    string,
-    void
-  >(
-    'DELETE /users/me/avatar',
-    async () => parseResponse(client.users.me.avatar.$delete(undefined, options?.client)),
-    options?.swr,
+export function useDeleteUsersMeAvatar(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation('DELETE /users/me/avatar', async () =>
+    parseResponse(client.users.me.avatar.$delete(undefined, options?.client)),
   )
 }

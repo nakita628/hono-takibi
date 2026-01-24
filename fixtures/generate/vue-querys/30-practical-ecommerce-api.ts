@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
 
@@ -32,11 +32,10 @@ export function getGetProductsQueryKey(args: InferRequestType<typeof client.prod
  * 商品作成
  */
 export function usePostProducts(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.products.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.products.$post>
-  >({ mutationFn: async (args) => parseResponse(client.products.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
+      parseResponse(client.products.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -70,12 +69,8 @@ export function getGetProductsProductIdQueryKey(
  * 商品更新
  */
 export function usePutProductsProductId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.products)[':productId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.products)[':productId']['$put']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$put']>) =>
       parseResponse(client.products[':productId'].$put(args, clientOptions)),
   })
 }
@@ -86,12 +81,8 @@ export function usePutProductsProductId(clientOptions?: ClientRequestOptions) {
  * 商品削除
  */
 export function useDeleteProductsProductId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.products)[':productId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.products)[':productId']['$delete']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$delete']>) =>
       parseResponse(client.products[':productId'].$delete(args, clientOptions)),
   })
 }
@@ -102,13 +93,10 @@ export function useDeleteProductsProductId(clientOptions?: ClientRequestOptions)
  * 商品画像アップロード
  */
 export function usePostProductsProductIdImages(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.products)[':productId']['images']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.products)[':productId']['images']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.products[':productId'].images.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.products)[':productId']['images']['$post']>,
+    ) => parseResponse(client.products[':productId'].images.$post(args, clientOptions)),
   })
 }
 
@@ -138,11 +126,10 @@ export function getGetCategoriesQueryKey() {
  * カテゴリ作成
  */
 export function usePostCategories(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.categories.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.categories.$post>
-  >({ mutationFn: async (args) => parseResponse(client.categories.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.categories.$post>) =>
+      parseResponse(client.categories.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -171,7 +158,7 @@ export function getGetCartQueryKey() {
  * カートをクリア
  */
 export function useDeleteCart(clientOptions?: ClientRequestOptions) {
-  return useMutation<InferResponseType<typeof client.cart.$delete> | undefined, Error, void>({
+  return useMutation({
     mutationFn: async () => parseResponse(client.cart.$delete(undefined, clientOptions)),
   })
 }
@@ -182,11 +169,10 @@ export function useDeleteCart(clientOptions?: ClientRequestOptions) {
  * カートに商品追加
  */
 export function usePostCartItems(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.cart.items.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.cart.items.$post>
-  >({ mutationFn: async (args) => parseResponse(client.cart.items.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.cart.items.$post>) =>
+      parseResponse(client.cart.items.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -195,12 +181,8 @@ export function usePostCartItems(clientOptions?: ClientRequestOptions) {
  * カートアイテム数量変更
  */
 export function usePutCartItemsItemId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.cart.items)[':itemId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.cart.items)[':itemId']['$put']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.cart.items)[':itemId']['$put']>) =>
       parseResponse(client.cart.items[':itemId'].$put(args, clientOptions)),
   })
 }
@@ -211,12 +193,8 @@ export function usePutCartItemsItemId(clientOptions?: ClientRequestOptions) {
  * カートから商品削除
  */
 export function useDeleteCartItemsItemId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.cart.items)[':itemId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>) =>
       parseResponse(client.cart.items[':itemId'].$delete(args, clientOptions)),
   })
 }
@@ -252,11 +230,10 @@ export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders
  * カートの内容から注文を作成します
  */
 export function usePostOrders(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.orders.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.orders.$post>
-  >({ mutationFn: async (args) => parseResponse(client.orders.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+      parseResponse(client.orders.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -290,13 +267,10 @@ export function getGetOrdersOrderIdQueryKey(
  * 注文キャンセル
  */
 export function usePostOrdersOrderIdCancel(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.orders)[':orderId']['cancel']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.orders[':orderId'].cancel.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>,
+    ) => parseResponse(client.orders[':orderId'].cancel.$post(args, clientOptions)),
   })
 }
 
@@ -331,12 +305,8 @@ export function getGetInventoryProductIdQueryKey(
  * 在庫更新
  */
 export function usePutInventoryProductId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.inventory)[':productId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.inventory)[':productId']['$put']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.inventory)[':productId']['$put']>) =>
       parseResponse(client.inventory[':productId'].$put(args, clientOptions)),
   })
 }

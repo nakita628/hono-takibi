@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
@@ -32,11 +32,10 @@ export function getGetProjectsQueryKey(args: InferRequestType<typeof client.proj
  * プロジェクト作成
  */
 export function usePostProjects(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.projects.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.projects.$post>
-  >({ mutationFn: async (args) => parseResponse(client.projects.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.projects.$post>) =>
+      parseResponse(client.projects.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -70,12 +69,8 @@ export function getGetProjectsProjectIdQueryKey(
  * プロジェクト更新
  */
 export function usePutProjectsProjectId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.projects)[':projectId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.projects)[':projectId']['$put']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.projects)[':projectId']['$put']>) =>
       parseResponse(client.projects[':projectId'].$put(args, clientOptions)),
   })
 }
@@ -86,12 +81,8 @@ export function usePutProjectsProjectId(clientOptions?: ClientRequestOptions) {
  * プロジェクト削除
  */
 export function useDeleteProjectsProjectId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.projects)[':projectId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.projects)[':projectId']['$delete']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.projects)[':projectId']['$delete']>) =>
       parseResponse(client.projects[':projectId'].$delete(args, clientOptions)),
   })
 }
@@ -128,13 +119,10 @@ export function getGetProjectsProjectIdMembersQueryKey(
  * メンバー追加
  */
 export function usePostProjectsProjectIdMembers(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.projects)[':projectId']['members']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.projects[':projectId'].members.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
+    ) => parseResponse(client.projects[':projectId'].members.$post(args, clientOptions)),
   })
 }
 
@@ -170,13 +158,10 @@ export function getGetProjectsProjectIdTasksQueryKey(
  * タスク作成
  */
 export function usePostProjectsProjectIdTasks(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.projects)[':projectId']['tasks']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.projects[':projectId'].tasks.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
+    ) => parseResponse(client.projects[':projectId'].tasks.$post(args, clientOptions)),
   })
 }
 
@@ -211,12 +196,9 @@ export function getGetTasksTaskIdQueryKey(
  * タスク更新
  */
 export function usePutTasksTaskId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.tasks)[':taskId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.tasks)[':taskId']['$put']>
-  >({
-    mutationFn: async (args) => parseResponse(client.tasks[':taskId'].$put(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.tasks)[':taskId']['$put']>) =>
+      parseResponse(client.tasks[':taskId'].$put(args, clientOptions)),
   })
 }
 
@@ -226,12 +208,9 @@ export function usePutTasksTaskId(clientOptions?: ClientRequestOptions) {
  * タスク削除
  */
 export function useDeleteTasksTaskId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.tasks)[':taskId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.tasks)[':taskId']['$delete']>
-  >({
-    mutationFn: async (args) => parseResponse(client.tasks[':taskId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>) =>
+      parseResponse(client.tasks[':taskId'].$delete(args, clientOptions)),
   })
 }
 
@@ -241,13 +220,10 @@ export function useDeleteTasksTaskId(clientOptions?: ClientRequestOptions) {
  * タスクステータス更新
  */
 export function usePatchTasksTaskIdStatus(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.tasks)[':taskId']['status']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.tasks[':taskId'].status.$patch(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
+    ) => parseResponse(client.tasks[':taskId'].status.$patch(args, clientOptions)),
   })
 }
 
@@ -282,13 +258,10 @@ export function getGetTasksTaskIdCommentsQueryKey(
  * コメント追加
  */
 export function usePostTasksTaskIdComments(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.tasks)[':taskId']['comments']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.tasks[':taskId'].comments.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
+    ) => parseResponse(client.tasks[':taskId'].comments.$post(args, clientOptions)),
   })
 }
 
@@ -324,13 +297,10 @@ export function getGetTasksTaskIdTimeEntriesQueryKey(
  * 時間記録作成
  */
 export function usePostTasksTaskIdTimeEntries(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.tasks[':taskId']['time-entries'].$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
+    ) => parseResponse(client.tasks[':taskId']['time-entries'].$post(args, clientOptions)),
   })
 }
 
@@ -366,13 +336,10 @@ export function getGetProjectsProjectIdMilestonesQueryKey(
  * マイルストーン作成
  */
 export function usePostProjectsProjectIdMilestones(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.projects)[':projectId']['milestones']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.projects[':projectId'].milestones.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
+    ) => parseResponse(client.projects[':projectId'].milestones.$post(args, clientOptions)),
   })
 }
 
@@ -402,9 +369,8 @@ export function getGetTeamsQueryKey() {
  * チーム作成
  */
 export function usePostTeams(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.teams.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.teams.$post>
-  >({ mutationFn: async (args) => parseResponse(client.teams.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.teams.$post>) =>
+      parseResponse(client.teams.$post(args, clientOptions)),
+  })
 }

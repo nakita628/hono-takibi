@@ -1,9 +1,8 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
 /**
@@ -17,22 +16,21 @@ import { client } from '../clients/35-auth-oauth2-server'
 export function useGetOauthAuthorize(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.oauth.authorize.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauthAuthorizeKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.oauth.authorize.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.oauth.authorize.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.oauth.authorize.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -52,24 +50,11 @@ export function getGetOauthAuthorizeKey(
  * アクセストークンを発行します。
  * Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。
  */
-export function usePostOauthToken(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.oauth.token.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.oauth.token.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.oauth.token.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.oauth.token.$post>
-  >(
+export function usePostOauthToken(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /oauth/token',
-    async (_, { arg }) => parseResponse(client.oauth.token.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.token.$post> }) =>
+      parseResponse(client.oauth.token.$post(arg, options?.client)),
   )
 }
 
@@ -80,24 +65,11 @@ export function usePostOauthToken(options?: {
  *
  * アクセストークンまたはリフレッシュトークンを無効化します（RFC 7009）
  */
-export function usePostOauthRevoke(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.oauth.revoke.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.oauth.revoke.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.oauth.revoke.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.oauth.revoke.$post>
-  >(
+export function usePostOauthRevoke(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /oauth/revoke',
-    async (_, { arg }) => parseResponse(client.oauth.revoke.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.revoke.$post> }) =>
+      parseResponse(client.oauth.revoke.$post(arg, options?.client)),
   )
 }
 
@@ -108,24 +80,11 @@ export function usePostOauthRevoke(options?: {
  *
  * トークンの有効性と情報を取得します（RFC 7662）
  */
-export function usePostOauthIntrospect(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.oauth.introspect.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.oauth.introspect.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.oauth.introspect.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.oauth.introspect.$post>
-  >(
+export function usePostOauthIntrospect(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /oauth/introspect',
-    async (_, { arg }) => parseResponse(client.oauth.introspect.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.introspect.$post> }) =>
+      parseResponse(client.oauth.introspect.$post(arg, options?.client)),
   )
 }
 
@@ -136,24 +95,11 @@ export function usePostOauthIntrospect(options?: {
  *
  * デバイスフロー用の認可コードを発行します（RFC 8628）
  */
-export function usePostOauthDeviceCode(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.oauth.device.code.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.oauth.device.code.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.oauth.device.code.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.oauth.device.code.$post>
-  >(
+export function usePostOauthDeviceCode(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /oauth/device/code',
-    async (_, { arg }) => parseResponse(client.oauth.device.code.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.device.code.$post> }) =>
+      parseResponse(client.oauth.device.code.$post(arg, options?.client)),
   )
 }
 
@@ -165,21 +111,20 @@ export function usePostOauthDeviceCode(options?: {
  * OpenID Connect UserInfo エンドポイント
  */
 export function useGetOauthUserinfo(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.oauth.userinfo.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauthUserinfoKey() : null)
-  const query = useSWR<InferResponseType<typeof client.oauth.userinfo.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.oauth.userinfo.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.oauth.userinfo.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -197,25 +142,21 @@ export function getGetOauthUserinfoKey() {
  * OpenID Connect の設定情報を返します
  */
 export function useGetWellKnownOpenidConfiguration(options?: {
-  swr?: SWRConfiguration<
-    InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
-    Error
-  > & { swrKey?: Key; enabled?: boolean }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWellKnownOpenidConfigurationKey() : null)
-  const query = useSWR<
-    InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () =>
-      parseResponse(client['.well-known']['openid-configuration'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(client['.well-known']['openid-configuration'].$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -233,24 +174,20 @@ export function getGetWellKnownOpenidConfigurationKey() {
  * JWTの検証に使用する公開鍵セット
  */
 export function useGetWellKnownJwksJson(options?: {
-  swr?: SWRConfiguration<
-    InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
-    Error
-  > & { swrKey?: Key; enabled?: boolean }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWellKnownJwksJsonKey() : null)
-  const query = useSWR<
-    InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () => parseResponse(client['.well-known']['jwks.json'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client['.well-known']['jwks.json'].$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -266,21 +203,20 @@ export function getGetWellKnownJwksJsonKey() {
  * クライアント一覧取得
  */
 export function useGetOauthClients(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.oauth.clients.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauthClientsKey() : null)
-  const query = useSWR<InferResponseType<typeof client.oauth.clients.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.oauth.clients.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.oauth.clients.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -295,24 +231,11 @@ export function getGetOauthClientsKey() {
  *
  * クライアント作成
  */
-export function usePostOauthClients(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.oauth.clients.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.oauth.clients.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.oauth.clients.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.oauth.clients.$post>
-  >(
+export function usePostOauthClients(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /oauth/clients',
-    async (_, { arg }) => parseResponse(client.oauth.clients.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.clients.$post> }) =>
+      parseResponse(client.oauth.clients.$post(arg, options?.client)),
   )
 }
 
@@ -324,25 +247,21 @@ export function usePostOauthClients(options?: {
 export function useGetOauthClientsClientId(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauthClientsClientIdKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () => parseResponse(client.oauth.clients[':clientId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.oauth.clients[':clientId'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -359,25 +278,13 @@ export function getGetOauthClientsClientIdKey(
  *
  * クライアント更新
  */
-export function usePutOauthClientsClientId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
-  >(
+export function usePutOauthClientsClientId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /oauth/clients/:clientId',
-    async (_, { arg }) =>
-      parseResponse(client.oauth.clients[':clientId'].$put(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']> },
+    ) => parseResponse(client.oauth.clients[':clientId'].$put(arg, options?.client)),
   )
 }
 
@@ -386,25 +293,13 @@ export function usePutOauthClientsClientId(options?: {
  *
  * クライアント削除
  */
-export function useDeleteOauthClientsClientId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
-  >(
+export function useDeleteOauthClientsClientId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /oauth/clients/:clientId',
-    async (_, { arg }) =>
-      parseResponse(client.oauth.clients[':clientId'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']> },
+    ) => parseResponse(client.oauth.clients[':clientId'].$delete(arg, options?.client)),
   )
 }
 
@@ -413,25 +308,15 @@ export function useDeleteOauthClientsClientId(options?: {
  *
  * クライアントシークレット再生成
  */
-export function usePostOauthClientsClientIdSecret(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
-  >(
+export function usePostOauthClientsClientIdSecret(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /oauth/clients/:clientId/secret',
-    async (_, { arg }) =>
-      parseResponse(client.oauth.clients[':clientId'].secret.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      {
+        arg,
+      }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> },
+    ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(arg, options?.client)),
   )
 }
 
@@ -443,21 +328,20 @@ export function usePostOauthClientsClientIdSecret(options?: {
  * ユーザーが許可したアプリケーション一覧
  */
 export function useGetOauthConsents(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.oauth.consents.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauthConsentsKey() : null)
-  const query = useSWR<InferResponseType<typeof client.oauth.consents.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.oauth.consents.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.oauth.consents.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -474,24 +358,12 @@ export function getGetOauthConsentsKey() {
  *
  * アプリケーションへのアクセス許可を取り消します
  */
-export function useDeleteOauthConsentsClientId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>
-  >(
+export function useDeleteOauthConsentsClientId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /oauth/consents/:clientId',
-    async (_, { arg }) =>
-      parseResponse(client.oauth.consents[':clientId'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']> },
+    ) => parseResponse(client.oauth.consents[':clientId'].$delete(arg, options?.client)),
   )
 }

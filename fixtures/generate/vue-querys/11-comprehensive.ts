@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
 
@@ -34,11 +34,10 @@ export function getGetProductsQueryKey(args: InferRequestType<typeof client.prod
  * Create a new product
  */
 export function usePostProducts(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.products.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.products.$post>
-  >({ mutationFn: async (args) => parseResponse(client.products.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
+      parseResponse(client.products.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -72,12 +71,8 @@ export function getGetProductsProductIdQueryKey(
  * Update a product
  */
 export function usePutProductsProductId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.products)[':productId']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.products)[':productId']['$put']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$put']>) =>
       parseResponse(client.products[':productId'].$put(args, clientOptions)),
   })
 }
@@ -88,12 +83,8 @@ export function usePutProductsProductId(clientOptions?: ClientRequestOptions) {
  * Delete a product
  */
 export function useDeleteProductsProductId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.products)[':productId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.products)[':productId']['$delete']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$delete']>) =>
       parseResponse(client.products[':productId'].$delete(args, clientOptions)),
   })
 }
@@ -104,11 +95,10 @@ export function useDeleteProductsProductId(clientOptions?: ClientRequestOptions)
  * Create a new order
  */
 export function usePostOrders(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.orders.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.orders.$post>
-  >({ mutationFn: async (args) => parseResponse(client.orders.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+      parseResponse(client.orders.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -117,9 +107,8 @@ export function usePostOrders(clientOptions?: ClientRequestOptions) {
  * Register a webhook endpoint
  */
 export function usePostWebhooks(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.webhooks.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.webhooks.$post>
-  >({ mutationFn: async (args) => parseResponse(client.webhooks.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
+      parseResponse(client.webhooks.$post(args, clientOptions)),
+  })
 }

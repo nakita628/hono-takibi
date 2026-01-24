@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
@@ -7,11 +7,10 @@ import { client } from '../clients/08-links'
  * POST /orders
  */
 export function usePostOrders(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.orders.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.orders.$post>
-  >({ mutationFn: async (args) => parseResponse(client.orders.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+      parseResponse(client.orders.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -41,12 +40,8 @@ export function getGetOrdersOrderIdQueryKey(
  * DELETE /orders/{orderId}
  */
 export function useDeleteOrdersOrderId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.orders)[':orderId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.orders)[':orderId']['$delete']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.orders)[':orderId']['$delete']>) =>
       parseResponse(client.orders[':orderId'].$delete(args, clientOptions)),
   })
 }

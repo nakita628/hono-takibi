@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
@@ -82,24 +82,12 @@ export function getGetItemsItemIdQueryKey(
  * DELETE /items/{itemId}
  */
 export function createDeleteItemsItemId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.items)[':itemId']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.items)[':itemId']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) =>
         parseResponse(client.items[':itemId'].$delete(args, options?.client)),
     },
     queryClient,

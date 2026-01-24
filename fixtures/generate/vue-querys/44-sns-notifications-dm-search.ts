@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/44-sns-notifications-dm-search'
 
@@ -55,13 +55,10 @@ export function getGetNotificationsUnreadCountQueryKey() {
  * 通知を既読にする
  */
 export function usePostNotificationsMarkRead(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.notifications)['mark-read']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.notifications)['mark-read']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.notifications['mark-read'].$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
+    ) => parseResponse(client.notifications['mark-read'].$post(args, clientOptions)),
   })
 }
 
@@ -92,12 +89,8 @@ export function getGetNotificationsSettingsQueryKey() {
  * 通知設定更新
  */
 export function usePutNotificationsSettings(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.notifications.settings.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.notifications.settings.$put>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.notifications.settings.$put>) =>
       parseResponse(client.notifications.settings.$put(args, clientOptions)),
   })
 }
@@ -133,12 +126,9 @@ export function getGetDmConversationsQueryKey(
  * 会話作成
  */
 export function usePostDmConversations(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.dm.conversations.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.dm.conversations.$post>
-  >({
-    mutationFn: async (args) => parseResponse(client.dm.conversations.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.dm.conversations.$post>) =>
+      parseResponse(client.dm.conversations.$post(args, clientOptions)),
   })
 }
 
@@ -174,13 +164,10 @@ export function getGetDmConversationsConversationIdQueryKey(
  * 会話を退出
  */
 export function useDeleteDmConversationsConversationId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.dm.conversations)[':conversationId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.dm.conversations[':conversationId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
+    ) => parseResponse(client.dm.conversations[':conversationId'].$delete(args, clientOptions)),
   })
 }
 
@@ -216,13 +203,12 @@ export function getGetDmConversationsConversationIdMessagesQueryKey(
  * メッセージ送信
  */
 export function usePostDmConversationsConversationIdMessages(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    | InferResponseType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
+      >,
+    ) =>
       parseResponse(client.dm.conversations[':conversationId'].messages.$post(args, clientOptions)),
   })
 }
@@ -233,14 +219,10 @@ export function usePostDmConversationsConversationIdMessages(clientOptions?: Cli
  * 会話を既読にする
  */
 export function usePostDmConversationsConversationIdRead(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    | InferResponseType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.dm.conversations[':conversationId'].read.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>,
+    ) => parseResponse(client.dm.conversations[':conversationId'].read.$post(args, clientOptions)),
   })
 }
 
@@ -250,13 +232,12 @@ export function usePostDmConversationsConversationIdRead(clientOptions?: ClientR
  * 入力中インジケーター送信
  */
 export function usePostDmConversationsConversationIdTyping(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    | InferResponseType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
-  >({
-    mutationFn: async (args) =>
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
+      >,
+    ) =>
       parseResponse(client.dm.conversations[':conversationId'].typing.$post(args, clientOptions)),
   })
 }
@@ -267,13 +248,10 @@ export function usePostDmConversationsConversationIdTyping(clientOptions?: Clien
  * メッセージ削除
  */
 export function useDeleteDmMessagesMessageId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.dm.messages)[':messageId']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.dm.messages[':messageId'].$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
+    ) => parseResponse(client.dm.messages[':messageId'].$delete(args, clientOptions)),
   })
 }
 
@@ -283,13 +261,10 @@ export function useDeleteDmMessagesMessageId(clientOptions?: ClientRequestOption
  * メッセージにリアクション追加
  */
 export function usePostDmMessagesMessageIdReactions(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.dm.messages)[':messageId']['reactions']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.dm.messages[':messageId'].reactions.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
+    ) => parseResponse(client.dm.messages[':messageId'].reactions.$post(args, clientOptions)),
   })
 }
 
@@ -299,14 +274,10 @@ export function usePostDmMessagesMessageIdReactions(clientOptions?: ClientReques
  * メッセージのリアクション削除
  */
 export function useDeleteDmMessagesMessageIdReactions(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    | InferResponseType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.dm.messages[':messageId'].reactions.$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>,
+    ) => parseResponse(client.dm.messages[':messageId'].reactions.$delete(args, clientOptions)),
   })
 }
 
@@ -427,11 +398,7 @@ export function getGetSearchRecentQueryKey() {
  * 検索履歴クリア
  */
 export function useDeleteSearchRecent(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.search.recent.$delete> | undefined,
-    Error,
-    void
-  >({
+  return useMutation({
     mutationFn: async () => parseResponse(client.search.recent.$delete(undefined, clientOptions)),
   })
 }
@@ -510,13 +477,10 @@ export function getGetSuggestionsUsersQueryKey(
  * おすすめユーザーを非表示
  */
 export function usePostSuggestionsUsersUserIdHide(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.suggestions.users)[':userId']['hide']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.suggestions.users[':userId'].hide.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
+    ) => parseResponse(client.suggestions.users[':userId'].hide.$post(args, clientOptions)),
   })
 }
 
@@ -546,13 +510,10 @@ export function getGetSuggestionsTopicsQueryKey() {
  * トピックをフォロー
  */
 export function usePostTopicsTopicIdFollow(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.topics)[':topicId']['follow']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.topics[':topicId'].follow.$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
+    ) => parseResponse(client.topics[':topicId'].follow.$post(args, clientOptions)),
   })
 }
 
@@ -562,12 +523,9 @@ export function usePostTopicsTopicIdFollow(clientOptions?: ClientRequestOptions)
  * トピックのフォロー解除
  */
 export function useDeleteTopicsTopicIdFollow(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.topics)[':topicId']['follow']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>
-  >({
-    mutationFn: async (args) =>
-      parseResponse(client.topics[':topicId'].follow.$delete(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
+    ) => parseResponse(client.topics[':topicId'].follow.$delete(args, clientOptions)),
   })
 }

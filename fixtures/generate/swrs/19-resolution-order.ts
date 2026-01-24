@@ -1,30 +1,28 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
 /**
  * GET /entities
  */
 export function useGetEntities(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.entities.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEntitiesKey() : null)
-  const query = useSWR<InferResponseType<typeof client.entities.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.entities.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.entities.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -37,24 +35,11 @@ export function getGetEntitiesKey() {
 /**
  * POST /process
  */
-export function usePostProcess(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.process.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.process.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.process.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.process.$post>
-  >(
+export function usePostProcess(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /process',
-    async (_, { arg }) => parseResponse(client.process.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.process.$post> }) =>
+      parseResponse(client.process.$post(arg, options?.client)),
   )
 }
 
@@ -62,21 +47,20 @@ export function usePostProcess(options?: {
  * GET /graph
  */
 export function useGetGraph(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.graph.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGraphKey() : null)
-  const query = useSWR<InferResponseType<typeof client.graph.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.graph.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.graph.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -89,23 +73,10 @@ export function getGetGraphKey() {
 /**
  * POST /transform
  */
-export function usePostTransform(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.transform.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.transform.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.transform.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.transform.$post>
-  >(
+export function usePostTransform(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /transform',
-    async (_, { arg }) => parseResponse(client.transform.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.transform.$post> }) =>
+      parseResponse(client.transform.$post(arg, options?.client)),
   )
 }

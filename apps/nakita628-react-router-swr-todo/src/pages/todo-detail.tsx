@@ -41,7 +41,8 @@ export function TodoDetailPage() {
     { param: { id: id ?? '' } },
     { swr: { enabled: !!id } },
   )
-  const todo: Todo | undefined = isTodo(data) ? data : undefined
+
+  const todo = data
 
   if (isLoading) {
     return (

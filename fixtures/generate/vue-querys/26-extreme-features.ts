@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -29,11 +29,10 @@ export function getGetStreamQueryKey() {
  * GraphQL endpoint
  */
 export function usePostGraphql(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.graphql.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.graphql.$post>
-  >({ mutationFn: async (args) => parseResponse(client.graphql.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.graphql.$post>) =>
+      parseResponse(client.graphql.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -42,12 +41,9 @@ export function usePostGraphql(clientOptions?: ClientRequestOptions) {
  * gRPC-Gateway endpoint
  */
 export function usePostGrpcGateway(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client)['grpc-gateway']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['grpc-gateway']['$post']>
-  >({
-    mutationFn: async (args) => parseResponse(client['grpc-gateway'].$post(args, clientOptions)),
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['grpc-gateway']['$post']>) =>
+      parseResponse(client['grpc-gateway'].$post(args, clientOptions)),
   })
 }
 

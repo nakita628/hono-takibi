@@ -50,7 +50,7 @@ describe('tanstackQuery', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -142,24 +142,13 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  * Create a new user.
  */
 export function usePostUsers(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.users.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.users.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+        parseResponse(client.users.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -298,8 +287,8 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
       // Check POST hook file (mutation)
       const usePostUsers = fs.readFileSync(path.join(dir, 'hooks', 'usePostUsers.ts'), 'utf-8')
       const usePostUsersExpected = `import { useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseMutationOptions } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { QueryClient } from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -311,24 +300,13 @@ import { client } from '../client'
  * Create a new user.
  */
 export function usePostUsers(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.users.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.users.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+        parseResponse(client.users.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -452,7 +430,7 @@ describe('tanstackQuery (no args operations)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -500,21 +478,11 @@ export function getGetPingQueryKey() {
  * Post ping
  */
 export function usePostPing(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.ping.$post> | undefined,
-      Error,
-      void
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<InferResponseType<typeof client.ping.$post> | undefined, Error, void>(
-    {
-      ...options?.mutation,
-      mutationFn: async () => parseResponse(client.ping.$post(undefined, options?.client)),
-    },
+  return useMutation(
+    { mutationFn: async () => parseResponse(client.ping.$post(undefined, options?.client)) },
     queryClient,
   )
 }
@@ -633,7 +601,7 @@ describe('tanstackQuery (path parameters)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -684,24 +652,13 @@ export function getGetUsersIdQueryKey(
  * Delete user
  */
 export function useDeleteUsersId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.users)[':id']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.users)[':id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users[':id'].$delete(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client.users)[':id']['$delete']>) =>
+        parseResponse(client.users[':id'].$delete(args, options?.client)),
     },
     queryClient,
   )

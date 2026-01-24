@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
@@ -58,11 +58,10 @@ export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$
  * Submit a new post with a maximum length of 140 characters.
  */
 export function usePostPosts(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.posts.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.posts.$post>
-  >({ mutationFn: async (args) => parseResponse(client.posts.$post(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
+      parseResponse(client.posts.$post(args, clientOptions)),
+  })
 }
 
 /**
@@ -73,11 +72,10 @@ export function usePostPosts(clientOptions?: ClientRequestOptions) {
  * Update the content of an existing post identified by its unique ID.
  */
 export function usePutPostsId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':id']['$put']>
-  >({ mutationFn: async (args) => parseResponse(client.posts[':id'].$put(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$put']>) =>
+      parseResponse(client.posts[':id'].$put(args, clientOptions)),
+  })
 }
 
 /**
@@ -88,9 +86,8 @@ export function usePutPostsId(clientOptions?: ClientRequestOptions) {
  * Delete an existing post identified by its unique ID.
  */
 export function useDeletePostsId(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':id']['$delete']>
-  >({ mutationFn: async (args) => parseResponse(client.posts[':id'].$delete(args, clientOptions)) })
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$delete']>) =>
+      parseResponse(client.posts[':id'].$delete(args, clientOptions)),
+  })
 }

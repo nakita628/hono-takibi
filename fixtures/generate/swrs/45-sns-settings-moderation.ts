@@ -1,9 +1,8 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
 /**
@@ -12,21 +11,20 @@ import { client } from '../clients/45-sns-settings-moderation'
  * アカウント設定取得
  */
 export function useGetSettingsAccount(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.settings.account.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSettingsAccountKey() : null)
-  const query = useSWR<InferResponseType<typeof client.settings.account.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.settings.account.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.settings.account.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -41,24 +39,11 @@ export function getGetSettingsAccountKey() {
  *
  * アカウント設定更新
  */
-export function usePutSettingsAccount(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.settings.account.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.settings.account.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.settings.account.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.settings.account.$put>
-  >(
+export function usePutSettingsAccount(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /settings/account',
-    async (_, { arg }) => parseResponse(client.settings.account.$put(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.settings.account.$put> }) =>
+      parseResponse(client.settings.account.$put(arg, options?.client)),
   )
 }
 
@@ -70,22 +55,21 @@ export function usePutSettingsAccount(options?: {
 export function useGetSettingsUsernameCheck(
   args: InferRequestType<typeof client.settings.username.check.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.settings.username.check.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSettingsUsernameCheckKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.settings.username.check.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.settings.username.check.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.settings.username.check.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -103,21 +87,20 @@ export function getGetSettingsUsernameCheckKey(
  * プライバシー設定取得
  */
 export function useGetSettingsPrivacy(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.settings.privacy.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSettingsPrivacyKey() : null)
-  const query = useSWR<InferResponseType<typeof client.settings.privacy.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.settings.privacy.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.settings.privacy.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -132,24 +115,11 @@ export function getGetSettingsPrivacyKey() {
  *
  * プライバシー設定更新
  */
-export function usePutSettingsPrivacy(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.settings.privacy.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.settings.privacy.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.settings.privacy.$put>,
-    Error,
-    string,
-    InferRequestType<typeof client.settings.privacy.$put>
-  >(
+export function usePutSettingsPrivacy(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /settings/privacy',
-    async (_, { arg }) => parseResponse(client.settings.privacy.$put(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.settings.privacy.$put> }) =>
+      parseResponse(client.settings.privacy.$put(arg, options?.client)),
   )
 }
 
@@ -159,25 +129,21 @@ export function usePutSettingsPrivacy(options?: {
  * コンテンツ設定取得
  */
 export function useGetSettingsContentPreferences(options?: {
-  swr?: SWRConfiguration<
-    InferResponseType<(typeof client.settings)['content-preferences']['$get']>,
-    Error
-  > & { swrKey?: Key; enabled?: boolean }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSettingsContentPreferencesKey() : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.settings)['content-preferences']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () =>
-      parseResponse(client.settings['content-preferences'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(client.settings['content-preferences'].$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -192,25 +158,13 @@ export function getGetSettingsContentPreferencesKey() {
  *
  * コンテンツ設定更新
  */
-export function usePutSettingsContentPreferences(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings)['content-preferences']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.settings)['content-preferences']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.settings)['content-preferences']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.settings)['content-preferences']['$put']>
-  >(
+export function usePutSettingsContentPreferences(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /settings/content-preferences',
-    async (_, { arg }) =>
-      parseResponse(client.settings['content-preferences'].$put(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.settings)['content-preferences']['$put']> },
+    ) => parseResponse(client.settings['content-preferences'].$put(arg, options?.client)),
   )
 }
 
@@ -220,21 +174,20 @@ export function usePutSettingsContentPreferences(options?: {
  * ミュートワード一覧取得
  */
 export function useGetSettingsMutedWords(options?: {
-  swr?: SWRConfiguration<
-    InferResponseType<(typeof client.settings)['muted-words']['$get']>,
-    Error
-  > & { swrKey?: Key; enabled?: boolean }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSettingsMutedWordsKey() : null)
-  const query = useSWR<InferResponseType<(typeof client.settings)['muted-words']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.settings['muted-words'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.settings['muted-words'].$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -249,24 +202,13 @@ export function getGetSettingsMutedWordsKey() {
  *
  * ミュートワード追加
  */
-export function usePostSettingsMutedWords(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings)['muted-words']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.settings)['muted-words']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.settings)['muted-words']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.settings)['muted-words']['$post']>
-  >(
+export function usePostSettingsMutedWords(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /settings/muted-words',
-    async (_, { arg }) => parseResponse(client.settings['muted-words'].$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.settings)['muted-words']['$post']> },
+    ) => parseResponse(client.settings['muted-words'].$post(arg, options?.client)),
   )
 }
 
@@ -275,25 +217,15 @@ export function usePostSettingsMutedWords(options?: {
  *
  * ミュートワード削除
  */
-export function useDeleteSettingsMutedWordsWordId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
-  >(
+export function useDeleteSettingsMutedWordsWordId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /settings/muted-words/:wordId',
-    async (_, { arg }) =>
-      parseResponse(client.settings['muted-words'][':wordId'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      {
+        arg,
+      }: { arg: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']> },
+    ) => parseResponse(client.settings['muted-words'][':wordId'].$delete(arg, options?.client)),
   )
 }
 
@@ -303,21 +235,20 @@ export function useDeleteSettingsMutedWordsWordId(options?: {
  * ログインセッション一覧
  */
 export function useGetSettingsSessions(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.settings.sessions.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSettingsSessionsKey() : null)
-  const query = useSWR<InferResponseType<typeof client.settings.sessions.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.settings.sessions.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.settings.sessions.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -332,25 +263,15 @@ export function getGetSettingsSessionsKey() {
  *
  * セッション無効化
  */
-export function useDeleteSettingsSessionsSessionId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>
-  >(
+export function useDeleteSettingsSessionsSessionId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /settings/sessions/:sessionId',
-    async (_, { arg }) =>
-      parseResponse(client.settings.sessions[':sessionId'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      {
+        arg,
+      }: { arg: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']> },
+    ) => parseResponse(client.settings.sessions[':sessionId'].$delete(arg, options?.client)),
   )
 }
 
@@ -360,24 +281,20 @@ export function useDeleteSettingsSessionsSessionId(options?: {
  * 連携アプリ一覧
  */
 export function useGetSettingsConnectedApps(options?: {
-  swr?: SWRConfiguration<
-    InferResponseType<(typeof client.settings)['connected-apps']['$get']>,
-    Error
-  > & { swrKey?: Key; enabled?: boolean }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSettingsConnectedAppsKey() : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.settings)['connected-apps']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () => parseResponse(client.settings['connected-apps'].$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.settings['connected-apps'].$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -392,25 +309,15 @@ export function getGetSettingsConnectedAppsKey() {
  *
  * 連携アプリ解除
  */
-export function useDeleteSettingsConnectedAppsAppId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
-  >(
+export function useDeleteSettingsConnectedAppsAppId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'DELETE /settings/connected-apps/:appId',
-    async (_, { arg }) =>
-      parseResponse(client.settings['connected-apps'][':appId'].$delete(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      {
+        arg,
+      }: { arg: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']> },
+    ) => parseResponse(client.settings['connected-apps'][':appId'].$delete(arg, options?.client)),
   )
 }
 
@@ -419,24 +326,9 @@ export function useDeleteSettingsConnectedAppsAppId(options?: {
  *
  * データエクスポートリクエスト
  */
-export function usePostSettingsDataExport(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.settings)['data-export']['$post']>,
-    Error,
-    string,
-    void
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.settings)['data-export']['$post']>,
-    Error,
-    string,
-    void
-  >(
-    'POST /settings/data-export',
-    async () => parseResponse(client.settings['data-export'].$post(undefined, options?.client)),
-    options?.swr,
+export function usePostSettingsDataExport(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation('POST /settings/data-export', async () =>
+    parseResponse(client.settings['data-export'].$post(undefined, options?.client)),
   )
 }
 
@@ -448,10 +340,7 @@ export function usePostSettingsDataExport(options?: {
 export function useGetSettingsDataExportRequestId(
   args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
@@ -459,16 +348,15 @@ export function useGetSettingsDataExportRequestId(
   const isEnabled = swrOptions?.enabled !== false
   const swrKey =
     swrOptions?.swrKey ?? (isEnabled ? getGetSettingsDataExportRequestIdKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () =>
-      parseResponse(client.settings['data-export'][':requestId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(client.settings['data-export'][':requestId'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -485,24 +373,13 @@ export function getGetSettingsDataExportRequestIdKey(
  *
  * アカウント一時停止
  */
-export function usePostSettingsDeactivate(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.settings.deactivate.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.settings.deactivate.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.settings.deactivate.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.settings.deactivate.$post>
-  >(
+export function usePostSettingsDeactivate(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /settings/deactivate',
-    async (_, { arg }) => parseResponse(client.settings.deactivate.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<typeof client.settings.deactivate.$post> },
+    ) => parseResponse(client.settings.deactivate.$post(arg, options?.client)),
   )
 }
 
@@ -511,24 +388,11 @@ export function usePostSettingsDeactivate(options?: {
  *
  * 通報作成
  */
-export function usePostReports(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.reports.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.reports.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.reports.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.reports.$post>
-  >(
+export function usePostReports(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /reports',
-    async (_, { arg }) => parseResponse(client.reports.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.reports.$post> }) =>
+      parseResponse(client.reports.$post(arg, options?.client)),
   )
 }
 
@@ -540,22 +404,21 @@ export function usePostReports(options?: {
 export function useGetReportsReportId(
   args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.reports)[':reportId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetReportsReportIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.reports)[':reportId']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.reports[':reportId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.reports[':reportId'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -577,22 +440,21 @@ export function getGetReportsReportIdKey(
 export function useGetModerationQueue(
   args: InferRequestType<typeof client.moderation.queue.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.moderation.queue.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetModerationQueueKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.moderation.queue.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.moderation.queue.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.moderation.queue.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -612,25 +474,21 @@ export function getGetModerationQueueKey(
 export function useGetModerationItemsItemId(
   args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetModerationItemsItemIdKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () => parseResponse(client.moderation.items[':itemId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.moderation.items[':itemId'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -647,25 +505,15 @@ export function getGetModerationItemsItemIdKey(
  *
  * モデレーションアクション実行
  */
-export function usePostModerationItemsItemIdAction(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>
-  >(
+export function usePostModerationItemsItemIdAction(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /moderation/items/:itemId/action',
-    async (_, { arg }) =>
-      parseResponse(client.moderation.items[':itemId'].action.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      {
+        arg,
+      }: { arg: InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']> },
+    ) => parseResponse(client.moderation.items[':itemId'].action.$post(arg, options?.client)),
   )
 }
 
@@ -677,10 +525,7 @@ export function usePostModerationItemsItemIdAction(options?: {
 export function useGetModerationUsersUserIdHistory(
   args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
@@ -688,15 +533,15 @@ export function useGetModerationUsersUserIdHistory(
   const isEnabled = swrOptions?.enabled !== false
   const swrKey =
     swrOptions?.swrKey ?? (isEnabled ? getGetModerationUsersUserIdHistoryKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () => parseResponse(client.moderation.users[':userId'].history.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () =>
+        parseResponse(client.moderation.users[':userId'].history.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -713,25 +558,15 @@ export function getGetModerationUsersUserIdHistoryKey(
  *
  * ユーザー凍結
  */
-export function usePostModerationUsersUserIdSuspend(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
-  >(
+export function usePostModerationUsersUserIdSuspend(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /moderation/users/:userId/suspend',
-    async (_, { arg }) =>
-      parseResponse(client.moderation.users[':userId'].suspend.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      {
+        arg,
+      }: { arg: InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']> },
+    ) => parseResponse(client.moderation.users[':userId'].suspend.$post(arg, options?.client)),
   )
 }
 
@@ -740,25 +575,17 @@ export function usePostModerationUsersUserIdSuspend(options?: {
  *
  * ユーザー凍結解除
  */
-export function usePostModerationUsersUserIdUnsuspend(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
-  >(
+export function usePostModerationUsersUserIdUnsuspend(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /moderation/users/:userId/unsuspend',
-    async (_, { arg }) =>
-      parseResponse(client.moderation.users[':userId'].unsuspend.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      {
+        arg,
+      }: {
+        arg: InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
+      },
+    ) => parseResponse(client.moderation.users[':userId'].unsuspend.$post(arg, options?.client)),
   )
 }
 
@@ -770,25 +597,21 @@ export function usePostModerationUsersUserIdUnsuspend(options?: {
 export function useGetAnalyticsPostsPostId(
   args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAnalyticsPostsPostIdKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () => parseResponse(client.analytics.posts[':postId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.analytics.posts[':postId'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -808,22 +631,21 @@ export function getGetAnalyticsPostsPostIdKey(
 export function useGetAnalyticsAccount(
   args: InferRequestType<typeof client.analytics.account.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.analytics.account.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAnalyticsAccountKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.analytics.account.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.analytics.account.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.analytics.account.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -843,22 +665,21 @@ export function getGetAnalyticsAccountKey(
 export function useGetAnalyticsFollowers(
   args: InferRequestType<typeof client.analytics.followers.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.analytics.followers.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAnalyticsFollowersKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.analytics.followers.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.analytics.followers.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.analytics.followers.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -878,22 +699,21 @@ export function getGetAnalyticsFollowersKey(
 export function useGetAnalyticsTopPosts(
   args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.analytics)['top-posts']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAnalyticsTopPostsKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.analytics)['top-posts']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.analytics['top-posts'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.analytics['top-posts'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**

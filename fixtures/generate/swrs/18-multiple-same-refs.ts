@@ -1,9 +1,8 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
 /**
@@ -12,22 +11,21 @@ import { client } from '../clients/18-multiple-same-refs'
 export function useGetDocuments(
   args: InferRequestType<typeof client.documents.$get>,
   options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.documents.$get>, Error> & {
-      swrKey?: Key
-      enabled?: boolean
-    }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetDocumentsKey(args) : null)
-  const query = useSWR<InferResponseType<typeof client.documents.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.documents.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.documents.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -40,24 +38,11 @@ export function getGetDocumentsKey(args?: InferRequestType<typeof client.documen
 /**
  * POST /documents
  */
-export function usePostDocuments(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.documents.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.documents.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.documents.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.documents.$post>
-  >(
+export function usePostDocuments(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /documents',
-    async (_, { arg }) => parseResponse(client.documents.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.documents.$post> }) =>
+      parseResponse(client.documents.$post(arg, options?.client)),
   )
 }
 
@@ -67,22 +52,21 @@ export function usePostDocuments(options?: {
 export function useGetDocumentsDocumentId(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.documents)[':documentId']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetDocumentsDocumentIdKey(args) : null)
-  const query = useSWR<InferResponseType<(typeof client.documents)[':documentId']['$get']>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.documents[':documentId'].$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.documents[':documentId'].$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -97,24 +81,13 @@ export function getGetDocumentsDocumentIdKey(
 /**
  * PUT /documents/{documentId}
  */
-export function usePutDocumentsDocumentId(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.documents)[':documentId']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.documents)[':documentId']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.documents)[':documentId']['$put']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.documents)[':documentId']['$put']>
-  >(
+export function usePutDocumentsDocumentId(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'PUT /documents/:documentId',
-    async (_, { arg }) => parseResponse(client.documents[':documentId'].$put(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      { arg }: { arg: InferRequestType<(typeof client.documents)[':documentId']['$put']> },
+    ) => parseResponse(client.documents[':documentId'].$put(arg, options?.client)),
   )
 }
 
@@ -124,10 +97,7 @@ export function usePutDocumentsDocumentId(options?: {
 export function useGetDocumentsDocumentIdVersions(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
@@ -135,15 +105,14 @@ export function useGetDocumentsDocumentIdVersions(
   const isEnabled = swrOptions?.enabled !== false
   const swrKey =
     swrOptions?.swrKey ?? (isEnabled ? getGetDocumentsDocumentIdVersionsKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () => parseResponse(client.documents[':documentId'].versions.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.documents[':documentId'].versions.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -158,25 +127,15 @@ export function getGetDocumentsDocumentIdVersionsKey(
 /**
  * POST /documents/{documentId}/share
  */
-export function usePostDocumentsDocumentIdShare(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<(typeof client.documents)[':documentId']['share']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<(typeof client.documents)[':documentId']['share']['$post']>,
-    Error,
-    string,
-    InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>
-  >(
+export function usePostDocumentsDocumentIdShare(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /documents/:documentId/share',
-    async (_, { arg }) =>
-      parseResponse(client.documents[':documentId'].share.$post(arg, options?.client)),
-    options?.swr,
+    async (
+      _: string,
+      {
+        arg,
+      }: { arg: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']> },
+    ) => parseResponse(client.documents[':documentId'].share.$post(arg, options?.client)),
   )
 }
 
@@ -186,25 +145,21 @@ export function usePostDocumentsDocumentIdShare(options?: {
 export function useGetUsersUserIdDocuments(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
   options?: {
-    swr?: SWRConfiguration<
-      InferResponseType<(typeof client.users)[':userId']['documents']['$get']>,
-      Error
-    > & { swrKey?: Key; enabled?: boolean }
+    swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersUserIdDocumentsKey(args) : null)
-  const query = useSWR<
-    InferResponseType<(typeof client.users)[':userId']['documents']['$get']>,
-    Error
-  >(
+  return {
     swrKey,
-    async () => parseResponse(client.users[':userId'].documents.$get(args, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.users[':userId'].documents.$get(args, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -219,24 +174,11 @@ export function getGetUsersUserIdDocumentsKey(
 /**
  * POST /compare
  */
-export function usePostCompare(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.compare.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.compare.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.compare.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.compare.$post>
-  >(
+export function usePostCompare(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /compare',
-    async (_, { arg }) => parseResponse(client.compare.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.compare.$post> }) =>
+      parseResponse(client.compare.$post(arg, options?.client)),
   )
 }
 
@@ -244,21 +186,20 @@ export function usePostCompare(options?: {
  * GET /templates
  */
 export function useGetTemplates(options?: {
-  swr?: SWRConfiguration<InferResponseType<typeof client.templates.$get>, Error> & {
-    swrKey?: Key
-    enabled?: boolean
-  }
+  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTemplatesKey() : null)
-  const query = useSWR<InferResponseType<typeof client.templates.$get>, Error>(
+  return {
     swrKey,
-    async () => parseResponse(client.templates.$get(undefined, clientOptions)),
-    swrOptions,
-  )
-  return { swrKey, ...query }
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.templates.$get(undefined, clientOptions)),
+      swrOptions,
+    ),
+  }
 }
 
 /**
@@ -271,47 +212,21 @@ export function getGetTemplatesKey() {
 /**
  * POST /templates
  */
-export function usePostTemplates(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.templates.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.templates.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.templates.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.templates.$post>
-  >(
+export function usePostTemplates(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /templates',
-    async (_, { arg }) => parseResponse(client.templates.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.templates.$post> }) =>
+      parseResponse(client.templates.$post(arg, options?.client)),
   )
 }
 
 /**
  * POST /workflows
  */
-export function usePostWorkflows(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.workflows.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.workflows.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  return useSWRMutation<
-    InferResponseType<typeof client.workflows.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.workflows.$post>
-  >(
+export function usePostWorkflows(options?: { client?: ClientRequestOptions }) {
+  return useSWRMutation(
     'POST /workflows',
-    async (_, { arg }) => parseResponse(client.workflows.$post(arg, options?.client)),
-    options?.swr,
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.workflows.$post> }) =>
+      parseResponse(client.workflows.$post(arg, options?.client)),
   )
 }

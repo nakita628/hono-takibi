@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-components'
 
@@ -10,24 +10,13 @@ import { client } from '../clients/complex-components'
  * Issue access token
  */
 export function createPostAuthToken(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.auth.token.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.auth.token.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.auth.token.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.auth.token.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.auth.token.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.auth.token.$post>) =>
+        parseResponse(client.auth.token.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -77,24 +66,13 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  * Create user
  */
 export function createPostUsers(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.users.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.users.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.users.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+        parseResponse(client.users.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -146,24 +124,12 @@ export function getGetUsersUserIdQueryKey(
  * Update user (partial)
  */
 export function createPatchUsersUserId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.users)[':userId']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)[':userId']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.users)[':userId']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)[':userId']['$patch']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$patch']>) =>
         parseResponse(client.users[':userId'].$patch(args, options?.client)),
     },
     queryClient,
@@ -257,24 +223,13 @@ export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders
  * Create order (and optionally trigger callback)
  */
 export function createPostOrders(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.orders.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.orders.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.orders.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.orders.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.orders.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+        parseResponse(client.orders.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -366,24 +321,13 @@ export function getGetFilesFileIdQueryKey(
  * Create webhook subscription
  */
 export function createPostSubscriptions(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.subscriptions.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.subscriptions.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.subscriptions.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.subscriptions.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.subscriptions.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.subscriptions.$post>) =>
+        parseResponse(client.subscriptions.$post(args, options?.client)),
     },
     queryClient,
   )

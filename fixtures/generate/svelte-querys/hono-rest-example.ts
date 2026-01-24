@@ -1,6 +1,6 @@
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
@@ -91,24 +91,13 @@ export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$
  * Submit a new post with a maximum length of 140 characters.
  */
 export function createPostPosts(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.posts.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.posts.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<typeof client.posts.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.posts.$post>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.posts.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
+        parseResponse(client.posts.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -122,24 +111,13 @@ export function createPostPosts(
  * Update the content of an existing post identified by its unique ID.
  */
 export function createPutPostsId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.posts)[':id']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.posts)[':id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':id']['$put']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.posts[':id'].$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$put']>) =>
+        parseResponse(client.posts[':id'].$put(args, options?.client)),
     },
     queryClient,
   )
@@ -153,24 +131,13 @@ export function createPutPostsId(
  * Delete an existing post identified by its unique ID.
  */
 export function createDeletePostsId(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.posts)[':id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return createMutation<
-    InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.posts)[':id']['$delete']>
-  >(
+  return createMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.posts[':id'].$delete(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$delete']>) =>
+        parseResponse(client.posts[':id'].$delete(args, options?.client)),
     },
     queryClient,
   )

@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -10,24 +10,13 @@ import { client } from '../clients/edge'
  * Polymorphic object with discriminator
  */
 export function usePostPolymorphic(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.polymorphic.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.polymorphic.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.polymorphic.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.polymorphic.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.polymorphic.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.polymorphic.$post>) =>
+        parseResponse(client.polymorphic.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -77,24 +66,13 @@ export function getGetSearchQueryKey(args: InferRequestType<typeof client.search
  * Multi-step object definition using allOf
  */
 export function usePutMultiStep(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['multi-step']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['multi-step']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['multi-step']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['multi-step']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client['multi-step'].$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client)['multi-step']['$put']>) =>
+        parseResponse(client['multi-step'].$put(args, options?.client)),
     },
     queryClient,
   )

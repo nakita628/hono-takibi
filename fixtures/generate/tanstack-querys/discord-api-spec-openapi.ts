@@ -1,6 +1,6 @@
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/discord-api-spec-openapi'
 
@@ -43,24 +43,12 @@ export function getGetApplicationsMeQueryKey() {
  * PATCH /applications/@me
  */
 export function usePatchApplicationsMe(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.applications)['@me']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.applications)['@me']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.applications)['@me']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.applications)['@me']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.applications)['@me']['$patch']>) =>
         parseResponse(client.applications['@me'].$patch(args, options?.client)),
     },
     queryClient,
@@ -113,25 +101,14 @@ export function getGetApplicationsApplicationIdQueryKey(
  * PATCH /applications/{application_id}
  */
 export function usePatchApplicationsApplicationId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.applications)[':application_id']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.applications)[':application_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.applications)[':application_id']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.applications)[':application_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.applications[':application_id'].$patch(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
+      ) => parseResponse(client.applications[':application_id'].$patch(args, options?.client)),
     },
     queryClient,
   )
@@ -198,26 +175,16 @@ export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryK
  * POST /applications/{application_id}/attachment
  */
 export function usePostApplicationsApplicationIdAttachment(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.applications)[':application_id']['attachment']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.applications)[':application_id']['attachment']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.applications)[':application_id']['attachment']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.applications)[':application_id']['attachment']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['attachment']['$post']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].attachment.$post(args, options?.client),
         ),
@@ -272,26 +239,14 @@ export function getGetApplicationsApplicationIdCommandsQueryKey(
  * PUT /applications/{application_id}/commands
  */
 export function usePutApplicationsApplicationIdCommands(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.applications)[':application_id']['commands']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.applications)[':application_id']['commands']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>,
+      ) =>
         parseResponse(client.applications[':application_id'].commands.$put(args, options?.client)),
     },
     queryClient,
@@ -302,26 +257,16 @@ export function usePutApplicationsApplicationIdCommands(
  * POST /applications/{application_id}/commands
  */
 export function usePostApplicationsApplicationIdCommands(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.applications)[':application_id']['commands']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.applications)[':application_id']['commands']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.applications)[':application_id']['commands']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.applications)[':application_id']['commands']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['commands']['$post']
+        >,
+      ) =>
         parseResponse(client.applications[':application_id'].commands.$post(args, options?.client)),
     },
     queryClient,
@@ -386,34 +331,16 @@ export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
  * DELETE /applications/{application_id}/commands/{command_id}
  */
 export function useDeleteApplicationsApplicationIdCommandsCommandId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].commands[':command_id'].$delete(
             args,
@@ -429,34 +356,16 @@ export function useDeleteApplicationsApplicationIdCommandsCommandId(
  * PATCH /applications/{application_id}/commands/{command_id}
  */
 export function usePatchApplicationsApplicationIdCommandsCommandId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].commands[':command_id'].$patch(
             args,
@@ -514,26 +423,14 @@ export function getGetApplicationsApplicationIdEmojisQueryKey(
  * POST /applications/{application_id}/emojis
  */
 export function usePostApplicationsApplicationIdEmojis(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.applications)[':application_id']['emojis']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.applications)[':application_id']['emojis']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>,
+      ) =>
         parseResponse(client.applications[':application_id'].emojis.$post(args, options?.client)),
     },
     queryClient,
@@ -598,34 +495,16 @@ export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
  * DELETE /applications/{application_id}/emojis/{emoji_id}
  */
 export function useDeleteApplicationsApplicationIdEmojisEmojiId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].emojis[':emoji_id'].$delete(args, options?.client),
         ),
@@ -638,34 +517,16 @@ export function useDeleteApplicationsApplicationIdEmojisEmojiId(
  * PATCH /applications/{application_id}/emojis/{emoji_id}
  */
 export function usePatchApplicationsApplicationIdEmojisEmojiId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].emojis[':emoji_id'].$patch(args, options?.client),
         ),
@@ -722,26 +583,16 @@ export function getGetApplicationsApplicationIdEntitlementsQueryKey(
  * POST /applications/{application_id}/entitlements
  */
 export function usePostApplicationsApplicationIdEntitlements(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['entitlements']['$post']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].entitlements.$post(args, options?.client),
         ),
@@ -811,34 +662,16 @@ export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey
  * DELETE /applications/{application_id}/entitlements/{entitlement_id}
  */
 export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].entitlements[':entitlement_id'].$delete(
             args,
@@ -854,34 +687,16 @@ export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(
  * POST /applications/{application_id}/entitlements/{entitlement_id}/consume
  */
 export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].entitlements[':entitlement_id'].consume.$post(
             args,
@@ -954,34 +769,16 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
  * PUT /applications/{application_id}/guilds/{guild_id}/commands
  */
 export function usePutApplicationsApplicationIdGuildsGuildIdCommands(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].guilds[':guild_id'].commands.$put(
             args,
@@ -997,34 +794,16 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommands(
  * POST /applications/{application_id}/guilds/{guild_id}/commands
  */
 export function usePostApplicationsApplicationIdGuildsGuildIdCommands(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].guilds[':guild_id'].commands.$post(
             args,
@@ -1154,34 +933,16 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQue
  * DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
 export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].guilds[':guild_id'].commands[
             ':command_id'
@@ -1196,34 +957,16 @@ export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId
  * PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
 export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$patch(
             args,
@@ -1299,34 +1042,16 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
  * PUT /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
  */
 export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissions(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id'].guilds[':guild_id'].commands[
             ':command_id'
@@ -1398,34 +1123,16 @@ export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
  * PUT /applications/{application_id}/role-connections/metadata
  */
 export function usePutApplicationsApplicationIdRoleConnectionsMetadata(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+        >,
+      ) =>
         parseResponse(
           client.applications[':application_id']['role-connections'].metadata.$put(
             args,
@@ -1482,25 +1189,14 @@ export function getGetChannelsChannelIdQueryKey(
  * DELETE /channels/{channel_id}
  */
 export function useDeleteChannelsChannelId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.channels)[':channel_id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.channels[':channel_id'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
+      ) => parseResponse(client.channels[':channel_id'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -1510,25 +1206,14 @@ export function useDeleteChannelsChannelId(
  * PATCH /channels/{channel_id}
  */
 export function usePatchChannelsChannelId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.channels)[':channel_id']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.channels[':channel_id'].$patch(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>,
+      ) => parseResponse(client.channels[':channel_id'].$patch(args, options?.client)),
     },
     queryClient,
   )
@@ -1538,25 +1223,14 @@ export function usePatchChannelsChannelId(
  * POST /channels/{channel_id}/followers
  */
 export function usePostChannelsChannelIdFollowers(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['followers']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.channels)[':channel_id']['followers']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.channels[':channel_id'].followers.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+      ) => parseResponse(client.channels[':channel_id'].followers.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -1608,25 +1282,14 @@ export function getGetChannelsChannelIdInvitesQueryKey(
  * POST /channels/{channel_id}/invites
  */
 export function usePostChannelsChannelIdInvites(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['invites']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.channels)[':channel_id']['invites']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.channels[':channel_id'].invites.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
+      ) => parseResponse(client.channels[':channel_id'].invites.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -1678,25 +1341,14 @@ export function getGetChannelsChannelIdMessagesQueryKey(
  * POST /channels/{channel_id}/messages
  */
 export function usePostChannelsChannelIdMessages(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['messages']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.channels)[':channel_id']['messages']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.channels[':channel_id'].messages.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+      ) => parseResponse(client.channels[':channel_id'].messages.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -1706,28 +1358,16 @@ export function usePostChannelsChannelIdMessages(
  * POST /channels/{channel_id}/messages/bulk-delete
  */
 export function usePostChannelsChannelIdMessagesBulkDelete(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages['bulk-delete'].$post(args, options?.client),
         ),
@@ -1782,34 +1422,16 @@ export function getGetChannelsChannelIdMessagesPinsQueryKey(
  * PUT /channels/{channel_id}/messages/pins/{message_id}
  */
 export function usePutChannelsChannelIdMessagesPinsMessageId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages.pins[':message_id'].$put(args, options?.client),
         ),
@@ -1822,34 +1444,16 @@ export function usePutChannelsChannelIdMessagesPinsMessageId(
  * DELETE /channels/{channel_id}/messages/pins/{message_id}
  */
 export function useDeleteChannelsChannelIdMessagesPinsMessageId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages.pins[':message_id'].$delete(
             args,
@@ -1915,32 +1519,16 @@ export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
  * DELETE /channels/{channel_id}/messages/{message_id}
  */
 export function useDeleteChannelsChannelIdMessagesMessageId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].$delete(args, options?.client),
         ),
@@ -1953,30 +1541,16 @@ export function useDeleteChannelsChannelIdMessagesMessageId(
  * PATCH /channels/{channel_id}/messages/{message_id}
  */
 export function usePatchChannelsChannelIdMessagesMessageId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].$patch(args, options?.client),
         ),
@@ -1989,34 +1563,16 @@ export function usePatchChannelsChannelIdMessagesMessageId(
  * POST /channels/{channel_id}/messages/{message_id}/crosspost
  */
 export function usePostChannelsChannelIdMessagesMessageIdCrosspost(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].crosspost.$post(
             args,
@@ -2032,34 +1588,16 @@ export function usePostChannelsChannelIdMessagesMessageIdCrosspost(
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions
  */
 export function useDeleteChannelsChannelIdMessagesMessageIdReactions(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].reactions.$delete(
             args,
@@ -2132,34 +1670,16 @@ export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryK
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
  */
 export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$delete(
             args,
@@ -2175,34 +1695,16 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(
  * PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
  */
 export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
             '@me'
@@ -2217,34 +1719,16 @@ export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
  */
 export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
             '@me'
@@ -2259,34 +1743,16 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/{user_id}
  */
 export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
             ':user_id'
@@ -2301,34 +1767,16 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUse
  * POST /channels/{channel_id}/messages/{message_id}/threads
  */
 export function usePostChannelsChannelIdMessagesMessageIdThreads(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].threads.$post(
             args,
@@ -2344,34 +1792,16 @@ export function usePostChannelsChannelIdMessagesMessageIdThreads(
  * PUT /channels/{channel_id}/permissions/{overwrite_id}
  */
 export function usePutChannelsChannelIdPermissionsOverwriteId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].permissions[':overwrite_id'].$put(args, options?.client),
         ),
@@ -2384,34 +1814,16 @@ export function usePutChannelsChannelIdPermissionsOverwriteId(
  * DELETE /channels/{channel_id}/permissions/{overwrite_id}
  */
 export function useDeleteChannelsChannelIdPermissionsOverwriteId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].permissions[':overwrite_id'].$delete(
             args,
@@ -2469,26 +1881,16 @@ export function getGetChannelsChannelIdPinsQueryKey(
  * PUT /channels/{channel_id}/pins/{message_id}
  */
 export function usePutChannelsChannelIdPinsMessageId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].pins[':message_id'].$put(args, options?.client),
         ),
@@ -2501,26 +1903,16 @@ export function usePutChannelsChannelIdPinsMessageId(
  * DELETE /channels/{channel_id}/pins/{message_id}
  */
 export function useDeleteChannelsChannelIdPinsMessageId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].pins[':message_id'].$delete(args, options?.client),
         ),
@@ -2590,34 +1982,16 @@ export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
  * POST /channels/{channel_id}/polls/{message_id}/expire
  */
 export function usePostChannelsChannelIdPollsMessageIdExpire(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].polls[':message_id'].expire.$post(args, options?.client),
         ),
@@ -2630,26 +2004,16 @@ export function usePostChannelsChannelIdPollsMessageIdExpire(
  * PUT /channels/{channel_id}/recipients/{user_id}
  */
 export function usePutChannelsChannelIdRecipientsUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].recipients[':user_id'].$put(args, options?.client),
         ),
@@ -2662,30 +2026,16 @@ export function usePutChannelsChannelIdRecipientsUserId(
  * DELETE /channels/{channel_id}/recipients/{user_id}
  */
 export function useDeleteChannelsChannelIdRecipientsUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id'].recipients[':user_id'].$delete(args, options?.client),
         ),
@@ -2698,26 +2048,16 @@ export function useDeleteChannelsChannelIdRecipientsUserId(
  * POST /channels/{channel_id}/send-soundboard-sound
  */
 export function usePostChannelsChannelIdSendSoundboardSound(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id']['send-soundboard-sound'].$post(args, options?.client),
         ),
@@ -2772,26 +2112,16 @@ export function getGetChannelsChannelIdThreadMembersQueryKey(
  * PUT /channels/{channel_id}/thread-members/@me
  */
 export function usePutChannelsChannelIdThreadMembersMe(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['@me']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['@me']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['@me']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['@me']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id']['thread-members']['@me'].$put(args, options?.client),
         ),
@@ -2804,28 +2134,16 @@ export function usePutChannelsChannelIdThreadMembersMe(
  * DELETE /channels/{channel_id}/thread-members/@me
  */
 export function useDeleteChannelsChannelIdThreadMembersMe(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id']['thread-members']['@me'].$delete(args, options?.client),
         ),
@@ -2892,32 +2210,16 @@ export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
  * PUT /channels/{channel_id}/thread-members/{user_id}
  */
 export function usePutChannelsChannelIdThreadMembersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id']['thread-members'][':user_id'].$put(args, options?.client),
         ),
@@ -2930,34 +2232,16 @@ export function usePutChannelsChannelIdThreadMembersUserId(
  * DELETE /channels/{channel_id}/thread-members/{user_id}
  */
 export function useDeleteChannelsChannelIdThreadMembersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.channels[':channel_id']['thread-members'][':user_id'].$delete(
             args,
@@ -2973,25 +2257,14 @@ export function useDeleteChannelsChannelIdThreadMembersUserId(
  * POST /channels/{channel_id}/threads
  */
 export function usePostChannelsChannelIdThreads(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['threads']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.channels)[':channel_id']['threads']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.channels[':channel_id'].threads.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+      ) => parseResponse(client.channels[':channel_id'].threads.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -3151,25 +2424,14 @@ export function getGetChannelsChannelIdThreadsSearchQueryKey(
  * POST /channels/{channel_id}/typing
  */
 export function usePostChannelsChannelIdTyping(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['typing']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.channels)[':channel_id']['typing']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.channels[':channel_id'].typing.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
+      ) => parseResponse(client.channels[':channel_id'].typing.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -3278,25 +2540,14 @@ export function getGetChannelsChannelIdWebhooksQueryKey(
  * POST /channels/{channel_id}/webhooks
  */
 export function usePostChannelsChannelIdWebhooks(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.channels[':channel_id'].webhooks.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+      ) => parseResponse(client.channels[':channel_id'].webhooks.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -3456,24 +2707,12 @@ export function getGetGuildsGuildIdQueryKey(
  * PATCH /guilds/{guild_id}
  */
 export function usePatchGuildsGuildId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>) =>
         parseResponse(client.guilds[':guild_id'].$patch(args, options?.client)),
     },
     queryClient,
@@ -3570,26 +2809,16 @@ export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
  * POST /guilds/{guild_id}/auto-moderation/rules
  */
 export function usePostGuildsGuildIdAutoModerationRules(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id']['auto-moderation'].rules.$post(args, options?.client),
         ),
@@ -3656,34 +2885,16 @@ export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
  * DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
 export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$delete(
             args,
@@ -3699,34 +2910,16 @@ export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(
  * PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
 export function usePatchGuildsGuildIdAutoModerationRulesRuleId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$patch(
             args,
@@ -3825,26 +3018,14 @@ export function getGetGuildsGuildIdBansUserIdQueryKey(
  * PUT /guilds/{guild_id}/bans/{user_id}
  */
 export function usePutGuildsGuildIdBansUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].bans[':user_id'].$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
+      ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$put(args, options?.client)),
     },
     queryClient,
   )
@@ -3854,26 +3035,14 @@ export function usePutGuildsGuildIdBansUserId(
  * DELETE /guilds/{guild_id}/bans/{user_id}
  */
 export function useDeleteGuildsGuildIdBansUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>,
+      ) =>
         parseResponse(client.guilds[':guild_id'].bans[':user_id'].$delete(args, options?.client)),
     },
     queryClient,
@@ -3884,25 +3053,14 @@ export function useDeleteGuildsGuildIdBansUserId(
  * POST /guilds/{guild_id}/bulk-ban
  */
 export function usePostGuildsGuildIdBulkBan(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id']['bulk-ban'].$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+      ) => parseResponse(client.guilds[':guild_id']['bulk-ban'].$post(args, options?.client)),
     },
     queryClient,
   )
@@ -3954,25 +3112,14 @@ export function getGetGuildsGuildIdChannelsQueryKey(
  * POST /guilds/{guild_id}/channels
  */
 export function usePostGuildsGuildIdChannels(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].channels.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+      ) => parseResponse(client.guilds[':guild_id'].channels.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -3982,25 +3129,14 @@ export function usePostGuildsGuildIdChannels(
  * PATCH /guilds/{guild_id}/channels
  */
 export function usePatchGuildsGuildIdChannels(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].channels.$patch(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
+      ) => parseResponse(client.guilds[':guild_id'].channels.$patch(args, options?.client)),
     },
     queryClient,
   )
@@ -4052,25 +3188,14 @@ export function getGetGuildsGuildIdEmojisQueryKey(
  * POST /guilds/{guild_id}/emojis
  */
 export function usePostGuildsGuildIdEmojis(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].emojis.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+      ) => parseResponse(client.guilds[':guild_id'].emojis.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -4122,26 +3247,16 @@ export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
  * DELETE /guilds/{guild_id}/emojis/{emoji_id}
  */
 export function useDeleteGuildsGuildIdEmojisEmojiId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id'].emojis[':emoji_id'].$delete(args, options?.client),
         ),
@@ -4154,26 +3269,16 @@ export function useDeleteGuildsGuildIdEmojisEmojiId(
  * PATCH /guilds/{guild_id}/emojis/{emoji_id}
  */
 export function usePatchGuildsGuildIdEmojisEmojiId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']
+        >,
+      ) =>
         parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$patch(args, options?.client)),
     },
     queryClient,
@@ -4226,34 +3331,16 @@ export function getGetGuildsGuildIdIntegrationsQueryKey(
  * DELETE /guilds/{guild_id}/integrations/{integration_id}
  */
 export function useDeleteGuildsGuildIdIntegrationsIntegrationId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id'].integrations[':integration_id'].$delete(args, options?.client),
         ),
@@ -4350,26 +3437,14 @@ export function getGetGuildsGuildIdMembersQueryKey(
  * PATCH /guilds/{guild_id}/members/@me
  */
 export function usePatchGuildsGuildIdMembersMe(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].members['@me'].$patch(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+      ) => parseResponse(client.guilds[':guild_id'].members['@me'].$patch(args, options?.client)),
     },
     queryClient,
   )
@@ -4463,26 +3538,14 @@ export function getGetGuildsGuildIdMembersUserIdQueryKey(
  * PUT /guilds/{guild_id}/members/{user_id}
  */
 export function usePutGuildsGuildIdMembersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>,
+      ) =>
         parseResponse(client.guilds[':guild_id'].members[':user_id'].$put(args, options?.client)),
     },
     queryClient,
@@ -4493,26 +3556,16 @@ export function usePutGuildsGuildIdMembersUserId(
  * DELETE /guilds/{guild_id}/members/{user_id}
  */
 export function useDeleteGuildsGuildIdMembersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id'].members[':user_id'].$delete(args, options?.client),
         ),
@@ -4525,26 +3578,16 @@ export function useDeleteGuildsGuildIdMembersUserId(
  * PATCH /guilds/{guild_id}/members/{user_id}
  */
 export function usePatchGuildsGuildIdMembersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']
+        >,
+      ) =>
         parseResponse(client.guilds[':guild_id'].members[':user_id'].$patch(args, options?.client)),
     },
     queryClient,
@@ -4555,34 +3598,16 @@ export function usePatchGuildsGuildIdMembersUserId(
  * PUT /guilds/{guild_id}/members/{user_id}/roles/{role_id}
  */
 export function usePutGuildsGuildIdMembersUserIdRolesRoleId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$put(
             args,
@@ -4598,34 +3623,16 @@ export function usePutGuildsGuildIdMembersUserIdRolesRoleId(
  * DELETE /guilds/{guild_id}/members/{user_id}/roles/{role_id}
  */
 export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$delete(
             args,
@@ -4725,25 +3732,14 @@ export function getGetGuildsGuildIdOnboardingQueryKey(
  * PUT /guilds/{guild_id}/onboarding
  */
 export function usePutGuildsGuildIdOnboarding(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$put']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$put']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].onboarding.$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+      ) => parseResponse(client.guilds[':guild_id'].onboarding.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -4837,25 +3833,14 @@ export function getGetGuildsGuildIdPruneQueryKey(
  * POST /guilds/{guild_id}/prune
  */
 export function usePostGuildsGuildIdPrune(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].prune.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+      ) => parseResponse(client.guilds[':guild_id'].prune.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -4949,25 +3934,14 @@ export function getGetGuildsGuildIdRolesQueryKey(
  * POST /guilds/{guild_id}/roles
  */
 export function usePostGuildsGuildIdRoles(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].roles.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+      ) => parseResponse(client.guilds[':guild_id'].roles.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -4977,25 +3951,14 @@ export function usePostGuildsGuildIdRoles(
  * PATCH /guilds/{guild_id}/roles
  */
 export function usePatchGuildsGuildIdRoles(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].roles.$patch(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+      ) => parseResponse(client.guilds[':guild_id'].roles.$patch(args, options?.client)),
     },
     queryClient,
   )
@@ -5047,26 +4010,14 @@ export function getGetGuildsGuildIdRolesRoleIdQueryKey(
  * DELETE /guilds/{guild_id}/roles/{role_id}
  */
 export function useDeleteGuildsGuildIdRolesRoleId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>,
+      ) =>
         parseResponse(client.guilds[':guild_id'].roles[':role_id'].$delete(args, options?.client)),
     },
     queryClient,
@@ -5077,26 +4028,14 @@ export function useDeleteGuildsGuildIdRolesRoleId(
  * PATCH /guilds/{guild_id}/roles/{role_id}
  */
 export function usePatchGuildsGuildIdRolesRoleId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>,
+      ) =>
         parseResponse(client.guilds[':guild_id'].roles[':role_id'].$patch(args, options?.client)),
     },
     queryClient,
@@ -5149,25 +4088,14 @@ export function getGetGuildsGuildIdScheduledEventsQueryKey(
  * POST /guilds/{guild_id}/scheduled-events
  */
 export function usePostGuildsGuildIdScheduledEvents(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+      ) =>
         parseResponse(client.guilds[':guild_id']['scheduled-events'].$post(args, options?.client)),
     },
     queryClient,
@@ -5235,34 +4163,16 @@ export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
  * DELETE /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
 export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$delete(
             args,
@@ -5278,34 +4188,16 @@ export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(
  * PATCH /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
 export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$patch(
             args,
@@ -5420,26 +4312,14 @@ export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
  * POST /guilds/{guild_id}/soundboard-sounds
  */
 export function usePostGuildsGuildIdSoundboardSounds(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>,
+      ) =>
         parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$post(args, options?.client)),
     },
     queryClient,
@@ -5504,34 +4384,16 @@ export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
  * DELETE /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
 export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$delete(
             args,
@@ -5547,34 +4409,16 @@ export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(
  * PATCH /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
 export function usePatchGuildsGuildIdSoundboardSoundsSoundId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$patch(
             args,
@@ -5632,25 +4476,14 @@ export function getGetGuildsGuildIdStickersQueryKey(
  * POST /guilds/{guild_id}/stickers
  */
 export function usePostGuildsGuildIdStickers(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].stickers.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+      ) => parseResponse(client.guilds[':guild_id'].stickers.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -5702,26 +4535,16 @@ export function getGetGuildsGuildIdStickersStickerIdQueryKey(
  * DELETE /guilds/{guild_id}/stickers/{sticker_id}
  */
 export function useDeleteGuildsGuildIdStickersStickerId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id'].stickers[':sticker_id'].$delete(args, options?.client),
         ),
@@ -5734,26 +4557,16 @@ export function useDeleteGuildsGuildIdStickersStickerId(
  * PATCH /guilds/{guild_id}/stickers/{sticker_id}
  */
 export function usePatchGuildsGuildIdStickersStickerId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id'].stickers[':sticker_id'].$patch(args, options?.client),
         ),
@@ -5808,25 +4621,14 @@ export function getGetGuildsGuildIdTemplatesQueryKey(
  * POST /guilds/{guild_id}/templates
  */
 export function usePostGuildsGuildIdTemplates(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].templates.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+      ) => parseResponse(client.guilds[':guild_id'].templates.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -5836,27 +4638,14 @@ export function usePostGuildsGuildIdTemplates(
  * PUT /guilds/{guild_id}/templates/{code}
  */
 export function usePutGuildsGuildIdTemplatesCode(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].templates[':code'].$put(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>,
+      ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$put(args, options?.client)),
     },
     queryClient,
   )
@@ -5866,26 +4655,16 @@ export function usePutGuildsGuildIdTemplatesCode(
  * DELETE /guilds/{guild_id}/templates/{code}
  */
 export function useDeleteGuildsGuildIdTemplatesCode(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['templates'][':code']['$delete']
+        >,
+      ) =>
         parseResponse(client.guilds[':guild_id'].templates[':code'].$delete(args, options?.client)),
     },
     queryClient,
@@ -5896,26 +4675,14 @@ export function useDeleteGuildsGuildIdTemplatesCode(
  * PATCH /guilds/{guild_id}/templates/{code}
  */
 export function usePatchGuildsGuildIdTemplatesCode(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>,
+      ) =>
         parseResponse(client.guilds[':guild_id'].templates[':code'].$patch(args, options?.client)),
     },
     queryClient,
@@ -6052,26 +4819,16 @@ export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
  * PATCH /guilds/{guild_id}/voice-states/@me
  */
 export function usePatchGuildsGuildIdVoiceStatesMe(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id']['voice-states']['@me'].$patch(args, options?.client),
         ),
@@ -6128,26 +4885,16 @@ export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
  * PATCH /guilds/{guild_id}/voice-states/{user_id}
  */
 export function usePatchGuildsGuildIdVoiceStatesUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.guilds[':guild_id']['voice-states'][':user_id'].$patch(args, options?.client),
         ),
@@ -6244,25 +4991,14 @@ export function getGetGuildsGuildIdWelcomeScreenQueryKey(
  * PATCH /guilds/{guild_id}/welcome-screen
  */
 export function usePatchGuildsGuildIdWelcomeScreen(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+      ) =>
         parseResponse(client.guilds[':guild_id']['welcome-screen'].$patch(args, options?.client)),
     },
     queryClient,
@@ -6315,25 +5051,14 @@ export function getGetGuildsGuildIdWidgetQueryKey(
  * PATCH /guilds/{guild_id}/widget
  */
 export function usePatchGuildsGuildIdWidget(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.guilds[':guild_id'].widget.$patch(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+      ) => parseResponse(client.guilds[':guild_id'].widget.$patch(args, options?.client)),
     },
     queryClient,
   )
@@ -6427,34 +5152,16 @@ export function getGetGuildsGuildIdWidgetPngQueryKey(
  * POST /interactions/{interaction_id}/{interaction_token}/callback
  */
 export function usePostInteractionsInteractionIdInteractionTokenCallback(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+        >,
+      ) =>
         parseResponse(
           client.interactions[':interaction_id'][':interaction_token'].callback.$post(
             args,
@@ -6508,24 +5215,12 @@ export function getGetInvitesCodeQueryKey(
  * DELETE /invites/{code}
  */
 export function useDeleteInvitesCode(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.invites)[':code']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.invites)[':code']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.invites)[':code']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.invites)[':code']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.invites)[':code']['$delete']>) =>
         parseResponse(client.invites[':code'].$delete(args, options?.client)),
     },
     queryClient,
@@ -6536,24 +5231,13 @@ export function useDeleteInvitesCode(
  * PUT /lobbies
  */
 export function usePutLobbies(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.lobbies.$put> | undefined,
-      Error,
-      InferRequestType<typeof client.lobbies.$put>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.lobbies.$put> | undefined,
-    Error,
-    InferRequestType<typeof client.lobbies.$put>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.lobbies.$put(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.lobbies.$put>) =>
+        parseResponse(client.lobbies.$put(args, options?.client)),
     },
     queryClient,
   )
@@ -6563,24 +5247,13 @@ export function usePutLobbies(
  * POST /lobbies
  */
 export function usePostLobbies(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.lobbies.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.lobbies.$post>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<typeof client.lobbies.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.lobbies.$post>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.lobbies.$post(args, options?.client)),
+      mutationFn: async (args: InferRequestType<typeof client.lobbies.$post>) =>
+        parseResponse(client.lobbies.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -6631,24 +5304,12 @@ export function getGetLobbiesLobbyIdQueryKey(
  * PATCH /lobbies/{lobby_id}
  */
 export function usePatchLobbiesLobbyId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.lobbies)[':lobby_id']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.lobbies)[':lobby_id']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>) =>
         parseResponse(client.lobbies[':lobby_id'].$patch(args, options?.client)),
     },
     queryClient,
@@ -6659,26 +5320,14 @@ export function usePatchLobbiesLobbyId(
  * PATCH /lobbies/{lobby_id}/channel-linking
  */
 export function usePatchLobbiesLobbyIdChannelLinking(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>,
+      ) =>
         parseResponse(client.lobbies[':lobby_id']['channel-linking'].$patch(args, options?.client)),
     },
     queryClient,
@@ -6689,27 +5338,14 @@ export function usePatchLobbiesLobbyIdChannelLinking(
  * DELETE /lobbies/{lobby_id}/members/@me
  */
 export function useDeleteLobbiesLobbyIdMembersMe(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>,
+      ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -6719,28 +5355,16 @@ export function useDeleteLobbiesLobbyIdMembersMe(
  * POST /lobbies/{lobby_id}/members/@me/invites
  */
 export function usePostLobbiesLobbyIdMembersMeInvites(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+        >,
+      ) =>
         parseResponse(
           client.lobbies[':lobby_id'].members['@me'].invites.$post(args, options?.client),
         ),
@@ -6753,26 +5377,14 @@ export function usePostLobbiesLobbyIdMembersMeInvites(
  * POST /lobbies/{lobby_id}/members/bulk
  */
 export function usePostLobbiesLobbyIdMembersBulk(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.lobbies[':lobby_id'].members.bulk.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+      ) => parseResponse(client.lobbies[':lobby_id'].members.bulk.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -6782,26 +5394,14 @@ export function usePostLobbiesLobbyIdMembersBulk(
  * PUT /lobbies/{lobby_id}/members/{user_id}
  */
 export function usePutLobbiesLobbyIdMembersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>,
+      ) =>
         parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$put(args, options?.client)),
     },
     queryClient,
@@ -6812,26 +5412,16 @@ export function usePutLobbiesLobbyIdMembersUserId(
  * DELETE /lobbies/{lobby_id}/members/{user_id}
  */
 export function useDeleteLobbiesLobbyIdMembersUserId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.lobbies[':lobby_id'].members[':user_id'].$delete(args, options?.client),
         ),
@@ -6844,34 +5434,16 @@ export function useDeleteLobbiesLobbyIdMembersUserId(
  * POST /lobbies/{lobby_id}/members/{user_id}/invites
  */
 export function usePostLobbiesLobbyIdMembersUserIdInvites(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+        >,
+      ) =>
         parseResponse(
           client.lobbies[':lobby_id'].members[':user_id'].invites.$post(args, options?.client),
         ),
@@ -6926,25 +5498,14 @@ export function getGetLobbiesLobbyIdMessagesQueryKey(
  * POST /lobbies/{lobby_id}/messages
  */
 export function usePostLobbiesLobbyIdMessages(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.lobbies[':lobby_id'].messages.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+      ) => parseResponse(client.lobbies[':lobby_id'].messages.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -7095,28 +5656,16 @@ export function getGetOauth2UserinfoQueryKey() {
  * POST /partner-sdk/provisional-accounts/unmerge
  */
 export function usePostPartnerSdkProvisionalAccountsUnmerge(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+        >,
+      ) =>
         parseResponse(
           client['partner-sdk']['provisional-accounts'].unmerge.$post(args, options?.client),
         ),
@@ -7129,34 +5678,16 @@ export function usePostPartnerSdkProvisionalAccountsUnmerge(
  * POST /partner-sdk/provisional-accounts/unmerge/bot
  */
 export function usePostPartnerSdkProvisionalAccountsUnmergeBot(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+        >,
+      ) =>
         parseResponse(
           client['partner-sdk']['provisional-accounts'].unmerge.bot.$post(args, options?.client),
         ),
@@ -7169,25 +5700,14 @@ export function usePostPartnerSdkProvisionalAccountsUnmergeBot(
  * POST /partner-sdk/token
  */
 export function usePostPartnerSdkToken(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['partner-sdk']['token']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['partner-sdk']['token']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['partner-sdk']['token']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['partner-sdk']['token']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['partner-sdk'].token.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>,
+      ) => parseResponse(client['partner-sdk'].token.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -7197,25 +5717,14 @@ export function usePostPartnerSdkToken(
  * POST /partner-sdk/token/bot
  */
 export function usePostPartnerSdkTokenBot(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['partner-sdk']['token']['bot']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['partner-sdk']['token']['bot']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['partner-sdk'].token.bot.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+      ) => parseResponse(client['partner-sdk'].token.bot.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -7261,24 +5770,12 @@ export function getGetSoundboardDefaultSoundsQueryKey() {
  * POST /stage-instances
  */
 export function usePostStageInstances(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['stage-instances']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['stage-instances']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['stage-instances']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['stage-instances']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (args: InferRequestType<(typeof client)['stage-instances']['$post']>) =>
         parseResponse(client['stage-instances'].$post(args, options?.client)),
     },
     queryClient,
@@ -7331,25 +5828,14 @@ export function getGetStageInstancesChannelIdQueryKey(
  * DELETE /stage-instances/{channel_id}
  */
 export function useDeleteStageInstancesChannelId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['stage-instances'][':channel_id']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['stage-instances'][':channel_id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['stage-instances'][':channel_id'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
+      ) => parseResponse(client['stage-instances'][':channel_id'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -7359,25 +5845,14 @@ export function useDeleteStageInstancesChannelId(
  * PATCH /stage-instances/{channel_id}
  */
 export function usePatchStageInstancesChannelId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client)['stage-instances'][':channel_id']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client)['stage-instances'][':channel_id']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client['stage-instances'][':channel_id'].$patch(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+      ) => parseResponse(client['stage-instances'][':channel_id'].$patch(args, options?.client)),
     },
     queryClient,
   )
@@ -7540,24 +6015,13 @@ export function getGetUsersMeQueryKey() {
  * PATCH /users/@me
  */
 export function usePatchUsersMe(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.users)['@me']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)['@me']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.users)['@me']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)['@me']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.users['@me'].$patch(args, options?.client)),
+      mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['$patch']>) =>
+        parseResponse(client.users['@me'].$patch(args, options?.client)),
     },
     queryClient,
   )
@@ -7681,34 +6145,16 @@ export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
  * PUT /users/@me/applications/{application_id}/role-connection
  */
 export function usePutUsersMeApplicationsApplicationIdRoleConnection(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+        >,
+      ) =>
         parseResponse(
           client.users['@me'].applications[':application_id']['role-connection'].$put(
             args,
@@ -7724,34 +6170,16 @@ export function usePutUsersMeApplicationsApplicationIdRoleConnection(
  * DELETE /users/@me/applications/{application_id}/role-connection
  */
 export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.users['@me'].applications[':application_id']['role-connection'].$delete(
             args,
@@ -7767,25 +6195,14 @@ export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(
  * POST /users/@me/channels
  */
 export function usePostUsersMeChannels(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.users)['@me']['channels']['$post']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)['@me']['channels']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.users)['@me']['channels']['$post']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)['@me']['channels']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.users['@me'].channels.$post(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.users)['@me']['channels']['$post']>,
+      ) => parseResponse(client.users['@me'].channels.$post(args, options?.client)),
     },
     queryClient,
   )
@@ -7872,25 +6289,14 @@ export function getGetUsersMeGuildsQueryKey(
  * DELETE /users/@me/guilds/{guild_id}
  */
 export function useDeleteUsersMeGuildsGuildId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.users['@me'].guilds[':guild_id'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
+      ) => parseResponse(client.users['@me'].guilds[':guild_id'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -8056,25 +6462,14 @@ export function getGetWebhooksWebhookIdQueryKey(
  * DELETE /webhooks/{webhook_id}
  */
 export function useDeleteWebhooksWebhookId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.webhooks)[':webhook_id']['$delete']> | undefined,
-      Error,
-      InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.webhooks)[':webhook_id']['$delete']> | undefined,
-    Error,
-    InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webhooks[':webhook_id'].$delete(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
+      ) => parseResponse(client.webhooks[':webhook_id'].$delete(args, options?.client)),
     },
     queryClient,
   )
@@ -8084,25 +6479,14 @@ export function useDeleteWebhooksWebhookId(
  * PATCH /webhooks/{webhook_id}
  */
 export function usePatchWebhooksWebhookId(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<(typeof client.webhooks)[':webhook_id']['$patch']> | undefined,
-      Error,
-      InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    InferResponseType<(typeof client.webhooks)[':webhook_id']['$patch']> | undefined,
-    Error,
-    InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
-        parseResponse(client.webhooks[':webhook_id'].$patch(args, options?.client)),
+      mutationFn: async (
+        args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+      ) => parseResponse(client.webhooks[':webhook_id'].$patch(args, options?.client)),
     },
     queryClient,
   )
@@ -8154,26 +6538,14 @@ export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
  * POST /webhooks/{webhook_id}/{webhook_token}
  */
 export function usePostWebhooksWebhookIdWebhookToken(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>,
+      ) =>
         parseResponse(
           client.webhooks[':webhook_id'][':webhook_token'].$post(args, options?.client),
         ),
@@ -8186,26 +6558,16 @@ export function usePostWebhooksWebhookIdWebhookToken(
  * DELETE /webhooks/{webhook_id}/{webhook_token}
  */
 export function useDeleteWebhooksWebhookIdWebhookToken(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.webhooks[':webhook_id'][':webhook_token'].$delete(args, options?.client),
         ),
@@ -8218,26 +6580,14 @@ export function useDeleteWebhooksWebhookIdWebhookToken(
  * PATCH /webhooks/{webhook_id}/{webhook_token}
  */
 export function usePatchWebhooksWebhookIdWebhookToken(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>,
+      ) =>
         parseResponse(
           client.webhooks[':webhook_id'][':webhook_token'].$patch(args, options?.client),
         ),
@@ -8250,30 +6600,16 @@ export function usePatchWebhooksWebhookIdWebhookToken(
  * POST /webhooks/{webhook_id}/{webhook_token}/github
  */
 export function usePostWebhooksWebhookIdWebhookTokenGithub(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+        >,
+      ) =>
         parseResponse(
           client.webhooks[':webhook_id'][':webhook_token'].github.$post(args, options?.client),
         ),
@@ -8343,34 +6679,16 @@ export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
  * DELETE /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
 export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$delete(
             args,
@@ -8386,34 +6704,16 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(
  * PATCH /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
 export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$patch(
             args,
@@ -8486,34 +6786,16 @@ export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
  * DELETE /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
 export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+        >,
+      ) =>
         parseResponse(
           client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$delete(
             args,
@@ -8529,34 +6811,16 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(
  * PATCH /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
 export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
-        >
-      | undefined,
-      Error,
-      InferRequestType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
-      >
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
-    >
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+        >,
+      ) =>
         parseResponse(
           client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$patch(
             args,
@@ -8572,28 +6836,16 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(
  * POST /webhooks/{webhook_id}/{webhook_token}/slack
  */
 export function usePostWebhooksWebhookIdWebhookTokenSlack(
-  options?: {
-    mutation?: UseMutationOptions<
-      | InferResponseType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
-        >
-      | undefined,
-      Error,
-      InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']>
-    >
-    client?: ClientRequestOptions
-  },
+  options?: { client?: ClientRequestOptions },
   queryClient?: QueryClient,
 ) {
-  return useMutation<
-    | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']>
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']>
-  >(
+  return useMutation(
     {
-      ...options?.mutation,
-      mutationFn: async (args) =>
+      mutationFn: async (
+        args: InferRequestType<
+          (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+        >,
+      ) =>
         parseResponse(
           client.webhooks[':webhook_id'][':webhook_token'].slack.$post(args, options?.client),
         ),
