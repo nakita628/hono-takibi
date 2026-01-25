@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
@@ -42,11 +43,21 @@ export function getGetFilesKey(args?: InferRequestType<typeof client.files.$get>
  *
  * ファイルアップロード
  */
-export function usePostFilesUpload(options?: { client?: ClientRequestOptions }) {
+export function usePostFilesUpload(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.files.upload.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.files.upload.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /files/upload',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.files.upload.$post> }) =>
       parseResponse(client.files.upload.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -57,13 +68,23 @@ export function usePostFilesUpload(options?: { client?: ClientRequestOptions }) 
  *
  * 大容量ファイルの分割アップロードを開始します
  */
-export function usePostFilesUploadMultipartInit(options?: { client?: ClientRequestOptions }) {
+export function usePostFilesUploadMultipartInit(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.files.upload.multipart.init.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.files.upload.multipart.init.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /files/upload/multipart/init',
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.files.upload.multipart.init.$post> },
     ) => parseResponse(client.files.upload.multipart.init.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -73,8 +94,15 @@ export function usePostFilesUploadMultipartInit(options?: { client?: ClientReque
  * パートアップロード
  */
 export function usePostFilesUploadMultipartUploadIdPart(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /files/upload/multipart/:uploadId/part',
     async (
@@ -85,6 +113,7 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
         arg: InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
       },
     ) => parseResponse(client.files.upload.multipart[':uploadId'].part.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -94,8 +123,15 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
  * マルチパートアップロード完了
  */
 export function usePostFilesUploadMultipartUploadIdComplete(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /files/upload/multipart/:uploadId/complete',
     async (
@@ -111,6 +147,7 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
       parseResponse(
         client.files.upload.multipart[':uploadId'].complete.$post(arg, options?.client),
       ),
+    mutationOptions,
   )
 }
 
@@ -140,7 +177,7 @@ export function useGetFilesFileId(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}
+ * Generates SWR cache key for GET /files/{fileId
  */
 export function getGetFilesFileIdKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['$get']>,
@@ -153,13 +190,23 @@ export function getGetFilesFileIdKey(
  *
  * ファイル削除（ゴミ箱へ移動）
  */
-export function useDeleteFilesFileId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteFilesFileId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.files)[':fileId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.files)[':fileId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /files/:fileId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['$delete']> },
     ) => parseResponse(client.files[':fileId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -168,13 +215,23 @@ export function useDeleteFilesFileId(options?: { client?: ClientRequestOptions }
  *
  * ファイル情報更新
  */
-export function usePatchFilesFileId(options?: { client?: ClientRequestOptions }) {
+export function usePatchFilesFileId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.files)[':fileId']['$patch']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.files)[':fileId']['$patch']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PATCH /files/:fileId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['$patch']> },
     ) => parseResponse(client.files[':fileId'].$patch(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -204,7 +261,7 @@ export function useGetFilesFileIdDownload(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/download
+ * Generates SWR cache key for GET /files/{fileId/download
  */
 export function getGetFilesFileIdDownloadKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
@@ -238,7 +295,7 @@ export function useGetFilesFileIdDownloadUrl(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/download-url
+ * Generates SWR cache key for GET /files/{fileId/download-url
  */
 export function getGetFilesFileIdDownloadUrlKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
@@ -251,13 +308,23 @@ export function getGetFilesFileIdDownloadUrlKey(
  *
  * ファイルコピー
  */
-export function usePostFilesFileIdCopy(options?: { client?: ClientRequestOptions }) {
+export function usePostFilesFileIdCopy(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.files)[':fileId']['copy']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /files/:fileId/copy',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']> },
     ) => parseResponse(client.files[':fileId'].copy.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -266,13 +333,23 @@ export function usePostFilesFileIdCopy(options?: { client?: ClientRequestOptions
  *
  * ファイル移動
  */
-export function usePostFilesFileIdMove(options?: { client?: ClientRequestOptions }) {
+export function usePostFilesFileIdMove(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.files)[':fileId']['move']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.files)[':fileId']['move']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /files/:fileId/move',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['move']['$post']> },
     ) => parseResponse(client.files[':fileId'].move.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -302,7 +379,7 @@ export function useGetFilesFileIdThumbnail(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/thumbnail
+ * Generates SWR cache key for GET /files/{fileId/thumbnail
  */
 export function getGetFilesFileIdThumbnailKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
@@ -315,11 +392,21 @@ export function getGetFilesFileIdThumbnailKey(
  *
  * フォルダ作成
  */
-export function usePostFolders(options?: { client?: ClientRequestOptions }) {
+export function usePostFolders(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.folders.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.folders.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /folders',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.folders.$post> }) =>
       parseResponse(client.folders.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -349,7 +436,7 @@ export function useGetFoldersFolderId(
 }
 
 /**
- * Generates SWR cache key for GET /folders/{folderId}
+ * Generates SWR cache key for GET /folders/{folderId
  */
 export function getGetFoldersFolderIdKey(
   args?: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
@@ -362,13 +449,23 @@ export function getGetFoldersFolderIdKey(
  *
  * フォルダ削除
  */
-export function useDeleteFoldersFolderId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteFoldersFolderId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.folders)[':folderId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.folders)[':folderId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /folders/:folderId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.folders)[':folderId']['$delete']> },
     ) => parseResponse(client.folders[':folderId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -377,13 +474,23 @@ export function useDeleteFoldersFolderId(options?: { client?: ClientRequestOptio
  *
  * フォルダ情報更新
  */
-export function usePatchFoldersFolderId(options?: { client?: ClientRequestOptions }) {
+export function usePatchFoldersFolderId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.folders)[':folderId']['$patch']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.folders)[':folderId']['$patch']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PATCH /folders/:folderId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.folders)[':folderId']['$patch']> },
     ) => parseResponse(client.folders[':folderId'].$patch(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -413,7 +520,7 @@ export function useGetFilesFileIdShare(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/share
+ * Generates SWR cache key for GET /files/{fileId/share
  */
 export function getGetFilesFileIdShareKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
@@ -426,13 +533,23 @@ export function getGetFilesFileIdShareKey(
  *
  * ファイル共有
  */
-export function usePostFilesFileIdShare(options?: { client?: ClientRequestOptions }) {
+export function usePostFilesFileIdShare(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.files)[':fileId']['share']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.files)[':fileId']['share']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /files/:fileId/share',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['share']['$post']> },
     ) => parseResponse(client.files[':fileId'].share.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -441,13 +558,23 @@ export function usePostFilesFileIdShare(options?: { client?: ClientRequestOption
  *
  * 共有解除
  */
-export function useDeleteFilesFileIdShare(options?: { client?: ClientRequestOptions }) {
+export function useDeleteFilesFileIdShare(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.files)[':fileId']['share']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /files/:fileId/share',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']> },
     ) => parseResponse(client.files[':fileId'].share.$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -456,7 +583,16 @@ export function useDeleteFilesFileIdShare(options?: { client?: ClientRequestOpti
  *
  * 共有リンク作成
  */
-export function usePostFilesFileIdShareLink(options?: { client?: ClientRequestOptions }) {
+export function usePostFilesFileIdShareLink(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /files/:fileId/share/link',
     async (
@@ -465,6 +601,7 @@ export function usePostFilesFileIdShareLink(options?: { client?: ClientRequestOp
         arg,
       }: { arg: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']> },
     ) => parseResponse(client.files[':fileId'].share.link.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -494,7 +631,7 @@ export function useGetFilesFileIdVersions(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId}/versions
+ * Generates SWR cache key for GET /files/{fileId/versions
  */
 export function getGetFilesFileIdVersionsKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
@@ -508,8 +645,17 @@ export function getGetFilesFileIdVersionsKey(
  * バージョン復元
  */
 export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<
+      (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+    >,
+    Error,
+    string,
+    InferRequestType<(typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /files/:fileId/versions/:versionId/restore',
     async (
@@ -525,6 +671,7 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
       parseResponse(
         client.files[':fileId'].versions[':versionId'].restore.$post(arg, options?.client),
       ),
+    mutationOptions,
   )
 }
 
@@ -565,9 +712,20 @@ export function getGetTrashKey(args?: InferRequestType<typeof client.trash.$get>
  *
  * ゴミ箱を空にする
  */
-export function useDeleteTrash(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('DELETE /trash', async () =>
-    parseResponse(client.trash.$delete(undefined, options?.client)),
+export function useDeleteTrash(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.trash.$delete> | undefined,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'DELETE /trash',
+    async () => parseResponse(client.trash.$delete(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -576,13 +734,23 @@ export function useDeleteTrash(options?: { client?: ClientRequestOptions }) {
  *
  * ゴミ箱から復元
  */
-export function usePostTrashFileIdRestore(options?: { client?: ClientRequestOptions }) {
+export function usePostTrashFileIdRestore(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.trash)[':fileId']['restore']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /trash/:fileId/restore',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']> },
     ) => parseResponse(client.trash[':fileId'].restore.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 

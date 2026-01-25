@@ -8,12 +8,29 @@ import { client } from '../clients/17-mixed-inline-refs'
  */
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.users.$get>,
+      ) => InferResponseType<typeof client.users.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUsersQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersQueryKey(args),
     queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -27,10 +44,29 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
 /**
  * POST /users
  */
-export function usePostUsers(clientOptions?: ClientRequestOptions) {
+export function usePostUsers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.users.$post>,
+      variables: InferRequestType<typeof client.users.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.users.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.users.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.users.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.users.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
       parseResponse(client.users.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -39,17 +75,34 @@ export function usePostUsers(clientOptions?: ClientRequestOptions) {
  */
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':userId']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':userId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUsersUserIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersUserIdQueryKey(args),
     queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{userId}
+ * Generates Vue Query cache key for GET /users/{userId
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
@@ -60,10 +113,29 @@ export function getGetUsersUserIdQueryKey(
 /**
  * POST /orders
  */
-export function usePostOrders(clientOptions?: ClientRequestOptions) {
+export function usePostOrders(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.orders.$post>,
+      variables: InferRequestType<typeof client.orders.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.orders.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.orders.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.orders.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.orders.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
       parseResponse(client.orders.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -72,18 +144,35 @@ export function usePostOrders(clientOptions?: ClientRequestOptions) {
  */
 export function useGetProductsProductIdVariants(
   args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.products)[':productId']['variants']['$get']>,
+      ) => InferResponseType<(typeof client.products)[':productId']['variants']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetProductsProductIdVariantsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetProductsProductIdVariantsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.products[':productId'].variants.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /products/{productId}/variants
+ * Generates Vue Query cache key for GET /products/{productId/variants
  */
 export function getGetProductsProductIdVariantsQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
@@ -94,19 +183,60 @@ export function getGetProductsProductIdVariantsQueryKey(
 /**
  * POST /reports/generate
  */
-export function usePostReportsGenerate(clientOptions?: ClientRequestOptions) {
+export function usePostReportsGenerate(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.reports.generate.$post>,
+      variables: InferRequestType<typeof client.reports.generate.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.reports.generate.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.reports.generate.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.reports.generate.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.reports.generate.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.reports.generate.$post>) =>
       parseResponse(client.reports.generate.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /webhooks/test
  */
-export function usePostWebhooksTest(clientOptions?: ClientRequestOptions) {
+export function usePostWebhooksTest(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.webhooks.test.$post>,
+      variables: InferRequestType<typeof client.webhooks.test.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.webhooks.test.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.webhooks.test.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.webhooks.test.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.webhooks.test.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.webhooks.test.$post>) =>
       parseResponse(client.webhooks.test.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }

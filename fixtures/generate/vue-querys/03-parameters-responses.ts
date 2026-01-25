@@ -8,12 +8,29 @@ import { client } from '../clients/03-parameters-responses'
  */
 export function useGetItems(
   args: InferRequestType<typeof client.items.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.items.$get>,
+      ) => InferResponseType<typeof client.items.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetItemsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetItemsQueryKey(args),
     queryFn: async () => parseResponse(client.items.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -29,17 +46,34 @@ export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$
  */
 export function useGetItemsItemId(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.items)[':itemId']['$get']>,
+      ) => InferResponseType<(typeof client.items)[':itemId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetItemsItemIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetItemsItemIdQueryKey(args),
     queryFn: async () => parseResponse(client.items[':itemId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /items/{itemId}
+ * Generates Vue Query cache key for GET /items/{itemId
  */
 export function getGetItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
@@ -50,9 +84,31 @@ export function getGetItemsItemIdQueryKey(
 /**
  * DELETE /items/{itemId}
  */
-export function useDeleteItemsItemId(clientOptions?: ClientRequestOptions) {
+export function useDeleteItemsItemId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) =>
       parseResponse(client.items[':itemId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }

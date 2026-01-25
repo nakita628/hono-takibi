@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -38,11 +39,21 @@ export function getGetDocumentsKey(args?: InferRequestType<typeof client.documen
 /**
  * POST /documents
  */
-export function usePostDocuments(options?: { client?: ClientRequestOptions }) {
+export function usePostDocuments(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.documents.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.documents.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /documents',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.documents.$post> }) =>
       parseResponse(client.documents.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -70,7 +81,7 @@ export function useGetDocumentsDocumentId(
 }
 
 /**
- * Generates SWR cache key for GET /documents/{documentId}
+ * Generates SWR cache key for GET /documents/{documentId
  */
 export function getGetDocumentsDocumentIdKey(
   args?: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
@@ -81,13 +92,23 @@ export function getGetDocumentsDocumentIdKey(
 /**
  * PUT /documents/{documentId}
  */
-export function usePutDocumentsDocumentId(options?: { client?: ClientRequestOptions }) {
+export function usePutDocumentsDocumentId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.documents)[':documentId']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.documents)[':documentId']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /documents/:documentId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.documents)[':documentId']['$put']> },
     ) => parseResponse(client.documents[':documentId'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -116,7 +137,7 @@ export function useGetDocumentsDocumentIdVersions(
 }
 
 /**
- * Generates SWR cache key for GET /documents/{documentId}/versions
+ * Generates SWR cache key for GET /documents/{documentId/versions
  */
 export function getGetDocumentsDocumentIdVersionsKey(
   args?: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
@@ -127,7 +148,16 @@ export function getGetDocumentsDocumentIdVersionsKey(
 /**
  * POST /documents/{documentId}/share
  */
-export function usePostDocumentsDocumentIdShare(options?: { client?: ClientRequestOptions }) {
+export function usePostDocumentsDocumentIdShare(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.documents)[':documentId']['share']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /documents/:documentId/share',
     async (
@@ -136,6 +166,7 @@ export function usePostDocumentsDocumentIdShare(options?: { client?: ClientReque
         arg,
       }: { arg: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']> },
     ) => parseResponse(client.documents[':documentId'].share.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -163,7 +194,7 @@ export function useGetUsersUserIdDocuments(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId}/documents
+ * Generates SWR cache key for GET /users/{userId/documents
  */
 export function getGetUsersUserIdDocumentsKey(
   args?: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
@@ -174,11 +205,21 @@ export function getGetUsersUserIdDocumentsKey(
 /**
  * POST /compare
  */
-export function usePostCompare(options?: { client?: ClientRequestOptions }) {
+export function usePostCompare(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.compare.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.compare.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /compare',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.compare.$post> }) =>
       parseResponse(client.compare.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -212,21 +253,41 @@ export function getGetTemplatesKey() {
 /**
  * POST /templates
  */
-export function usePostTemplates(options?: { client?: ClientRequestOptions }) {
+export function usePostTemplates(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.templates.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.templates.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /templates',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.templates.$post> }) =>
       parseResponse(client.templates.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * POST /workflows
  */
-export function usePostWorkflows(options?: { client?: ClientRequestOptions }) {
+export function usePostWorkflows(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.workflows.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.workflows.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /workflows',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.workflows.$post> }) =>
       parseResponse(client.workflows.$post(arg, options?.client)),
+    mutationOptions,
   )
 }

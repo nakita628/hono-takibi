@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
@@ -59,7 +60,7 @@ export function useGetItemsItemId(
 }
 
 /**
- * Generates SWR cache key for GET /items/{itemId}
+ * Generates SWR cache key for GET /items/{itemId
  */
 export function getGetItemsItemIdKey(
   args?: InferRequestType<(typeof client.items)[':itemId']['$get']>,
@@ -70,12 +71,22 @@ export function getGetItemsItemIdKey(
 /**
  * DELETE /items/{itemId}
  */
-export function useDeleteItemsItemId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteItemsItemId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.items)[':itemId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /items/:itemId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.items)[':itemId']['$delete']> },
     ) => parseResponse(client.items[':itemId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }

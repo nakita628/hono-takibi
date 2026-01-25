@@ -10,12 +10,29 @@ import { client } from '../clients/32-practical-project-api'
  */
 export function useGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.projects.$get>,
+      ) => InferResponseType<typeof client.projects.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetProjectsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetProjectsQueryKey(args),
     queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -31,10 +48,29 @@ export function getGetProjectsQueryKey(args: InferRequestType<typeof client.proj
  *
  * プロジェクト作成
  */
-export function usePostProjects(clientOptions?: ClientRequestOptions) {
+export function usePostProjects(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.projects.$post>,
+      variables: InferRequestType<typeof client.projects.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.projects.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.projects.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.projects.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.projects.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.projects.$post>) =>
       parseResponse(client.projects.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -45,17 +81,34 @@ export function usePostProjects(clientOptions?: ClientRequestOptions) {
  */
 export function useGetProjectsProjectId(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.projects)[':projectId']['$get']>,
+      ) => InferResponseType<(typeof client.projects)[':projectId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetProjectsProjectIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetProjectsProjectIdQueryKey(args),
     queryFn: async () => parseResponse(client.projects[':projectId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /projects/{projectId}
+ * Generates Vue Query cache key for GET /projects/{projectId
  */
 export function getGetProjectsProjectIdQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
@@ -68,10 +121,32 @@ export function getGetProjectsProjectIdQueryKey(
  *
  * プロジェクト更新
  */
-export function usePutProjectsProjectId(clientOptions?: ClientRequestOptions) {
+export function usePutProjectsProjectId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.projects)[':projectId']['$put']>,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.projects)[':projectId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.projects)[':projectId']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.projects)[':projectId']['$put']>) =>
       parseResponse(client.projects[':projectId'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -80,10 +155,34 @@ export function usePutProjectsProjectId(clientOptions?: ClientRequestOptions) {
  *
  * プロジェクト削除
  */
-export function useDeleteProjectsProjectId(clientOptions?: ClientRequestOptions) {
+export function useDeleteProjectsProjectId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.projects)[':projectId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.projects)[':projectId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.projects)[':projectId']['$delete']>) =>
       parseResponse(client.projects[':projectId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -94,18 +193,35 @@ export function useDeleteProjectsProjectId(clientOptions?: ClientRequestOptions)
  */
 export function useGetProjectsProjectIdMembers(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>,
+      ) => InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetProjectsProjectIdMembersQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetProjectsProjectIdMembersQueryKey(args),
     queryFn: async () =>
       parseResponse(client.projects[':projectId'].members.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /projects/{projectId}/members
+ * Generates Vue Query cache key for GET /projects/{projectId/members
  */
 export function getGetProjectsProjectIdMembersQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
@@ -118,11 +234,37 @@ export function getGetProjectsProjectIdMembersQueryKey(
  *
  * メンバー追加
  */
-export function usePostProjectsProjectIdMembers(clientOptions?: ClientRequestOptions) {
+export function usePostProjectsProjectIdMembers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.projects)[':projectId']['members']['$post']>,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.projects)[':projectId']['members']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
     ) => parseResponse(client.projects[':projectId'].members.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -133,18 +275,35 @@ export function usePostProjectsProjectIdMembers(clientOptions?: ClientRequestOpt
  */
 export function useGetProjectsProjectIdTasks(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+      ) => InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetProjectsProjectIdTasksQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetProjectsProjectIdTasksQueryKey(args),
     queryFn: async () =>
       parseResponse(client.projects[':projectId'].tasks.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /projects/{projectId}/tasks
+ * Generates Vue Query cache key for GET /projects/{projectId/tasks
  */
 export function getGetProjectsProjectIdTasksQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
@@ -157,11 +316,35 @@ export function getGetProjectsProjectIdTasksQueryKey(
  *
  * タスク作成
  */
-export function usePostProjectsProjectIdTasks(clientOptions?: ClientRequestOptions) {
+export function usePostProjectsProjectIdTasks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.projects)[':projectId']['tasks']['$post']>,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.projects)[':projectId']['tasks']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
     ) => parseResponse(client.projects[':projectId'].tasks.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -172,17 +355,34 @@ export function usePostProjectsProjectIdTasks(clientOptions?: ClientRequestOptio
  */
 export function useGetTasksTaskId(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.tasks)[':taskId']['$get']>,
+      ) => InferResponseType<(typeof client.tasks)[':taskId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetTasksTaskIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetTasksTaskIdQueryKey(args),
     queryFn: async () => parseResponse(client.tasks[':taskId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /tasks/{taskId}
+ * Generates Vue Query cache key for GET /tasks/{taskId
  */
 export function getGetTasksTaskIdQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
@@ -195,10 +395,32 @@ export function getGetTasksTaskIdQueryKey(
  *
  * タスク更新
  */
-export function usePutTasksTaskId(clientOptions?: ClientRequestOptions) {
+export function usePutTasksTaskId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.tasks)[':taskId']['$put']>,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.tasks)[':taskId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.tasks)[':taskId']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.tasks)[':taskId']['$put']>) =>
       parseResponse(client.tasks[':taskId'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -207,10 +429,32 @@ export function usePutTasksTaskId(clientOptions?: ClientRequestOptions) {
  *
  * タスク削除
  */
-export function useDeleteTasksTaskId(clientOptions?: ClientRequestOptions) {
+export function useDeleteTasksTaskId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.tasks)[':taskId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.tasks)[':taskId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>) =>
       parseResponse(client.tasks[':taskId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -219,11 +463,35 @@ export function useDeleteTasksTaskId(clientOptions?: ClientRequestOptions) {
  *
  * タスクステータス更新
  */
-export function usePatchTasksTaskIdStatus(clientOptions?: ClientRequestOptions) {
+export function usePatchTasksTaskIdStatus(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.tasks)[':taskId']['status']['$patch']>,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.tasks)[':taskId']['status']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
     ) => parseResponse(client.tasks[':taskId'].status.$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -234,17 +502,34 @@ export function usePatchTasksTaskIdStatus(clientOptions?: ClientRequestOptions) 
  */
 export function useGetTasksTaskIdComments(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+      ) => InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetTasksTaskIdCommentsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetTasksTaskIdCommentsQueryKey(args),
     queryFn: async () => parseResponse(client.tasks[':taskId'].comments.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /tasks/{taskId}/comments
+ * Generates Vue Query cache key for GET /tasks/{taskId/comments
  */
 export function getGetTasksTaskIdCommentsQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
@@ -257,11 +542,35 @@ export function getGetTasksTaskIdCommentsQueryKey(
  *
  * コメント追加
  */
-export function usePostTasksTaskIdComments(clientOptions?: ClientRequestOptions) {
+export function usePostTasksTaskIdComments(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.tasks)[':taskId']['comments']['$post']>,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.tasks)[':taskId']['comments']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
     ) => parseResponse(client.tasks[':taskId'].comments.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -272,18 +581,35 @@ export function usePostTasksTaskIdComments(clientOptions?: ClientRequestOptions)
  */
 export function useGetTasksTaskIdTimeEntries(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+      ) => InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetTasksTaskIdTimeEntriesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetTasksTaskIdTimeEntriesQueryKey(args),
     queryFn: async () =>
       parseResponse(client.tasks[':taskId']['time-entries'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /tasks/{taskId}/time-entries
+ * Generates Vue Query cache key for GET /tasks/{taskId/time-entries
  */
 export function getGetTasksTaskIdTimeEntriesQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
@@ -296,11 +622,37 @@ export function getGetTasksTaskIdTimeEntriesQueryKey(
  *
  * 時間記録作成
  */
-export function usePostTasksTaskIdTimeEntries(clientOptions?: ClientRequestOptions) {
+export function usePostTasksTaskIdTimeEntries(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
     ) => parseResponse(client.tasks[':taskId']['time-entries'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -311,18 +663,35 @@ export function usePostTasksTaskIdTimeEntries(clientOptions?: ClientRequestOptio
  */
 export function useGetProjectsProjectIdMilestones(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+      ) => InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetProjectsProjectIdMilestonesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetProjectsProjectIdMilestonesQueryKey(args),
     queryFn: async () =>
       parseResponse(client.projects[':projectId'].milestones.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /projects/{projectId}/milestones
+ * Generates Vue Query cache key for GET /projects/{projectId/milestones
  */
 export function getGetProjectsProjectIdMilestonesQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
@@ -335,11 +704,37 @@ export function getGetProjectsProjectIdMilestonesQueryKey(
  *
  * マイルストーン作成
  */
-export function usePostProjectsProjectIdMilestones(clientOptions?: ClientRequestOptions) {
+export function usePostProjectsProjectIdMilestones(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.projects)[':projectId']['milestones']['$post']>,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.projects)[':projectId']['milestones']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
     ) => parseResponse(client.projects[':projectId'].milestones.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -348,11 +743,28 @@ export function usePostProjectsProjectIdMilestones(clientOptions?: ClientRequest
  *
  * チーム一覧取得
  */
-export function useGetTeams(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetTeamsQueryKey()
+export function useGetTeams(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.teams.$get>,
+    ) => InferResponseType<typeof client.teams.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetTeamsQueryKey(),
     queryFn: async () => parseResponse(client.teams.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -368,9 +780,28 @@ export function getGetTeamsQueryKey() {
  *
  * チーム作成
  */
-export function usePostTeams(clientOptions?: ClientRequestOptions) {
+export function usePostTeams(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.teams.$post>,
+      variables: InferRequestType<typeof client.teams.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.teams.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.teams.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.teams.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.teams.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.teams.$post>) =>
       parseResponse(client.teams.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }

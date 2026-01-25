@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -67,7 +68,7 @@ export function useGetAlbumsId(
 }
 
 /**
- * Generates SWR cache key for GET /albums/{id}
+ * Generates SWR cache key for GET /albums/{id
  */
 export function getGetAlbumsIdKey(args?: InferRequestType<(typeof client.albums)[':id']['$get']>) {
   return ['/albums/:id', ...(args ? [args] : [])] as const
@@ -102,7 +103,7 @@ export function useGetAlbumsIdTracks(
 }
 
 /**
- * Generates SWR cache key for GET /albums/{id}/tracks
+ * Generates SWR cache key for GET /albums/{id/tracks
  */
 export function getGetAlbumsIdTracksKey(
   args?: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
@@ -172,7 +173,7 @@ export function useGetArtistsId(
 }
 
 /**
- * Generates SWR cache key for GET /artists/{id}
+ * Generates SWR cache key for GET /artists/{id
  */
 export function getGetArtistsIdKey(
   args?: InferRequestType<(typeof client.artists)[':id']['$get']>,
@@ -208,7 +209,7 @@ export function useGetArtistsIdAlbums(
 }
 
 /**
- * Generates SWR cache key for GET /artists/{id}/albums
+ * Generates SWR cache key for GET /artists/{id/albums
  */
 export function getGetArtistsIdAlbumsKey(
   args?: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
@@ -244,7 +245,7 @@ export function useGetArtistsIdRelatedArtists(
 }
 
 /**
- * Generates SWR cache key for GET /artists/{id}/related-artists
+ * Generates SWR cache key for GET /artists/{id/related-artists
  */
 export function getGetArtistsIdRelatedArtistsKey(
   args?: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
@@ -280,7 +281,7 @@ export function useGetArtistsIdTopTracks(
 }
 
 /**
- * Generates SWR cache key for GET /artists/{id}/top-tracks
+ * Generates SWR cache key for GET /artists/{id/top-tracks
  */
 export function getGetArtistsIdTopTracksKey(
   args?: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
@@ -316,7 +317,7 @@ export function useGetAudioAnalysisId(
 }
 
 /**
- * Generates SWR cache key for GET /audio-analysis/{id}
+ * Generates SWR cache key for GET /audio-analysis/{id
  */
 export function getGetAudioAnalysisIdKey(
   args?: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
@@ -389,7 +390,7 @@ export function useGetAudioFeaturesId(
 }
 
 /**
- * Generates SWR cache key for GET /audio-features/{id}
+ * Generates SWR cache key for GET /audio-features/{id
  */
 export function getGetAudioFeaturesIdKey(
   args?: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
@@ -461,7 +462,7 @@ export function useGetAudiobooksId(
 }
 
 /**
- * Generates SWR cache key for GET /audiobooks/{id}
+ * Generates SWR cache key for GET /audiobooks/{id
  */
 export function getGetAudiobooksIdKey(
   args?: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
@@ -498,7 +499,7 @@ export function useGetAudiobooksIdChapters(
 }
 
 /**
- * Generates SWR cache key for GET /audiobooks/{id}/chapters
+ * Generates SWR cache key for GET /audiobooks/{id/chapters
  */
 export function getGetAudiobooksIdChaptersKey(
   args?: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
@@ -571,7 +572,7 @@ export function useGetBrowseCategoriesCategoryId(
 }
 
 /**
- * Generates SWR cache key for GET /browse/categories/{category_id}
+ * Generates SWR cache key for GET /browse/categories/{category_id
  */
 export function getGetBrowseCategoriesCategoryIdKey(
   args?: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
@@ -609,7 +610,7 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
 }
 
 /**
- * Generates SWR cache key for GET /browse/categories/{category_id}/playlists
+ * Generates SWR cache key for GET /browse/categories/{category_id/playlists
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsKey(
   args?: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
@@ -753,7 +754,7 @@ export function useGetChaptersId(
 }
 
 /**
- * Generates SWR cache key for GET /chapters/{id}
+ * Generates SWR cache key for GET /chapters/{id
  */
 export function getGetChaptersIdKey(
   args?: InferRequestType<(typeof client.chapters)[':id']['$get']>,
@@ -824,7 +825,7 @@ export function useGetEpisodesId(
 }
 
 /**
- * Generates SWR cache key for GET /episodes/{id}
+ * Generates SWR cache key for GET /episodes/{id
  */
 export function getGetEpisodesIdKey(
   args?: InferRequestType<(typeof client.episodes)[':id']['$get']>,
@@ -936,11 +937,21 @@ export function getGetMeAlbumsKey(args?: InferRequestType<typeof client.me.album
  *
  * Save one or more albums to the current user's 'Your Music' library.
  */
-export function usePutMeAlbums(options?: { client?: ClientRequestOptions }) {
+export function usePutMeAlbums(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.albums.$put>,
+    Error,
+    string,
+    InferRequestType<typeof client.me.albums.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/albums',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.albums.$put> }) =>
       parseResponse(client.me.albums.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -951,11 +962,21 @@ export function usePutMeAlbums(options?: { client?: ClientRequestOptions }) {
  *
  * Remove one or more albums from the current user's 'Your Music' library.
  */
-export function useDeleteMeAlbums(options?: { client?: ClientRequestOptions }) {
+export function useDeleteMeAlbums(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.albums.$delete>,
+    Error,
+    string,
+    InferRequestType<typeof client.me.albums.$delete>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /me/albums',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.albums.$delete> }) =>
       parseResponse(client.me.albums.$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1036,11 +1057,21 @@ export function getGetMeAudiobooksKey(args?: InferRequestType<typeof client.me.a
  *
  * Save one or more audiobooks to the current Spotify user's library.
  */
-export function usePutMeAudiobooks(options?: { client?: ClientRequestOptions }) {
+export function usePutMeAudiobooks(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.audiobooks.$put>,
+    Error,
+    string,
+    InferRequestType<typeof client.me.audiobooks.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/audiobooks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.audiobooks.$put> }) =>
       parseResponse(client.me.audiobooks.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1051,11 +1082,21 @@ export function usePutMeAudiobooks(options?: { client?: ClientRequestOptions }) 
  *
  * Remove one or more audiobooks from the Spotify user's library.
  */
-export function useDeleteMeAudiobooks(options?: { client?: ClientRequestOptions }) {
+export function useDeleteMeAudiobooks(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.audiobooks.$delete>,
+    Error,
+    string,
+    InferRequestType<typeof client.me.audiobooks.$delete>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /me/audiobooks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.audiobooks.$delete> }) =>
       parseResponse(client.me.audiobooks.$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1138,11 +1179,21 @@ export function getGetMeEpisodesKey(args?: InferRequestType<typeof client.me.epi
  * Save one or more episodes to the current user's library.<br/>
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
-export function usePutMeEpisodes(options?: { client?: ClientRequestOptions }) {
+export function usePutMeEpisodes(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.episodes.$put>,
+    Error,
+    string,
+    InferRequestType<typeof client.me.episodes.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/episodes',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.episodes.$put> }) =>
       parseResponse(client.me.episodes.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1154,11 +1205,21 @@ export function usePutMeEpisodes(options?: { client?: ClientRequestOptions }) {
  * Remove one or more episodes from the current user's library.<br/>
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
-export function useDeleteMeEpisodes(options?: { client?: ClientRequestOptions }) {
+export function useDeleteMeEpisodes(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.episodes.$delete>,
+    Error,
+    string,
+    InferRequestType<typeof client.me.episodes.$delete>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /me/episodes',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.episodes.$delete> }) =>
       parseResponse(client.me.episodes.$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1240,11 +1301,21 @@ export function getGetMeFollowingKey(args?: InferRequestType<typeof client.me.fo
  *
  * Add the current user as a follower of one or more artists or other Spotify users.
  */
-export function usePutMeFollowing(options?: { client?: ClientRequestOptions }) {
+export function usePutMeFollowing(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.following.$put> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.me.following.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/following',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.following.$put> }) =>
       parseResponse(client.me.following.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1255,11 +1326,21 @@ export function usePutMeFollowing(options?: { client?: ClientRequestOptions }) {
  *
  * Remove the current user as a follower of one or more artists or other Spotify users.
  */
-export function useDeleteMeFollowing(options?: { client?: ClientRequestOptions }) {
+export function useDeleteMeFollowing(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.following.$delete>,
+    Error,
+    string,
+    InferRequestType<typeof client.me.following.$delete>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /me/following',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.following.$delete> }) =>
       parseResponse(client.me.following.$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1340,11 +1421,21 @@ export function getGetMePlayerKey(args?: InferRequestType<typeof client.me.playe
  *
  * Transfer playback to a new device and determine if it should start playing.
  */
-export function usePutMePlayer(options?: { client?: ClientRequestOptions }) {
+export function usePutMePlayer(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.player.$put> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.me.player.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/player',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.$put> }) =>
       parseResponse(client.me.player.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1422,11 +1513,21 @@ export function getGetMePlayerDevicesKey() {
  *
  * Skips to next track in the user’s queue.
  */
-export function usePostMePlayerNext(options?: { client?: ClientRequestOptions }) {
+export function usePostMePlayerNext(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.player.next.$post> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.me.player.next.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /me/player/next',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.next.$post> }) =>
       parseResponse(client.me.player.next.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1437,11 +1538,21 @@ export function usePostMePlayerNext(options?: { client?: ClientRequestOptions })
  *
  * Pause playback on the user's account.
  */
-export function usePutMePlayerPause(options?: { client?: ClientRequestOptions }) {
+export function usePutMePlayerPause(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.player.pause.$put> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.me.player.pause.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/player/pause',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.pause.$put> }) =>
       parseResponse(client.me.player.pause.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1452,11 +1563,21 @@ export function usePutMePlayerPause(options?: { client?: ClientRequestOptions })
  *
  * Start a new context or resume current playback on the user's active device.
  */
-export function usePutMePlayerPlay(options?: { client?: ClientRequestOptions }) {
+export function usePutMePlayerPlay(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.player.play.$put> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.me.player.play.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/player/play',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.play.$put> }) =>
       parseResponse(client.me.player.play.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1467,11 +1588,21 @@ export function usePutMePlayerPlay(options?: { client?: ClientRequestOptions }) 
  *
  * Skips to previous track in the user’s queue.
  */
-export function usePostMePlayerPrevious(options?: { client?: ClientRequestOptions }) {
+export function usePostMePlayerPrevious(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.player.previous.$post> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.me.player.previous.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /me/player/previous',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.previous.$post> }) =>
       parseResponse(client.me.player.previous.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1513,11 +1644,21 @@ export function getGetMePlayerQueueKey() {
  *
  * Add an item to the end of the user's current playback queue.
  */
-export function usePostMePlayerQueue(options?: { client?: ClientRequestOptions }) {
+export function usePostMePlayerQueue(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.player.queue.$post> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.me.player.queue.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /me/player/queue',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.queue.$post> }) =>
       parseResponse(client.me.player.queue.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1566,11 +1707,21 @@ export function getGetMePlayerRecentlyPlayedKey(
  * Set the repeat mode for the user's playback. Options are repeat-track,
  * repeat-context, and off.
  */
-export function usePutMePlayerRepeat(options?: { client?: ClientRequestOptions }) {
+export function usePutMePlayerRepeat(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.player.repeat.$put> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.me.player.repeat.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/player/repeat',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.repeat.$put> }) =>
       parseResponse(client.me.player.repeat.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1581,11 +1732,21 @@ export function usePutMePlayerRepeat(options?: { client?: ClientRequestOptions }
  *
  * Seeks to the given position in the user’s currently playing track.
  */
-export function usePutMePlayerSeek(options?: { client?: ClientRequestOptions }) {
+export function usePutMePlayerSeek(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.player.seek.$put> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.me.player.seek.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/player/seek',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.seek.$put> }) =>
       parseResponse(client.me.player.seek.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1596,11 +1757,21 @@ export function usePutMePlayerSeek(options?: { client?: ClientRequestOptions }) 
  *
  * Toggle shuffle on or off for user’s playback.
  */
-export function usePutMePlayerShuffle(options?: { client?: ClientRequestOptions }) {
+export function usePutMePlayerShuffle(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.me.player.shuffle.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/player/shuffle',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.shuffle.$put> }) =>
       parseResponse(client.me.player.shuffle.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1611,11 +1782,21 @@ export function usePutMePlayerShuffle(options?: { client?: ClientRequestOptions 
  *
  * Set the volume for the user’s current playback device.
  */
-export function usePutMePlayerVolume(options?: { client?: ClientRequestOptions }) {
+export function usePutMePlayerVolume(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.player.volume.$put> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.me.player.volume.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/player/volume',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.volume.$put> }) =>
       parseResponse(client.me.player.volume.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1695,11 +1876,21 @@ export function getGetMeShowsKey(args?: InferRequestType<typeof client.me.shows.
  *
  * Save one or more shows to current Spotify user's library.
  */
-export function usePutMeShows(options?: { client?: ClientRequestOptions }) {
+export function usePutMeShows(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.shows.$put>,
+    Error,
+    string,
+    InferRequestType<typeof client.me.shows.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/shows',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.shows.$put> }) =>
       parseResponse(client.me.shows.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1710,11 +1901,21 @@ export function usePutMeShows(options?: { client?: ClientRequestOptions }) {
  *
  * Delete one or more shows from current Spotify user's library.
  */
-export function useDeleteMeShows(options?: { client?: ClientRequestOptions }) {
+export function useDeleteMeShows(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.shows.$delete>,
+    Error,
+    string,
+    InferRequestType<typeof client.me.shows.$delete>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /me/shows',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.shows.$delete> }) =>
       parseResponse(client.me.shows.$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1782,7 +1983,7 @@ export function useGetMeTopType(
 }
 
 /**
- * Generates SWR cache key for GET /me/top/{type}
+ * Generates SWR cache key for GET /me/top/{type
  */
 export function getGetMeTopTypeKey(
   args?: InferRequestType<(typeof client.me.top)[':type']['$get']>,
@@ -1831,11 +2032,21 @@ export function getGetMeTracksKey(args?: InferRequestType<typeof client.me.track
  *
  * Save one or more tracks to the current user's 'Your Music' library.
  */
-export function usePutMeTracks(options?: { client?: ClientRequestOptions }) {
+export function usePutMeTracks(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.tracks.$put>,
+    Error,
+    string,
+    InferRequestType<typeof client.me.tracks.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /me/tracks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.tracks.$put> }) =>
       parseResponse(client.me.tracks.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1846,11 +2057,21 @@ export function usePutMeTracks(options?: { client?: ClientRequestOptions }) {
  *
  * Remove one or more tracks from the current user's 'Your Music' library.
  */
-export function useDeleteMeTracks(options?: { client?: ClientRequestOptions }) {
+export function useDeleteMeTracks(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.me.tracks.$delete>,
+    Error,
+    string,
+    InferRequestType<typeof client.me.tracks.$delete>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /me/tracks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.tracks.$delete> }) =>
       parseResponse(client.me.tracks.$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1918,7 +2139,7 @@ export function useGetPlaylistsPlaylistId(
 }
 
 /**
- * Generates SWR cache key for GET /playlists/{playlist_id}
+ * Generates SWR cache key for GET /playlists/{playlist_id
  */
 export function getGetPlaylistsPlaylistIdKey(
   args?: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
@@ -1934,13 +2155,23 @@ export function getGetPlaylistsPlaylistIdKey(
  * Change a playlist's name and public/private state. (The user must, of
  * course, own the playlist.)
  */
-export function usePutPlaylistsPlaylistId(options?: { client?: ClientRequestOptions }) {
+export function usePutPlaylistsPlaylistId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.playlists)[':playlist_id']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /playlists/:playlist_id',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']> },
     ) => parseResponse(client.playlists[':playlist_id'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1951,7 +2182,16 @@ export function usePutPlaylistsPlaylistId(options?: { client?: ClientRequestOpti
  *
  * Add the current user as a follower of a playlist.
  */
-export function usePutPlaylistsPlaylistIdFollowers(options?: { client?: ClientRequestOptions }) {
+export function usePutPlaylistsPlaylistIdFollowers(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /playlists/:playlist_id/followers',
     async (
@@ -1960,6 +2200,7 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: { client?: ClientRe
         arg,
       }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']> },
     ) => parseResponse(client.playlists[':playlist_id'].followers.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1970,7 +2211,16 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: { client?: ClientRe
  *
  * Remove the current user as a follower of a playlist.
  */
-export function useDeletePlaylistsPlaylistIdFollowers(options?: { client?: ClientRequestOptions }) {
+export function useDeletePlaylistsPlaylistIdFollowers(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /playlists/:playlist_id/followers',
     async (
@@ -1981,6 +2231,7 @@ export function useDeletePlaylistsPlaylistIdFollowers(options?: { client?: Clien
         arg: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
       },
     ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -2018,7 +2269,7 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
 }
 
 /**
- * Generates SWR cache key for GET /playlists/{playlist_id}/followers/contains
+ * Generates SWR cache key for GET /playlists/{playlist_id/followers/contains
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsKey(
   args?: InferRequestType<
@@ -2056,7 +2307,7 @@ export function useGetPlaylistsPlaylistIdImages(
 }
 
 /**
- * Generates SWR cache key for GET /playlists/{playlist_id}/images
+ * Generates SWR cache key for GET /playlists/{playlist_id/images
  */
 export function getGetPlaylistsPlaylistIdImagesKey(
   args?: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
@@ -2071,7 +2322,16 @@ export function getGetPlaylistsPlaylistIdImagesKey(
  *
  * Replace the image used to represent a specific playlist.
  */
-export function usePutPlaylistsPlaylistIdImages(options?: { client?: ClientRequestOptions }) {
+export function usePutPlaylistsPlaylistIdImages(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /playlists/:playlist_id/images',
     async (
@@ -2080,6 +2340,7 @@ export function usePutPlaylistsPlaylistIdImages(options?: { client?: ClientReque
         arg,
       }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']> },
     ) => parseResponse(client.playlists[':playlist_id'].images.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -2111,7 +2372,7 @@ export function useGetPlaylistsPlaylistIdTracks(
 }
 
 /**
- * Generates SWR cache key for GET /playlists/{playlist_id}/tracks
+ * Generates SWR cache key for GET /playlists/{playlist_id/tracks
  */
 export function getGetPlaylistsPlaylistIdTracksKey(
   args?: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
@@ -2132,7 +2393,16 @@ export function getGetPlaylistsPlaylistIdTracksKey(
  * **Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters.
  * These operations can't be applied together in a single request.
  */
-export function usePutPlaylistsPlaylistIdTracks(options?: { client?: ClientRequestOptions }) {
+export function usePutPlaylistsPlaylistIdTracks(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /playlists/:playlist_id/tracks',
     async (
@@ -2141,6 +2411,7 @@ export function usePutPlaylistsPlaylistIdTracks(options?: { client?: ClientReque
         arg,
       }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']> },
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -2151,7 +2422,16 @@ export function usePutPlaylistsPlaylistIdTracks(options?: { client?: ClientReque
  *
  * Add one or more items to a user's playlist.
  */
-export function usePostPlaylistsPlaylistIdTracks(options?: { client?: ClientRequestOptions }) {
+export function usePostPlaylistsPlaylistIdTracks(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /playlists/:playlist_id/tracks',
     async (
@@ -2160,6 +2440,7 @@ export function usePostPlaylistsPlaylistIdTracks(options?: { client?: ClientRequ
         arg,
       }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']> },
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -2170,7 +2451,16 @@ export function usePostPlaylistsPlaylistIdTracks(options?: { client?: ClientRequ
  *
  * Remove one or more items from a user's playlist.
  */
-export function useDeletePlaylistsPlaylistIdTracks(options?: { client?: ClientRequestOptions }) {
+export function useDeletePlaylistsPlaylistIdTracks(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /playlists/:playlist_id/tracks',
     async (
@@ -2179,6 +2469,7 @@ export function useDeletePlaylistsPlaylistIdTracks(options?: { client?: ClientRe
         arg,
       }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']> },
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -2354,7 +2645,7 @@ export function useGetShowsId(
 }
 
 /**
- * Generates SWR cache key for GET /shows/{id}
+ * Generates SWR cache key for GET /shows/{id
  */
 export function getGetShowsIdKey(args?: InferRequestType<(typeof client.shows)[':id']['$get']>) {
   return ['/shows/:id', ...(args ? [args] : [])] as const
@@ -2388,7 +2679,7 @@ export function useGetShowsIdEpisodes(
 }
 
 /**
- * Generates SWR cache key for GET /shows/{id}/episodes
+ * Generates SWR cache key for GET /shows/{id/episodes
  */
 export function getGetShowsIdEpisodesKey(
   args?: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
@@ -2459,7 +2750,7 @@ export function useGetTracksId(
 }
 
 /**
- * Generates SWR cache key for GET /tracks/{id}
+ * Generates SWR cache key for GET /tracks/{id
  */
 export function getGetTracksIdKey(args?: InferRequestType<(typeof client.tracks)[':id']['$get']>) {
   return ['/tracks/:id', ...(args ? [args] : [])] as const
@@ -2493,7 +2784,7 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{user_id}
+ * Generates SWR cache key for GET /users/{user_id
  */
 export function getGetUsersUserIdKey(
   args?: InferRequestType<(typeof client.users)[':user_id']['$get']>,
@@ -2529,7 +2820,7 @@ export function useGetUsersUserIdPlaylists(
 }
 
 /**
- * Generates SWR cache key for GET /users/{user_id}/playlists
+ * Generates SWR cache key for GET /users/{user_id/playlists
  */
 export function getGetUsersUserIdPlaylistsKey(
   args?: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
@@ -2545,12 +2836,22 @@ export function getGetUsersUserIdPlaylistsKey(
  * Create a playlist for a Spotify user. (The playlist will be empty until
  * you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).)
  */
-export function usePostUsersUserIdPlaylists(options?: { client?: ClientRequestOptions }) {
+export function usePostUsersUserIdPlaylists(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /users/:user_id/playlists',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']> },
     ) => parseResponse(client.users[':user_id'].playlists.$post(arg, options?.client)),
+    mutationOptions,
   )
 }

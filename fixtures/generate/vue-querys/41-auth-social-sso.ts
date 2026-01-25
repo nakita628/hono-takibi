@@ -12,18 +12,35 @@ import { client } from '../clients/41-auth-social-sso'
  */
 export function useGetSocialAuthorizeProvider(
   args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.social.authorize)[':provider']['$get']>,
+      ) => InferResponseType<(typeof client.social.authorize)[':provider']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetSocialAuthorizeProviderQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSocialAuthorizeProviderQueryKey(args),
     queryFn: async () =>
       parseResponse(client.social.authorize[':provider'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /social/authorize/{provider}
+ * Generates Vue Query cache key for GET /social/authorize/{provider
  */
 export function getGetSocialAuthorizeProviderQueryKey(
   args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
@@ -40,18 +57,35 @@ export function getGetSocialAuthorizeProviderQueryKey(
  */
 export function useGetSocialCallbackProvider(
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.social.callback)[':provider']['$get']>,
+      ) => InferResponseType<(typeof client.social.callback)[':provider']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetSocialCallbackProviderQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSocialCallbackProviderQueryKey(args),
     queryFn: async () =>
       parseResponse(client.social.callback[':provider'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /social/callback/{provider}
+ * Generates Vue Query cache key for GET /social/callback/{provider
  */
 export function getGetSocialCallbackProviderQueryKey(
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
@@ -66,10 +100,29 @@ export function getGetSocialCallbackProviderQueryKey(
  *
  * 認可コードをアクセストークンに交換
  */
-export function usePostSocialToken(clientOptions?: ClientRequestOptions) {
+export function usePostSocialToken(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.social.token.$post>,
+      variables: InferRequestType<typeof client.social.token.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.social.token.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.social.token.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.social.token.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.social.token.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.social.token.$post>) =>
       parseResponse(client.social.token.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -80,10 +133,32 @@ export function usePostSocialToken(clientOptions?: ClientRequestOptions) {
  *
  * モバイルアプリから直接取得したトークンを検証
  */
-export function usePostSocialTokenNative(clientOptions?: ClientRequestOptions) {
+export function usePostSocialTokenNative(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.social.token.native.$post>,
+      variables: InferRequestType<typeof client.social.token.native.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.social.token.native.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.social.token.native.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.social.token.native.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.social.token.native.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.social.token.native.$post>) =>
       parseResponse(client.social.token.native.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -92,11 +167,28 @@ export function usePostSocialTokenNative(clientOptions?: ClientRequestOptions) {
  *
  * 有効なプロバイダー一覧
  */
-export function useGetProviders(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetProvidersQueryKey()
+export function useGetProviders(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.providers.$get>,
+    ) => InferResponseType<typeof client.providers.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetProvidersQueryKey(),
     queryFn: async () => parseResponse(client.providers.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -112,11 +204,28 @@ export function getGetProvidersQueryKey() {
  *
  * 全プロバイダー一覧（管理用）
  */
-export function useGetProvidersAdmin(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetProvidersAdminQueryKey()
+export function useGetProvidersAdmin(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.providers.admin.$get>,
+    ) => InferResponseType<typeof client.providers.admin.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetProvidersAdminQueryKey(),
     queryFn: async () => parseResponse(client.providers.admin.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -132,10 +241,32 @@ export function getGetProvidersAdminQueryKey() {
  *
  * プロバイダー追加
  */
-export function usePostProvidersAdmin(clientOptions?: ClientRequestOptions) {
+export function usePostProvidersAdmin(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.providers.admin.$post>,
+      variables: InferRequestType<typeof client.providers.admin.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.providers.admin.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.providers.admin.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.providers.admin.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.providers.admin.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.providers.admin.$post>) =>
       parseResponse(client.providers.admin.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -146,17 +277,34 @@ export function usePostProvidersAdmin(clientOptions?: ClientRequestOptions) {
  */
 export function useGetProvidersProviderId(
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.providers)[':providerId']['$get']>,
+      ) => InferResponseType<(typeof client.providers)[':providerId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetProvidersProviderIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetProvidersProviderIdQueryKey(args),
     queryFn: async () => parseResponse(client.providers[':providerId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /providers/{providerId}
+ * Generates Vue Query cache key for GET /providers/{providerId
  */
 export function getGetProvidersProviderIdQueryKey(
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
@@ -169,10 +317,34 @@ export function getGetProvidersProviderIdQueryKey(
  *
  * プロバイダー更新
  */
-export function usePutProvidersProviderId(clientOptions?: ClientRequestOptions) {
+export function usePutProvidersProviderId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.providers)[':providerId']['$put']>,
+      variables: InferRequestType<(typeof client.providers)[':providerId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.providers)[':providerId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.providers)[':providerId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.providers)[':providerId']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.providers)[':providerId']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.providers)[':providerId']['$put']>) =>
       parseResponse(client.providers[':providerId'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -181,11 +353,35 @@ export function usePutProvidersProviderId(clientOptions?: ClientRequestOptions) 
  *
  * プロバイダー削除
  */
-export function useDeleteProvidersProviderId(clientOptions?: ClientRequestOptions) {
+export function useDeleteProvidersProviderId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.providers)[':providerId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.providers)[':providerId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.providers)[':providerId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.providers)[':providerId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.providers)[':providerId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.providers)[':providerId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.providers)[':providerId']['$delete']>,
     ) => parseResponse(client.providers[':providerId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -194,11 +390,37 @@ export function useDeleteProvidersProviderId(clientOptions?: ClientRequestOption
  *
  * プロバイダー接続テスト
  */
-export function usePostProvidersProviderIdTest(clientOptions?: ClientRequestOptions) {
+export function usePostProvidersProviderIdTest(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.providers)[':providerId']['test']['$post']>,
+      variables: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.providers)[':providerId']['test']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
     ) => parseResponse(client.providers[':providerId'].test.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -207,11 +429,28 @@ export function usePostProvidersProviderIdTest(clientOptions?: ClientRequestOpti
  *
  * 連携アカウント一覧
  */
-export function useGetAccountLinked(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetAccountLinkedQueryKey()
+export function useGetAccountLinked(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.account.linked.$get>,
+    ) => InferResponseType<typeof client.account.linked.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAccountLinkedQueryKey(),
     queryFn: async () => parseResponse(client.account.linked.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -229,11 +468,35 @@ export function getGetAccountLinkedQueryKey() {
  *
  * 既存アカウントにソーシャルアカウントを連携
  */
-export function usePostAccountLinkProvider(clientOptions?: ClientRequestOptions) {
+export function usePostAccountLinkProvider(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.account.link)[':provider']['$post']>,
+      variables: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.account.link)[':provider']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
     ) => parseResponse(client.account.link[':provider'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -242,11 +505,35 @@ export function usePostAccountLinkProvider(clientOptions?: ClientRequestOptions)
  *
  * アカウント連携解除
  */
-export function useDeleteAccountLinkProvider(clientOptions?: ClientRequestOptions) {
+export function useDeleteAccountLinkProvider(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.account.link)[':provider']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.account.link)[':provider']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
     ) => parseResponse(client.account.link[':provider'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -255,11 +542,28 @@ export function useDeleteAccountLinkProvider(clientOptions?: ClientRequestOption
  *
  * エンタープライズSSO設定一覧
  */
-export function useGetEnterpriseSso(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetEnterpriseSsoQueryKey()
+export function useGetEnterpriseSso(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.enterprise.sso.$get>,
+    ) => InferResponseType<typeof client.enterprise.sso.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetEnterpriseSsoQueryKey(),
     queryFn: async () => parseResponse(client.enterprise.sso.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -275,10 +579,32 @@ export function getGetEnterpriseSsoQueryKey() {
  *
  * エンタープライズSSO設定作成
  */
-export function usePostEnterpriseSso(clientOptions?: ClientRequestOptions) {
+export function usePostEnterpriseSso(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.enterprise.sso.$post>,
+      variables: InferRequestType<typeof client.enterprise.sso.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.enterprise.sso.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.enterprise.sso.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.enterprise.sso.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.enterprise.sso.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.enterprise.sso.$post>) =>
       parseResponse(client.enterprise.sso.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -289,18 +615,35 @@ export function usePostEnterpriseSso(clientOptions?: ClientRequestOptions) {
  */
 export function useGetEnterpriseSsoConfigId(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>,
+      ) => InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetEnterpriseSsoConfigIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetEnterpriseSsoConfigIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client.enterprise.sso[':configId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /enterprise/sso/{configId}
+ * Generates Vue Query cache key for GET /enterprise/sso/{configId
  */
 export function getGetEnterpriseSsoConfigIdQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
@@ -313,11 +656,35 @@ export function getGetEnterpriseSsoConfigIdQueryKey(
  *
  * エンタープライズSSO設定更新
  */
-export function usePutEnterpriseSsoConfigId(clientOptions?: ClientRequestOptions) {
+export function usePutEnterpriseSsoConfigId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.enterprise.sso)[':configId']['$put']>,
+      variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.enterprise.sso)[':configId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
     ) => parseResponse(client.enterprise.sso[':configId'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -326,11 +693,35 @@ export function usePutEnterpriseSsoConfigId(clientOptions?: ClientRequestOptions
  *
  * エンタープライズSSO設定削除
  */
-export function useDeleteEnterpriseSsoConfigId(clientOptions?: ClientRequestOptions) {
+export function useDeleteEnterpriseSsoConfigId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.enterprise.sso)[':configId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.enterprise.sso)[':configId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,
     ) => parseResponse(client.enterprise.sso[':configId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -341,13 +732,30 @@ export function useDeleteEnterpriseSsoConfigId(clientOptions?: ClientRequestOpti
  */
 export function useGetEnterpriseSsoDomainLookup(
   args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+      ) => InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetEnterpriseSsoDomainLookupQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetEnterpriseSsoDomainLookupQueryKey(args),
     queryFn: async () =>
       parseResponse(client.enterprise.sso['domain-lookup'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -369,18 +777,35 @@ export function getGetEnterpriseSsoDomainLookupQueryKey(
  */
 export function useGetEnterpriseSsoConfigIdMetadata(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
+      ) => InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetEnterpriseSsoConfigIdMetadataQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetEnterpriseSsoConfigIdMetadataQueryKey(args),
     queryFn: async () =>
       parseResponse(client.enterprise.sso[':configId'].metadata.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /enterprise/sso/{configId}/metadata
+ * Generates Vue Query cache key for GET /enterprise/sso/{configId/metadata
  */
 export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,

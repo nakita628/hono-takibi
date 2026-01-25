@@ -1,5 +1,4 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/43-sns-users-relationships'
@@ -12,31 +11,33 @@ import { client } from '../clients/43-sns-users-relationships'
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.users)[':userId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)[':userId']['$get']>,
-      readonly ['/users/:userId', InferRequestType<(typeof client.users)[':userId']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':userId']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':userId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersUserIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId}
+ * Generates Svelte Query cache key for GET /users/{userId
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
@@ -52,35 +53,34 @@ export function getGetUsersUserIdQueryKey(
 export function createGetUsersByUsernameUsername(
   args: InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.users.by.username)[':username']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users.by.username)[':username']['$get']>,
-      readonly [
-        '/users/by/username/:username',
-        InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users.by.username)[':username']['$get']>,
+      ) => InferResponseType<(typeof client.users.by.username)[':username']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersByUsernameUsernameQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.users.by.username[':username'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetUsersByUsernameUsernameQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.users.by.username[':username'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/by/username/{username}
+ * Generates Svelte Query cache key for GET /users/by/username/{username
  */
 export function getGetUsersByUsernameUsernameQueryKey(
   args: InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
@@ -96,27 +96,29 @@ export function getGetUsersByUsernameUsernameQueryKey(
 export function createGetUsersSearch(
   args: InferRequestType<typeof client.users.search.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.users.search.$get>,
-      Error,
-      InferResponseType<typeof client.users.search.$get>,
-      readonly ['/users/search', InferRequestType<typeof client.users.search.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.users.search.$get>,
+      ) => InferResponseType<typeof client.users.search.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersSearchQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users.search.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetUsersSearchQueryKey(args),
+    queryFn: async () => parseResponse(client.users.search.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -134,27 +136,29 @@ export function getGetUsersSearchQueryKey(args: InferRequestType<typeof client.u
 export function createGetUsersLookup(
   args: InferRequestType<typeof client.users.lookup.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.users.lookup.$get>,
-      Error,
-      InferResponseType<typeof client.users.lookup.$get>,
-      readonly ['/users/lookup', InferRequestType<typeof client.users.lookup.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.users.lookup.$get>,
+      ) => InferResponseType<typeof client.users.lookup.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersLookupQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users.lookup.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetUsersLookupQueryKey(args),
+    queryFn: async () => parseResponse(client.users.lookup.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -169,29 +173,29 @@ export function getGetUsersLookupQueryKey(args: InferRequestType<typeof client.u
  *
  * 現在のユーザー情報取得
  */
-export function createGetMe(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.me.$get>,
-      Error,
-      InferResponseType<typeof client.me.$get>,
-      readonly ['/me']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetMe(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.me.$get>,
+    ) => InferResponseType<typeof client.me.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetMeQueryKey(),
+    queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -206,17 +210,30 @@ export function getGetMeQueryKey() {
  *
  * プロフィール更新
  */
-export function createPatchMe(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.$patch>) =>
-        parseResponse(client.me.$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPatchMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.$patch>,
+      variables: InferRequestType<typeof client.me.$patch>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.$patch>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.$patch> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.$patch>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.$patch>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.$patch>) =>
+      parseResponse(client.me.$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -224,17 +241,30 @@ export function createPatchMe(
  *
  * アバターアップロード
  */
-export function createPostMeAvatar(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.avatar.$post>) =>
-        parseResponse(client.me.avatar.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostMeAvatar(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.avatar.$post>,
+      variables: InferRequestType<typeof client.me.avatar.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.avatar.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.avatar.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.avatar.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.avatar.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.avatar.$post>) =>
+      parseResponse(client.me.avatar.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -242,14 +272,29 @@ export function createPostMeAvatar(
  *
  * アバター削除
  */
-export function createDeleteMeAvatar(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    { mutationFn: async () => parseResponse(client.me.avatar.$delete(undefined, options?.client)) },
-    queryClient,
-  )
+export function createDeleteMeAvatar(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.avatar.$delete> | undefined,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.avatar.$delete> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async () => parseResponse(client.me.avatar.$delete(undefined, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -257,17 +302,30 @@ export function createDeleteMeAvatar(
  *
  * バナー画像アップロード
  */
-export function createPostMeBanner(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.banner.$post>) =>
-        parseResponse(client.me.banner.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostMeBanner(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.banner.$post>,
+      variables: InferRequestType<typeof client.me.banner.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.banner.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.banner.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.banner.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.banner.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.banner.$post>) =>
+      parseResponse(client.me.banner.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -275,14 +333,29 @@ export function createPostMeBanner(
  *
  * バナー画像削除
  */
-export function createDeleteMeBanner(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    { mutationFn: async () => parseResponse(client.me.banner.$delete(undefined, options?.client)) },
-    queryClient,
-  )
+export function createDeleteMeBanner(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.banner.$delete> | undefined,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.banner.$delete> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async () => parseResponse(client.me.banner.$delete(undefined, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -290,18 +363,36 @@ export function createDeleteMeBanner(
  *
  * フォロー
  */
-export function createPostUsersUserIdFollow(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
-      ) => parseResponse(client.users[':userId'].follow.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostUsersUserIdFollow(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)[':userId']['follow']['$post']>,
+      variables: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)[':userId']['follow']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
+    ) => parseResponse(client.users[':userId'].follow.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -309,18 +400,36 @@ export function createPostUsersUserIdFollow(
  *
  * フォロー解除
  */
-export function createDeleteUsersUserIdFollow(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
-      ) => parseResponse(client.users[':userId'].follow.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteUsersUserIdFollow(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)[':userId']['follow']['$delete']>,
+      variables: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)[':userId']['follow']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
+    ) => parseResponse(client.users[':userId'].follow.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -331,35 +440,33 @@ export function createDeleteUsersUserIdFollow(
 export function createGetUsersUserIdFollowers(
   args: InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.users)[':userId']['followers']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)[':userId']['followers']['$get']>,
-      readonly [
-        '/users/:userId/followers',
-        InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':userId']['followers']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':userId']['followers']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersUserIdFollowersQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.users[':userId'].followers.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetUsersUserIdFollowersQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].followers.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId}/followers
+ * Generates Svelte Query cache key for GET /users/{userId/followers
  */
 export function getGetUsersUserIdFollowersQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
@@ -375,35 +482,33 @@ export function getGetUsersUserIdFollowersQueryKey(
 export function createGetUsersUserIdFollowing(
   args: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.users)[':userId']['following']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)[':userId']['following']['$get']>,
-      readonly [
-        '/users/:userId/following',
-        InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':userId']['following']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':userId']['following']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersUserIdFollowingQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.users[':userId'].following.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetUsersUserIdFollowingQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].following.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId}/following
+ * Generates Svelte Query cache key for GET /users/{userId/following
  */
 export function getGetUsersUserIdFollowingQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
@@ -418,18 +523,38 @@ export function getGetUsersUserIdFollowingQueryKey(
  *
  * 自分のフォロワーから削除
  */
-export function createPostUsersUserIdFollowersRemove(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
-      ) => parseResponse(client.users[':userId'].followers.remove.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostUsersUserIdFollowersRemove(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
+      variables: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.users)[':userId']['followers']['remove']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
+    ) => parseResponse(client.users[':userId'].followers.remove.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -440,27 +565,29 @@ export function createPostUsersUserIdFollowersRemove(
 export function createGetRelationships(
   args: InferRequestType<typeof client.relationships.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.relationships.$get>,
-      Error,
-      InferResponseType<typeof client.relationships.$get>,
-      readonly ['/relationships', InferRequestType<typeof client.relationships.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.relationships.$get>,
+      ) => InferResponseType<typeof client.relationships.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetRelationshipsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.relationships.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetRelationshipsQueryKey(args),
+    queryFn: async () => parseResponse(client.relationships.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -482,27 +609,29 @@ export function getGetRelationshipsQueryKey(
 export function createGetFollowRequests(
   args: InferRequestType<(typeof client)['follow-requests']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['follow-requests']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['follow-requests']['$get']>,
-      readonly ['/follow-requests', InferRequestType<(typeof client)['follow-requests']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['follow-requests']['$get']>,
+      ) => InferResponseType<(typeof client)['follow-requests']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFollowRequestsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['follow-requests'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetFollowRequestsQueryKey(args),
+    queryFn: async () => parseResponse(client['follow-requests'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -519,18 +648,38 @@ export function getGetFollowRequestsQueryKey(
  *
  * フォローリクエスト承認
  */
-export function createPostFollowRequestsUserIdAccept(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
-      ) => parseResponse(client['follow-requests'][':userId'].accept.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostFollowRequestsUserIdAccept(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
+      variables: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['follow-requests'][':userId']['accept']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
+    ) => parseResponse(client['follow-requests'][':userId'].accept.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -538,18 +687,38 @@ export function createPostFollowRequestsUserIdAccept(
  *
  * フォローリクエスト拒否
  */
-export function createPostFollowRequestsUserIdReject(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
-      ) => parseResponse(client['follow-requests'][':userId'].reject.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostFollowRequestsUserIdReject(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
+      variables: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['follow-requests'][':userId']['reject']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
+    ) => parseResponse(client['follow-requests'][':userId'].reject.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -557,18 +726,36 @@ export function createPostFollowRequestsUserIdReject(
  *
  * ブロック
  */
-export function createPostUsersUserIdBlock(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
-      ) => parseResponse(client.users[':userId'].block.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostUsersUserIdBlock(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)[':userId']['block']['$post']>,
+      variables: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)[':userId']['block']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
+    ) => parseResponse(client.users[':userId'].block.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -576,18 +763,36 @@ export function createPostUsersUserIdBlock(
  *
  * ブロック解除
  */
-export function createDeleteUsersUserIdBlock(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
-      ) => parseResponse(client.users[':userId'].block.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteUsersUserIdBlock(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)[':userId']['block']['$delete']>,
+      variables: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)[':userId']['block']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
+    ) => parseResponse(client.users[':userId'].block.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -595,18 +800,35 @@ export function createDeleteUsersUserIdBlock(
  *
  * ミュート
  */
-export function createPostUsersUserIdMute(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>,
-      ) => parseResponse(client.users[':userId'].mute.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostUsersUserIdMute(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)[':userId']['mute']['$post']>,
+      variables: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)[':userId']['mute']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>) =>
+      parseResponse(client.users[':userId'].mute.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -614,18 +836,36 @@ export function createPostUsersUserIdMute(
  *
  * ミュート解除
  */
-export function createDeleteUsersUserIdMute(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
-      ) => parseResponse(client.users[':userId'].mute.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteUsersUserIdMute(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)[':userId']['mute']['$delete']>,
+      variables: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)[':userId']['mute']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
+    ) => parseResponse(client.users[':userId'].mute.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -636,27 +876,29 @@ export function createDeleteUsersUserIdMute(
 export function createGetBlocks(
   args: InferRequestType<typeof client.blocks.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.blocks.$get>,
-      Error,
-      InferResponseType<typeof client.blocks.$get>,
-      readonly ['/blocks', InferRequestType<typeof client.blocks.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.blocks.$get>,
+      ) => InferResponseType<typeof client.blocks.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBlocksQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.blocks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetBlocksQueryKey(args),
+    queryFn: async () => parseResponse(client.blocks.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -674,27 +916,29 @@ export function getGetBlocksQueryKey(args: InferRequestType<typeof client.blocks
 export function createGetMutes(
   args: InferRequestType<typeof client.mutes.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.mutes.$get>,
-      Error,
-      InferResponseType<typeof client.mutes.$get>,
-      readonly ['/mutes', InferRequestType<typeof client.mutes.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.mutes.$get>,
+      ) => InferResponseType<typeof client.mutes.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMutesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.mutes.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetMutesQueryKey(args),
+    queryFn: async () => parseResponse(client.mutes.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -709,29 +953,29 @@ export function getGetMutesQueryKey(args: InferRequestType<typeof client.mutes.$
  *
  * リスト一覧取得
  */
-export function createGetLists(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.lists.$get>,
-      Error,
-      InferResponseType<typeof client.lists.$get>,
-      readonly ['/lists']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetLists(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.lists.$get>,
+    ) => InferResponseType<typeof client.lists.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetListsQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.lists.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetListsQueryKey(),
+    queryFn: async () => parseResponse(client.lists.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -746,17 +990,30 @@ export function getGetListsQueryKey() {
  *
  * リスト作成
  */
-export function createPostLists(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.lists.$post>) =>
-        parseResponse(client.lists.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostLists(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.lists.$post>,
+      variables: InferRequestType<typeof client.lists.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.lists.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.lists.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.lists.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.lists.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.lists.$post>) =>
+      parseResponse(client.lists.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -767,31 +1024,33 @@ export function createPostLists(
 export function createGetListsListId(
   args: InferRequestType<(typeof client.lists)[':listId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.lists)[':listId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.lists)[':listId']['$get']>,
-      readonly ['/lists/:listId', InferRequestType<(typeof client.lists)[':listId']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.lists)[':listId']['$get']>,
+      ) => InferResponseType<(typeof client.lists)[':listId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetListsListIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.lists[':listId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetListsListIdQueryKey(args),
+    queryFn: async () => parseResponse(client.lists[':listId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /lists/{listId}
+ * Generates Svelte Query cache key for GET /lists/{listId
  */
 export function getGetListsListIdQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['$get']>,
@@ -804,17 +1063,33 @@ export function getGetListsListIdQueryKey(
  *
  * リスト更新
  */
-export function createPutListsListId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.lists)[':listId']['$put']>) =>
-        parseResponse(client.lists[':listId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPutListsListId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lists)[':listId']['$put']>,
+      variables: InferRequestType<(typeof client.lists)[':listId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.lists)[':listId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.lists)[':listId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.lists)[':listId']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.lists)[':listId']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.lists)[':listId']['$put']>) =>
+      parseResponse(client.lists[':listId'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -822,17 +1097,33 @@ export function createPutListsListId(
  *
  * リスト削除
  */
-export function createDeleteListsListId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.lists)[':listId']['$delete']>) =>
-        parseResponse(client.lists[':listId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteListsListId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lists)[':listId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.lists)[':listId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.lists)[':listId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.lists)[':listId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.lists)[':listId']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.lists)[':listId']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.lists)[':listId']['$delete']>) =>
+      parseResponse(client.lists[':listId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -843,34 +1134,33 @@ export function createDeleteListsListId(
 export function createGetListsListIdMembers(
   args: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.lists)[':listId']['members']['$get']>,
-      Error,
-      InferResponseType<(typeof client.lists)[':listId']['members']['$get']>,
-      readonly [
-        '/lists/:listId/members',
-        InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.lists)[':listId']['members']['$get']>,
+      ) => InferResponseType<(typeof client.lists)[':listId']['members']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetListsListIdMembersQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.lists[':listId'].members.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetListsListIdMembersQueryKey(args),
+    queryFn: async () => parseResponse(client.lists[':listId'].members.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /lists/{listId}/members
+ * Generates Svelte Query cache key for GET /lists/{listId/members
  */
 export function getGetListsListIdMembersQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
@@ -883,18 +1173,36 @@ export function getGetListsListIdMembersQueryKey(
  *
  * リストにメンバー追加
  */
-export function createPostListsListIdMembers(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
-      ) => parseResponse(client.lists[':listId'].members.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostListsListIdMembers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lists)[':listId']['members']['$post']>,
+      variables: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.lists)[':listId']['members']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
+    ) => parseResponse(client.lists[':listId'].members.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -902,18 +1210,48 @@ export function createPostListsListIdMembers(
  *
  * リストからメンバー削除
  */
-export function createDeleteListsListIdMembersUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>,
-      ) => parseResponse(client.lists[':listId'].members[':userId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteListsListIdMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.lists)[':listId']['members'][':userId']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lists)[':listId']['members'][':userId']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lists)[':listId']['members'][':userId']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lists)[':listId']['members'][':userId']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>,
+    ) => parseResponse(client.lists[':listId'].members[':userId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -924,35 +1262,33 @@ export function createDeleteListsListIdMembersUserId(
 export function createGetListsListIdTimeline(
   args: InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.lists)[':listId']['timeline']['$get']>,
-      Error,
-      InferResponseType<(typeof client.lists)[':listId']['timeline']['$get']>,
-      readonly [
-        '/lists/:listId/timeline',
-        InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.lists)[':listId']['timeline']['$get']>,
+      ) => InferResponseType<(typeof client.lists)[':listId']['timeline']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetListsListIdTimelineQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.lists[':listId'].timeline.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetListsListIdTimelineQueryKey(args),
+    queryFn: async () => parseResponse(client.lists[':listId'].timeline.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /lists/{listId}/timeline
+ * Generates Svelte Query cache key for GET /lists/{listId/timeline
  */
 export function getGetListsListIdTimelineQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
@@ -968,34 +1304,33 @@ export function getGetListsListIdTimelineQueryKey(
 export function createGetUsersUserIdLists(
   args: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.users)[':userId']['lists']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)[':userId']['lists']['$get']>,
-      readonly [
-        '/users/:userId/lists',
-        InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':userId']['lists']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':userId']['lists']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersUserIdListsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users[':userId'].lists.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetUsersUserIdListsQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].lists.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId}/lists
+ * Generates Svelte Query cache key for GET /users/{userId/lists
  */
 export function getGetUsersUserIdListsQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,

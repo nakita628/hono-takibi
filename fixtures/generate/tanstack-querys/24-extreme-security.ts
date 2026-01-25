@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
@@ -9,29 +8,29 @@ import { client } from '../clients/24-extreme-security'
  *
  * Completely public endpoint
  */
-export function useGetPublic(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.public.$get>,
-      Error,
-      InferResponseType<typeof client.public.$get>,
-      readonly ['/public']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetPublic(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.public.$get>,
+    ) => InferResponseType<typeof client.public.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPublicQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetPublicQueryKey(),
+    queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -46,29 +45,29 @@ export function getGetPublicQueryKey() {
  *
  * Single authentication required
  */
-export function useGetSingleAuth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['single-auth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['single-auth']['$get']>,
-      readonly ['/single-auth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSingleAuth(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['single-auth']['$get']>,
+    ) => InferResponseType<(typeof client)['single-auth']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSingleAuthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['single-auth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSingleAuthQueryKey(),
+    queryFn: async () => parseResponse(client['single-auth'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -83,29 +82,29 @@ export function getGetSingleAuthQueryKey() {
  *
  * Any of these auth methods works (OR)
  */
-export function useGetAnyAuth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['any-auth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['any-auth']['$get']>,
-      readonly ['/any-auth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetAnyAuth(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['any-auth']['$get']>,
+    ) => InferResponseType<(typeof client)['any-auth']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAnyAuthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['any-auth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAnyAuthQueryKey(),
+    queryFn: async () => parseResponse(client['any-auth'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -120,29 +119,29 @@ export function getGetAnyAuthQueryKey() {
  *
  * All of these auth methods required (AND)
  */
-export function useGetAllAuth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['all-auth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['all-auth']['$get']>,
-      readonly ['/all-auth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetAllAuth(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['all-auth']['$get']>,
+    ) => InferResponseType<(typeof client)['all-auth']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAllAuthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['all-auth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAllAuthQueryKey(),
+    queryFn: async () => parseResponse(client['all-auth'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -157,29 +156,29 @@ export function getGetAllAuthQueryKey() {
  *
  * Complex AND/OR security requirements
  */
-export function useGetComplexAuth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['complex-auth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['complex-auth']['$get']>,
-      readonly ['/complex-auth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetComplexAuth(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['complex-auth']['$get']>,
+    ) => InferResponseType<(typeof client)['complex-auth']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetComplexAuthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['complex-auth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetComplexAuthQueryKey(),
+    queryFn: async () => parseResponse(client['complex-auth'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -194,29 +193,29 @@ export function getGetComplexAuthQueryKey() {
  *
  * OAuth with many specific scopes
  */
-export function useGetScopedOauth(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['scoped-oauth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['scoped-oauth']['$get']>,
-      readonly ['/scoped-oauth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetScopedOauth(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['scoped-oauth']['$get']>,
+    ) => InferResponseType<(typeof client)['scoped-oauth']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetScopedOauthQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['scoped-oauth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetScopedOauthQueryKey(),
+    queryFn: async () => parseResponse(client['scoped-oauth'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -231,30 +230,30 @@ export function getGetScopedOauthQueryKey() {
  *
  * Path level + operation level security
  */
-export function useGetMixedLevelSecurity(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['mixed-level-security']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['mixed-level-security']['$get']>,
-      readonly ['/mixed-level-security']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetMixedLevelSecurity(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$get']>,
+    ) => InferResponseType<(typeof client)['mixed-level-security']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMixedLevelSecurityQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['mixed-level-security'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMixedLevelSecurityQueryKey(),
+    queryFn: async () =>
+      parseResponse(client['mixed-level-security'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -269,17 +268,30 @@ export function getGetMixedLevelSecurityQueryKey() {
  *
  * Admin-only security
  */
-export function usePutMixedLevelSecurity(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async () =>
-        parseResponse(client['mixed-level-security'].$put(undefined, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMixedLevelSecurity(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$put']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async () =>
+      parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -287,17 +299,30 @@ export function usePutMixedLevelSecurity(
  *
  * Different security for POST
  */
-export function usePostMixedLevelSecurity(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async () =>
-        parseResponse(client['mixed-level-security'].$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostMixedLevelSecurity(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$post']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async () =>
+      parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -305,17 +330,30 @@ export function usePostMixedLevelSecurity(
  *
  * Super admin security
  */
-export function useDeleteMixedLevelSecurity(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async () =>
-        parseResponse(client['mixed-level-security'].$delete(undefined, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteMixedLevelSecurity(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async () =>
+      parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -323,29 +361,29 @@ export function useDeleteMixedLevelSecurity(
  *
  * Override global security with public
  */
-export function useGetOverrideGlobal(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['override-global']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['override-global']['$get']>,
-      readonly ['/override-global']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetOverrideGlobal(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['override-global']['$get']>,
+    ) => InferResponseType<(typeof client)['override-global']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOverrideGlobalQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['override-global'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetOverrideGlobalQueryKey(),
+    queryFn: async () => parseResponse(client['override-global'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -360,30 +398,29 @@ export function getGetOverrideGlobalQueryKey() {
  *
  * Optional auth with enhanced access if authenticated
  */
-export function useGetOptionalEnhanced(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['optional-enhanced']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['optional-enhanced']['$get']>,
-      readonly ['/optional-enhanced']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetOptionalEnhanced(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['optional-enhanced']['$get']>,
+    ) => InferResponseType<(typeof client)['optional-enhanced']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOptionalEnhancedQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['optional-enhanced'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetOptionalEnhancedQueryKey(),
+    queryFn: async () => parseResponse(client['optional-enhanced'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -398,29 +435,29 @@ export function getGetOptionalEnhancedQueryKey() {
  *
  * Multi-tenant with org-level auth
  */
-export function useGetMultiTenant(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['multi-tenant']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['multi-tenant']['$get']>,
-      readonly ['/multi-tenant']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetMultiTenant(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['multi-tenant']['$get']>,
+    ) => InferResponseType<(typeof client)['multi-tenant']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMultiTenantQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['multi-tenant'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMultiTenantQueryKey(),
+    queryFn: async () => parseResponse(client['multi-tenant'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

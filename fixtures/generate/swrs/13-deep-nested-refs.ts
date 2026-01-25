@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
@@ -39,7 +40,7 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 }
 
 /**
- * Generates SWR cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Generates SWR cache key for GET /organizations/{orgId/departments/{deptId/teams/{teamId/members
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(
   args?: InferRequestType<
@@ -56,8 +57,19 @@ export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(
  * POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
 export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<
+      (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+    >,
+    Error,
+    string,
+    InferRequestType<
+      (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+    >
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /organizations/:orgId/departments/:deptId/teams/:teamId/members',
     async (
@@ -76,6 +88,7 @@ export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(opt
           options?.client,
         ),
       ),
+    mutationOptions,
   )
 }
 

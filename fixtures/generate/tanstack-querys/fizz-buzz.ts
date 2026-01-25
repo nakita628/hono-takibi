@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
@@ -14,27 +13,29 @@ import { client } from '../clients/fizz-buzz'
 export function useGetFizzbuzz(
   args: InferRequestType<typeof client.fizzbuzz.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.fizzbuzz.$get>,
-      Error,
-      InferResponseType<typeof client.fizzbuzz.$get>,
-      readonly ['/fizzbuzz', InferRequestType<typeof client.fizzbuzz.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.fizzbuzz.$get>,
+      ) => InferResponseType<typeof client.fizzbuzz.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFizzbuzzQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.fizzbuzz.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetFizzbuzzQueryKey(args),
+    queryFn: async () => parseResponse(client.fizzbuzz.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

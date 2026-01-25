@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
@@ -46,11 +47,21 @@ export function getGetSamlSsoKey(args?: InferRequestType<typeof client.saml.sso.
  *
  * HTTP-POST バインディングでのSSO処理
  */
-export function usePostSamlSso(options?: { client?: ClientRequestOptions }) {
+export function usePostSamlSso(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.saml.sso.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.saml.sso.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /saml/sso',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.saml.sso.$post> }) =>
       parseResponse(client.saml.sso.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -95,11 +106,21 @@ export function getGetSamlSloKey(args?: InferRequestType<typeof client.saml.slo.
  *
  * HTTP-POST バインディングでのシングルログアウト
  */
-export function usePostSamlSlo(options?: { client?: ClientRequestOptions }) {
+export function usePostSamlSlo(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.saml.slo.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.saml.slo.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /saml/slo',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.saml.slo.$post> }) =>
       parseResponse(client.saml.slo.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -110,11 +131,21 @@ export function usePostSamlSlo(options?: { client?: ClientRequestOptions }) {
  *
  * SPからのSAMLレスポンスを処理（IdP-initiated の場合）
  */
-export function usePostSamlAcs(options?: { client?: ClientRequestOptions }) {
+export function usePostSamlAcs(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.saml.acs.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.saml.acs.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /saml/acs',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.saml.acs.$post> }) =>
       parseResponse(client.saml.acs.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -188,13 +219,23 @@ export function getGetServiceProvidersKey(
  *
  * SP登録
  */
-export function usePostServiceProviders(options?: { client?: ClientRequestOptions }) {
+export function usePostServiceProviders(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['service-providers']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['service-providers']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /service-providers',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['service-providers']['$post']> },
     ) => parseResponse(client['service-providers'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -224,7 +265,7 @@ export function useGetServiceProvidersSpId(
 }
 
 /**
- * Generates SWR cache key for GET /service-providers/{spId}
+ * Generates SWR cache key for GET /service-providers/{spId
  */
 export function getGetServiceProvidersSpIdKey(
   args?: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
@@ -237,13 +278,23 @@ export function getGetServiceProvidersSpIdKey(
  *
  * SP更新
  */
-export function usePutServiceProvidersSpId(options?: { client?: ClientRequestOptions }) {
+export function usePutServiceProvidersSpId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['service-providers'][':spId']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['service-providers'][':spId']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /service-providers/:spId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['service-providers'][':spId']['$put']> },
     ) => parseResponse(client['service-providers'][':spId'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -252,13 +303,23 @@ export function usePutServiceProvidersSpId(options?: { client?: ClientRequestOpt
  *
  * SP削除
  */
-export function useDeleteServiceProvidersSpId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteServiceProvidersSpId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['service-providers'][':spId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /service-providers/:spId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']> },
     ) => parseResponse(client['service-providers'][':spId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -290,7 +351,7 @@ export function useGetServiceProvidersSpIdMetadata(
 }
 
 /**
- * Generates SWR cache key for GET /service-providers/{spId}/metadata
+ * Generates SWR cache key for GET /service-providers/{spId/metadata
  */
 export function getGetServiceProvidersSpIdMetadataKey(
   args?: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
@@ -303,7 +364,16 @@ export function getGetServiceProvidersSpIdMetadataKey(
  *
  * SPメタデータ更新
  */
-export function usePutServiceProvidersSpIdMetadata(options?: { client?: ClientRequestOptions }) {
+export function usePutServiceProvidersSpIdMetadata(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /service-providers/:spId/metadata',
     async (
@@ -314,6 +384,7 @@ export function usePutServiceProvidersSpIdMetadata(options?: { client?: ClientRe
         arg: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
       },
     ) => parseResponse(client['service-providers'][':spId'].metadata.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -345,7 +416,7 @@ export function useGetServiceProvidersSpIdAttributes(
 }
 
 /**
- * Generates SWR cache key for GET /service-providers/{spId}/attributes
+ * Generates SWR cache key for GET /service-providers/{spId/attributes
  */
 export function getGetServiceProvidersSpIdAttributesKey(
   args?: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
@@ -358,7 +429,16 @@ export function getGetServiceProvidersSpIdAttributesKey(
  *
  * SP属性マッピング更新
  */
-export function usePutServiceProvidersSpIdAttributes(options?: { client?: ClientRequestOptions }) {
+export function usePutServiceProvidersSpIdAttributes(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /service-providers/:spId/attributes',
     async (
@@ -369,6 +449,7 @@ export function usePutServiceProvidersSpIdAttributes(options?: { client?: Client
         arg: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
       },
     ) => parseResponse(client['service-providers'][':spId'].attributes.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -435,11 +516,21 @@ export function getGetCertificatesKey() {
  *
  * 証明書アップロード
  */
-export function usePostCertificates(options?: { client?: ClientRequestOptions }) {
+export function usePostCertificates(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.certificates.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.certificates.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /certificates',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.certificates.$post> }) =>
       parseResponse(client.certificates.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -448,13 +539,23 @@ export function usePostCertificates(options?: { client?: ClientRequestOptions })
  *
  * 証明書削除
  */
-export function useDeleteCertificatesCertId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteCertificatesCertId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.certificates)[':certId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.certificates)[':certId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /certificates/:certId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.certificates)[':certId']['$delete']> },
     ) => parseResponse(client.certificates[':certId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -463,7 +564,16 @@ export function useDeleteCertificatesCertId(options?: { client?: ClientRequestOp
  *
  * 証明書有効化
  */
-export function usePostCertificatesCertIdActivate(options?: { client?: ClientRequestOptions }) {
+export function usePostCertificatesCertIdActivate(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /certificates/:certId/activate',
     async (
@@ -472,6 +582,7 @@ export function usePostCertificatesCertIdActivate(options?: { client?: ClientReq
         arg,
       }: { arg: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']> },
     ) => parseResponse(client.certificates[':certId'].activate.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -512,13 +623,23 @@ export function getGetSessionsKey(args?: InferRequestType<typeof client.sessions
  *
  * セッション終了
  */
-export function useDeleteSessionsSessionId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteSessionsSessionId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /sessions/:sessionId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']> },
     ) => parseResponse(client.sessions[':sessionId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 

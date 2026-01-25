@@ -6,11 +6,28 @@ import { client } from '../clients/14-circular-refs'
 /**
  * GET /trees
  */
-export function useGetTrees(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetTreesQueryKey()
+export function useGetTrees(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.trees.$get>,
+    ) => InferResponseType<typeof client.trees.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetTreesQueryKey(),
     queryFn: async () => parseResponse(client.trees.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -24,21 +41,57 @@ export function getGetTreesQueryKey() {
 /**
  * POST /trees
  */
-export function usePostTrees(clientOptions?: ClientRequestOptions) {
+export function usePostTrees(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.trees.$post>,
+      variables: InferRequestType<typeof client.trees.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.trees.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.trees.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.trees.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.trees.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.trees.$post>) =>
       parseResponse(client.trees.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /graphs
  */
-export function useGetGraphs(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetGraphsQueryKey()
+export function useGetGraphs(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.graphs.$get>,
+    ) => InferResponseType<typeof client.graphs.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGraphsQueryKey(),
     queryFn: async () => parseResponse(client.graphs.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -52,11 +105,28 @@ export function getGetGraphsQueryKey() {
 /**
  * GET /linked-lists
  */
-export function useGetLinkedLists(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetLinkedListsQueryKey()
+export function useGetLinkedLists(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['linked-lists']['$get']>,
+    ) => InferResponseType<(typeof client)['linked-lists']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetLinkedListsQueryKey(),
     queryFn: async () => parseResponse(client['linked-lists'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -70,11 +140,28 @@ export function getGetLinkedListsQueryKey() {
 /**
  * GET /social-network
  */
-export function useGetSocialNetwork(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetSocialNetworkQueryKey()
+export function useGetSocialNetwork(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['social-network']['$get']>,
+    ) => InferResponseType<(typeof client)['social-network']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSocialNetworkQueryKey(),
     queryFn: async () => parseResponse(client['social-network'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -88,11 +175,28 @@ export function getGetSocialNetworkQueryKey() {
 /**
  * GET /file-system
  */
-export function useGetFileSystem(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetFileSystemQueryKey()
+export function useGetFileSystem(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['file-system']['$get']>,
+    ) => InferResponseType<(typeof client)['file-system']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetFileSystemQueryKey(),
     queryFn: async () => parseResponse(client['file-system'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -106,11 +210,28 @@ export function getGetFileSystemQueryKey() {
 /**
  * GET /comments
  */
-export function useGetComments(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetCommentsQueryKey()
+export function useGetComments(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.comments.$get>,
+    ) => InferResponseType<typeof client.comments.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetCommentsQueryKey(),
     queryFn: async () => parseResponse(client.comments.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -124,11 +245,28 @@ export function getGetCommentsQueryKey() {
 /**
  * GET /polymorphic
  */
-export function useGetPolymorphic(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetPolymorphicQueryKey()
+export function useGetPolymorphic(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.polymorphic.$get>,
+    ) => InferResponseType<typeof client.polymorphic.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPolymorphicQueryKey(),
     queryFn: async () => parseResponse(client.polymorphic.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -142,11 +280,28 @@ export function getGetPolymorphicQueryKey() {
 /**
  * GET /categories
  */
-export function useGetCategories(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetCategoriesQueryKey()
+export function useGetCategories(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.categories.$get>,
+    ) => InferResponseType<typeof client.categories.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetCategoriesQueryKey(),
     queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -160,11 +315,28 @@ export function getGetCategoriesQueryKey() {
 /**
  * GET /workflow
  */
-export function useGetWorkflow(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetWorkflowQueryKey()
+export function useGetWorkflow(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.workflow.$get>,
+    ) => InferResponseType<typeof client.workflow.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWorkflowQueryKey(),
     queryFn: async () => parseResponse(client.workflow.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

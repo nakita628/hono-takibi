@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
@@ -35,25 +36,45 @@ export function getGetExtremeResponsesKey() {
 /**
  * POST /multipart-variations
  */
-export function usePostMultipartVariations(options?: { client?: ClientRequestOptions }) {
+export function usePostMultipartVariations(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['multipart-variations']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['multipart-variations']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /multipart-variations',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['multipart-variations']['$post']> },
     ) => parseResponse(client['multipart-variations'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * POST /charset-variations
  */
-export function usePostCharsetVariations(options?: { client?: ClientRequestOptions }) {
+export function usePostCharsetVariations(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['charset-variations']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['charset-variations']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /charset-variations',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['charset-variations']['$post']> },
     ) => parseResponse(client['charset-variations'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }

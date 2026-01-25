@@ -8,11 +8,28 @@ import { client } from '../clients/24-extreme-security'
  *
  * Completely public endpoint
  */
-export function useGetPublic(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetPublicQueryKey()
+export function useGetPublic(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.public.$get>,
+    ) => InferResponseType<typeof client.public.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPublicQueryKey(),
     queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -28,11 +45,28 @@ export function getGetPublicQueryKey() {
  *
  * Single authentication required
  */
-export function useGetSingleAuth(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetSingleAuthQueryKey()
+export function useGetSingleAuth(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['single-auth']['$get']>,
+    ) => InferResponseType<(typeof client)['single-auth']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSingleAuthQueryKey(),
     queryFn: async () => parseResponse(client['single-auth'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -48,11 +82,28 @@ export function getGetSingleAuthQueryKey() {
  *
  * Any of these auth methods works (OR)
  */
-export function useGetAnyAuth(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetAnyAuthQueryKey()
+export function useGetAnyAuth(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['any-auth']['$get']>,
+    ) => InferResponseType<(typeof client)['any-auth']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAnyAuthQueryKey(),
     queryFn: async () => parseResponse(client['any-auth'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -68,11 +119,28 @@ export function getGetAnyAuthQueryKey() {
  *
  * All of these auth methods required (AND)
  */
-export function useGetAllAuth(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetAllAuthQueryKey()
+export function useGetAllAuth(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['all-auth']['$get']>,
+    ) => InferResponseType<(typeof client)['all-auth']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAllAuthQueryKey(),
     queryFn: async () => parseResponse(client['all-auth'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -88,11 +156,28 @@ export function getGetAllAuthQueryKey() {
  *
  * Complex AND/OR security requirements
  */
-export function useGetComplexAuth(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetComplexAuthQueryKey()
+export function useGetComplexAuth(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['complex-auth']['$get']>,
+    ) => InferResponseType<(typeof client)['complex-auth']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetComplexAuthQueryKey(),
     queryFn: async () => parseResponse(client['complex-auth'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -108,11 +193,28 @@ export function getGetComplexAuthQueryKey() {
  *
  * OAuth with many specific scopes
  */
-export function useGetScopedOauth(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetScopedOauthQueryKey()
+export function useGetScopedOauth(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['scoped-oauth']['$get']>,
+    ) => InferResponseType<(typeof client)['scoped-oauth']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetScopedOauthQueryKey(),
     queryFn: async () => parseResponse(client['scoped-oauth'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -128,12 +230,29 @@ export function getGetScopedOauthQueryKey() {
  *
  * Path level + operation level security
  */
-export function useGetMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetMixedLevelSecurityQueryKey()
+export function useGetMixedLevelSecurity(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$get']>,
+    ) => InferResponseType<(typeof client)['mixed-level-security']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMixedLevelSecurityQueryKey(),
     queryFn: async () =>
       parseResponse(client['mixed-level-security'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -149,10 +268,29 @@ export function getGetMixedLevelSecurityQueryKey() {
  *
  * Admin-only security
  */
-export function usePutMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
+export function usePutMixedLevelSecurity(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$put']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -161,10 +299,29 @@ export function usePutMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
  *
  * Different security for POST
  */
-export function usePostMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
+export function usePostMixedLevelSecurity(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$post']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -173,10 +330,29 @@ export function usePostMixedLevelSecurity(clientOptions?: ClientRequestOptions) 
  *
  * Super admin security
  */
-export function useDeleteMixedLevelSecurity(clientOptions?: ClientRequestOptions) {
+export function useDeleteMixedLevelSecurity(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -185,11 +361,28 @@ export function useDeleteMixedLevelSecurity(clientOptions?: ClientRequestOptions
  *
  * Override global security with public
  */
-export function useGetOverrideGlobal(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetOverrideGlobalQueryKey()
+export function useGetOverrideGlobal(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['override-global']['$get']>,
+    ) => InferResponseType<(typeof client)['override-global']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOverrideGlobalQueryKey(),
     queryFn: async () => parseResponse(client['override-global'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -205,11 +398,28 @@ export function getGetOverrideGlobalQueryKey() {
  *
  * Optional auth with enhanced access if authenticated
  */
-export function useGetOptionalEnhanced(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetOptionalEnhancedQueryKey()
+export function useGetOptionalEnhanced(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['optional-enhanced']['$get']>,
+    ) => InferResponseType<(typeof client)['optional-enhanced']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOptionalEnhancedQueryKey(),
     queryFn: async () => parseResponse(client['optional-enhanced'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -225,11 +435,28 @@ export function getGetOptionalEnhancedQueryKey() {
  *
  * Multi-tenant with org-level auth
  */
-export function useGetMultiTenant(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetMultiTenantQueryKey()
+export function useGetMultiTenant(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['multi-tenant']['$get']>,
+    ) => InferResponseType<(typeof client)['multi-tenant']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMultiTenantQueryKey(),
     queryFn: async () => parseResponse(client['multi-tenant'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

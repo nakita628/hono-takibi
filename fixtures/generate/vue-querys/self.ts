@@ -1,16 +1,33 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/self'
 
 /**
  * GET /categories
  */
-export function useGetCategories(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetCategoriesQueryKey()
+export function useGetCategories(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.categories.$get>,
+    ) => InferResponseType<typeof client.categories.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetCategoriesQueryKey(),
     queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

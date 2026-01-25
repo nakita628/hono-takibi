@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -12,11 +13,21 @@ import { client } from '../clients/pet-store'
  *
  * Update an existing pet by Id
  */
-export function usePutPet(options?: { client?: ClientRequestOptions }) {
+export function usePutPet(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.pet.$put>,
+    Error,
+    string,
+    InferRequestType<typeof client.pet.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /pet',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.pet.$put> }) =>
       parseResponse(client.pet.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -27,11 +38,21 @@ export function usePutPet(options?: { client?: ClientRequestOptions }) {
  *
  * Add a new pet to the store
  */
-export function usePostPet(options?: { client?: ClientRequestOptions }) {
+export function usePostPet(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.pet.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.pet.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /pet',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.pet.$post> }) =>
       parseResponse(client.pet.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -133,7 +154,7 @@ export function useGetPetPetId(
 }
 
 /**
- * Generates SWR cache key for GET /pet/{petId}
+ * Generates SWR cache key for GET /pet/{petId
  */
 export function getGetPetPetIdKey(args?: InferRequestType<(typeof client.pet)[':petId']['$get']>) {
   return ['/pet/:petId', ...(args ? [args] : [])] as const
@@ -144,11 +165,21 @@ export function getGetPetPetIdKey(args?: InferRequestType<(typeof client.pet)[':
  *
  * Updates a pet in the store with form data
  */
-export function usePostPetPetId(options?: { client?: ClientRequestOptions }) {
+export function usePostPetPetId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.pet)[':petId']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.pet)[':petId']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /pet/:petId',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['$post']> }) =>
       parseResponse(client.pet[':petId'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -159,13 +190,23 @@ export function usePostPetPetId(options?: { client?: ClientRequestOptions }) {
  *
  * delete a pet
  */
-export function useDeletePetPetId(options?: { client?: ClientRequestOptions }) {
+export function useDeletePetPetId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.pet)[':petId']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.pet)[':petId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /pet/:petId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['$delete']> },
     ) => parseResponse(client.pet[':petId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -174,13 +215,23 @@ export function useDeletePetPetId(options?: { client?: ClientRequestOptions }) {
  *
  * uploads an image
  */
-export function usePostPetPetIdUploadImage(options?: { client?: ClientRequestOptions }) {
+export function usePostPetPetIdUploadImage(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /pet/:petId/uploadImage',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']> },
     ) => parseResponse(client.pet[':petId'].uploadImage.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -222,11 +273,21 @@ export function getGetStoreInventoryKey() {
  *
  * Place a new order in the store
  */
-export function usePostStoreOrder(options?: { client?: ClientRequestOptions }) {
+export function usePostStoreOrder(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.store.order.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.store.order.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /store/order',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.store.order.$post> }) =>
       parseResponse(client.store.order.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -258,7 +319,7 @@ export function useGetStoreOrderOrderId(
 }
 
 /**
- * Generates SWR cache key for GET /store/order/{orderId}
+ * Generates SWR cache key for GET /store/order/{orderId
  */
 export function getGetStoreOrderOrderIdKey(
   args?: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
@@ -273,13 +334,23 @@ export function getGetStoreOrderOrderIdKey(
  *
  * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  */
-export function useDeleteStoreOrderOrderId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteStoreOrderOrderId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.store.order)[':orderId']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.store.order)[':orderId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /store/order/:orderId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.store.order)[':orderId']['$delete']> },
     ) => parseResponse(client.store.order[':orderId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -290,11 +361,21 @@ export function useDeleteStoreOrderOrderId(options?: { client?: ClientRequestOpt
  *
  * This can only be done by the logged in user.
  */
-export function usePostUser(options?: { client?: ClientRequestOptions }) {
+export function usePostUser(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.user.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.user.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /user',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.user.$post> }) =>
       parseResponse(client.user.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -305,13 +386,23 @@ export function usePostUser(options?: { client?: ClientRequestOptions }) {
  *
  * Creates list of users with given input array
  */
-export function usePostUserCreateWithList(options?: { client?: ClientRequestOptions }) {
+export function usePostUserCreateWithList(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.user.createWithList.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.user.createWithList.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /user/createWithList',
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.user.createWithList.$post> },
     ) => parseResponse(client.user.createWithList.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -402,7 +493,7 @@ export function useGetUserUsername(
 }
 
 /**
- * Generates SWR cache key for GET /user/{username}
+ * Generates SWR cache key for GET /user/{username
  */
 export function getGetUserUsernameKey(
   args?: InferRequestType<(typeof client.user)[':username']['$get']>,
@@ -417,13 +508,23 @@ export function getGetUserUsernameKey(
  *
  * This can only be done by the logged in user.
  */
-export function usePutUserUsername(options?: { client?: ClientRequestOptions }) {
+export function usePutUserUsername(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.user)[':username']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.user)[':username']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /user/:username',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.user)[':username']['$put']> },
     ) => parseResponse(client.user[':username'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -434,12 +535,22 @@ export function usePutUserUsername(options?: { client?: ClientRequestOptions }) 
  *
  * This can only be done by the logged in user.
  */
-export function useDeleteUserUsername(options?: { client?: ClientRequestOptions }) {
+export function useDeleteUserUsername(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.user)[':username']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.user)[':username']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /user/:username',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.user)[':username']['$delete']> },
     ) => parseResponse(client.user[':username'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }

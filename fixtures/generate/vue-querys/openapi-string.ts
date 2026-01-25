@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-string'
 
@@ -10,11 +10,28 @@ import { client } from '../clients/openapi-string'
  *
  * zod string
  */
-export function useGetString(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetStringQueryKey()
+export function useGetString(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.string.$get>,
+    ) => InferResponseType<typeof client.string.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetStringQueryKey(),
     queryFn: async () => parseResponse(client.string.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

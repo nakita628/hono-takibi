@@ -12,12 +12,29 @@ import { client } from '../clients/36-auth-saml-idp'
  */
 export function useGetSamlSso(
   args: InferRequestType<typeof client.saml.sso.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.saml.sso.$get>,
+      ) => InferResponseType<typeof client.saml.sso.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetSamlSsoQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSamlSsoQueryKey(args),
     queryFn: async () => parseResponse(client.saml.sso.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -35,10 +52,29 @@ export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.
  *
  * HTTP-POST バインディングでのSSO処理
  */
-export function usePostSamlSso(clientOptions?: ClientRequestOptions) {
+export function usePostSamlSso(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.saml.sso.$post>,
+      variables: InferRequestType<typeof client.saml.sso.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.saml.sso.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.saml.sso.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.saml.sso.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.saml.sso.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.saml.sso.$post>) =>
       parseResponse(client.saml.sso.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -51,12 +87,29 @@ export function usePostSamlSso(clientOptions?: ClientRequestOptions) {
  */
 export function useGetSamlSlo(
   args: InferRequestType<typeof client.saml.slo.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.saml.slo.$get>,
+      ) => InferResponseType<typeof client.saml.slo.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetSamlSloQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSamlSloQueryKey(args),
     queryFn: async () => parseResponse(client.saml.slo.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -74,10 +127,29 @@ export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.
  *
  * HTTP-POST バインディングでのシングルログアウト
  */
-export function usePostSamlSlo(clientOptions?: ClientRequestOptions) {
+export function usePostSamlSlo(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.saml.slo.$post>,
+      variables: InferRequestType<typeof client.saml.slo.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.saml.slo.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.saml.slo.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.saml.slo.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.saml.slo.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.saml.slo.$post>) =>
       parseResponse(client.saml.slo.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -88,10 +160,29 @@ export function usePostSamlSlo(clientOptions?: ClientRequestOptions) {
  *
  * SPからのSAMLレスポンスを処理（IdP-initiated の場合）
  */
-export function usePostSamlAcs(clientOptions?: ClientRequestOptions) {
+export function usePostSamlAcs(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.saml.acs.$post>,
+      variables: InferRequestType<typeof client.saml.acs.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.saml.acs.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.saml.acs.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.saml.acs.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.saml.acs.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.saml.acs.$post>) =>
       parseResponse(client.saml.acs.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -102,11 +193,28 @@ export function usePostSamlAcs(clientOptions?: ClientRequestOptions) {
  *
  * SAML 2.0 IdPメタデータをXML形式で取得
  */
-export function useGetSamlMetadata(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetSamlMetadataQueryKey()
+export function useGetSamlMetadata(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.saml.metadata.$get>,
+    ) => InferResponseType<typeof client.saml.metadata.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSamlMetadataQueryKey(),
     queryFn: async () => parseResponse(client.saml.metadata.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -124,12 +232,29 @@ export function getGetSamlMetadataQueryKey() {
  */
 export function useGetServiceProviders(
   args: InferRequestType<(typeof client)['service-providers']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['service-providers']['$get']>,
+      ) => InferResponseType<(typeof client)['service-providers']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetServiceProvidersQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetServiceProvidersQueryKey(args),
     queryFn: async () => parseResponse(client['service-providers'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -147,10 +272,32 @@ export function getGetServiceProvidersQueryKey(
  *
  * SP登録
  */
-export function usePostServiceProviders(clientOptions?: ClientRequestOptions) {
+export function usePostServiceProviders(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['service-providers']['$post']>,
+      variables: InferRequestType<(typeof client)['service-providers']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['service-providers']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['service-providers']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['service-providers']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['service-providers']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client)['service-providers']['$post']>) =>
       parseResponse(client['service-providers'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -161,18 +308,35 @@ export function usePostServiceProviders(clientOptions?: ClientRequestOptions) {
  */
 export function useGetServiceProvidersSpId(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
+      ) => InferResponseType<(typeof client)['service-providers'][':spId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetServiceProvidersSpIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetServiceProvidersSpIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client['service-providers'][':spId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /service-providers/{spId}
+ * Generates Vue Query cache key for GET /service-providers/{spId
  */
 export function getGetServiceProvidersSpIdQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
@@ -185,11 +349,35 @@ export function getGetServiceProvidersSpIdQueryKey(
  *
  * SP更新
  */
-export function usePutServiceProvidersSpId(clientOptions?: ClientRequestOptions) {
+export function usePutServiceProvidersSpId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['$put']>,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -198,11 +386,35 @@ export function usePutServiceProvidersSpId(clientOptions?: ClientRequestOptions)
  *
  * SP削除
  */
-export function useDeleteServiceProvidersSpId(clientOptions?: ClientRequestOptions) {
+export function useDeleteServiceProvidersSpId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
     ) => parseResponse(client['service-providers'][':spId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -213,18 +425,35 @@ export function useDeleteServiceProvidersSpId(clientOptions?: ClientRequestOptio
  */
 export function useGetServiceProvidersSpIdMetadata(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+      ) => InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetServiceProvidersSpIdMetadataQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetServiceProvidersSpIdMetadataQueryKey(args),
     queryFn: async () =>
       parseResponse(client['service-providers'][':spId'].metadata.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /service-providers/{spId}/metadata
+ * Generates Vue Query cache key for GET /service-providers/{spId/metadata
  */
 export function getGetServiceProvidersSpIdMetadataQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
@@ -237,11 +466,45 @@ export function getGetServiceProvidersSpIdMetadataQueryKey(
  *
  * SPメタデータ更新
  */
-export function usePutServiceProvidersSpIdMetadata(clientOptions?: ClientRequestOptions) {
+export function usePutServiceProvidersSpIdMetadata(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['metadata']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['metadata']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['metadata']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['metadata']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].metadata.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -252,18 +515,37 @@ export function usePutServiceProvidersSpIdMetadata(clientOptions?: ClientRequest
  */
 export function useGetServiceProvidersSpIdAttributes(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['service-providers'][':spId']['attributes']['$get']
+        >,
+      ) => InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetServiceProvidersSpIdAttributesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetServiceProvidersSpIdAttributesQueryKey(args),
     queryFn: async () =>
       parseResponse(client['service-providers'][':spId'].attributes.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /service-providers/{spId}/attributes
+ * Generates Vue Query cache key for GET /service-providers/{spId/attributes
  */
 export function getGetServiceProvidersSpIdAttributesQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
@@ -276,11 +558,45 @@ export function getGetServiceProvidersSpIdAttributesQueryKey(
  *
  * SP属性マッピング更新
  */
-export function usePutServiceProvidersSpIdAttributes(clientOptions?: ClientRequestOptions) {
+export function usePutServiceProvidersSpIdAttributes(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['attributes']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['attributes']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['attributes']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['attributes']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].attributes.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -289,11 +605,28 @@ export function usePutServiceProvidersSpIdAttributes(clientOptions?: ClientReque
  *
  * 利用可能な属性一覧
  */
-export function useGetAttributes(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetAttributesQueryKey()
+export function useGetAttributes(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.attributes.$get>,
+    ) => InferResponseType<typeof client.attributes.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAttributesQueryKey(),
     queryFn: async () => parseResponse(client.attributes.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -309,11 +642,28 @@ export function getGetAttributesQueryKey() {
  *
  * 証明書一覧取得
  */
-export function useGetCertificates(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetCertificatesQueryKey()
+export function useGetCertificates(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.certificates.$get>,
+    ) => InferResponseType<typeof client.certificates.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetCertificatesQueryKey(),
     queryFn: async () => parseResponse(client.certificates.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -329,10 +679,29 @@ export function getGetCertificatesQueryKey() {
  *
  * 証明書アップロード
  */
-export function usePostCertificates(clientOptions?: ClientRequestOptions) {
+export function usePostCertificates(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.certificates.$post>,
+      variables: InferRequestType<typeof client.certificates.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.certificates.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.certificates.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.certificates.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.certificates.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.certificates.$post>) =>
       parseResponse(client.certificates.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -341,11 +710,35 @@ export function usePostCertificates(clientOptions?: ClientRequestOptions) {
  *
  * 証明書削除
  */
-export function useDeleteCertificatesCertId(clientOptions?: ClientRequestOptions) {
+export function useDeleteCertificatesCertId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.certificates)[':certId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.certificates)[':certId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
     ) => parseResponse(client.certificates[':certId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -354,11 +747,37 @@ export function useDeleteCertificatesCertId(clientOptions?: ClientRequestOptions
  *
  * 証明書有効化
  */
-export function usePostCertificatesCertIdActivate(clientOptions?: ClientRequestOptions) {
+export function usePostCertificatesCertIdActivate(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']>,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
     ) => parseResponse(client.certificates[':certId'].activate.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -369,12 +788,29 @@ export function usePostCertificatesCertIdActivate(clientOptions?: ClientRequestO
  */
 export function useGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.sessions.$get>,
+      ) => InferResponseType<typeof client.sessions.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetSessionsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSessionsQueryKey(args),
     queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -390,10 +826,34 @@ export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sess
  *
  * セッション終了
  */
-export function useDeleteSessionsSessionId(clientOptions?: ClientRequestOptions) {
+export function useDeleteSessionsSessionId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
       parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -404,12 +864,29 @@ export function useDeleteSessionsSessionId(clientOptions?: ClientRequestOptions)
  */
 export function useGetAuditLogs(
   args: InferRequestType<(typeof client)['audit-logs']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['audit-logs']['$get']>,
+      ) => InferResponseType<(typeof client)['audit-logs']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetAuditLogsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAuditLogsQueryKey(args),
     queryFn: async () => parseResponse(client['audit-logs'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 

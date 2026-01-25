@@ -10,11 +10,31 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
   args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(
@@ -22,11 +42,12 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Generates Vue Query cache key for GET /organizations/{orgId/departments/{deptId/teams/{teamId/members
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
   args: InferRequestType<
@@ -39,9 +60,44 @@ export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQuery
 /**
  * POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
-export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -54,18 +110,36 @@ export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /reports/organization-summary
  */
-export function useGetReportsOrganizationSummary(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetReportsOrganizationSummaryQueryKey()
+export function useGetReportsOrganizationSummary(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.reports)['organization-summary']['$get']>,
+    ) => InferResponseType<(typeof client.reports)['organization-summary']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetReportsOrganizationSummaryQueryKey(),
     queryFn: async () =>
       parseResponse(client.reports['organization-summary'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

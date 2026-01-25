@@ -6,10 +6,29 @@ import { client } from '../clients/08-links'
 /**
  * POST /orders
  */
-export function usePostOrders(clientOptions?: ClientRequestOptions) {
+export function usePostOrders(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.orders.$post>,
+      variables: InferRequestType<typeof client.orders.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.orders.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.orders.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.orders.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.orders.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
       parseResponse(client.orders.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -18,17 +37,34 @@ export function usePostOrders(clientOptions?: ClientRequestOptions) {
  */
 export function useGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.orders)[':orderId']['$get']>,
+      ) => InferResponseType<(typeof client.orders)[':orderId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetOrdersOrderIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOrdersOrderIdQueryKey(args),
     queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /orders/{orderId}
+ * Generates Vue Query cache key for GET /orders/{orderId
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
@@ -39,10 +75,32 @@ export function getGetOrdersOrderIdQueryKey(
 /**
  * DELETE /orders/{orderId}
  */
-export function useDeleteOrdersOrderId(clientOptions?: ClientRequestOptions) {
+export function useDeleteOrdersOrderId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.orders)[':orderId']['$delete']>,
+      variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.orders)[':orderId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.orders)[':orderId']['$delete']>) =>
       parseResponse(client.orders[':orderId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -51,17 +109,34 @@ export function useDeleteOrdersOrderId(clientOptions?: ClientRequestOptions) {
  */
 export function useGetOrdersOrderIdItems(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.orders)[':orderId']['items']['$get']>,
+      ) => InferResponseType<(typeof client.orders)[':orderId']['items']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetOrdersOrderIdItemsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOrdersOrderIdItemsQueryKey(args),
     queryFn: async () => parseResponse(client.orders[':orderId'].items.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /orders/{orderId}/items
+ * Generates Vue Query cache key for GET /orders/{orderId/items
  */
 export function getGetOrdersOrderIdItemsQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
@@ -74,17 +149,34 @@ export function getGetOrdersOrderIdItemsQueryKey(
  */
 export function useGetCustomersCustomerId(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.customers)[':customerId']['$get']>,
+      ) => InferResponseType<(typeof client.customers)[':customerId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetCustomersCustomerIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetCustomersCustomerIdQueryKey(args),
     queryFn: async () => parseResponse(client.customers[':customerId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /customers/{customerId}
+ * Generates Vue Query cache key for GET /customers/{customerId
  */
 export function getGetCustomersCustomerIdQueryKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
@@ -97,18 +189,35 @@ export function getGetCustomersCustomerIdQueryKey(
  */
 export function useGetCustomersCustomerIdOrders(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.customers)[':customerId']['orders']['$get']>,
+      ) => InferResponseType<(typeof client.customers)[':customerId']['orders']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetCustomersCustomerIdOrdersQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetCustomersCustomerIdOrdersQueryKey(args),
     queryFn: async () =>
       parseResponse(client.customers[':customerId'].orders.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /customers/{customerId}/orders
+ * Generates Vue Query cache key for GET /customers/{customerId/orders
  */
 export function getGetCustomersCustomerIdOrdersQueryKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
@@ -121,17 +230,34 @@ export function getGetCustomersCustomerIdOrdersQueryKey(
  */
 export function useGetPaymentsPaymentId(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.payments)[':paymentId']['$get']>,
+      ) => InferResponseType<(typeof client.payments)[':paymentId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetPaymentsPaymentIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPaymentsPaymentIdQueryKey(args),
     queryFn: async () => parseResponse(client.payments[':paymentId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /payments/{paymentId}
+ * Generates Vue Query cache key for GET /payments/{paymentId
  */
 export function getGetPaymentsPaymentIdQueryKey(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,

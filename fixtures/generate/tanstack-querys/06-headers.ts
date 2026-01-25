@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
@@ -10,27 +9,29 @@ import { client } from '../clients/06-headers'
 export function useGetResources(
   args: InferRequestType<typeof client.resources.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.resources.$get>,
-      Error,
-      InferResponseType<typeof client.resources.$get>,
-      readonly ['/resources', InferRequestType<typeof client.resources.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.resources.$get>,
+      ) => InferResponseType<typeof client.resources.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetResourcesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.resources.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetResourcesQueryKey(args),
+    queryFn: async () => parseResponse(client.resources.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -46,31 +47,33 @@ export function getGetResourcesQueryKey(args: InferRequestType<typeof client.res
 export function useGetResourcesId(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.resources)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.resources)[':id']['$get']>,
-      readonly ['/resources/:id', InferRequestType<(typeof client.resources)[':id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.resources)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.resources)[':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetResourcesIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetResourcesIdQueryKey(args),
+    queryFn: async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /resources/{id}
+ * Generates TanStack Query cache key for GET /resources/{id
  */
 export function getGetResourcesIdQueryKey(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
@@ -81,17 +84,33 @@ export function getGetResourcesIdQueryKey(
 /**
  * PUT /resources/{id}
  */
-export function usePutResourcesId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
-        parseResponse(client.resources[':id'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutResourcesId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.resources)[':id']['$put']>,
+      variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.resources)[':id']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
+      parseResponse(client.resources[':id'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -100,31 +119,33 @@ export function usePutResourcesId(
 export function useGetDownloadId(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.download)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.download)[':id']['$get']>,
-      readonly ['/download/:id', InferRequestType<(typeof client.download)[':id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.download)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.download)[':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetDownloadIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetDownloadIdQueryKey(args),
+    queryFn: async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /download/{id}
+ * Generates TanStack Query cache key for GET /download/{id
  */
 export function getGetDownloadIdQueryKey(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,

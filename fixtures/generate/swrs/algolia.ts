@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
@@ -21,7 +22,7 @@ export function useGetPath(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPathKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/:path', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -33,24 +34,27 @@ export function useGetPath(
 }
 
 /**
- * Generates SWR cache key for GET /{path}
- */
-export function getGetPathKey(args?: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['/:path', ...(args ? [args] : [])] as const
-}
-
-/**
  * PUT /{path}
  *
  * Send requests to the Algolia REST API
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function usePutPath(options?: { client?: ClientRequestOptions }) {
+export function usePutPath(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)[':path']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)[':path']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /:path',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)[':path']['$put']> }) =>
       parseResponse(client[':path'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -61,11 +65,21 @@ export function usePutPath(options?: { client?: ClientRequestOptions }) {
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function usePostPath(options?: { client?: ClientRequestOptions }) {
+export function usePostPath(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)[':path']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)[':path']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /:path',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)[':path']['$post']> }) =>
       parseResponse(client[':path'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -76,11 +90,21 @@ export function usePostPath(options?: { client?: ClientRequestOptions }) {
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function useDeletePath(options?: { client?: ClientRequestOptions }) {
+export function useDeletePath(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)[':path']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)[':path']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /:path',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)[':path']['$delete']> }) =>
       parseResponse(client[':path'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -94,7 +118,16 @@ export function useDeletePath(options?: { client?: ClientRequestOptions }) {
  * This method lets you retrieve up to 1,000 hits.
  * If you need more, use the [`browse` operation](https://www.algolia.com/doc/rest-api/search/browse) or increase the `paginatedLimitedTo` index setting.
  */
-export function usePost1IndexesIndexNameQuery(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexNameQuery(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/query',
     async (
@@ -103,6 +136,7 @@ export function usePost1IndexesIndexNameQuery(options?: { client?: ClientRequest
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']> },
     ) => parseResponse(client['1'].indexes[':indexName'].query.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -120,13 +154,23 @@ export function usePost1IndexesIndexNameQuery(options?: { client?: ClientRequest
  *
  * Use the helper `searchForHits` or `searchForFacets` to get the results in a more convenient format, if you already know the return type you want.
  */
-export function usePost1IndexesQueries(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesQueries(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/*/queries',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']> },
     ) => parseResponse(client['1'].indexes['*'].queries.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -142,8 +186,19 @@ export function usePost1IndexesQueries(options?: { client?: ClientRequestOptions
  * - Searching for facet values doesn't work if you have **more than 65 searchable facets and searchable attributes combined**.
  */
 export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<
+      (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+    >,
+    Error,
+    string,
+    InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+    >
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/facets/:facetName/query',
     async (
@@ -159,6 +214,7 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].facets[':facetName'].query.$post(arg, options?.client),
       ),
+    mutationOptions,
   )
 }
 
@@ -193,7 +249,16 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
  *
  * If you send these parameters with your browse requests, they'll be ignored.
  */
-export function usePost1IndexesIndexNameBrowse(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexNameBrowse(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/browse',
     async (
@@ -204,6 +269,7 @@ export function usePost1IndexesIndexNameBrowse(options?: { client?: ClientReques
         arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
       },
     ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -224,13 +290,23 @@ export function usePost1IndexesIndexNameBrowse(options?: { client?: ClientReques
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexName(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexName(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']> },
     ) => parseResponse(client['1'].indexes[':indexName'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -247,13 +323,23 @@ export function usePost1IndexesIndexName(options?: { client?: ClientRequestOptio
  * - If the index you want to delete is a replica index, you must first unlink it from its primary index before you can delete it.
  *   For more information, see [Delete replica indices](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/how-to/deleting-replicas).
  */
-export function useDelete1IndexesIndexName(options?: { client?: ClientRequestOptions }) {
+export function useDelete1IndexesIndexName(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /1/indexes/:indexName',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']> },
     ) => parseResponse(client['1'].indexes[':indexName'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -275,7 +361,8 @@ export function useGet1IndexesIndexNameObjectID(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1IndexesIndexNameObjectIDKey(args) : null)
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? (['/1/indexes/:indexName/:objectID', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -285,15 +372,6 @@ export function useGet1IndexesIndexNameObjectID(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /1/indexes/{indexName}/{objectID}
- */
-export function getGet1IndexesIndexNameObjectIDKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/:objectID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -308,7 +386,16 @@ export function getGet1IndexesIndexNameObjectIDKey(
  * To update _some_ attributes of an existing record, use the [`partial` operation](https://www.algolia.com/doc/rest-api/search/partial-update-object) instead.
  * To add, update, or replace multiple records, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  */
-export function usePut1IndexesIndexNameObjectID(options?: { client?: ClientRequestOptions }) {
+export function usePut1IndexesIndexNameObjectID(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /1/indexes/:indexName/:objectID',
     async (
@@ -319,6 +406,7 @@ export function usePut1IndexesIndexNameObjectID(options?: { client?: ClientReque
         arg: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
       },
     ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -332,7 +420,16 @@ export function usePut1IndexesIndexNameObjectID(options?: { client?: ClientReque
  * To delete more than one record, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  * To delete records matching a query, use the [`deleteBy` operation](https://www.algolia.com/doc/rest-api/search/delete-by).
  */
-export function useDelete1IndexesIndexNameObjectID(options?: { client?: ClientRequestOptions }) {
+export function useDelete1IndexesIndexNameObjectID(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /1/indexes/:indexName/:objectID',
     async (
@@ -344,6 +441,7 @@ export function useDelete1IndexesIndexNameObjectID(options?: { client?: ClientRe
       },
     ) =>
       parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -361,7 +459,16 @@ export function useDelete1IndexesIndexNameObjectID(options?: { client?: ClientRe
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameDeleteByQuery(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexNameDeleteByQuery(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/deleteByQuery',
     async (
@@ -374,6 +481,7 @@ export function usePost1IndexesIndexNameDeleteByQuery(options?: { client?: Clien
         >
       },
     ) => parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -385,7 +493,16 @@ export function usePost1IndexesIndexNameDeleteByQuery(options?: { client?: Clien
  * Deletes only the records from an index while keeping settings, synonyms, and rules.
  * This operation is resource-intensive and subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameClear(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexNameClear(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/clear',
     async (
@@ -394,6 +511,7 @@ export function usePost1IndexesIndexNameClear(options?: { client?: ClientRequest
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']> },
     ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -431,8 +549,17 @@ export function usePost1IndexesIndexNameClear(options?: { client?: ClientRequest
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function usePost1IndexesIndexNameObjectIDPartial(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<
+      (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+    >,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/:objectID/partial',
     async (
@@ -448,6 +575,7 @@ export function usePost1IndexesIndexNameObjectIDPartial(options?: {
       parseResponse(
         client['1'].indexes[':indexName'][':objectID'].partial.$post(arg, options?.client),
       ),
+    mutationOptions,
   )
 }
 
@@ -465,7 +593,16 @@ export function usePost1IndexesIndexNameObjectIDPartial(options?: {
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameBatch(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexNameBatch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/batch',
     async (
@@ -474,6 +611,7 @@ export function usePost1IndexesIndexNameBatch(options?: { client?: ClientRequest
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']> },
     ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -489,13 +627,23 @@ export function usePost1IndexesIndexNameBatch(options?: { client?: ClientRequest
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesBatch(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesBatch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/*/batch',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']> },
     ) => parseResponse(client['1'].indexes['*'].batch.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -508,13 +656,23 @@ export function usePost1IndexesBatch(options?: { client?: ClientRequestOptions }
  *
  * Records are returned in the same order as the requests.
  */
-export function usePost1IndexesObjects(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesObjects(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/*/objects',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']> },
     ) => parseResponse(client['1'].indexes['*'].objects.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -534,7 +692,8 @@ export function useGet1IndexesIndexNameSettings(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1IndexesIndexNameSettingsKey(args) : null)
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? (['/1/indexes/:indexName/settings', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -544,15 +703,6 @@ export function useGet1IndexesIndexNameSettings(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /1/indexes/{indexName}/settings
- */
-export function getGet1IndexesIndexNameSettingsKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-) {
-  return ['/1/indexes/:indexName/settings', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -567,7 +717,16 @@ export function getGet1IndexesIndexNameSettingsKey(
  *
  * For best performance, update the index settings before you add new records to your index.
  */
-export function usePut1IndexesIndexNameSettings(options?: { client?: ClientRequestOptions }) {
+export function usePut1IndexesIndexNameSettings(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /1/indexes/:indexName/settings',
     async (
@@ -578,6 +737,7 @@ export function usePut1IndexesIndexNameSettings(options?: { client?: ClientReque
         arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
       },
     ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -602,7 +762,8 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet1IndexesIndexNameSynonymsObjectIDKey(args) : null)
+    swrOptions?.swrKey ??
+    (isEnabled ? (['/1/indexes/:indexName/synonyms/:objectID', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -617,17 +778,6 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
 }
 
 /**
- * Generates SWR cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
- */
-export function getGet1IndexesIndexNameSynonymsObjectIDKey(
-  args?: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/synonyms/:objectID', ...(args ? [args] : [])] as const
-}
-
-/**
  * PUT /1/indexes/{indexName}/synonyms/{objectID}
  *
  * Create or replace a synonym
@@ -637,8 +787,17 @@ export function getGet1IndexesIndexNameSynonymsObjectIDKey(
  * To add multiple synonyms in a single API request, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-synonyms).
  */
 export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+    >,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /1/indexes/:indexName/synonyms/:objectID',
     async (
@@ -654,6 +813,7 @@ export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].synonyms[':objectID'].$put(arg, options?.client),
       ),
+    mutationOptions,
   )
 }
 
@@ -666,8 +826,19 @@ export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
  * To find the object IDs of your synonyms, use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-synonyms).
  */
 export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+    >,
+    Error,
+    string,
+    InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+    >
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /1/indexes/:indexName/synonyms/:objectID',
     async (
@@ -683,6 +854,7 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(arg, options?.client),
       ),
+    mutationOptions,
   )
 }
 
@@ -696,7 +868,16 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameSynonymsBatch(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexNameSynonymsBatch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/synonyms/batch',
     async (
@@ -710,6 +891,7 @@ export function usePost1IndexesIndexNameSynonymsBatch(options?: { client?: Clien
       },
     ) =>
       parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -720,7 +902,16 @@ export function usePost1IndexesIndexNameSynonymsBatch(options?: { client?: Clien
  *
  * Deletes all synonyms from the index.
  */
-export function usePost1IndexesIndexNameSynonymsClear(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexNameSynonymsClear(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/synonyms/clear',
     async (
@@ -734,6 +925,7 @@ export function usePost1IndexesIndexNameSynonymsClear(options?: { client?: Clien
       },
     ) =>
       parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -745,8 +937,15 @@ export function usePost1IndexesIndexNameSynonymsClear(options?: { client?: Clien
  * Searches for synonyms in your index.
  */
 export function usePost1IndexesIndexNameSynonymsSearch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/synonyms/search',
     async (
@@ -760,6 +959,7 @@ export function usePost1IndexesIndexNameSynonymsSearch(options?: {
       },
     ) =>
       parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -776,7 +976,7 @@ export function useGet1Keys(options?: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1KeysKey() : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/1/keys'] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -788,24 +988,27 @@ export function useGet1Keys(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /1/keys
- */
-export function getGet1KeysKey() {
-  return ['/1/keys'] as const
-}
-
-/**
  * POST /1/keys
  *
  * Create an API key
  *
  * Creates a new API key with specific permissions and restrictions.
  */
-export function usePost1Keys(options?: { client?: ClientRequestOptions }) {
+export function usePost1Keys(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['keys']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['keys']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/keys',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)['1']['keys']['$post']> }) =>
       parseResponse(client['1'].keys.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -829,7 +1032,7 @@ export function useGet1KeysKey(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1KeysKeyKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/1/keys/:key', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -841,15 +1044,6 @@ export function useGet1KeysKey(
 }
 
 /**
- * Generates SWR cache key for GET /1/keys/{key}
- */
-export function getGet1KeysKeyKey(
-  args?: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
-) {
-  return ['/1/keys/:key', ...(args ? [args] : [])] as const
-}
-
-/**
  * PUT /1/keys/{key}
  *
  * Update an API key
@@ -858,13 +1052,23 @@ export function getGet1KeysKeyKey(
  *
  * Any unspecified attribute resets that attribute to its default value.
  */
-export function usePut1KeysKey(options?: { client?: ClientRequestOptions }) {
+export function usePut1KeysKey(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['keys'][':key']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /1/keys/:key',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['$put']> },
     ) => parseResponse(client['1'].keys[':key'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -875,13 +1079,23 @@ export function usePut1KeysKey(options?: { client?: ClientRequestOptions }) {
  *
  * Deletes the API key.
  */
-export function useDelete1KeysKey(options?: { client?: ClientRequestOptions }) {
+export function useDelete1KeysKey(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['keys'][':key']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /1/keys/:key',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']> },
     ) => parseResponse(client['1'].keys[':key'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -897,13 +1111,23 @@ export function useDelete1KeysKey(options?: { client?: ClientRequestOptions }) {
  * Algolia stores up to 1,000 API keys per application.
  * If you create more, the oldest API keys are deleted and can't be restored.
  */
-export function usePost1KeysKeyRestore(options?: { client?: ClientRequestOptions }) {
+export function usePost1KeysKeyRestore(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/keys/:key/restore',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']> },
     ) => parseResponse(client['1'].keys[':key'].restore.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -927,7 +1151,8 @@ export function useGet1IndexesIndexNameRulesObjectID(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet1IndexesIndexNameRulesObjectIDKey(args) : null)
+    swrOptions?.swrKey ??
+    (isEnabled ? (['/1/indexes/:indexName/rules/:objectID', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -942,17 +1167,6 @@ export function useGet1IndexesIndexNameRulesObjectID(
 }
 
 /**
- * Generates SWR cache key for GET /1/indexes/{indexName}/rules/{objectID}
- */
-export function getGet1IndexesIndexNameRulesObjectIDKey(
-  args?: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/rules/:objectID', ...(args ? [args] : [])] as const
-}
-
-/**
  * PUT /1/indexes/{indexName}/rules/{objectID}
  *
  * Create or replace a rule
@@ -962,7 +1176,16 @@ export function getGet1IndexesIndexNameRulesObjectIDKey(
  *
  * To create or update more than one rule, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-rules).
  */
-export function usePut1IndexesIndexNameRulesObjectID(options?: { client?: ClientRequestOptions }) {
+export function usePut1IndexesIndexNameRulesObjectID(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /1/indexes/:indexName/rules/:objectID',
     async (
@@ -978,6 +1201,7 @@ export function usePut1IndexesIndexNameRulesObjectID(options?: { client?: Client
       parseResponse(
         client['1'].indexes[':indexName'].rules[':objectID'].$put(arg, options?.client),
       ),
+    mutationOptions,
   )
 }
 
@@ -991,8 +1215,17 @@ export function usePut1IndexesIndexNameRulesObjectID(options?: { client?: Client
  * use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-rules).
  */
 export function useDelete1IndexesIndexNameRulesObjectID(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<
+      (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+    >,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /1/indexes/:indexName/rules/:objectID',
     async (
@@ -1008,6 +1241,7 @@ export function useDelete1IndexesIndexNameRulesObjectID(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].rules[':objectID'].$delete(arg, options?.client),
       ),
+    mutationOptions,
   )
 }
 
@@ -1023,7 +1257,16 @@ export function useDelete1IndexesIndexNameRulesObjectID(options?: {
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameRulesBatch(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexNameRulesBatch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/rules/batch',
     async (
@@ -1036,6 +1279,7 @@ export function usePost1IndexesIndexNameRulesBatch(options?: { client?: ClientRe
         >
       },
     ) => parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1046,7 +1290,16 @@ export function usePost1IndexesIndexNameRulesBatch(options?: { client?: ClientRe
  *
  * Deletes all rules from the index.
  */
-export function usePost1IndexesIndexNameRulesClear(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexNameRulesClear(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/rules/clear',
     async (
@@ -1059,6 +1312,7 @@ export function usePost1IndexesIndexNameRulesClear(options?: { client?: ClientRe
         >
       },
     ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1069,7 +1323,16 @@ export function usePost1IndexesIndexNameRulesClear(options?: { client?: ClientRe
  *
  * Searches for rules in your index.
  */
-export function usePost1IndexesIndexNameRulesSearch(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexNameRulesSearch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/rules/search',
     async (
@@ -1082,6 +1345,7 @@ export function usePost1IndexesIndexNameRulesSearch(options?: { client?: ClientR
         >
       },
     ) => parseResponse(client['1'].indexes[':indexName'].rules.search.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1093,8 +1357,15 @@ export function usePost1IndexesIndexNameRulesSearch(options?: { client?: ClientR
  * Adds or deletes multiple entries from your plurals, segmentation, or stop word dictionaries.
  */
 export function usePost1DictionariesDictionaryNameBatch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/dictionaries/:dictionaryName/batch',
     async (
@@ -1108,6 +1379,7 @@ export function usePost1DictionariesDictionaryNameBatch(options?: {
       },
     ) =>
       parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1119,8 +1391,15 @@ export function usePost1DictionariesDictionaryNameBatch(options?: {
  * Searches for standard and custom dictionary entries.
  */
 export function usePost1DictionariesDictionaryNameSearch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/dictionaries/:dictionaryName/search',
     async (
@@ -1134,6 +1413,7 @@ export function usePost1DictionariesDictionaryNameSearch(options?: {
       },
     ) =>
       parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1150,7 +1430,8 @@ export function useGet1DictionariesSettings(options?: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1DictionariesSettingsKey() : null)
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? (['/1/dictionaries/*/settings'] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1163,20 +1444,22 @@ export function useGet1DictionariesSettings(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /1/dictionaries/[*]/settings
- */
-export function getGet1DictionariesSettingsKey() {
-  return ['/1/dictionaries/*/settings'] as const
-}
-
-/**
  * PUT /1/dictionaries/[*]/settings
  *
  * Update dictionary settings
  *
  * Turns standard stop word dictionary entries on or off for a given language.
  */
-export function usePut1DictionariesSettings(options?: { client?: ClientRequestOptions }) {
+export function usePut1DictionariesSettings(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /1/dictionaries/*/settings',
     async (
@@ -1185,6 +1468,7 @@ export function usePut1DictionariesSettings(options?: { client?: ClientRequestOp
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']> },
     ) => parseResponse(client['1'].dictionaries['*'].settings.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1201,7 +1485,8 @@ export function useGet1DictionariesLanguages(options?: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1DictionariesLanguagesKey() : null)
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? (['/1/dictionaries/*/languages'] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1211,13 +1496,6 @@ export function useGet1DictionariesLanguages(options?: {
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /1/dictionaries/[*]/languages
- */
-export function getGet1DictionariesLanguagesKey() {
-  return ['/1/dictionaries/*/languages'] as const
 }
 
 /**
@@ -1239,7 +1517,7 @@ export function useGet1ClustersMapping(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1ClustersMappingKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/1/clusters/mapping', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1251,15 +1529,6 @@ export function useGet1ClustersMapping(
 }
 
 /**
- * Generates SWR cache key for GET /1/clusters/mapping
- */
-export function getGet1ClustersMappingKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-) {
-  return ['/1/clusters/mapping', ...(args ? [args] : [])] as const
-}
-
-/**
  * POST /1/clusters/mapping
  *
  * Assign or move a user ID
@@ -1268,13 +1537,23 @@ export function getGet1ClustersMappingKey(
  *
  * The time it takes to move a user is proportional to the amount of data linked to the user ID.
  */
-export function usePost1ClustersMapping(options?: { client?: ClientRequestOptions }) {
+export function usePost1ClustersMapping(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/clusters/mapping',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']> },
     ) => parseResponse(client['1'].clusters.mapping.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1287,7 +1566,16 @@ export function usePost1ClustersMapping(options?: { client?: ClientRequestOption
  *
  * **You can't move users with this operation**.
  */
-export function usePost1ClustersMappingBatch(options?: { client?: ClientRequestOptions }) {
+export function usePost1ClustersMappingBatch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/clusters/mapping/batch',
     async (
@@ -1296,6 +1584,7 @@ export function usePost1ClustersMappingBatch(options?: { client?: ClientRequestO
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']> },
     ) => parseResponse(client['1'].clusters.mapping.batch.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1315,7 +1604,7 @@ export function useGet1ClustersMappingTop(options?: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1ClustersMappingTopKey() : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/1/clusters/mapping/top'] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1324,13 +1613,6 @@ export function useGet1ClustersMappingTop(options?: {
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /1/clusters/mapping/top
- */
-export function getGet1ClustersMappingTopKey() {
-  return ['/1/clusters/mapping/top'] as const
 }
 
 /**
@@ -1352,7 +1634,8 @@ export function useGet1ClustersMappingUserID(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1ClustersMappingUserIDKey(args) : null)
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? (['/1/clusters/mapping/:userID', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1364,22 +1647,22 @@ export function useGet1ClustersMappingUserID(
 }
 
 /**
- * Generates SWR cache key for GET /1/clusters/mapping/{userID}
- */
-export function getGet1ClustersMappingUserIDKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-) {
-  return ['/1/clusters/mapping/:userID', ...(args ? [args] : [])] as const
-}
-
-/**
  * DELETE /1/clusters/mapping/{userID}
  *
  * Delete user ID
  *
  * Deletes a user ID and its associated data from the clusters.
  */
-export function useDelete1ClustersMappingUserID(options?: { client?: ClientRequestOptions }) {
+export function useDelete1ClustersMappingUserID(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /1/clusters/mapping/:userID',
     async (
@@ -1390,6 +1673,7 @@ export function useDelete1ClustersMappingUserID(options?: { client?: ClientReque
         arg: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
       },
     ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1406,7 +1690,7 @@ export function useGet1Clusters(options?: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1ClustersKey() : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/1/clusters'] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1415,13 +1699,6 @@ export function useGet1Clusters(options?: {
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /1/clusters
- */
-export function getGet1ClustersKey() {
-  return ['/1/clusters'] as const
 }
 
 /**
@@ -1434,7 +1711,16 @@ export function getGet1ClustersKey() {
  *
  * To ensure rapid updates, the user IDs index isn't built at the same time as the mapping. Instead, it's built every 12 hours, at the same time as the update of user ID usage. For example, if you add or move a user ID, the search will show an old value until the next time the mapping is rebuilt (every 12 hours).
  */
-export function usePost1ClustersMappingSearch(options?: { client?: ClientRequestOptions }) {
+export function usePost1ClustersMappingSearch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/clusters/mapping/search',
     async (
@@ -1443,6 +1729,7 @@ export function usePost1ClustersMappingSearch(options?: { client?: ClientRequest
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']> },
     ) => parseResponse(client['1'].clusters.mapping.search.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1462,7 +1749,8 @@ export function useGet1ClustersMappingPending(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1ClustersMappingPendingKey(args) : null)
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? (['/1/clusters/mapping/pending', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1471,15 +1759,6 @@ export function useGet1ClustersMappingPending(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /1/clusters/mapping/pending
- */
-export function getGet1ClustersMappingPendingKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-) {
-  return ['/1/clusters/mapping/pending', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1495,7 +1774,7 @@ export function useGet1SecuritySources(options?: {
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1SecuritySourcesKey() : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/1/security/sources'] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1507,26 +1786,29 @@ export function useGet1SecuritySources(options?: {
 }
 
 /**
- * Generates SWR cache key for GET /1/security/sources
- */
-export function getGet1SecuritySourcesKey() {
-  return ['/1/security/sources'] as const
-}
-
-/**
  * PUT /1/security/sources
  *
  * Replace allowed sources
  *
  * Replaces the list of allowed sources.
  */
-export function usePut1SecuritySources(options?: { client?: ClientRequestOptions }) {
+export function usePut1SecuritySources(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['security']['sources']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['security']['sources']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /1/security/sources',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['security']['sources']['$put']> },
     ) => parseResponse(client['1'].security.sources.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1537,7 +1819,16 @@ export function usePut1SecuritySources(options?: { client?: ClientRequestOptions
  *
  * Adds a source to the list of allowed sources.
  */
-export function usePost1SecuritySourcesAppend(options?: { client?: ClientRequestOptions }) {
+export function usePost1SecuritySourcesAppend(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/security/sources/append',
     async (
@@ -1546,6 +1837,7 @@ export function usePost1SecuritySourcesAppend(options?: { client?: ClientRequest
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']> },
     ) => parseResponse(client['1'].security.sources.append.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1556,7 +1848,16 @@ export function usePost1SecuritySourcesAppend(options?: { client?: ClientRequest
  *
  * Deletes a source from the list of allowed sources.
  */
-export function useDelete1SecuritySourcesSource(options?: { client?: ClientRequestOptions }) {
+export function useDelete1SecuritySourcesSource(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /1/security/sources/:source',
     async (
@@ -1567,6 +1868,7 @@ export function useDelete1SecuritySourcesSource(options?: { client?: ClientReque
         arg: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
       },
     ) => parseResponse(client['1'].security.sources[':source'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1590,7 +1892,7 @@ export function useGet1Logs(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1LogsKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/1/logs', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1599,13 +1901,6 @@ export function useGet1Logs(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /1/logs
- */
-export function getGet1LogsKey(args?: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['/1/logs', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1624,7 +1919,7 @@ export function useGet1TaskTaskID(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1TaskTaskIDKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/1/task/:taskID', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1633,15 +1928,6 @@ export function useGet1TaskTaskID(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /1/task/{taskID}
- */
-export function getGet1TaskTaskIDKey(
-  args?: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
-) {
-  return ['/1/task/:taskID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1667,7 +1953,8 @@ export function useGet1IndexesIndexNameTaskTaskID(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet1IndexesIndexNameTaskTaskIDKey(args) : null)
+    swrOptions?.swrKey ??
+    (isEnabled ? (['/1/indexes/:indexName/task/:taskID', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1677,15 +1964,6 @@ export function useGet1IndexesIndexNameTaskTaskID(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /1/indexes/{indexName}/task/{taskID}
- */
-export function getGet1IndexesIndexNameTaskTaskIDKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/task/:taskID', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1718,7 +1996,16 @@ export function getGet1IndexesIndexNameTaskTaskIDKey(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameOperation(options?: { client?: ClientRequestOptions }) {
+export function usePost1IndexesIndexNameOperation(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /1/indexes/:indexName/operation',
     async (
@@ -1729,6 +2016,7 @@ export function usePost1IndexesIndexNameOperation(options?: { client?: ClientReq
         arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
       },
     ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -1750,7 +2038,7 @@ export function useGet1Indexes(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet1IndexesKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/1/indexes', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1759,15 +2047,6 @@ export function useGet1Indexes(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /1/indexes
- */
-export function getGet1IndexesKey(
-  args?: InferRequestType<(typeof client)['1']['indexes']['$get']>,
-) {
-  return ['/1/indexes', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1786,7 +2065,7 @@ export function useGetWaitForApiKey(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWaitForApiKeyKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/waitForApiKey', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1795,13 +2074,6 @@ export function useGetWaitForApiKey(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /waitForApiKey
- */
-export function getGetWaitForApiKeyKey(args?: InferRequestType<typeof client.waitForApiKey.$get>) {
-  return ['/waitForApiKey', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1822,7 +2094,7 @@ export function useGetWaitForTask(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWaitForTaskKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/waitForTask', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1831,13 +2103,6 @@ export function useGetWaitForTask(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /waitForTask
- */
-export function getGetWaitForTaskKey(args?: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['/waitForTask', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1856,7 +2121,7 @@ export function useGetWaitForAppTask(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWaitForAppTaskKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/waitForAppTask', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1865,15 +2130,6 @@ export function useGetWaitForAppTask(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /waitForAppTask
- */
-export function getGetWaitForAppTaskKey(
-  args?: InferRequestType<typeof client.waitForAppTask.$get>,
-) {
-  return ['/waitForAppTask', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1896,7 +2152,7 @@ export function useGetBrowseObjects(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetBrowseObjectsKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/browseObjects', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1905,13 +2161,6 @@ export function useGetBrowseObjects(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /browseObjects
- */
-export function getGetBrowseObjectsKey(args?: InferRequestType<typeof client.browseObjects.$get>) {
-  return ['/browseObjects', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1942,7 +2191,8 @@ export function useGetGenerateSecuredApiKey(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGenerateSecuredApiKeyKey(args) : null)
+  const swrKey =
+    swrOptions?.swrKey ?? (isEnabled ? (['/generateSecuredApiKey', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1951,15 +2201,6 @@ export function useGetGenerateSecuredApiKey(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /generateSecuredApiKey
- */
-export function getGetGenerateSecuredApiKeyKey(
-  args?: InferRequestType<typeof client.generateSecuredApiKey.$get>,
-) {
-  return ['/generateSecuredApiKey', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -1978,7 +2219,7 @@ export function useGetAccountCopyIndex(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAccountCopyIndexKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/accountCopyIndex', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1987,15 +2228,6 @@ export function useGetAccountCopyIndex(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /accountCopyIndex
- */
-export function getGetAccountCopyIndexKey(
-  args?: InferRequestType<typeof client.accountCopyIndex.$get>,
-) {
-  return ['/accountCopyIndex', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2029,7 +2261,7 @@ export function useGetReplaceAllObjects(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetReplaceAllObjectsKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/replaceAllObjects', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2038,15 +2270,6 @@ export function useGetReplaceAllObjects(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /replaceAllObjects
- */
-export function getGetReplaceAllObjectsKey(
-  args?: InferRequestType<typeof client.replaceAllObjects.$get>,
-) {
-  return ['/replaceAllObjects', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2078,7 +2301,8 @@ export function useGetReplaceAllObjectsWithTransformation(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetReplaceAllObjectsWithTransformationKey(args) : null)
+    swrOptions?.swrKey ??
+    (isEnabled ? (['/replaceAllObjectsWithTransformation', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2088,15 +2312,6 @@ export function useGetReplaceAllObjectsWithTransformation(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /replaceAllObjectsWithTransformation
- */
-export function getGetReplaceAllObjectsWithTransformationKey(
-  args?: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
-) {
-  return ['/replaceAllObjectsWithTransformation', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2115,7 +2330,7 @@ export function useGetChunkedBatch(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChunkedBatchKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/chunkedBatch', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2124,13 +2339,6 @@ export function useGetChunkedBatch(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /chunkedBatch
- */
-export function getGetChunkedBatchKey(args?: InferRequestType<typeof client.chunkedBatch.$get>) {
-  return ['/chunkedBatch', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2149,7 +2357,7 @@ export function useGetSaveObjects(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSaveObjectsKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/saveObjects', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2158,13 +2366,6 @@ export function useGetSaveObjects(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /saveObjects
- */
-export function getGetSaveObjectsKey(args?: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['/saveObjects', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2184,7 +2385,7 @@ export function useGetSaveObjectsWithTransformation(
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetSaveObjectsWithTransformationKey(args) : null)
+    swrOptions?.swrKey ?? (isEnabled ? (['/saveObjectsWithTransformation', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2196,26 +2397,27 @@ export function useGetSaveObjectsWithTransformation(
 }
 
 /**
- * Generates SWR cache key for GET /saveObjectsWithTransformation
- */
-export function getGetSaveObjectsWithTransformationKey(
-  args?: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-) {
-  return ['/saveObjectsWithTransformation', ...(args ? [args] : [])] as const
-}
-
-/**
  * POST /deleteObjects
  *
  * Deletes every records for the given objectIDs
  *
  * Helper: Deletes every records for the given objectIDs. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objectIDs in it.
  */
-export function usePostDeleteObjects(options?: { client?: ClientRequestOptions }) {
+export function usePostDeleteObjects(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.deleteObjects.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.deleteObjects.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /deleteObjects',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.deleteObjects.$post> }) =>
       parseResponse(client.deleteObjects.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -2226,13 +2428,23 @@ export function usePostDeleteObjects(options?: { client?: ClientRequestOptions }
  *
  * Helper: Replaces object content of all the given objects according to their respective `objectID` field. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objects in it.
  */
-export function usePostPartialUpdateObjects(options?: { client?: ClientRequestOptions }) {
+export function usePostPartialUpdateObjects(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.partialUpdateObjects.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.partialUpdateObjects.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /partialUpdateObjects',
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.partialUpdateObjects.$post> },
     ) => parseResponse(client.partialUpdateObjects.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -2244,8 +2456,15 @@ export function usePostPartialUpdateObjects(options?: { client?: ClientRequestOp
  * Helper: Similar to the `partialUpdateObjects` method but requires a Push connector (https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/connectors/push) to be created first, in order to transform records before indexing them to Algolia. The `region` must have been passed to the client instantiation method.
  */
 export function usePostPartialUpdateObjectsWithTransformation(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /partialUpdateObjectsWithTransformation',
     async (
@@ -2254,6 +2473,7 @@ export function usePostPartialUpdateObjectsWithTransformation(options?: {
         arg,
       }: { arg: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post> },
     ) => parseResponse(client.partialUpdateObjectsWithTransformation.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -2273,7 +2493,7 @@ export function useGetIndexExists(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetIndexExistsKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/indexExists', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2282,13 +2502,6 @@ export function useGetIndexExists(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /indexExists
- */
-export function getGetIndexExistsKey(args?: InferRequestType<typeof client.indexExists.$get>) {
-  return ['/indexExists', ...(args ? [args] : [])] as const
 }
 
 /**
@@ -2307,7 +2520,7 @@ export function useGetSetClientApiKey(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSetClientApiKeyKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? (['/setClientApiKey', args] as const) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2316,13 +2529,4 @@ export function useGetSetClientApiKey(
       swrOptions,
     ),
   }
-}
-
-/**
- * Generates SWR cache key for GET /setClientApiKey
- */
-export function getGetSetClientApiKeyKey(
-  args?: InferRequestType<typeof client.setClientApiKey.$get>,
-) {
-  return ['/setClientApiKey', ...(args ? [args] : [])] as const
 }

@@ -1,6 +1,6 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/additional'
 

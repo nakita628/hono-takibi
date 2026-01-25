@@ -10,10 +10,32 @@ import { client } from '../clients/39-auth-webauthn-passkey'
  *
  * パスキー登録のためのPublicKeyCredentialCreationOptionsを生成
  */
-export function usePostWebauthnRegisterOptions(clientOptions?: ClientRequestOptions) {
+export function usePostWebauthnRegisterOptions(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.webauthn.register.options.$post>,
+      variables: InferRequestType<typeof client.webauthn.register.options.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.webauthn.register.options.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.webauthn.register.options.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.webauthn.register.options.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.webauthn.register.options.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.webauthn.register.options.$post>) =>
       parseResponse(client.webauthn.register.options.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -24,10 +46,32 @@ export function usePostWebauthnRegisterOptions(clientOptions?: ClientRequestOpti
  *
  * クライアントから送信された認証情報を検証し、パスキーを登録
  */
-export function usePostWebauthnRegisterVerify(clientOptions?: ClientRequestOptions) {
+export function usePostWebauthnRegisterVerify(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.webauthn.register.verify.$post>,
+      variables: InferRequestType<typeof client.webauthn.register.verify.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.webauthn.register.verify.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.webauthn.register.verify.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.webauthn.register.verify.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.webauthn.register.verify.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.webauthn.register.verify.$post>) =>
       parseResponse(client.webauthn.register.verify.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -38,10 +82,34 @@ export function usePostWebauthnRegisterVerify(clientOptions?: ClientRequestOptio
  *
  * パスキー認証のためのPublicKeyCredentialRequestOptionsを生成
  */
-export function usePostWebauthnAuthenticateOptions(clientOptions?: ClientRequestOptions) {
+export function usePostWebauthnAuthenticateOptions(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.webauthn.authenticate.options.$post>,
+      variables: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.webauthn.authenticate.options.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<typeof client.webauthn.authenticate.options.$post>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.options.$post>) =>
       parseResponse(client.webauthn.authenticate.options.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -52,10 +120,34 @@ export function usePostWebauthnAuthenticateOptions(clientOptions?: ClientRequest
  *
  * クライアントから送信された認証レスポンスを検証
  */
-export function usePostWebauthnAuthenticateVerify(clientOptions?: ClientRequestOptions) {
+export function usePostWebauthnAuthenticateVerify(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.webauthn.authenticate.verify.$post>,
+      variables: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.webauthn.authenticate.verify.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<typeof client.webauthn.authenticate.verify.$post>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.verify.$post>) =>
       parseResponse(client.webauthn.authenticate.verify.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -66,11 +158,28 @@ export function usePostWebauthnAuthenticateVerify(clientOptions?: ClientRequestO
  *
  * ユーザーに登録されているパスキー一覧を取得
  */
-export function useGetWebauthnCredentials(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetWebauthnCredentialsQueryKey()
+export function useGetWebauthnCredentials(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.webauthn.credentials.$get>,
+    ) => InferResponseType<typeof client.webauthn.credentials.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWebauthnCredentialsQueryKey(),
     queryFn: async () => parseResponse(client.webauthn.credentials.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -88,18 +197,35 @@ export function getGetWebauthnCredentialsQueryKey() {
  */
 export function useGetWebauthnCredentialsCredentialId(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+      ) => InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetWebauthnCredentialsCredentialIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWebauthnCredentialsCredentialIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client.webauthn.credentials[':credentialId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /webauthn/credentials/{credentialId}
+ * Generates Vue Query cache key for GET /webauthn/credentials/{credentialId
  */
 export function getGetWebauthnCredentialsCredentialIdQueryKey(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
@@ -114,11 +240,39 @@ export function getGetWebauthnCredentialsCredentialIdQueryKey(
  *
  * パスキーを削除（少なくとも1つは残す必要がある場合あり）
  */
-export function useDeleteWebauthnCredentialsCredentialId(clientOptions?: ClientRequestOptions) {
+export function useDeleteWebauthnCredentialsCredentialId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
+        | undefined,
+      variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
     ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -129,11 +283,37 @@ export function useDeleteWebauthnCredentialsCredentialId(clientOptions?: ClientR
  *
  * パスキーの名前などを更新
  */
-export function usePatchWebauthnCredentialsCredentialId(clientOptions?: ClientRequestOptions) {
+export function usePatchWebauthnCredentialsCredentialId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+      variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
     ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -144,11 +324,28 @@ export function usePatchWebauthnCredentialsCredentialId(clientOptions?: ClientRe
  *
  * リライングパーティの設定情報を取得
  */
-export function useGetWebauthnSettings(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetWebauthnSettingsQueryKey()
+export function useGetWebauthnSettings(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.webauthn.settings.$get>,
+    ) => InferResponseType<typeof client.webauthn.settings.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWebauthnSettingsQueryKey(),
     queryFn: async () => parseResponse(client.webauthn.settings.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -164,11 +361,28 @@ export function getGetWebauthnSettingsQueryKey() {
  *
  * リライングパーティ情報取得
  */
-export function useGetWebauthnSettingsRp(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetWebauthnSettingsRpQueryKey()
+export function useGetWebauthnSettingsRp(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.webauthn.settings.rp.$get>,
+    ) => InferResponseType<typeof client.webauthn.settings.rp.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWebauthnSettingsRpQueryKey(),
     queryFn: async () => parseResponse(client.webauthn.settings.rp.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -184,10 +398,32 @@ export function getGetWebauthnSettingsRpQueryKey() {
  *
  * リライングパーティ情報更新
  */
-export function usePutWebauthnSettingsRp(clientOptions?: ClientRequestOptions) {
+export function usePutWebauthnSettingsRp(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.webauthn.settings.rp.$put>,
+      variables: InferRequestType<typeof client.webauthn.settings.rp.$put>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.webauthn.settings.rp.$put>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.webauthn.settings.rp.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.webauthn.settings.rp.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.webauthn.settings.rp.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.webauthn.settings.rp.$put>) =>
       parseResponse(client.webauthn.settings.rp.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -198,12 +434,29 @@ export function usePutWebauthnSettingsRp(clientOptions?: ClientRequestOptions) {
  *
  * 許可されている認証器のAAGUID一覧
  */
-export function useGetWebauthnAuthenticators(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetWebauthnAuthenticatorsQueryKey()
+export function useGetWebauthnAuthenticators(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.webauthn.authenticators.$get>,
+    ) => InferResponseType<typeof client.webauthn.authenticators.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWebauthnAuthenticatorsQueryKey(),
     queryFn: async () =>
       parseResponse(client.webauthn.authenticators.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

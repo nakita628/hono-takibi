@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
@@ -14,27 +13,29 @@ import { client } from '../clients/36-auth-saml-idp'
 export function useGetSamlSso(
   args: InferRequestType<typeof client.saml.sso.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.saml.sso.$get>,
-      Error,
-      InferResponseType<typeof client.saml.sso.$get>,
-      readonly ['/saml/sso', InferRequestType<typeof client.saml.sso.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.saml.sso.$get>,
+      ) => InferResponseType<typeof client.saml.sso.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSamlSsoQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.saml.sso.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSamlSsoQueryKey(args),
+    queryFn: async () => parseResponse(client.saml.sso.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -51,17 +52,30 @@ export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.
  *
  * HTTP-POST バインディングでのSSO処理
  */
-export function usePostSamlSso(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.saml.sso.$post>) =>
-        parseResponse(client.saml.sso.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostSamlSso(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.saml.sso.$post>,
+      variables: InferRequestType<typeof client.saml.sso.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.saml.sso.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.saml.sso.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.saml.sso.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.saml.sso.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.saml.sso.$post>) =>
+      parseResponse(client.saml.sso.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -74,27 +88,29 @@ export function usePostSamlSso(
 export function useGetSamlSlo(
   args: InferRequestType<typeof client.saml.slo.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.saml.slo.$get>,
-      Error,
-      InferResponseType<typeof client.saml.slo.$get>,
-      readonly ['/saml/slo', InferRequestType<typeof client.saml.slo.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.saml.slo.$get>,
+      ) => InferResponseType<typeof client.saml.slo.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSamlSloQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.saml.slo.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSamlSloQueryKey(args),
+    queryFn: async () => parseResponse(client.saml.slo.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -111,17 +127,30 @@ export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.
  *
  * HTTP-POST バインディングでのシングルログアウト
  */
-export function usePostSamlSlo(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.saml.slo.$post>) =>
-        parseResponse(client.saml.slo.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostSamlSlo(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.saml.slo.$post>,
+      variables: InferRequestType<typeof client.saml.slo.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.saml.slo.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.saml.slo.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.saml.slo.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.saml.slo.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.saml.slo.$post>) =>
+      parseResponse(client.saml.slo.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -131,17 +160,30 @@ export function usePostSamlSlo(
  *
  * SPからのSAMLレスポンスを処理（IdP-initiated の場合）
  */
-export function usePostSamlAcs(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.saml.acs.$post>) =>
-        parseResponse(client.saml.acs.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostSamlAcs(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.saml.acs.$post>,
+      variables: InferRequestType<typeof client.saml.acs.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.saml.acs.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.saml.acs.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.saml.acs.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.saml.acs.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.saml.acs.$post>) =>
+      parseResponse(client.saml.acs.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -151,29 +193,29 @@ export function usePostSamlAcs(
  *
  * SAML 2.0 IdPメタデータをXML形式で取得
  */
-export function useGetSamlMetadata(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.saml.metadata.$get>,
-      Error,
-      InferResponseType<typeof client.saml.metadata.$get>,
-      readonly ['/saml/metadata']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSamlMetadata(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.saml.metadata.$get>,
+    ) => InferResponseType<typeof client.saml.metadata.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSamlMetadataQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.saml.metadata.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSamlMetadataQueryKey(),
+    queryFn: async () => parseResponse(client.saml.metadata.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -191,30 +233,29 @@ export function getGetSamlMetadataQueryKey() {
 export function useGetServiceProviders(
   args: InferRequestType<(typeof client)['service-providers']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['service-providers']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers']['$get']>,
-      readonly [
-        '/service-providers',
-        InferRequestType<(typeof client)['service-providers']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['service-providers']['$get']>,
+      ) => InferResponseType<(typeof client)['service-providers']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['service-providers'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetServiceProvidersQueryKey(args),
+    queryFn: async () => parseResponse(client['service-providers'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -231,17 +272,33 @@ export function getGetServiceProvidersQueryKey(
  *
  * SP登録
  */
-export function usePostServiceProviders(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client)['service-providers']['$post']>) =>
-        parseResponse(client['service-providers'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostServiceProviders(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['service-providers']['$post']>,
+      variables: InferRequestType<(typeof client)['service-providers']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['service-providers']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['service-providers']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['service-providers']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['service-providers']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['service-providers']['$post']>) =>
+      parseResponse(client['service-providers'].$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -252,35 +309,34 @@ export function usePostServiceProviders(
 export function useGetServiceProvidersSpId(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
-      readonly [
-        '/service-providers/:spId',
-        InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
+      ) => InferResponseType<(typeof client)['service-providers'][':spId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersSpIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['service-providers'][':spId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetServiceProvidersSpIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['service-providers'][':spId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /service-providers/{spId}
+ * Generates TanStack Query cache key for GET /service-providers/{spId
  */
 export function getGetServiceProvidersSpIdQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
@@ -293,18 +349,36 @@ export function getGetServiceProvidersSpIdQueryKey(
  *
  * SP更新
  */
-export function usePutServiceProvidersSpId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
-      ) => parseResponse(client['service-providers'][':spId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutServiceProvidersSpId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['$put']>,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+    ) => parseResponse(client['service-providers'][':spId'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -312,18 +386,36 @@ export function usePutServiceProvidersSpId(
  *
  * SP削除
  */
-export function useDeleteServiceProvidersSpId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
-      ) => parseResponse(client['service-providers'][':spId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteServiceProvidersSpId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+    ) => parseResponse(client['service-providers'][':spId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -334,35 +426,34 @@ export function useDeleteServiceProvidersSpId(
 export function useGetServiceProvidersSpIdMetadata(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-      readonly [
-        '/service-providers/:spId/metadata',
-        InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+      ) => InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersSpIdMetadataQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['service-providers'][':spId'].metadata.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetServiceProvidersSpIdMetadataQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['service-providers'][':spId'].metadata.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /service-providers/{spId}/metadata
+ * Generates TanStack Query cache key for GET /service-providers/{spId/metadata
  */
 export function getGetServiceProvidersSpIdMetadataQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
@@ -375,18 +466,46 @@ export function getGetServiceProvidersSpIdMetadataQueryKey(
  *
  * SPメタデータ更新
  */
-export function usePutServiceProvidersSpIdMetadata(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
-      ) => parseResponse(client['service-providers'][':spId'].metadata.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutServiceProvidersSpIdMetadata(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['metadata']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['metadata']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['metadata']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['metadata']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
+    ) => parseResponse(client['service-providers'][':spId'].metadata.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -397,35 +516,36 @@ export function usePutServiceProvidersSpIdMetadata(
 export function useGetServiceProvidersSpIdAttributes(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-      readonly [
-        '/service-providers/:spId/attributes',
-        InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['service-providers'][':spId']['attributes']['$get']
+        >,
+      ) => InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetServiceProvidersSpIdAttributesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['service-providers'][':spId'].attributes.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetServiceProvidersSpIdAttributesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['service-providers'][':spId'].attributes.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /service-providers/{spId}/attributes
+ * Generates TanStack Query cache key for GET /service-providers/{spId/attributes
  */
 export function getGetServiceProvidersSpIdAttributesQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
@@ -438,19 +558,46 @@ export function getGetServiceProvidersSpIdAttributesQueryKey(
  *
  * SP属性マッピング更新
  */
-export function usePutServiceProvidersSpIdAttributes(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
-      ) =>
-        parseResponse(client['service-providers'][':spId'].attributes.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutServiceProvidersSpIdAttributes(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['attributes']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['attributes']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['attributes']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['service-providers'][':spId']['attributes']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
+    ) => parseResponse(client['service-providers'][':spId'].attributes.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -458,29 +605,29 @@ export function usePutServiceProvidersSpIdAttributes(
  *
  * 利用可能な属性一覧
  */
-export function useGetAttributes(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.attributes.$get>,
-      Error,
-      InferResponseType<typeof client.attributes.$get>,
-      readonly ['/attributes']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetAttributes(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.attributes.$get>,
+    ) => InferResponseType<typeof client.attributes.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAttributesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.attributes.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAttributesQueryKey(),
+    queryFn: async () => parseResponse(client.attributes.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -495,29 +642,29 @@ export function getGetAttributesQueryKey() {
  *
  * 証明書一覧取得
  */
-export function useGetCertificates(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.certificates.$get>,
-      Error,
-      InferResponseType<typeof client.certificates.$get>,
-      readonly ['/certificates']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetCertificates(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.certificates.$get>,
+    ) => InferResponseType<typeof client.certificates.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetCertificatesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.certificates.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetCertificatesQueryKey(),
+    queryFn: async () => parseResponse(client.certificates.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -532,17 +679,30 @@ export function getGetCertificatesQueryKey() {
  *
  * 証明書アップロード
  */
-export function usePostCertificates(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.certificates.$post>) =>
-        parseResponse(client.certificates.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostCertificates(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.certificates.$post>,
+      variables: InferRequestType<typeof client.certificates.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.certificates.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.certificates.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.certificates.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.certificates.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.certificates.$post>) =>
+      parseResponse(client.certificates.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -550,18 +710,36 @@ export function usePostCertificates(
  *
  * 証明書削除
  */
-export function useDeleteCertificatesCertId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
-      ) => parseResponse(client.certificates[':certId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteCertificatesCertId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.certificates)[':certId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.certificates)[':certId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
+    ) => parseResponse(client.certificates[':certId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -569,18 +747,38 @@ export function useDeleteCertificatesCertId(
  *
  * 証明書有効化
  */
-export function usePostCertificatesCertIdActivate(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
-      ) => parseResponse(client.certificates[':certId'].activate.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostCertificatesCertIdActivate(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']>,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.certificates)[':certId']['activate']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+    ) => parseResponse(client.certificates[':certId'].activate.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -591,27 +789,29 @@ export function usePostCertificatesCertIdActivate(
 export function useGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.sessions.$get>,
-      Error,
-      InferResponseType<typeof client.sessions.$get>,
-      readonly ['/sessions', InferRequestType<typeof client.sessions.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.sessions.$get>,
+      ) => InferResponseType<typeof client.sessions.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSessionsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSessionsQueryKey(args),
+    queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -626,18 +826,35 @@ export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sess
  *
  * セッション終了
  */
-export function useDeleteSessionsSessionId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
-      ) => parseResponse(client.sessions[':sessionId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteSessionsSessionId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
+      parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -648,27 +865,29 @@ export function useDeleteSessionsSessionId(
 export function useGetAuditLogs(
   args: InferRequestType<(typeof client)['audit-logs']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['audit-logs']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['audit-logs']['$get']>,
-      readonly ['/audit-logs', InferRequestType<(typeof client)['audit-logs']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['audit-logs']['$get']>,
+      ) => InferResponseType<(typeof client)['audit-logs']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAuditLogsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['audit-logs'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAuditLogsQueryKey(args),
+    queryFn: async () => parseResponse(client['audit-logs'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

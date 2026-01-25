@@ -13,12 +13,29 @@ import { client } from '../clients/35-auth-oauth2-server'
  */
 export function useGetOauthAuthorize(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.oauth.authorize.$get>,
+      ) => InferResponseType<typeof client.oauth.authorize.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetOauthAuthorizeQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOauthAuthorizeQueryKey(args),
     queryFn: async () => parseResponse(client.oauth.authorize.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -39,10 +56,29 @@ export function getGetOauthAuthorizeQueryKey(
  * アクセストークンを発行します。
  * Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。
  */
-export function usePostOauthToken(clientOptions?: ClientRequestOptions) {
+export function usePostOauthToken(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.oauth.token.$post>,
+      variables: InferRequestType<typeof client.oauth.token.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.oauth.token.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.oauth.token.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.oauth.token.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.oauth.token.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.oauth.token.$post>) =>
       parseResponse(client.oauth.token.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -53,10 +89,29 @@ export function usePostOauthToken(clientOptions?: ClientRequestOptions) {
  *
  * アクセストークンまたはリフレッシュトークンを無効化します（RFC 7009）
  */
-export function usePostOauthRevoke(clientOptions?: ClientRequestOptions) {
+export function usePostOauthRevoke(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.oauth.revoke.$post>,
+      variables: InferRequestType<typeof client.oauth.revoke.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.oauth.revoke.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.oauth.revoke.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.oauth.revoke.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.oauth.revoke.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.oauth.revoke.$post>) =>
       parseResponse(client.oauth.revoke.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -67,10 +122,32 @@ export function usePostOauthRevoke(clientOptions?: ClientRequestOptions) {
  *
  * トークンの有効性と情報を取得します（RFC 7662）
  */
-export function usePostOauthIntrospect(clientOptions?: ClientRequestOptions) {
+export function usePostOauthIntrospect(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.oauth.introspect.$post>,
+      variables: InferRequestType<typeof client.oauth.introspect.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.oauth.introspect.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.oauth.introspect.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.oauth.introspect.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.oauth.introspect.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.oauth.introspect.$post>) =>
       parseResponse(client.oauth.introspect.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -81,10 +158,32 @@ export function usePostOauthIntrospect(clientOptions?: ClientRequestOptions) {
  *
  * デバイスフロー用の認可コードを発行します（RFC 8628）
  */
-export function usePostOauthDeviceCode(clientOptions?: ClientRequestOptions) {
+export function usePostOauthDeviceCode(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.oauth.device.code.$post>,
+      variables: InferRequestType<typeof client.oauth.device.code.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.oauth.device.code.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.oauth.device.code.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.oauth.device.code.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.oauth.device.code.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.oauth.device.code.$post>) =>
       parseResponse(client.oauth.device.code.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -95,11 +194,28 @@ export function usePostOauthDeviceCode(clientOptions?: ClientRequestOptions) {
  *
  * OpenID Connect UserInfo エンドポイント
  */
-export function useGetOauthUserinfo(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetOauthUserinfoQueryKey()
+export function useGetOauthUserinfo(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.oauth.userinfo.$get>,
+    ) => InferResponseType<typeof client.oauth.userinfo.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOauthUserinfoQueryKey(),
     queryFn: async () => parseResponse(client.oauth.userinfo.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -117,12 +233,29 @@ export function getGetOauthUserinfoQueryKey() {
  *
  * OpenID Connect の設定情報を返します
  */
-export function useGetWellKnownOpenidConfiguration(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetWellKnownOpenidConfigurationQueryKey()
+export function useGetWellKnownOpenidConfiguration(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
+    ) => InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWellKnownOpenidConfigurationQueryKey(),
     queryFn: async () =>
       parseResponse(client['.well-known']['openid-configuration'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -140,12 +273,29 @@ export function getGetWellKnownOpenidConfigurationQueryKey() {
  *
  * JWTの検証に使用する公開鍵セット
  */
-export function useGetWellKnownJwksJson(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetWellKnownJwksJsonQueryKey()
+export function useGetWellKnownJwksJson(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
+    ) => InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWellKnownJwksJsonQueryKey(),
     queryFn: async () =>
       parseResponse(client['.well-known']['jwks.json'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -161,11 +311,28 @@ export function getGetWellKnownJwksJsonQueryKey() {
  *
  * クライアント一覧取得
  */
-export function useGetOauthClients(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetOauthClientsQueryKey()
+export function useGetOauthClients(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.oauth.clients.$get>,
+    ) => InferResponseType<typeof client.oauth.clients.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOauthClientsQueryKey(),
     queryFn: async () => parseResponse(client.oauth.clients.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -181,10 +348,29 @@ export function getGetOauthClientsQueryKey() {
  *
  * クライアント作成
  */
-export function usePostOauthClients(clientOptions?: ClientRequestOptions) {
+export function usePostOauthClients(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.oauth.clients.$post>,
+      variables: InferRequestType<typeof client.oauth.clients.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.oauth.clients.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.oauth.clients.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.oauth.clients.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.oauth.clients.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.oauth.clients.$post>) =>
       parseResponse(client.oauth.clients.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -195,17 +381,34 @@ export function usePostOauthClients(clientOptions?: ClientRequestOptions) {
  */
 export function useGetOauthClientsClientId(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
+      ) => InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetOauthClientsClientIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOauthClientsClientIdQueryKey(args),
     queryFn: async () => parseResponse(client.oauth.clients[':clientId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /oauth/clients/{clientId}
+ * Generates Vue Query cache key for GET /oauth/clients/{clientId
  */
 export function getGetOauthClientsClientIdQueryKey(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
@@ -218,11 +421,35 @@ export function getGetOauthClientsClientIdQueryKey(
  *
  * クライアント更新
  */
-export function usePutOauthClientsClientId(clientOptions?: ClientRequestOptions) {
+export function usePutOauthClientsClientId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']>,
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
     ) => parseResponse(client.oauth.clients[':clientId'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -231,11 +458,35 @@ export function usePutOauthClientsClientId(clientOptions?: ClientRequestOptions)
  *
  * クライアント削除
  */
-export function useDeleteOauthClientsClientId(clientOptions?: ClientRequestOptions) {
+export function useDeleteOauthClientsClientId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
     ) => parseResponse(client.oauth.clients[':clientId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -244,11 +495,37 @@ export function useDeleteOauthClientsClientId(clientOptions?: ClientRequestOptio
  *
  * クライアントシークレット再生成
  */
-export function usePostOauthClientsClientIdSecret(clientOptions?: ClientRequestOptions) {
+export function usePostOauthClientsClientIdSecret(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
     ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -259,11 +536,28 @@ export function usePostOauthClientsClientIdSecret(clientOptions?: ClientRequestO
  *
  * ユーザーが許可したアプリケーション一覧
  */
-export function useGetOauthConsents(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetOauthConsentsQueryKey()
+export function useGetOauthConsents(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.oauth.consents.$get>,
+    ) => InferResponseType<typeof client.oauth.consents.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOauthConsentsQueryKey(),
     queryFn: async () => parseResponse(client.oauth.consents.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -281,10 +575,34 @@ export function getGetOauthConsentsQueryKey() {
  *
  * アプリケーションへのアクセス許可を取り消します
  */
-export function useDeleteOauthConsentsClientId(clientOptions?: ClientRequestOptions) {
+export function useDeleteOauthConsentsClientId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
     ) => parseResponse(client.oauth.consents[':clientId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }

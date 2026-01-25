@@ -10,10 +10,29 @@ import { client } from '../clients/pet-store'
  *
  * Update an existing pet by Id
  */
-export function usePutPet(clientOptions?: ClientRequestOptions) {
+export function usePutPet(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.pet.$put>,
+      variables: InferRequestType<typeof client.pet.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.pet.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.pet.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.pet.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.pet.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.pet.$put>) =>
       parseResponse(client.pet.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -24,10 +43,29 @@ export function usePutPet(clientOptions?: ClientRequestOptions) {
  *
  * Add a new pet to the store
  */
-export function usePostPet(clientOptions?: ClientRequestOptions) {
+export function usePostPet(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.pet.$post>,
+      variables: InferRequestType<typeof client.pet.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.pet.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.pet.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.pet.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.pet.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.pet.$post>) =>
       parseResponse(client.pet.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -40,12 +78,29 @@ export function usePostPet(clientOptions?: ClientRequestOptions) {
  */
 export function useGetPetFindByStatus(
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.pet.findByStatus.$get>,
+      ) => InferResponseType<typeof client.pet.findByStatus.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetPetFindByStatusQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPetFindByStatusQueryKey(args),
     queryFn: async () => parseResponse(client.pet.findByStatus.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -67,12 +122,29 @@ export function getGetPetFindByStatusQueryKey(
  */
 export function useGetPetFindByTags(
   args: InferRequestType<typeof client.pet.findByTags.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.pet.findByTags.$get>,
+      ) => InferResponseType<typeof client.pet.findByTags.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetPetFindByTagsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPetFindByTagsQueryKey(args),
     queryFn: async () => parseResponse(client.pet.findByTags.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -94,17 +166,34 @@ export function getGetPetFindByTagsQueryKey(
  */
 export function useGetPetPetId(
   args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.pet)[':petId']['$get']>,
+      ) => InferResponseType<(typeof client.pet)[':petId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetPetPetIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPetPetIdQueryKey(args),
     queryFn: async () => parseResponse(client.pet[':petId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /pet/{petId}
+ * Generates Vue Query cache key for GET /pet/{petId
  */
 export function getGetPetPetIdQueryKey(
   args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
@@ -117,10 +206,32 @@ export function getGetPetPetIdQueryKey(
  *
  * Updates a pet in the store with form data
  */
-export function usePostPetPetId(clientOptions?: ClientRequestOptions) {
+export function usePostPetPetId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.pet)[':petId']['$post']>,
+      variables: InferRequestType<(typeof client.pet)[':petId']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.pet)[':petId']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.pet)[':petId']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.pet)[':petId']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.pet)[':petId']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.pet)[':petId']['$post']>) =>
       parseResponse(client.pet[':petId'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -131,10 +242,32 @@ export function usePostPetPetId(clientOptions?: ClientRequestOptions) {
  *
  * delete a pet
  */
-export function useDeletePetPetId(clientOptions?: ClientRequestOptions) {
+export function useDeletePetPetId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.pet)[':petId']['$delete']>,
+      variables: InferRequestType<(typeof client.pet)[':petId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.pet)[':petId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.pet)[':petId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.pet)[':petId']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.pet)[':petId']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.pet)[':petId']['$delete']>) =>
       parseResponse(client.pet[':petId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -143,11 +276,35 @@ export function useDeletePetPetId(clientOptions?: ClientRequestOptions) {
  *
  * uploads an image
  */
-export function usePostPetPetIdUploadImage(clientOptions?: ClientRequestOptions) {
+export function usePostPetPetIdUploadImage(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
+      variables: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.pet)[':petId']['uploadImage']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
     ) => parseResponse(client.pet[':petId'].uploadImage.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -158,11 +315,28 @@ export function usePostPetPetIdUploadImage(clientOptions?: ClientRequestOptions)
  *
  * Returns a map of status codes to quantities
  */
-export function useGetStoreInventory(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetStoreInventoryQueryKey()
+export function useGetStoreInventory(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.store.inventory.$get>,
+    ) => InferResponseType<typeof client.store.inventory.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetStoreInventoryQueryKey(),
     queryFn: async () => parseResponse(client.store.inventory.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -180,10 +354,29 @@ export function getGetStoreInventoryQueryKey() {
  *
  * Place a new order in the store
  */
-export function usePostStoreOrder(clientOptions?: ClientRequestOptions) {
+export function usePostStoreOrder(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.store.order.$post>,
+      variables: InferRequestType<typeof client.store.order.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.store.order.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.store.order.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.store.order.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.store.order.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.store.order.$post>) =>
       parseResponse(client.store.order.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -196,17 +389,34 @@ export function usePostStoreOrder(clientOptions?: ClientRequestOptions) {
  */
 export function useGetStoreOrderOrderId(
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.store.order)[':orderId']['$get']>,
+      ) => InferResponseType<(typeof client.store.order)[':orderId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetStoreOrderOrderIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetStoreOrderOrderIdQueryKey(args),
     queryFn: async () => parseResponse(client.store.order[':orderId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /store/order/{orderId}
+ * Generates Vue Query cache key for GET /store/order/{orderId
  */
 export function getGetStoreOrderOrderIdQueryKey(
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
@@ -221,11 +431,35 @@ export function getGetStoreOrderOrderIdQueryKey(
  *
  * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  */
-export function useDeleteStoreOrderOrderId(clientOptions?: ClientRequestOptions) {
+export function useDeleteStoreOrderOrderId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.store.order)[':orderId']['$delete']>,
+      variables: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.store.order)[':orderId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
     ) => parseResponse(client.store.order[':orderId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -236,10 +470,29 @@ export function useDeleteStoreOrderOrderId(clientOptions?: ClientRequestOptions)
  *
  * This can only be done by the logged in user.
  */
-export function usePostUser(clientOptions?: ClientRequestOptions) {
+export function usePostUser(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.user.$post>,
+      variables: InferRequestType<typeof client.user.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.user.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.user.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.user.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.user.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.user.$post>) =>
       parseResponse(client.user.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -250,10 +503,32 @@ export function usePostUser(clientOptions?: ClientRequestOptions) {
  *
  * Creates list of users with given input array
  */
-export function usePostUserCreateWithList(clientOptions?: ClientRequestOptions) {
+export function usePostUserCreateWithList(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.user.createWithList.$post>,
+      variables: InferRequestType<typeof client.user.createWithList.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.user.createWithList.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.user.createWithList.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.user.createWithList.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.user.createWithList.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.user.createWithList.$post>) =>
       parseResponse(client.user.createWithList.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -264,12 +539,29 @@ export function usePostUserCreateWithList(clientOptions?: ClientRequestOptions) 
  */
 export function useGetUserLogin(
   args: InferRequestType<typeof client.user.login.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.user.login.$get>,
+      ) => InferResponseType<typeof client.user.login.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUserLoginQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUserLoginQueryKey(args),
     queryFn: async () => parseResponse(client.user.login.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -285,11 +577,28 @@ export function getGetUserLoginQueryKey(args: InferRequestType<typeof client.use
  *
  * Logs out current logged in user session
  */
-export function useGetUserLogout(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetUserLogoutQueryKey()
+export function useGetUserLogout(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.user.logout.$get>,
+    ) => InferResponseType<typeof client.user.logout.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUserLogoutQueryKey(),
     queryFn: async () => parseResponse(client.user.logout.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -307,17 +616,34 @@ export function getGetUserLogoutQueryKey() {
  */
 export function useGetUserUsername(
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.user)[':username']['$get']>,
+      ) => InferResponseType<(typeof client.user)[':username']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUserUsernameQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUserUsernameQueryKey(args),
     queryFn: async () => parseResponse(client.user[':username'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /user/{username}
+ * Generates Vue Query cache key for GET /user/{username
  */
 export function getGetUserUsernameQueryKey(
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
@@ -332,10 +658,32 @@ export function getGetUserUsernameQueryKey(
  *
  * This can only be done by the logged in user.
  */
-export function usePutUserUsername(clientOptions?: ClientRequestOptions) {
+export function usePutUserUsername(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.user)[':username']['$put']>,
+      variables: InferRequestType<(typeof client.user)[':username']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.user)[':username']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.user)[':username']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.user)[':username']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.user)[':username']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.user)[':username']['$put']>) =>
       parseResponse(client.user[':username'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -346,9 +694,31 @@ export function usePutUserUsername(clientOptions?: ClientRequestOptions) {
  *
  * This can only be done by the logged in user.
  */
-export function useDeleteUserUsername(clientOptions?: ClientRequestOptions) {
+export function useDeleteUserUsername(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.user)[':username']['$delete']>,
+      variables: InferRequestType<(typeof client.user)[':username']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.user)[':username']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.user)[':username']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.user)[':username']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.user)[':username']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.user)[':username']['$delete']>) =>
       parseResponse(client.user[':username'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }

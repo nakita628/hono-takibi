@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -35,11 +36,21 @@ export function getGetEntitiesKey() {
 /**
  * POST /process
  */
-export function usePostProcess(options?: { client?: ClientRequestOptions }) {
+export function usePostProcess(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.process.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.process.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /process',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.process.$post> }) =>
       parseResponse(client.process.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -73,10 +84,20 @@ export function getGetGraphKey() {
 /**
  * POST /transform
  */
-export function usePostTransform(options?: { client?: ClientRequestOptions }) {
+export function usePostTransform(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.transform.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.transform.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /transform',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.transform.$post> }) =>
       parseResponse(client.transform.$post(arg, options?.client)),
+    mutationOptions,
   )
 }

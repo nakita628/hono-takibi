@@ -1,6 +1,6 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 

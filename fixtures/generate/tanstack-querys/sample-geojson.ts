@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/sample-geojson'
@@ -11,29 +10,29 @@ import { client } from '../clients/sample-geojson'
  *
  * This endpoint is used to check if the server is working properly.
  */
-export function useGet(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.index.$get>,
-      Error,
-      InferResponseType<typeof client.index.$get>,
-      readonly ['/']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.index.$get>,
+    ) => InferResponseType<typeof client.index.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetQueryKey(),
+    queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -53,27 +52,29 @@ export function getGetQueryKey() {
 export function useGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.projects.$get>,
-      Error,
-      InferResponseType<typeof client.projects.$get>,
-      readonly ['/projects', InferRequestType<typeof client.projects.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.projects.$get>,
+      ) => InferResponseType<typeof client.projects.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProjectsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetProjectsQueryKey(args),
+    queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

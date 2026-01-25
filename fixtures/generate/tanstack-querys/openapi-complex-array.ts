@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-complex-array'
@@ -11,29 +10,29 @@ import { client } from '../clients/openapi-complex-array'
  *
  * zod array
  */
-export function useGetArray(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.array.$get>,
-      Error,
-      InferResponseType<typeof client.array.$get>,
-      readonly ['/array']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetArray(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.array.$get>,
+    ) => InferResponseType<typeof client.array.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArrayQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.array.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetArrayQueryKey(),
+    queryFn: async () => parseResponse(client.array.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

@@ -1,5 +1,4 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/abcde'
@@ -9,29 +8,29 @@ import { client } from '../clients/abcde'
  *
  * Get example data
  */
-export function createGetExample(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.example.$get>,
-      Error,
-      InferResponseType<typeof client.example.$get>,
-      readonly ['/example']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetExample(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.example.$get>,
+    ) => InferResponseType<typeof client.example.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetExampleQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.example.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetExampleQueryKey(),
+    queryFn: async () => parseResponse(client.example.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

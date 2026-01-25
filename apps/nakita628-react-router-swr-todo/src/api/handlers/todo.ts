@@ -1,4 +1,5 @@
 import type { RouteHandler } from '@hono/zod-openapi'
+import { createDb } from '@/api/db'
 import { DatabaseError, DataNotFoundError } from '@/api/domain/error'
 import {
   deleteApiTodoIdRoute,
@@ -62,7 +63,8 @@ export const getApiTodoRouteHandler: RouteHandler<
   { Bindings: { DB: D1Database } }
 > = async (c) => {
   const { limit, offset } = c.req.valid('query')
-  return TodoService.readAll(c.env.DB, limit, offset).match(
+  const db = createDb(c.env.DB)
+  return TodoService.readAll(db, limit, offset).match(
     (value) => c.json(value, 200),
     (e) => {
       if (e instanceof DatabaseError) {
@@ -104,7 +106,8 @@ export const postApiTodoRouteHandler: RouteHandler<
   { Bindings: { DB: D1Database } }
 > = async (c) => {
   const { content } = c.req.valid('json')
-  return TodoService.create(c.env.DB, content).match(
+  const db = createDb(c.env.DB)
+  return TodoService.create(db, content).match(
     () => c.json({ message: 'Created' }, 201),
     (e) => {
       if (e instanceof DatabaseError) {
@@ -148,7 +151,8 @@ export const getApiTodoIdRouteHandler: RouteHandler<
   { Bindings: { DB: D1Database } }
 > = async (c) => {
   const { id } = c.req.valid('param')
-  return TodoService.readById(c.env.DB, id).match(
+  const db = createDb(c.env.DB)
+  return TodoService.readById(db, id).match(
     (value) => c.json(value, 200),
     (e) => {
       if (e instanceof DataNotFoundError) {
@@ -194,7 +198,8 @@ export const putApiTodoIdRouteHandler: RouteHandler<
 > = async (c) => {
   const { id } = c.req.valid('param')
   const body = c.req.valid('json')
-  return TodoService.update(c.env.DB, id, body).match(
+  const db = createDb(c.env.DB)
+  return TodoService.update(db, id, body).match(
     () => c.body(null, 204),
     (e) => {
       if (e instanceof DatabaseError) {
@@ -236,7 +241,8 @@ export const deleteApiTodoIdRouteHandler: RouteHandler<
   { Bindings: { DB: D1Database } }
 > = async (c) => {
   const { id } = c.req.valid('param')
-  return TodoService.remove(c.env.DB, id).match(
+  const db = createDb(c.env.DB)
+  return TodoService.remove(db, id).match(
     () => c.body(null, 204),
     (e) => {
       if (e instanceof DatabaseError) {

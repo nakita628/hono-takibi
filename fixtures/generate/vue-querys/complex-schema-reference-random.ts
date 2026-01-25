@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-schema-reference-random'
 
@@ -8,11 +8,28 @@ import { client } from '../clients/complex-schema-reference-random'
  *
  * Test endpoint for comprehensive schema references
  */
-export function useGetTest(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetTestQueryKey()
+export function useGetTest(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.test.$get>,
+    ) => InferResponseType<typeof client.test.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetTestQueryKey(),
     queryFn: async () => parseResponse(client.test.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
@@ -89,9 +90,20 @@ export function getGetTypeKey() {
 /**
  * POST /function
  */
-export function usePostFunction(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('POST /function', async () =>
-    parseResponse(client.function.$post(undefined, options?.client)),
+export function usePostFunction(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.function.$post>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'POST /function',
+    async () => parseResponse(client.function.$post(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -206,18 +218,40 @@ export function getGetDefaultKey() {
 /**
  * POST /new
  */
-export function usePostNew(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('POST /new', async () =>
-    parseResponse(client.new.$post(undefined, options?.client)),
+export function usePostNew(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.new.$post>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'POST /new',
+    async () => parseResponse(client.new.$post(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * DELETE /delete
  */
-export function useDeleteDelete(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('DELETE /delete', async () =>
-    parseResponse(client.delete.$delete(undefined, options?.client)),
+export function useDeleteDelete(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.delete.$delete>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'DELETE /delete',
+    async () => parseResponse(client.delete.$delete(undefined, options?.client)),
+    mutationOptions,
   )
 }
 

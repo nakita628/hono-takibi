@@ -27,6 +27,7 @@ export {
   formatPath,
   getSuccessStatusCode,
   HTTP_METHODS,
+  hasNoContentResponse,
   hasSchemaProp,
   isOpenAPIPaths,
   isOperationLike,

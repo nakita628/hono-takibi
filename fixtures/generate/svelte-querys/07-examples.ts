@@ -1,5 +1,4 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
@@ -7,29 +6,29 @@ import { client } from '../clients/07-examples'
 /**
  * GET /products
  */
-export function createGetProducts(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.products.$get>,
-      Error,
-      InferResponseType<typeof client.products.$get>,
-      readonly ['/products']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetProducts(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.products.$get>,
+    ) => InferResponseType<typeof client.products.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProductsQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.products.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetProductsQueryKey(),
+    queryFn: async () => parseResponse(client.products.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -42,17 +41,30 @@ export function getGetProductsQueryKey() {
 /**
  * POST /products
  */
-export function createPostProducts(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
-        parseResponse(client.products.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostProducts(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.products.$post>,
+      variables: InferRequestType<typeof client.products.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.products.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.products.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.products.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.products.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
+      parseResponse(client.products.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -61,34 +73,33 @@ export function createPostProducts(
 export function createGetProductsProductId(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.products)[':productId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.products)[':productId']['$get']>,
-      readonly [
-        '/products/:productId',
-        InferRequestType<(typeof client.products)[':productId']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.products)[':productId']['$get']>,
+      ) => InferResponseType<(typeof client.products)[':productId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProductsProductIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetProductsProductIdQueryKey(args),
+    queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /products/{productId}
+ * Generates Svelte Query cache key for GET /products/{productId
  */
 export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,

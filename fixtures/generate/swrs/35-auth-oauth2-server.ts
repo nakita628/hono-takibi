@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
@@ -50,11 +51,21 @@ export function getGetOauthAuthorizeKey(
  * アクセストークンを発行します。
  * Authorization Code、Client Credentials、Refresh Token、Device Code の各フローに対応。
  */
-export function usePostOauthToken(options?: { client?: ClientRequestOptions }) {
+export function usePostOauthToken(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.oauth.token.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.oauth.token.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /oauth/token',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.token.$post> }) =>
       parseResponse(client.oauth.token.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -65,11 +76,21 @@ export function usePostOauthToken(options?: { client?: ClientRequestOptions }) {
  *
  * アクセストークンまたはリフレッシュトークンを無効化します（RFC 7009）
  */
-export function usePostOauthRevoke(options?: { client?: ClientRequestOptions }) {
+export function usePostOauthRevoke(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.oauth.revoke.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.oauth.revoke.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /oauth/revoke',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.revoke.$post> }) =>
       parseResponse(client.oauth.revoke.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -80,11 +101,21 @@ export function usePostOauthRevoke(options?: { client?: ClientRequestOptions }) 
  *
  * トークンの有効性と情報を取得します（RFC 7662）
  */
-export function usePostOauthIntrospect(options?: { client?: ClientRequestOptions }) {
+export function usePostOauthIntrospect(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.oauth.introspect.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.oauth.introspect.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /oauth/introspect',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.introspect.$post> }) =>
       parseResponse(client.oauth.introspect.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -95,11 +126,21 @@ export function usePostOauthIntrospect(options?: { client?: ClientRequestOptions
  *
  * デバイスフロー用の認可コードを発行します（RFC 8628）
  */
-export function usePostOauthDeviceCode(options?: { client?: ClientRequestOptions }) {
+export function usePostOauthDeviceCode(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.oauth.device.code.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.oauth.device.code.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /oauth/device/code',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.device.code.$post> }) =>
       parseResponse(client.oauth.device.code.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -231,11 +272,21 @@ export function getGetOauthClientsKey() {
  *
  * クライアント作成
  */
-export function usePostOauthClients(options?: { client?: ClientRequestOptions }) {
+export function usePostOauthClients(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.oauth.clients.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.oauth.clients.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /oauth/clients',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.clients.$post> }) =>
       parseResponse(client.oauth.clients.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -265,7 +316,7 @@ export function useGetOauthClientsClientId(
 }
 
 /**
- * Generates SWR cache key for GET /oauth/clients/{clientId}
+ * Generates SWR cache key for GET /oauth/clients/{clientId
  */
 export function getGetOauthClientsClientIdKey(
   args?: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
@@ -278,13 +329,23 @@ export function getGetOauthClientsClientIdKey(
  *
  * クライアント更新
  */
-export function usePutOauthClientsClientId(options?: { client?: ClientRequestOptions }) {
+export function usePutOauthClientsClientId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.oauth.clients)[':clientId']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /oauth/clients/:clientId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']> },
     ) => parseResponse(client.oauth.clients[':clientId'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -293,13 +354,23 @@ export function usePutOauthClientsClientId(options?: { client?: ClientRequestOpt
  *
  * クライアント削除
  */
-export function useDeleteOauthClientsClientId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteOauthClientsClientId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.oauth.clients)[':clientId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /oauth/clients/:clientId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']> },
     ) => parseResponse(client.oauth.clients[':clientId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -308,7 +379,16 @@ export function useDeleteOauthClientsClientId(options?: { client?: ClientRequest
  *
  * クライアントシークレット再生成
  */
-export function usePostOauthClientsClientIdSecret(options?: { client?: ClientRequestOptions }) {
+export function usePostOauthClientsClientIdSecret(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /oauth/clients/:clientId/secret',
     async (
@@ -317,6 +397,7 @@ export function usePostOauthClientsClientIdSecret(options?: { client?: ClientReq
         arg,
       }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> },
     ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -358,12 +439,22 @@ export function getGetOauthConsentsKey() {
  *
  * アプリケーションへのアクセス許可を取り消します
  */
-export function useDeleteOauthConsentsClientId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteOauthConsentsClientId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.oauth.consents)[':clientId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /oauth/consents/:clientId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']> },
     ) => parseResponse(client.oauth.consents[':clientId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }

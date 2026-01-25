@@ -10,12 +10,29 @@ import { client } from '../clients/38-auth-apikey-management'
  */
 export function useGetApiKeys(
   args: InferRequestType<(typeof client)['api-keys']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['api-keys']['$get']>,
+      ) => InferResponseType<(typeof client)['api-keys']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApiKeysQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApiKeysQueryKey(args),
     queryFn: async () => parseResponse(client['api-keys'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -31,10 +48,32 @@ export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['ap
  *
  * APIキー作成
  */
-export function usePostApiKeys(clientOptions?: ClientRequestOptions) {
+export function usePostApiKeys(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys']['$post']>,
+      variables: InferRequestType<(typeof client)['api-keys']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['api-keys']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['$post']>) =>
       parseResponse(client['api-keys'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -45,17 +84,34 @@ export function usePostApiKeys(clientOptions?: ClientRequestOptions) {
  */
 export function useGetApiKeysKeyId(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
+      ) => InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApiKeysKeyIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApiKeysKeyIdQueryKey(args),
     queryFn: async () => parseResponse(client['api-keys'][':keyId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /api-keys/{keyId}
+ * Generates Vue Query cache key for GET /api-keys/{keyId
  */
 export function getGetApiKeysKeyIdQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
@@ -68,10 +124,34 @@ export function getGetApiKeysKeyIdQueryKey(
  *
  * APIキー削除
  */
-export function useDeleteApiKeysKeyId(clientOptions?: ClientRequestOptions) {
+export function useDeleteApiKeysKeyId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>) =>
       parseResponse(client['api-keys'][':keyId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -80,10 +160,34 @@ export function useDeleteApiKeysKeyId(clientOptions?: ClientRequestOptions) {
  *
  * APIキー更新
  */
-export function usePatchApiKeysKeyId(clientOptions?: ClientRequestOptions) {
+export function usePatchApiKeysKeyId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']>,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>) =>
       parseResponse(client['api-keys'][':keyId'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -92,11 +196,35 @@ export function usePatchApiKeysKeyId(clientOptions?: ClientRequestOptions) {
  *
  * APIキー無効化
  */
-export function usePostApiKeysKeyIdRevoke(clientOptions?: ClientRequestOptions) {
+export function usePostApiKeysKeyIdRevoke(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
     ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -105,11 +233,35 @@ export function usePostApiKeysKeyIdRevoke(clientOptions?: ClientRequestOptions) 
  *
  * APIキーローテーション
  */
-export function usePostApiKeysKeyIdRotate(clientOptions?: ClientRequestOptions) {
+export function usePostApiKeysKeyIdRotate(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
     ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -120,18 +272,35 @@ export function usePostApiKeysKeyIdRotate(clientOptions?: ClientRequestOptions) 
  */
 export function useGetApiKeysKeyIdUsage(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+      ) => InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApiKeysKeyIdUsageQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApiKeysKeyIdUsageQueryKey(args),
     queryFn: async () =>
       parseResponse(client['api-keys'][':keyId'].usage.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /api-keys/{keyId}/usage
+ * Generates Vue Query cache key for GET /api-keys/{keyId/usage
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
@@ -146,18 +315,37 @@ export function getGetApiKeysKeyIdUsageQueryKey(
  */
 export function useGetApiKeysKeyIdRateLimitCurrent(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']
+        >,
+      ) => InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApiKeysKeyIdRateLimitCurrentQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApiKeysKeyIdRateLimitCurrentQueryKey(args),
     queryFn: async () =>
       parseResponse(client['api-keys'][':keyId']['rate-limit'].current.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /api-keys/{keyId}/rate-limit/current
+ * Generates Vue Query cache key for GET /api-keys/{keyId/rate-limit/current
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
@@ -170,10 +358,32 @@ export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
  *
  * APIキー検証
  */
-export function usePostApiKeysVerify(clientOptions?: ClientRequestOptions) {
+export function usePostApiKeysVerify(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys']['verify']['$post']>,
+      variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys']['verify']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) =>
       parseResponse(client['api-keys'].verify.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -182,11 +392,28 @@ export function usePostApiKeysVerify(clientOptions?: ClientRequestOptions) {
  *
  * 利用可能なスコープ一覧
  */
-export function useGetScopes(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetScopesQueryKey()
+export function useGetScopes(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.scopes.$get>,
+    ) => InferResponseType<typeof client.scopes.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetScopesQueryKey(),
     queryFn: async () => parseResponse(client.scopes.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

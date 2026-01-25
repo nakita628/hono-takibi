@@ -1,21 +1,5 @@
 import { Link, useParams } from 'react-router'
-import type { Todo } from '@/api/routes'
 import { useGetApiTodoId } from '@/generated/swr'
-
-/**
- * Type guard to check if the response is a valid Todo object.
- */
-function isTodo(data: unknown): data is Todo {
-  return (
-    typeof data === 'object' &&
-    data !== null &&
-    'id' in data &&
-    'content' in data &&
-    'completed' in data &&
-    'createdAt' in data &&
-    'updatedAt' in data
-  )
-}
 
 /**
  * Formats an ISO date string into a human-readable format.

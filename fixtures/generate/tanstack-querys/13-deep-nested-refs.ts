@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
@@ -12,46 +11,43 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-      >,
-      readonly [
-        '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Generates TanStack Query cache key for GET /organizations/{orgId/departments/{deptId/teams/{teamId/members
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
   args: InferRequestType<
@@ -64,55 +60,87 @@ export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQuery
 /**
  * POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
-export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$post(
-            args,
-            options?.client,
-          ),
+export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$post(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * GET /reports/organization-summary
  */
-export function useGetReportsOrganizationSummary(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.reports)['organization-summary']['$get']>,
-      Error,
-      InferResponseType<(typeof client.reports)['organization-summary']['$get']>,
-      readonly ['/reports/organization-summary']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetReportsOrganizationSummary(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.reports)['organization-summary']['$get']>,
+    ) => InferResponseType<(typeof client.reports)['organization-summary']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetReportsOrganizationSummaryQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.reports['organization-summary'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetReportsOrganizationSummaryQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.reports['organization-summary'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

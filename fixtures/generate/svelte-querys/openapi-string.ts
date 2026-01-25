@@ -1,5 +1,4 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-string'
@@ -11,29 +10,29 @@ import { client } from '../clients/openapi-string'
  *
  * zod string
  */
-export function createGetString(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.string.$get>,
-      Error,
-      InferResponseType<typeof client.string.$get>,
-      readonly ['/string']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetString(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.string.$get>,
+    ) => InferResponseType<typeof client.string.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetStringQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.string.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetStringQueryKey(),
+    queryFn: async () => parseResponse(client.string.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

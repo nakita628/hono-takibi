@@ -1,6 +1,6 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/23-extreme-parameters'
 
@@ -36,7 +36,7 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
 }
 
 /**
- * Generates SWR cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
+ * Generates SWR cache key for GET /a/{p1/b/{p2/c/{p3/d/{p4/e/{p5/f/{p6/g/{p7/h/{p8/i/{p9/j/{p10
  */
 export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Key(
   args?: InferRequestType<
@@ -109,7 +109,7 @@ export function useGetPathStylesSimpleLabelMatrix(
 }
 
 /**
- * Generates SWR cache key for GET /path-styles/{simple}/{label}/{matrix}
+ * Generates SWR cache key for GET /path-styles/{simple/{label/{matrix
  */
 export function getGetPathStylesSimpleLabelMatrixKey(
   args?: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,

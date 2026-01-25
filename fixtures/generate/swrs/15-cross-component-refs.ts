@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -38,11 +39,21 @@ export function getGetEntitiesKey(args?: InferRequestType<typeof client.entities
 /**
  * POST /entities
  */
-export function usePostEntities(options?: { client?: ClientRequestOptions }) {
+export function usePostEntities(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.entities.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.entities.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /entities',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.entities.$post> }) =>
       parseResponse(client.entities.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -70,7 +81,7 @@ export function useGetEntitiesEntityId(
 }
 
 /**
- * Generates SWR cache key for GET /entities/{entityId}
+ * Generates SWR cache key for GET /entities/{entityId
  */
 export function getGetEntitiesEntityIdKey(
   args?: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
@@ -81,26 +92,46 @@ export function getGetEntitiesEntityIdKey(
 /**
  * PUT /entities/{entityId}
  */
-export function usePutEntitiesEntityId(options?: { client?: ClientRequestOptions }) {
+export function usePutEntitiesEntityId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.entities)[':entityId']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.entities)[':entityId']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /entities/:entityId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.entities)[':entityId']['$put']> },
     ) => parseResponse(client.entities[':entityId'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * DELETE /entities/{entityId}
  */
-export function useDeleteEntitiesEntityId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteEntitiesEntityId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.entities)[':entityId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.entities)[':entityId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /entities/:entityId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.entities)[':entityId']['$delete']> },
     ) => parseResponse(client.entities[':entityId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -130,7 +161,7 @@ export function useGetEntitiesEntityIdRelationships(
 }
 
 /**
- * Generates SWR cache key for GET /entities/{entityId}/relationships
+ * Generates SWR cache key for GET /entities/{entityId/relationships
  */
 export function getGetEntitiesEntityIdRelationshipsKey(
   args?: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
@@ -141,7 +172,16 @@ export function getGetEntitiesEntityIdRelationshipsKey(
 /**
  * POST /entities/{entityId}/relationships
  */
-export function usePostEntitiesEntityIdRelationships(options?: { client?: ClientRequestOptions }) {
+export function usePostEntitiesEntityIdRelationships(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.entities)[':entityId']['relationships']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /entities/:entityId/relationships',
     async (
@@ -150,16 +190,27 @@ export function usePostEntitiesEntityIdRelationships(options?: { client?: Client
         arg,
       }: { arg: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']> },
     ) => parseResponse(client.entities[':entityId'].relationships.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * POST /batch
  */
-export function usePostBatch(options?: { client?: ClientRequestOptions }) {
+export function usePostBatch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.batch.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.batch.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /batch',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.batch.$post> }) =>
       parseResponse(client.batch.$post(arg, options?.client)),
+    mutationOptions,
   )
 }

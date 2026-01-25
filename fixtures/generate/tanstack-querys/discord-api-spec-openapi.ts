@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/discord-api-spec-openapi'
@@ -7,29 +6,29 @@ import { client } from '../clients/discord-api-spec-openapi'
 /**
  * GET /applications/@me
  */
-export function useGetApplicationsMe(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.applications)['@me']['$get']>,
-      Error,
-      InferResponseType<(typeof client.applications)['@me']['$get']>,
-      readonly ['/applications/@me']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetApplicationsMe(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.applications)['@me']['$get']>,
+    ) => InferResponseType<(typeof client.applications)['@me']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsMeQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.applications['@me'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetApplicationsMeQueryKey(),
+    queryFn: async () => parseResponse(client.applications['@me'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -42,17 +41,33 @@ export function getGetApplicationsMeQueryKey() {
 /**
  * PATCH /applications/@me
  */
-export function usePatchApplicationsMe(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.applications)['@me']['$patch']>) =>
-        parseResponse(client.applications['@me'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchApplicationsMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.applications)['@me']['$patch']>,
+      variables: InferRequestType<(typeof client.applications)['@me']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.applications)['@me']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.applications)['@me']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.applications)['@me']['$patch']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.applications)['@me']['$patch']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.applications)['@me']['$patch']>) =>
+      parseResponse(client.applications['@me'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -61,35 +76,34 @@ export function usePatchApplicationsMe(
 export function useGetApplicationsApplicationId(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.applications)[':application_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.applications)[':application_id']['$get']>,
-      readonly [
-        '/applications/:application_id',
-        InferRequestType<(typeof client.applications)[':application_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.applications)[':application_id']['$get']>,
+      ) => InferResponseType<(typeof client.applications)[':application_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.applications[':application_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.applications[':application_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}
+ * Generates TanStack Query cache key for GET /applications/{application_id
  */
 export function getGetApplicationsApplicationIdQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
@@ -100,18 +114,38 @@ export function getGetApplicationsApplicationIdQueryKey(
 /**
  * PATCH /applications/{application_id}
  */
-export function usePatchApplicationsApplicationId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
-      ) => parseResponse(client.applications[':application_id'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchApplicationsApplicationId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.applications)[':application_id']['$patch']>,
+      variables: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.applications)[':application_id']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
+    ) => parseResponse(client.applications[':application_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -122,46 +156,43 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
     (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
-      >,
-      readonly [
-        '/applications/:application_id/activity-instances/:instance_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.applications[':application_id']['activity-instances'][':instance_id'].$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.applications[':application_id']['activity-instances'][':instance_id'].$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/activity-instances/{instance_id}
+ * Generates TanStack Query cache key for GET /applications/{application_id/activity-instances/{instance_id
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(
   args: InferRequestType<
@@ -174,23 +205,51 @@ export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryK
 /**
  * POST /applications/{application_id}/attachment
  */
-export function usePostApplicationsApplicationIdAttachment(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['attachment']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].attachment.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostApplicationsApplicationIdAttachment(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['attachment']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['attachment']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['attachment']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.applications)[':application_id']['attachment']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['attachment']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['attachment']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['attachment']['$post']
+      >,
+    ) =>
+      parseResponse(client.applications[':application_id'].attachment.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -199,35 +258,36 @@ export function usePostApplicationsApplicationIdAttachment(
 export function useGetApplicationsApplicationIdCommands(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>,
-      Error,
-      InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>,
-      readonly [
-        '/applications/:application_id/commands',
-        InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['commands']['$get']
+        >,
+      ) => InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdCommandsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.applications[':application_id'].commands.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdCommandsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.applications[':application_id'].commands.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/commands
+ * Generates TanStack Query cache key for GET /applications/{application_id/commands
  */
 export function getGetApplicationsApplicationIdCommandsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
@@ -238,39 +298,91 @@ export function getGetApplicationsApplicationIdCommandsQueryKey(
 /**
  * PUT /applications/{application_id}/commands
  */
-export function usePutApplicationsApplicationIdCommands(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>,
-      ) =>
-        parseResponse(client.applications[':application_id'].commands.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutApplicationsApplicationIdCommands(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.applications)[':application_id']['commands']['$put']>,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.applications)[':application_id']['commands']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>,
+    ) => parseResponse(client.applications[':application_id'].commands.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /applications/{application_id}/commands
  */
-export function usePostApplicationsApplicationIdCommands(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['commands']['$post']
-        >,
-      ) =>
-        parseResponse(client.applications[':application_id'].commands.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostApplicationsApplicationIdCommands(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.applications)[':application_id']['commands']['$post']>,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.applications)[':application_id']['commands']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$post']>,
+    ) => parseResponse(client.applications[':application_id'].commands.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -281,43 +393,40 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
     (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
-      >,
-      readonly [
-        '/applications/:application_id/commands/:command_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdCommandsCommandIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.applications[':application_id'].commands[':command_id'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdCommandsCommandIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.applications[':application_id'].commands[':command_id'].$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/commands/{command_id}
+ * Generates TanStack Query cache key for GET /applications/{application_id/commands/{command_id
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
   args: InferRequestType<
@@ -330,51 +439,111 @@ export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
 /**
  * DELETE /applications/{application_id}/commands/{command_id}
  */
-export function useDeleteApplicationsApplicationIdCommandsCommandId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].commands[':command_id'].$delete(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].commands[':command_id'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /applications/{application_id}/commands/{command_id}
  */
-export function usePatchApplicationsApplicationIdCommandsCommandId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].commands[':command_id'].$patch(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+export function usePatchApplicationsApplicationIdCommandsCommandId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].commands[':command_id'].$patch(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -383,35 +552,34 @@ export function usePatchApplicationsApplicationIdCommandsCommandId(
 export function useGetApplicationsApplicationIdEmojis(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
-      Error,
-      InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
-      readonly [
-        '/applications/:application_id/emojis',
-        InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
+      ) => InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdEmojisQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.applications[':application_id'].emojis.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdEmojisQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.applications[':application_id'].emojis.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/emojis
+ * Generates TanStack Query cache key for GET /applications/{application_id/emojis
  */
 export function getGetApplicationsApplicationIdEmojisQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
@@ -422,19 +590,46 @@ export function getGetApplicationsApplicationIdEmojisQueryKey(
 /**
  * POST /applications/{application_id}/emojis
  */
-export function usePostApplicationsApplicationIdEmojis(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>,
-      ) =>
-        parseResponse(client.applications[':application_id'].emojis.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostApplicationsApplicationIdEmojis(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.applications)[':application_id']['emojis']['$post']>,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.applications)[':application_id']['emojis']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>,
+    ) => parseResponse(client.applications[':application_id'].emojis.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -445,43 +640,40 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
     (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
-      >,
-      readonly [
-        '/applications/:application_id/emojis/:emoji_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.applications[':application_id'].emojis[':emoji_id'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.applications[':application_id'].emojis[':emoji_id'].$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/emojis/{emoji_id}
+ * Generates TanStack Query cache key for GET /applications/{application_id/emojis/{emoji_id
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
   args: InferRequestType<
@@ -494,45 +686,111 @@ export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
 /**
  * DELETE /applications/{application_id}/emojis/{emoji_id}
  */
-export function useDeleteApplicationsApplicationIdEmojisEmojiId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].emojis[':emoji_id'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].emojis[':emoji_id'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /applications/{application_id}/emojis/{emoji_id}
  */
-export function usePatchApplicationsApplicationIdEmojisEmojiId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].emojis[':emoji_id'].$patch(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePatchApplicationsApplicationIdEmojisEmojiId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].emojis[':emoji_id'].$patch(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -541,37 +799,38 @@ export function usePatchApplicationsApplicationIdEmojisEmojiId(
 export function useGetApplicationsApplicationIdEntitlements(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
-      Error,
-      InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
-      readonly [
-        '/applications/:application_id/entitlements',
-        InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['entitlements']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['entitlements']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdEntitlementsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.applications[':application_id'].entitlements.$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdEntitlementsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.applications[':application_id'].entitlements.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/entitlements
+ * Generates TanStack Query cache key for GET /applications/{application_id/entitlements
  */
 export function getGetApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
@@ -582,23 +841,53 @@ export function getGetApplicationsApplicationIdEntitlementsQueryKey(
 /**
  * POST /applications/{application_id}/entitlements
  */
-export function usePostApplicationsApplicationIdEntitlements(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['entitlements']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].entitlements.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostApplicationsApplicationIdEntitlements(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['entitlements']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements']['$post']
+      >,
+    ) =>
+      parseResponse(client.applications[':application_id'].entitlements.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -609,46 +898,43 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
     (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
-      >,
-      readonly [
-        '/applications/:application_id/entitlements/:entitlement_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.applications[':application_id'].entitlements[':entitlement_id'].$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.applications[':application_id'].entitlements[':entitlement_id'].$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
+ * Generates TanStack Query cache key for GET /applications/{application_id/entitlements/{entitlement_id
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(
   args: InferRequestType<
@@ -661,51 +947,119 @@ export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey
 /**
  * DELETE /applications/{application_id}/entitlements/{entitlement_id}
  */
-export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].entitlements[':entitlement_id'].$delete(
-            args,
-            options?.client,
-          ),
+export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].entitlements[':entitlement_id'].$delete(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /applications/{application_id}/entitlements/{entitlement_id}/consume
  */
-export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].entitlements[':entitlement_id'].consume.$post(
-            args,
-            options?.client,
-          ),
+export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].entitlements[':entitlement_id'].consume.$post(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -716,46 +1070,43 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
-      >,
-      readonly [
-        '/applications/:application_id/guilds/:guild_id/commands',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.applications[':application_id'].guilds[':guild_id'].commands.$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.applications[':application_id'].guilds[':guild_id'].commands.$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
+ * Generates TanStack Query cache key for GET /applications/{application_id/guilds/{guild_id/commands
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
   args: InferRequestType<
@@ -768,51 +1119,115 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
 /**
  * PUT /applications/{application_id}/guilds/{guild_id}/commands
  */
-export function usePutApplicationsApplicationIdGuildsGuildIdCommands(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].guilds[':guild_id'].commands.$put(
-            args,
-            options?.client,
-          ),
+export function usePutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].guilds[':guild_id'].commands.$put(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /applications/{application_id}/guilds/{guild_id}/commands
  */
-export function usePostApplicationsApplicationIdGuildsGuildIdCommands(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].guilds[':guild_id'].commands.$post(
-            args,
-            options?.client,
-          ),
+export function usePostApplicationsApplicationIdGuildsGuildIdCommands(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].guilds[':guild_id'].commands.$post(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -823,46 +1238,43 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
-      >,
-      readonly [
-        '/applications/:application_id/guilds/:guild_id/commands/permissions',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
+ * Generates TanStack Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(
   args: InferRequestType<
@@ -880,46 +1292,43 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
-      >,
-      readonly [
-        '/applications/:application_id/guilds/:guild_id/commands/:command_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
+ * Generates TanStack Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/{command_id
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(
   args: InferRequestType<
@@ -932,50 +1341,117 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQue
 /**
  * DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
-export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].guilds[':guild_id'].commands[
-            ':command_id'
-          ].$delete(args, options?.client),
+export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$delete(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
-export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$patch(
-            args,
-            options?.client,
-          ),
+export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$patch(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -986,46 +1462,43 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
-      >,
-      readonly [
-        '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey =
-    getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.applications[':application_id'].guilds[':guild_id'].commands[
-            ':command_id'
-          ].permissions.$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey:
+      getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.applications[':application_id'].guilds[':guild_id'].commands[
+          ':command_id'
+        ].permissions.$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
+ * Generates TanStack Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/{command_id/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(
   args: InferRequestType<
@@ -1041,25 +1514,57 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
 /**
  * PUT /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
  */
-export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissions(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id'].guilds[':guild_id'].commands[
-            ':command_id'
-          ].permissions.$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissions(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].guilds[':guild_id'].commands[
+          ':command_id'
+        ].permissions.$put(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1070,46 +1575,43 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
     (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
-      >,
-      readonly [
-        '/applications/:application_id/role-connections/metadata',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.applications[':application_id']['role-connections'].metadata.$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.applications[':application_id']['role-connections'].metadata.$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /applications/{application_id}/role-connections/metadata
+ * Generates TanStack Query cache key for GET /applications/{application_id/role-connections/metadata
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
   args: InferRequestType<
@@ -1122,26 +1624,58 @@ export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
 /**
  * PUT /applications/{application_id}/role-connections/metadata
  */
-export function usePutApplicationsApplicationIdRoleConnectionsMetadata(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.applications[':application_id']['role-connections'].metadata.$put(
-            args,
-            options?.client,
-          ),
+export function usePutApplicationsApplicationIdRoleConnectionsMetadata(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id']['role-connections'].metadata.$put(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1150,34 +1684,33 @@ export function usePutApplicationsApplicationIdRoleConnectionsMetadata(
 export function useGetChannelsChannelId(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.channels)[':channel_id']['$get']>,
-      readonly [
-        '/channels/:channel_id',
-        InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.channels[':channel_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdQueryKey(args),
+    queryFn: async () => parseResponse(client.channels[':channel_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}
+ * Generates TanStack Query cache key for GET /channels/{channel_id
  */
 export function getGetChannelsChannelIdQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
@@ -1188,52 +1721,107 @@ export function getGetChannelsChannelIdQueryKey(
 /**
  * DELETE /channels/{channel_id}
  */
-export function useDeleteChannelsChannelId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
-      ) => parseResponse(client.channels[':channel_id'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteChannelsChannelId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['$delete']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
+    ) => parseResponse(client.channels[':channel_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /channels/{channel_id}
  */
-export function usePatchChannelsChannelId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>,
-      ) => parseResponse(client.channels[':channel_id'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchChannelsChannelId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['$patch']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>) =>
+      parseResponse(client.channels[':channel_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /channels/{channel_id}/followers
  */
-export function usePostChannelsChannelIdFollowers(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
-      ) => parseResponse(client.channels[':channel_id'].followers.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostChannelsChannelIdFollowers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['followers']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+    ) => parseResponse(client.channels[':channel_id'].followers.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1242,35 +1830,34 @@ export function usePostChannelsChannelIdFollowers(
 export function useGetChannelsChannelIdInvites(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
-      Error,
-      InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
-      readonly [
-        '/channels/:channel_id/invites',
-        InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdInvitesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.channels[':channel_id'].invites.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdInvitesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.channels[':channel_id'].invites.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/invites
+ * Generates TanStack Query cache key for GET /channels/{channel_id/invites
  */
 export function getGetChannelsChannelIdInvitesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
@@ -1281,18 +1868,40 @@ export function getGetChannelsChannelIdInvitesQueryKey(
 /**
  * POST /channels/{channel_id}/invites
  */
-export function usePostChannelsChannelIdInvites(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
-      ) => parseResponse(client.channels[':channel_id'].invites.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostChannelsChannelIdInvites(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['invites']['$post']>
+        | undefined,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['invites']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
+    ) => parseResponse(client.channels[':channel_id'].invites.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1301,35 +1910,34 @@ export function usePostChannelsChannelIdInvites(
 export function useGetChannelsChannelIdMessages(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
-      Error,
-      InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
-      readonly [
-        '/channels/:channel_id/messages',
-        InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdMessagesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.channels[':channel_id'].messages.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdMessagesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.channels[':channel_id'].messages.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/messages
+ * Generates TanStack Query cache key for GET /channels/{channel_id/messages
  */
 export function getGetChannelsChannelIdMessagesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
@@ -1340,40 +1948,94 @@ export function getGetChannelsChannelIdMessagesQueryKey(
 /**
  * POST /channels/{channel_id}/messages
  */
-export function usePostChannelsChannelIdMessages(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
-      ) => parseResponse(client.channels[':channel_id'].messages.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostChannelsChannelIdMessages(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['messages']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+    ) => parseResponse(client.channels[':channel_id'].messages.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /channels/{channel_id}/messages/bulk-delete
  */
-export function usePostChannelsChannelIdMessagesBulkDelete(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages['bulk-delete'].$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostChannelsChannelIdMessagesBulkDelete(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages['bulk-delete'].$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1382,35 +2044,36 @@ export function usePostChannelsChannelIdMessagesBulkDelete(
 export function useGetChannelsChannelIdMessagesPins(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
-      Error,
-      InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
-      readonly [
-        '/channels/:channel_id/messages/pins',
-        InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.channels)[':channel_id']['messages']['pins']['$get']
+        >,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdMessagesPinsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.channels[':channel_id'].messages.pins.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdMessagesPinsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.channels[':channel_id'].messages.pins.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/messages/pins
+ * Generates TanStack Query cache key for GET /channels/{channel_id/messages/pins
  */
 export function getGetChannelsChannelIdMessagesPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
@@ -1421,48 +2084,113 @@ export function getGetChannelsChannelIdMessagesPinsQueryKey(
 /**
  * PUT /channels/{channel_id}/messages/pins/{message_id}
  */
-export function usePutChannelsChannelIdMessagesPinsMessageId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages.pins[':message_id'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages.pins[':message_id'].$put(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /channels/{channel_id}/messages/pins/{message_id}
  */
-export function useDeleteChannelsChannelIdMessagesPinsMessageId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages.pins[':message_id'].$delete(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages.pins[':message_id'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1473,39 +2201,40 @@ export function useGetChannelsChannelIdMessagesMessageId(
     (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$get']>,
-      readonly [
-        '/channels/:channel_id/messages/:message_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdMessagesMessageIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.channels[':channel_id'].messages[':message_id'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdMessagesMessageIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.channels[':channel_id'].messages[':message_id'].$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/messages/{message_id}
+ * Generates TanStack Query cache key for GET /channels/{channel_id/messages/{message_id
  */
 export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
   args: InferRequestType<
@@ -1518,95 +2247,224 @@ export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}
  */
-export function useDeleteChannelsChannelIdMessagesMessageId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages[':message_id'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages[':message_id'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /channels/{channel_id}/messages/{message_id}
  */
-export function usePatchChannelsChannelIdMessagesMessageId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages[':message_id'].$patch(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePatchChannelsChannelIdMessagesMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages[':message_id'].$patch(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /channels/{channel_id}/messages/{message_id}/crosspost
  */
-export function usePostChannelsChannelIdMessagesMessageIdCrosspost(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages[':message_id'].crosspost.$post(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+export function usePostChannelsChannelIdMessagesMessageIdCrosspost(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages[':message_id'].crosspost.$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions
  */
-export function useDeleteChannelsChannelIdMessagesMessageIdReactions(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages[':message_id'].reactions.$delete(
-            args,
-            options?.client,
-          ),
+export function useDeleteChannelsChannelIdMessagesMessageIdReactions(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages[':message_id'].reactions.$delete(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1617,46 +2475,43 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
     (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
-      >,
-      readonly [
-        '/channels/:channel_id/messages/:message_id/reactions/:emoji_name',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
+ * Generates TanStack Query cache key for GET /channels/{channel_id/messages/{message_id/reactions/{emoji_name
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(
   args: InferRequestType<
@@ -1669,170 +2524,401 @@ export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryK
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
  */
-export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$delete(
-            args,
-            options?.client,
-          ),
+export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$delete(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
  */
-export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
-            '@me'
-          ].$put(args, options?.client),
+export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name']['@me'].$put(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
  */
-export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
-            '@me'
-          ].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
+          '@me'
+        ].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/{user_id}
  */
-export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
-            ':user_id'
-          ].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
+          ':user_id'
+        ].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /channels/{channel_id}/messages/{message_id}/threads
  */
-export function usePostChannelsChannelIdMessagesMessageIdThreads(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].messages[':message_id'].threads.$post(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+export function usePostChannelsChannelIdMessagesMessageIdThreads(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].messages[':message_id'].threads.$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PUT /channels/{channel_id}/permissions/{overwrite_id}
  */
-export function usePutChannelsChannelIdPermissionsOverwriteId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].permissions[':overwrite_id'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].permissions[':overwrite_id'].$put(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /channels/{channel_id}/permissions/{overwrite_id}
  */
-export function useDeleteChannelsChannelIdPermissionsOverwriteId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].permissions[':overwrite_id'].$delete(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].permissions[':overwrite_id'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1841,35 +2927,34 @@ export function useDeleteChannelsChannelIdPermissionsOverwriteId(
 export function useGetChannelsChannelIdPins(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
-      Error,
-      InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
-      readonly [
-        '/channels/:channel_id/pins',
-        InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdPinsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.channels[':channel_id'].pins.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdPinsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.channels[':channel_id'].pins.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/pins
+ * Generates TanStack Query cache key for GET /channels/{channel_id/pins
  */
 export function getGetChannelsChannelIdPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
@@ -1880,45 +2965,107 @@ export function getGetChannelsChannelIdPinsQueryKey(
 /**
  * PUT /channels/{channel_id}/pins/{message_id}
  */
-export function usePutChannelsChannelIdPinsMessageId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].pins[':message_id'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePutChannelsChannelIdPinsMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
+      >,
+    ) =>
+      parseResponse(client.channels[':channel_id'].pins[':message_id'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /channels/{channel_id}/pins/{message_id}
  */
-export function useDeleteChannelsChannelIdPinsMessageId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].pins[':message_id'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteChannelsChannelIdPinsMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].pins[':message_id'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1929,46 +3076,43 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
     (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
-      >,
-      readonly [
-        '/channels/:channel_id/polls/:message_id/answers/:answer_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
+ * Generates TanStack Query cache key for GET /channels/{channel_id/polls/{message_id/answers/{answer_id
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
   args: InferRequestType<
@@ -1981,89 +3125,223 @@ export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
 /**
  * POST /channels/{channel_id}/polls/{message_id}/expire
  */
-export function usePostChannelsChannelIdPollsMessageIdExpire(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].polls[':message_id'].expire.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostChannelsChannelIdPollsMessageIdExpire(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].polls[':message_id'].expire.$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PUT /channels/{channel_id}/recipients/{user_id}
  */
-export function usePutChannelsChannelIdRecipientsUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].recipients[':user_id'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePutChannelsChannelIdRecipientsUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].recipients[':user_id'].$put(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /channels/{channel_id}/recipients/{user_id}
  */
-export function useDeleteChannelsChannelIdRecipientsUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id'].recipients[':user_id'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id'].recipients[':user_id'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /channels/{channel_id}/send-soundboard-sound
  */
-export function usePostChannelsChannelIdSendSoundboardSound(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id']['send-soundboard-sound'].$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostChannelsChannelIdSendSoundboardSound(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id']['send-soundboard-sound'].$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2072,35 +3350,34 @@ export function usePostChannelsChannelIdSendSoundboardSound(
 export function useGetChannelsChannelIdThreadMembers(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
-      Error,
-      InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
-      readonly [
-        '/channels/:channel_id/thread-members',
-        InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdThreadMembersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.channels[':channel_id']['thread-members'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdThreadMembersQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.channels[':channel_id']['thread-members'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/thread-members
+ * Generates TanStack Query cache key for GET /channels/{channel_id/thread-members
  */
 export function getGetChannelsChannelIdThreadMembersQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
@@ -2111,45 +3388,113 @@ export function getGetChannelsChannelIdThreadMembersQueryKey(
 /**
  * PUT /channels/{channel_id}/thread-members/@me
  */
-export function usePutChannelsChannelIdThreadMembersMe(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id']['thread-members']['@me'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePutChannelsChannelIdThreadMembersMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id']['thread-members']['@me'].$put(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /channels/{channel_id}/thread-members/@me
  */
-export function useDeleteChannelsChannelIdThreadMembersMe(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id']['thread-members']['@me'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteChannelsChannelIdThreadMembersMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id']['thread-members']['@me'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2160,43 +3505,40 @@ export function useGetChannelsChannelIdThreadMembersUserId(
     (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
-      >,
-      readonly [
-        '/channels/:channel_id/thread-members/:user_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdThreadMembersUserIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.channels[':channel_id']['thread-members'][':user_id'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdThreadMembersUserIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.channels[':channel_id']['thread-members'][':user_id'].$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/thread-members/{user_id}
+ * Generates TanStack Query cache key for GET /channels/{channel_id/thread-members/{user_id
  */
 export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
   args: InferRequestType<
@@ -2209,65 +3551,150 @@ export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
 /**
  * PUT /channels/{channel_id}/thread-members/{user_id}
  */
-export function usePutChannelsChannelIdThreadMembersUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id']['thread-members'][':user_id'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePutChannelsChannelIdThreadMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id']['thread-members'][':user_id'].$put(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /channels/{channel_id}/thread-members/{user_id}
  */
-export function useDeleteChannelsChannelIdThreadMembersUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.channels[':channel_id']['thread-members'][':user_id'].$delete(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.channels[':channel_id']['thread-members'][':user_id'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /channels/{channel_id}/threads
  */
-export function usePostChannelsChannelIdThreads(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
-      ) => parseResponse(client.channels[':channel_id'].threads.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostChannelsChannelIdThreads(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['threads']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+    ) => parseResponse(client.channels[':channel_id'].threads.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2278,43 +3705,40 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
     (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
-      >,
-      readonly [
-        '/channels/:channel_id/threads/archived/private',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.channels[':channel_id'].threads.archived.private.$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.channels[':channel_id'].threads.archived.private.$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/threads/archived/private
+ * Generates TanStack Query cache key for GET /channels/{channel_id/threads/archived/private
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
@@ -2332,43 +3756,40 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
     (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
-      >,
-      readonly [
-        '/channels/:channel_id/threads/archived/public',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdThreadsArchivedPublicQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.channels[':channel_id'].threads.archived.public.$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdThreadsArchivedPublicQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.channels[':channel_id'].threads.archived.public.$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/threads/archived/public
+ * Generates TanStack Query cache key for GET /channels/{channel_id/threads/archived/public
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
   args: InferRequestType<
@@ -2384,35 +3805,36 @@ export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
 export function useGetChannelsChannelIdThreadsSearch(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
-      Error,
-      InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
-      readonly [
-        '/channels/:channel_id/threads/search',
-        InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.channels)[':channel_id']['threads']['search']['$get']
+        >,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdThreadsSearchQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.channels[':channel_id'].threads.search.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdThreadsSearchQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.channels[':channel_id'].threads.search.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/threads/search
+ * Generates TanStack Query cache key for GET /channels/{channel_id/threads/search
  */
 export function getGetChannelsChannelIdThreadsSearchQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
@@ -2423,18 +3845,40 @@ export function getGetChannelsChannelIdThreadsSearchQueryKey(
 /**
  * POST /channels/{channel_id}/typing
  */
-export function usePostChannelsChannelIdTyping(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
-      ) => parseResponse(client.channels[':channel_id'].typing.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostChannelsChannelIdTyping(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['typing']['$post']>
+        | undefined,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['typing']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
+    ) => parseResponse(client.channels[':channel_id'].typing.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2445,46 +3889,43 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
     (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
-      >,
-      readonly [
-        '/channels/:channel_id/users/@me/threads/archived/private',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.channels[':channel_id'].users['@me'].threads.archived.private.$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.channels[':channel_id'].users['@me'].threads.archived.private.$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
+ * Generates TanStack Query cache key for GET /channels/{channel_id/users/@me/threads/archived/private
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
@@ -2500,35 +3941,34 @@ export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
 export function useGetChannelsChannelIdWebhooks(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
-      Error,
-      InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
-      readonly [
-        '/channels/:channel_id/webhooks',
-        InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsChannelIdWebhooksQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.channels[':channel_id'].webhooks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChannelsChannelIdWebhooksQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.channels[':channel_id'].webhooks.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /channels/{channel_id}/webhooks
+ * Generates TanStack Query cache key for GET /channels/{channel_id/webhooks
  */
 export function getGetChannelsChannelIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
@@ -2539,46 +3979,66 @@ export function getGetChannelsChannelIdWebhooksQueryKey(
 /**
  * POST /channels/{channel_id}/webhooks
  */
-export function usePostChannelsChannelIdWebhooks(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
-      ) => parseResponse(client.channels[':channel_id'].webhooks.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostChannelsChannelIdWebhooks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+    ) => parseResponse(client.channels[':channel_id'].webhooks.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * GET /gateway
  */
-export function useGetGateway(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.gateway.$get>,
-      Error,
-      InferResponseType<typeof client.gateway.$get>,
-      readonly ['/gateway']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetGateway(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.gateway.$get>,
+    ) => InferResponseType<typeof client.gateway.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGatewayQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.gateway.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGatewayQueryKey(),
+    queryFn: async () => parseResponse(client.gateway.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2591,29 +4051,29 @@ export function getGetGatewayQueryKey() {
 /**
  * GET /gateway/bot
  */
-export function useGetGatewayBot(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.gateway.bot.$get>,
-      Error,
-      InferResponseType<typeof client.gateway.bot.$get>,
-      readonly ['/gateway/bot']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetGatewayBot(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.gateway.bot.$get>,
+    ) => InferResponseType<typeof client.gateway.bot.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGatewayBotQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.gateway.bot.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGatewayBotQueryKey(),
+    queryFn: async () => parseResponse(client.gateway.bot.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2629,35 +4089,33 @@ export function getGetGatewayBotQueryKey() {
 export function useGetGuildsTemplatesCode(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds.templates)[':code']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds.templates)[':code']['$get']>,
-      readonly [
-        '/guilds/templates/:code',
-        InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds.templates)[':code']['$get']>,
+      ) => InferResponseType<(typeof client.guilds.templates)[':code']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsTemplatesCodeQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds.templates[':code'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsTemplatesCodeQueryKey(args),
+    queryFn: async () => parseResponse(client.guilds.templates[':code'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/templates/{code}
+ * Generates TanStack Query cache key for GET /guilds/templates/{code
  */
 export function getGetGuildsTemplatesCodeQueryKey(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
@@ -2671,31 +4129,33 @@ export function getGetGuildsTemplatesCodeQueryKey(
 export function useGetGuildsGuildId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['$get']>,
-      readonly ['/guilds/:guild_id', InferRequestType<(typeof client.guilds)[':guild_id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.guilds[':guild_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdQueryKey(args),
+    queryFn: async () => parseResponse(client.guilds[':guild_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}
+ * Generates TanStack Query cache key for GET /guilds/{guild_id
  */
 export function getGetGuildsGuildIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
@@ -2706,17 +4166,33 @@ export function getGetGuildsGuildIdQueryKey(
 /**
  * PATCH /guilds/{guild_id}
  */
-export function usePatchGuildsGuildId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>) =>
-        parseResponse(client.guilds[':guild_id'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['$patch']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>) =>
+      parseResponse(client.guilds[':guild_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2725,35 +4201,34 @@ export function usePatchGuildsGuildId(
 export function useGetGuildsGuildIdAuditLogs(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
-      readonly [
-        '/guilds/:guild_id/audit-logs',
-        InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdAuditLogsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id']['audit-logs'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdAuditLogsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id']['audit-logs'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/audit-logs
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/audit-logs
  */
 export function getGetGuildsGuildIdAuditLogsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
@@ -2767,37 +4242,38 @@ export function getGetGuildsGuildIdAuditLogsQueryKey(
 export function useGetGuildsGuildIdAutoModerationRules(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
-      readonly [
-        '/guilds/:guild_id/auto-moderation/rules',
-        InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdAutoModerationRulesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.guilds[':guild_id']['auto-moderation'].rules.$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdAutoModerationRulesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id']['auto-moderation'].rules.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/auto-moderation/rules
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/auto-moderation/rules
  */
 export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
@@ -2808,23 +4284,53 @@ export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
 /**
  * POST /guilds/{guild_id}/auto-moderation/rules
  */
-export function usePostGuildsGuildIdAutoModerationRules(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id']['auto-moderation'].rules.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostGuildsGuildIdAutoModerationRules(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+      >,
+    ) =>
+      parseResponse(client.guilds[':guild_id']['auto-moderation'].rules.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2835,43 +4341,40 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
     (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
-      >,
-      readonly [
-        '/guilds/:guild_id/auto-moderation/rules/:rule_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/auto-moderation/rules/{rule_id
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
   args: InferRequestType<
@@ -2884,51 +4387,114 @@ export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
-export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$delete(
-            args,
-            options?.client,
-          ),
+export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$delete(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
-export function usePatchGuildsGuildIdAutoModerationRulesRuleId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$patch(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+      >,
+    ) =>
+      parseResponse(
+        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$patch(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2937,34 +4503,33 @@ export function usePatchGuildsGuildIdAutoModerationRulesRuleId(
 export function useGetGuildsGuildIdBans(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
-      readonly [
-        '/guilds/:guild_id/bans',
-        InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdBansQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.guilds[':guild_id'].bans.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdBansQueryKey(args),
+    queryFn: async () => parseResponse(client.guilds[':guild_id'].bans.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/bans
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/bans
  */
 export function getGetGuildsGuildIdBansQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
@@ -2978,35 +4543,34 @@ export function getGetGuildsGuildIdBansQueryKey(
 export function useGetGuildsGuildIdBansUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
-      readonly [
-        '/guilds/:guild_id/bans/:user_id',
-        InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdBansUserIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].bans[':user_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdBansUserIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].bans[':user_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/bans/{user_id}
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/bans/{user_id
  */
 export function getGetGuildsGuildIdBansUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
@@ -3017,53 +4581,122 @@ export function getGetGuildsGuildIdBansUserIdQueryKey(
 /**
  * PUT /guilds/{guild_id}/bans/{user_id}
  */
-export function usePutGuildsGuildIdBansUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
-      ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutGuildsGuildIdBansUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>
+        | undefined,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
+    ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /guilds/{guild_id}/bans/{user_id}
  */
-export function useDeleteGuildsGuildIdBansUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>,
-      ) =>
-        parseResponse(client.guilds[':guild_id'].bans[':user_id'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteGuildsGuildIdBansUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>,
+    ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /guilds/{guild_id}/bulk-ban
  */
-export function usePostGuildsGuildIdBulkBan(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
-      ) => parseResponse(client.guilds[':guild_id']['bulk-ban'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostGuildsGuildIdBulkBan(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+    ) => parseResponse(client.guilds[':guild_id']['bulk-ban'].$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -3072,35 +4705,34 @@ export function usePostGuildsGuildIdBulkBan(
 export function useGetGuildsGuildIdChannels(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
-      readonly [
-        '/guilds/:guild_id/channels',
-        InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdChannelsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].channels.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdChannelsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].channels.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/channels
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/channels
  */
 export function getGetGuildsGuildIdChannelsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
@@ -3111,35 +4743,75 @@ export function getGetGuildsGuildIdChannelsQueryKey(
 /**
  * POST /guilds/{guild_id}/channels
  */
-export function usePostGuildsGuildIdChannels(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
-      ) => parseResponse(client.guilds[':guild_id'].channels.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostGuildsGuildIdChannels(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+    ) => parseResponse(client.guilds[':guild_id'].channels.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /guilds/{guild_id}/channels
  */
-export function usePatchGuildsGuildIdChannels(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
-      ) => parseResponse(client.guilds[':guild_id'].channels.$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdChannels(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$patch']>
+        | undefined,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
+    ) => parseResponse(client.guilds[':guild_id'].channels.$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -3148,35 +4820,33 @@ export function usePatchGuildsGuildIdChannels(
 export function useGetGuildsGuildIdEmojis(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
-      readonly [
-        '/guilds/:guild_id/emojis',
-        InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdEmojisQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].emojis.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdEmojisQueryKey(args),
+    queryFn: async () => parseResponse(client.guilds[':guild_id'].emojis.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/emojis
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/emojis
  */
 export function getGetGuildsGuildIdEmojisQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
@@ -3187,18 +4857,36 @@ export function getGetGuildsGuildIdEmojisQueryKey(
 /**
  * POST /guilds/{guild_id}/emojis
  */
-export function usePostGuildsGuildIdEmojis(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
-      ) => parseResponse(client.guilds[':guild_id'].emojis.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostGuildsGuildIdEmojis(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+    ) => parseResponse(client.guilds[':guild_id'].emojis.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -3207,35 +4895,34 @@ export function usePostGuildsGuildIdEmojis(
 export function useGetGuildsGuildIdEmojisEmojiId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
-      readonly [
-        '/guilds/:guild_id/emojis/:emoji_id',
-        InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdEmojisEmojiIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdEmojisEmojiIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/emojis/{emoji_id
  */
 export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
@@ -3246,43 +4933,93 @@ export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/emojis/{emoji_id}
  */
-export function useDeleteGuildsGuildIdEmojisEmojiId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id'].emojis[':emoji_id'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>,
+    ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /guilds/{guild_id}/emojis/{emoji_id}
  */
-export function usePatchGuildsGuildIdEmojisEmojiId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']
-        >,
-      ) =>
-        parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdEmojisEmojiId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>,
+    ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -3291,35 +5028,34 @@ export function usePatchGuildsGuildIdEmojisEmojiId(
 export function useGetGuildsGuildIdIntegrations(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
-      readonly [
-        '/guilds/:guild_id/integrations',
-        InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdIntegrationsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].integrations.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdIntegrationsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].integrations.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/integrations
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/integrations
  */
 export function getGetGuildsGuildIdIntegrationsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
@@ -3330,23 +5066,57 @@ export function getGetGuildsGuildIdIntegrationsQueryKey(
 /**
  * DELETE /guilds/{guild_id}/integrations/{integration_id}
  */
-export function useDeleteGuildsGuildIdIntegrationsIntegrationId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id'].integrations[':integration_id'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.guilds[':guild_id'].integrations[':integration_id'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -3355,35 +5125,34 @@ export function useDeleteGuildsGuildIdIntegrationsIntegrationId(
 export function useGetGuildsGuildIdInvites(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
-      readonly [
-        '/guilds/:guild_id/invites',
-        InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdInvitesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].invites.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdInvitesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].invites.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/invites
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/invites
  */
 export function getGetGuildsGuildIdInvitesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
@@ -3397,35 +5166,34 @@ export function getGetGuildsGuildIdInvitesQueryKey(
 export function useGetGuildsGuildIdMembers(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
-      readonly [
-        '/guilds/:guild_id/members',
-        InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdMembersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].members.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdMembersQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].members.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/members
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/members
  */
 export function getGetGuildsGuildIdMembersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
@@ -3436,18 +5204,38 @@ export function getGetGuildsGuildIdMembersQueryKey(
 /**
  * PATCH /guilds/{guild_id}/members/@me
  */
-export function usePatchGuildsGuildIdMembersMe(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
-      ) => parseResponse(client.guilds[':guild_id'].members['@me'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdMembersMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+    ) => parseResponse(client.guilds[':guild_id'].members['@me'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -3456,35 +5244,34 @@ export function usePatchGuildsGuildIdMembersMe(
 export function useGetGuildsGuildIdMembersSearch(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
-      readonly [
-        '/guilds/:guild_id/members/search',
-        InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdMembersSearchQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].members.search.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdMembersSearchQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].members.search.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/members/search
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/members/search
  */
 export function getGetGuildsGuildIdMembersSearchQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
@@ -3498,35 +5285,34 @@ export function getGetGuildsGuildIdMembersSearchQueryKey(
 export function useGetGuildsGuildIdMembersUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
-      readonly [
-        '/guilds/:guild_id/members/:user_id',
-        InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdMembersUserIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].members[':user_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdMembersUserIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].members[':user_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/members/{user_id}
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/members/{user_id
  */
 export function getGetGuildsGuildIdMembersUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
@@ -3537,111 +5323,257 @@ export function getGetGuildsGuildIdMembersUserIdQueryKey(
 /**
  * PUT /guilds/{guild_id}/members/{user_id}
  */
-export function usePutGuildsGuildIdMembersUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>,
-      ) =>
-        parseResponse(client.guilds[':guild_id'].members[':user_id'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutGuildsGuildIdMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>,
+    ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /guilds/{guild_id}/members/{user_id}
  */
-export function useDeleteGuildsGuildIdMembersUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id'].members[':user_id'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteGuildsGuildIdMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>,
+    ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /guilds/{guild_id}/members/{user_id}
  */
-export function usePatchGuildsGuildIdMembersUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']
-        >,
-      ) =>
-        parseResponse(client.guilds[':guild_id'].members[':user_id'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>,
+    ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PUT /guilds/{guild_id}/members/{user_id}/roles/{role_id}
  */
-export function usePutGuildsGuildIdMembersUserIdRolesRoleId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$put(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$put(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /guilds/{guild_id}/members/{user_id}/roles/{role_id}
  */
-export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$delete(
-            args,
-            options?.client,
-          ),
+export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$delete(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -3650,35 +5582,38 @@ export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(
 export function useGetGuildsGuildIdNewMemberWelcome(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
-      readonly [
-        '/guilds/:guild_id/new-member-welcome',
-        InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data:
+          | InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>
+          | undefined,
+      ) =>
+        | InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>
+        | undefined
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdNewMemberWelcomeQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id']['new-member-welcome'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdNewMemberWelcomeQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id']['new-member-welcome'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/new-member-welcome
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/new-member-welcome
  */
 export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
@@ -3692,35 +5627,34 @@ export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
 export function useGetGuildsGuildIdOnboarding(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
-      readonly [
-        '/guilds/:guild_id/onboarding',
-        InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdOnboardingQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].onboarding.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdOnboardingQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].onboarding.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/onboarding
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/onboarding
  */
 export function getGetGuildsGuildIdOnboardingQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
@@ -3731,18 +5665,38 @@ export function getGetGuildsGuildIdOnboardingQueryKey(
 /**
  * PUT /guilds/{guild_id}/onboarding
  */
-export function usePutGuildsGuildIdOnboarding(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
-      ) => parseResponse(client.guilds[':guild_id'].onboarding.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutGuildsGuildIdOnboarding(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+    ) => parseResponse(client.guilds[':guild_id'].onboarding.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -3751,35 +5705,34 @@ export function usePutGuildsGuildIdOnboarding(
 export function useGetGuildsGuildIdPreview(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
-      readonly [
-        '/guilds/:guild_id/preview',
-        InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdPreviewQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].preview.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdPreviewQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].preview.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/preview
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/preview
  */
 export function getGetGuildsGuildIdPreviewQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
@@ -3793,35 +5746,33 @@ export function getGetGuildsGuildIdPreviewQueryKey(
 export function useGetGuildsGuildIdPrune(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
-      readonly [
-        '/guilds/:guild_id/prune',
-        InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdPruneQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].prune.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdPruneQueryKey(args),
+    queryFn: async () => parseResponse(client.guilds[':guild_id'].prune.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/prune
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/prune
  */
 export function getGetGuildsGuildIdPruneQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
@@ -3832,18 +5783,36 @@ export function getGetGuildsGuildIdPruneQueryKey(
 /**
  * POST /guilds/{guild_id}/prune
  */
-export function usePostGuildsGuildIdPrune(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
-      ) => parseResponse(client.guilds[':guild_id'].prune.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostGuildsGuildIdPrune(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+    ) => parseResponse(client.guilds[':guild_id'].prune.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -3852,35 +5821,34 @@ export function usePostGuildsGuildIdPrune(
 export function useGetGuildsGuildIdRegions(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
-      readonly [
-        '/guilds/:guild_id/regions',
-        InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdRegionsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].regions.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdRegionsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].regions.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/regions
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/regions
  */
 export function getGetGuildsGuildIdRegionsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
@@ -3894,35 +5862,33 @@ export function getGetGuildsGuildIdRegionsQueryKey(
 export function useGetGuildsGuildIdRoles(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
-      readonly [
-        '/guilds/:guild_id/roles',
-        InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdRolesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].roles.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdRolesQueryKey(args),
+    queryFn: async () => parseResponse(client.guilds[':guild_id'].roles.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/roles
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/roles
  */
 export function getGetGuildsGuildIdRolesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
@@ -3933,35 +5899,71 @@ export function getGetGuildsGuildIdRolesQueryKey(
 /**
  * POST /guilds/{guild_id}/roles
  */
-export function usePostGuildsGuildIdRoles(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
-      ) => parseResponse(client.guilds[':guild_id'].roles.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostGuildsGuildIdRoles(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+    ) => parseResponse(client.guilds[':guild_id'].roles.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /guilds/{guild_id}/roles
  */
-export function usePatchGuildsGuildIdRoles(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
-      ) => parseResponse(client.guilds[':guild_id'].roles.$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdRoles(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+    ) => parseResponse(client.guilds[':guild_id'].roles.$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -3970,35 +5972,34 @@ export function usePatchGuildsGuildIdRoles(
 export function useGetGuildsGuildIdRolesRoleId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
-      readonly [
-        '/guilds/:guild_id/roles/:role_id',
-        InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdRolesRoleIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].roles[':role_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdRolesRoleIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].roles[':role_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/roles/{role_id}
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/roles/{role_id
  */
 export function getGetGuildsGuildIdRolesRoleIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
@@ -4009,37 +6010,93 @@ export function getGetGuildsGuildIdRolesRoleIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/roles/{role_id}
  */
-export function useDeleteGuildsGuildIdRolesRoleId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>,
-      ) =>
-        parseResponse(client.guilds[':guild_id'].roles[':role_id'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteGuildsGuildIdRolesRoleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>,
+    ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /guilds/{guild_id}/roles/{role_id}
  */
-export function usePatchGuildsGuildIdRolesRoleId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>,
-      ) =>
-        parseResponse(client.guilds[':guild_id'].roles[':role_id'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdRolesRoleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>,
+    ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -4048,35 +6105,34 @@ export function usePatchGuildsGuildIdRolesRoleId(
 export function useGetGuildsGuildIdScheduledEvents(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
-      readonly [
-        '/guilds/:guild_id/scheduled-events',
-        InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdScheduledEventsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id']['scheduled-events'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdScheduledEventsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id']['scheduled-events'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/scheduled-events
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/scheduled-events
  */
 export function getGetGuildsGuildIdScheduledEventsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
@@ -4087,19 +6143,38 @@ export function getGetGuildsGuildIdScheduledEventsQueryKey(
 /**
  * POST /guilds/{guild_id}/scheduled-events
  */
-export function usePostGuildsGuildIdScheduledEvents(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
-      ) =>
-        parseResponse(client.guilds[':guild_id']['scheduled-events'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostGuildsGuildIdScheduledEvents(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+    ) => parseResponse(client.guilds[':guild_id']['scheduled-events'].$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -4110,46 +6185,43 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
-      >,
-      readonly [
-        '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/scheduled-events/{guild_scheduled_event_id
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
   args: InferRequestType<
@@ -4162,51 +6234,117 @@ export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
-export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$delete(
-            args,
-            options?.client,
-          ),
+export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$delete(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
-export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$patch(
-            args,
-            options?.client,
-          ),
+export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+      >,
+    ) =>
+      parseResponse(
+        client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$patch(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -4217,46 +6355,43 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
-      >,
-      readonly [
-        '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].users.$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].users.$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/scheduled-events/{guild_scheduled_event_id/users
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(
   args: InferRequestType<
@@ -4272,35 +6407,34 @@ export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQuer
 export function useGetGuildsGuildIdSoundboardSounds(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
-      readonly [
-        '/guilds/:guild_id/soundboard-sounds',
-        InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdSoundboardSoundsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdSoundboardSoundsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/soundboard-sounds
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/soundboard-sounds
  */
 export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
@@ -4311,19 +6445,46 @@ export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
 /**
  * POST /guilds/{guild_id}/soundboard-sounds
  */
-export function usePostGuildsGuildIdSoundboardSounds(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>,
-      ) =>
-        parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostGuildsGuildIdSoundboardSounds(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>,
+    ) => parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -4334,43 +6495,40 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
     (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
-      >,
-      readonly [
-        '/guilds/:guild_id/soundboard-sounds/:sound_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/soundboard-sounds/{sound_id
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
   args: InferRequestType<
@@ -4383,51 +6541,111 @@ export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
-export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$delete(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
-export function usePatchGuildsGuildIdSoundboardSoundsSoundId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$patch(
-            args,
-            options?.client,
-          ),
-        ),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+      >,
+    ) =>
+      parseResponse(
+        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$patch(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -4436,35 +6654,34 @@ export function usePatchGuildsGuildIdSoundboardSoundsSoundId(
 export function useGetGuildsGuildIdStickers(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
-      readonly [
-        '/guilds/:guild_id/stickers',
-        InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdStickersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].stickers.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdStickersQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].stickers.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/stickers
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/stickers
  */
 export function getGetGuildsGuildIdStickersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
@@ -4475,18 +6692,36 @@ export function getGetGuildsGuildIdStickersQueryKey(
 /**
  * POST /guilds/{guild_id}/stickers
  */
-export function usePostGuildsGuildIdStickers(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
-      ) => parseResponse(client.guilds[':guild_id'].stickers.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostGuildsGuildIdStickers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+    ) => parseResponse(client.guilds[':guild_id'].stickers.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -4495,35 +6730,36 @@ export function usePostGuildsGuildIdStickers(
 export function useGetGuildsGuildIdStickersStickerId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
-      readonly [
-        '/guilds/:guild_id/stickers/:sticker_id',
-        InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']
+        >,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdStickersStickerIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdStickersStickerIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/stickers/{sticker_id
  */
 export function getGetGuildsGuildIdStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
@@ -4534,45 +6770,109 @@ export function getGetGuildsGuildIdStickersStickerIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/stickers/{sticker_id}
  */
-export function useDeleteGuildsGuildIdStickersStickerId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id'].stickers[':sticker_id'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteGuildsGuildIdStickersStickerId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.guilds[':guild_id'].stickers[':sticker_id'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /guilds/{guild_id}/stickers/{sticker_id}
  */
-export function usePatchGuildsGuildIdStickersStickerId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id'].stickers[':sticker_id'].$patch(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdStickersStickerId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+      >,
+    ) =>
+      parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -4581,35 +6881,34 @@ export function usePatchGuildsGuildIdStickersStickerId(
 export function useGetGuildsGuildIdTemplates(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
-      readonly [
-        '/guilds/:guild_id/templates',
-        InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdTemplatesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].templates.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdTemplatesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].templates.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/templates
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/templates
  */
 export function getGetGuildsGuildIdTemplatesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
@@ -4620,73 +6919,173 @@ export function getGetGuildsGuildIdTemplatesQueryKey(
 /**
  * POST /guilds/{guild_id}/templates
  */
-export function usePostGuildsGuildIdTemplates(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
-      ) => parseResponse(client.guilds[':guild_id'].templates.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostGuildsGuildIdTemplates(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+    ) => parseResponse(client.guilds[':guild_id'].templates.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PUT /guilds/{guild_id}/templates/{code}
  */
-export function usePutGuildsGuildIdTemplatesCode(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>,
-      ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutGuildsGuildIdTemplatesCode(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>,
+    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /guilds/{guild_id}/templates/{code}
  */
-export function useDeleteGuildsGuildIdTemplatesCode(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['templates'][':code']['$delete']
-        >,
-      ) =>
-        parseResponse(client.guilds[':guild_id'].templates[':code'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteGuildsGuildIdTemplatesCode(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>,
+    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /guilds/{guild_id}/templates/{code}
  */
-export function usePatchGuildsGuildIdTemplatesCode(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>,
-      ) =>
-        parseResponse(client.guilds[':guild_id'].templates[':code'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdTemplatesCode(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>,
+    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -4695,35 +7094,34 @@ export function usePatchGuildsGuildIdTemplatesCode(
 export function useGetGuildsGuildIdThreadsActive(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
-      readonly [
-        '/guilds/:guild_id/threads/active',
-        InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdThreadsActiveQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].threads.active.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdThreadsActiveQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].threads.active.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/threads/active
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/threads/active
  */
 export function getGetGuildsGuildIdThreadsActiveQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
@@ -4737,35 +7135,34 @@ export function getGetGuildsGuildIdThreadsActiveQueryKey(
 export function useGetGuildsGuildIdVanityUrl(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
-      readonly [
-        '/guilds/:guild_id/vanity-url',
-        InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdVanityUrlQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id']['vanity-url'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdVanityUrlQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id']['vanity-url'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/vanity-url
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/vanity-url
  */
 export function getGetGuildsGuildIdVanityUrlQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
@@ -4779,35 +7176,34 @@ export function getGetGuildsGuildIdVanityUrlQueryKey(
 export function useGetGuildsGuildIdVoiceStatesMe(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
-      readonly [
-        '/guilds/:guild_id/voice-states/@me',
-        InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdVoiceStatesMeQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdVoiceStatesMeQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/voice-states/@me
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/voice-states/@me
  */
 export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
@@ -4818,23 +7214,49 @@ export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
 /**
  * PATCH /guilds/{guild_id}/voice-states/@me
  */
-export function usePatchGuildsGuildIdVoiceStatesMe(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id']['voice-states']['@me'].$patch(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdVoiceStatesMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>,
+    ) =>
+      parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -4843,37 +7265,40 @@ export function usePatchGuildsGuildIdVoiceStatesMe(
 export function useGetGuildsGuildIdVoiceStatesUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
-      readonly [
-        '/guilds/:guild_id/voice-states/:user_id',
-        InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdVoiceStatesUserIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.guilds[':guild_id']['voice-states'][':user_id'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdVoiceStatesUserIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.guilds[':guild_id']['voice-states'][':user_id'].$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/voice-states/{user_id}
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/voice-states/{user_id
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
@@ -4884,23 +7309,57 @@ export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
 /**
  * PATCH /guilds/{guild_id}/voice-states/{user_id}
  */
-export function usePatchGuildsGuildIdVoiceStatesUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.guilds[':guild_id']['voice-states'][':user_id'].$patch(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdVoiceStatesUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+      >,
+    ) =>
+      parseResponse(
+        client.guilds[':guild_id']['voice-states'][':user_id'].$patch(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -4909,35 +7368,34 @@ export function usePatchGuildsGuildIdVoiceStatesUserId(
 export function useGetGuildsGuildIdWebhooks(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
-      readonly [
-        '/guilds/:guild_id/webhooks',
-        InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdWebhooksQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].webhooks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdWebhooksQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id'].webhooks.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/webhooks
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/webhooks
  */
 export function getGetGuildsGuildIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
@@ -4951,35 +7409,34 @@ export function getGetGuildsGuildIdWebhooksQueryKey(
 export function useGetGuildsGuildIdWelcomeScreen(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
-      readonly [
-        '/guilds/:guild_id/welcome-screen',
-        InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdWelcomeScreenQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id']['welcome-screen'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdWelcomeScreenQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id']['welcome-screen'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/welcome-screen
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/welcome-screen
  */
 export function getGetGuildsGuildIdWelcomeScreenQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
@@ -4990,19 +7447,38 @@ export function getGetGuildsGuildIdWelcomeScreenQueryKey(
 /**
  * PATCH /guilds/{guild_id}/welcome-screen
  */
-export function usePatchGuildsGuildIdWelcomeScreen(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
-      ) =>
-        parseResponse(client.guilds[':guild_id']['welcome-screen'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdWelcomeScreen(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+    ) => parseResponse(client.guilds[':guild_id']['welcome-screen'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -5011,35 +7487,33 @@ export function usePatchGuildsGuildIdWelcomeScreen(
 export function useGetGuildsGuildIdWidget(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
-      readonly [
-        '/guilds/:guild_id/widget',
-        InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdWidgetQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id'].widget.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdWidgetQueryKey(args),
+    queryFn: async () => parseResponse(client.guilds[':guild_id'].widget.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/widget
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/widget
  */
 export function getGetGuildsGuildIdWidgetQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
@@ -5050,18 +7524,36 @@ export function getGetGuildsGuildIdWidgetQueryKey(
 /**
  * PATCH /guilds/{guild_id}/widget
  */
-export function usePatchGuildsGuildIdWidget(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
-      ) => parseResponse(client.guilds[':guild_id'].widget.$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchGuildsGuildIdWidget(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+    ) => parseResponse(client.guilds[':guild_id'].widget.$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -5070,35 +7562,34 @@ export function usePatchGuildsGuildIdWidget(
 export function useGetGuildsGuildIdWidgetJson(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
-      readonly [
-        '/guilds/:guild_id/widget.json',
-        InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdWidgetJsonQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id']['widget.json'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdWidgetJsonQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id']['widget.json'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/widget.json
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/widget.json
  */
 export function getGetGuildsGuildIdWidgetJsonQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
@@ -5112,35 +7603,34 @@ export function getGetGuildsGuildIdWidgetJsonQueryKey(
 export function useGetGuildsGuildIdWidgetPng(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
-      Error,
-      InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
-      readonly [
-        '/guilds/:guild_id/widget.png',
-        InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGuildsGuildIdWidgetPngQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.guilds[':guild_id']['widget.png'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetGuildsGuildIdWidgetPngQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.guilds[':guild_id']['widget.png'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /guilds/{guild_id}/widget.png
+ * Generates TanStack Query cache key for GET /guilds/{guild_id/widget.png
  */
 export function getGetGuildsGuildIdWidgetPngQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
@@ -5151,26 +7641,60 @@ export function getGetGuildsGuildIdWidgetPngQueryKey(
 /**
  * POST /interactions/{interaction_id}/{interaction_token}/callback
  */
-export function usePostInteractionsInteractionIdInteractionTokenCallback(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.interactions[':interaction_id'][':interaction_token'].callback.$post(
-            args,
-            options?.client,
-          ),
+export function usePostInteractionsInteractionIdInteractionTokenCallback(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.interactions[':interaction_id'][':interaction_token'].callback.$post(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -5179,31 +7703,33 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(
 export function useGetInvitesCode(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.invites)[':code']['$get']>,
-      Error,
-      InferResponseType<(typeof client.invites)[':code']['$get']>,
-      readonly ['/invites/:code', InferRequestType<(typeof client.invites)[':code']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.invites)[':code']['$get']>,
+      ) => InferResponseType<(typeof client.invites)[':code']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetInvitesCodeQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.invites[':code'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetInvitesCodeQueryKey(args),
+    queryFn: async () => parseResponse(client.invites[':code'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /invites/{code}
+ * Generates TanStack Query cache key for GET /invites/{code
  */
 export function getGetInvitesCodeQueryKey(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
@@ -5214,49 +7740,91 @@ export function getGetInvitesCodeQueryKey(
 /**
  * DELETE /invites/{code}
  */
-export function useDeleteInvitesCode(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.invites)[':code']['$delete']>) =>
-        parseResponse(client.invites[':code'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteInvitesCode(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.invites)[':code']['$delete']>,
+      variables: InferRequestType<(typeof client.invites)[':code']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.invites)[':code']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.invites)[':code']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.invites)[':code']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.invites)[':code']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.invites)[':code']['$delete']>) =>
+      parseResponse(client.invites[':code'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PUT /lobbies
  */
-export function usePutLobbies(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.lobbies.$put>) =>
-        parseResponse(client.lobbies.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutLobbies(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.lobbies.$put>,
+      variables: InferRequestType<typeof client.lobbies.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.lobbies.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.lobbies.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.lobbies.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.lobbies.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.lobbies.$put>) =>
+      parseResponse(client.lobbies.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /lobbies
  */
-export function usePostLobbies(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.lobbies.$post>) =>
-        parseResponse(client.lobbies.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostLobbies(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.lobbies.$post>,
+      variables: InferRequestType<typeof client.lobbies.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.lobbies.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.lobbies.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.lobbies.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.lobbies.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.lobbies.$post>) =>
+      parseResponse(client.lobbies.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -5265,34 +7833,33 @@ export function usePostLobbies(
 export function useGetLobbiesLobbyId(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>,
-      readonly [
-        '/lobbies/:lobby_id',
-        InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>,
+      ) => InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetLobbiesLobbyIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.lobbies[':lobby_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetLobbiesLobbyIdQueryKey(args),
+    queryFn: async () => parseResponse(client.lobbies[':lobby_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /lobbies/{lobby_id}
+ * Generates TanStack Query cache key for GET /lobbies/{lobby_id
  */
 export function getGetLobbiesLobbyIdQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
@@ -5303,153 +7870,363 @@ export function getGetLobbiesLobbyIdQueryKey(
 /**
  * PATCH /lobbies/{lobby_id}
  */
-export function usePatchLobbiesLobbyId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>) =>
-        parseResponse(client.lobbies[':lobby_id'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchLobbiesLobbyId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['$patch']>,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>) =>
+      parseResponse(client.lobbies[':lobby_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /lobbies/{lobby_id}/channel-linking
  */
-export function usePatchLobbiesLobbyIdChannelLinking(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>,
-      ) =>
-        parseResponse(client.lobbies[':lobby_id']['channel-linking'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchLobbiesLobbyIdChannelLinking(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>,
+    ) => parseResponse(client.lobbies[':lobby_id']['channel-linking'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /lobbies/{lobby_id}/members/@me
  */
-export function useDeleteLobbiesLobbyIdMembersMe(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>,
-      ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteLobbiesLobbyIdMembersMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>,
+    ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /lobbies/{lobby_id}/members/@me/invites
  */
-export function usePostLobbiesLobbyIdMembersMeInvites(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.lobbies[':lobby_id'].members['@me'].invites.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostLobbiesLobbyIdMembersMeInvites(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+      >,
+    ) =>
+      parseResponse(client.lobbies[':lobby_id'].members['@me'].invites.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /lobbies/{lobby_id}/members/bulk
  */
-export function usePostLobbiesLobbyIdMembersBulk(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
-      ) => parseResponse(client.lobbies[':lobby_id'].members.bulk.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostLobbiesLobbyIdMembersBulk(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+    ) => parseResponse(client.lobbies[':lobby_id'].members.bulk.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PUT /lobbies/{lobby_id}/members/{user_id}
  */
-export function usePutLobbiesLobbyIdMembersUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>,
-      ) =>
-        parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutLobbiesLobbyIdMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>,
+    ) => parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /lobbies/{lobby_id}/members/{user_id}
  */
-export function useDeleteLobbiesLobbyIdMembersUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.lobbies[':lobby_id'].members[':user_id'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
+      >,
+    ) =>
+      parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /lobbies/{lobby_id}/members/{user_id}/invites
  */
-export function usePostLobbiesLobbyIdMembersUserIdInvites(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.lobbies[':lobby_id'].members[':user_id'].invites.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostLobbiesLobbyIdMembersUserIdInvites(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.lobbies[':lobby_id'].members[':user_id'].invites.$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -5458,35 +8235,34 @@ export function usePostLobbiesLobbyIdMembersUserIdInvites(
 export function useGetLobbiesLobbyIdMessages(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
-      Error,
-      InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
-      readonly [
-        '/lobbies/:lobby_id/messages',
-        InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+      ) => InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetLobbiesLobbyIdMessagesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.lobbies[':lobby_id'].messages.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetLobbiesLobbyIdMessagesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.lobbies[':lobby_id'].messages.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /lobbies/{lobby_id}/messages
+ * Generates TanStack Query cache key for GET /lobbies/{lobby_id/messages
  */
 export function getGetLobbiesLobbyIdMessagesQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
@@ -5497,46 +8273,66 @@ export function getGetLobbiesLobbyIdMessagesQueryKey(
 /**
  * POST /lobbies/{lobby_id}/messages
  */
-export function usePostLobbiesLobbyIdMessages(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
-      ) => parseResponse(client.lobbies[':lobby_id'].messages.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostLobbiesLobbyIdMessages(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+    ) => parseResponse(client.lobbies[':lobby_id'].messages.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * GET /oauth2/@me
  */
-export function useGetOauth2Me(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.oauth2)['@me']['$get']>,
-      Error,
-      InferResponseType<(typeof client.oauth2)['@me']['$get']>,
-      readonly ['/oauth2/@me']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetOauth2Me(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.oauth2)['@me']['$get']>,
+    ) => InferResponseType<(typeof client.oauth2)['@me']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauth2MeQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.oauth2['@me'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetOauth2MeQueryKey(),
+    queryFn: async () => parseResponse(client.oauth2['@me'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -5549,30 +8345,30 @@ export function getGetOauth2MeQueryKey() {
 /**
  * GET /oauth2/applications/@me
  */
-export function useGetOauth2ApplicationsMe(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>,
-      Error,
-      InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>,
-      readonly ['/oauth2/applications/@me']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetOauth2ApplicationsMe(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>,
+    ) => InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauth2ApplicationsMeQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.oauth2.applications['@me'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetOauth2ApplicationsMeQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.oauth2.applications['@me'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -5585,29 +8381,29 @@ export function getGetOauth2ApplicationsMeQueryKey() {
 /**
  * GET /oauth2/keys
  */
-export function useGetOauth2Keys(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.oauth2.keys.$get>,
-      Error,
-      InferResponseType<typeof client.oauth2.keys.$get>,
-      readonly ['/oauth2/keys']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetOauth2Keys(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.oauth2.keys.$get>,
+    ) => InferResponseType<typeof client.oauth2.keys.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauth2KeysQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.oauth2.keys.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetOauth2KeysQueryKey(),
+    queryFn: async () => parseResponse(client.oauth2.keys.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -5620,29 +8416,29 @@ export function getGetOauth2KeysQueryKey() {
 /**
  * GET /oauth2/userinfo
  */
-export function useGetOauth2Userinfo(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.oauth2.userinfo.$get>,
-      Error,
-      InferResponseType<typeof client.oauth2.userinfo.$get>,
-      readonly ['/oauth2/userinfo']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetOauth2Userinfo(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.oauth2.userinfo.$get>,
+    ) => InferResponseType<typeof client.oauth2.userinfo.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauth2UserinfoQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.oauth2.userinfo.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetOauth2UserinfoQueryKey(),
+    queryFn: async () => parseResponse(client.oauth2.userinfo.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -5655,108 +8451,211 @@ export function getGetOauth2UserinfoQueryKey() {
 /**
  * POST /partner-sdk/provisional-accounts/unmerge
  */
-export function usePostPartnerSdkProvisionalAccountsUnmerge(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client['partner-sdk']['provisional-accounts'].unmerge.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['partner-sdk']['provisional-accounts'].unmerge.$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /partner-sdk/provisional-accounts/unmerge/bot
  */
-export function usePostPartnerSdkProvisionalAccountsUnmergeBot(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client['partner-sdk']['provisional-accounts'].unmerge.bot.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['partner-sdk']['provisional-accounts'].unmerge.bot.$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /partner-sdk/token
  */
-export function usePostPartnerSdkToken(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>,
-      ) => parseResponse(client['partner-sdk'].token.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostPartnerSdkToken(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['partner-sdk']['token']['$post']>,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['partner-sdk']['token']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>) =>
+      parseResponse(client['partner-sdk'].token.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /partner-sdk/token/bot
  */
-export function usePostPartnerSdkTokenBot(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
-      ) => parseResponse(client['partner-sdk'].token.bot.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostPartnerSdkTokenBot(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['partner-sdk']['token']['bot']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+    ) => parseResponse(client['partner-sdk'].token.bot.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * GET /soundboard-default-sounds
  */
-export function useGetSoundboardDefaultSounds(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
-      readonly ['/soundboard-default-sounds']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSoundboardDefaultSounds(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
+    ) => InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSoundboardDefaultSoundsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['soundboard-default-sounds'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSoundboardDefaultSoundsQueryKey(),
+    queryFn: async () =>
+      parseResponse(client['soundboard-default-sounds'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -5769,17 +8668,33 @@ export function getGetSoundboardDefaultSoundsQueryKey() {
 /**
  * POST /stage-instances
  */
-export function usePostStageInstances(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client)['stage-instances']['$post']>) =>
-        parseResponse(client['stage-instances'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostStageInstances(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['stage-instances']['$post']>,
+      variables: InferRequestType<(typeof client)['stage-instances']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['stage-instances']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['stage-instances']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['stage-instances']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['stage-instances']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['stage-instances']['$post']>) =>
+      parseResponse(client['stage-instances'].$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -5788,35 +8703,34 @@ export function usePostStageInstances(
 export function useGetStageInstancesChannelId(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
-      readonly [
-        '/stage-instances/:channel_id',
-        InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
+      ) => InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetStageInstancesChannelIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['stage-instances'][':channel_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetStageInstancesChannelIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['stage-instances'][':channel_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /stage-instances/{channel_id}
+ * Generates TanStack Query cache key for GET /stage-instances/{channel_id
  */
 export function getGetStageInstancesChannelIdQueryKey(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
@@ -5827,63 +8741,105 @@ export function getGetStageInstancesChannelIdQueryKey(
 /**
  * DELETE /stage-instances/{channel_id}
  */
-export function useDeleteStageInstancesChannelId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
-      ) => parseResponse(client['stage-instances'][':channel_id'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteStageInstancesChannelId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client)['stage-instances'][':channel_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['stage-instances'][':channel_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
+    ) => parseResponse(client['stage-instances'][':channel_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /stage-instances/{channel_id}
  */
-export function usePatchStageInstancesChannelId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
-      ) => parseResponse(client['stage-instances'][':channel_id'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchStageInstancesChannelId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['stage-instances'][':channel_id']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+    ) => parseResponse(client['stage-instances'][':channel_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * GET /sticker-packs
  */
-export function useGetStickerPacks(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['sticker-packs']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['sticker-packs']['$get']>,
-      readonly ['/sticker-packs']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetStickerPacks(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['sticker-packs']['$get']>,
+    ) => InferResponseType<(typeof client)['sticker-packs']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetStickerPacksQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['sticker-packs'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetStickerPacksQueryKey(),
+    queryFn: async () => parseResponse(client['sticker-packs'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -5899,35 +8855,34 @@ export function getGetStickerPacksQueryKey() {
 export function useGetStickerPacksPackId(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
-      readonly [
-        '/sticker-packs/:pack_id',
-        InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+      ) => InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetStickerPacksPackIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['sticker-packs'][':pack_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetStickerPacksPackIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['sticker-packs'][':pack_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /sticker-packs/{pack_id}
+ * Generates TanStack Query cache key for GET /sticker-packs/{pack_id
  */
 export function getGetStickerPacksPackIdQueryKey(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
@@ -5941,34 +8896,33 @@ export function getGetStickerPacksPackIdQueryKey(
 export function useGetStickersStickerId(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>,
-      readonly [
-        '/stickers/:sticker_id',
-        InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>,
+      ) => InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetStickersStickerIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.stickers[':sticker_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetStickersStickerIdQueryKey(args),
+    queryFn: async () => parseResponse(client.stickers[':sticker_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /stickers/{sticker_id}
+ * Generates TanStack Query cache key for GET /stickers/{sticker_id
  */
 export function getGetStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
@@ -5979,29 +8933,29 @@ export function getGetStickersStickerIdQueryKey(
 /**
  * GET /users/@me
  */
-export function useGetUsersMe(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.users)['@me']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)['@me']['$get']>,
-      readonly ['/users/@me']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetUsersMe(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.users)['@me']['$get']>,
+    ) => InferResponseType<(typeof client.users)['@me']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersMeQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users['@me'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetUsersMeQueryKey(),
+    queryFn: async () => parseResponse(client.users['@me'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -6014,17 +8968,33 @@ export function getGetUsersMeQueryKey() {
 /**
  * PATCH /users/@me
  */
-export function usePatchUsersMe(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['$patch']>) =>
-        parseResponse(client.users['@me'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchUsersMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)['@me']['$patch']>,
+      variables: InferRequestType<(typeof client.users)['@me']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)['@me']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)['@me']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)['@me']['$patch']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.users)['@me']['$patch']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['$patch']>) =>
+      parseResponse(client.users['@me'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -6035,46 +9005,40 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
     (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
-      >,
-      readonly [
-        '/users/@me/applications/:application_id/entitlements',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.users['@me'].applications[':application_id'].entitlements.$get(
-            args,
-            clientOptions,
-          ),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.users['@me'].applications[':application_id'].entitlements.$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/@me/applications/{application_id}/entitlements
+ * Generates TanStack Query cache key for GET /users/@me/applications/{application_id/entitlements
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<
@@ -6092,46 +9056,43 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
     (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
-      >,
-      readonly [
-        '/users/@me/applications/:application_id/role-connection',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.users['@me'].applications[':application_id']['role-connection'].$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.users['@me'].applications[':application_id']['role-connection'].$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/@me/applications/{application_id}/role-connection
+ * Generates TanStack Query cache key for GET /users/@me/applications/{application_id/role-connection
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
   args: InferRequestType<
@@ -6144,97 +9105,180 @@ export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
 /**
  * PUT /users/@me/applications/{application_id}/role-connection
  */
-export function usePutUsersMeApplicationsApplicationIdRoleConnection(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client.users['@me'].applications[':application_id']['role-connection'].$put(
-            args,
-            options?.client,
-          ),
+export function usePutUsersMeApplicationsApplicationIdRoleConnection(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+      >,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.users['@me'].applications[':application_id']['role-connection'].$put(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /users/@me/applications/{application_id}/role-connection
  */
-export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.users['@me'].applications[':application_id']['role-connection'].$delete(
-            args,
-            options?.client,
-          ),
+export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.users['@me'].applications[':application_id']['role-connection'].$delete(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /users/@me/channels
  */
-export function usePostUsersMeChannels(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.users)['@me']['channels']['$post']>,
-      ) => parseResponse(client.users['@me'].channels.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostUsersMeChannels(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)['@me']['channels']['$post']>,
+      variables: InferRequestType<(typeof client.users)['@me']['channels']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)['@me']['channels']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)['@me']['channels']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)['@me']['channels']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)['@me']['channels']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['channels']['$post']>) =>
+      parseResponse(client.users['@me'].channels.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * GET /users/@me/connections
  */
-export function useGetUsersMeConnections(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
-      readonly ['/users/@me/connections']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetUsersMeConnections(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
+    ) => InferResponseType<(typeof client.users)['@me']['connections']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersMeConnectionsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.users['@me'].connections.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetUsersMeConnectionsQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.users['@me'].connections.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -6250,30 +9294,29 @@ export function getGetUsersMeConnectionsQueryKey() {
 export function useGetUsersMeGuilds(
   args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.users)['@me']['guilds']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)['@me']['guilds']['$get']>,
-      readonly [
-        '/users/@me/guilds',
-        InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)['@me']['guilds']['$get']>,
+      ) => InferResponseType<(typeof client.users)['@me']['guilds']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersMeGuildsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users['@me'].guilds.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetUsersMeGuildsQueryKey(args),
+    queryFn: async () => parseResponse(client.users['@me'].guilds.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -6288,18 +9331,40 @@ export function getGetUsersMeGuildsQueryKey(
 /**
  * DELETE /users/@me/guilds/{guild_id}
  */
-export function useDeleteUsersMeGuildsGuildId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
-      ) => parseResponse(client.users['@me'].guilds[':guild_id'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteUsersMeGuildsGuildId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
+    ) => parseResponse(client.users['@me'].guilds[':guild_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -6308,35 +9373,36 @@ export function useDeleteUsersMeGuildsGuildId(
 export function useGetUsersMeGuildsGuildIdMember(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
-      readonly [
-        '/users/@me/guilds/:guild_id/member',
-        InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']
+        >,
+      ) => InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersMeGuildsGuildIdMemberQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.users['@me'].guilds[':guild_id'].member.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetUsersMeGuildsGuildIdMemberQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.users['@me'].guilds[':guild_id'].member.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/@me/guilds/{guild_id}/member
+ * Generates TanStack Query cache key for GET /users/@me/guilds/{guild_id/member
  */
 export function getGetUsersMeGuildsGuildIdMemberQueryKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
@@ -6350,31 +9416,33 @@ export function getGetUsersMeGuildsGuildIdMemberQueryKey(
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.users)[':user_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)[':user_id']['$get']>,
-      readonly ['/users/:user_id', InferRequestType<(typeof client.users)[':user_id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':user_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersUserIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/{user_id}
+ * Generates TanStack Query cache key for GET /users/{user_id
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
@@ -6385,29 +9453,29 @@ export function getGetUsersUserIdQueryKey(
 /**
  * GET /voice/regions
  */
-export function useGetVoiceRegions(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.voice.regions.$get>,
-      Error,
-      InferResponseType<typeof client.voice.regions.$get>,
-      readonly ['/voice/regions']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetVoiceRegions(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.voice.regions.$get>,
+    ) => InferResponseType<typeof client.voice.regions.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetVoiceRegionsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.voice.regions.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetVoiceRegionsQueryKey(),
+    queryFn: async () => parseResponse(client.voice.regions.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -6423,34 +9491,33 @@ export function getGetVoiceRegionsQueryKey() {
 export function useGetWebhooksWebhookId(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>,
-      readonly [
-        '/webhooks/:webhook_id',
-        InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>,
+      ) => InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWebhooksWebhookIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.webhooks[':webhook_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetWebhooksWebhookIdQueryKey(args),
+    queryFn: async () => parseResponse(client.webhooks[':webhook_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /webhooks/{webhook_id}
+ * Generates TanStack Query cache key for GET /webhooks/{webhook_id
  */
 export function getGetWebhooksWebhookIdQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
@@ -6461,35 +9528,70 @@ export function getGetWebhooksWebhookIdQueryKey(
 /**
  * DELETE /webhooks/{webhook_id}
  */
-export function useDeleteWebhooksWebhookId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
-      ) => parseResponse(client.webhooks[':webhook_id'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteWebhooksWebhookId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
+    ) => parseResponse(client.webhooks[':webhook_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /webhooks/{webhook_id}
  */
-export function usePatchWebhooksWebhookId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>,
-      ) => parseResponse(client.webhooks[':webhook_id'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePatchWebhooksWebhookId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>) =>
+      parseResponse(client.webhooks[':webhook_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -6498,35 +9600,34 @@ export function usePatchWebhooksWebhookId(
 export function useGetWebhooksWebhookIdWebhookToken(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
-      Error,
-      InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
-      readonly [
-        '/webhooks/:webhook_id/:webhook_token',
-        InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
+      ) => InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWebhooksWebhookIdWebhookTokenQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetWebhooksWebhookIdWebhookTokenQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /webhooks/{webhook_id}/{webhook_token}
+ * Generates TanStack Query cache key for GET /webhooks/{webhook_id/{webhook_token
  */
 export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
@@ -6537,85 +9638,198 @@ export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
 /**
  * POST /webhooks/{webhook_id}/{webhook_token}
  */
-export function usePostWebhooksWebhookIdWebhookToken(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>,
-      ) =>
-        parseResponse(
-          client.webhooks[':webhook_id'][':webhook_token'].$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostWebhooksWebhookIdWebhookToken(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>,
+    ) => parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * DELETE /webhooks/{webhook_id}/{webhook_token}
  */
-export function useDeleteWebhooksWebhookIdWebhookToken(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.webhooks[':webhook_id'][':webhook_token'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>,
+    ) =>
+      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /webhooks/{webhook_id}/{webhook_token}
  */
-export function usePatchWebhooksWebhookIdWebhookToken(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>,
-      ) =>
-        parseResponse(
-          client.webhooks[':webhook_id'][':webhook_token'].$patch(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePatchWebhooksWebhookIdWebhookToken(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>,
+    ) =>
+      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /webhooks/{webhook_id}/{webhook_token}/github
  */
-export function usePostWebhooksWebhookIdWebhookTokenGithub(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.webhooks[':webhook_id'][':webhook_token'].github.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostWebhooksWebhookIdWebhookTokenGithub(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.webhooks[':webhook_id'][':webhook_token'].github.$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -6626,46 +9840,43 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
-      >,
-      readonly [
-        '/webhooks/:webhook_id/:webhook_token/messages/@original',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
+ * Generates TanStack Query cache key for GET /webhooks/{webhook_id/{webhook_token/messages/@original
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
   args: InferRequestType<
@@ -6678,51 +9889,117 @@ export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
 /**
  * DELETE /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
-export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$delete(
-            args,
-            options?.client,
-          ),
+export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$delete(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
-export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$patch(
-            args,
-            options?.client,
-          ),
+export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+      >,
+    ) =>
+      parseResponse(
+        client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$patch(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -6733,46 +10010,43 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
-      >,
-      readonly [
-        '/webhooks/:webhook_id/:webhook_token/messages/:message_id',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$get(
-            args,
-            clientOptions,
-          ),
+  return useQuery({
+    queryKey: getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$get(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
+ * Generates TanStack Query cache key for GET /webhooks/{webhook_id/{webhook_token/messages/{message_id
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
   args: InferRequestType<
@@ -6785,71 +10059,169 @@ export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
 /**
  * DELETE /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
-export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$delete(
-            args,
-            options?.client,
-          ),
+export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$delete(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * PATCH /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
-export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
-        >,
-      ) =>
-        parseResponse(
-          client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$patch(
-            args,
-            options?.client,
-          ),
+export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+      >,
+    ) =>
+      parseResponse(
+        client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$patch(
+          args,
+          clientOptions,
         ),
-    },
-    queryClient,
-  )
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /webhooks/{webhook_id}/{webhook_token}/slack
  */
-export function usePostWebhooksWebhookIdWebhookTokenSlack(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.webhooks[':webhook_id'][':webhook_token'].slack.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostWebhooksWebhookIdWebhookTokenSlack(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.webhooks[':webhook_id'][':webhook_token'].slack.$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }

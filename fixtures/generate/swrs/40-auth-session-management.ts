@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
@@ -46,11 +47,21 @@ export function getGetSessionsKey(args?: InferRequestType<typeof client.sessions
  *
  * 認証成功後にセッションを作成
  */
-export function usePostSessions(options?: { client?: ClientRequestOptions }) {
+export function usePostSessions(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.sessions.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.sessions.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /sessions',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.sessions.$post> }) =>
       parseResponse(client.sessions.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -88,9 +99,20 @@ export function getGetSessionsCurrentKey() {
  *
  * 現在のセッション終了（ログアウト）
  */
-export function useDeleteSessionsCurrent(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('DELETE /sessions/current', async () =>
-    parseResponse(client.sessions.current.$delete(undefined, options?.client)),
+export function useDeleteSessionsCurrent(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.sessions.current.$delete> | undefined,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'DELETE /sessions/current',
+    async () => parseResponse(client.sessions.current.$delete(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -101,13 +123,23 @@ export function useDeleteSessionsCurrent(options?: { client?: ClientRequestOptio
  *
  * リフレッシュトークンを使用してセッションを更新
  */
-export function usePostSessionsCurrentRefresh(options?: { client?: ClientRequestOptions }) {
+export function usePostSessionsCurrentRefresh(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.sessions.current.refresh.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.sessions.current.refresh.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /sessions/current/refresh',
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.sessions.current.refresh.$post> },
     ) => parseResponse(client.sessions.current.refresh.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -118,13 +150,23 @@ export function usePostSessionsCurrentRefresh(options?: { client?: ClientRequest
  *
  * アクティブなセッションの有効期限を延長
  */
-export function usePostSessionsCurrentExtend(options?: { client?: ClientRequestOptions }) {
+export function usePostSessionsCurrentExtend(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.sessions.current.extend.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.sessions.current.extend.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /sessions/current/extend',
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.sessions.current.extend.$post> },
     ) => parseResponse(client.sessions.current.extend.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -135,9 +177,20 @@ export function usePostSessionsCurrentExtend(options?: { client?: ClientRequestO
  *
  * ユーザーアクティビティを記録してアイドルタイムアウトをリセット
  */
-export function usePostSessionsCurrentActivity(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('POST /sessions/current/activity', async () =>
-    parseResponse(client.sessions.current.activity.$post(undefined, options?.client)),
+export function usePostSessionsCurrentActivity(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.sessions.current.activity.$post>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'POST /sessions/current/activity',
+    async () => parseResponse(client.sessions.current.activity.$post(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -167,7 +220,7 @@ export function useGetSessionsSessionId(
 }
 
 /**
- * Generates SWR cache key for GET /sessions/{sessionId}
+ * Generates SWR cache key for GET /sessions/{sessionId
  */
 export function getGetSessionsSessionIdKey(
   args?: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
@@ -182,13 +235,23 @@ export function getGetSessionsSessionIdKey(
  *
  * 指定したセッションを強制的に終了
  */
-export function useDeleteSessionsSessionId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteSessionsSessionId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.sessions)[':sessionId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /sessions/:sessionId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']> },
     ) => parseResponse(client.sessions[':sessionId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -199,13 +262,23 @@ export function useDeleteSessionsSessionId(options?: { client?: ClientRequestOpt
  *
  * 現在のセッション以外の全セッションを無効化
  */
-export function usePostSessionsRevokeAll(options?: { client?: ClientRequestOptions }) {
+export function usePostSessionsRevokeAll(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.sessions)['revoke-all']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /sessions/revoke-all',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.sessions)['revoke-all']['$post']> },
     ) => parseResponse(client.sessions['revoke-all'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -216,11 +289,21 @@ export function usePostSessionsRevokeAll(options?: { client?: ClientRequestOptio
  *
  * セッショントークンの有効性を検証
  */
-export function usePostSessionsValidate(options?: { client?: ClientRequestOptions }) {
+export function usePostSessionsValidate(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.sessions.validate.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.sessions.validate.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /sessions/validate',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.sessions.validate.$post> }) =>
       parseResponse(client.sessions.validate.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -328,11 +411,21 @@ export function getGetSessionsPoliciesKey() {
  *
  * セッションポリシー更新
  */
-export function usePutSessionsPolicies(options?: { client?: ClientRequestOptions }) {
+export function usePutSessionsPolicies(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.sessions.policies.$put>,
+    Error,
+    string,
+    InferRequestType<typeof client.sessions.policies.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /sessions/policies',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.sessions.policies.$put> }) =>
       parseResponse(client.sessions.policies.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -370,13 +463,23 @@ export function getGetSessionsTrustedDevicesKey() {
  *
  * 現在のデバイスを信頼
  */
-export function usePostSessionsTrustedDevices(options?: { client?: ClientRequestOptions }) {
+export function usePostSessionsTrustedDevices(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.sessions)['trusted-devices']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /sessions/trusted-devices',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']> },
     ) => parseResponse(client.sessions['trusted-devices'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -386,8 +489,16 @@ export function usePostSessionsTrustedDevices(options?: { client?: ClientRequest
  * 信頼済みデバイス削除
  */
 export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
+  mutation?: SWRMutationConfiguration<
+    | InferResponseType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
+    | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /sessions/trusted-devices/:deviceId',
     async (
@@ -399,5 +510,6 @@ export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
       },
     ) =>
       parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }

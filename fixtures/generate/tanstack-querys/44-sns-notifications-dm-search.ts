@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/44-sns-notifications-dm-search'
@@ -12,27 +11,29 @@ import { client } from '../clients/44-sns-notifications-dm-search'
 export function useGetNotifications(
   args: InferRequestType<typeof client.notifications.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.notifications.$get>,
-      Error,
-      InferResponseType<typeof client.notifications.$get>,
-      readonly ['/notifications', InferRequestType<typeof client.notifications.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.notifications.$get>,
+      ) => InferResponseType<typeof client.notifications.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNotificationsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.notifications.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetNotificationsQueryKey(args),
+    queryFn: async () => parseResponse(client.notifications.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -49,30 +50,30 @@ export function getGetNotificationsQueryKey(
  *
  * 未読通知数取得
  */
-export function useGetNotificationsUnreadCount(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
-      Error,
-      InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
-      readonly ['/notifications/unread-count']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetNotificationsUnreadCount(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
+    ) => InferResponseType<(typeof client.notifications)['unread-count']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNotificationsUnreadCountQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.notifications['unread-count'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetNotificationsUnreadCountQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.notifications['unread-count'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -87,18 +88,36 @@ export function getGetNotificationsUnreadCountQueryKey() {
  *
  * 通知を既読にする
  */
-export function usePostNotificationsMarkRead(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
-      ) => parseResponse(client.notifications['mark-read'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostNotificationsMarkRead(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.notifications)['mark-read']['$post']>,
+      variables: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.notifications)['mark-read']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
+    ) => parseResponse(client.notifications['mark-read'].$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -106,30 +125,30 @@ export function usePostNotificationsMarkRead(
  *
  * 通知設定取得
  */
-export function useGetNotificationsSettings(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.notifications.settings.$get>,
-      Error,
-      InferResponseType<typeof client.notifications.settings.$get>,
-      readonly ['/notifications/settings']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetNotificationsSettings(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.notifications.settings.$get>,
+    ) => InferResponseType<typeof client.notifications.settings.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNotificationsSettingsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.notifications.settings.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetNotificationsSettingsQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.notifications.settings.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -144,17 +163,33 @@ export function getGetNotificationsSettingsQueryKey() {
  *
  * 通知設定更新
  */
-export function usePutNotificationsSettings(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.notifications.settings.$put>) =>
-        parseResponse(client.notifications.settings.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutNotificationsSettings(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.notifications.settings.$put>,
+      variables: InferRequestType<typeof client.notifications.settings.$put>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.notifications.settings.$put>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.notifications.settings.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.notifications.settings.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.notifications.settings.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.notifications.settings.$put>) =>
+      parseResponse(client.notifications.settings.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -165,27 +200,29 @@ export function usePutNotificationsSettings(
 export function useGetDmConversations(
   args: InferRequestType<typeof client.dm.conversations.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.dm.conversations.$get>,
-      Error,
-      InferResponseType<typeof client.dm.conversations.$get>,
-      readonly ['/dm/conversations', InferRequestType<typeof client.dm.conversations.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.dm.conversations.$get>,
+      ) => InferResponseType<typeof client.dm.conversations.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetDmConversationsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.dm.conversations.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetDmConversationsQueryKey(args),
+    queryFn: async () => parseResponse(client.dm.conversations.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -202,17 +239,33 @@ export function getGetDmConversationsQueryKey(
  *
  * 会話作成
  */
-export function usePostDmConversations(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.dm.conversations.$post>) =>
-        parseResponse(client.dm.conversations.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostDmConversations(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.dm.conversations.$post>,
+      variables: InferRequestType<typeof client.dm.conversations.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.dm.conversations.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.dm.conversations.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.dm.conversations.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.dm.conversations.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.dm.conversations.$post>) =>
+      parseResponse(client.dm.conversations.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -223,35 +276,34 @@ export function usePostDmConversations(
 export function useGetDmConversationsConversationId(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>,
-      readonly [
-        '/dm/conversations/:conversationId',
-        InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>,
+      ) => InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetDmConversationsConversationIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.dm.conversations[':conversationId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetDmConversationsConversationIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.dm.conversations[':conversationId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /dm/conversations/{conversationId}
+ * Generates TanStack Query cache key for GET /dm/conversations/{conversationId
  */
 export function getGetDmConversationsConversationIdQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
@@ -264,18 +316,40 @@ export function getGetDmConversationsConversationIdQueryKey(
  *
  * 会話を退出
  */
-export function useDeleteDmConversationsConversationId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
-      ) => parseResponse(client.dm.conversations[':conversationId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteDmConversationsConversationId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.dm.conversations)[':conversationId']['$delete']>
+        | undefined,
+      variables: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.dm.conversations)[':conversationId']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
+    ) => parseResponse(client.dm.conversations[':conversationId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -286,37 +360,38 @@ export function useDeleteDmConversationsConversationId(
 export function useGetDmConversationsConversationIdMessages(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
-      Error,
-      InferResponseType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
-      readonly [
-        '/dm/conversations/:conversationId/messages',
-        InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.dm.conversations)[':conversationId']['messages']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.dm.conversations)[':conversationId']['messages']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetDmConversationsConversationIdMessagesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.dm.conversations[':conversationId'].messages.$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetDmConversationsConversationIdMessagesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.dm.conversations[':conversationId'].messages.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /dm/conversations/{conversationId}/messages
+ * Generates TanStack Query cache key for GET /dm/conversations/{conversationId/messages
  */
 export function getGetDmConversationsConversationIdMessagesQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
@@ -329,23 +404,53 @@ export function getGetDmConversationsConversationIdMessagesQueryKey(
  *
  * メッセージ送信
  */
-export function usePostDmConversationsConversationIdMessages(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.dm.conversations)[':conversationId']['messages']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.dm.conversations[':conversationId'].messages.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostDmConversationsConversationIdMessages(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.dm.conversations)[':conversationId']['messages']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
+      >,
+    ) =>
+      parseResponse(client.dm.conversations[':conversationId'].messages.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -353,21 +458,46 @@ export function usePostDmConversationsConversationIdMessages(
  *
  * 会話を既読にする
  */
-export function usePostDmConversationsConversationIdRead(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.dm.conversations)[':conversationId']['read']['$post']
-        >,
-      ) =>
-        parseResponse(client.dm.conversations[':conversationId'].read.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostDmConversationsConversationIdRead(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>,
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['read']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['read']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['read']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['read']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>,
+    ) => parseResponse(client.dm.conversations[':conversationId'].read.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -375,23 +505,51 @@ export function usePostDmConversationsConversationIdRead(
  *
  * 入力中インジケーター送信
  */
-export function usePostDmConversationsConversationIdTyping(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.dm.conversations)[':conversationId']['typing']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.dm.conversations[':conversationId'].typing.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePostDmConversationsConversationIdTyping(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
+      >,
+    ) =>
+      parseResponse(client.dm.conversations[':conversationId'].typing.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -399,18 +557,36 @@ export function usePostDmConversationsConversationIdTyping(
  *
  * メッセージ削除
  */
-export function useDeleteDmMessagesMessageId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
-      ) => parseResponse(client.dm.messages[':messageId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteDmMessagesMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.dm.messages)[':messageId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.dm.messages)[':messageId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
+    ) => parseResponse(client.dm.messages[':messageId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -418,18 +594,38 @@ export function useDeleteDmMessagesMessageId(
  *
  * メッセージにリアクション追加
  */
-export function usePostDmMessagesMessageIdReactions(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
-      ) => parseResponse(client.dm.messages[':messageId'].reactions.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostDmMessagesMessageIdReactions(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
+      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
+    ) => parseResponse(client.dm.messages[':messageId'].reactions.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -437,18 +633,46 @@ export function usePostDmMessagesMessageIdReactions(
  *
  * メッセージのリアクション削除
  */
-export function useDeleteDmMessagesMessageIdReactions(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>,
-      ) => parseResponse(client.dm.messages[':messageId'].reactions.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteDmMessagesMessageIdReactions(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>,
+      variables: InferRequestType<
+        (typeof client.dm.messages)[':messageId']['reactions']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.dm.messages)[':messageId']['reactions']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.dm.messages)[':messageId']['reactions']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.dm.messages)[':messageId']['reactions']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>,
+    ) => parseResponse(client.dm.messages[':messageId'].reactions.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -456,29 +680,29 @@ export function useDeleteDmMessagesMessageIdReactions(
  *
  * 未読メッセージ数取得
  */
-export function useGetDmUnreadCount(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.dm)['unread-count']['$get']>,
-      Error,
-      InferResponseType<(typeof client.dm)['unread-count']['$get']>,
-      readonly ['/dm/unread-count']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetDmUnreadCount(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.dm)['unread-count']['$get']>,
+    ) => InferResponseType<(typeof client.dm)['unread-count']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetDmUnreadCountQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.dm['unread-count'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetDmUnreadCountQueryKey(),
+    queryFn: async () => parseResponse(client.dm['unread-count'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -496,27 +720,29 @@ export function getGetDmUnreadCountQueryKey() {
 export function useGetSearchPosts(
   args: InferRequestType<typeof client.search.posts.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.search.posts.$get>,
-      Error,
-      InferResponseType<typeof client.search.posts.$get>,
-      readonly ['/search/posts', InferRequestType<typeof client.search.posts.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.search.posts.$get>,
+      ) => InferResponseType<typeof client.search.posts.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSearchPostsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.search.posts.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSearchPostsQueryKey(args),
+    queryFn: async () => parseResponse(client.search.posts.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -534,27 +760,29 @@ export function getGetSearchPostsQueryKey(args: InferRequestType<typeof client.s
 export function useGetSearchUsers(
   args: InferRequestType<typeof client.search.users.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.search.users.$get>,
-      Error,
-      InferResponseType<typeof client.search.users.$get>,
-      readonly ['/search/users', InferRequestType<typeof client.search.users.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.search.users.$get>,
+      ) => InferResponseType<typeof client.search.users.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSearchUsersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.search.users.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSearchUsersQueryKey(args),
+    queryFn: async () => parseResponse(client.search.users.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -572,27 +800,29 @@ export function getGetSearchUsersQueryKey(args: InferRequestType<typeof client.s
 export function useGetSearchHashtags(
   args: InferRequestType<typeof client.search.hashtags.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.search.hashtags.$get>,
-      Error,
-      InferResponseType<typeof client.search.hashtags.$get>,
-      readonly ['/search/hashtags', InferRequestType<typeof client.search.hashtags.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.search.hashtags.$get>,
+      ) => InferResponseType<typeof client.search.hashtags.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSearchHashtagsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.search.hashtags.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSearchHashtagsQueryKey(args),
+    queryFn: async () => parseResponse(client.search.hashtags.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -609,29 +839,29 @@ export function getGetSearchHashtagsQueryKey(
  *
  * 最近の検索履歴
  */
-export function useGetSearchRecent(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.search.recent.$get>,
-      Error,
-      InferResponseType<typeof client.search.recent.$get>,
-      readonly ['/search/recent']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSearchRecent(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.search.recent.$get>,
+    ) => InferResponseType<typeof client.search.recent.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSearchRecentQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.search.recent.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSearchRecentQueryKey(),
+    queryFn: async () => parseResponse(client.search.recent.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -646,17 +876,29 @@ export function getGetSearchRecentQueryKey() {
  *
  * 検索履歴クリア
  */
-export function useDeleteSearchRecent(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async () =>
-        parseResponse(client.search.recent.$delete(undefined, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteSearchRecent(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.search.recent.$delete> | undefined,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.search.recent.$delete> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async () => parseResponse(client.search.recent.$delete(undefined, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -667,27 +909,29 @@ export function useDeleteSearchRecent(
 export function useGetTrends(
   args: InferRequestType<typeof client.trends.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.trends.$get>,
-      Error,
-      InferResponseType<typeof client.trends.$get>,
-      readonly ['/trends', InferRequestType<typeof client.trends.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.trends.$get>,
+      ) => InferResponseType<typeof client.trends.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTrendsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.trends.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetTrendsQueryKey(args),
+    queryFn: async () => parseResponse(client.trends.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -702,29 +946,29 @@ export function getGetTrendsQueryKey(args: InferRequestType<typeof client.trends
  *
  * トレンド対応地域一覧
  */
-export function useGetTrendsLocations(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.trends.locations.$get>,
-      Error,
-      InferResponseType<typeof client.trends.locations.$get>,
-      readonly ['/trends/locations']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetTrendsLocations(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.trends.locations.$get>,
+    ) => InferResponseType<typeof client.trends.locations.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTrendsLocationsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.trends.locations.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetTrendsLocationsQueryKey(),
+    queryFn: async () => parseResponse(client.trends.locations.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -742,27 +986,29 @@ export function getGetTrendsLocationsQueryKey() {
 export function useGetSuggestionsUsers(
   args: InferRequestType<typeof client.suggestions.users.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.suggestions.users.$get>,
-      Error,
-      InferResponseType<typeof client.suggestions.users.$get>,
-      readonly ['/suggestions/users', InferRequestType<typeof client.suggestions.users.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.suggestions.users.$get>,
+      ) => InferResponseType<typeof client.suggestions.users.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSuggestionsUsersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.suggestions.users.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSuggestionsUsersQueryKey(args),
+    queryFn: async () => parseResponse(client.suggestions.users.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -779,18 +1025,38 @@ export function getGetSuggestionsUsersQueryKey(
  *
  * おすすめユーザーを非表示
  */
-export function usePostSuggestionsUsersUserIdHide(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
-      ) => parseResponse(client.suggestions.users[':userId'].hide.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostSuggestionsUsersUserIdHide(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
+      variables: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.suggestions.users)[':userId']['hide']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
+    ) => parseResponse(client.suggestions.users[':userId'].hide.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -798,29 +1064,29 @@ export function usePostSuggestionsUsersUserIdHide(
  *
  * おすすめトピック取得
  */
-export function useGetSuggestionsTopics(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.suggestions.topics.$get>,
-      Error,
-      InferResponseType<typeof client.suggestions.topics.$get>,
-      readonly ['/suggestions/topics']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetSuggestionsTopics(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.suggestions.topics.$get>,
+    ) => InferResponseType<typeof client.suggestions.topics.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSuggestionsTopicsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.suggestions.topics.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSuggestionsTopicsQueryKey(),
+    queryFn: async () => parseResponse(client.suggestions.topics.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -835,18 +1101,36 @@ export function getGetSuggestionsTopicsQueryKey() {
  *
  * トピックをフォロー
  */
-export function usePostTopicsTopicIdFollow(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
-      ) => parseResponse(client.topics[':topicId'].follow.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostTopicsTopicIdFollow(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.topics)[':topicId']['follow']['$post']>,
+      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.topics)[':topicId']['follow']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
+    ) => parseResponse(client.topics[':topicId'].follow.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -854,16 +1138,34 @@ export function usePostTopicsTopicIdFollow(
  *
  * トピックのフォロー解除
  */
-export function useDeleteTopicsTopicIdFollow(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
-      ) => parseResponse(client.topics[':topicId'].follow.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteTopicsTopicIdFollow(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.topics)[':topicId']['follow']['$delete']>,
+      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.topics)[':topicId']['follow']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
+    ) => parseResponse(client.topics[':topicId'].follow.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }

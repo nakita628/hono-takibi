@@ -1,5 +1,4 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-nullable'
@@ -11,29 +10,29 @@ import { client } from '../clients/openapi-nullable'
  *
  * zod nullable
  */
-export function createGetNullable(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.nullable.$get>,
-      Error,
-      InferResponseType<typeof client.nullable.$get>,
-      readonly ['/nullable']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetNullable(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.nullable.$get>,
+    ) => InferResponseType<typeof client.nullable.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNullableQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.nullable.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetNullableQueryKey(),
+    queryFn: async () => parseResponse(client.nullable.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

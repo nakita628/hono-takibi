@@ -3,16 +3,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "tsx src/index.ts",
-    "route": "tsx src/route.ts",
-    "readonly-route": "tsx src/readonly-route.ts",
-    "type": "tsx src/type.ts",
-    "rpc": "tsx src/rpc.ts",
-    "swr": "tsx src/swr.ts",
-    "tanstack-query": "tsx src/tanstack-query.ts",
-    "svelte-query": "tsx src/svelte-query.ts",
-    "client": "tsx src/client.ts",
-    "typecheck": "tsgo --noEmit"
+    "typecheck": "tsgo --noEmit",
+    "all": "tsx src/index.ts && tsgo --noEmit"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",

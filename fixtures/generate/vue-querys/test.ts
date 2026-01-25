@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/test'
 
@@ -10,11 +10,28 @@ import { client } from '../clients/test'
  *
  * Hono
  */
-export function useGetHono(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetHonoQueryKey()
+export function useGetHono(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.hono.$get>,
+    ) => InferResponseType<typeof client.hono.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetHonoQueryKey(),
     queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -32,11 +49,28 @@ export function getGetHonoQueryKey() {
  *
  * HonoX
  */
-export function useGetHonoX(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetHonoXQueryKey()
+export function useGetHonoX(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['hono-x']['$get']>,
+    ) => InferResponseType<(typeof client)['hono-x']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetHonoXQueryKey(),
     queryFn: async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -54,11 +88,28 @@ export function getGetHonoXQueryKey() {
  *
  * ZodOpenAPIHono
  */
-export function useGetZodOpenapiHono(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetZodOpenapiHonoQueryKey()
+export function useGetZodOpenapiHono(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['zod-openapi-hono']['$get']>,
+    ) => InferResponseType<(typeof client)['zod-openapi-hono']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetZodOpenapiHonoQueryKey(),
     queryFn: async () => parseResponse(client['zod-openapi-hono'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

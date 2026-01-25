@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/geojson-example'
 
@@ -10,11 +10,28 @@ import { client } from '../clients/geojson-example'
  *
  * This endpoint is used to check if the server is working.
  */
-export function useGet(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetQueryKey()
+export function useGet(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.index.$get>,
+    ) => InferResponseType<typeof client.index.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetQueryKey(),
     queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -34,12 +51,29 @@ export function getGetQueryKey() {
  */
 export function useGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.projects.$get>,
+      ) => InferResponseType<typeof client.projects.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetProjectsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetProjectsQueryKey(args),
     queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 

@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
 
@@ -35,11 +36,21 @@ export function getGetProductsKey() {
 /**
  * POST /products
  */
-export function usePostProducts(options?: { client?: ClientRequestOptions }) {
+export function usePostProducts(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.products.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.products.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /products',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.products.$post> }) =>
       parseResponse(client.products.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -67,7 +78,7 @@ export function useGetProductsProductId(
 }
 
 /**
- * Generates SWR cache key for GET /products/{productId}
+ * Generates SWR cache key for GET /products/{productId
  */
 export function getGetProductsProductIdKey(
   args?: InferRequestType<(typeof client.products)[':productId']['$get']>,

@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -39,11 +40,21 @@ export function getGetStreamKey() {
  *
  * GraphQL endpoint
  */
-export function usePostGraphql(options?: { client?: ClientRequestOptions }) {
+export function usePostGraphql(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.graphql.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.graphql.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /graphql',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.graphql.$post> }) =>
       parseResponse(client.graphql.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -52,13 +63,23 @@ export function usePostGraphql(options?: { client?: ClientRequestOptions }) {
  *
  * gRPC-Gateway endpoint
  */
-export function usePostGrpcGateway(options?: { client?: ClientRequestOptions }) {
+export function usePostGrpcGateway(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['grpc-gateway']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['grpc-gateway']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /grpc-gateway',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['grpc-gateway']['$post']> },
     ) => parseResponse(client['grpc-gateway'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 

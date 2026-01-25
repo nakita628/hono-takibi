@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
@@ -35,11 +36,21 @@ export function getGetTreesKey() {
 /**
  * POST /trees
  */
-export function usePostTrees(options?: { client?: ClientRequestOptions }) {
+export function usePostTrees(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.trees.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.trees.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /trees',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.trees.$post> }) =>
       parseResponse(client.trees.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 

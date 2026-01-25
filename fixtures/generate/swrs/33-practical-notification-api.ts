@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/33-practical-notification-api'
 
@@ -64,7 +65,7 @@ export function useGetNotificationsNotificationId(
 }
 
 /**
- * Generates SWR cache key for GET /notifications/{notificationId}
+ * Generates SWR cache key for GET /notifications/{notificationId
  */
 export function getGetNotificationsNotificationIdKey(
   args?: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
@@ -77,7 +78,16 @@ export function getGetNotificationsNotificationIdKey(
  *
  * 通知削除
  */
-export function useDeleteNotificationsNotificationId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteNotificationsNotificationId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.notifications)[':notificationId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /notifications/:notificationId',
     async (
@@ -86,6 +96,7 @@ export function useDeleteNotificationsNotificationId(options?: { client?: Client
         arg,
       }: { arg: InferRequestType<(typeof client.notifications)[':notificationId']['$delete']> },
     ) => parseResponse(client.notifications[':notificationId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -95,8 +106,15 @@ export function useDeleteNotificationsNotificationId(options?: { client?: Client
  * 既読にする
  */
 export function usePostNotificationsNotificationIdRead(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.notifications)[':notificationId']['read']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.notifications)[':notificationId']['read']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /notifications/:notificationId/read',
     async (
@@ -107,6 +125,7 @@ export function usePostNotificationsNotificationIdRead(options?: {
         arg: InferRequestType<(typeof client.notifications)[':notificationId']['read']['$post']>
       },
     ) => parseResponse(client.notifications[':notificationId'].read.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -115,9 +134,20 @@ export function usePostNotificationsNotificationIdRead(options?: {
  *
  * 全て既読にする
  */
-export function usePostNotificationsReadAll(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('POST /notifications/read-all', async () =>
-    parseResponse(client.notifications['read-all'].$post(undefined, options?.client)),
+export function usePostNotificationsReadAll(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.notifications)['read-all']['$post']>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'POST /notifications/read-all',
+    async () => parseResponse(client.notifications['read-all'].$post(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -158,11 +188,21 @@ export function getGetNotificationsUnreadCountKey() {
  *
  * 指定したチャンネルでメッセージを送信します
  */
-export function usePostMessagesSend(options?: { client?: ClientRequestOptions }) {
+export function usePostMessagesSend(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.messages.send.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.messages.send.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /messages/send',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.messages.send.$post> }) =>
       parseResponse(client.messages.send.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -171,13 +211,23 @@ export function usePostMessagesSend(options?: { client?: ClientRequestOptions })
  *
  * 一括メッセージ送信
  */
-export function usePostMessagesSendBatch(options?: { client?: ClientRequestOptions }) {
+export function usePostMessagesSendBatch(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.messages)['send-batch']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.messages)['send-batch']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /messages/send-batch',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.messages)['send-batch']['$post']> },
     ) => parseResponse(client.messages['send-batch'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -207,7 +257,7 @@ export function useGetMessagesMessageId(
 }
 
 /**
- * Generates SWR cache key for GET /messages/{messageId}
+ * Generates SWR cache key for GET /messages/{messageId
  */
 export function getGetMessagesMessageIdKey(
   args?: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
@@ -252,11 +302,21 @@ export function getGetTemplatesKey(args?: InferRequestType<typeof client.templat
  *
  * テンプレート作成
  */
-export function usePostTemplates(options?: { client?: ClientRequestOptions }) {
+export function usePostTemplates(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.templates.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.templates.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /templates',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.templates.$post> }) =>
       parseResponse(client.templates.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -286,7 +346,7 @@ export function useGetTemplatesTemplateId(
 }
 
 /**
- * Generates SWR cache key for GET /templates/{templateId}
+ * Generates SWR cache key for GET /templates/{templateId
  */
 export function getGetTemplatesTemplateIdKey(
   args?: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
@@ -299,13 +359,23 @@ export function getGetTemplatesTemplateIdKey(
  *
  * テンプレート更新
  */
-export function usePutTemplatesTemplateId(options?: { client?: ClientRequestOptions }) {
+export function usePutTemplatesTemplateId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.templates)[':templateId']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.templates)[':templateId']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /templates/:templateId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.templates)[':templateId']['$put']> },
     ) => parseResponse(client.templates[':templateId'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -314,13 +384,23 @@ export function usePutTemplatesTemplateId(options?: { client?: ClientRequestOpti
  *
  * テンプレート削除
  */
-export function useDeleteTemplatesTemplateId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteTemplatesTemplateId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.templates)[':templateId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.templates)[':templateId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /templates/:templateId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.templates)[':templateId']['$delete']> },
     ) => parseResponse(client.templates[':templateId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -329,7 +409,16 @@ export function useDeleteTemplatesTemplateId(options?: { client?: ClientRequestO
  *
  * テンプレートプレビュー
  */
-export function usePostTemplatesTemplateIdPreview(options?: { client?: ClientRequestOptions }) {
+export function usePostTemplatesTemplateIdPreview(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.templates)[':templateId']['preview']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /templates/:templateId/preview',
     async (
@@ -338,6 +427,7 @@ export function usePostTemplatesTemplateIdPreview(options?: { client?: ClientReq
         arg,
       }: { arg: InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']> },
     ) => parseResponse(client.templates[':templateId'].preview.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -375,13 +465,23 @@ export function getGetChannelsPreferencesKey() {
  *
  * チャンネル設定更新
  */
-export function usePutChannelsPreferences(options?: { client?: ClientRequestOptions }) {
+export function usePutChannelsPreferences(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.channels.preferences.$put>,
+    Error,
+    string,
+    InferRequestType<typeof client.channels.preferences.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /channels/preferences',
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.channels.preferences.$put> },
     ) => parseResponse(client.channels.preferences.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -419,11 +519,21 @@ export function getGetChannelsDevicesKey() {
  *
  * デバイス登録
  */
-export function usePostChannelsDevices(options?: { client?: ClientRequestOptions }) {
+export function usePostChannelsDevices(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.channels.devices.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.channels.devices.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /channels/devices',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.channels.devices.$post> }) =>
       parseResponse(client.channels.devices.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -432,13 +542,23 @@ export function usePostChannelsDevices(options?: { client?: ClientRequestOptions
  *
  * デバイス登録解除
  */
-export function useDeleteChannelsDevicesDeviceId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteChannelsDevicesDeviceId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.channels.devices)[':deviceId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /channels/devices/:deviceId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']> },
     ) => parseResponse(client.channels.devices[':deviceId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -476,11 +596,21 @@ export function getGetWebhooksKey() {
  *
  * Webhook作成
  */
-export function usePostWebhooks(options?: { client?: ClientRequestOptions }) {
+export function usePostWebhooks(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.webhooks.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.webhooks.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /webhooks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.webhooks.$post> }) =>
       parseResponse(client.webhooks.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -510,7 +640,7 @@ export function useGetWebhooksWebhookId(
 }
 
 /**
- * Generates SWR cache key for GET /webhooks/{webhookId}
+ * Generates SWR cache key for GET /webhooks/{webhookId
  */
 export function getGetWebhooksWebhookIdKey(
   args?: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
@@ -523,13 +653,23 @@ export function getGetWebhooksWebhookIdKey(
  *
  * Webhook更新
  */
-export function usePutWebhooksWebhookId(options?: { client?: ClientRequestOptions }) {
+export function usePutWebhooksWebhookId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.webhooks)[':webhookId']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /webhooks/:webhookId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.webhooks)[':webhookId']['$put']> },
     ) => parseResponse(client.webhooks[':webhookId'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -538,13 +678,23 @@ export function usePutWebhooksWebhookId(options?: { client?: ClientRequestOption
  *
  * Webhook削除
  */
-export function useDeleteWebhooksWebhookId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteWebhooksWebhookId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.webhooks)[':webhookId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /webhooks/:webhookId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']> },
     ) => parseResponse(client.webhooks[':webhookId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -553,12 +703,22 @@ export function useDeleteWebhooksWebhookId(options?: { client?: ClientRequestOpt
  *
  * Webhookテスト送信
  */
-export function usePostWebhooksWebhookIdTest(options?: { client?: ClientRequestOptions }) {
+export function usePostWebhooksWebhookIdTest(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.webhooks)[':webhookId']['test']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /webhooks/:webhookId/test',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']> },
     ) => parseResponse(client.webhooks[':webhookId'].test.$post(arg, options?.client)),
+    mutationOptions,
   )
 }

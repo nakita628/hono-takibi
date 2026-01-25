@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
@@ -7,29 +6,29 @@ import { client } from '../clients/02-simple-schemas'
 /**
  * GET /users
  */
-export function useGetUsers(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.users.$get>,
-      Error,
-      InferResponseType<typeof client.users.$get>,
-      readonly ['/users']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetUsers(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.users.$get>,
+    ) => InferResponseType<typeof client.users.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetUsersQueryKey(),
+    queryFn: async () => parseResponse(client.users.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -42,17 +41,30 @@ export function getGetUsersQueryKey() {
 /**
  * POST /users
  */
-export function usePostUsers(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
-        parseResponse(client.users.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostUsers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.users.$post>,
+      variables: InferRequestType<typeof client.users.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.users.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.users.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.users.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.users.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+      parseResponse(client.users.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -61,31 +73,33 @@ export function usePostUsers(
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.users)[':userId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)[':userId']['$get']>,
-      readonly ['/users/:userId', InferRequestType<(typeof client.users)[':userId']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':userId']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':userId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersUserIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/{userId}
+ * Generates TanStack Query cache key for GET /users/{userId
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,

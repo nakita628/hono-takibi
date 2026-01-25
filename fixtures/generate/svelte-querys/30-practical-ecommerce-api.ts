@@ -1,5 +1,4 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
@@ -12,27 +11,29 @@ import { client } from '../clients/30-practical-ecommerce-api'
 export function createGetProducts(
   args: InferRequestType<typeof client.products.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.products.$get>,
-      Error,
-      InferResponseType<typeof client.products.$get>,
-      readonly ['/products', InferRequestType<typeof client.products.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.products.$get>,
+      ) => InferResponseType<typeof client.products.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProductsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.products.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetProductsQueryKey(args),
+    queryFn: async () => parseResponse(client.products.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -47,17 +48,30 @@ export function getGetProductsQueryKey(args: InferRequestType<typeof client.prod
  *
  * 商品作成
  */
-export function createPostProducts(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
-        parseResponse(client.products.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostProducts(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.products.$post>,
+      variables: InferRequestType<typeof client.products.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.products.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.products.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.products.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.products.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
+      parseResponse(client.products.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -68,34 +82,33 @@ export function createPostProducts(
 export function createGetProductsProductId(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.products)[':productId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.products)[':productId']['$get']>,
-      readonly [
-        '/products/:productId',
-        InferRequestType<(typeof client.products)[':productId']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.products)[':productId']['$get']>,
+      ) => InferResponseType<(typeof client.products)[':productId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProductsProductIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetProductsProductIdQueryKey(args),
+    queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /products/{productId}
+ * Generates Svelte Query cache key for GET /products/{productId
  */
 export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
@@ -108,17 +121,33 @@ export function getGetProductsProductIdQueryKey(
  *
  * 商品更新
  */
-export function createPutProductsProductId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$put']>) =>
-        parseResponse(client.products[':productId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPutProductsProductId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.products)[':productId']['$put']>,
+      variables: InferRequestType<(typeof client.products)[':productId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.products)[':productId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.products)[':productId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.products)[':productId']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.products)[':productId']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$put']>) =>
+      parseResponse(client.products[':productId'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -126,18 +155,35 @@ export function createPutProductsProductId(
  *
  * 商品削除
  */
-export function createDeleteProductsProductId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.products)[':productId']['$delete']>,
-      ) => parseResponse(client.products[':productId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteProductsProductId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.products)[':productId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.products)[':productId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.products)[':productId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.products)[':productId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.products)[':productId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.products)[':productId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$delete']>) =>
+      parseResponse(client.products[':productId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -145,18 +191,38 @@ export function createDeleteProductsProductId(
  *
  * 商品画像アップロード
  */
-export function createPostProductsProductIdImages(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.products)[':productId']['images']['$post']>,
-      ) => parseResponse(client.products[':productId'].images.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostProductsProductIdImages(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.products)[':productId']['images']['$post']>,
+      variables: InferRequestType<(typeof client.products)[':productId']['images']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.products)[':productId']['images']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.products)[':productId']['images']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.products)[':productId']['images']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.products)[':productId']['images']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.products)[':productId']['images']['$post']>,
+    ) => parseResponse(client.products[':productId'].images.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -164,29 +230,29 @@ export function createPostProductsProductIdImages(
  *
  * カテゴリ一覧取得
  */
-export function createGetCategories(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.categories.$get>,
-      Error,
-      InferResponseType<typeof client.categories.$get>,
-      readonly ['/categories']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetCategories(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.categories.$get>,
+    ) => InferResponseType<typeof client.categories.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetCategoriesQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetCategoriesQueryKey(),
+    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -201,17 +267,30 @@ export function getGetCategoriesQueryKey() {
  *
  * カテゴリ作成
  */
-export function createPostCategories(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.categories.$post>) =>
-        parseResponse(client.categories.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostCategories(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.categories.$post>,
+      variables: InferRequestType<typeof client.categories.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.categories.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.categories.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.categories.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.categories.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.categories.$post>) =>
+      parseResponse(client.categories.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -219,29 +298,29 @@ export function createPostCategories(
  *
  * カート取得
  */
-export function createGetCart(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.cart.$get>,
-      Error,
-      InferResponseType<typeof client.cart.$get>,
-      readonly ['/cart']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetCart(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.cart.$get>,
+    ) => InferResponseType<typeof client.cart.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetCartQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.cart.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetCartQueryKey(),
+    queryFn: async () => parseResponse(client.cart.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -256,14 +335,29 @@ export function getGetCartQueryKey() {
  *
  * カートをクリア
  */
-export function createDeleteCart(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    { mutationFn: async () => parseResponse(client.cart.$delete(undefined, options?.client)) },
-    queryClient,
-  )
+export function createDeleteCart(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.cart.$delete> | undefined,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.cart.$delete> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async () => parseResponse(client.cart.$delete(undefined, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -271,17 +365,30 @@ export function createDeleteCart(
  *
  * カートに商品追加
  */
-export function createPostCartItems(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.cart.items.$post>) =>
-        parseResponse(client.cart.items.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostCartItems(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.cart.items.$post>,
+      variables: InferRequestType<typeof client.cart.items.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.cart.items.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.cart.items.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.cart.items.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.cart.items.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.cart.items.$post>) =>
+      parseResponse(client.cart.items.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -289,17 +396,33 @@ export function createPostCartItems(
  *
  * カートアイテム数量変更
  */
-export function createPutCartItemsItemId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.cart.items)[':itemId']['$put']>) =>
-        parseResponse(client.cart.items[':itemId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPutCartItemsItemId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.cart.items)[':itemId']['$put']>,
+      variables: InferRequestType<(typeof client.cart.items)[':itemId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.cart.items)[':itemId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.cart.items)[':itemId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.cart.items)[':itemId']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.cart.items)[':itemId']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.cart.items)[':itemId']['$put']>) =>
+      parseResponse(client.cart.items[':itemId'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -307,18 +430,35 @@ export function createPutCartItemsItemId(
  *
  * カートから商品削除
  */
-export function createDeleteCartItemsItemId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>,
-      ) => parseResponse(client.cart.items[':itemId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteCartItemsItemId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.cart.items)[':itemId']['$delete']>,
+      variables: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.cart.items)[':itemId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>) =>
+      parseResponse(client.cart.items[':itemId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -329,27 +469,29 @@ export function createDeleteCartItemsItemId(
 export function createGetOrders(
   args: InferRequestType<typeof client.orders.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.orders.$get>,
-      Error,
-      InferResponseType<typeof client.orders.$get>,
-      readonly ['/orders', InferRequestType<typeof client.orders.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.orders.$get>,
+      ) => InferResponseType<typeof client.orders.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOrdersQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.orders.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetOrdersQueryKey(args),
+    queryFn: async () => parseResponse(client.orders.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -366,17 +508,30 @@ export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders
  *
  * カートの内容から注文を作成します
  */
-export function createPostOrders(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
-        parseResponse(client.orders.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostOrders(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.orders.$post>,
+      variables: InferRequestType<typeof client.orders.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.orders.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.orders.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.orders.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.orders.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+      parseResponse(client.orders.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -387,31 +542,33 @@ export function createPostOrders(
 export function createGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.orders)[':orderId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.orders)[':orderId']['$get']>,
-      readonly ['/orders/:orderId', InferRequestType<(typeof client.orders)[':orderId']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.orders)[':orderId']['$get']>,
+      ) => InferResponseType<(typeof client.orders)[':orderId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOrdersOrderIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetOrdersOrderIdQueryKey(args),
+    queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /orders/{orderId}
+ * Generates Svelte Query cache key for GET /orders/{orderId
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
@@ -424,18 +581,36 @@ export function getGetOrdersOrderIdQueryKey(
  *
  * 注文キャンセル
  */
-export function createPostOrdersOrderIdCancel(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>,
-      ) => parseResponse(client.orders[':orderId'].cancel.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostOrdersOrderIdCancel(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.orders)[':orderId']['cancel']['$post']>,
+      variables: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.orders)[':orderId']['cancel']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>,
+    ) => parseResponse(client.orders[':orderId'].cancel.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -446,34 +621,33 @@ export function createPostOrdersOrderIdCancel(
 export function createGetInventoryProductId(
   args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.inventory)[':productId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.inventory)[':productId']['$get']>,
-      readonly [
-        '/inventory/:productId',
-        InferRequestType<(typeof client.inventory)[':productId']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.inventory)[':productId']['$get']>,
+      ) => InferResponseType<(typeof client.inventory)[':productId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetInventoryProductIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.inventory[':productId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetInventoryProductIdQueryKey(args),
+    queryFn: async () => parseResponse(client.inventory[':productId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /inventory/{productId}
+ * Generates Svelte Query cache key for GET /inventory/{productId
  */
 export function getGetInventoryProductIdQueryKey(
   args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
@@ -486,15 +660,33 @@ export function getGetInventoryProductIdQueryKey(
  *
  * 在庫更新
  */
-export function createPutInventoryProductId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.inventory)[':productId']['$put']>) =>
-        parseResponse(client.inventory[':productId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPutInventoryProductId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.inventory)[':productId']['$put']>,
+      variables: InferRequestType<(typeof client.inventory)[':productId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.inventory)[':productId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.inventory)[':productId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.inventory)[':productId']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.inventory)[':productId']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.inventory)[':productId']['$put']>) =>
+      parseResponse(client.inventory[':productId'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }

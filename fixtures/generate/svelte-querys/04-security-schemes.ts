@@ -1,5 +1,4 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/04-security-schemes'
@@ -7,29 +6,29 @@ import { client } from '../clients/04-security-schemes'
 /**
  * GET /public
  */
-export function createGetPublic(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.public.$get>,
-      Error,
-      InferResponseType<typeof client.public.$get>,
-      readonly ['/public']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetPublic(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.public.$get>,
+    ) => InferResponseType<typeof client.public.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPublicQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetPublicQueryKey(),
+    queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -42,29 +41,29 @@ export function getGetPublicQueryKey() {
 /**
  * GET /protected
  */
-export function createGetProtected(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.protected.$get>,
-      Error,
-      InferResponseType<typeof client.protected.$get>,
-      readonly ['/protected']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetProtected(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.protected.$get>,
+    ) => InferResponseType<typeof client.protected.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProtectedQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetProtectedQueryKey(),
+    queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -77,29 +76,29 @@ export function getGetProtectedQueryKey() {
 /**
  * GET /admin
  */
-export function createGetAdmin(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.admin.$get>,
-      Error,
-      InferResponseType<typeof client.admin.$get>,
-      readonly ['/admin']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetAdmin(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.admin.$get>,
+    ) => InferResponseType<typeof client.admin.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAdminQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.admin.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetAdminQueryKey(),
+    queryFn: async () => parseResponse(client.admin.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -112,29 +111,29 @@ export function getGetAdminQueryKey() {
 /**
  * GET /oauth-resource
  */
-export function createGetOauthResource(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['oauth-resource']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['oauth-resource']['$get']>,
-      readonly ['/oauth-resource']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetOauthResource(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['oauth-resource']['$get']>,
+    ) => InferResponseType<(typeof client)['oauth-resource']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOauthResourceQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['oauth-resource'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetOauthResourceQueryKey(),
+    queryFn: async () => parseResponse(client['oauth-resource'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -147,29 +146,29 @@ export function getGetOauthResourceQueryKey() {
 /**
  * GET /multi-auth
  */
-export function createGetMultiAuth(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['multi-auth']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['multi-auth']['$get']>,
-      readonly ['/multi-auth']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetMultiAuth(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['multi-auth']['$get']>,
+    ) => InferResponseType<(typeof client)['multi-auth']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMultiAuthQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['multi-auth'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetMultiAuthQueryKey(),
+    queryFn: async () => parseResponse(client['multi-auth'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

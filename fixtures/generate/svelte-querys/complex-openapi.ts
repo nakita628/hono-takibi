@@ -1,5 +1,4 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-openapi'
@@ -9,29 +8,29 @@ import { client } from '../clients/complex-openapi'
  *
  * List all users
  */
-export function createGetUsers(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.users.$get>,
-      Error,
-      InferResponseType<typeof client.users.$get>,
-      readonly ['/users']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetUsers(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.users.$get>,
+    ) => InferResponseType<typeof client.users.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetUsersQueryKey(),
+    queryFn: async () => parseResponse(client.users.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -46,17 +45,30 @@ export function getGetUsersQueryKey() {
  *
  * Create a new user
  */
-export function createPostUsers(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
-        parseResponse(client.users.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostUsers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.users.$post>,
+      variables: InferRequestType<typeof client.users.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.users.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.users.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.users.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.users.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+      parseResponse(client.users.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -67,31 +79,33 @@ export function createPostUsers(
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.users)[':userId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)[':userId']['$get']>,
-      readonly ['/users/:userId', InferRequestType<(typeof client.users)[':userId']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':userId']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':userId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersUserIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId}
+ * Generates Svelte Query cache key for GET /users/{userId
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
@@ -104,17 +118,33 @@ export function getGetUsersUserIdQueryKey(
  *
  * Update an existing user
  */
-export function createPutUsersUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$put']>) =>
-        parseResponse(client.users[':userId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPutUsersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)[':userId']['$put']>,
+      variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)[':userId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.users)[':userId']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$put']>) =>
+      parseResponse(client.users[':userId'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -122,17 +152,33 @@ export function createPutUsersUserId(
  *
  * Delete a user
  */
-export function createDeleteUsersUserId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$delete']>) =>
-        parseResponse(client.users[':userId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteUsersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.users)[':userId']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$delete']>) =>
+      parseResponse(client.users[':userId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -140,29 +186,29 @@ export function createDeleteUsersUserId(
  *
  * List all orders
  */
-export function createGetOrders(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.orders.$get>,
-      Error,
-      InferResponseType<typeof client.orders.$get>,
-      readonly ['/orders']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetOrders(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.orders.$get>,
+    ) => InferResponseType<typeof client.orders.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetOrdersQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.orders.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetOrdersQueryKey(),
+    queryFn: async () => parseResponse(client.orders.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -177,15 +223,28 @@ export function getGetOrdersQueryKey() {
  *
  * Create a new order
  */
-export function createPostOrders(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
-        parseResponse(client.orders.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostOrders(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.orders.$post>,
+      variables: InferRequestType<typeof client.orders.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.orders.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.orders.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.orders.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.orders.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+      parseResponse(client.orders.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }

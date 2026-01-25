@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
@@ -77,11 +78,21 @@ export function getGetPostsKey(args?: InferRequestType<typeof client.posts.$get>
  *
  * Submit a new post with a maximum length of 140 characters.
  */
-export function usePostPosts(options?: { client?: ClientRequestOptions }) {
+export function usePostPosts(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.posts.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.posts.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /posts',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.posts.$post> }) =>
       parseResponse(client.posts.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -92,11 +103,21 @@ export function usePostPosts(options?: { client?: ClientRequestOptions }) {
  *
  * Update the content of an existing post identified by its unique ID.
  */
-export function usePutPostsId(options?: { client?: ClientRequestOptions }) {
+export function usePutPostsId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.posts)[':id']['$put']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.posts)[':id']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /posts/:id',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client.posts)[':id']['$put']> }) =>
       parseResponse(client.posts[':id'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -107,12 +128,22 @@ export function usePutPostsId(options?: { client?: ClientRequestOptions }) {
  *
  * Delete an existing post identified by its unique ID.
  */
-export function useDeletePostsId(options?: { client?: ClientRequestOptions }) {
+export function useDeletePostsId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.posts)[':id']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /posts/:id',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':id']['$delete']> },
     ) => parseResponse(client.posts[':id'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }

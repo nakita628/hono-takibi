@@ -1,5 +1,4 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/33-practical-notification-api'
@@ -12,27 +11,29 @@ import { client } from '../clients/33-practical-notification-api'
 export function createGetNotifications(
   args: InferRequestType<typeof client.notifications.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.notifications.$get>,
-      Error,
-      InferResponseType<typeof client.notifications.$get>,
-      readonly ['/notifications', InferRequestType<typeof client.notifications.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.notifications.$get>,
+      ) => InferResponseType<typeof client.notifications.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNotificationsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.notifications.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetNotificationsQueryKey(args),
+    queryFn: async () => parseResponse(client.notifications.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -52,35 +53,34 @@ export function getGetNotificationsQueryKey(
 export function createGetNotificationsNotificationId(
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.notifications)[':notificationId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.notifications)[':notificationId']['$get']>,
-      readonly [
-        '/notifications/:notificationId',
-        InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.notifications)[':notificationId']['$get']>,
+      ) => InferResponseType<(typeof client.notifications)[':notificationId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNotificationsNotificationIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.notifications[':notificationId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetNotificationsNotificationIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.notifications[':notificationId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /notifications/{notificationId}
+ * Generates Svelte Query cache key for GET /notifications/{notificationId
  */
 export function getGetNotificationsNotificationIdQueryKey(
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
@@ -93,18 +93,40 @@ export function getGetNotificationsNotificationIdQueryKey(
  *
  * 通知削除
  */
-export function createDeleteNotificationsNotificationId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>,
-      ) => parseResponse(client.notifications[':notificationId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteNotificationsNotificationId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.notifications)[':notificationId']['$delete']>
+        | undefined,
+      variables: InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.notifications)[':notificationId']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>,
+    ) => parseResponse(client.notifications[':notificationId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -112,18 +134,46 @@ export function createDeleteNotificationsNotificationId(
  *
  * 既読にする
  */
-export function createPostNotificationsNotificationIdRead(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.notifications)[':notificationId']['read']['$post']>,
-      ) => parseResponse(client.notifications[':notificationId'].read.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostNotificationsNotificationIdRead(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.notifications)[':notificationId']['read']['$post']>,
+      variables: InferRequestType<
+        (typeof client.notifications)[':notificationId']['read']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.notifications)[':notificationId']['read']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.notifications)[':notificationId']['read']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.notifications)[':notificationId']['read']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.notifications)[':notificationId']['read']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.notifications)[':notificationId']['read']['$post']>,
+    ) => parseResponse(client.notifications[':notificationId'].read.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -131,17 +181,30 @@ export function createPostNotificationsNotificationIdRead(
  *
  * 全て既読にする
  */
-export function createPostNotificationsReadAll(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async () =>
-        parseResponse(client.notifications['read-all'].$post(undefined, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostNotificationsReadAll(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.notifications)['read-all']['$post']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.notifications)['read-all']['$post']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async () =>
+      parseResponse(client.notifications['read-all'].$post(undefined, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -149,30 +212,30 @@ export function createPostNotificationsReadAll(
  *
  * 未読件数取得
  */
-export function createGetNotificationsUnreadCount(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
-      Error,
-      InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
-      readonly ['/notifications/unread-count']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetNotificationsUnreadCount(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
+    ) => InferResponseType<(typeof client.notifications)['unread-count']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNotificationsUnreadCountQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.notifications['unread-count'].$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetNotificationsUnreadCountQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.notifications['unread-count'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -189,17 +252,30 @@ export function getGetNotificationsUnreadCountQueryKey() {
  *
  * 指定したチャンネルでメッセージを送信します
  */
-export function createPostMessagesSend(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.messages.send.$post>) =>
-        parseResponse(client.messages.send.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostMessagesSend(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.messages.send.$post>,
+      variables: InferRequestType<typeof client.messages.send.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.messages.send.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.messages.send.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.messages.send.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.messages.send.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.messages.send.$post>) =>
+      parseResponse(client.messages.send.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -207,17 +283,35 @@ export function createPostMessagesSend(
  *
  * 一括メッセージ送信
  */
-export function createPostMessagesSendBatch(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.messages)['send-batch']['$post']>) =>
-        parseResponse(client.messages['send-batch'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostMessagesSendBatch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.messages)['send-batch']['$post']>,
+      variables: InferRequestType<(typeof client.messages)['send-batch']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.messages)['send-batch']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.messages)['send-batch']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.messages)['send-batch']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.messages)['send-batch']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.messages)['send-batch']['$post']>) =>
+      parseResponse(client.messages['send-batch'].$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -228,34 +322,33 @@ export function createPostMessagesSendBatch(
 export function createGetMessagesMessageId(
   args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.messages)[':messageId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.messages)[':messageId']['$get']>,
-      readonly [
-        '/messages/:messageId',
-        InferRequestType<(typeof client.messages)[':messageId']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.messages)[':messageId']['$get']>,
+      ) => InferResponseType<(typeof client.messages)[':messageId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMessagesMessageIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.messages[':messageId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetMessagesMessageIdQueryKey(args),
+    queryFn: async () => parseResponse(client.messages[':messageId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /messages/{messageId}
+ * Generates Svelte Query cache key for GET /messages/{messageId
  */
 export function getGetMessagesMessageIdQueryKey(
   args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
@@ -271,27 +364,29 @@ export function getGetMessagesMessageIdQueryKey(
 export function createGetTemplates(
   args: InferRequestType<typeof client.templates.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.templates.$get>,
-      Error,
-      InferResponseType<typeof client.templates.$get>,
-      readonly ['/templates', InferRequestType<typeof client.templates.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.templates.$get>,
+      ) => InferResponseType<typeof client.templates.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTemplatesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.templates.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetTemplatesQueryKey(args),
+    queryFn: async () => parseResponse(client.templates.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -306,17 +401,30 @@ export function getGetTemplatesQueryKey(args: InferRequestType<typeof client.tem
  *
  * テンプレート作成
  */
-export function createPostTemplates(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.templates.$post>) =>
-        parseResponse(client.templates.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostTemplates(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.templates.$post>,
+      variables: InferRequestType<typeof client.templates.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.templates.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.templates.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.templates.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.templates.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.templates.$post>) =>
+      parseResponse(client.templates.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -327,34 +435,33 @@ export function createPostTemplates(
 export function createGetTemplatesTemplateId(
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.templates)[':templateId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.templates)[':templateId']['$get']>,
-      readonly [
-        '/templates/:templateId',
-        InferRequestType<(typeof client.templates)[':templateId']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.templates)[':templateId']['$get']>,
+      ) => InferResponseType<(typeof client.templates)[':templateId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTemplatesTemplateIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.templates[':templateId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetTemplatesTemplateIdQueryKey(args),
+    queryFn: async () => parseResponse(client.templates[':templateId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /templates/{templateId}
+ * Generates Svelte Query cache key for GET /templates/{templateId
  */
 export function getGetTemplatesTemplateIdQueryKey(
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
@@ -367,18 +474,35 @@ export function getGetTemplatesTemplateIdQueryKey(
  *
  * テンプレート更新
  */
-export function createPutTemplatesTemplateId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.templates)[':templateId']['$put']>,
-      ) => parseResponse(client.templates[':templateId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPutTemplatesTemplateId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.templates)[':templateId']['$put']>,
+      variables: InferRequestType<(typeof client.templates)[':templateId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.templates)[':templateId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.templates)[':templateId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.templates)[':templateId']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.templates)[':templateId']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.templates)[':templateId']['$put']>) =>
+      parseResponse(client.templates[':templateId'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -386,18 +510,36 @@ export function createPutTemplatesTemplateId(
  *
  * テンプレート削除
  */
-export function createDeleteTemplatesTemplateId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.templates)[':templateId']['$delete']>,
-      ) => parseResponse(client.templates[':templateId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteTemplatesTemplateId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.templates)[':templateId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.templates)[':templateId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.templates)[':templateId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.templates)[':templateId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.templates)[':templateId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.templates)[':templateId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.templates)[':templateId']['$delete']>,
+    ) => parseResponse(client.templates[':templateId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -405,18 +547,38 @@ export function createDeleteTemplatesTemplateId(
  *
  * テンプレートプレビュー
  */
-export function createPostTemplatesTemplateIdPreview(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>,
-      ) => parseResponse(client.templates[':templateId'].preview.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostTemplatesTemplateIdPreview(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.templates)[':templateId']['preview']['$post']>,
+      variables: InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.templates)[':templateId']['preview']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>,
+    ) => parseResponse(client.templates[':templateId'].preview.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -424,30 +586,29 @@ export function createPostTemplatesTemplateIdPreview(
  *
  * チャンネル設定取得
  */
-export function createGetChannelsPreferences(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.channels.preferences.$get>,
-      Error,
-      InferResponseType<typeof client.channels.preferences.$get>,
-      readonly ['/channels/preferences']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetChannelsPreferences(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.channels.preferences.$get>,
+    ) => InferResponseType<typeof client.channels.preferences.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsPreferencesQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.channels.preferences.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetChannelsPreferencesQueryKey(),
+    queryFn: async () => parseResponse(client.channels.preferences.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -462,17 +623,33 @@ export function getGetChannelsPreferencesQueryKey() {
  *
  * チャンネル設定更新
  */
-export function createPutChannelsPreferences(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.channels.preferences.$put>) =>
-        parseResponse(client.channels.preferences.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPutChannelsPreferences(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.channels.preferences.$put>,
+      variables: InferRequestType<typeof client.channels.preferences.$put>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.channels.preferences.$put>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.channels.preferences.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.channels.preferences.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.channels.preferences.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.channels.preferences.$put>) =>
+      parseResponse(client.channels.preferences.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -480,29 +657,29 @@ export function createPutChannelsPreferences(
  *
  * デバイス一覧取得
  */
-export function createGetChannelsDevices(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.channels.devices.$get>,
-      Error,
-      InferResponseType<typeof client.channels.devices.$get>,
-      readonly ['/channels/devices']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetChannelsDevices(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.channels.devices.$get>,
+    ) => InferResponseType<typeof client.channels.devices.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChannelsDevicesQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.channels.devices.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetChannelsDevicesQueryKey(),
+    queryFn: async () => parseResponse(client.channels.devices.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -517,17 +694,33 @@ export function getGetChannelsDevicesQueryKey() {
  *
  * デバイス登録
  */
-export function createPostChannelsDevices(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.channels.devices.$post>) =>
-        parseResponse(client.channels.devices.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostChannelsDevices(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.channels.devices.$post>,
+      variables: InferRequestType<typeof client.channels.devices.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.channels.devices.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.channels.devices.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.channels.devices.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.channels.devices.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.channels.devices.$post>) =>
+      parseResponse(client.channels.devices.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -535,18 +728,36 @@ export function createPostChannelsDevices(
  *
  * デバイス登録解除
  */
-export function createDeleteChannelsDevicesDeviceId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>,
-      ) => parseResponse(client.channels.devices[':deviceId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteChannelsDevicesDeviceId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels.devices)[':deviceId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.channels.devices)[':deviceId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>,
+    ) => parseResponse(client.channels.devices[':deviceId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -554,29 +765,29 @@ export function createDeleteChannelsDevicesDeviceId(
  *
  * Webhook一覧取得
  */
-export function createGetWebhooks(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.webhooks.$get>,
-      Error,
-      InferResponseType<typeof client.webhooks.$get>,
-      readonly ['/webhooks']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetWebhooks(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.webhooks.$get>,
+    ) => InferResponseType<typeof client.webhooks.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWebhooksQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.webhooks.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetWebhooksQueryKey(),
+    queryFn: async () => parseResponse(client.webhooks.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -591,17 +802,30 @@ export function getGetWebhooksQueryKey() {
  *
  * Webhook作成
  */
-export function createPostWebhooks(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
-        parseResponse(client.webhooks.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostWebhooks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.webhooks.$post>,
+      variables: InferRequestType<typeof client.webhooks.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.webhooks.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.webhooks.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.webhooks.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.webhooks.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
+      parseResponse(client.webhooks.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -612,34 +836,33 @@ export function createPostWebhooks(
 export function createGetWebhooksWebhookId(
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>,
-      readonly [
-        '/webhooks/:webhookId',
-        InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>,
+      ) => InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWebhooksWebhookIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.webhooks[':webhookId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetWebhooksWebhookIdQueryKey(args),
+    queryFn: async () => parseResponse(client.webhooks[':webhookId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /webhooks/{webhookId}
+ * Generates Svelte Query cache key for GET /webhooks/{webhookId
  */
 export function getGetWebhooksWebhookIdQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
@@ -652,17 +875,33 @@ export function getGetWebhooksWebhookIdQueryKey(
  *
  * Webhook更新
  */
-export function createPutWebhooksWebhookId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>) =>
-        parseResponse(client.webhooks[':webhookId'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPutWebhooksWebhookId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhookId']['$put']>,
+      variables: InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhookId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>) =>
+      parseResponse(client.webhooks[':webhookId'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -670,18 +909,35 @@ export function createPutWebhooksWebhookId(
  *
  * Webhook削除
  */
-export function createDeleteWebhooksWebhookId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>,
-      ) => parseResponse(client.webhooks[':webhookId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteWebhooksWebhookId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhookId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhookId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>) =>
+      parseResponse(client.webhooks[':webhookId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -689,16 +945,34 @@ export function createDeleteWebhooksWebhookId(
  *
  * Webhookテスト送信
  */
-export function createPostWebhooksWebhookIdTest(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>,
-      ) => parseResponse(client.webhooks[':webhookId'].test.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostWebhooksWebhookIdTest(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhookId']['test']['$post']>,
+      variables: InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhookId']['test']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>,
+    ) => parseResponse(client.webhooks[':webhookId'].test.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }

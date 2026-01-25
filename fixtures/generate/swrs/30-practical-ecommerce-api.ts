@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
 
@@ -42,11 +43,21 @@ export function getGetProductsKey(args?: InferRequestType<typeof client.products
  *
  * 商品作成
  */
-export function usePostProducts(options?: { client?: ClientRequestOptions }) {
+export function usePostProducts(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.products.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.products.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /products',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.products.$post> }) =>
       parseResponse(client.products.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -76,7 +87,7 @@ export function useGetProductsProductId(
 }
 
 /**
- * Generates SWR cache key for GET /products/{productId}
+ * Generates SWR cache key for GET /products/{productId
  */
 export function getGetProductsProductIdKey(
   args?: InferRequestType<(typeof client.products)[':productId']['$get']>,
@@ -89,13 +100,23 @@ export function getGetProductsProductIdKey(
  *
  * 商品更新
  */
-export function usePutProductsProductId(options?: { client?: ClientRequestOptions }) {
+export function usePutProductsProductId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.products)[':productId']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.products)[':productId']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /products/:productId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.products)[':productId']['$put']> },
     ) => parseResponse(client.products[':productId'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -104,13 +125,23 @@ export function usePutProductsProductId(options?: { client?: ClientRequestOption
  *
  * 商品削除
  */
-export function useDeleteProductsProductId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteProductsProductId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.products)[':productId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.products)[':productId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /products/:productId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.products)[':productId']['$delete']> },
     ) => parseResponse(client.products[':productId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -119,13 +150,23 @@ export function useDeleteProductsProductId(options?: { client?: ClientRequestOpt
  *
  * 商品画像アップロード
  */
-export function usePostProductsProductIdImages(options?: { client?: ClientRequestOptions }) {
+export function usePostProductsProductIdImages(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.products)[':productId']['images']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.products)[':productId']['images']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /products/:productId/images',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.products)[':productId']['images']['$post']> },
     ) => parseResponse(client.products[':productId'].images.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -163,11 +204,21 @@ export function getGetCategoriesKey() {
  *
  * カテゴリ作成
  */
-export function usePostCategories(options?: { client?: ClientRequestOptions }) {
+export function usePostCategories(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.categories.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.categories.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /categories',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.categories.$post> }) =>
       parseResponse(client.categories.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -205,9 +256,20 @@ export function getGetCartKey() {
  *
  * カートをクリア
  */
-export function useDeleteCart(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('DELETE /cart', async () =>
-    parseResponse(client.cart.$delete(undefined, options?.client)),
+export function useDeleteCart(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.cart.$delete> | undefined,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'DELETE /cart',
+    async () => parseResponse(client.cart.$delete(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -216,11 +278,21 @@ export function useDeleteCart(options?: { client?: ClientRequestOptions }) {
  *
  * カートに商品追加
  */
-export function usePostCartItems(options?: { client?: ClientRequestOptions }) {
+export function usePostCartItems(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.cart.items.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.cart.items.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /cart/items',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.cart.items.$post> }) =>
       parseResponse(client.cart.items.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -229,13 +301,23 @@ export function usePostCartItems(options?: { client?: ClientRequestOptions }) {
  *
  * カートアイテム数量変更
  */
-export function usePutCartItemsItemId(options?: { client?: ClientRequestOptions }) {
+export function usePutCartItemsItemId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.cart.items)[':itemId']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.cart.items)[':itemId']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /cart/items/:itemId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.cart.items)[':itemId']['$put']> },
     ) => parseResponse(client.cart.items[':itemId'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -244,13 +326,23 @@ export function usePutCartItemsItemId(options?: { client?: ClientRequestOptions 
  *
  * カートから商品削除
  */
-export function useDeleteCartItemsItemId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteCartItemsItemId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.cart.items)[':itemId']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /cart/items/:itemId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']> },
     ) => parseResponse(client.cart.items[':itemId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -293,11 +385,21 @@ export function getGetOrdersKey(args?: InferRequestType<typeof client.orders.$ge
  *
  * カートの内容から注文を作成します
  */
-export function usePostOrders(options?: { client?: ClientRequestOptions }) {
+export function usePostOrders(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.orders.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.orders.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /orders',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
       parseResponse(client.orders.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -327,7 +429,7 @@ export function useGetOrdersOrderId(
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId}
+ * Generates SWR cache key for GET /orders/{orderId
  */
 export function getGetOrdersOrderIdKey(
   args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
@@ -340,13 +442,23 @@ export function getGetOrdersOrderIdKey(
  *
  * 注文キャンセル
  */
-export function usePostOrdersOrderIdCancel(options?: { client?: ClientRequestOptions }) {
+export function usePostOrdersOrderIdCancel(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.orders)[':orderId']['cancel']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /orders/:orderId/cancel',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']> },
     ) => parseResponse(client.orders[':orderId'].cancel.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -376,7 +488,7 @@ export function useGetInventoryProductId(
 }
 
 /**
- * Generates SWR cache key for GET /inventory/{productId}
+ * Generates SWR cache key for GET /inventory/{productId
  */
 export function getGetInventoryProductIdKey(
   args?: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
@@ -389,12 +501,22 @@ export function getGetInventoryProductIdKey(
  *
  * 在庫更新
  */
-export function usePutInventoryProductId(options?: { client?: ClientRequestOptions }) {
+export function usePutInventoryProductId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.inventory)[':productId']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.inventory)[':productId']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /inventory/:productId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.inventory)[':productId']['$put']> },
     ) => parseResponse(client.inventory[':productId'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }

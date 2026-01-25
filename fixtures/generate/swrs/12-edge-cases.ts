@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
@@ -35,63 +36,140 @@ export function getGetAllMethodsKey() {
 /**
  * PUT /all-methods
  */
-export function usePutAllMethods(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('PUT /all-methods', async () =>
-    parseResponse(client['all-methods'].$put(undefined, options?.client)),
+export function usePutAllMethods(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['all-methods']['$put']>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'PUT /all-methods',
+    async () => parseResponse(client['all-methods'].$put(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * POST /all-methods
  */
-export function usePostAllMethods(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('POST /all-methods', async () =>
-    parseResponse(client['all-methods'].$post(undefined, options?.client)),
+export function usePostAllMethods(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['all-methods']['$post']>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'POST /all-methods',
+    async () => parseResponse(client['all-methods'].$post(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * DELETE /all-methods
  */
-export function useDeleteAllMethods(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('DELETE /all-methods', async () =>
-    parseResponse(client['all-methods'].$delete(undefined, options?.client)),
+export function useDeleteAllMethods(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['all-methods']['$delete']>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'DELETE /all-methods',
+    async () => parseResponse(client['all-methods'].$delete(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * OPTIONS /all-methods
  */
-export function useOptionsAllMethods(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('OPTIONS /all-methods', async () =>
-    parseResponse(client['all-methods'].$options(undefined, options?.client)),
+export function useOptionsAllMethods(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['all-methods']['$options']>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'OPTIONS /all-methods',
+    async () => parseResponse(client['all-methods'].$options(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * HEAD /all-methods
  */
-export function useHeadAllMethods(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('HEAD /all-methods', async () =>
-    parseResponse(client['all-methods'].$head(undefined, options?.client)),
+export function useHeadAllMethods(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['all-methods']['$head']>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'HEAD /all-methods',
+    async () => parseResponse(client['all-methods'].$head(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * PATCH /all-methods
  */
-export function usePatchAllMethods(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('PATCH /all-methods', async () =>
-    parseResponse(client['all-methods'].$patch(undefined, options?.client)),
+export function usePatchAllMethods(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['all-methods']['$patch']>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'PATCH /all-methods',
+    async () => parseResponse(client['all-methods'].$patch(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * TRACE /all-methods
  */
-export function useTraceAllMethods(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('TRACE /all-methods', async () =>
-    parseResponse(client['all-methods'].$trace(undefined, options?.client)),
+export function useTraceAllMethods(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['all-methods']['$trace']>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'TRACE /all-methods',
+    async () => parseResponse(client['all-methods'].$trace(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -126,7 +204,7 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
+ * Generates SWR cache key for GET /users/{userId/posts/{postId/comments/{commentId
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdKey(
   args?: InferRequestType<
@@ -160,7 +238,7 @@ export function useGetParamsTestPathParam(
 }
 
 /**
- * Generates SWR cache key for GET /params-test/{pathParam}
+ * Generates SWR cache key for GET /params-test/{pathParam
  */
 export function getGetParamsTestPathParamKey(
   args?: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
@@ -171,9 +249,20 @@ export function getGetParamsTestPathParamKey(
 /**
  * POST /no-content
  */
-export function usePostNoContent(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('POST /no-content', async () =>
-    parseResponse(client['no-content'].$post(undefined, options?.client)),
+export function usePostNoContent(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['no-content']['$post']> | undefined,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'POST /no-content',
+    async () => parseResponse(client['no-content'].$post(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -207,13 +296,23 @@ export function getGetMultiContentKey() {
 /**
  * POST /multi-content
  */
-export function usePostMultiContent(options?: { client?: ClientRequestOptions }) {
+export function usePostMultiContent(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['multi-content']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['multi-content']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /multi-content',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['multi-content']['$post']> },
     ) => parseResponse(client['multi-content'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -305,11 +404,21 @@ export function getGetNoOperationIdKey() {
 /**
  * POST /empty-body
  */
-export function usePostEmptyBody(options?: { client?: ClientRequestOptions }) {
+export function usePostEmptyBody(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['empty-body']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client)['empty-body']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /empty-body',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)['empty-body']['$post']> }) =>
       parseResponse(client['empty-body'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 

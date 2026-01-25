@@ -1,5 +1,4 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
@@ -12,27 +11,29 @@ import { client } from '../clients/34-practical-storage-api'
 export function createGetFiles(
   args: InferRequestType<typeof client.files.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.files.$get>,
-      Error,
-      InferResponseType<typeof client.files.$get>,
-      readonly ['/files', InferRequestType<typeof client.files.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.files.$get>,
+      ) => InferResponseType<typeof client.files.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFilesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.files.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetFilesQueryKey(args),
+    queryFn: async () => parseResponse(client.files.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -47,17 +48,30 @@ export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$
  *
  * ファイルアップロード
  */
-export function createPostFilesUpload(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.files.upload.$post>) =>
-        parseResponse(client.files.upload.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostFilesUpload(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.files.upload.$post>,
+      variables: InferRequestType<typeof client.files.upload.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.files.upload.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.files.upload.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.files.upload.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.files.upload.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.files.upload.$post>) =>
+      parseResponse(client.files.upload.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -67,17 +81,35 @@ export function createPostFilesUpload(
  *
  * 大容量ファイルの分割アップロードを開始します
  */
-export function createPostFilesUploadMultipartInit(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.files.upload.multipart.init.$post>) =>
-        parseResponse(client.files.upload.multipart.init.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostFilesUploadMultipartInit(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.files.upload.multipart.init.$post>,
+      variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.files.upload.multipart.init.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.files.upload.multipart.init.$post>) =>
+      parseResponse(client.files.upload.multipart.init.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -85,21 +117,46 @@ export function createPostFilesUploadMultipartInit(
  *
  * パートアップロード
  */
-export function createPostFilesUploadMultipartUploadIdPart(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
-        >,
-      ) =>
-        parseResponse(client.files.upload.multipart[':uploadId'].part.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostFilesUploadMultipartUploadIdPart(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
+      variables: InferRequestType<
+        (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
+    ) => parseResponse(client.files.upload.multipart[':uploadId'].part.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -107,23 +164,53 @@ export function createPostFilesUploadMultipartUploadIdPart(
  *
  * マルチパートアップロード完了
  */
-export function createPostFilesUploadMultipartUploadIdComplete(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.files.upload.multipart[':uploadId'].complete.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function createPostFilesUploadMultipartUploadIdComplete(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+      >,
+    ) =>
+      parseResponse(client.files.upload.multipart[':uploadId'].complete.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -134,31 +221,33 @@ export function createPostFilesUploadMultipartUploadIdComplete(
 export function createGetFilesFileId(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.files)[':fileId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.files)[':fileId']['$get']>,
-      readonly ['/files/:fileId', InferRequestType<(typeof client.files)[':fileId']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.files)[':fileId']['$get']>,
+      ) => InferResponseType<(typeof client.files)[':fileId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFilesFileIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetFilesFileIdQueryKey(args),
+    queryFn: async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId}
+ * Generates Svelte Query cache key for GET /files/{fileId
  */
 export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
@@ -171,17 +260,33 @@ export function getGetFilesFileIdQueryKey(
  *
  * ファイル削除（ゴミ箱へ移動）
  */
-export function createDeleteFilesFileId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$delete']>) =>
-        parseResponse(client.files[':fileId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteFilesFileId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$delete']>) =>
+      parseResponse(client.files[':fileId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -189,17 +294,33 @@ export function createDeleteFilesFileId(
  *
  * ファイル情報更新
  */
-export function createPatchFilesFileId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$patch']>) =>
-        parseResponse(client.files[':fileId'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPatchFilesFileId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['$patch']>,
+      variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$patch']>) =>
+      parseResponse(client.files[':fileId'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -210,35 +331,33 @@ export function createPatchFilesFileId(
 export function createGetFilesFileIdDownload(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
-      Error,
-      InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
-      readonly [
-        '/files/:fileId/download',
-        InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
+      ) => InferResponseType<(typeof client.files)[':fileId']['download']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFilesFileIdDownloadQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.files[':fileId'].download.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetFilesFileIdDownloadQueryKey(args),
+    queryFn: async () => parseResponse(client.files[':fileId'].download.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId}/download
+ * Generates Svelte Query cache key for GET /files/{fileId/download
  */
 export function getGetFilesFileIdDownloadQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
@@ -254,35 +373,34 @@ export function getGetFilesFileIdDownloadQueryKey(
 export function createGetFilesFileIdDownloadUrl(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
-      Error,
-      InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
-      readonly [
-        '/files/:fileId/download-url',
-        InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
+      ) => InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFilesFileIdDownloadUrlQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.files[':fileId']['download-url'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetFilesFileIdDownloadUrlQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.files[':fileId']['download-url'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId}/download-url
+ * Generates Svelte Query cache key for GET /files/{fileId/download-url
  */
 export function getGetFilesFileIdDownloadUrlQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
@@ -295,18 +413,35 @@ export function getGetFilesFileIdDownloadUrlQueryKey(
  *
  * ファイルコピー
  */
-export function createPostFilesFileIdCopy(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
-      ) => parseResponse(client.files[':fileId'].copy.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostFilesFileIdCopy(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['copy']['$post']>,
+      variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['copy']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>) =>
+      parseResponse(client.files[':fileId'].copy.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -314,18 +449,35 @@ export function createPostFilesFileIdCopy(
  *
  * ファイル移動
  */
-export function createPostFilesFileIdMove(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
-      ) => parseResponse(client.files[':fileId'].move.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostFilesFileIdMove(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['move']['$post']>,
+      variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['move']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>) =>
+      parseResponse(client.files[':fileId'].move.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -336,35 +488,33 @@ export function createPostFilesFileIdMove(
 export function createGetFilesFileIdThumbnail(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-      Error,
-      InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-      readonly [
-        '/files/:fileId/thumbnail',
-        InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+      ) => InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFilesFileIdThumbnailQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.files[':fileId'].thumbnail.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetFilesFileIdThumbnailQueryKey(args),
+    queryFn: async () => parseResponse(client.files[':fileId'].thumbnail.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId}/thumbnail
+ * Generates Svelte Query cache key for GET /files/{fileId/thumbnail
  */
 export function getGetFilesFileIdThumbnailQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
@@ -377,17 +527,30 @@ export function getGetFilesFileIdThumbnailQueryKey(
  *
  * フォルダ作成
  */
-export function createPostFolders(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.folders.$post>) =>
-        parseResponse(client.folders.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostFolders(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.folders.$post>,
+      variables: InferRequestType<typeof client.folders.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.folders.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.folders.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.folders.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.folders.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<typeof client.folders.$post>) =>
+      parseResponse(client.folders.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -398,34 +561,33 @@ export function createPostFolders(
 export function createGetFoldersFolderId(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.folders)[':folderId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.folders)[':folderId']['$get']>,
-      readonly [
-        '/folders/:folderId',
-        InferRequestType<(typeof client.folders)[':folderId']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.folders)[':folderId']['$get']>,
+      ) => InferResponseType<(typeof client.folders)[':folderId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFoldersFolderIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.folders[':folderId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetFoldersFolderIdQueryKey(args),
+    queryFn: async () => parseResponse(client.folders[':folderId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /folders/{folderId}
+ * Generates Svelte Query cache key for GET /folders/{folderId
  */
 export function getGetFoldersFolderIdQueryKey(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
@@ -438,17 +600,35 @@ export function getGetFoldersFolderIdQueryKey(
  *
  * フォルダ削除
  */
-export function createDeleteFoldersFolderId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$delete']>) =>
-        parseResponse(client.folders[':folderId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteFoldersFolderId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.folders)[':folderId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.folders)[':folderId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$delete']>) =>
+      parseResponse(client.folders[':folderId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -456,17 +636,33 @@ export function createDeleteFoldersFolderId(
  *
  * フォルダ情報更新
  */
-export function createPatchFoldersFolderId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$patch']>) =>
-        parseResponse(client.folders[':folderId'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPatchFoldersFolderId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.folders)[':folderId']['$patch']>,
+      variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.folders)[':folderId']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$patch']>) =>
+      parseResponse(client.folders[':folderId'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -477,34 +673,33 @@ export function createPatchFoldersFolderId(
 export function createGetFilesFileIdShare(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.files)[':fileId']['share']['$get']>,
-      Error,
-      InferResponseType<(typeof client.files)[':fileId']['share']['$get']>,
-      readonly [
-        '/files/:fileId/share',
-        InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.files)[':fileId']['share']['$get']>,
+      ) => InferResponseType<(typeof client.files)[':fileId']['share']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFilesFileIdShareQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.files[':fileId'].share.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetFilesFileIdShareQueryKey(args),
+    queryFn: async () => parseResponse(client.files[':fileId'].share.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId}/share
+ * Generates Svelte Query cache key for GET /files/{fileId/share
  */
 export function getGetFilesFileIdShareQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
@@ -517,18 +712,36 @@ export function getGetFilesFileIdShareQueryKey(
  *
  * ファイル共有
  */
-export function createPostFilesFileIdShare(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
-      ) => parseResponse(client.files[':fileId'].share.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostFilesFileIdShare(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['share']['$post']>,
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['share']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
+    ) => parseResponse(client.files[':fileId'].share.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -536,18 +749,36 @@ export function createPostFilesFileIdShare(
  *
  * 共有解除
  */
-export function createDeleteFilesFileIdShare(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
-      ) => parseResponse(client.files[':fileId'].share.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteFilesFileIdShare(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['share']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['share']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
+    ) => parseResponse(client.files[':fileId'].share.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -555,18 +786,38 @@ export function createDeleteFilesFileIdShare(
  *
  * 共有リンク作成
  */
-export function createPostFilesFileIdShareLink(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
-      ) => parseResponse(client.files[':fileId'].share.link.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostFilesFileIdShareLink(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.files)[':fileId']['share']['link']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+    ) => parseResponse(client.files[':fileId'].share.link.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -577,35 +828,33 @@ export function createPostFilesFileIdShareLink(
 export function createGetFilesFileIdVersions(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
-      Error,
-      InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
-      readonly [
-        '/files/:fileId/versions',
-        InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
+      ) => InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetFilesFileIdVersionsQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.files[':fileId'].versions.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetFilesFileIdVersionsQueryKey(args),
+    queryFn: async () => parseResponse(client.files[':fileId'].versions.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId}/versions
+ * Generates Svelte Query cache key for GET /files/{fileId/versions
  */
 export function getGetFilesFileIdVersionsQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
@@ -618,23 +867,55 @@ export function getGetFilesFileIdVersionsQueryKey(
  *
  * バージョン復元
  */
-export function createPostFilesFileIdVersionsVersionIdRestore(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client.files[':fileId'].versions[':versionId'].restore.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function createPostFilesFileIdVersionsVersionIdRestore(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client.files[':fileId'].versions[':versionId'].restore.$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -645,27 +926,29 @@ export function createPostFilesFileIdVersionsVersionIdRestore(
 export function createGetTrash(
   args: InferRequestType<typeof client.trash.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.trash.$get>,
-      Error,
-      InferResponseType<typeof client.trash.$get>,
-      readonly ['/trash', InferRequestType<typeof client.trash.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.trash.$get>,
+      ) => InferResponseType<typeof client.trash.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTrashQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.trash.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetTrashQueryKey(args),
+    queryFn: async () => parseResponse(client.trash.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -680,14 +963,29 @@ export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$
  *
  * ゴミ箱を空にする
  */
-export function createDeleteTrash(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    { mutationFn: async () => parseResponse(client.trash.$delete(undefined, options?.client)) },
-    queryClient,
-  )
+export function createDeleteTrash(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.trash.$delete> | undefined,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.trash.$delete> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async () => parseResponse(client.trash.$delete(undefined, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -695,18 +993,36 @@ export function createDeleteTrash(
  *
  * ゴミ箱から復元
  */
-export function createPostTrashFileIdRestore(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
-      ) => parseResponse(client.trash[':fileId'].restore.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostTrashFileIdRestore(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.trash)[':fileId']['restore']['$post']>,
+      variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.trash)[':fileId']['restore']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
+    ) => parseResponse(client.trash[':fileId'].restore.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -714,29 +1030,29 @@ export function createPostTrashFileIdRestore(
  *
  * ストレージ使用量取得
  */
-export function createGetStorageUsage(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.storage.usage.$get>,
-      Error,
-      InferResponseType<typeof client.storage.usage.$get>,
-      readonly ['/storage/usage']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetStorageUsage(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.storage.usage.$get>,
+    ) => InferResponseType<typeof client.storage.usage.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetStorageUsageQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.storage.usage.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetStorageUsageQueryKey(),
+    queryFn: async () => parseResponse(client.storage.usage.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

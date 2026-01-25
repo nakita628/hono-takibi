@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-boolean'
 
@@ -10,11 +10,28 @@ import { client } from '../clients/openapi-boolean'
  *
  * zod boolean
  */
-export function useGetBoolean(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetBooleanQueryKey()
+export function useGetBoolean(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.boolean.$get>,
+    ) => InferResponseType<typeof client.boolean.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetBooleanQueryKey(),
     queryFn: async () => parseResponse(client.boolean.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

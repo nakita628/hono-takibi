@@ -1,5 +1,4 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-number'
@@ -11,29 +10,29 @@ import { client } from '../clients/openapi-number'
  *
  * zod number
  */
-export function createGetNumber(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.number.$get>,
-      Error,
-      InferResponseType<typeof client.number.$get>,
-      readonly ['/number']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetNumber(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.number.$get>,
+    ) => InferResponseType<typeof client.number.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNumberQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.number.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetNumberQueryKey(),
+    queryFn: async () => parseResponse(client.number.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
@@ -14,27 +13,29 @@ import { client } from '../clients/spotify'
 export function useGetAlbums(
   args: InferRequestType<typeof client.albums.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.albums.$get>,
-      Error,
-      InferResponseType<typeof client.albums.$get>,
-      readonly ['/albums', InferRequestType<typeof client.albums.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.albums.$get>,
+      ) => InferResponseType<typeof client.albums.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAlbumsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.albums.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAlbumsQueryKey(args),
+    queryFn: async () => parseResponse(client.albums.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -54,31 +55,33 @@ export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums
 export function useGetAlbumsId(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.albums)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.albums)[':id']['$get']>,
-      readonly ['/albums/:id', InferRequestType<(typeof client.albums)[':id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.albums)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.albums)[':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAlbumsIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.albums[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAlbumsIdQueryKey(args),
+    queryFn: async () => parseResponse(client.albums[':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /albums/{id}
+ * Generates TanStack Query cache key for GET /albums/{id
  */
 export function getGetAlbumsIdQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
@@ -97,34 +100,33 @@ export function getGetAlbumsIdQueryKey(
 export function useGetAlbumsIdTracks(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>,
-      Error,
-      InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>,
-      readonly [
-        '/albums/:id/tracks',
-        InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>,
+      ) => InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAlbumsIdTracksQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.albums[':id'].tracks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAlbumsIdTracksQueryKey(args),
+    queryFn: async () => parseResponse(client.albums[':id'].tracks.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /albums/{id}/tracks
+ * Generates TanStack Query cache key for GET /albums/{id/tracks
  */
 export function getGetAlbumsIdTracksQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
@@ -142,27 +144,29 @@ export function getGetAlbumsIdTracksQueryKey(
 export function useGetArtists(
   args: InferRequestType<typeof client.artists.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.artists.$get>,
-      Error,
-      InferResponseType<typeof client.artists.$get>,
-      readonly ['/artists', InferRequestType<typeof client.artists.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.artists.$get>,
+      ) => InferResponseType<typeof client.artists.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArtistsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.artists.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetArtistsQueryKey(args),
+    queryFn: async () => parseResponse(client.artists.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -182,31 +186,33 @@ export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artis
 export function useGetArtistsId(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.artists)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.artists)[':id']['$get']>,
-      readonly ['/artists/:id', InferRequestType<(typeof client.artists)[':id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.artists)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.artists)[':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArtistsIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.artists[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetArtistsIdQueryKey(args),
+    queryFn: async () => parseResponse(client.artists[':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /artists/{id}
+ * Generates TanStack Query cache key for GET /artists/{id
  */
 export function getGetArtistsIdQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
@@ -224,34 +230,33 @@ export function getGetArtistsIdQueryKey(
 export function useGetArtistsIdAlbums(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.artists)[':id']['albums']['$get']>,
-      Error,
-      InferResponseType<(typeof client.artists)[':id']['albums']['$get']>,
-      readonly [
-        '/artists/:id/albums',
-        InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.artists)[':id']['albums']['$get']>,
+      ) => InferResponseType<(typeof client.artists)[':id']['albums']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArtistsIdAlbumsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.artists[':id'].albums.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetArtistsIdAlbumsQueryKey(args),
+    queryFn: async () => parseResponse(client.artists[':id'].albums.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /artists/{id}/albums
+ * Generates TanStack Query cache key for GET /artists/{id/albums
  */
 export function getGetArtistsIdAlbumsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
@@ -269,35 +274,34 @@ export function getGetArtistsIdAlbumsQueryKey(
 export function useGetArtistsIdRelatedArtists(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
-      Error,
-      InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
-      readonly [
-        '/artists/:id/related-artists',
-        InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
+      ) => InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArtistsIdRelatedArtistsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.artists[':id']['related-artists'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetArtistsIdRelatedArtistsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.artists[':id']['related-artists'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /artists/{id}/related-artists
+ * Generates TanStack Query cache key for GET /artists/{id/related-artists
  */
 export function getGetArtistsIdRelatedArtistsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
@@ -315,35 +319,34 @@ export function getGetArtistsIdRelatedArtistsQueryKey(
 export function useGetArtistsIdTopTracks(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-      Error,
-      InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-      readonly [
-        '/artists/:id/top-tracks',
-        InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+      ) => InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetArtistsIdTopTracksQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.artists[':id']['top-tracks'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetArtistsIdTopTracksQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.artists[':id']['top-tracks'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /artists/{id}/top-tracks
+ * Generates TanStack Query cache key for GET /artists/{id/top-tracks
  */
 export function getGetArtistsIdTopTracksQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
@@ -361,34 +364,33 @@ export function getGetArtistsIdTopTracksQueryKey(
 export function useGetAudioAnalysisId(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>,
-      readonly [
-        '/audio-analysis/:id',
-        InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>,
+      ) => InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudioAnalysisIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['audio-analysis'][':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAudioAnalysisIdQueryKey(args),
+    queryFn: async () => parseResponse(client['audio-analysis'][':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /audio-analysis/{id}
+ * Generates TanStack Query cache key for GET /audio-analysis/{id
  */
 export function getGetAudioAnalysisIdQueryKey(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
@@ -406,27 +408,29 @@ export function getGetAudioAnalysisIdQueryKey(
 export function useGetAudioFeatures(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['audio-features']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['audio-features']['$get']>,
-      readonly ['/audio-features', InferRequestType<(typeof client)['audio-features']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['audio-features']['$get']>,
+      ) => InferResponseType<(typeof client)['audio-features']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudioFeaturesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['audio-features'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAudioFeaturesQueryKey(args),
+    queryFn: async () => parseResponse(client['audio-features'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -449,34 +453,33 @@ export function getGetAudioFeaturesQueryKey(
 export function useGetAudioFeaturesId(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['audio-features'][':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['audio-features'][':id']['$get']>,
-      readonly [
-        '/audio-features/:id',
-        InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['audio-features'][':id']['$get']>,
+      ) => InferResponseType<(typeof client)['audio-features'][':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudioFeaturesIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['audio-features'][':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAudioFeaturesIdQueryKey(args),
+    queryFn: async () => parseResponse(client['audio-features'][':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /audio-features/{id}
+ * Generates TanStack Query cache key for GET /audio-features/{id
  */
 export function getGetAudioFeaturesIdQueryKey(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
@@ -495,27 +498,29 @@ export function getGetAudioFeaturesIdQueryKey(
 export function useGetAudiobooks(
   args: InferRequestType<typeof client.audiobooks.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.audiobooks.$get>,
-      Error,
-      InferResponseType<typeof client.audiobooks.$get>,
-      readonly ['/audiobooks', InferRequestType<typeof client.audiobooks.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.audiobooks.$get>,
+      ) => InferResponseType<typeof client.audiobooks.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudiobooksQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.audiobooks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAudiobooksQueryKey(args),
+    queryFn: async () => parseResponse(client.audiobooks.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -536,31 +541,33 @@ export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.au
 export function useGetAudiobooksId(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.audiobooks)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.audiobooks)[':id']['$get']>,
-      readonly ['/audiobooks/:id', InferRequestType<(typeof client.audiobooks)[':id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.audiobooks)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.audiobooks)[':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudiobooksIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.audiobooks[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAudiobooksIdQueryKey(args),
+    queryFn: async () => parseResponse(client.audiobooks[':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /audiobooks/{id}
+ * Generates TanStack Query cache key for GET /audiobooks/{id
  */
 export function getGetAudiobooksIdQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
@@ -579,35 +586,33 @@ export function getGetAudiobooksIdQueryKey(
 export function useGetAudiobooksIdChapters(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-      Error,
-      InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-      readonly [
-        '/audiobooks/:id/chapters',
-        InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+      ) => InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAudiobooksIdChaptersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.audiobooks[':id'].chapters.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetAudiobooksIdChaptersQueryKey(args),
+    queryFn: async () => parseResponse(client.audiobooks[':id'].chapters.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /audiobooks/{id}/chapters
+ * Generates TanStack Query cache key for GET /audiobooks/{id/chapters
  */
 export function getGetAudiobooksIdChaptersQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
@@ -625,27 +630,29 @@ export function getGetAudiobooksIdChaptersQueryKey(
 export function useGetBrowseCategories(
   args: InferRequestType<typeof client.browse.categories.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.browse.categories.$get>,
-      Error,
-      InferResponseType<typeof client.browse.categories.$get>,
-      readonly ['/browse/categories', InferRequestType<typeof client.browse.categories.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.browse.categories.$get>,
+      ) => InferResponseType<typeof client.browse.categories.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseCategoriesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.browse.categories.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetBrowseCategoriesQueryKey(args),
+    queryFn: async () => parseResponse(client.browse.categories.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -667,35 +674,34 @@ export function getGetBrowseCategoriesQueryKey(
 export function useGetBrowseCategoriesCategoryId(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
-      readonly [
-        '/browse/categories/:category_id',
-        InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
+      ) => InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseCategoriesCategoryIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.browse.categories[':category_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetBrowseCategoriesCategoryIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.browse.categories[':category_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /browse/categories/{category_id}
+ * Generates TanStack Query cache key for GET /browse/categories/{category_id
  */
 export function getGetBrowseCategoriesCategoryIdQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
@@ -713,35 +719,36 @@ export function getGetBrowseCategoriesCategoryIdQueryKey(
 export function useGetBrowseCategoriesCategoryIdPlaylists(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-      Error,
-      InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-      readonly [
-        '/browse/categories/:category_id/playlists',
-        InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.browse.categories)[':category_id']['playlists']['$get']
+        >,
+      ) => InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.browse.categories[':category_id'].playlists.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.browse.categories[':category_id'].playlists.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /browse/categories/{category_id}/playlists
+ * Generates TanStack Query cache key for GET /browse/categories/{category_id/playlists
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
@@ -759,31 +766,30 @@ export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
 export function useGetBrowseFeaturedPlaylists(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
-      Error,
-      InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
-      readonly [
-        '/browse/featured-playlists',
-        InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
+      ) => InferResponseType<(typeof client.browse)['featured-playlists']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseFeaturedPlaylistsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.browse['featured-playlists'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetBrowseFeaturedPlaylistsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.browse['featured-playlists'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -805,30 +811,29 @@ export function getGetBrowseFeaturedPlaylistsQueryKey(
 export function useGetBrowseNewReleases(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.browse)['new-releases']['$get']>,
-      Error,
-      InferResponseType<(typeof client.browse)['new-releases']['$get']>,
-      readonly [
-        '/browse/new-releases',
-        InferRequestType<(typeof client.browse)['new-releases']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.browse)['new-releases']['$get']>,
+      ) => InferResponseType<(typeof client.browse)['new-releases']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseNewReleasesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.browse['new-releases'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetBrowseNewReleasesQueryKey(args),
+    queryFn: async () => parseResponse(client.browse['new-releases'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -851,27 +856,29 @@ export function getGetBrowseNewReleasesQueryKey(
 export function useGetChapters(
   args: InferRequestType<typeof client.chapters.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.chapters.$get>,
-      Error,
-      InferResponseType<typeof client.chapters.$get>,
-      readonly ['/chapters', InferRequestType<typeof client.chapters.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.chapters.$get>,
+      ) => InferResponseType<typeof client.chapters.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChaptersQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.chapters.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChaptersQueryKey(args),
+    queryFn: async () => parseResponse(client.chapters.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -892,31 +899,33 @@ export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chap
 export function useGetChaptersId(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.chapters)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.chapters)[':id']['$get']>,
-      readonly ['/chapters/:id', InferRequestType<(typeof client.chapters)[':id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.chapters)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.chapters)[':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChaptersIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.chapters[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetChaptersIdQueryKey(args),
+    queryFn: async () => parseResponse(client.chapters[':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /chapters/{id}
+ * Generates TanStack Query cache key for GET /chapters/{id
  */
 export function getGetChaptersIdQueryKey(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
@@ -934,27 +943,29 @@ export function getGetChaptersIdQueryKey(
 export function useGetEpisodes(
   args: InferRequestType<typeof client.episodes.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.episodes.$get>,
-      Error,
-      InferResponseType<typeof client.episodes.$get>,
-      readonly ['/episodes', InferRequestType<typeof client.episodes.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.episodes.$get>,
+      ) => InferResponseType<typeof client.episodes.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetEpisodesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.episodes.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetEpisodesQueryKey(args),
+    queryFn: async () => parseResponse(client.episodes.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -975,31 +986,33 @@ export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.epis
 export function useGetEpisodesId(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.episodes)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.episodes)[':id']['$get']>,
-      readonly ['/episodes/:id', InferRequestType<(typeof client.episodes)[':id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.episodes)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.episodes)[':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetEpisodesIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.episodes[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetEpisodesIdQueryKey(args),
+    queryFn: async () => parseResponse(client.episodes[':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /episodes/{id}
+ * Generates TanStack Query cache key for GET /episodes/{id
  */
 export function getGetEpisodesIdQueryKey(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
@@ -1014,29 +1027,29 @@ export function getGetEpisodesIdQueryKey(
  *
  * Get the list of markets where Spotify is available.
  */
-export function useGetMarkets(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.markets.$get>,
-      Error,
-      InferResponseType<typeof client.markets.$get>,
-      readonly ['/markets']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetMarkets(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.markets.$get>,
+    ) => InferResponseType<typeof client.markets.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMarketsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.markets.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMarketsQueryKey(),
+    queryFn: async () => parseResponse(client.markets.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1054,29 +1067,29 @@ export function getGetMarketsQueryKey() {
  * Get detailed profile information about the current user (including the
  * current user's username).
  */
-export function useGetMe(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.$get>,
-      Error,
-      InferResponseType<typeof client.me.$get>,
-      readonly ['/me']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetMe(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.me.$get>,
+    ) => InferResponseType<typeof client.me.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeQueryKey(),
+    queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1096,27 +1109,29 @@ export function getGetMeQueryKey() {
 export function useGetMeAlbums(
   args: InferRequestType<typeof client.me.albums.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.albums.$get>,
-      Error,
-      InferResponseType<typeof client.me.albums.$get>,
-      readonly ['/me/albums', InferRequestType<typeof client.me.albums.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.albums.$get>,
+      ) => InferResponseType<typeof client.me.albums.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeAlbumsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.albums.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeAlbumsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.albums.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1133,17 +1148,30 @@ export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.a
  *
  * Save one or more albums to the current user's 'Your Music' library.
  */
-export function usePutMeAlbums(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.albums.$put>) =>
-        parseResponse(client.me.albums.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMeAlbums(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.albums.$put>,
+      variables: InferRequestType<typeof client.me.albums.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.albums.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.albums.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.albums.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.albums.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.albums.$put>) =>
+      parseResponse(client.me.albums.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1153,17 +1181,30 @@ export function usePutMeAlbums(
  *
  * Remove one or more albums from the current user's 'Your Music' library.
  */
-export function useDeleteMeAlbums(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.albums.$delete>) =>
-        parseResponse(client.me.albums.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteMeAlbums(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.albums.$delete>,
+      variables: InferRequestType<typeof client.me.albums.$delete>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.albums.$delete>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.albums.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.albums.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.albums.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.albums.$delete>) =>
+      parseResponse(client.me.albums.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1176,27 +1217,29 @@ export function useDeleteMeAlbums(
 export function useGetMeAlbumsContains(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.albums.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.albums.contains.$get>,
-      readonly ['/me/albums/contains', InferRequestType<typeof client.me.albums.contains.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.albums.contains.$get>,
+      ) => InferResponseType<typeof client.me.albums.contains.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeAlbumsContainsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.albums.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeAlbumsContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.albums.contains.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1218,27 +1261,29 @@ export function getGetMeAlbumsContainsQueryKey(
 export function useGetMeAudiobooks(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.audiobooks.$get>,
-      Error,
-      InferResponseType<typeof client.me.audiobooks.$get>,
-      readonly ['/me/audiobooks', InferRequestType<typeof client.me.audiobooks.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.audiobooks.$get>,
+      ) => InferResponseType<typeof client.me.audiobooks.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeAudiobooksQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.audiobooks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeAudiobooksQueryKey(args),
+    queryFn: async () => parseResponse(client.me.audiobooks.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1257,17 +1302,30 @@ export function getGetMeAudiobooksQueryKey(
  *
  * Save one or more audiobooks to the current Spotify user's library.
  */
-export function usePutMeAudiobooks(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$put>) =>
-        parseResponse(client.me.audiobooks.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMeAudiobooks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.audiobooks.$put>,
+      variables: InferRequestType<typeof client.me.audiobooks.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.audiobooks.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.audiobooks.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.audiobooks.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.audiobooks.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$put>) =>
+      parseResponse(client.me.audiobooks.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1277,17 +1335,33 @@ export function usePutMeAudiobooks(
  *
  * Remove one or more audiobooks from the Spotify user's library.
  */
-export function useDeleteMeAudiobooks(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$delete>) =>
-        parseResponse(client.me.audiobooks.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteMeAudiobooks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.audiobooks.$delete>,
+      variables: InferRequestType<typeof client.me.audiobooks.$delete>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.audiobooks.$delete>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.audiobooks.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.audiobooks.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.audiobooks.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$delete>) =>
+      parseResponse(client.me.audiobooks.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1300,30 +1374,29 @@ export function useDeleteMeAudiobooks(
 export function useGetMeAudiobooksContains(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.audiobooks.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.audiobooks.contains.$get>,
-      readonly [
-        '/me/audiobooks/contains',
-        InferRequestType<typeof client.me.audiobooks.contains.$get>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.audiobooks.contains.$get>,
+      ) => InferResponseType<typeof client.me.audiobooks.contains.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeAudiobooksContainsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.audiobooks.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeAudiobooksContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.audiobooks.contains.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1346,27 +1419,29 @@ export function getGetMeAudiobooksContainsQueryKey(
 export function useGetMeEpisodes(
   args: InferRequestType<typeof client.me.episodes.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.episodes.$get>,
-      Error,
-      InferResponseType<typeof client.me.episodes.$get>,
-      readonly ['/me/episodes', InferRequestType<typeof client.me.episodes.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.episodes.$get>,
+      ) => InferResponseType<typeof client.me.episodes.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeEpisodesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.episodes.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeEpisodesQueryKey(args),
+    queryFn: async () => parseResponse(client.me.episodes.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1384,17 +1459,30 @@ export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me
  * Save one or more episodes to the current user's library.<br/>
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
-export function usePutMeEpisodes(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.episodes.$put>) =>
-        parseResponse(client.me.episodes.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMeEpisodes(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.episodes.$put>,
+      variables: InferRequestType<typeof client.me.episodes.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.episodes.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.episodes.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.episodes.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.episodes.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.episodes.$put>) =>
+      parseResponse(client.me.episodes.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1405,17 +1493,30 @@ export function usePutMeEpisodes(
  * Remove one or more episodes from the current user's library.<br/>
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
-export function useDeleteMeEpisodes(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.episodes.$delete>) =>
-        parseResponse(client.me.episodes.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteMeEpisodes(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.episodes.$delete>,
+      variables: InferRequestType<typeof client.me.episodes.$delete>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.episodes.$delete>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.episodes.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.episodes.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.episodes.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.episodes.$delete>) =>
+      parseResponse(client.me.episodes.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1429,27 +1530,29 @@ export function useDeleteMeEpisodes(
 export function useGetMeEpisodesContains(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.episodes.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.episodes.contains.$get>,
-      readonly ['/me/episodes/contains', InferRequestType<typeof client.me.episodes.contains.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.episodes.contains.$get>,
+      ) => InferResponseType<typeof client.me.episodes.contains.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeEpisodesContainsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.episodes.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeEpisodesContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.episodes.contains.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1471,27 +1574,29 @@ export function getGetMeEpisodesContainsQueryKey(
 export function useGetMeFollowing(
   args: InferRequestType<typeof client.me.following.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.following.$get>,
-      Error,
-      InferResponseType<typeof client.me.following.$get>,
-      readonly ['/me/following', InferRequestType<typeof client.me.following.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.following.$get>,
+      ) => InferResponseType<typeof client.me.following.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeFollowingQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.following.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeFollowingQueryKey(args),
+    queryFn: async () => parseResponse(client.me.following.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1508,17 +1613,30 @@ export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.m
  *
  * Add the current user as a follower of one or more artists or other Spotify users.
  */
-export function usePutMeFollowing(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.following.$put>) =>
-        parseResponse(client.me.following.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMeFollowing(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.following.$put> | undefined,
+      variables: InferRequestType<typeof client.me.following.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.following.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.following.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.following.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.following.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.following.$put>) =>
+      parseResponse(client.me.following.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1528,17 +1646,33 @@ export function usePutMeFollowing(
  *
  * Remove the current user as a follower of one or more artists or other Spotify users.
  */
-export function useDeleteMeFollowing(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.following.$delete>) =>
-        parseResponse(client.me.following.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteMeFollowing(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.following.$delete>,
+      variables: InferRequestType<typeof client.me.following.$delete>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.following.$delete>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.following.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.following.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.following.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.following.$delete>) =>
+      parseResponse(client.me.following.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1551,30 +1685,29 @@ export function useDeleteMeFollowing(
 export function useGetMeFollowingContains(
   args: InferRequestType<typeof client.me.following.contains.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.following.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.following.contains.$get>,
-      readonly [
-        '/me/following/contains',
-        InferRequestType<typeof client.me.following.contains.$get>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.following.contains.$get>,
+      ) => InferResponseType<typeof client.me.following.contains.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeFollowingContainsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.following.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeFollowingContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.following.contains.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1596,27 +1729,29 @@ export function getGetMeFollowingContainsQueryKey(
 export function useGetMePlayer(
   args: InferRequestType<typeof client.me.player.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.player.$get>,
-      Error,
-      InferResponseType<typeof client.me.player.$get>,
-      readonly ['/me/player', InferRequestType<typeof client.me.player.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.player.$get> | undefined,
+      ) => InferResponseType<typeof client.me.player.$get> | undefined
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlayerQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.player.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMePlayerQueryKey(args),
+    queryFn: async () => parseResponse(client.me.player.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1633,17 +1768,30 @@ export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.p
  *
  * Transfer playback to a new device and determine if it should start playing.
  */
-export function usePutMePlayer(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.player.$put>) =>
-        parseResponse(client.me.player.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMePlayer(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.player.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.player.$put>) =>
+      parseResponse(client.me.player.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1656,31 +1804,30 @@ export function usePutMePlayer(
 export function useGetMePlayerCurrentlyPlaying(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
-      Error,
-      InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
-      readonly [
-        '/me/player/currently-playing',
-        InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
+      ) => InferResponseType<(typeof client.me.player)['currently-playing']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlayerCurrentlyPlayingQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.me.player['currently-playing'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMePlayerCurrentlyPlayingQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.me.player['currently-playing'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1699,29 +1846,29 @@ export function getGetMePlayerCurrentlyPlayingQueryKey(
  *
  * Get information about a user’s available devices.
  */
-export function useGetMePlayerDevices(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.player.devices.$get>,
-      Error,
-      InferResponseType<typeof client.me.player.devices.$get>,
-      readonly ['/me/player/devices']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetMePlayerDevices(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.me.player.devices.$get>,
+    ) => InferResponseType<typeof client.me.player.devices.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlayerDevicesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.player.devices.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMePlayerDevicesQueryKey(),
+    queryFn: async () => parseResponse(client.me.player.devices.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1738,17 +1885,33 @@ export function getGetMePlayerDevicesQueryKey() {
  *
  * Skips to next track in the user’s queue.
  */
-export function usePostMePlayerNext(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.player.next.$post>) =>
-        parseResponse(client.me.player.next.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostMePlayerNext(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.next.$post> | undefined,
+      variables: InferRequestType<typeof client.me.player.next.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.next.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.next.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.next.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.next.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.player.next.$post>) =>
+      parseResponse(client.me.player.next.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1758,17 +1921,33 @@ export function usePostMePlayerNext(
  *
  * Pause playback on the user's account.
  */
-export function usePutMePlayerPause(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.player.pause.$put>) =>
-        parseResponse(client.me.player.pause.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMePlayerPause(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.pause.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.pause.$put>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.pause.$put>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.pause.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.pause.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.pause.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.player.pause.$put>) =>
+      parseResponse(client.me.player.pause.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1778,17 +1957,30 @@ export function usePutMePlayerPause(
  *
  * Start a new context or resume current playback on the user's active device.
  */
-export function usePutMePlayerPlay(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.player.play.$put>) =>
-        parseResponse(client.me.player.play.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMePlayerPlay(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.play.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.play.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.player.play.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.play.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.play.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.play.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.player.play.$put>) =>
+      parseResponse(client.me.player.play.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1798,17 +1990,33 @@ export function usePutMePlayerPlay(
  *
  * Skips to previous track in the user’s queue.
  */
-export function usePostMePlayerPrevious(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.player.previous.$post>) =>
-        parseResponse(client.me.player.previous.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostMePlayerPrevious(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.previous.$post> | undefined,
+      variables: InferRequestType<typeof client.me.player.previous.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.previous.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.previous.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.previous.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.previous.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.player.previous.$post>) =>
+      parseResponse(client.me.player.previous.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1818,29 +2026,29 @@ export function usePostMePlayerPrevious(
  *
  * Get the list of objects that make up the user's queue.
  */
-export function useGetMePlayerQueue(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.player.queue.$get>,
-      Error,
-      InferResponseType<typeof client.me.player.queue.$get>,
-      readonly ['/me/player/queue']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetMePlayerQueue(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.me.player.queue.$get>,
+    ) => InferResponseType<typeof client.me.player.queue.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlayerQueueQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.player.queue.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMePlayerQueueQueryKey(),
+    queryFn: async () => parseResponse(client.me.player.queue.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1857,17 +2065,33 @@ export function getGetMePlayerQueueQueryKey() {
  *
  * Add an item to the end of the user's current playback queue.
  */
-export function usePostMePlayerQueue(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.player.queue.$post>) =>
-        parseResponse(client.me.player.queue.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostMePlayerQueue(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.queue.$post> | undefined,
+      variables: InferRequestType<typeof client.me.player.queue.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.queue.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.queue.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.queue.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.queue.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.player.queue.$post>) =>
+      parseResponse(client.me.player.queue.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1881,31 +2105,30 @@ export function usePostMePlayerQueue(
 export function useGetMePlayerRecentlyPlayed(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
-      Error,
-      InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
-      readonly [
-        '/me/player/recently-played',
-        InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
+      ) => InferResponseType<(typeof client.me.player)['recently-played']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlayerRecentlyPlayedQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.me.player['recently-played'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMePlayerRecentlyPlayedQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.me.player['recently-played'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1925,17 +2148,33 @@ export function getGetMePlayerRecentlyPlayedQueryKey(
  * Set the repeat mode for the user's playback. Options are repeat-track,
  * repeat-context, and off.
  */
-export function usePutMePlayerRepeat(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.player.repeat.$put>) =>
-        parseResponse(client.me.player.repeat.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMePlayerRepeat(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.repeat.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.repeat.$put>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.repeat.$put>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.repeat.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.repeat.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.repeat.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.player.repeat.$put>) =>
+      parseResponse(client.me.player.repeat.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1945,17 +2184,30 @@ export function usePutMePlayerRepeat(
  *
  * Seeks to the given position in the user’s currently playing track.
  */
-export function usePutMePlayerSeek(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.player.seek.$put>) =>
-        parseResponse(client.me.player.seek.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMePlayerSeek(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.seek.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.seek.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.player.seek.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.seek.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.seek.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.seek.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.player.seek.$put>) =>
+      parseResponse(client.me.player.seek.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1965,17 +2217,33 @@ export function usePutMePlayerSeek(
  *
  * Toggle shuffle on or off for user’s playback.
  */
-export function usePutMePlayerShuffle(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.player.shuffle.$put>) =>
-        parseResponse(client.me.player.shuffle.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMePlayerShuffle(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.shuffle.$put>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.shuffle.$put>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.shuffle.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.shuffle.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.player.shuffle.$put>) =>
+      parseResponse(client.me.player.shuffle.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1985,17 +2253,33 @@ export function usePutMePlayerShuffle(
  *
  * Set the volume for the user’s current playback device.
  */
-export function usePutMePlayerVolume(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.player.volume.$put>) =>
-        parseResponse(client.me.player.volume.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMePlayerVolume(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.volume.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.volume.$put>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.volume.$put>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.volume.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.volume.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.volume.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.player.volume.$put>) =>
+      parseResponse(client.me.player.volume.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2009,27 +2293,29 @@ export function usePutMePlayerVolume(
 export function useGetMePlaylists(
   args: InferRequestType<typeof client.me.playlists.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.playlists.$get>,
-      Error,
-      InferResponseType<typeof client.me.playlists.$get>,
-      readonly ['/me/playlists', InferRequestType<typeof client.me.playlists.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.playlists.$get>,
+      ) => InferResponseType<typeof client.me.playlists.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMePlaylistsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.playlists.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMePlaylistsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.playlists.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2049,27 +2335,29 @@ export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.m
 export function useGetMeShows(
   args: InferRequestType<typeof client.me.shows.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.shows.$get>,
-      Error,
-      InferResponseType<typeof client.me.shows.$get>,
-      readonly ['/me/shows', InferRequestType<typeof client.me.shows.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.shows.$get>,
+      ) => InferResponseType<typeof client.me.shows.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeShowsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.shows.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeShowsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.shows.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2086,17 +2374,30 @@ export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.sh
  *
  * Save one or more shows to current Spotify user's library.
  */
-export function usePutMeShows(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.shows.$put>) =>
-        parseResponse(client.me.shows.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMeShows(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.shows.$put>,
+      variables: InferRequestType<typeof client.me.shows.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.shows.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.shows.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.shows.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.shows.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.shows.$put>) =>
+      parseResponse(client.me.shows.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2106,17 +2407,30 @@ export function usePutMeShows(
  *
  * Delete one or more shows from current Spotify user's library.
  */
-export function useDeleteMeShows(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.shows.$delete>) =>
-        parseResponse(client.me.shows.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteMeShows(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.shows.$delete>,
+      variables: InferRequestType<typeof client.me.shows.$delete>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.shows.$delete>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.shows.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.shows.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.shows.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.shows.$delete>) =>
+      parseResponse(client.me.shows.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2129,27 +2443,29 @@ export function useDeleteMeShows(
 export function useGetMeShowsContains(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.shows.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.shows.contains.$get>,
-      readonly ['/me/shows/contains', InferRequestType<typeof client.me.shows.contains.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.shows.contains.$get>,
+      ) => InferResponseType<typeof client.me.shows.contains.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeShowsContainsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.shows.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeShowsContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.shows.contains.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2171,31 +2487,33 @@ export function getGetMeShowsContainsQueryKey(
 export function useGetMeTopType(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.me.top)[':type']['$get']>,
-      Error,
-      InferResponseType<(typeof client.me.top)[':type']['$get']>,
-      readonly ['/me/top/:type', InferRequestType<(typeof client.me.top)[':type']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.me.top)[':type']['$get']>,
+      ) => InferResponseType<(typeof client.me.top)[':type']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeTopTypeQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.top[':type'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeTopTypeQueryKey(args),
+    queryFn: async () => parseResponse(client.me.top[':type'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /me/top/{type}
+ * Generates TanStack Query cache key for GET /me/top/{type
  */
 export function getGetMeTopTypeQueryKey(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
@@ -2213,27 +2531,29 @@ export function getGetMeTopTypeQueryKey(
 export function useGetMeTracks(
   args: InferRequestType<typeof client.me.tracks.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.tracks.$get>,
-      Error,
-      InferResponseType<typeof client.me.tracks.$get>,
-      readonly ['/me/tracks', InferRequestType<typeof client.me.tracks.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.tracks.$get>,
+      ) => InferResponseType<typeof client.me.tracks.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeTracksQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.tracks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeTracksQueryKey(args),
+    queryFn: async () => parseResponse(client.me.tracks.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2250,17 +2570,30 @@ export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.t
  *
  * Save one or more tracks to the current user's 'Your Music' library.
  */
-export function usePutMeTracks(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.tracks.$put>) =>
-        parseResponse(client.me.tracks.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutMeTracks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.tracks.$put>,
+      variables: InferRequestType<typeof client.me.tracks.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.tracks.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.tracks.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.tracks.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.tracks.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.tracks.$put>) =>
+      parseResponse(client.me.tracks.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2270,17 +2603,30 @@ export function usePutMeTracks(
  *
  * Remove one or more tracks from the current user's 'Your Music' library.
  */
-export function useDeleteMeTracks(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.me.tracks.$delete>) =>
-        parseResponse(client.me.tracks.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeleteMeTracks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.tracks.$delete>,
+      variables: InferRequestType<typeof client.me.tracks.$delete>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.tracks.$delete>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.tracks.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.tracks.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.tracks.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.me.tracks.$delete>) =>
+      parseResponse(client.me.tracks.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2293,27 +2639,29 @@ export function useDeleteMeTracks(
 export function useGetMeTracksContains(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.me.tracks.contains.$get>,
-      Error,
-      InferResponseType<typeof client.me.tracks.contains.$get>,
-      readonly ['/me/tracks/contains', InferRequestType<typeof client.me.tracks.contains.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.tracks.contains.$get>,
+      ) => InferResponseType<typeof client.me.tracks.contains.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetMeTracksContainsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.me.tracks.contains.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetMeTracksContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.tracks.contains.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2335,35 +2683,33 @@ export function getGetMeTracksContainsQueryKey(
 export function useGetPlaylistsPlaylistId(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>,
-      readonly [
-        '/playlists/:playlist_id',
-        InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>,
+      ) => InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPlaylistsPlaylistIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.playlists[':playlist_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetPlaylistsPlaylistIdQueryKey(args),
+    queryFn: async () => parseResponse(client.playlists[':playlist_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /playlists/{playlist_id}
+ * Generates TanStack Query cache key for GET /playlists/{playlist_id
  */
 export function getGetPlaylistsPlaylistIdQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
@@ -2379,18 +2725,35 @@ export function getGetPlaylistsPlaylistIdQueryKey(
  * Change a playlist's name and public/private state. (The user must, of
  * course, own the playlist.)
  */
-export function usePutPlaylistsPlaylistId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
-      ) => parseResponse(client.playlists[':playlist_id'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutPlaylistsPlaylistId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['$put']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>) =>
+      parseResponse(client.playlists[':playlist_id'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2400,18 +2763,38 @@ export function usePutPlaylistsPlaylistId(
  *
  * Add the current user as a follower of a playlist.
  */
-export function usePutPlaylistsPlaylistIdFollowers(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
-      ) => parseResponse(client.playlists[':playlist_id'].followers.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutPlaylistsPlaylistIdFollowers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+    ) => parseResponse(client.playlists[':playlist_id'].followers.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2421,18 +2804,46 @@ export function usePutPlaylistsPlaylistIdFollowers(
  *
  * Remove the current user as a follower of a playlist.
  */
-export function useDeletePlaylistsPlaylistIdFollowers(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
-      ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeletePlaylistsPlaylistIdFollowers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
+      variables: InferRequestType<
+        (typeof client.playlists)[':playlist_id']['followers']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.playlists)[':playlist_id']['followers']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.playlists)[':playlist_id']['followers']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.playlists)[':playlist_id']['followers']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
+    ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2447,39 +2858,38 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['contains']['$get']>,
-      Error,
-      InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['contains']['$get']>,
-      readonly [
-        '/playlists/:playlist_id/followers/contains',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.playlists[':playlist_id'].followers.contains.$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.playlists[':playlist_id'].followers.contains.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /playlists/{playlist_id}/followers/contains
+ * Generates TanStack Query cache key for GET /playlists/{playlist_id/followers/contains
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
   args: InferRequestType<
@@ -2499,35 +2909,34 @@ export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
 export function useGetPlaylistsPlaylistIdImages(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-      Error,
-      InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-      readonly [
-        '/playlists/:playlist_id/images',
-        InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+      ) => InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPlaylistsPlaylistIdImagesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.playlists[':playlist_id'].images.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetPlaylistsPlaylistIdImagesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.playlists[':playlist_id'].images.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /playlists/{playlist_id}/images
+ * Generates TanStack Query cache key for GET /playlists/{playlist_id/images
  */
 export function getGetPlaylistsPlaylistIdImagesQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
@@ -2542,18 +2951,38 @@ export function getGetPlaylistsPlaylistIdImagesQueryKey(
  *
  * Replace the image used to represent a specific playlist.
  */
-export function usePutPlaylistsPlaylistIdImages(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
-      ) => parseResponse(client.playlists[':playlist_id'].images.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutPlaylistsPlaylistIdImages(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+    ) => parseResponse(client.playlists[':playlist_id'].images.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2566,35 +2995,34 @@ export function usePutPlaylistsPlaylistIdImages(
 export function useGetPlaylistsPlaylistIdTracks(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-      Error,
-      InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-      readonly [
-        '/playlists/:playlist_id/tracks',
-        InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+      ) => InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPlaylistsPlaylistIdTracksQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.playlists[':playlist_id'].tracks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetPlaylistsPlaylistIdTracksQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.playlists[':playlist_id'].tracks.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /playlists/{playlist_id}/tracks
+ * Generates TanStack Query cache key for GET /playlists/{playlist_id/tracks
  */
 export function getGetPlaylistsPlaylistIdTracksQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
@@ -2615,18 +3043,38 @@ export function getGetPlaylistsPlaylistIdTracksQueryKey(
  * **Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters.
  * These operations can't be applied together in a single request.
  */
-export function usePutPlaylistsPlaylistIdTracks(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
-      ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutPlaylistsPlaylistIdTracks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+    ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2636,18 +3084,38 @@ export function usePutPlaylistsPlaylistIdTracks(
  *
  * Add one or more items to a user's playlist.
  */
-export function usePostPlaylistsPlaylistIdTracks(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
-      ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostPlaylistsPlaylistIdTracks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+    ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2657,18 +3125,38 @@ export function usePostPlaylistsPlaylistIdTracks(
  *
  * Remove one or more items from a user's playlist.
  */
-export function useDeletePlaylistsPlaylistIdTracks(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
-      ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeletePlaylistsPlaylistIdTracks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+    ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2683,27 +3171,29 @@ export function useDeletePlaylistsPlaylistIdTracks(
 export function useGetRecommendations(
   args: InferRequestType<typeof client.recommendations.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.recommendations.$get>,
-      Error,
-      InferResponseType<typeof client.recommendations.$get>,
-      readonly ['/recommendations', InferRequestType<typeof client.recommendations.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.recommendations.$get>,
+      ) => InferResponseType<typeof client.recommendations.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetRecommendationsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.recommendations.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetRecommendationsQueryKey(args),
+    queryFn: async () => parseResponse(client.recommendations.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2722,32 +3212,30 @@ export function getGetRecommendationsQueryKey(
  *
  * Retrieve a list of available genres seed parameter values for [recommendations](/documentation/web-api/reference/get-recommendations).
  */
-export function useGetRecommendationsAvailableGenreSeeds(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
-      Error,
-      InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
-      readonly ['/recommendations/available-genre-seeds']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetRecommendationsAvailableGenreSeeds(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
+    ) => InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetRecommendationsAvailableGenreSeedsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client.recommendations['available-genre-seeds'].$get(undefined, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetRecommendationsAvailableGenreSeedsQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.recommendations['available-genre-seeds'].$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2769,27 +3257,29 @@ export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
 export function useGetSearch(
   args: InferRequestType<typeof client.search.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.search.$get>,
-      Error,
-      InferResponseType<typeof client.search.$get>,
-      readonly ['/search', InferRequestType<typeof client.search.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.search.$get>,
+      ) => InferResponseType<typeof client.search.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSearchQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetSearchQueryKey(args),
+    queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2809,27 +3299,29 @@ export function getGetSearchQueryKey(args: InferRequestType<typeof client.search
 export function useGetShows(
   args: InferRequestType<typeof client.shows.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.shows.$get>,
-      Error,
-      InferResponseType<typeof client.shows.$get>,
-      readonly ['/shows', InferRequestType<typeof client.shows.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.shows.$get>,
+      ) => InferResponseType<typeof client.shows.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetShowsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.shows.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetShowsQueryKey(args),
+    queryFn: async () => parseResponse(client.shows.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2850,31 +3342,33 @@ export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$
 export function useGetShowsId(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.shows)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.shows)[':id']['$get']>,
-      readonly ['/shows/:id', InferRequestType<(typeof client.shows)[':id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.shows)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.shows)[':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetShowsIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.shows[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetShowsIdQueryKey(args),
+    queryFn: async () => parseResponse(client.shows[':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /shows/{id}
+ * Generates TanStack Query cache key for GET /shows/{id
  */
 export function getGetShowsIdQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
@@ -2892,34 +3386,33 @@ export function getGetShowsIdQueryKey(
 export function useGetShowsIdEpisodes(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>,
-      Error,
-      InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>,
-      readonly [
-        '/shows/:id/episodes',
-        InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>,
+      ) => InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetShowsIdEpisodesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.shows[':id'].episodes.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetShowsIdEpisodesQueryKey(args),
+    queryFn: async () => parseResponse(client.shows[':id'].episodes.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /shows/{id}/episodes
+ * Generates TanStack Query cache key for GET /shows/{id/episodes
  */
 export function getGetShowsIdEpisodesQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
@@ -2937,27 +3430,29 @@ export function getGetShowsIdEpisodesQueryKey(
 export function useGetTracks(
   args: InferRequestType<typeof client.tracks.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.tracks.$get>,
-      Error,
-      InferResponseType<typeof client.tracks.$get>,
-      readonly ['/tracks', InferRequestType<typeof client.tracks.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.tracks.$get>,
+      ) => InferResponseType<typeof client.tracks.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTracksQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.tracks.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetTracksQueryKey(args),
+    queryFn: async () => parseResponse(client.tracks.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2978,31 +3473,33 @@ export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks
 export function useGetTracksId(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.tracks)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.tracks)[':id']['$get']>,
-      readonly ['/tracks/:id', InferRequestType<(typeof client.tracks)[':id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.tracks)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.tracks)[':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetTracksIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.tracks[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetTracksIdQueryKey(args),
+    queryFn: async () => parseResponse(client.tracks[':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /tracks/{id}
+ * Generates TanStack Query cache key for GET /tracks/{id
  */
 export function getGetTracksIdQueryKey(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
@@ -3020,31 +3517,33 @@ export function getGetTracksIdQueryKey(
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.users)[':user_id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)[':user_id']['$get']>,
-      readonly ['/users/:user_id', InferRequestType<(typeof client.users)[':user_id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':user_id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersUserIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/{user_id}
+ * Generates TanStack Query cache key for GET /users/{user_id
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
@@ -3062,35 +3561,34 @@ export function getGetUsersUserIdQueryKey(
 export function useGetUsersUserIdPlaylists(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
-      Error,
-      InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
-      readonly [
-        '/users/:user_id/playlists',
-        InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetUsersUserIdPlaylistsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.users[':user_id'].playlists.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetUsersUserIdPlaylistsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.users[':user_id'].playlists.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/{user_id}/playlists
+ * Generates TanStack Query cache key for GET /users/{user_id/playlists
  */
 export function getGetUsersUserIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
@@ -3106,16 +3604,34 @@ export function getGetUsersUserIdPlaylistsQueryKey(
  * Create a playlist for a Spotify user. (The playlist will be empty until
  * you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).)
  */
-export function usePostUsersUserIdPlaylists(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
-      ) => parseResponse(client.users[':user_id'].playlists.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostUsersUserIdPlaylists(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']>,
+      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+    ) => parseResponse(client.users[':user_id'].playlists.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }

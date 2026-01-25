@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
@@ -7,29 +6,29 @@ import { client } from '../clients/07-examples'
 /**
  * GET /products
  */
-export function useGetProducts(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.products.$get>,
-      Error,
-      InferResponseType<typeof client.products.$get>,
-      readonly ['/products']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetProducts(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.products.$get>,
+    ) => InferResponseType<typeof client.products.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProductsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.products.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetProductsQueryKey(),
+    queryFn: async () => parseResponse(client.products.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -42,17 +41,30 @@ export function getGetProductsQueryKey() {
 /**
  * POST /products
  */
-export function usePostProducts(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
-        parseResponse(client.products.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostProducts(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.products.$post>,
+      variables: InferRequestType<typeof client.products.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.products.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.products.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.products.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.products.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
+      parseResponse(client.products.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -61,34 +73,33 @@ export function usePostProducts(
 export function useGetProductsProductId(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client.products)[':productId']['$get']>,
-      Error,
-      InferResponseType<(typeof client.products)[':productId']['$get']>,
-      readonly [
-        '/products/:productId',
-        InferRequestType<(typeof client.products)[':productId']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.products)[':productId']['$get']>,
+      ) => InferResponseType<(typeof client.products)[':productId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetProductsProductIdQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetProductsProductIdQueryKey(args),
+    queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates TanStack Query cache key for GET /products/{productId}
+ * Generates TanStack Query cache key for GET /products/{productId
  */
 export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,

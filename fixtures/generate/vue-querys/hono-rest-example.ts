@@ -10,11 +10,28 @@ import { client } from '../clients/hono-rest-example'
  *
  * Retrieve a simple welcome message from the Hono API.
  */
-export function useGet(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetQueryKey()
+export function useGet(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.index.$get>,
+    ) => InferResponseType<typeof client.index.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetQueryKey(),
     queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -34,12 +51,29 @@ export function getGetQueryKey() {
  */
 export function useGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.posts.$get>,
+      ) => InferResponseType<typeof client.posts.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetPostsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPostsQueryKey(args),
     queryFn: async () => parseResponse(client.posts.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -57,10 +91,29 @@ export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$
  *
  * Submit a new post with a maximum length of 140 characters.
  */
-export function usePostPosts(clientOptions?: ClientRequestOptions) {
+export function usePostPosts(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.posts.$post>,
+      variables: InferRequestType<typeof client.posts.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.posts.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.posts.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.posts.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.posts.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
       parseResponse(client.posts.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -71,10 +124,32 @@ export function usePostPosts(clientOptions?: ClientRequestOptions) {
  *
  * Update the content of an existing post identified by its unique ID.
  */
-export function usePutPostsId(clientOptions?: ClientRequestOptions) {
+export function usePutPostsId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.posts)[':id']['$put']> | undefined,
+      variables: InferRequestType<(typeof client.posts)[':id']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.posts)[':id']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.posts)[':id']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.posts)[':id']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.posts)[':id']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$put']>) =>
       parseResponse(client.posts[':id'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -85,9 +160,31 @@ export function usePutPostsId(clientOptions?: ClientRequestOptions) {
  *
  * Delete an existing post identified by its unique ID.
  */
-export function useDeletePostsId(clientOptions?: ClientRequestOptions) {
+export function useDeletePostsId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.posts)[':id']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.posts)[':id']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.posts)[':id']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.posts)[':id']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$delete']>) =>
       parseResponse(client.posts[':id'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }

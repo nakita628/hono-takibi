@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import app from '@/api'
+import app from '.'
 
 type ValidationError = {
   field: string

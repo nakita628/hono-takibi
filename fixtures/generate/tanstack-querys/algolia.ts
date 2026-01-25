@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
@@ -14,34 +13,29 @@ import { client } from '../clients/algolia'
 export function useGetPath(
   args: InferRequestType<(typeof client)[':path']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)[':path']['$get']>,
-      Error,
-      InferResponseType<(typeof client)[':path']['$get']>,
-      readonly ['/:path', InferRequestType<(typeof client)[':path']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)[':path']['$get']>,
+      ) => InferResponseType<(typeof client)[':path']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPathQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client[':path'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /{path}
- */
-export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['/:path', args] as const
+  return useQuery({
+    queryKey: ['/:path', args] as const,
+    queryFn: async () => parseResponse(client[':path'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -51,14 +45,30 @@ export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function usePutPath(options?: { client?: ClientRequestOptions }, queryClient?: QueryClient) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client)[':path']['$put']>) =>
-        parseResponse(client[':path'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutPath(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)[':path']['$put']>,
+      variables: InferRequestType<(typeof client)[':path']['$put']>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<(typeof client)[':path']['$put']>) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)[':path']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)[':path']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)[':path']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)[':path']['$put']>) =>
+      parseResponse(client[':path'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -68,17 +78,30 @@ export function usePutPath(options?: { client?: ClientRequestOptions }, queryCli
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function usePostPath(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client)[':path']['$post']>) =>
-        parseResponse(client[':path'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostPath(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)[':path']['$post']>,
+      variables: InferRequestType<(typeof client)[':path']['$post']>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<(typeof client)[':path']['$post']>) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)[':path']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)[':path']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)[':path']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)[':path']['$post']>) =>
+      parseResponse(client[':path'].$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -88,17 +111,33 @@ export function usePostPath(
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function useDeletePath(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client)[':path']['$delete']>) =>
-        parseResponse(client[':path'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDeletePath(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)[':path']['$delete']>,
+      variables: InferRequestType<(typeof client)[':path']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)[':path']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)[':path']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)[':path']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)[':path']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)[':path']['$delete']>) =>
+      parseResponse(client[':path'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -111,18 +150,38 @@ export function useDeletePath(
  * This method lets you retrieve up to 1,000 hits.
  * If you need more, use the [`browse` operation](https://www.algolia.com/doc/rest-api/search/browse) or increase the `paginatedLimitedTo` index setting.
  */
-export function usePost1IndexesIndexNameQuery(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
-      ) => parseResponse(client['1'].indexes[':indexName'].query.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameQuery(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+    ) => parseResponse(client['1'].indexes[':indexName'].query.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -139,18 +198,36 @@ export function usePost1IndexesIndexNameQuery(
  *
  * Use the helper `searchForHits` or `searchForFacets` to get the results in a more convenient format, if you already know the return type you want.
  */
-export function usePost1IndexesQueries(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
-      ) => parseResponse(client['1'].indexes['*'].queries.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesQueries(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['1']['indexes']['*']['queries']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+    ) => parseResponse(client['1'].indexes['*'].queries.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -164,23 +241,55 @@ export function usePost1IndexesQueries(
  *   You can adjust this with the `sortFacetValueBy` parameter.
  * - Searching for facet values doesn't work if you have **more than 65 searchable facets and searchable attributes combined**.
  */
-export function usePost1IndexesIndexNameFacetsFacetNameQuery(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].facets[':facetName'].query.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['1'].indexes[':indexName'].facets[':facetName'].query.$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -214,18 +323,38 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(
  *
  * If you send these parameters with your browse requests, they'll be ignored.
  */
-export function usePost1IndexesIndexNameBrowse(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
-      ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameBrowse(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+    ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -245,18 +374,36 @@ export function usePost1IndexesIndexNameBrowse(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexName(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
-      ) => parseResponse(client['1'].indexes[':indexName'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexName(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+    ) => parseResponse(client['1'].indexes[':indexName'].$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -272,18 +419,36 @@ export function usePost1IndexesIndexName(
  * - If the index you want to delete is a replica index, you must first unlink it from its primary index before you can delete it.
  *   For more information, see [Delete replica indices](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/how-to/deleting-replicas).
  */
-export function useDelete1IndexesIndexName(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
-      ) => parseResponse(client['1'].indexes[':indexName'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDelete1IndexesIndexName(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+    ) => parseResponse(client['1'].indexes[':indexName'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -298,40 +463,30 @@ export function useDelete1IndexesIndexName(
 export function useGet1IndexesIndexNameObjectID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-      readonly [
-        '/1/indexes/:indexName/:objectID',
-        InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+      ) => InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesIndexNameObjectIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].indexes[':indexName'][':objectID'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/indexes/{indexName}/{objectID}
- */
-export function getGet1IndexesIndexNameObjectIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/:objectID', args] as const
+  return useQuery({
+    queryKey: ['/1/indexes/:indexName/:objectID', args] as const,
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'][':objectID'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -346,19 +501,46 @@ export function getGet1IndexesIndexNameObjectIDQueryKey(
  * To update _some_ attributes of an existing record, use the [`partial` operation](https://www.algolia.com/doc/rest-api/search/partial-update-object) instead.
  * To add, update, or replace multiple records, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  */
-export function usePut1IndexesIndexNameObjectID(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
-      ) =>
-        parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePut1IndexesIndexNameObjectID(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
+    ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -371,23 +553,48 @@ export function usePut1IndexesIndexNameObjectID(
  * To delete more than one record, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  * To delete records matching a query, use the [`deleteBy` operation](https://www.algolia.com/doc/rest-api/search/delete-by).
  */
-export function useDelete1IndexesIndexNameObjectID(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].indexes[':indexName'][':objectID'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDelete1IndexesIndexNameObjectID(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>,
+    ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -404,21 +611,50 @@ export function useDelete1IndexesIndexNameObjectID(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameDeleteByQuery(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
-        >,
-      ) =>
-        parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameDeleteByQuery(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
+      >,
+    ) => parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -429,18 +665,38 @@ export function usePost1IndexesIndexNameDeleteByQuery(
  * Deletes only the records from an index while keeping settings, synonyms, and rules.
  * This operation is resource-intensive and subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameClear(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
-      ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameClear(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+    ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -476,23 +732,55 @@ export function usePost1IndexesIndexNameClear(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameObjectIDPartial(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].indexes[':indexName'][':objectID'].partial.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameObjectIDPartial(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['1'].indexes[':indexName'][':objectID'].partial.$post(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -509,18 +797,38 @@ export function usePost1IndexesIndexNameObjectIDPartial(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameBatch(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
-      ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameBatch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+    ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -535,18 +843,36 @@ export function usePost1IndexesIndexNameBatch(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesBatch(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
-      ) => parseResponse(client['1'].indexes['*'].batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesBatch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['1']['indexes']['*']['batch']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+    ) => parseResponse(client['1'].indexes['*'].batch.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -558,18 +884,36 @@ export function usePost1IndexesBatch(
  *
  * Records are returned in the same order as the requests.
  */
-export function usePost1IndexesObjects(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
-      ) => parseResponse(client['1'].indexes['*'].objects.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesObjects(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['1']['indexes']['*']['objects']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+    ) => parseResponse(client['1'].indexes['*'].objects.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -582,40 +926,30 @@ export function usePost1IndexesObjects(
 export function useGet1IndexesIndexNameSettings(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-      readonly [
-        '/1/indexes/:indexName/settings',
-        InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+      ) => InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesIndexNameSettingsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].indexes[':indexName'].settings.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/indexes/{indexName}/settings
- */
-export function getGet1IndexesIndexNameSettingsQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-) {
-  return ['/1/indexes/:indexName/settings', args] as const
+  return useQuery({
+    queryKey: ['/1/indexes/:indexName/settings', args] as const,
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'].settings.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -630,18 +964,46 @@ export function getGet1IndexesIndexNameSettingsQueryKey(
  *
  * For best performance, update the index settings before you add new records to your index.
  */
-export function usePut1IndexesIndexNameSettings(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
-      ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePut1IndexesIndexNameSettings(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['settings']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['settings']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['settings']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['settings']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
+    ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -658,50 +1020,36 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-      >,
-      readonly [
-        '/1/indexes/:indexName/synonyms/:objectID',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
- */
-export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
+  return useQuery({
+    queryKey: ['/1/indexes/:indexName/synonyms/:objectID', args] as const,
+    queryFn: async () =>
+      parseResponse(
+        client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, clientOptions),
+      ),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -713,23 +1061,55 @@ export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
  * Otherwise, the existing synonym is replaced.
  * To add multiple synonyms in a single API request, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-synonyms).
  */
-export function usePut1IndexesIndexNameSynonymsObjectID(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms[':objectID'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client['1'].indexes[':indexName'].synonyms[':objectID'].$put(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -740,23 +1120,55 @@ export function usePut1IndexesIndexNameSynonymsObjectID(
  * Deletes a synonym by its ID.
  * To find the object IDs of your synonyms, use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-synonyms).
  */
-export function useDelete1IndexesIndexNameSynonymsObjectID(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -769,23 +1181,52 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameSynonymsBatch(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms.batch.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameSynonymsBatch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+      >,
+    ) => parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -795,23 +1236,52 @@ export function usePost1IndexesIndexNameSynonymsBatch(
  *
  * Deletes all synonyms from the index.
  */
-export function usePost1IndexesIndexNameSynonymsClear(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms.clear.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameSynonymsClear(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+      >,
+    ) => parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -821,23 +1291,53 @@ export function usePost1IndexesIndexNameSynonymsClear(
  *
  * Searches for synonyms in your index.
  */
-export function usePost1IndexesIndexNameSynonymsSearch(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].synonyms.search.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameSynonymsSearch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+      >,
+    ) =>
+      parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -847,36 +1347,29 @@ export function usePost1IndexesIndexNameSynonymsSearch(
  *
  * Lists all API keys associated with your Algolia application, including their permissions and restrictions.
  */
-export function useGet1Keys(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['keys']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['keys']['$get']>,
-      readonly ['/1/keys']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1Keys(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['1']['keys']['$get']>,
+    ) => InferResponseType<(typeof client)['1']['keys']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1KeysQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].keys.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/keys
- */
-export function getGet1KeysQueryKey() {
-  return ['/1/keys'] as const
+  return useQuery({
+    queryKey: ['/1/keys'] as const,
+    queryFn: async () => parseResponse(client['1'].keys.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -886,17 +1379,33 @@ export function getGet1KeysQueryKey() {
  *
  * Creates a new API key with specific permissions and restrictions.
  */
-export function usePost1Keys(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client)['1']['keys']['$post']>) =>
-        parseResponse(client['1'].keys.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1Keys(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['keys']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['keys']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['keys']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['1']['keys']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['keys']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['1']['keys']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['1']['keys']['$post']>) =>
+      parseResponse(client['1'].keys.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -913,36 +1422,29 @@ export function usePost1Keys(
 export function useGet1KeysKey(
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['keys'][':key']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['keys'][':key']['$get']>,
-      readonly ['/1/keys/:key', InferRequestType<(typeof client)['1']['keys'][':key']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['1']['keys'][':key']['$get']>,
+      ) => InferResponseType<(typeof client)['1']['keys'][':key']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1KeysKeyQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].keys[':key'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/keys/{key}
- */
-export function getGet1KeysKeyQueryKey(
-  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
-) {
-  return ['/1/keys/:key', args] as const
+  return useQuery({
+    queryKey: ['/1/keys/:key', args] as const,
+    queryFn: async () => parseResponse(client['1'].keys[':key'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -954,17 +1456,33 @@ export function getGet1KeysKeyQueryKey(
  *
  * Any unspecified attribute resets that attribute to its default value.
  */
-export function usePut1KeysKey(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>) =>
-        parseResponse(client['1'].keys[':key'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePut1KeysKey(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['keys'][':key']['$put']>,
+      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['1']['keys'][':key']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>) =>
+      parseResponse(client['1'].keys[':key'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -974,17 +1492,35 @@ export function usePut1KeysKey(
  *
  * Deletes the API key.
  */
-export function useDelete1KeysKey(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>) =>
-        parseResponse(client['1'].keys[':key'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDelete1KeysKey(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['keys'][':key']['$delete']>,
+      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['1']['keys'][':key']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>) =>
+      parseResponse(client['1'].keys[':key'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -999,18 +1535,36 @@ export function useDelete1KeysKey(
  * Algolia stores up to 1,000 API keys per application.
  * If you create more, the oldest API keys are deleted and can't be restored.
  */
-export function usePost1KeysKeyRestore(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
-      ) => parseResponse(client['1'].keys[':key'].restore.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1KeysKeyRestore(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['1']['keys'][':key']['restore']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+    ) => parseResponse(client['1'].keys[':key'].restore.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1026,50 +1580,34 @@ export function useGet1IndexesIndexNameRulesObjectID(
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-      >,
-      Error,
-      InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-      >,
-      readonly [
-        '/1/indexes/:indexName/rules/:objectID',
-        InferRequestType<
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
           (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
         >,
-      ]
-    >
+      ) => InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesIndexNameRulesObjectIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(
-          client['1'].indexes[':indexName'].rules[':objectID'].$get(args, clientOptions),
-        ),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
- */
-export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
-  args: InferRequestType<
-    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-  >,
-) {
-  return ['/1/indexes/:indexName/rules/:objectID', args] as const
+  return useQuery({
+    queryKey: ['/1/indexes/:indexName/rules/:objectID', args] as const,
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1082,23 +1620,53 @@ export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
  *
  * To create or update more than one rule, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-rules).
  */
-export function usePut1IndexesIndexNameRulesObjectID(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].rules[':objectID'].$put(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePut1IndexesIndexNameRulesObjectID(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+      >,
+    ) =>
+      parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1110,23 +1678,55 @@ export function usePut1IndexesIndexNameRulesObjectID(
  * To find the object ID for rules,
  * use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-rules).
  */
-export function useDelete1IndexesIndexNameRulesObjectID(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].indexes[':indexName'].rules[':objectID'].$delete(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function useDelete1IndexesIndexNameRulesObjectID(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['1'].indexes[':indexName'].rules[':objectID'].$delete(args, clientOptions),
+      ),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1141,21 +1741,52 @@ export function useDelete1IndexesIndexNameRulesObjectID(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameRulesBatch(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
-        >,
-      ) =>
-        parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameRulesBatch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+      >,
+    ) => parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1165,21 +1796,52 @@ export function usePost1IndexesIndexNameRulesBatch(
  *
  * Deletes all rules from the index.
  */
-export function usePost1IndexesIndexNameRulesClear(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
-        >,
-      ) =>
-        parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameRulesClear(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+      >,
+    ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1189,21 +1851,52 @@ export function usePost1IndexesIndexNameRulesClear(
  *
  * Searches for rules in your index.
  */
-export function usePost1IndexesIndexNameRulesSearch(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
-        >,
-      ) =>
-        parseResponse(client['1'].indexes[':indexName'].rules.search.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameRulesSearch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+      >,
+    ) => parseResponse(client['1'].indexes[':indexName'].rules.search.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1213,23 +1906,53 @@ export function usePost1IndexesIndexNameRulesSearch(
  *
  * Adds or deletes multiple entries from your plurals, segmentation, or stop word dictionaries.
  */
-export function usePost1DictionariesDictionaryNameBatch(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].dictionaries[':dictionaryName'].batch.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePost1DictionariesDictionaryNameBatch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+      >,
+    ) =>
+      parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1239,23 +1962,53 @@ export function usePost1DictionariesDictionaryNameBatch(
  *
  * Searches for standard and custom dictionary entries.
  */
-export function usePost1DictionariesDictionaryNameSearch(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<
-          (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
-        >,
-      ) =>
-        parseResponse(
-          client['1'].dictionaries[':dictionaryName'].search.$post(args, options?.client),
-        ),
-    },
-    queryClient,
-  )
+export function usePost1DictionariesDictionaryNameSearch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+      >,
+    ) =>
+      parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1265,37 +2018,30 @@ export function usePost1DictionariesDictionaryNameSearch(
  *
  * Retrieves the languages for which standard dictionary entries are turned off.
  */
-export function useGet1DictionariesSettings(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
-      readonly ['/1/dictionaries/*/settings']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1DictionariesSettings(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
+    ) => InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1DictionariesSettingsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].dictionaries['*'].settings.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/dictionaries/[*]/settings
- */
-export function getGet1DictionariesSettingsQueryKey() {
-  return ['/1/dictionaries/*/settings'] as const
+  return useQuery({
+    queryKey: ['/1/dictionaries/*/settings'] as const,
+    queryFn: async () =>
+      parseResponse(client['1'].dictionaries['*'].settings.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1305,18 +2051,38 @@ export function getGet1DictionariesSettingsQueryKey() {
  *
  * Turns standard stop word dictionary entries on or off for a given language.
  */
-export function usePut1DictionariesSettings(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
-      ) => parseResponse(client['1'].dictionaries['*'].settings.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePut1DictionariesSettings(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+      variables: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+    ) => parseResponse(client['1'].dictionaries['*'].settings.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1326,37 +2092,30 @@ export function usePut1DictionariesSettings(
  *
  * Lists supported languages with their supported dictionary types and number of custom entries.
  */
-export function useGet1DictionariesLanguages(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
-      readonly ['/1/dictionaries/*/languages']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1DictionariesLanguages(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
+    ) => InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1DictionariesLanguagesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].dictionaries['*'].languages.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/dictionaries/[*]/languages
- */
-export function getGet1DictionariesLanguagesQueryKey() {
-  return ['/1/dictionaries/*/languages'] as const
+  return useQuery({
+    queryKey: ['/1/dictionaries/*/languages'] as const,
+    queryFn: async () =>
+      parseResponse(client['1'].dictionaries['*'].languages.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1372,39 +2131,29 @@ export function getGet1DictionariesLanguagesQueryKey() {
 export function useGet1ClustersMapping(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
-      readonly [
-        '/1/clusters/mapping',
-        InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
+      ) => InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1ClustersMappingQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].clusters.mapping.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/clusters/mapping
- */
-export function getGet1ClustersMappingQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-) {
-  return ['/1/clusters/mapping', args] as const
+  return useQuery({
+    queryKey: ['/1/clusters/mapping', args] as const,
+    queryFn: async () => parseResponse(client['1'].clusters.mapping.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1416,18 +2165,36 @@ export function getGet1ClustersMappingQueryKey(
  *
  * The time it takes to move a user is proportional to the amount of data linked to the user ID.
  */
-export function usePost1ClustersMapping(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
-      ) => parseResponse(client['1'].clusters.mapping.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1ClustersMapping(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['1']['clusters']['mapping']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
+    ) => parseResponse(client['1'].clusters.mapping.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1439,18 +2206,38 @@ export function usePost1ClustersMapping(
  *
  * **You can't move users with this operation**.
  */
-export function usePost1ClustersMappingBatch(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
-      ) => parseResponse(client['1'].clusters.mapping.batch.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1ClustersMappingBatch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+    ) => parseResponse(client['1'].clusters.mapping.batch.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1463,37 +2250,30 @@ export function usePost1ClustersMappingBatch(
  * Since it can take a few seconds to get the data from the different clusters,
  * the response isn't real-time.
  */
-export function useGet1ClustersMappingTop(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
-      readonly ['/1/clusters/mapping/top']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1ClustersMappingTop(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
+    ) => InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1ClustersMappingTopQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].clusters.mapping.top.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/clusters/mapping/top
- */
-export function getGet1ClustersMappingTopQueryKey() {
-  return ['/1/clusters/mapping/top'] as const
+  return useQuery({
+    queryKey: ['/1/clusters/mapping/top'] as const,
+    queryFn: async () =>
+      parseResponse(client['1'].clusters.mapping.top.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1509,40 +2289,30 @@ export function getGet1ClustersMappingTopQueryKey() {
 export function useGet1ClustersMappingUserID(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-      readonly [
-        '/1/clusters/mapping/:userID',
-        InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+      ) => InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1ClustersMappingUserIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].clusters.mapping[':userID'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/clusters/mapping/{userID}
- */
-export function getGet1ClustersMappingUserIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-) {
-  return ['/1/clusters/mapping/:userID', args] as const
+  return useQuery({
+    queryKey: ['/1/clusters/mapping/:userID', args] as const,
+    queryFn: async () =>
+      parseResponse(client['1'].clusters.mapping[':userID'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1552,18 +2322,46 @@ export function getGet1ClustersMappingUserIDQueryKey(
  *
  * Deletes a user ID and its associated data from the clusters.
  */
-export function useDelete1ClustersMappingUserID(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
-      ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDelete1ClustersMappingUserID(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
+      variables: InferRequestType<
+        (typeof client)['1']['clusters']['mapping'][':userID']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['clusters']['mapping'][':userID']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['clusters']['mapping'][':userID']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['clusters']['mapping'][':userID']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
+    ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1573,36 +2371,29 @@ export function useDelete1ClustersMappingUserID(
  *
  * Lists the available clusters in a multi-cluster setup.
  */
-export function useGet1Clusters(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['clusters']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['clusters']['$get']>,
-      readonly ['/1/clusters']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1Clusters(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['1']['clusters']['$get']>,
+    ) => InferResponseType<(typeof client)['1']['clusters']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1ClustersQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].clusters.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/clusters
- */
-export function getGet1ClustersQueryKey() {
-  return ['/1/clusters'] as const
+  return useQuery({
+    queryKey: ['/1/clusters'] as const,
+    queryFn: async () => parseResponse(client['1'].clusters.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1615,18 +2406,38 @@ export function getGet1ClustersQueryKey() {
  *
  * To ensure rapid updates, the user IDs index isn't built at the same time as the mapping. Instead, it's built every 12 hours, at the same time as the update of user ID usage. For example, if you add or move a user ID, the search will show an old value until the next time the mapping is rebuilt (every 12 hours).
  */
-export function usePost1ClustersMappingSearch(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
-      ) => parseResponse(client['1'].clusters.mapping.search.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1ClustersMappingSearch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+    ) => parseResponse(client['1'].clusters.mapping.search.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1639,40 +2450,30 @@ export function usePost1ClustersMappingSearch(
 export function useGet1ClustersMappingPending(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-      readonly [
-        '/1/clusters/mapping/pending',
-        InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+      ) => InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1ClustersMappingPendingQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].clusters.mapping.pending.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/clusters/mapping/pending
- */
-export function getGet1ClustersMappingPendingQueryKey(
-  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-) {
-  return ['/1/clusters/mapping/pending', args] as const
+  return useQuery({
+    queryKey: ['/1/clusters/mapping/pending', args] as const,
+    queryFn: async () =>
+      parseResponse(client['1'].clusters.mapping.pending.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1682,37 +2483,29 @@ export function getGet1ClustersMappingPendingQueryKey(
  *
  * Retrieves all allowed IP addresses with access to your application.
  */
-export function useGet1SecuritySources(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
-      readonly ['/1/security/sources']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGet1SecuritySources(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
+    ) => InferResponseType<(typeof client)['1']['security']['sources']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1SecuritySourcesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].security.sources.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/security/sources
- */
-export function getGet1SecuritySourcesQueryKey() {
-  return ['/1/security/sources'] as const
+  return useQuery({
+    queryKey: ['/1/security/sources'] as const,
+    queryFn: async () => parseResponse(client['1'].security.sources.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1722,18 +2515,36 @@ export function getGet1SecuritySourcesQueryKey() {
  *
  * Replaces the list of allowed sources.
  */
-export function usePut1SecuritySources(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
-      ) => parseResponse(client['1'].security.sources.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePut1SecuritySources(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['security']['sources']['$put']>,
+      variables: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['1']['security']['sources']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
+    ) => parseResponse(client['1'].security.sources.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1743,18 +2554,38 @@ export function usePut1SecuritySources(
  *
  * Adds a source to the list of allowed sources.
  */
-export function usePost1SecuritySourcesAppend(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
-      ) => parseResponse(client['1'].security.sources.append.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1SecuritySourcesAppend(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']>,
+      variables: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['security']['sources']['append']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
+    ) => parseResponse(client['1'].security.sources.append.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1764,18 +2595,46 @@ export function usePost1SecuritySourcesAppend(
  *
  * Deletes a source from the list of allowed sources.
  */
-export function useDelete1SecuritySourcesSource(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
-      ) => parseResponse(client['1'].security.sources[':source'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function useDelete1SecuritySourcesSource(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
+      variables: InferRequestType<
+        (typeof client)['1']['security']['sources'][':source']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['security']['sources'][':source']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['security']['sources'][':source']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['security']['sources'][':source']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['security']['sources'][':source']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
+    ) => parseResponse(client['1'].security.sources[':source'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1792,34 +2651,29 @@ export function useDelete1SecuritySourcesSource(
 export function useGet1Logs(
   args: InferRequestType<(typeof client)['1']['logs']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['logs']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['logs']['$get']>,
-      readonly ['/1/logs', InferRequestType<(typeof client)['1']['logs']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['1']['logs']['$get']>,
+      ) => InferResponseType<(typeof client)['1']['logs']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1LogsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].logs.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/logs
- */
-export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['/1/logs', args] as const
+  return useQuery({
+    queryKey: ['/1/logs', args] as const,
+    queryFn: async () => parseResponse(client['1'].logs.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1832,39 +2686,29 @@ export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1'][
 export function useGet1TaskTaskID(
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>,
-      readonly [
-        '/1/task/:taskID',
-        InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>,
+      ) => InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1TaskTaskIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].task[':taskID'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/task/{taskID}
- */
-export function getGet1TaskTaskIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
-) {
-  return ['/1/task/:taskID', args] as const
+  return useQuery({
+    queryKey: ['/1/task/:taskID', args] as const,
+    queryFn: async () => parseResponse(client['1'].task[':taskID'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1883,40 +2727,34 @@ export function getGet1TaskTaskIDQueryKey(
 export function useGet1IndexesIndexNameTaskTaskID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-      readonly [
-        '/1/indexes/:indexName/task/:taskID',
-        InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']
+      >
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesIndexNameTaskTaskIDQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['1'].indexes[':indexName'].task[':taskID'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/indexes/{indexName}/task/{taskID}
- */
-export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-) {
-  return ['/1/indexes/:indexName/task/:taskID', args] as const
+  return useQuery({
+    queryKey: ['/1/indexes/:indexName/task/:taskID', args] as const,
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'].task[':taskID'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -1949,18 +2787,46 @@ export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function usePost1IndexesIndexNameOperation(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
-      ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePost1IndexesIndexNameOperation(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['operation']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['operation']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['operation']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['operation']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
+    ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -1975,36 +2841,29 @@ export function usePost1IndexesIndexNameOperation(
 export function useGet1Indexes(
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<(typeof client)['1']['indexes']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['1']['indexes']['$get']>,
-      readonly ['/1/indexes', InferRequestType<(typeof client)['1']['indexes']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['1']['indexes']['$get']>,
+      ) => InferResponseType<(typeof client)['1']['indexes']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGet1IndexesQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['1'].indexes.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /1/indexes
- */
-export function getGet1IndexesQueryKey(
-  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
-) {
-  return ['/1/indexes', args] as const
+  return useQuery({
+    queryKey: ['/1/indexes', args] as const,
+    queryFn: async () => parseResponse(client['1'].indexes.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2017,36 +2876,29 @@ export function getGet1IndexesQueryKey(
 export function useGetWaitForApiKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.waitForApiKey.$get>,
-      Error,
-      InferResponseType<typeof client.waitForApiKey.$get>,
-      readonly ['/waitForApiKey', InferRequestType<typeof client.waitForApiKey.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.waitForApiKey.$get>,
+      ) => InferResponseType<typeof client.waitForApiKey.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWaitForApiKeyQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.waitForApiKey.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /waitForApiKey
- */
-export function getGetWaitForApiKeyQueryKey(
-  args: InferRequestType<typeof client.waitForApiKey.$get>,
-) {
-  return ['/waitForApiKey', args] as const
+  return useQuery({
+    queryKey: ['/waitForApiKey', args] as const,
+    queryFn: async () => parseResponse(client.waitForApiKey.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2061,34 +2913,29 @@ export function getGetWaitForApiKeyQueryKey(
 export function useGetWaitForTask(
   args: InferRequestType<typeof client.waitForTask.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.waitForTask.$get>,
-      Error,
-      InferResponseType<typeof client.waitForTask.$get>,
-      readonly ['/waitForTask', InferRequestType<typeof client.waitForTask.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.waitForTask.$get>,
+      ) => InferResponseType<typeof client.waitForTask.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWaitForTaskQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.waitForTask.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /waitForTask
- */
-export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['/waitForTask', args] as const
+  return useQuery({
+    queryKey: ['/waitForTask', args] as const,
+    queryFn: async () => parseResponse(client.waitForTask.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2101,36 +2948,29 @@ export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.w
 export function useGetWaitForAppTask(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.waitForAppTask.$get>,
-      Error,
-      InferResponseType<typeof client.waitForAppTask.$get>,
-      readonly ['/waitForAppTask', InferRequestType<typeof client.waitForAppTask.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.waitForAppTask.$get>,
+      ) => InferResponseType<typeof client.waitForAppTask.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetWaitForAppTaskQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.waitForAppTask.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /waitForAppTask
- */
-export function getGetWaitForAppTaskQueryKey(
-  args: InferRequestType<typeof client.waitForAppTask.$get>,
-) {
-  return ['/waitForAppTask', args] as const
+  return useQuery({
+    queryKey: ['/waitForAppTask', args] as const,
+    queryFn: async () => parseResponse(client.waitForAppTask.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2147,36 +2987,29 @@ export function getGetWaitForAppTaskQueryKey(
 export function useGetBrowseObjects(
   args: InferRequestType<typeof client.browseObjects.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.browseObjects.$get>,
-      Error,
-      InferResponseType<typeof client.browseObjects.$get>,
-      readonly ['/browseObjects', InferRequestType<typeof client.browseObjects.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.browseObjects.$get> | undefined,
+      ) => InferResponseType<typeof client.browseObjects.$get> | undefined
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBrowseObjectsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.browseObjects.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /browseObjects
- */
-export function getGetBrowseObjectsQueryKey(
-  args: InferRequestType<typeof client.browseObjects.$get>,
-) {
-  return ['/browseObjects', args] as const
+  return useQuery({
+    queryKey: ['/browseObjects', args] as const,
+    queryFn: async () => parseResponse(client.browseObjects.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2201,39 +3034,29 @@ export function getGetBrowseObjectsQueryKey(
 export function useGetGenerateSecuredApiKey(
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.generateSecuredApiKey.$get>,
-      Error,
-      InferResponseType<typeof client.generateSecuredApiKey.$get>,
-      readonly [
-        '/generateSecuredApiKey',
-        InferRequestType<typeof client.generateSecuredApiKey.$get>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.generateSecuredApiKey.$get>,
+      ) => InferResponseType<typeof client.generateSecuredApiKey.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetGenerateSecuredApiKeyQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.generateSecuredApiKey.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /generateSecuredApiKey
- */
-export function getGetGenerateSecuredApiKeyQueryKey(
-  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
-) {
-  return ['/generateSecuredApiKey', args] as const
+  return useQuery({
+    queryKey: ['/generateSecuredApiKey', args] as const,
+    queryFn: async () => parseResponse(client.generateSecuredApiKey.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2246,36 +3069,29 @@ export function getGetGenerateSecuredApiKeyQueryKey(
 export function useGetAccountCopyIndex(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.accountCopyIndex.$get>,
-      Error,
-      InferResponseType<typeof client.accountCopyIndex.$get>,
-      readonly ['/accountCopyIndex', InferRequestType<typeof client.accountCopyIndex.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.accountCopyIndex.$get>,
+      ) => InferResponseType<typeof client.accountCopyIndex.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetAccountCopyIndexQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.accountCopyIndex.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /accountCopyIndex
- */
-export function getGetAccountCopyIndexQueryKey(
-  args: InferRequestType<typeof client.accountCopyIndex.$get>,
-) {
-  return ['/accountCopyIndex', args] as const
+  return useQuery({
+    queryKey: ['/accountCopyIndex', args] as const,
+    queryFn: async () => parseResponse(client.accountCopyIndex.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2303,36 +3119,29 @@ export function getGetAccountCopyIndexQueryKey(
 export function useGetReplaceAllObjects(
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.replaceAllObjects.$get>,
-      Error,
-      InferResponseType<typeof client.replaceAllObjects.$get>,
-      readonly ['/replaceAllObjects', InferRequestType<typeof client.replaceAllObjects.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.replaceAllObjects.$get>,
+      ) => InferResponseType<typeof client.replaceAllObjects.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetReplaceAllObjectsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.replaceAllObjects.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /replaceAllObjects
- */
-export function getGetReplaceAllObjectsQueryKey(
-  args: InferRequestType<typeof client.replaceAllObjects.$get>,
-) {
-  return ['/replaceAllObjects', args] as const
+  return useQuery({
+    queryKey: ['/replaceAllObjects', args] as const,
+    queryFn: async () => parseResponse(client.replaceAllObjects.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2357,40 +3166,30 @@ export function getGetReplaceAllObjectsQueryKey(
 export function useGetReplaceAllObjectsWithTransformation(
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
-      Error,
-      InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
-      readonly [
-        '/replaceAllObjectsWithTransformation',
-        InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
+      ) => InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetReplaceAllObjectsWithTransformationQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.replaceAllObjectsWithTransformation.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /replaceAllObjectsWithTransformation
- */
-export function getGetReplaceAllObjectsWithTransformationQueryKey(
-  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
-) {
-  return ['/replaceAllObjectsWithTransformation', args] as const
+  return useQuery({
+    queryKey: ['/replaceAllObjectsWithTransformation', args] as const,
+    queryFn: async () =>
+      parseResponse(client.replaceAllObjectsWithTransformation.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2403,36 +3202,29 @@ export function getGetReplaceAllObjectsWithTransformationQueryKey(
 export function useGetChunkedBatch(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.chunkedBatch.$get>,
-      Error,
-      InferResponseType<typeof client.chunkedBatch.$get>,
-      readonly ['/chunkedBatch', InferRequestType<typeof client.chunkedBatch.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.chunkedBatch.$get>,
+      ) => InferResponseType<typeof client.chunkedBatch.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetChunkedBatchQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.chunkedBatch.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /chunkedBatch
- */
-export function getGetChunkedBatchQueryKey(
-  args: InferRequestType<typeof client.chunkedBatch.$get>,
-) {
-  return ['/chunkedBatch', args] as const
+  return useQuery({
+    queryKey: ['/chunkedBatch', args] as const,
+    queryFn: async () => parseResponse(client.chunkedBatch.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2445,34 +3237,29 @@ export function getGetChunkedBatchQueryKey(
 export function useGetSaveObjects(
   args: InferRequestType<typeof client.saveObjects.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.saveObjects.$get>,
-      Error,
-      InferResponseType<typeof client.saveObjects.$get>,
-      readonly ['/saveObjects', InferRequestType<typeof client.saveObjects.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.saveObjects.$get>,
+      ) => InferResponseType<typeof client.saveObjects.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSaveObjectsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.saveObjects.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /saveObjects
- */
-export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['/saveObjects', args] as const
+  return useQuery({
+    queryKey: ['/saveObjects', args] as const,
+    queryFn: async () => parseResponse(client.saveObjects.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2485,40 +3272,30 @@ export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.s
 export function useGetSaveObjectsWithTransformation(
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.saveObjectsWithTransformation.$get>,
-      Error,
-      InferResponseType<typeof client.saveObjectsWithTransformation.$get>,
-      readonly [
-        '/saveObjectsWithTransformation',
-        InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.saveObjectsWithTransformation.$get>,
+      ) => InferResponseType<typeof client.saveObjectsWithTransformation.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSaveObjectsWithTransformationQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client.saveObjectsWithTransformation.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /saveObjectsWithTransformation
- */
-export function getGetSaveObjectsWithTransformationQueryKey(
-  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-) {
-  return ['/saveObjectsWithTransformation', args] as const
+  return useQuery({
+    queryKey: ['/saveObjectsWithTransformation', args] as const,
+    queryFn: async () =>
+      parseResponse(client.saveObjectsWithTransformation.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2528,17 +3305,30 @@ export function getGetSaveObjectsWithTransformationQueryKey(
  *
  * Helper: Deletes every records for the given objectIDs. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objectIDs in it.
  */
-export function usePostDeleteObjects(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.deleteObjects.$post>) =>
-        parseResponse(client.deleteObjects.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostDeleteObjects(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.deleteObjects.$post>,
+      variables: InferRequestType<typeof client.deleteObjects.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.deleteObjects.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.deleteObjects.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.deleteObjects.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.deleteObjects.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.deleteObjects.$post>) =>
+      parseResponse(client.deleteObjects.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2548,17 +3338,33 @@ export function usePostDeleteObjects(
  *
  * Helper: Replaces object content of all the given objects according to their respective `objectID` field. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objects in it.
  */
-export function usePostPartialUpdateObjects(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.partialUpdateObjects.$post>) =>
-        parseResponse(client.partialUpdateObjects.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostPartialUpdateObjects(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.partialUpdateObjects.$post>,
+      variables: InferRequestType<typeof client.partialUpdateObjects.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.partialUpdateObjects.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.partialUpdateObjects.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.partialUpdateObjects.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.partialUpdateObjects.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.partialUpdateObjects.$post>) =>
+      parseResponse(client.partialUpdateObjects.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2568,19 +3374,38 @@ export function usePostPartialUpdateObjects(
  *
  * Helper: Similar to the `partialUpdateObjects` method but requires a Push connector (https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/connectors/push) to be created first, in order to transform records before indexing them to Algolia. The `region` must have been passed to the client instantiation method.
  */
-export function usePostPartialUpdateObjectsWithTransformation(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
-      ) =>
-        parseResponse(client.partialUpdateObjectsWithTransformation.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostPartialUpdateObjectsWithTransformation(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+      variables: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<typeof client.partialUpdateObjectsWithTransformation.$post>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+    ) => parseResponse(client.partialUpdateObjectsWithTransformation.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -2593,34 +3418,29 @@ export function usePostPartialUpdateObjectsWithTransformation(
 export function useGetIndexExists(
   args: InferRequestType<typeof client.indexExists.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.indexExists.$get>,
-      Error,
-      InferResponseType<typeof client.indexExists.$get>,
-      readonly ['/indexExists', InferRequestType<typeof client.indexExists.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.indexExists.$get>,
+      ) => InferResponseType<typeof client.indexExists.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetIndexExistsQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.indexExists.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /indexExists
- */
-export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
-  return ['/indexExists', args] as const
+  return useQuery({
+    queryKey: ['/indexExists', args] as const,
+    queryFn: async () => parseResponse(client.indexExists.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -2633,34 +3453,27 @@ export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.i
 export function useGetSetClientApiKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
   options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.setClientApiKey.$get>,
-      Error,
-      InferResponseType<typeof client.setClientApiKey.$get>,
-      readonly ['/setClientApiKey', InferRequestType<typeof client.setClientApiKey.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.setClientApiKey.$get> | undefined,
+      ) => InferResponseType<typeof client.setClientApiKey.$get> | undefined
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetSetClientApiKeyQueryKey(args)
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.setClientApiKey.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
-}
-
-/**
- * Generates TanStack Query cache key for GET /setClientApiKey
- */
-export function getGetSetClientApiKeyQueryKey(
-  args: InferRequestType<typeof client.setClientApiKey.$get>,
-) {
-  return ['/setClientApiKey', args] as const
+  return useQuery({
+    queryKey: ['/setClientApiKey', args] as const,
+    queryFn: async () => parseResponse(client.setClientApiKey.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }

@@ -6,11 +6,28 @@ import { client } from '../clients/28-reserved-words'
 /**
  * GET /class
  */
-export function useGetClass(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetClassQueryKey()
+export function useGetClass(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.class.$get>,
+    ) => InferResponseType<typeof client.class.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetClassQueryKey(),
     queryFn: async () => parseResponse(client.class.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -24,11 +41,28 @@ export function getGetClassQueryKey() {
 /**
  * GET /interface
  */
-export function useGetInterface(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetInterfaceQueryKey()
+export function useGetInterface(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.interface.$get>,
+    ) => InferResponseType<typeof client.interface.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetInterfaceQueryKey(),
     queryFn: async () => parseResponse(client.interface.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -42,11 +76,28 @@ export function getGetInterfaceQueryKey() {
 /**
  * GET /type
  */
-export function useGetType(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetTypeQueryKey()
+export function useGetType(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.type.$get>,
+    ) => InferResponseType<typeof client.type.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetTypeQueryKey(),
     queryFn: async () => parseResponse(client.type.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -60,20 +111,53 @@ export function getGetTypeQueryKey() {
 /**
  * POST /function
  */
-export function usePostFunction(clientOptions?: ClientRequestOptions) {
+export function usePostFunction(options?: {
+  mutation?: {
+    onSuccess?: (data: InferResponseType<typeof client.function.$post>, variables: void) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.function.$post> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /return
  */
-export function useGetReturn(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetReturnQueryKey()
+export function useGetReturn(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.return.$get>,
+    ) => InferResponseType<typeof client.return.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetReturnQueryKey(),
     queryFn: async () => parseResponse(client.return.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -87,11 +171,28 @@ export function getGetReturnQueryKey() {
 /**
  * GET /import
  */
-export function useGetImport(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetImportQueryKey()
+export function useGetImport(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.import.$get>,
+    ) => InferResponseType<typeof client.import.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetImportQueryKey(),
     queryFn: async () => parseResponse(client.import.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -105,11 +206,28 @@ export function getGetImportQueryKey() {
 /**
  * GET /export
  */
-export function useGetExport(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetExportQueryKey()
+export function useGetExport(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.export.$get>,
+    ) => InferResponseType<typeof client.export.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetExportQueryKey(),
     queryFn: async () => parseResponse(client.export.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -123,11 +241,28 @@ export function getGetExportQueryKey() {
 /**
  * GET /default
  */
-export function useGetDefault(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetDefaultQueryKey()
+export function useGetDefault(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.default.$get>,
+    ) => InferResponseType<typeof client.default.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetDefaultQueryKey(),
     queryFn: async () => parseResponse(client.default.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -141,29 +276,78 @@ export function getGetDefaultQueryKey() {
 /**
  * POST /new
  */
-export function usePostNew(clientOptions?: ClientRequestOptions) {
+export function usePostNew(options?: {
+  mutation?: {
+    onSuccess?: (data: InferResponseType<typeof client.new.$post>, variables: void) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.new.$post> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /delete
  */
-export function useDeleteDelete(clientOptions?: ClientRequestOptions) {
+export function useDeleteDelete(options?: {
+  mutation?: {
+    onSuccess?: (data: InferResponseType<typeof client.delete.$delete>, variables: void) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.delete.$delete> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /void
  */
-export function useGetVoid(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetVoidQueryKey()
+export function useGetVoid(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.void.$get>,
+    ) => InferResponseType<typeof client.void.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetVoidQueryKey(),
     queryFn: async () => parseResponse(client.void.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -177,11 +361,28 @@ export function getGetVoidQueryKey() {
 /**
  * GET /null
  */
-export function useGetNull(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetNullQueryKey()
+export function useGetNull(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.null.$get>,
+    ) => InferResponseType<typeof client.null.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetNullQueryKey(),
     queryFn: async () => parseResponse(client.null.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -195,11 +396,28 @@ export function getGetNullQueryKey() {
 /**
  * GET /true
  */
-export function useGetTrue(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetTrueQueryKey()
+export function useGetTrue(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.true.$get>,
+    ) => InferResponseType<typeof client.true.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetTrueQueryKey(),
     queryFn: async () => parseResponse(client.true.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -213,11 +431,28 @@ export function getGetTrueQueryKey() {
 /**
  * GET /false
  */
-export function useGetFalse(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetFalseQueryKey()
+export function useGetFalse(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.false.$get>,
+    ) => InferResponseType<typeof client.false.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetFalseQueryKey(),
     queryFn: async () => parseResponse(client.false.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -231,11 +466,28 @@ export function getGetFalseQueryKey() {
 /**
  * GET /if
  */
-export function useGetIf(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetIfQueryKey()
+export function useGetIf(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.if.$get>,
+    ) => InferResponseType<typeof client.if.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetIfQueryKey(),
     queryFn: async () => parseResponse(client.if.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -249,11 +501,28 @@ export function getGetIfQueryKey() {
 /**
  * GET /else
  */
-export function useGetElse(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetElseQueryKey()
+export function useGetElse(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.else.$get>,
+    ) => InferResponseType<typeof client.else.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetElseQueryKey(),
     queryFn: async () => parseResponse(client.else.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -267,11 +536,28 @@ export function getGetElseQueryKey() {
 /**
  * GET /for
  */
-export function useGetFor(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetForQueryKey()
+export function useGetFor(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.for.$get>,
+    ) => InferResponseType<typeof client.for.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetForQueryKey(),
     queryFn: async () => parseResponse(client.for.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -285,11 +571,28 @@ export function getGetForQueryKey() {
 /**
  * GET /while
  */
-export function useGetWhile(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetWhileQueryKey()
+export function useGetWhile(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.while.$get>,
+    ) => InferResponseType<typeof client.while.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWhileQueryKey(),
     queryFn: async () => parseResponse(client.while.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -303,11 +606,28 @@ export function getGetWhileQueryKey() {
 /**
  * GET /switch
  */
-export function useGetSwitch(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetSwitchQueryKey()
+export function useGetSwitch(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.switch.$get>,
+    ) => InferResponseType<typeof client.switch.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSwitchQueryKey(),
     queryFn: async () => parseResponse(client.switch.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -321,11 +641,28 @@ export function getGetSwitchQueryKey() {
 /**
  * GET /case
  */
-export function useGetCase(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetCaseQueryKey()
+export function useGetCase(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.case.$get>,
+    ) => InferResponseType<typeof client.case.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetCaseQueryKey(),
     queryFn: async () => parseResponse(client.case.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -339,11 +676,28 @@ export function getGetCaseQueryKey() {
 /**
  * GET /break
  */
-export function useGetBreak(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetBreakQueryKey()
+export function useGetBreak(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.break.$get>,
+    ) => InferResponseType<typeof client.break.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetBreakQueryKey(),
     queryFn: async () => parseResponse(client.break.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -357,11 +711,28 @@ export function getGetBreakQueryKey() {
 /**
  * GET /continue
  */
-export function useGetContinue(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetContinueQueryKey()
+export function useGetContinue(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.continue.$get>,
+    ) => InferResponseType<typeof client.continue.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetContinueQueryKey(),
     queryFn: async () => parseResponse(client.continue.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -375,11 +746,28 @@ export function getGetContinueQueryKey() {
 /**
  * GET /try
  */
-export function useGetTry(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetTryQueryKey()
+export function useGetTry(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.try.$get>,
+    ) => InferResponseType<typeof client.try.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetTryQueryKey(),
     queryFn: async () => parseResponse(client.try.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -393,11 +781,28 @@ export function getGetTryQueryKey() {
 /**
  * GET /catch
  */
-export function useGetCatch(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetCatchQueryKey()
+export function useGetCatch(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.catch.$get>,
+    ) => InferResponseType<typeof client.catch.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetCatchQueryKey(),
     queryFn: async () => parseResponse(client.catch.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -411,11 +816,28 @@ export function getGetCatchQueryKey() {
 /**
  * GET /finally
  */
-export function useGetFinally(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetFinallyQueryKey()
+export function useGetFinally(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.finally.$get>,
+    ) => InferResponseType<typeof client.finally.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetFinallyQueryKey(),
     queryFn: async () => parseResponse(client.finally.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -429,11 +851,28 @@ export function getGetFinallyQueryKey() {
 /**
  * GET /throw
  */
-export function useGetThrow(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetThrowQueryKey()
+export function useGetThrow(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.throw.$get>,
+    ) => InferResponseType<typeof client.throw.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetThrowQueryKey(),
     queryFn: async () => parseResponse(client.throw.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -447,11 +886,28 @@ export function getGetThrowQueryKey() {
 /**
  * GET /async
  */
-export function useGetAsync(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetAsyncQueryKey()
+export function useGetAsync(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.async.$get>,
+    ) => InferResponseType<typeof client.async.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAsyncQueryKey(),
     queryFn: async () => parseResponse(client.async.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -465,11 +921,28 @@ export function getGetAsyncQueryKey() {
 /**
  * GET /await
  */
-export function useGetAwait(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetAwaitQueryKey()
+export function useGetAwait(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.await.$get>,
+    ) => InferResponseType<typeof client.await.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAwaitQueryKey(),
     queryFn: async () => parseResponse(client.await.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -483,11 +956,28 @@ export function getGetAwaitQueryKey() {
 /**
  * GET /yield
  */
-export function useGetYield(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetYieldQueryKey()
+export function useGetYield(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.yield.$get>,
+    ) => InferResponseType<typeof client.yield.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetYieldQueryKey(),
     queryFn: async () => parseResponse(client.yield.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -501,11 +991,28 @@ export function getGetYieldQueryKey() {
 /**
  * GET /static
  */
-export function useGetStatic(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetStaticQueryKey()
+export function useGetStatic(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.static.$get>,
+    ) => InferResponseType<typeof client.static.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetStaticQueryKey(),
     queryFn: async () => parseResponse(client.static.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -519,11 +1026,28 @@ export function getGetStaticQueryKey() {
 /**
  * GET /public
  */
-export function useGetPublic(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetPublicQueryKey()
+export function useGetPublic(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.public.$get>,
+    ) => InferResponseType<typeof client.public.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPublicQueryKey(),
     queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -537,11 +1061,28 @@ export function getGetPublicQueryKey() {
 /**
  * GET /private
  */
-export function useGetPrivate(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetPrivateQueryKey()
+export function useGetPrivate(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.private.$get>,
+    ) => InferResponseType<typeof client.private.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPrivateQueryKey(),
     queryFn: async () => parseResponse(client.private.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -555,11 +1096,28 @@ export function getGetPrivateQueryKey() {
 /**
  * GET /protected
  */
-export function useGetProtected(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetProtectedQueryKey()
+export function useGetProtected(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.protected.$get>,
+    ) => InferResponseType<typeof client.protected.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetProtectedQueryKey(),
     queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -573,11 +1131,28 @@ export function getGetProtectedQueryKey() {
 /**
  * GET /abstract
  */
-export function useGetAbstract(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetAbstractQueryKey()
+export function useGetAbstract(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.abstract.$get>,
+    ) => InferResponseType<typeof client.abstract.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAbstractQueryKey(),
     queryFn: async () => parseResponse(client.abstract.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -591,11 +1166,28 @@ export function getGetAbstractQueryKey() {
 /**
  * GET /final
  */
-export function useGetFinal(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetFinalQueryKey()
+export function useGetFinal(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.final.$get>,
+    ) => InferResponseType<typeof client.final.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetFinalQueryKey(),
     queryFn: async () => parseResponse(client.final.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -609,11 +1201,28 @@ export function getGetFinalQueryKey() {
 /**
  * GET /extends
  */
-export function useGetExtends(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetExtendsQueryKey()
+export function useGetExtends(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.extends.$get>,
+    ) => InferResponseType<typeof client.extends.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetExtendsQueryKey(),
     queryFn: async () => parseResponse(client.extends.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -627,11 +1236,28 @@ export function getGetExtendsQueryKey() {
 /**
  * GET /implements
  */
-export function useGetImplements(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetImplementsQueryKey()
+export function useGetImplements(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.implements.$get>,
+    ) => InferResponseType<typeof client.implements.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetImplementsQueryKey(),
     queryFn: async () => parseResponse(client.implements.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -645,11 +1271,28 @@ export function getGetImplementsQueryKey() {
 /**
  * GET /package
  */
-export function useGetPackage(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetPackageQueryKey()
+export function useGetPackage(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.package.$get>,
+    ) => InferResponseType<typeof client.package.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPackageQueryKey(),
     queryFn: async () => parseResponse(client.package.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -663,11 +1306,28 @@ export function getGetPackageQueryKey() {
 /**
  * GET /enum
  */
-export function useGetEnum(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetEnumQueryKey()
+export function useGetEnum(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.enum.$get>,
+    ) => InferResponseType<typeof client.enum.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetEnumQueryKey(),
     queryFn: async () => parseResponse(client.enum.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -681,11 +1341,28 @@ export function getGetEnumQueryKey() {
 /**
  * GET /const
  */
-export function useGetConst(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetConstQueryKey()
+export function useGetConst(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.const.$get>,
+    ) => InferResponseType<typeof client.const.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetConstQueryKey(),
     queryFn: async () => parseResponse(client.const.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -699,11 +1376,28 @@ export function getGetConstQueryKey() {
 /**
  * GET /let
  */
-export function useGetLet(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetLetQueryKey()
+export function useGetLet(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.let.$get>,
+    ) => InferResponseType<typeof client.let.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetLetQueryKey(),
     queryFn: async () => parseResponse(client.let.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -717,11 +1411,28 @@ export function getGetLetQueryKey() {
 /**
  * GET /var
  */
-export function useGetVar(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetVarQueryKey()
+export function useGetVar(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.var.$get>,
+    ) => InferResponseType<typeof client.var.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetVarQueryKey(),
     queryFn: async () => parseResponse(client.var.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -735,11 +1446,28 @@ export function getGetVarQueryKey() {
 /**
  * GET /this
  */
-export function useGetThis(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetThisQueryKey()
+export function useGetThis(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.this.$get>,
+    ) => InferResponseType<typeof client.this.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetThisQueryKey(),
     queryFn: async () => parseResponse(client.this.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -753,11 +1481,28 @@ export function getGetThisQueryKey() {
 /**
  * GET /super
  */
-export function useGetSuper(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetSuperQueryKey()
+export function useGetSuper(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.super.$get>,
+    ) => InferResponseType<typeof client.super.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSuperQueryKey(),
     queryFn: async () => parseResponse(client.super.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -771,11 +1516,28 @@ export function getGetSuperQueryKey() {
 /**
  * GET /self
  */
-export function useGetSelf(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetSelfQueryKey()
+export function useGetSelf(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.self.$get>,
+    ) => InferResponseType<typeof client.self.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSelfQueryKey(),
     queryFn: async () => parseResponse(client.self.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -789,11 +1551,28 @@ export function getGetSelfQueryKey() {
 /**
  * GET /constructor
  */
-export function useGetConstructor(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetConstructorQueryKey()
+export function useGetConstructor(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.constructor.$get>,
+    ) => InferResponseType<typeof client.constructor.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetConstructorQueryKey(),
     queryFn: async () => parseResponse(client.constructor.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -807,11 +1586,28 @@ export function getGetConstructorQueryKey() {
 /**
  * GET /prototype
  */
-export function useGetPrototype(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetPrototypeQueryKey()
+export function useGetPrototype(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.prototype.$get>,
+    ) => InferResponseType<typeof client.prototype.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPrototypeQueryKey(),
     queryFn: async () => parseResponse(client.prototype.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -825,11 +1621,28 @@ export function getGetPrototypeQueryKey() {
 /**
  * GET /toString
  */
-export function useGetToString(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetToStringQueryKey()
+export function useGetToString(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.toString.$get>,
+    ) => InferResponseType<typeof client.toString.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetToStringQueryKey(),
     queryFn: async () => parseResponse(client.toString.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -843,11 +1656,28 @@ export function getGetToStringQueryKey() {
 /**
  * GET /valueOf
  */
-export function useGetValueOf(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetValueOfQueryKey()
+export function useGetValueOf(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.valueOf.$get>,
+    ) => InferResponseType<typeof client.valueOf.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetValueOfQueryKey(),
     queryFn: async () => parseResponse(client.valueOf.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -861,11 +1691,28 @@ export function getGetValueOfQueryKey() {
 /**
  * GET /hasOwnProperty
  */
-export function useGetHasOwnProperty(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetHasOwnPropertyQueryKey()
+export function useGetHasOwnProperty(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.hasOwnProperty.$get>,
+    ) => InferResponseType<typeof client.hasOwnProperty.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetHasOwnPropertyQueryKey(),
     queryFn: async () => parseResponse(client.hasOwnProperty.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -879,11 +1726,28 @@ export function getGetHasOwnPropertyQueryKey() {
 /**
  * GET /name-collisions
  */
-export function useGetNameCollisions(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetNameCollisionsQueryKey()
+export function useGetNameCollisions(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['name-collisions']['$get']>,
+    ) => InferResponseType<(typeof client)['name-collisions']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetNameCollisionsQueryKey(),
     queryFn: async () => parseResponse(client['name-collisions'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

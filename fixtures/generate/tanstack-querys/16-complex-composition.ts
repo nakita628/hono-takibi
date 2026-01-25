@@ -1,5 +1,4 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
@@ -7,61 +6,87 @@ import { client } from '../clients/16-complex-composition'
 /**
  * POST /messages
  */
-export function usePostMessages(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.messages.$post>) =>
-        parseResponse(client.messages.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostMessages(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.messages.$post>,
+      variables: InferRequestType<typeof client.messages.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.messages.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.messages.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.messages.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.messages.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.messages.$post>) =>
+      parseResponse(client.messages.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /events
  */
-export function usePostEvents(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.events.$post>) =>
-        parseResponse(client.events.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostEvents(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.events.$post>,
+      variables: InferRequestType<typeof client.events.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.events.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.events.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.events.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.events.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.events.$post>) =>
+      parseResponse(client.events.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * GET /configs
  */
-export function useGetConfigs(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.configs.$get>,
-      Error,
-      InferResponseType<typeof client.configs.$get>,
-      readonly ['/configs']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetConfigs(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.configs.$get>,
+    ) => InferResponseType<typeof client.configs.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetConfigsQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.configs.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetConfigsQueryKey(),
+    queryFn: async () => parseResponse(client.configs.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -74,47 +99,86 @@ export function getGetConfigsQueryKey() {
 /**
  * PUT /configs
  */
-export function usePutConfigs(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.configs.$put>) =>
-        parseResponse(client.configs.$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePutConfigs(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.configs.$put>,
+      variables: InferRequestType<typeof client.configs.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.configs.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.configs.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.configs.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.configs.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.configs.$put>) =>
+      parseResponse(client.configs.$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /resources
  */
-export function usePostResources(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.resources.$post>) =>
-        parseResponse(client.resources.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostResources(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.resources.$post>,
+      variables: InferRequestType<typeof client.resources.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.resources.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.resources.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.resources.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.resources.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.resources.$post>) =>
+      parseResponse(client.resources.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
  * POST /validations
  */
-export function usePostValidations(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.validations.$post>) =>
-        parseResponse(client.validations.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostValidations(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.validations.$post>,
+      variables: InferRequestType<typeof client.validations.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.validations.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.validations.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.validations.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.validations.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.validations.$post>) =>
+      parseResponse(client.validations.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }

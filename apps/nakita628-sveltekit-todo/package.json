@@ -3,16 +3,34 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite dev --host"
-  },
-  "devDependencies": {
-    "@sveltejs/kit": "^2.50.1",
-    "svelte": "^5.48.0",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1"
+    "dev": "vite dev --host",
+    "dev:api": "wrangler dev src/server.ts",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy:api": "wrangler deploy src/server.ts",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "takibi": "hono-takibi",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@hono/zod-openapi": "^1.2.0",
+    "@tanstack/svelte-query": "^5.80.6",
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.11.4",
+    "neverthrow": "^8.2.0",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@hono/swagger-ui": "^0.5.3",
+    "@hono/vite-build": "^1.9.1",
+    "@hono/vite-dev-server": "^0.24.1",
+    "@sveltejs/kit": "^2.50.1",
     "@tailwindcss/vite": "^4.1.18",
-    "tailwindcss": "^4.1.18"
+    "hono-takibi": "workspace:^",
+    "svelte": "^5.48.0",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.8.3",
+    "vite": "^7.3.1",
+    "wrangler": "^4.4.0"
   }
 }

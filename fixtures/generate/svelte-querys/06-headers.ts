@@ -1,5 +1,4 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
@@ -10,27 +9,29 @@ import { client } from '../clients/06-headers'
 export function createGetResources(
   args: InferRequestType<typeof client.resources.$get>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.resources.$get>,
-      Error,
-      InferResponseType<typeof client.resources.$get>,
-      readonly ['/resources', InferRequestType<typeof client.resources.$get>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.resources.$get>,
+      ) => InferResponseType<typeof client.resources.$get>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetResourcesQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.resources.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetResourcesQueryKey(args),
+    queryFn: async () => parseResponse(client.resources.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -46,31 +47,33 @@ export function getGetResourcesQueryKey(args: InferRequestType<typeof client.res
 export function createGetResourcesId(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.resources)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.resources)[':id']['$get']>,
-      readonly ['/resources/:id', InferRequestType<(typeof client.resources)[':id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.resources)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.resources)[':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetResourcesIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetResourcesIdQueryKey(args),
+    queryFn: async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /resources/{id}
+ * Generates Svelte Query cache key for GET /resources/{id
  */
 export function getGetResourcesIdQueryKey(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
@@ -81,17 +84,33 @@ export function getGetResourcesIdQueryKey(
 /**
  * PUT /resources/{id}
  */
-export function createPutResourcesId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
-        parseResponse(client.resources[':id'].$put(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPutResourcesId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.resources)[':id']['$put']>,
+      variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.resources)[':id']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.resources)[':id']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
+      parseResponse(client.resources[':id'].$put(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -100,31 +119,33 @@ export function createPutResourcesId(
 export function createGetDownloadId(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client.download)[':id']['$get']>,
-      Error,
-      InferResponseType<(typeof client.download)[':id']['$get']>,
-      readonly ['/download/:id', InferRequestType<(typeof client.download)[':id']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.download)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.download)[':id']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetDownloadIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetDownloadIdQueryKey(args),
+    queryFn: async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /download/{id}
+ * Generates Svelte Query cache key for GET /download/{id
  */
 export function getGetDownloadIdQueryKey(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,

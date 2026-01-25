@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -10,11 +11,21 @@ import { client } from '../clients/edge'
  *
  * Polymorphic object with discriminator
  */
-export function usePostPolymorphic(options?: { client?: ClientRequestOptions }) {
+export function usePostPolymorphic(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.polymorphic.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.polymorphic.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /polymorphic',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.polymorphic.$post> }) =>
       parseResponse(client.polymorphic.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -55,10 +66,20 @@ export function getGetSearchKey(args?: InferRequestType<typeof client.search.$ge
  *
  * Multi-step object definition using allOf
  */
-export function usePutMultiStep(options?: { client?: ClientRequestOptions }) {
+export function usePutMultiStep(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['multi-step']['$put']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client)['multi-step']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /multi-step',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)['multi-step']['$put']> }) =>
       parseResponse(client['multi-step'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }

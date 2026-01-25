@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-number'
 
@@ -10,11 +10,28 @@ import { client } from '../clients/openapi-number'
  *
  * zod number
  */
-export function useGetNumber(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetNumberQueryKey()
+export function useGetNumber(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.number.$get>,
+    ) => InferResponseType<typeof client.number.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetNumberQueryKey(),
     queryFn: async () => parseResponse(client.number.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

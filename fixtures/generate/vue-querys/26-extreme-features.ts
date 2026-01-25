@@ -8,11 +8,28 @@ import { client } from '../clients/26-extreme-features'
  *
  * Stream data with Server-Sent Events
  */
-export function useGetStream(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetStreamQueryKey()
+export function useGetStream(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.stream.$get>,
+    ) => InferResponseType<typeof client.stream.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetStreamQueryKey(),
     queryFn: async () => parseResponse(client.stream.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -28,10 +45,29 @@ export function getGetStreamQueryKey() {
  *
  * GraphQL endpoint
  */
-export function usePostGraphql(clientOptions?: ClientRequestOptions) {
+export function usePostGraphql(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.graphql.$post>,
+      variables: InferRequestType<typeof client.graphql.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.graphql.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.graphql.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.graphql.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.graphql.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.graphql.$post>) =>
       parseResponse(client.graphql.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -40,10 +76,32 @@ export function usePostGraphql(clientOptions?: ClientRequestOptions) {
  *
  * gRPC-Gateway endpoint
  */
-export function usePostGrpcGateway(clientOptions?: ClientRequestOptions) {
+export function usePostGrpcGateway(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['grpc-gateway']['$post']>,
+      variables: InferRequestType<(typeof client)['grpc-gateway']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['grpc-gateway']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['grpc-gateway']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['grpc-gateway']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['grpc-gateway']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client)['grpc-gateway']['$post']>) =>
       parseResponse(client['grpc-gateway'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -56,12 +114,29 @@ export function usePostGrpcGateway(clientOptions?: ClientRequestOptions) {
  *
  * Please use `/new-endpoint` instead.
  */
-export function useGetDeprecatedEndpoint(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetDeprecatedEndpointQueryKey()
+export function useGetDeprecatedEndpoint(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
+    ) => InferResponseType<(typeof client)['deprecated-endpoint']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetDeprecatedEndpointQueryKey(),
     queryFn: async () =>
       parseResponse(client['deprecated-endpoint'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 

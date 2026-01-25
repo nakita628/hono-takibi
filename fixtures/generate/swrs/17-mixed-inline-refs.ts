@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/17-mixed-inline-refs'
 
@@ -38,11 +39,21 @@ export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>
 /**
  * POST /users
  */
-export function usePostUsers(options?: { client?: ClientRequestOptions }) {
+export function usePostUsers(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.users.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.users.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /users',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
       parseResponse(client.users.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -70,7 +81,7 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId}
+ * Generates SWR cache key for GET /users/{userId
  */
 export function getGetUsersUserIdKey(
   args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
@@ -81,11 +92,21 @@ export function getGetUsersUserIdKey(
 /**
  * POST /orders
  */
-export function usePostOrders(options?: { client?: ClientRequestOptions }) {
+export function usePostOrders(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.orders.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.orders.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /orders',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
       parseResponse(client.orders.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -113,7 +134,7 @@ export function useGetProductsProductIdVariants(
 }
 
 /**
- * Generates SWR cache key for GET /products/{productId}/variants
+ * Generates SWR cache key for GET /products/{productId/variants
  */
 export function getGetProductsProductIdVariantsKey(
   args?: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
@@ -124,21 +145,41 @@ export function getGetProductsProductIdVariantsKey(
 /**
  * POST /reports/generate
  */
-export function usePostReportsGenerate(options?: { client?: ClientRequestOptions }) {
+export function usePostReportsGenerate(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.reports.generate.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.reports.generate.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /reports/generate',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.reports.generate.$post> }) =>
       parseResponse(client.reports.generate.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * POST /webhooks/test
  */
-export function usePostWebhooksTest(options?: { client?: ClientRequestOptions }) {
+export function usePostWebhooksTest(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.webhooks.test.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.webhooks.test.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /webhooks/test',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.webhooks.test.$post> }) =>
       parseResponse(client.webhooks.test.$post(arg, options?.client)),
+    mutationOptions,
   )
 }

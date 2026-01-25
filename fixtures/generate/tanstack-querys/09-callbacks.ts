@@ -1,5 +1,4 @@
 import { useMutation } from '@tanstack/react-query'
-import type { QueryClient, UseMutationOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
@@ -9,17 +8,30 @@ import { client } from '../clients/09-callbacks'
  *
  * Register a webhook endpoint
  */
-export function usePostWebhooks(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
-        parseResponse(client.webhooks.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostWebhooks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.webhooks.$post>,
+      variables: InferRequestType<typeof client.webhooks.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.webhooks.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.webhooks.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.webhooks.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.webhooks.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
+      parseResponse(client.webhooks.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -27,17 +39,30 @@ export function usePostWebhooks(
  *
  * Create a subscription with payment callbacks
  */
-export function usePostSubscriptions(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.subscriptions.$post>) =>
-        parseResponse(client.subscriptions.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostSubscriptions(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.subscriptions.$post>,
+      variables: InferRequestType<typeof client.subscriptions.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.subscriptions.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.subscriptions.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.subscriptions.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.subscriptions.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.subscriptions.$post>) =>
+      parseResponse(client.subscriptions.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -45,17 +70,30 @@ export function usePostSubscriptions(
  *
  * Create an async job with progress callbacks
  */
-export function usePostJobs(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (args: InferRequestType<typeof client.jobs.$post>) =>
-        parseResponse(client.jobs.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostJobs(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.jobs.$post>,
+      variables: InferRequestType<typeof client.jobs.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.jobs.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.jobs.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.jobs.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.jobs.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (args: InferRequestType<typeof client.jobs.$post>) =>
+      parseResponse(client.jobs.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -63,16 +101,36 @@ export function usePostJobs(
  *
  * Trigger data sync with callbacks
  */
-export function usePostIntegrationsIntegrationIdSync(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return useMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
-      ) => parseResponse(client.integrations[':integrationId'].sync.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function usePostIntegrationsIntegrationIdSync(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
+      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.integrations)[':integrationId']['sync']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
+    ) => parseResponse(client.integrations[':integrationId'].sync.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }

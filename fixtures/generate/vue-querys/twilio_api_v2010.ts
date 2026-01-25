@@ -12,13 +12,30 @@ import { client } from '../clients/twilio_api_v2010'
  */
 export function useGet20100401AccountsJson(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
+      ) => InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(client['2010-04-01']['Accounts.json'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -38,11 +55,35 @@ export function getGet20100401AccountsJsonQueryKey(
  *
  * Create a new Twilio Subaccount from the account making the request
  */
-export function usePost20100401AccountsJson(clientOptions?: ClientRequestOptions) {
+export function usePost20100401AccountsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
+      variables: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
     ) => parseResponse(client['2010-04-01']['Accounts.json'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -55,18 +96,35 @@ export function usePost20100401AccountsJson(clientOptions?: ClientRequestOptions
  */
 export function useGet20100401AccountsSidJson(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
+      ) => InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{Sid.json
  */
 export function getGet20100401AccountsSidJsonQueryKey(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
@@ -81,11 +139,37 @@ export function getGet20100401AccountsSidJsonQueryKey(
  *
  * Modify the properties of a given Account
  */
-export function usePost20100401AccountsSidJson(clientOptions?: ClientRequestOptions) {
+export function usePost20100401AccountsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
+      variables: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
     ) => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -96,20 +180,41 @@ export function useGet20100401AccountsAccountSidAddressesJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidAddressesJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidAddressesJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Addresses.json
  */
 export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
   args: InferRequestType<
@@ -122,9 +227,44 @@ export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
  */
-export function usePost20100401AccountsAccountSidAddressesJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidAddressesJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -134,6 +274,7 @@ export function usePost20100401AccountsAccountSidAddressesJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -144,11 +285,31 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$get(
@@ -156,11 +317,12 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Addresses/{Sid.json
  */
 export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
   args: InferRequestType<
@@ -173,9 +335,44 @@ export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
-export function usePost20100401AccountsAccountSidAddressesSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -188,15 +385,53 @@ export function usePost20100401AccountsAccountSidAddressesSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
-export function useDelete20100401AccountsAccountSidAddressesSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidAddressesSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -209,6 +444,7 @@ export function useDelete20100401AccountsAccountSidAddressesSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -223,20 +459,41 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidApplicationsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidApplicationsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Applications.json
  */
 export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
   args: InferRequestType<
@@ -253,9 +510,44 @@ export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
  *
  * Create a new application within your account
  */
-export function usePost20100401AccountsAccountSidApplicationsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidApplicationsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -268,6 +560,7 @@ export function usePost20100401AccountsAccountSidApplicationsJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -282,11 +575,31 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$get(
@@ -294,11 +607,12 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Applications/{Sid.json
  */
 export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
   args: InferRequestType<
@@ -315,9 +629,44 @@ export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
  *
  * Updates the application's properties
  */
-export function usePost20100401AccountsAccountSidApplicationsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -330,6 +679,7 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -340,9 +690,46 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(
  *
  * Delete the application by the specified application sid
  */
-export function useDelete20100401AccountsAccountSidApplicationsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidApplicationsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -355,6 +742,7 @@ export function useDelete20100401AccountsAccountSidApplicationsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -369,23 +757,43 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AuthorizedConnectApps[
           ':ConnectAppSid.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/AuthorizedConnectApps/{ConnectAppSid.json
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(
   args: InferRequestType<
@@ -409,11 +817,31 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$get(
@@ -421,11 +849,12 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/AuthorizedConnectApps.json
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(
   args: InferRequestType<
@@ -442,11 +871,31 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$get(
@@ -454,11 +903,12 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/AvailablePhoneNumbers.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(
   args: InferRequestType<
@@ -475,23 +925,43 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[
           ':CountryCode.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/AvailablePhoneNumbers/{CountryCode.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(
   args: InferRequestType<
@@ -508,23 +978,44 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'Local.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/AvailablePhoneNumbers/{CountryCode/Local.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(
   args: InferRequestType<
@@ -544,25 +1035,46 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'MachineToMachine.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/AvailablePhoneNumbers/{CountryCode/MachineToMachine.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
   args: InferRequestType<
@@ -582,23 +1094,44 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'Mobile.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/AvailablePhoneNumbers/{CountryCode/Mobile.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(
   args: InferRequestType<
@@ -618,23 +1151,44 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'National.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/AvailablePhoneNumbers/{CountryCode/National.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(
   args: InferRequestType<
@@ -654,23 +1208,44 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'SharedCost.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/AvailablePhoneNumbers/{CountryCode/SharedCost.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(
   args: InferRequestType<
@@ -690,23 +1265,44 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'TollFree.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/AvailablePhoneNumbers/{CountryCode/TollFree.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(
   args: InferRequestType<
@@ -726,23 +1322,44 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'Voip.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/AvailablePhoneNumbers/{CountryCode/Voip.json
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(
   args: InferRequestType<
@@ -766,20 +1383,41 @@ export function useGet20100401AccountsAccountSidBalanceJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidBalanceJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidBalanceJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Balance.json
  */
 export function getGet20100401AccountsAccountSidBalanceJsonQueryKey(
   args: InferRequestType<
@@ -800,20 +1438,41 @@ export function useGet20100401AccountsAccountSidCallsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidCallsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidCallsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Calls.json
  */
 export function getGet20100401AccountsAccountSidCallsJsonQueryKey(
   args: InferRequestType<
@@ -830,7 +1489,44 @@ export function getGet20100401AccountsAccountSidCallsJsonQueryKey(
  *
  * Create a new outgoing call to phones, SIP-enabled endpoints or Twilio Client connections
  */
-export function usePost20100401AccountsAccountSidCallsJson(clientOptions?: ClientRequestOptions) {
+export function usePost20100401AccountsAccountSidCallsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -840,6 +1536,7 @@ export function usePost20100401AccountsAccountSidCallsJson(clientOptions?: Clien
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -854,20 +1551,41 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidCallsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidCallsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Calls/{Sid.json
  */
 export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
   args: InferRequestType<
@@ -884,9 +1602,44 @@ export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
  *
  * Initiates a call redirect or terminates a call
  */
-export function usePost20100401AccountsAccountSidCallsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -896,6 +1649,7 @@ export function usePost20100401AccountsAccountSidCallsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -906,9 +1660,46 @@ export function usePost20100401AccountsAccountSidCallsSidJson(
  *
  * Delete a Call record from your account. Once the record is deleted, it will no longer appear in the API and Account Portal logs.
  */
-export function useDelete20100401AccountsAccountSidCallsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidCallsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -921,6 +1712,7 @@ export function useDelete20100401AccountsAccountSidCallsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -935,11 +1727,31 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$get(
@@ -947,11 +1759,12 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Calls/{CallSid/Events.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(
   args: InferRequestType<
@@ -968,22 +1781,43 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Notifications[
           ':Sid.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Calls/{CallSid/Notifications/{Sid.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(
   args: InferRequestType<
@@ -1000,11 +1834,31 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Notifications.json'].$get(
@@ -1012,11 +1866,12 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Calls/{CallSid/Notifications.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(
   args: InferRequestType<
@@ -1037,11 +1892,31 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$get(
@@ -1049,11 +1924,12 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Calls/{CallSid/Recordings.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(
   args: InferRequestType<
@@ -1070,9 +1946,44 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryK
  *
  * Create a recording for the call
  */
-export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1085,6 +1996,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1099,11 +2011,31 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$get(
@@ -1111,11 +2043,12 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Calls/{CallSid/Recordings/{Sid.json
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
@@ -1132,9 +2065,44 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQue
  *
  * Changes the status of the recording to paused, stopped, or in-progress. Note: Pass `Twilio.CURRENT` instead of recording sid to reference current active recording.
  */
-export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1146,6 +2114,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
           ':Sid.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1156,9 +2125,46 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
  *
  * Delete a recording from your account
  */
-export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1170,6 +2176,7 @@ export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson
           ':Sid.json'
         ].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1184,11 +2191,31 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$get(
@@ -1196,11 +2223,12 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Conferences/{Sid.json
  */
 export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
   args: InferRequestType<
@@ -1213,9 +2241,44 @@ export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
  */
-export function usePost20100401AccountsAccountSidConferencesSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidConferencesSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1228,6 +2291,7 @@ export function usePost20100401AccountsAccountSidConferencesSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1242,20 +2306,41 @@ export function useGet20100401AccountsAccountSidConferencesJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidConferencesJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidConferencesJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Conferences.json
  */
 export function getGet20100401AccountsAccountSidConferencesJsonQueryKey(
   args: InferRequestType<
@@ -1276,23 +2361,43 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
           'Recordings.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Conferences/{ConferenceSid/Recordings.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(
   args: InferRequestType<
@@ -1316,23 +2421,44 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
           ':Sid.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Conferences/{ConferenceSid/Recordings/{Sid.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
@@ -1352,9 +2478,44 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
  *
  * Changes the status of the recording to paused, stopped, or in-progress. Note: To use `Twilio.CURRENT`, pass it as recording sid.
  */
-export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1366,6 +2527,7 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
           ':Sid.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1376,9 +2538,46 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
  *
  * Delete a recording from your account
  */
-export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1390,6 +2589,7 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecor
           ':Sid.json'
         ].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1404,11 +2604,31 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$get(
@@ -1416,11 +2636,12 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/ConnectApps/{Sid.json
  */
 export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
   args: InferRequestType<
@@ -1437,9 +2658,44 @@ export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
  *
  * Update a connect-app with the specified parameters
  */
-export function usePost20100401AccountsAccountSidConnectAppsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1452,6 +2708,7 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1462,9 +2719,46 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(
  *
  * Delete an instance of a connect-app
  */
-export function useDelete20100401AccountsAccountSidConnectAppsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidConnectAppsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1477,6 +2771,7 @@ export function useDelete20100401AccountsAccountSidConnectAppsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1491,20 +2786,41 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/ConnectApps.json
  */
 export function getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(
   args: InferRequestType<
@@ -1521,23 +2837,44 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
           'DependentPhoneNumbers.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Addresses/{AddressSid/DependentPhoneNumbers.json
  */
 export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(
   args: InferRequestType<
@@ -1561,11 +2898,31 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$get(
@@ -1573,11 +2930,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/IncomingPhoneNumbers/{Sid.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(
   args: InferRequestType<
@@ -1594,9 +2952,44 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQuery
  *
  * Update an incoming-phone-number instance.
  */
-export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1609,6 +3002,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1619,9 +3013,46 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
  *
  * Delete a phone-numbers belonging to the account used to make the request.
  */
-export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1634,6 +3065,7 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1648,11 +3080,31 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$get(
@@ -1660,11 +3112,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/IncomingPhoneNumbers.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(
   args: InferRequestType<
@@ -1681,9 +3134,44 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey
  *
  * Purchase a phone-number for the account.
  */
-export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1696,6 +3184,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1710,25 +3199,46 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
           ':ResourceSid'
         ].AssignedAddOns[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/IncomingPhoneNumbers/{ResourceSid/AssignedAddOns/{Sid.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
   args: InferRequestType<
@@ -1748,9 +3258,46 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  *
  * Remove the assignment of an Add-on installation from the Number specified.
  */
-export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1762,6 +3309,7 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceS
           ':ResourceSid'
         ].AssignedAddOns[':Sid.json'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1776,23 +3324,46 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
           'AssignedAddOns.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/IncomingPhoneNumbers/{ResourceSid/AssignedAddOns.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
   args: InferRequestType<
@@ -1812,9 +3383,44 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  *
  * Assign an Add-on installation to the Number specified.
  */
-export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1826,6 +3432,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSid
           'AssignedAddOns.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1840,25 +3447,46 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
           ':ResourceSid'
         ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/IncomingPhoneNumbers/{ResourceSid/AssignedAddOns/{AssignedAddOnSid/Extensions/{Sid.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
   args: InferRequestType<
@@ -1882,25 +3510,46 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
           ':ResourceSid'
         ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/IncomingPhoneNumbers/{ResourceSid/AssignedAddOns/{AssignedAddOnSid/Extensions.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
   args: InferRequestType<
@@ -1920,11 +3569,31 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$get(
@@ -1932,11 +3601,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/IncomingPhoneNumbers/Local.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(
   args: InferRequestType<
@@ -1949,9 +3619,44 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQue
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
  */
-export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1964,6 +3669,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1974,11 +3680,31 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$get(
@@ -1986,11 +3712,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/IncomingPhoneNumbers/Mobile.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(
   args: InferRequestType<
@@ -2003,9 +3730,44 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQu
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
  */
-export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2018,6 +3780,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2028,11 +3791,31 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$get(
@@ -2040,11 +3823,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/IncomingPhoneNumbers/TollFree.json
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(
   args: InferRequestType<
@@ -2057,9 +3841,44 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
  */
-export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2072,6 +3891,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJso
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2082,20 +3902,41 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidKeysSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidKeysSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Keys/{Sid.json
  */
 export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
   args: InferRequestType<
@@ -2108,7 +3949,44 @@ export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
-export function usePost20100401AccountsAccountSidKeysSidJson(clientOptions?: ClientRequestOptions) {
+export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2118,15 +3996,53 @@ export function usePost20100401AccountsAccountSidKeysSidJson(clientOptions?: Cli
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
-export function useDelete20100401AccountsAccountSidKeysSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidKeysSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2136,6 +4052,7 @@ export function useDelete20100401AccountsAccountSidKeysSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2146,20 +4063,41 @@ export function useGet20100401AccountsAccountSidKeysJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidKeysJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidKeysJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Keys.json
  */
 export function getGet20100401AccountsAccountSidKeysJsonQueryKey(
   args: InferRequestType<
@@ -2172,7 +4110,44 @@ export function getGet20100401AccountsAccountSidKeysJsonQueryKey(
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys.json
  */
-export function usePost20100401AccountsAccountSidKeysJson(clientOptions?: ClientRequestOptions) {
+export function usePost20100401AccountsAccountSidKeysJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2182,6 +4157,7 @@ export function usePost20100401AccountsAccountSidKeysJson(clientOptions?: Client
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2196,22 +4172,43 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
           ':Sid.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Messages/{MessageSid/Media/{Sid.json
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(
   args: InferRequestType<
@@ -2228,9 +4225,46 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQu
  *
  * Delete the Media resource.
  */
-export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2242,6 +4276,7 @@ export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJso
           ':Sid.json'
         ].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2256,11 +4291,31 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Media.json'].$get(
@@ -2268,11 +4323,12 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Messages/{MessageSid/Media.json
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(
   args: InferRequestType<
@@ -2293,22 +4349,43 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
           ':CallSid.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Queues/{QueueSid/Members/{CallSid.json
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(
   args: InferRequestType<
@@ -2325,9 +4402,44 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
  *
  * Dequeue a member from a queue and have the member's call begin executing the TwiML document at that URL
  */
-export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2339,6 +4451,7 @@ export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJso
           ':CallSid.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2353,11 +4466,31 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid']['Members.json'].$get(
@@ -2365,11 +4498,12 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Queues/{QueueSid/Members.json
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(
   args: InferRequestType<
@@ -2390,20 +4524,41 @@ export function useGet20100401AccountsAccountSidMessagesJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidMessagesJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidMessagesJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Messages.json
  */
 export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
   args: InferRequestType<
@@ -2420,9 +4575,44 @@ export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
  *
  * Send a message
  */
-export function usePost20100401AccountsAccountSidMessagesJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidMessagesJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2432,6 +4622,7 @@ export function usePost20100401AccountsAccountSidMessagesJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2446,11 +4637,31 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$get(
@@ -2458,11 +4669,12 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Messages/{Sid.json
  */
 export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
   args: InferRequestType<
@@ -2479,9 +4691,44 @@ export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
  *
  * Update a Message resource (used to redact Message `body` text and to cancel not-yet-sent messages)
  */
-export function usePost20100401AccountsAccountSidMessagesSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2494,6 +4741,7 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2504,9 +4752,46 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(
  *
  * Deletes a Message resource from your account
  */
-export function useDelete20100401AccountsAccountSidMessagesSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2519,6 +4804,7 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2529,9 +4815,44 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(
  *
  * Create Message Feedback to confirm a tracked user action was performed by the recipient of the associated Message
  */
-export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2544,6 +4865,7 @@ export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2554,20 +4876,41 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SigningKeys.json
  */
 export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
   args: InferRequestType<
@@ -2584,9 +4927,44 @@ export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
  *
  * Create a new Signing Key for the account making the request.
  */
-export function usePost20100401AccountsAccountSidSigningKeysJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSigningKeysJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2596,6 +4974,7 @@ export function usePost20100401AccountsAccountSidSigningKeysJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2610,11 +4989,31 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$get(
@@ -2622,11 +5021,12 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Notifications/{Sid.json
  */
 export function getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(
   args: InferRequestType<
@@ -2647,11 +5047,31 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidNotificationsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidNotificationsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$get(
@@ -2659,11 +5079,12 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Notifications.json
  */
 export function getGet20100401AccountsAccountSidNotificationsJsonQueryKey(
   args: InferRequestType<
@@ -2684,11 +5105,31 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$get(
@@ -2696,11 +5137,12 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/OutgoingCallerIds/{Sid.json
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(
   args: InferRequestType<
@@ -2717,9 +5159,44 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey
  *
  * Updates the caller-id
  */
-export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2732,6 +5209,7 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2742,9 +5220,46 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(
  *
  * Delete the caller-id specified from the account
  */
-export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2757,6 +5272,7 @@ export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2771,11 +5287,31 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$get(
@@ -2783,11 +5319,12 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/OutgoingCallerIds.json
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
   args: InferRequestType<
@@ -2800,9 +5337,44 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
  */
-export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2815,6 +5387,7 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2829,23 +5402,44 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
           ':CallSid.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Conferences/{ConferenceSid/Participants/{CallSid.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(
   args: InferRequestType<
@@ -2865,9 +5459,44 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
  *
  * Update the properties of the participant
  */
-export function usePost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2879,6 +5508,7 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
           ':CallSid.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2889,9 +5519,46 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
  *
  * Kick a participant from a given conference
  */
-export function useDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2903,6 +5570,7 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidParti
           ':CallSid.json'
         ].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2917,23 +5585,44 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
           'Participants.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Conferences/{ConferenceSid/Participants.json
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(
   args: InferRequestType<
@@ -2949,9 +5638,44 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
  */
-export function usePost20100401AccountsAccountSidConferencesConferenceSidParticipantsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidConferencesConferenceSidParticipantsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2963,6 +5687,7 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
           'Participants.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2973,9 +5698,44 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
  *
  * create an instance of payments. This will start a new payments session
  */
-export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2988,6 +5748,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2998,9 +5759,44 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(
  *
  * update an instance of payments with different phases of payment flows.
  */
-export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3013,6 +5809,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3027,20 +5824,41 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Queues/{Sid.json
  */
 export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
   args: InferRequestType<
@@ -3057,9 +5875,44 @@ export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
  *
  * Update the queue with the new parameters
  */
-export function usePost20100401AccountsAccountSidQueuesSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3069,6 +5922,7 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3079,9 +5933,46 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(
  *
  * Remove an empty queue
  */
-export function useDelete20100401AccountsAccountSidQueuesSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidQueuesSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3094,6 +5985,7 @@ export function useDelete20100401AccountsAccountSidQueuesSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3108,20 +6000,41 @@ export function useGet20100401AccountsAccountSidQueuesJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidQueuesJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidQueuesJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Queues.json
  */
 export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
   args: InferRequestType<
@@ -3138,7 +6051,44 @@ export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
  *
  * Create a queue
  */
-export function usePost20100401AccountsAccountSidQueuesJson(clientOptions?: ClientRequestOptions) {
+export function usePost20100401AccountsAccountSidQueuesJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3148,6 +6098,7 @@ export function usePost20100401AccountsAccountSidQueuesJson(clientOptions?: Clie
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3158,9 +6109,44 @@ export function usePost20100401AccountsAccountSidQueuesJson(clientOptions?: Clie
  *
  * Create a Transcription
  */
-export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3173,6 +6159,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3183,9 +6170,44 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
  *
  * Stop a Transcription using either the SID of the Transcription resource or the `name` used when creating the resource
  */
-export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3197,6 +6219,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJs
           ':Sid.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3211,11 +6234,31 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$get(
@@ -3223,11 +6266,12 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Recordings/{Sid.json
  */
 export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
@@ -3244,9 +6288,46 @@ export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
  *
  * Delete a recording from your account
  */
-export function useDelete20100401AccountsAccountSidRecordingsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidRecordingsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3259,6 +6340,7 @@ export function useDelete20100401AccountsAccountSidRecordingsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3273,20 +6355,41 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidRecordingsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidRecordingsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Recordings.json
  */
 export function getGet20100401AccountsAccountSidRecordingsJsonQueryKey(
   args: InferRequestType<
@@ -3307,23 +6410,44 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
           ':Sid.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Recordings/{ReferenceSid/AddOnResults/{Sid.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(
   args: InferRequestType<
@@ -3343,9 +6467,46 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  *
  * Delete a result and purge all associated Payloads
  */
-export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3357,6 +6518,7 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
           ':Sid.json'
         ].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3371,23 +6533,43 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'][
           'AddOnResults.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Recordings/{ReferenceSid/AddOnResults.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(
   args: InferRequestType<
@@ -3411,25 +6593,46 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
           ':AddOnResultSid'
         ].Payloads[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Recordings/{ReferenceSid/AddOnResults/{AddOnResultSid/Payloads/{Sid.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
   args: InferRequestType<
@@ -3449,9 +6652,46 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  *
  * Delete a payload from the result along with all associated Data
  */
-export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3463,6 +6703,7 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
           ':AddOnResultSid'
         ].Payloads[':Sid.json'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3477,25 +6718,46 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
           ':AddOnResultSid'
         ]['Payloads.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Recordings/{ReferenceSid/AddOnResults/{AddOnResultSid/Payloads.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
   args: InferRequestType<
@@ -3519,25 +6781,46 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
           ':AddOnResultSid'
         ].Payloads[':PayloadSid']['Data.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Recordings/{ReferenceSid/AddOnResults/{AddOnResultSid/Payloads/{PayloadSid/Data.json
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
   args: InferRequestType<
@@ -3557,23 +6840,44 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
           ':Sid.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Recordings/{RecordingSid/Transcriptions/{Sid.json
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(
   args: InferRequestType<
@@ -3589,9 +6893,46 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
  */
-export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3603,6 +6944,7 @@ export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscr
           ':Sid.json'
         ].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3613,23 +6955,44 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
           'Transcriptions.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Recordings/{RecordingSid/Transcriptions.json
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(
   args: InferRequestType<
@@ -3653,11 +7016,31 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$get(
@@ -3665,11 +7048,12 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SMS/ShortCodes/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
   args: InferRequestType<
@@ -3686,9 +7070,44 @@ export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
  *
  * Update a short code with the following parameters
  */
-export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3701,6 +7120,7 @@ export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3715,11 +7135,31 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$get(
@@ -3727,11 +7167,12 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SMS/ShortCodes.json
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(
   args: InferRequestType<
@@ -3748,11 +7189,31 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$get(
@@ -3760,11 +7221,12 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SigningKeys/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
   args: InferRequestType<
@@ -3777,9 +7239,44 @@ export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
  */
-export function usePost20100401AccountsAccountSidSigningKeysSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3792,15 +7289,53 @@ export function usePost20100401AccountsAccountSidSigningKeysSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
  */
-export function useDelete20100401AccountsAccountSidSigningKeysSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidSigningKeysSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3813,6 +7348,7 @@ export function useDelete20100401AccountsAccountSidSigningKeysSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3827,25 +7363,46 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
           'CredentialListMappings.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains/{DomainSid/Auth/Calls/CredentialListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
@@ -3865,9 +7422,44 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  *
  * Create a new credential list mapping resource
  */
-export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3879,6 +7471,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCre
           'CredentialListMappings.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3893,25 +7486,46 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
           ':DomainSid'
         ].Auth.Calls.CredentialListMappings[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains/{DomainSid/Auth/Calls/CredentialListMappings/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
@@ -3931,9 +7545,46 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  *
  * Delete a credential list mapping from the requested domain
  */
-export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3945,6 +7596,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
           ':DomainSid'
         ].Auth.Calls.CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3959,25 +7611,46 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
           'IpAccessControlListMappings.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains/{DomainSid/Auth/Calls/IpAccessControlListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
   args: InferRequestType<
@@ -3997,9 +7670,44 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  *
  * Create a new IP Access Control List mapping
  */
-export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4011,6 +7719,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpA
           'IpAccessControlListMappings.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4025,25 +7734,46 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
           ':DomainSid'
         ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains/{DomainSid/Auth/Calls/IpAccessControlListMappings/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
   args: InferRequestType<
@@ -4063,9 +7793,46 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  *
  * Delete an IP Access Control List mapping from the requested domain
  */
-export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4077,6 +7844,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
           ':DomainSid'
         ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4091,25 +7859,46 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
           'CredentialListMappings.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains/{DomainSid/Auth/Registrations/CredentialListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
@@ -4129,9 +7918,44 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  *
  * Create a new credential list mapping resource
  */
-export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4143,6 +7967,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistra
           'CredentialListMappings.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4157,25 +7982,46 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
           ':DomainSid'
         ].Auth.Registrations.CredentialListMappings[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains/{DomainSid/Auth/Registrations/CredentialListMappings/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
@@ -4195,9 +8041,46 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  *
  * Delete a credential list mapping from the requested domain
  */
-export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4209,6 +8092,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
           ':DomainSid'
         ].Auth.Registrations.CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4223,23 +8107,46 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
           'Credentials.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/CredentialLists/{CredentialListSid/Credentials.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
   args: InferRequestType<
@@ -4259,9 +8166,44 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  *
  * Create a new credential resource.
  */
-export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4273,6 +8215,7 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
           'Credentials.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4287,25 +8230,46 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
           ':CredentialListSid'
         ].Credentials[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/CredentialLists/{CredentialListSid/Credentials/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
   args: InferRequestType<
@@ -4325,9 +8289,44 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  *
  * Update a credential resource.
  */
-export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4339,6 +8338,7 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
           ':CredentialListSid'
         ].Credentials[':Sid.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4349,9 +8349,46 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
  *
  * Delete a credential resource.
  */
-export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4363,6 +8400,7 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialL
           ':CredentialListSid'
         ].Credentials[':Sid.json'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4377,11 +8415,31 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$get(
@@ -4389,11 +8447,12 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/CredentialLists.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
   args: InferRequestType<
@@ -4410,9 +8469,44 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
  *
  * Create a Credential List
  */
-export function usePost20100401AccountsAccountSidSIPCredentialListsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPCredentialListsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4425,6 +8519,7 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4439,11 +8534,31 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$get(
@@ -4451,11 +8566,12 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/CredentialLists/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(
   args: InferRequestType<
@@ -4472,9 +8588,44 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKe
  *
  * Update a Credential List
  */
-export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4487,6 +8638,7 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4497,9 +8649,46 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(
  *
  * Delete a Credential List
  */
-export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4512,6 +8701,7 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4526,23 +8716,44 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
           'CredentialListMappings.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains/{DomainSid/CredentialListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
@@ -4562,9 +8773,44 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  *
  * Create a CredentialListMapping resource for an account.
  */
-export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4576,6 +8822,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialLi
           'CredentialListMappings.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4590,23 +8837,46 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
           ':DomainSid'
         ].CredentialListMappings[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains/{DomainSid/CredentialListMappings/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
@@ -4626,9 +8896,46 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  *
  * Delete a CredentialListMapping resource from an account.
  */
-export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4640,6 +8947,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredential
           ':DomainSid'
         ].CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4654,20 +8962,41 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
   args: InferRequestType<
@@ -4684,9 +9013,44 @@ export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
  *
  * Create a new Domain
  */
-export function usePost20100401AccountsAccountSidSIPDomainsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPDomainsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4696,6 +9060,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4710,11 +9075,31 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$get(
@@ -4722,11 +9107,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
   args: InferRequestType<
@@ -4743,9 +9129,44 @@ export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
  *
  * Update the attributes of a domain
  */
-export function usePost20100401AccountsAccountSidSIPDomainsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4758,6 +9179,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4768,9 +9190,46 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(
  *
  * Delete an instance of a Domain
  */
-export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4783,6 +9242,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4797,11 +9257,31 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$get(
@@ -4809,11 +9289,12 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/IpAccessControlLists.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(
   args: InferRequestType<
@@ -4830,9 +9311,44 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQuery
  *
  * Create a new IpAccessControlList resource
  */
-export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4845,6 +9361,7 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4859,11 +9376,31 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$get(
@@ -4871,11 +9408,12 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/IpAccessControlLists/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(
   args: InferRequestType<
@@ -4892,9 +9430,44 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQu
  *
  * Rename an IpAccessControlList
  */
-export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4907,6 +9480,7 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4917,9 +9491,46 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
  *
  * Delete an IpAccessControlList from the requested account
  */
-export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4932,6 +9543,7 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJso
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4946,25 +9558,46 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
           ':DomainSid'
         ].IpAccessControlListMappings[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains/{DomainSid/IpAccessControlListMappings/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
   args: InferRequestType<
@@ -4984,9 +9617,46 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  *
  * Delete an IpAccessControlListMapping resource.
  */
-export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4998,6 +9668,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
           ':DomainSid'
         ].IpAccessControlListMappings[':Sid.json'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5012,23 +9683,46 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
           'IpAccessControlListMappings.json'
         ].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/Domains/{DomainSid/IpAccessControlListMappings.json
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
   args: InferRequestType<
@@ -5048,9 +9742,44 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  *
  * Create a new IpAccessControlListMapping resource.
  */
-export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5062,6 +9791,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCont
           'IpAccessControlListMappings.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5076,25 +9806,46 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
           ':IpAccessControlListSid'
         ]['IpAddresses.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/IpAccessControlLists/{IpAccessControlListSid/IpAddresses.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
   args: InferRequestType<
@@ -5114,9 +9865,44 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  *
  * Create a new IpAddress resource.
  */
-export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5128,6 +9914,7 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
           ':IpAccessControlListSid'
         ]['IpAddresses.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5142,25 +9929,46 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
-      args,
-    )
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
+        args,
+      ),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
           ':IpAccessControlListSid'
         ].IpAddresses[':Sid.json'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/SIP/IpAccessControlLists/{IpAccessControlListSid/IpAddresses/{Sid.json
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
   args: InferRequestType<
@@ -5180,9 +9988,44 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  *
  * Update an IpAddress resource.
  */
-export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5194,6 +10037,7 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
           ':IpAccessControlListSid'
         ].IpAddresses[':Sid.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5204,9 +10048,46 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
  *
  * Delete an IpAddress resource.
  */
-export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5218,6 +10099,7 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
           ':IpAccessControlListSid'
         ].IpAddresses[':Sid.json'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5228,9 +10110,44 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
  *
  * Create a Siprec
  */
-export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5243,6 +10160,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5253,9 +10171,44 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(
  *
  * Stop a Siprec using either the SID of the Siprec resource or the `name` used when creating the resource
  */
-export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5268,6 +10221,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5278,9 +10232,44 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(
  *
  * Create a Stream
  */
-export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5293,6 +10282,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5303,9 +10293,44 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(
  *
  * Stop a Stream using either the SID of the Stream resource or the `name` used when creating the resource
  */
-export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5318,6 +10343,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5328,7 +10354,44 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(
  *
  * Create a new token for ICE servers
  */
-export function usePost20100401AccountsAccountSidTokensJson(clientOptions?: ClientRequestOptions) {
+export function usePost20100401AccountsAccountSidTokensJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5338,6 +10401,7 @@ export function usePost20100401AccountsAccountSidTokensJson(clientOptions?: Clie
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5352,11 +10416,31 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$get(
@@ -5364,11 +10448,12 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Transcriptions/{Sid.json
  */
 export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
   args: InferRequestType<
@@ -5385,9 +10470,46 @@ export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
  *
  * Delete a transcription from the account used to make the request
  */
-export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5400,6 +10522,7 @@ export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5414,11 +10537,31 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$get(
@@ -5426,11 +10569,12 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Transcriptions.json
  */
 export function getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(
   args: InferRequestType<
@@ -5451,11 +10595,31 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$get(
@@ -5463,11 +10627,12 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Usage/Records.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(
   args: InferRequestType<
@@ -5484,11 +10649,31 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$get(
@@ -5496,11 +10681,12 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Usage/Records/AllTime.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(
   args: InferRequestType<
@@ -5517,11 +10703,31 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$get(
@@ -5529,11 +10735,12 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Usage/Records/Daily.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(
   args: InferRequestType<
@@ -5550,11 +10757,31 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$get(
@@ -5562,11 +10789,12 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Usage/Records/LastMonth.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(
   args: InferRequestType<
@@ -5583,11 +10811,31 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$get(
@@ -5595,11 +10843,12 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Usage/Records/Monthly.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(
   args: InferRequestType<
@@ -5616,11 +10865,31 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$get(
@@ -5628,11 +10897,12 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Usage/Records/ThisMonth.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(
   args: InferRequestType<
@@ -5649,11 +10919,31 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$get(
@@ -5661,11 +10951,12 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Usage/Records/Today.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(
   args: InferRequestType<
@@ -5682,11 +10973,31 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$get(
@@ -5694,11 +11005,12 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Usage/Records/Yearly.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(
   args: InferRequestType<
@@ -5715,11 +11027,31 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$get(
@@ -5727,11 +11059,12 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Usage/Records/Yesterday.json
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(
   args: InferRequestType<
@@ -5752,11 +11085,31 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$get(
@@ -5764,11 +11117,12 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Usage/Triggers/{Sid.json
  */
 export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
   args: InferRequestType<
@@ -5785,9 +11139,44 @@ export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
  *
  * Update an instance of a usage trigger
  */
-export function usePost20100401AccountsAccountSidUsageTriggersSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5800,15 +11189,53 @@ export function usePost20100401AccountsAccountSidUsageTriggersSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
  */
-export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5821,6 +11248,7 @@ export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5835,11 +11263,31 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$get(
@@ -5847,11 +11295,12 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
+ * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid/Usage/Triggers.json
  */
 export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
   args: InferRequestType<
@@ -5868,9 +11317,44 @@ export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
  *
  * Create a new UsageTrigger
  */
-export function usePost20100401AccountsAccountSidUsageTriggersJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5883,6 +11367,7 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5893,9 +11378,44 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(
  *
  * Create a new User Defined Message for the given Call SID.
  */
-export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5907,6 +11427,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
           'UserDefinedMessages.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5917,9 +11438,44 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
  *
  * Subscribe to User Defined Messages for a given Call SID.
  */
-export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5931,6 +11487,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
           'UserDefinedMessageSubscriptions.json'
         ].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -5941,9 +11498,46 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
  *
  * Delete a specific User Defined Message Subscription.
  */
-export function useDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJson(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJson(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -5955,5 +11549,6 @@ export function useDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessag
           ':CallSid'
         ].UserDefinedMessageSubscriptions[':Sid.json'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }

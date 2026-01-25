@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/self'
@@ -7,29 +6,29 @@ import { client } from '../clients/self'
 /**
  * GET /categories
  */
-export function useGetCategories(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.categories.$get>,
-      Error,
-      InferResponseType<typeof client.categories.$get>,
-      readonly ['/categories']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetCategories(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.categories.$get>,
+    ) => InferResponseType<typeof client.categories.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetCategoriesQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetCategoriesQueryKey(),
+    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

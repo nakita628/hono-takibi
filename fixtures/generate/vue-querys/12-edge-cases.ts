@@ -6,11 +6,28 @@ import { client } from '../clients/12-edge-cases'
 /**
  * GET /all-methods
  */
-export function useGetAllMethods(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetAllMethodsQueryKey()
+export function useGetAllMethods(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['all-methods']['$get']>,
+    ) => InferResponseType<(typeof client)['all-methods']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAllMethodsQueryKey(),
     queryFn: async () => parseResponse(client['all-methods'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -24,63 +41,196 @@ export function getGetAllMethodsQueryKey() {
 /**
  * PUT /all-methods
  */
-export function usePutAllMethods(clientOptions?: ClientRequestOptions) {
+export function usePutAllMethods(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['all-methods']['$put']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['all-methods']['$put']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () => parseResponse(client['all-methods'].$put(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /all-methods
  */
-export function usePostAllMethods(clientOptions?: ClientRequestOptions) {
+export function usePostAllMethods(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['all-methods']['$post']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['all-methods']['$post']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () => parseResponse(client['all-methods'].$post(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /all-methods
  */
-export function useDeleteAllMethods(clientOptions?: ClientRequestOptions) {
+export function useDeleteAllMethods(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['all-methods']['$delete']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['all-methods']['$delete']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () => parseResponse(client['all-methods'].$delete(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * OPTIONS /all-methods
  */
-export function useOptionsAllMethods(clientOptions?: ClientRequestOptions) {
+export function useOptionsAllMethods(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['all-methods']['$options']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['all-methods']['$options']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () => parseResponse(client['all-methods'].$options(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * HEAD /all-methods
  */
-export function useHeadAllMethods(clientOptions?: ClientRequestOptions) {
+export function useHeadAllMethods(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['all-methods']['$head']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['all-methods']['$head']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () => parseResponse(client['all-methods'].$head(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /all-methods
  */
-export function usePatchAllMethods(clientOptions?: ClientRequestOptions) {
+export function usePatchAllMethods(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['all-methods']['$patch']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['all-methods']['$patch']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () => parseResponse(client['all-methods'].$patch(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * TRACE /all-methods
  */
-export function useTraceAllMethods(clientOptions?: ClientRequestOptions) {
+export function useTraceAllMethods(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['all-methods']['$trace']>,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['all-methods']['$trace']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () => parseResponse(client['all-methods'].$trace(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -91,20 +241,41 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
   args: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.users[':userId'].posts[':postId'].comments[':commentId'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
+ * Generates Vue Query cache key for GET /users/{userId/posts/{postId/comments/{commentId
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
   args: InferRequestType<
@@ -119,18 +290,35 @@ export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
  */
 export function useGetParamsTestPathParam(
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>,
+      ) => InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetParamsTestPathParamQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetParamsTestPathParamQueryKey(args),
     queryFn: async () =>
       parseResponse(client['params-test'][':pathParam'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /params-test/{pathParam}
+ * Generates Vue Query cache key for GET /params-test/{pathParam
  */
 export function getGetParamsTestPathParamQueryKey(
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
@@ -141,20 +329,56 @@ export function getGetParamsTestPathParamQueryKey(
 /**
  * POST /no-content
  */
-export function usePostNoContent(clientOptions?: ClientRequestOptions) {
+export function usePostNoContent(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['no-content']['$post']> | undefined,
+      variables: void,
+    ) => void
+    onError?: (error: Error, variables: void) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['no-content']['$post']> | undefined,
+      error: Error | null,
+      variables: void,
+    ) => void
+    onMutate?: (variables: void) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async () => parseResponse(client['no-content'].$post(undefined, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /multi-content
  */
-export function useGetMultiContent(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetMultiContentQueryKey()
+export function useGetMultiContent(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['multi-content']['$get']>,
+    ) => InferResponseType<(typeof client)['multi-content']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMultiContentQueryKey(),
     queryFn: async () => parseResponse(client['multi-content'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -168,21 +392,60 @@ export function getGetMultiContentQueryKey() {
 /**
  * POST /multi-content
  */
-export function usePostMultiContent(clientOptions?: ClientRequestOptions) {
+export function usePostMultiContent(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['multi-content']['$post']>,
+      variables: InferRequestType<(typeof client)['multi-content']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['multi-content']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['multi-content']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['multi-content']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['multi-content']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client)['multi-content']['$post']>) =>
       parseResponse(client['multi-content'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /response-ranges
  */
-export function useGetResponseRanges(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetResponseRangesQueryKey()
+export function useGetResponseRanges(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['response-ranges']['$get']> | undefined,
+    ) => InferResponseType<(typeof client)['response-ranges']['$get']> | undefined
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetResponseRangesQueryKey(),
     queryFn: async () => parseResponse(client['response-ranges'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -198,11 +461,28 @@ export function getGetResponseRangesQueryKey() {
  *
  * This operation is deprecated
  */
-export function useGetDeprecated(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetDeprecatedQueryKey()
+export function useGetDeprecated(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.deprecated.$get>,
+    ) => InferResponseType<typeof client.deprecated.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetDeprecatedQueryKey(),
     queryFn: async () => parseResponse(client.deprecated.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -218,11 +498,28 @@ export function getGetDeprecatedQueryKey() {
  *
  * Operation without operationId
  */
-export function useGetNoOperationId(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetNoOperationIdQueryKey()
+export function useGetNoOperationId(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['no-operation-id']['$get']>,
+    ) => InferResponseType<(typeof client)['no-operation-id']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetNoOperationIdQueryKey(),
     queryFn: async () => parseResponse(client['no-operation-id'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -236,21 +533,60 @@ export function getGetNoOperationIdQueryKey() {
 /**
  * POST /empty-body
  */
-export function usePostEmptyBody(clientOptions?: ClientRequestOptions) {
+export function usePostEmptyBody(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['empty-body']['$post']>,
+      variables: InferRequestType<(typeof client)['empty-body']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['empty-body']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['empty-body']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['empty-body']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['empty-body']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client)['empty-body']['$post']>) =>
       parseResponse(client['empty-body'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /circular
  */
-export function useGetCircular(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetCircularQueryKey()
+export function useGetCircular(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.circular.$get>,
+    ) => InferResponseType<typeof client.circular.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetCircularQueryKey(),
     queryFn: async () => parseResponse(client.circular.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -264,11 +600,28 @@ export function getGetCircularQueryKey() {
 /**
  * GET /deep-nesting
  */
-export function useGetDeepNesting(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetDeepNestingQueryKey()
+export function useGetDeepNesting(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['deep-nesting']['$get']>,
+    ) => InferResponseType<(typeof client)['deep-nesting']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetDeepNestingQueryKey(),
     queryFn: async () => parseResponse(client['deep-nesting'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -284,12 +637,29 @@ export function getGetDeepNestingQueryKey() {
  */
 export function useGetArrayParams(
   args: InferRequestType<(typeof client)['array-params']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['array-params']['$get']>,
+      ) => InferResponseType<(typeof client)['array-params']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetArrayParamsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetArrayParamsQueryKey(args),
     queryFn: async () => parseResponse(client['array-params'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -307,12 +677,29 @@ export function getGetArrayParamsQueryKey(
  */
 export function useGetObjectParam(
   args: InferRequestType<(typeof client)['object-param']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['object-param']['$get']>,
+      ) => InferResponseType<(typeof client)['object-param']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetObjectParamQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetObjectParamQueryKey(args),
     queryFn: async () => parseResponse(client['object-param'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 

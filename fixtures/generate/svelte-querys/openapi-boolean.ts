@@ -1,5 +1,4 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-boolean'
@@ -11,29 +10,29 @@ import { client } from '../clients/openapi-boolean'
  *
  * zod boolean
  */
-export function createGetBoolean(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.boolean.$get>,
-      Error,
-      InferResponseType<typeof client.boolean.$get>,
-      readonly ['/boolean']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetBoolean(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.boolean.$get>,
+    ) => InferResponseType<typeof client.boolean.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetBooleanQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.boolean.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetBooleanQueryKey(),
+    queryFn: async () => parseResponse(client.boolean.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

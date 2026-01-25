@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-nullable'
@@ -11,29 +10,29 @@ import { client } from '../clients/openapi-nullable'
  *
  * zod nullable
  */
-export function useGetNullable(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.nullable.$get>,
-      Error,
-      InferResponseType<typeof client.nullable.$get>,
-      readonly ['/nullable']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetNullable(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.nullable.$get>,
+    ) => InferResponseType<typeof client.nullable.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetNullableQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.nullable.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetNullableQueryKey(),
+    queryFn: async () => parseResponse(client.nullable.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

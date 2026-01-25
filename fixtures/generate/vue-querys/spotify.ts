@@ -12,12 +12,29 @@ import { client } from '../clients/spotify'
  */
 export function useGetAlbums(
   args: InferRequestType<typeof client.albums.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.albums.$get>,
+      ) => InferResponseType<typeof client.albums.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetAlbumsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAlbumsQueryKey(args),
     queryFn: async () => parseResponse(client.albums.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -37,17 +54,34 @@ export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums
  */
 export function useGetAlbumsId(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.albums)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.albums)[':id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetAlbumsIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAlbumsIdQueryKey(args),
     queryFn: async () => parseResponse(client.albums[':id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /albums/{id}
+ * Generates Vue Query cache key for GET /albums/{id
  */
 export function getGetAlbumsIdQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
@@ -65,17 +99,34 @@ export function getGetAlbumsIdQueryKey(
  */
 export function useGetAlbumsIdTracks(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>,
+      ) => InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetAlbumsIdTracksQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAlbumsIdTracksQueryKey(args),
     queryFn: async () => parseResponse(client.albums[':id'].tracks.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /albums/{id}/tracks
+ * Generates Vue Query cache key for GET /albums/{id/tracks
  */
 export function getGetAlbumsIdTracksQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
@@ -92,12 +143,29 @@ export function getGetAlbumsIdTracksQueryKey(
  */
 export function useGetArtists(
   args: InferRequestType<typeof client.artists.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.artists.$get>,
+      ) => InferResponseType<typeof client.artists.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetArtistsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetArtistsQueryKey(args),
     queryFn: async () => parseResponse(client.artists.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -117,17 +185,34 @@ export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artis
  */
 export function useGetArtistsId(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.artists)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.artists)[':id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetArtistsIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetArtistsIdQueryKey(args),
     queryFn: async () => parseResponse(client.artists[':id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /artists/{id}
+ * Generates Vue Query cache key for GET /artists/{id
  */
 export function getGetArtistsIdQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
@@ -144,17 +229,34 @@ export function getGetArtistsIdQueryKey(
  */
 export function useGetArtistsIdAlbums(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.artists)[':id']['albums']['$get']>,
+      ) => InferResponseType<(typeof client.artists)[':id']['albums']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetArtistsIdAlbumsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetArtistsIdAlbumsQueryKey(args),
     queryFn: async () => parseResponse(client.artists[':id'].albums.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /artists/{id}/albums
+ * Generates Vue Query cache key for GET /artists/{id/albums
  */
 export function getGetArtistsIdAlbumsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
@@ -171,18 +273,35 @@ export function getGetArtistsIdAlbumsQueryKey(
  */
 export function useGetArtistsIdRelatedArtists(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
+      ) => InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetArtistsIdRelatedArtistsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetArtistsIdRelatedArtistsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.artists[':id']['related-artists'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /artists/{id}/related-artists
+ * Generates Vue Query cache key for GET /artists/{id/related-artists
  */
 export function getGetArtistsIdRelatedArtistsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
@@ -199,18 +318,35 @@ export function getGetArtistsIdRelatedArtistsQueryKey(
  */
 export function useGetArtistsIdTopTracks(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+      ) => InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetArtistsIdTopTracksQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetArtistsIdTopTracksQueryKey(args),
     queryFn: async () =>
       parseResponse(client.artists[':id']['top-tracks'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /artists/{id}/top-tracks
+ * Generates Vue Query cache key for GET /artists/{id/top-tracks
  */
 export function getGetArtistsIdTopTracksQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
@@ -227,17 +363,34 @@ export function getGetArtistsIdTopTracksQueryKey(
  */
 export function useGetAudioAnalysisId(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>,
+      ) => InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetAudioAnalysisIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAudioAnalysisIdQueryKey(args),
     queryFn: async () => parseResponse(client['audio-analysis'][':id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /audio-analysis/{id}
+ * Generates Vue Query cache key for GET /audio-analysis/{id
  */
 export function getGetAudioAnalysisIdQueryKey(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
@@ -254,12 +407,29 @@ export function getGetAudioAnalysisIdQueryKey(
  */
 export function useGetAudioFeatures(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['audio-features']['$get']>,
+      ) => InferResponseType<(typeof client)['audio-features']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetAudioFeaturesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAudioFeaturesQueryKey(args),
     queryFn: async () => parseResponse(client['audio-features'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -282,17 +452,34 @@ export function getGetAudioFeaturesQueryKey(
  */
 export function useGetAudioFeaturesId(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['audio-features'][':id']['$get']>,
+      ) => InferResponseType<(typeof client)['audio-features'][':id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetAudioFeaturesIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAudioFeaturesIdQueryKey(args),
     queryFn: async () => parseResponse(client['audio-features'][':id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /audio-features/{id}
+ * Generates Vue Query cache key for GET /audio-features/{id
  */
 export function getGetAudioFeaturesIdQueryKey(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
@@ -310,12 +497,29 @@ export function getGetAudioFeaturesIdQueryKey(
  */
 export function useGetAudiobooks(
   args: InferRequestType<typeof client.audiobooks.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.audiobooks.$get>,
+      ) => InferResponseType<typeof client.audiobooks.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetAudiobooksQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAudiobooksQueryKey(args),
     queryFn: async () => parseResponse(client.audiobooks.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -336,17 +540,34 @@ export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.au
  */
 export function useGetAudiobooksId(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.audiobooks)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.audiobooks)[':id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetAudiobooksIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAudiobooksIdQueryKey(args),
     queryFn: async () => parseResponse(client.audiobooks[':id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /audiobooks/{id}
+ * Generates Vue Query cache key for GET /audiobooks/{id
  */
 export function getGetAudiobooksIdQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
@@ -364,17 +585,34 @@ export function getGetAudiobooksIdQueryKey(
  */
 export function useGetAudiobooksIdChapters(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+      ) => InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetAudiobooksIdChaptersQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetAudiobooksIdChaptersQueryKey(args),
     queryFn: async () => parseResponse(client.audiobooks[':id'].chapters.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /audiobooks/{id}/chapters
+ * Generates Vue Query cache key for GET /audiobooks/{id/chapters
  */
 export function getGetAudiobooksIdChaptersQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
@@ -391,12 +629,29 @@ export function getGetAudiobooksIdChaptersQueryKey(
  */
 export function useGetBrowseCategories(
   args: InferRequestType<typeof client.browse.categories.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.browse.categories.$get>,
+      ) => InferResponseType<typeof client.browse.categories.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetBrowseCategoriesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetBrowseCategoriesQueryKey(args),
     queryFn: async () => parseResponse(client.browse.categories.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -418,18 +673,35 @@ export function getGetBrowseCategoriesQueryKey(
  */
 export function useGetBrowseCategoriesCategoryId(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
+      ) => InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetBrowseCategoriesCategoryIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetBrowseCategoriesCategoryIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client.browse.categories[':category_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /browse/categories/{category_id}
+ * Generates Vue Query cache key for GET /browse/categories/{category_id
  */
 export function getGetBrowseCategoriesCategoryIdQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
@@ -446,18 +718,37 @@ export function getGetBrowseCategoriesCategoryIdQueryKey(
  */
 export function useGetBrowseCategoriesCategoryIdPlaylists(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.browse.categories)[':category_id']['playlists']['$get']
+        >,
+      ) => InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.browse.categories[':category_id'].playlists.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /browse/categories/{category_id}/playlists
+ * Generates Vue Query cache key for GET /browse/categories/{category_id/playlists
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
@@ -474,13 +765,30 @@ export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
  */
 export function useGetBrowseFeaturedPlaylists(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
+      ) => InferResponseType<(typeof client.browse)['featured-playlists']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetBrowseFeaturedPlaylistsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetBrowseFeaturedPlaylistsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.browse['featured-playlists'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -502,12 +810,29 @@ export function getGetBrowseFeaturedPlaylistsQueryKey(
  */
 export function useGetBrowseNewReleases(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.browse)['new-releases']['$get']>,
+      ) => InferResponseType<(typeof client.browse)['new-releases']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetBrowseNewReleasesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetBrowseNewReleasesQueryKey(args),
     queryFn: async () => parseResponse(client.browse['new-releases'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -530,12 +855,29 @@ export function getGetBrowseNewReleasesQueryKey(
  */
 export function useGetChapters(
   args: InferRequestType<typeof client.chapters.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.chapters.$get>,
+      ) => InferResponseType<typeof client.chapters.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChaptersQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChaptersQueryKey(args),
     queryFn: async () => parseResponse(client.chapters.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -556,17 +898,34 @@ export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chap
  */
 export function useGetChaptersId(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.chapters)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.chapters)[':id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChaptersIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChaptersIdQueryKey(args),
     queryFn: async () => parseResponse(client.chapters[':id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /chapters/{id}
+ * Generates Vue Query cache key for GET /chapters/{id
  */
 export function getGetChaptersIdQueryKey(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
@@ -583,12 +942,29 @@ export function getGetChaptersIdQueryKey(
  */
 export function useGetEpisodes(
   args: InferRequestType<typeof client.episodes.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.episodes.$get>,
+      ) => InferResponseType<typeof client.episodes.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetEpisodesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetEpisodesQueryKey(args),
     queryFn: async () => parseResponse(client.episodes.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -609,17 +985,34 @@ export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.epis
  */
 export function useGetEpisodesId(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.episodes)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.episodes)[':id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetEpisodesIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetEpisodesIdQueryKey(args),
     queryFn: async () => parseResponse(client.episodes[':id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /episodes/{id}
+ * Generates Vue Query cache key for GET /episodes/{id
  */
 export function getGetEpisodesIdQueryKey(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
@@ -634,11 +1027,28 @@ export function getGetEpisodesIdQueryKey(
  *
  * Get the list of markets where Spotify is available.
  */
-export function useGetMarkets(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetMarketsQueryKey()
+export function useGetMarkets(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.markets.$get>,
+    ) => InferResponseType<typeof client.markets.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMarketsQueryKey(),
     queryFn: async () => parseResponse(client.markets.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -657,11 +1067,28 @@ export function getGetMarketsQueryKey() {
  * Get detailed profile information about the current user (including the
  * current user's username).
  */
-export function useGetMe(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetMeQueryKey()
+export function useGetMe(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.me.$get>,
+    ) => InferResponseType<typeof client.me.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeQueryKey(),
     queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -681,12 +1108,29 @@ export function getGetMeQueryKey() {
  */
 export function useGetMeAlbums(
   args: InferRequestType<typeof client.me.albums.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.albums.$get>,
+      ) => InferResponseType<typeof client.me.albums.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeAlbumsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeAlbumsQueryKey(args),
     queryFn: async () => parseResponse(client.me.albums.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -704,10 +1148,29 @@ export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.a
  *
  * Save one or more albums to the current user's 'Your Music' library.
  */
-export function usePutMeAlbums(clientOptions?: ClientRequestOptions) {
+export function usePutMeAlbums(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.albums.$put>,
+      variables: InferRequestType<typeof client.me.albums.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.albums.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.albums.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.albums.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.albums.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.albums.$put>) =>
       parseResponse(client.me.albums.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -718,10 +1181,29 @@ export function usePutMeAlbums(clientOptions?: ClientRequestOptions) {
  *
  * Remove one or more albums from the current user's 'Your Music' library.
  */
-export function useDeleteMeAlbums(clientOptions?: ClientRequestOptions) {
+export function useDeleteMeAlbums(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.albums.$delete>,
+      variables: InferRequestType<typeof client.me.albums.$delete>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.albums.$delete>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.albums.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.albums.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.albums.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.albums.$delete>) =>
       parseResponse(client.me.albums.$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -734,12 +1216,29 @@ export function useDeleteMeAlbums(clientOptions?: ClientRequestOptions) {
  */
 export function useGetMeAlbumsContains(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.albums.contains.$get>,
+      ) => InferResponseType<typeof client.me.albums.contains.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeAlbumsContainsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeAlbumsContainsQueryKey(args),
     queryFn: async () => parseResponse(client.me.albums.contains.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -761,12 +1260,29 @@ export function getGetMeAlbumsContainsQueryKey(
  */
 export function useGetMeAudiobooks(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.audiobooks.$get>,
+      ) => InferResponseType<typeof client.me.audiobooks.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeAudiobooksQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeAudiobooksQueryKey(args),
     queryFn: async () => parseResponse(client.me.audiobooks.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -786,10 +1302,29 @@ export function getGetMeAudiobooksQueryKey(
  *
  * Save one or more audiobooks to the current Spotify user's library.
  */
-export function usePutMeAudiobooks(clientOptions?: ClientRequestOptions) {
+export function usePutMeAudiobooks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.audiobooks.$put>,
+      variables: InferRequestType<typeof client.me.audiobooks.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.audiobooks.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.audiobooks.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.audiobooks.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.audiobooks.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$put>) =>
       parseResponse(client.me.audiobooks.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -800,10 +1335,32 @@ export function usePutMeAudiobooks(clientOptions?: ClientRequestOptions) {
  *
  * Remove one or more audiobooks from the Spotify user's library.
  */
-export function useDeleteMeAudiobooks(clientOptions?: ClientRequestOptions) {
+export function useDeleteMeAudiobooks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.audiobooks.$delete>,
+      variables: InferRequestType<typeof client.me.audiobooks.$delete>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.audiobooks.$delete>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.audiobooks.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.audiobooks.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.audiobooks.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$delete>) =>
       parseResponse(client.me.audiobooks.$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -816,12 +1373,29 @@ export function useDeleteMeAudiobooks(clientOptions?: ClientRequestOptions) {
  */
 export function useGetMeAudiobooksContains(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.audiobooks.contains.$get>,
+      ) => InferResponseType<typeof client.me.audiobooks.contains.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeAudiobooksContainsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeAudiobooksContainsQueryKey(args),
     queryFn: async () => parseResponse(client.me.audiobooks.contains.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -844,12 +1418,29 @@ export function getGetMeAudiobooksContainsQueryKey(
  */
 export function useGetMeEpisodes(
   args: InferRequestType<typeof client.me.episodes.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.episodes.$get>,
+      ) => InferResponseType<typeof client.me.episodes.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeEpisodesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeEpisodesQueryKey(args),
     queryFn: async () => parseResponse(client.me.episodes.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -868,10 +1459,29 @@ export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me
  * Save one or more episodes to the current user's library.<br/>
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
-export function usePutMeEpisodes(clientOptions?: ClientRequestOptions) {
+export function usePutMeEpisodes(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.episodes.$put>,
+      variables: InferRequestType<typeof client.me.episodes.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.episodes.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.episodes.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.episodes.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.episodes.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.episodes.$put>) =>
       parseResponse(client.me.episodes.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -883,10 +1493,29 @@ export function usePutMeEpisodes(clientOptions?: ClientRequestOptions) {
  * Remove one or more episodes from the current user's library.<br/>
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
-export function useDeleteMeEpisodes(clientOptions?: ClientRequestOptions) {
+export function useDeleteMeEpisodes(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.episodes.$delete>,
+      variables: InferRequestType<typeof client.me.episodes.$delete>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.episodes.$delete>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.episodes.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.episodes.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.episodes.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.episodes.$delete>) =>
       parseResponse(client.me.episodes.$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -900,12 +1529,29 @@ export function useDeleteMeEpisodes(clientOptions?: ClientRequestOptions) {
  */
 export function useGetMeEpisodesContains(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.episodes.contains.$get>,
+      ) => InferResponseType<typeof client.me.episodes.contains.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeEpisodesContainsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeEpisodesContainsQueryKey(args),
     queryFn: async () => parseResponse(client.me.episodes.contains.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -927,12 +1573,29 @@ export function getGetMeEpisodesContainsQueryKey(
  */
 export function useGetMeFollowing(
   args: InferRequestType<typeof client.me.following.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.following.$get>,
+      ) => InferResponseType<typeof client.me.following.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeFollowingQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeFollowingQueryKey(args),
     queryFn: async () => parseResponse(client.me.following.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -950,10 +1613,29 @@ export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.m
  *
  * Add the current user as a follower of one or more artists or other Spotify users.
  */
-export function usePutMeFollowing(clientOptions?: ClientRequestOptions) {
+export function usePutMeFollowing(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.following.$put> | undefined,
+      variables: InferRequestType<typeof client.me.following.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.following.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.following.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.following.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.following.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.following.$put>) =>
       parseResponse(client.me.following.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -964,10 +1646,32 @@ export function usePutMeFollowing(clientOptions?: ClientRequestOptions) {
  *
  * Remove the current user as a follower of one or more artists or other Spotify users.
  */
-export function useDeleteMeFollowing(clientOptions?: ClientRequestOptions) {
+export function useDeleteMeFollowing(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.following.$delete>,
+      variables: InferRequestType<typeof client.me.following.$delete>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.following.$delete>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.following.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.following.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.following.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.following.$delete>) =>
       parseResponse(client.me.following.$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -980,12 +1684,29 @@ export function useDeleteMeFollowing(clientOptions?: ClientRequestOptions) {
  */
 export function useGetMeFollowingContains(
   args: InferRequestType<typeof client.me.following.contains.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.following.contains.$get>,
+      ) => InferResponseType<typeof client.me.following.contains.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeFollowingContainsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeFollowingContainsQueryKey(args),
     queryFn: async () => parseResponse(client.me.following.contains.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1007,12 +1728,29 @@ export function getGetMeFollowingContainsQueryKey(
  */
 export function useGetMePlayer(
   args: InferRequestType<typeof client.me.player.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.player.$get> | undefined,
+      ) => InferResponseType<typeof client.me.player.$get> | undefined
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMePlayerQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMePlayerQueryKey(args),
     queryFn: async () => parseResponse(client.me.player.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1030,10 +1768,29 @@ export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.p
  *
  * Transfer playback to a new device and determine if it should start playing.
  */
-export function usePutMePlayer(clientOptions?: ClientRequestOptions) {
+export function usePutMePlayer(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.player.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.player.$put>) =>
       parseResponse(client.me.player.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1046,13 +1803,30 @@ export function usePutMePlayer(clientOptions?: ClientRequestOptions) {
  */
 export function useGetMePlayerCurrentlyPlaying(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
+      ) => InferResponseType<(typeof client.me.player)['currently-playing']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMePlayerCurrentlyPlayingQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMePlayerCurrentlyPlayingQueryKey(args),
     queryFn: async () =>
       parseResponse(client.me.player['currently-playing'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1072,11 +1846,28 @@ export function getGetMePlayerCurrentlyPlayingQueryKey(
  *
  * Get information about a user’s available devices.
  */
-export function useGetMePlayerDevices(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetMePlayerDevicesQueryKey()
+export function useGetMePlayerDevices(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.me.player.devices.$get>,
+    ) => InferResponseType<typeof client.me.player.devices.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMePlayerDevicesQueryKey(),
     queryFn: async () => parseResponse(client.me.player.devices.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1094,10 +1885,32 @@ export function getGetMePlayerDevicesQueryKey() {
  *
  * Skips to next track in the user’s queue.
  */
-export function usePostMePlayerNext(clientOptions?: ClientRequestOptions) {
+export function usePostMePlayerNext(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.next.$post> | undefined,
+      variables: InferRequestType<typeof client.me.player.next.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.next.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.next.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.next.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.next.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.player.next.$post>) =>
       parseResponse(client.me.player.next.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1108,10 +1921,32 @@ export function usePostMePlayerNext(clientOptions?: ClientRequestOptions) {
  *
  * Pause playback on the user's account.
  */
-export function usePutMePlayerPause(clientOptions?: ClientRequestOptions) {
+export function usePutMePlayerPause(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.pause.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.pause.$put>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.pause.$put>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.pause.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.pause.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.pause.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.player.pause.$put>) =>
       parseResponse(client.me.player.pause.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1122,10 +1957,29 @@ export function usePutMePlayerPause(clientOptions?: ClientRequestOptions) {
  *
  * Start a new context or resume current playback on the user's active device.
  */
-export function usePutMePlayerPlay(clientOptions?: ClientRequestOptions) {
+export function usePutMePlayerPlay(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.play.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.play.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.player.play.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.play.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.play.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.play.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.player.play.$put>) =>
       parseResponse(client.me.player.play.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1136,10 +1990,32 @@ export function usePutMePlayerPlay(clientOptions?: ClientRequestOptions) {
  *
  * Skips to previous track in the user’s queue.
  */
-export function usePostMePlayerPrevious(clientOptions?: ClientRequestOptions) {
+export function usePostMePlayerPrevious(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.previous.$post> | undefined,
+      variables: InferRequestType<typeof client.me.player.previous.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.previous.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.previous.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.previous.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.previous.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.player.previous.$post>) =>
       parseResponse(client.me.player.previous.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1150,11 +2026,28 @@ export function usePostMePlayerPrevious(clientOptions?: ClientRequestOptions) {
  *
  * Get the list of objects that make up the user's queue.
  */
-export function useGetMePlayerQueue(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetMePlayerQueueQueryKey()
+export function useGetMePlayerQueue(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.me.player.queue.$get>,
+    ) => InferResponseType<typeof client.me.player.queue.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMePlayerQueueQueryKey(),
     queryFn: async () => parseResponse(client.me.player.queue.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1172,10 +2065,32 @@ export function getGetMePlayerQueueQueryKey() {
  *
  * Add an item to the end of the user's current playback queue.
  */
-export function usePostMePlayerQueue(clientOptions?: ClientRequestOptions) {
+export function usePostMePlayerQueue(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.queue.$post> | undefined,
+      variables: InferRequestType<typeof client.me.player.queue.$post>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.queue.$post>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.queue.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.queue.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.queue.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.player.queue.$post>) =>
       parseResponse(client.me.player.queue.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1189,13 +2104,30 @@ export function usePostMePlayerQueue(clientOptions?: ClientRequestOptions) {
  */
 export function useGetMePlayerRecentlyPlayed(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
+      ) => InferResponseType<(typeof client.me.player)['recently-played']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMePlayerRecentlyPlayedQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMePlayerRecentlyPlayedQueryKey(args),
     queryFn: async () =>
       parseResponse(client.me.player['recently-played'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1216,10 +2148,32 @@ export function getGetMePlayerRecentlyPlayedQueryKey(
  * Set the repeat mode for the user's playback. Options are repeat-track,
  * repeat-context, and off.
  */
-export function usePutMePlayerRepeat(clientOptions?: ClientRequestOptions) {
+export function usePutMePlayerRepeat(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.repeat.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.repeat.$put>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.repeat.$put>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.repeat.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.repeat.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.repeat.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.player.repeat.$put>) =>
       parseResponse(client.me.player.repeat.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1230,10 +2184,29 @@ export function usePutMePlayerRepeat(clientOptions?: ClientRequestOptions) {
  *
  * Seeks to the given position in the user’s currently playing track.
  */
-export function usePutMePlayerSeek(clientOptions?: ClientRequestOptions) {
+export function usePutMePlayerSeek(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.seek.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.seek.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.player.seek.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.seek.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.seek.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.seek.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.player.seek.$put>) =>
       parseResponse(client.me.player.seek.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1244,10 +2217,32 @@ export function usePutMePlayerSeek(clientOptions?: ClientRequestOptions) {
  *
  * Toggle shuffle on or off for user’s playback.
  */
-export function usePutMePlayerShuffle(clientOptions?: ClientRequestOptions) {
+export function usePutMePlayerShuffle(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.shuffle.$put>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.shuffle.$put>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.shuffle.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.shuffle.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.player.shuffle.$put>) =>
       parseResponse(client.me.player.shuffle.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1258,10 +2253,32 @@ export function usePutMePlayerShuffle(clientOptions?: ClientRequestOptions) {
  *
  * Set the volume for the user’s current playback device.
  */
-export function usePutMePlayerVolume(clientOptions?: ClientRequestOptions) {
+export function usePutMePlayerVolume(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.player.volume.$put> | undefined,
+      variables: InferRequestType<typeof client.me.player.volume.$put>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<typeof client.me.player.volume.$put>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.player.volume.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.player.volume.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.player.volume.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.player.volume.$put>) =>
       parseResponse(client.me.player.volume.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1275,12 +2292,29 @@ export function usePutMePlayerVolume(clientOptions?: ClientRequestOptions) {
  */
 export function useGetMePlaylists(
   args: InferRequestType<typeof client.me.playlists.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.playlists.$get>,
+      ) => InferResponseType<typeof client.me.playlists.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMePlaylistsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMePlaylistsQueryKey(args),
     queryFn: async () => parseResponse(client.me.playlists.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1300,12 +2334,29 @@ export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.m
  */
 export function useGetMeShows(
   args: InferRequestType<typeof client.me.shows.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.shows.$get>,
+      ) => InferResponseType<typeof client.me.shows.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeShowsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeShowsQueryKey(args),
     queryFn: async () => parseResponse(client.me.shows.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1323,10 +2374,29 @@ export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.sh
  *
  * Save one or more shows to current Spotify user's library.
  */
-export function usePutMeShows(clientOptions?: ClientRequestOptions) {
+export function usePutMeShows(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.shows.$put>,
+      variables: InferRequestType<typeof client.me.shows.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.shows.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.shows.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.shows.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.shows.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.shows.$put>) =>
       parseResponse(client.me.shows.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1337,10 +2407,29 @@ export function usePutMeShows(clientOptions?: ClientRequestOptions) {
  *
  * Delete one or more shows from current Spotify user's library.
  */
-export function useDeleteMeShows(clientOptions?: ClientRequestOptions) {
+export function useDeleteMeShows(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.shows.$delete>,
+      variables: InferRequestType<typeof client.me.shows.$delete>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.shows.$delete>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.shows.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.shows.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.shows.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.shows.$delete>) =>
       parseResponse(client.me.shows.$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1353,12 +2442,29 @@ export function useDeleteMeShows(clientOptions?: ClientRequestOptions) {
  */
 export function useGetMeShowsContains(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.shows.contains.$get>,
+      ) => InferResponseType<typeof client.me.shows.contains.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeShowsContainsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeShowsContainsQueryKey(args),
     queryFn: async () => parseResponse(client.me.shows.contains.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1380,17 +2486,34 @@ export function getGetMeShowsContainsQueryKey(
  */
 export function useGetMeTopType(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.me.top)[':type']['$get']>,
+      ) => InferResponseType<(typeof client.me.top)[':type']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeTopTypeQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeTopTypeQueryKey(args),
     queryFn: async () => parseResponse(client.me.top[':type'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /me/top/{type}
+ * Generates Vue Query cache key for GET /me/top/{type
  */
 export function getGetMeTopTypeQueryKey(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
@@ -1407,12 +2530,29 @@ export function getGetMeTopTypeQueryKey(
  */
 export function useGetMeTracks(
   args: InferRequestType<typeof client.me.tracks.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.tracks.$get>,
+      ) => InferResponseType<typeof client.me.tracks.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeTracksQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeTracksQueryKey(args),
     queryFn: async () => parseResponse(client.me.tracks.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1430,10 +2570,29 @@ export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.t
  *
  * Save one or more tracks to the current user's 'Your Music' library.
  */
-export function usePutMeTracks(clientOptions?: ClientRequestOptions) {
+export function usePutMeTracks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.tracks.$put>,
+      variables: InferRequestType<typeof client.me.tracks.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.tracks.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.tracks.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.tracks.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.tracks.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.tracks.$put>) =>
       parseResponse(client.me.tracks.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1444,10 +2603,29 @@ export function usePutMeTracks(clientOptions?: ClientRequestOptions) {
  *
  * Remove one or more tracks from the current user's 'Your Music' library.
  */
-export function useDeleteMeTracks(clientOptions?: ClientRequestOptions) {
+export function useDeleteMeTracks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.me.tracks.$delete>,
+      variables: InferRequestType<typeof client.me.tracks.$delete>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.me.tracks.$delete>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.me.tracks.$delete> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.me.tracks.$delete>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.me.tracks.$delete>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.me.tracks.$delete>) =>
       parseResponse(client.me.tracks.$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1460,12 +2638,29 @@ export function useDeleteMeTracks(clientOptions?: ClientRequestOptions) {
  */
 export function useGetMeTracksContains(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.me.tracks.contains.$get>,
+      ) => InferResponseType<typeof client.me.tracks.contains.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetMeTracksContainsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetMeTracksContainsQueryKey(args),
     queryFn: async () => parseResponse(client.me.tracks.contains.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1487,17 +2682,34 @@ export function getGetMeTracksContainsQueryKey(
  */
 export function useGetPlaylistsPlaylistId(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>,
+      ) => InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetPlaylistsPlaylistIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPlaylistsPlaylistIdQueryKey(args),
     queryFn: async () => parseResponse(client.playlists[':playlist_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /playlists/{playlist_id}
+ * Generates Vue Query cache key for GET /playlists/{playlist_id
  */
 export function getGetPlaylistsPlaylistIdQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
@@ -1513,10 +2725,34 @@ export function getGetPlaylistsPlaylistIdQueryKey(
  * Change a playlist's name and public/private state. (The user must, of
  * course, own the playlist.)
  */
-export function usePutPlaylistsPlaylistId(clientOptions?: ClientRequestOptions) {
+export function usePutPlaylistsPlaylistId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['$put']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>) =>
       parseResponse(client.playlists[':playlist_id'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1527,11 +2763,37 @@ export function usePutPlaylistsPlaylistId(clientOptions?: ClientRequestOptions) 
  *
  * Add the current user as a follower of a playlist.
  */
-export function usePutPlaylistsPlaylistIdFollowers(clientOptions?: ClientRequestOptions) {
+export function usePutPlaylistsPlaylistIdFollowers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].followers.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1542,11 +2804,45 @@ export function usePutPlaylistsPlaylistIdFollowers(clientOptions?: ClientRequest
  *
  * Remove the current user as a follower of a playlist.
  */
-export function useDeletePlaylistsPlaylistIdFollowers(clientOptions?: ClientRequestOptions) {
+export function useDeletePlaylistsPlaylistIdFollowers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
+      variables: InferRequestType<
+        (typeof client.playlists)[':playlist_id']['followers']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.playlists)[':playlist_id']['followers']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.playlists)[':playlist_id']['followers']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.playlists)[':playlist_id']['followers']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
     ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1561,18 +2857,39 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
   args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.playlists[':playlist_id'].followers.contains.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /playlists/{playlist_id}/followers/contains
+ * Generates Vue Query cache key for GET /playlists/{playlist_id/followers/contains
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
   args: InferRequestType<
@@ -1591,18 +2908,35 @@ export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
  */
 export function useGetPlaylistsPlaylistIdImages(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+      ) => InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetPlaylistsPlaylistIdImagesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPlaylistsPlaylistIdImagesQueryKey(args),
     queryFn: async () =>
       parseResponse(client.playlists[':playlist_id'].images.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /playlists/{playlist_id}/images
+ * Generates Vue Query cache key for GET /playlists/{playlist_id/images
  */
 export function getGetPlaylistsPlaylistIdImagesQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
@@ -1617,11 +2951,37 @@ export function getGetPlaylistsPlaylistIdImagesQueryKey(
  *
  * Replace the image used to represent a specific playlist.
  */
-export function usePutPlaylistsPlaylistIdImages(clientOptions?: ClientRequestOptions) {
+export function usePutPlaylistsPlaylistIdImages(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].images.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1634,18 +2994,35 @@ export function usePutPlaylistsPlaylistIdImages(clientOptions?: ClientRequestOpt
  */
 export function useGetPlaylistsPlaylistIdTracks(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+      ) => InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetPlaylistsPlaylistIdTracksQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetPlaylistsPlaylistIdTracksQueryKey(args),
     queryFn: async () =>
       parseResponse(client.playlists[':playlist_id'].tracks.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /playlists/{playlist_id}/tracks
+ * Generates Vue Query cache key for GET /playlists/{playlist_id/tracks
  */
 export function getGetPlaylistsPlaylistIdTracksQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
@@ -1666,11 +3043,37 @@ export function getGetPlaylistsPlaylistIdTracksQueryKey(
  * **Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters.
  * These operations can't be applied together in a single request.
  */
-export function usePutPlaylistsPlaylistIdTracks(clientOptions?: ClientRequestOptions) {
+export function usePutPlaylistsPlaylistIdTracks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1681,11 +3084,37 @@ export function usePutPlaylistsPlaylistIdTracks(clientOptions?: ClientRequestOpt
  *
  * Add one or more items to a user's playlist.
  */
-export function usePostPlaylistsPlaylistIdTracks(clientOptions?: ClientRequestOptions) {
+export function usePostPlaylistsPlaylistIdTracks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1696,11 +3125,37 @@ export function usePostPlaylistsPlaylistIdTracks(clientOptions?: ClientRequestOp
  *
  * Remove one or more items from a user's playlist.
  */
-export function useDeletePlaylistsPlaylistIdTracks(clientOptions?: ClientRequestOptions) {
+export function useDeletePlaylistsPlaylistIdTracks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1715,12 +3170,29 @@ export function useDeletePlaylistsPlaylistIdTracks(clientOptions?: ClientRequest
  */
 export function useGetRecommendations(
   args: InferRequestType<typeof client.recommendations.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.recommendations.$get>,
+      ) => InferResponseType<typeof client.recommendations.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetRecommendationsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetRecommendationsQueryKey(args),
     queryFn: async () => parseResponse(client.recommendations.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1740,12 +3212,29 @@ export function getGetRecommendationsQueryKey(
  *
  * Retrieve a list of available genres seed parameter values for [recommendations](/documentation/web-api/reference/get-recommendations).
  */
-export function useGetRecommendationsAvailableGenreSeeds(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetRecommendationsAvailableGenreSeedsQueryKey()
+export function useGetRecommendationsAvailableGenreSeeds(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
+    ) => InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetRecommendationsAvailableGenreSeedsQueryKey(),
     queryFn: async () =>
       parseResponse(client.recommendations['available-genre-seeds'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1767,12 +3256,29 @@ export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
  */
 export function useGetSearch(
   args: InferRequestType<typeof client.search.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.search.$get>,
+      ) => InferResponseType<typeof client.search.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetSearchQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSearchQueryKey(args),
     queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1792,12 +3298,29 @@ export function getGetSearchQueryKey(args: InferRequestType<typeof client.search
  */
 export function useGetShows(
   args: InferRequestType<typeof client.shows.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.shows.$get>,
+      ) => InferResponseType<typeof client.shows.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetShowsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetShowsQueryKey(args),
     queryFn: async () => parseResponse(client.shows.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1818,17 +3341,34 @@ export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$
  */
 export function useGetShowsId(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.shows)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.shows)[':id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetShowsIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetShowsIdQueryKey(args),
     queryFn: async () => parseResponse(client.shows[':id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /shows/{id}
+ * Generates Vue Query cache key for GET /shows/{id
  */
 export function getGetShowsIdQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
@@ -1845,17 +3385,34 @@ export function getGetShowsIdQueryKey(
  */
 export function useGetShowsIdEpisodes(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>,
+      ) => InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetShowsIdEpisodesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetShowsIdEpisodesQueryKey(args),
     queryFn: async () => parseResponse(client.shows[':id'].episodes.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /shows/{id}/episodes
+ * Generates Vue Query cache key for GET /shows/{id/episodes
  */
 export function getGetShowsIdEpisodesQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
@@ -1872,12 +3429,29 @@ export function getGetShowsIdEpisodesQueryKey(
  */
 export function useGetTracks(
   args: InferRequestType<typeof client.tracks.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.tracks.$get>,
+      ) => InferResponseType<typeof client.tracks.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetTracksQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetTracksQueryKey(args),
     queryFn: async () => parseResponse(client.tracks.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1898,17 +3472,34 @@ export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks
  */
 export function useGetTracksId(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.tracks)[':id']['$get']>,
+      ) => InferResponseType<(typeof client.tracks)[':id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetTracksIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetTracksIdQueryKey(args),
     queryFn: async () => parseResponse(client.tracks[':id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /tracks/{id}
+ * Generates Vue Query cache key for GET /tracks/{id
  */
 export function getGetTracksIdQueryKey(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
@@ -1925,17 +3516,34 @@ export function getGetTracksIdQueryKey(
  */
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':user_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUsersUserIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersUserIdQueryKey(args),
     queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{user_id}
+ * Generates Vue Query cache key for GET /users/{user_id
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
@@ -1952,18 +3560,35 @@ export function getGetUsersUserIdQueryKey(
  */
 export function useGetUsersUserIdPlaylists(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUsersUserIdPlaylistsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersUserIdPlaylistsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.users[':user_id'].playlists.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{user_id}/playlists
+ * Generates Vue Query cache key for GET /users/{user_id/playlists
  */
 export function getGetUsersUserIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
@@ -1979,10 +3604,34 @@ export function getGetUsersUserIdPlaylistsQueryKey(
  * Create a playlist for a Spotify user. (The playlist will be empty until
  * you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).)
  */
-export function usePostUsersUserIdPlaylists(clientOptions?: ClientRequestOptions) {
+export function usePostUsersUserIdPlaylists(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']>,
+      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)[':user_id']['playlists']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
     ) => parseResponse(client.users[':user_id'].playlists.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }

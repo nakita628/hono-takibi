@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
@@ -35,11 +36,21 @@ export function getGetUsersKey() {
 /**
  * POST /users
  */
-export function usePostUsers(options?: { client?: ClientRequestOptions }) {
+export function usePostUsers(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.users.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.users.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /users',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
       parseResponse(client.users.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -67,7 +78,7 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId}
+ * Generates SWR cache key for GET /users/{userId
  */
 export function getGetUsersUserIdKey(
   args?: InferRequestType<(typeof client.users)[':userId']['$get']>,

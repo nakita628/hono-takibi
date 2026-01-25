@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -59,7 +60,7 @@ export function useGetResourcesId(
 }
 
 /**
- * Generates SWR cache key for GET /resources/{id}
+ * Generates SWR cache key for GET /resources/{id
  */
 export function getGetResourcesIdKey(
   args?: InferRequestType<(typeof client.resources)[':id']['$get']>,
@@ -70,13 +71,23 @@ export function getGetResourcesIdKey(
 /**
  * PUT /resources/{id}
  */
-export function usePutResourcesId(options?: { client?: ClientRequestOptions }) {
+export function usePutResourcesId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.resources)[':id']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.resources)[':id']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /resources/:id',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.resources)[':id']['$put']> },
     ) => parseResponse(client.resources[':id'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -104,7 +115,7 @@ export function useGetDownloadId(
 }
 
 /**
- * Generates SWR cache key for GET /download/{id}
+ * Generates SWR cache key for GET /download/{id
  */
 export function getGetDownloadIdKey(
   args?: InferRequestType<(typeof client.download)[':id']['$get']>,

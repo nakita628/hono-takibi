@@ -52,7 +52,8 @@ describe('swr', () => {
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -128,11 +129,21 @@ export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>
  *
  * Create a new user.
  */
-export function usePostUsers(options?: { client?: ClientRequestOptions }) {
+export function usePostUsers(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.users.$post> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.users.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /users',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
       parseResponse(client.users.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 `
@@ -171,7 +182,7 @@ export * from './usePostUsers'
       const useGetHono = fs.readFileSync(path.join(dir, 'swr', 'useGetHono.ts'), 'utf-8')
       const useGetHonoExpected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -212,7 +223,7 @@ export function getGetHonoKey() {
       const useGetUsers = fs.readFileSync(path.join(dir, 'swr', 'useGetUsers.ts'), 'utf-8')
       const useGetUsersExpected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -255,7 +266,8 @@ export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>
       // Check POST hook file (mutation)
       const usePostUsers = fs.readFileSync(path.join(dir, 'swr', 'usePostUsers.ts'), 'utf-8')
       const usePostUsersExpected = `import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -266,11 +278,21 @@ import { client } from '../client'
  *
  * Create a new user.
  */
-export function usePostUsers(options?: { client?: ClientRequestOptions }) {
+export function usePostUsers(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.users.$post> | undefined,
+    Error,
+    string,
+    InferRequestType<typeof client.users.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /users',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
       parseResponse(client.users.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 `
@@ -313,7 +335,7 @@ describe('swr (custom client name)', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
@@ -386,7 +408,8 @@ describe('swr (no args operations)', () => {
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -424,9 +447,20 @@ export function getGetPingKey() {
  *
  * Post ping
  */
-export function usePostPing(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('POST /ping', async () =>
-    parseResponse(client.ping.$post(undefined, options?.client)),
+export function usePostPing(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.ping.$post>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'POST /ping',
+    async () => parseResponse(client.ping.$post(undefined, options?.client)),
+    mutationOptions,
   )
 }
 `
@@ -464,7 +498,7 @@ describe('swr (path with special characters)', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -538,7 +572,8 @@ describe('swr (path parameters)', () => {
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -579,13 +614,23 @@ export function getGetUsersIdKey(args?: InferRequestType<(typeof client.users)['
  *
  * Delete user
  */
-export function useDeleteUsersId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteUsersId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.users)[':id']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.users)[':id']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /users/:id',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)[':id']['$delete']> },
     ) => parseResponse(client.users[':id'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 `

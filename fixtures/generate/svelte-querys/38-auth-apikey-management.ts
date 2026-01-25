@@ -1,5 +1,4 @@
 import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
@@ -12,27 +11,29 @@ import { client } from '../clients/38-auth-apikey-management'
 export function createGetApiKeys(
   args: InferRequestType<(typeof client)['api-keys']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['api-keys']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['api-keys']['$get']>,
-      readonly ['/api-keys', InferRequestType<(typeof client)['api-keys']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['api-keys']['$get']>,
+      ) => InferResponseType<(typeof client)['api-keys']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApiKeysQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['api-keys'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetApiKeysQueryKey(args),
+    queryFn: async () => parseResponse(client['api-keys'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
@@ -47,17 +48,33 @@ export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['ap
  *
  * APIキー作成
  */
-export function createPostApiKeys(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['$post']>) =>
-        parseResponse(client['api-keys'].$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostApiKeys(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys']['$post']>,
+      variables: InferRequestType<(typeof client)['api-keys']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['api-keys']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['$post']>) =>
+      parseResponse(client['api-keys'].$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -68,31 +85,33 @@ export function createPostApiKeys(
 export function createGetApiKeysKeyId(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
-      readonly ['/api-keys/:keyId', InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
+      ) => InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApiKeysKeyIdQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client['api-keys'][':keyId'].$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetApiKeysKeyIdQueryKey(args),
+    queryFn: async () => parseResponse(client['api-keys'][':keyId'].$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /api-keys/{keyId}
+ * Generates Svelte Query cache key for GET /api-keys/{keyId
  */
 export function getGetApiKeysKeyIdQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
@@ -105,18 +124,35 @@ export function getGetApiKeysKeyIdQueryKey(
  *
  * APIキー削除
  */
-export function createDeleteApiKeysKeyId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
-      ) => parseResponse(client['api-keys'][':keyId'].$delete(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createDeleteApiKeysKeyId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>) =>
+      parseResponse(client['api-keys'][':keyId'].$delete(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -124,17 +160,35 @@ export function createDeleteApiKeysKeyId(
  *
  * APIキー更新
  */
-export function createPatchApiKeysKeyId(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>) =>
-        parseResponse(client['api-keys'][':keyId'].$patch(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPatchApiKeysKeyId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']>,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>) =>
+      parseResponse(client['api-keys'][':keyId'].$patch(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -142,18 +196,36 @@ export function createPatchApiKeysKeyId(
  *
  * APIキー無効化
  */
-export function createPostApiKeysKeyIdRevoke(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
-      ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostApiKeysKeyIdRevoke(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['revoke']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+    ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -161,18 +233,36 @@ export function createPostApiKeysKeyIdRevoke(
  *
  * APIキーローテーション
  */
-export function createPostApiKeysKeyIdRotate(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (
-        args: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
-      ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostApiKeysKeyIdRotate(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys'][':keyId']['rotate']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (
+      args: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+    ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -183,35 +273,34 @@ export function createPostApiKeysKeyIdRotate(
 export function createGetApiKeysKeyIdUsage(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-      readonly [
-        '/api-keys/:keyId/usage',
-        InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+      ) => InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApiKeysKeyIdUsageQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['api-keys'][':keyId'].usage.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetApiKeysKeyIdUsageQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['api-keys'][':keyId'].usage.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /api-keys/{keyId}/usage
+ * Generates Svelte Query cache key for GET /api-keys/{keyId/usage
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
@@ -227,35 +316,36 @@ export function getGetApiKeysKeyIdUsageQueryKey(
 export function createGetApiKeysKeyIdRateLimitCurrent(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
   options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-      Error,
-      InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-      readonly [
-        '/api-keys/:keyId/rate-limit/current',
-        InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
-      ]
-    >
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']
+        >,
+      ) => InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>
+    }
     client?: ClientRequestOptions
   },
-  queryClient?: QueryClient,
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetApiKeysKeyIdRateLimitCurrentQueryKey(args)
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () =>
-        parseResponse(client['api-keys'][':keyId']['rate-limit'].current.$get(args, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetApiKeysKeyIdRateLimitCurrentQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['api-keys'][':keyId']['rate-limit'].current.$get(args, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**
- * Generates Svelte Query cache key for GET /api-keys/{keyId}/rate-limit/current
+ * Generates Svelte Query cache key for GET /api-keys/{keyId/rate-limit/current
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
@@ -268,17 +358,33 @@ export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
  *
  * APIキー検証
  */
-export function createPostApiKeysVerify(
-  options?: { client?: ClientRequestOptions },
-  queryClient?: QueryClient,
-) {
-  return createMutation(
-    {
-      mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) =>
-        parseResponse(client['api-keys'].verify.$post(args, options?.client)),
-    },
-    queryClient,
-  )
+export function createPostApiKeysVerify(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['api-keys']['verify']['$post']>,
+      variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['api-keys']['verify']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return createMutation({
+    mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) =>
+      parseResponse(client['api-keys'].verify.$post(args, clientOptions)),
+    ...mutationOptions,
+  })
 }
 
 /**
@@ -286,29 +392,29 @@ export function createPostApiKeysVerify(
  *
  * 利用可能なスコープ一覧
  */
-export function createGetScopes(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.scopes.$get>,
-      Error,
-      InferResponseType<typeof client.scopes.$get>,
-      readonly ['/scopes']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetScopes(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.scopes.$get>,
+    ) => InferResponseType<typeof client.scopes.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetScopesQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.scopes.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetScopesQueryKey(),
+    queryFn: async () => parseResponse(client.scopes.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

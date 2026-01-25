@@ -8,12 +8,29 @@ import { client } from '../clients/15-cross-component-refs'
  */
 export function useGetEntities(
   args: InferRequestType<typeof client.entities.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.entities.$get>,
+      ) => InferResponseType<typeof client.entities.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetEntitiesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetEntitiesQueryKey(args),
     queryFn: async () => parseResponse(client.entities.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -27,10 +44,29 @@ export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.enti
 /**
  * POST /entities
  */
-export function usePostEntities(clientOptions?: ClientRequestOptions) {
+export function usePostEntities(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.entities.$post>,
+      variables: InferRequestType<typeof client.entities.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.entities.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.entities.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.entities.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.entities.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.entities.$post>) =>
       parseResponse(client.entities.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -39,17 +75,34 @@ export function usePostEntities(clientOptions?: ClientRequestOptions) {
  */
 export function useGetEntitiesEntityId(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.entities)[':entityId']['$get']>,
+      ) => InferResponseType<(typeof client.entities)[':entityId']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetEntitiesEntityIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetEntitiesEntityIdQueryKey(args),
     queryFn: async () => parseResponse(client.entities[':entityId'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /entities/{entityId}
+ * Generates Vue Query cache key for GET /entities/{entityId
  */
 export function getGetEntitiesEntityIdQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
@@ -60,20 +113,66 @@ export function getGetEntitiesEntityIdQueryKey(
 /**
  * PUT /entities/{entityId}
  */
-export function usePutEntitiesEntityId(clientOptions?: ClientRequestOptions) {
+export function usePutEntitiesEntityId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.entities)[':entityId']['$put']>,
+      variables: InferRequestType<(typeof client.entities)[':entityId']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.entities)[':entityId']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.entities)[':entityId']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.entities)[':entityId']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.entities)[':entityId']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$put']>) =>
       parseResponse(client.entities[':entityId'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /entities/{entityId}
  */
-export function useDeleteEntitiesEntityId(clientOptions?: ClientRequestOptions) {
+export function useDeleteEntitiesEntityId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.entities)[':entityId']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.entities)[':entityId']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$delete']>) =>
       parseResponse(client.entities[':entityId'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -82,18 +181,35 @@ export function useDeleteEntitiesEntityId(clientOptions?: ClientRequestOptions) 
  */
 export function useGetEntitiesEntityIdRelationships(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+      ) => InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetEntitiesEntityIdRelationshipsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetEntitiesEntityIdRelationshipsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.entities[':entityId'].relationships.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /entities/{entityId}/relationships
+ * Generates Vue Query cache key for GET /entities/{entityId/relationships
  */
 export function getGetEntitiesEntityIdRelationshipsQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
@@ -104,20 +220,65 @@ export function getGetEntitiesEntityIdRelationshipsQueryKey(
 /**
  * POST /entities/{entityId}/relationships
  */
-export function usePostEntitiesEntityIdRelationships(clientOptions?: ClientRequestOptions) {
+export function usePostEntitiesEntityIdRelationships(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.entities)[':entityId']['relationships']['$post']>,
+      variables: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.entities)[':entityId']['relationships']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
     ) => parseResponse(client.entities[':entityId'].relationships.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /batch
  */
-export function usePostBatch(clientOptions?: ClientRequestOptions) {
+export function usePostBatch(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.batch.$post>,
+      variables: InferRequestType<typeof client.batch.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.batch.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.batch.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.batch.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.batch.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.batch.$post>) =>
       parseResponse(client.batch.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }

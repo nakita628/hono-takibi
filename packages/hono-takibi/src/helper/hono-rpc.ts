@@ -285,6 +285,51 @@ export const getSuccessStatusCode = (op: OperationLike): number | undefined => {
 }
 
 /**
+ * HTTP status codes that indicate No Content (no response body).
+ *
+ * When these status codes are defined in OpenAPI responses,
+ * `parseResponse` may return `undefined`.
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/204
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/205
+ * @see https://github.com/honojs/hono/issues/4264
+ */
+const NO_CONTENT_STATUS_CODES = [204, 205] as const
+
+/**
+ * Check if operation has No Content response (204 or 205).
+ *
+ * When an operation has 204 or 205 response defined,
+ * `parseResponse()` may return `undefined` instead of parsed data.
+ * This function helps determine if `| undefined` should be added to the response type.
+ *
+ * @param op - Operation object
+ * @returns True if operation has 204 or 205 response defined
+ *
+ * @example
+ * ```ts
+ * const deleteOp = { responses: { '204': { description: 'Deleted' } } }
+ * hasNoContentResponse(deleteOp)
+ * // => true
+ *
+ * const getOp = { responses: { '200': { description: 'OK' } } }
+ * hasNoContentResponse(getOp)
+ * // => false
+ * ```
+ *
+ * @see https://hono.dev/docs/guides/rpc#parsing-a-response-with-type-safety-helper
+ */
+export const hasNoContentResponse = (op: OperationLike): boolean => {
+  const responses = op.responses
+  if (!isRecord(responses)) return false
+
+  return Object.keys(responses).some((status) => {
+    const code = Number.parseInt(status, 10)
+    return !Number.isNaN(code) && NO_CONTENT_STATUS_CODES.includes(code as 204 | 205)
+  })
+}
+
+/**
  * HTTP methods supported by OpenAPI.
  */
 export type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'

@@ -1,5 +1,4 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { QueryClient, CreateQueryOptions } from '@tanstack/svelte-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/additional'
@@ -11,29 +10,29 @@ import { client } from '../clients/additional'
  *
  * zod passthrough
  */
-export function createGetPassthrough(
-  options?: {
-    query?: CreateQueryOptions<
-      InferResponseType<typeof client.passthrough.$get>,
-      Error,
-      InferResponseType<typeof client.passthrough.$get>,
-      readonly ['/passthrough']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function createGetPassthrough(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.passthrough.$get>,
+    ) => InferResponseType<typeof client.passthrough.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetPassthroughQueryKey()
-  const query = createQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.passthrough.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return createQuery({
+    queryKey: getGetPassthroughQueryKey(),
+    queryFn: async () => parseResponse(client.passthrough.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

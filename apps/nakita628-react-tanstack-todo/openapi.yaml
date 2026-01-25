@@ -1,0 +1,332 @@
+openapi: 3.0.0
+info:
+  title: Takibi Todo API
+  version: 1.0.0
+paths:
+  /api:
+    get:
+      tags:
+        - Health
+      summary: Health Check
+      operationId: Health_list
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OK'
+  /api/todo:
+    get:
+      tags:
+        - Todos
+      summary: Retrieve a list of posts
+      operationId: Todos_list
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContent'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailable'
+    post:
+      tags:
+        - Todos
+      summary: Create a new post
+      operationId: Todos_create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  minLength: 1
+                  maxLength: 140
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Created'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContent'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailable'
+  /api/todo/{id}:
+    get:
+      tags:
+        - Todos
+      summary: Get a single todo
+      operationId: Todos_read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContent'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailable'
+    put:
+      tags:
+        - Todos
+      summary: Update an existing todo
+      operationId: Todos_update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                  minLength: 1
+                  maxLength: 140
+                completed:
+                  type: integer
+                  format: int32
+                  description: 0 = not completed, 1 = completed
+      responses:
+        '204':
+          description: There is no content to send for this request, but the headers may be useful.
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContent'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailable'
+    delete:
+      tags:
+        - Todos
+      summary: Delete a todo
+      operationId: Todos_delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: There is no content to send for this request, but the headers may be useful.
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '422':
+          description: Client error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnprocessableContent'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+        '503':
+          description: Service unavailable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUnavailable'
+components:
+  schemas:
+    OK:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+      example:
+        status: 200
+        message: OK
+    Todo:
+      type: object
+      required:
+        - id
+        - content
+        - completed
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+          minLength: 1
+          maxLength: 140
+        completed:
+          type: integer
+          format: int32
+          description: 0 = not completed, 1 = completed
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      example:
+        id: c6c0f743-01fa-4c23-80d6-1b358512e213
+        content: Hono
+        completed: 0
+        createdAt: '2020-01-01T00:00:00Z'
+        updatedAt: '2020-01-01T00:00:00Z'
+    NotFound:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    UnprocessableContent:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    InternalServerError:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    ServiceUnavailable:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+        retryAfter:
+          type: string
+    Created:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+      example:
+        status: 201
+        message: Created

@@ -1,29 +1,50 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
 /**
  * POST /messages
  */
-export function usePostMessages(options?: { client?: ClientRequestOptions }) {
+export function usePostMessages(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.messages.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.messages.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /messages',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.messages.$post> }) =>
       parseResponse(client.messages.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * POST /events
  */
-export function usePostEvents(options?: { client?: ClientRequestOptions }) {
+export function usePostEvents(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.events.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.events.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /events',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.events.$post> }) =>
       parseResponse(client.events.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -57,32 +78,62 @@ export function getGetConfigsKey() {
 /**
  * PUT /configs
  */
-export function usePutConfigs(options?: { client?: ClientRequestOptions }) {
+export function usePutConfigs(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.configs.$put>,
+    Error,
+    string,
+    InferRequestType<typeof client.configs.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /configs',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.configs.$put> }) =>
       parseResponse(client.configs.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * POST /resources
  */
-export function usePostResources(options?: { client?: ClientRequestOptions }) {
+export function usePostResources(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.resources.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.resources.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /resources',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.resources.$post> }) =>
       parseResponse(client.resources.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
 /**
  * POST /validations
  */
-export function usePostValidations(options?: { client?: ClientRequestOptions }) {
+export function usePostValidations(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.validations.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.validations.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /validations',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.validations.$post> }) =>
       parseResponse(client.validations.$post(arg, options?.client)),
+    mutationOptions,
   )
 }

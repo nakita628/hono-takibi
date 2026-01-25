@@ -16,6 +16,8 @@
   "dependencies": {
     "@hono/zod-openapi": "^1.2.0",
     "hono": "^4.11.4",
+    "kysely": "^0.28.2",
+    "kysely-d1": "^0.4.0",
     "neverthrow": "^8.2.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",

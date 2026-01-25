@@ -6,11 +6,28 @@ import { client } from '../clients/discord-api-spec-openapi'
 /**
  * GET /applications/@me
  */
-export function useGetApplicationsMe(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetApplicationsMeQueryKey()
+export function useGetApplicationsMe(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.applications)['@me']['$get']>,
+    ) => InferResponseType<(typeof client.applications)['@me']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsMeQueryKey(),
     queryFn: async () => parseResponse(client.applications['@me'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -24,10 +41,32 @@ export function getGetApplicationsMeQueryKey() {
 /**
  * PATCH /applications/@me
  */
-export function usePatchApplicationsMe(clientOptions?: ClientRequestOptions) {
+export function usePatchApplicationsMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.applications)['@me']['$patch']>,
+      variables: InferRequestType<(typeof client.applications)['@me']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.applications)['@me']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.applications)['@me']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.applications)['@me']['$patch']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.applications)['@me']['$patch']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.applications)['@me']['$patch']>) =>
       parseResponse(client.applications['@me'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -36,18 +75,35 @@ export function usePatchApplicationsMe(clientOptions?: ClientRequestOptions) {
  */
 export function useGetApplicationsApplicationId(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.applications)[':application_id']['$get']>,
+      ) => InferResponseType<(typeof client.applications)[':application_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client.applications[':application_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}
+ * Generates Vue Query cache key for GET /applications/{application_id
  */
 export function getGetApplicationsApplicationIdQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
@@ -58,11 +114,37 @@ export function getGetApplicationsApplicationIdQueryKey(
 /**
  * PATCH /applications/{application_id}
  */
-export function usePatchApplicationsApplicationId(clientOptions?: ClientRequestOptions) {
+export function usePatchApplicationsApplicationId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.applications)[':application_id']['$patch']>,
+      variables: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.applications)[':application_id']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
     ) => parseResponse(client.applications[':application_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -73,11 +155,31 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.applications[':application_id']['activity-instances'][':instance_id'].$get(
@@ -85,11 +187,12 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/activity-instances/{instance_id}
+ * Generates Vue Query cache key for GET /applications/{application_id/activity-instances/{instance_id
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(
   args: InferRequestType<
@@ -102,7 +205,42 @@ export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryK
 /**
  * POST /applications/{application_id}/attachment
  */
-export function usePostApplicationsApplicationIdAttachment(clientOptions?: ClientRequestOptions) {
+export function usePostApplicationsApplicationIdAttachment(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['attachment']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['attachment']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['attachment']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.applications)[':application_id']['attachment']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['attachment']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['attachment']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -110,6 +248,7 @@ export function usePostApplicationsApplicationIdAttachment(clientOptions?: Clien
       >,
     ) =>
       parseResponse(client.applications[':application_id'].attachment.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -118,18 +257,37 @@ export function usePostApplicationsApplicationIdAttachment(clientOptions?: Clien
  */
 export function useGetApplicationsApplicationIdCommands(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['commands']['$get']
+        >,
+      ) => InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdCommandsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdCommandsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.applications[':application_id'].commands.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/commands
+ * Generates Vue Query cache key for GET /applications/{application_id/commands
  */
 export function getGetApplicationsApplicationIdCommandsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
@@ -140,22 +298,90 @@ export function getGetApplicationsApplicationIdCommandsQueryKey(
 /**
  * PUT /applications/{application_id}/commands
  */
-export function usePutApplicationsApplicationIdCommands(clientOptions?: ClientRequestOptions) {
+export function usePutApplicationsApplicationIdCommands(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.applications)[':application_id']['commands']['$put']>,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.applications)[':application_id']['commands']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>,
     ) => parseResponse(client.applications[':application_id'].commands.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /applications/{application_id}/commands
  */
-export function usePostApplicationsApplicationIdCommands(clientOptions?: ClientRequestOptions) {
+export function usePostApplicationsApplicationIdCommands(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.applications)[':application_id']['commands']['$post']>,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.applications)[':application_id']['commands']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$post']>,
     ) => parseResponse(client.applications[':application_id'].commands.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -166,20 +392,41 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdCommandsCommandIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdCommandsCommandIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.applications[':application_id'].commands[':command_id'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/commands/{command_id}
+ * Generates Vue Query cache key for GET /applications/{application_id/commands/{command_id
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
   args: InferRequestType<
@@ -192,9 +439,46 @@ export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
 /**
  * DELETE /applications/{application_id}/commands/{command_id}
  */
-export function useDeleteApplicationsApplicationIdCommandsCommandId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -204,15 +488,51 @@ export function useDeleteApplicationsApplicationIdCommandsCommandId(
       parseResponse(
         client.applications[':application_id'].commands[':command_id'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /applications/{application_id}/commands/{command_id}
  */
-export function usePatchApplicationsApplicationIdCommandsCommandId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePatchApplicationsApplicationIdCommandsCommandId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -222,6 +542,7 @@ export function usePatchApplicationsApplicationIdCommandsCommandId(
       parseResponse(
         client.applications[':application_id'].commands[':command_id'].$patch(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -230,18 +551,35 @@ export function usePatchApplicationsApplicationIdCommandsCommandId(
  */
 export function useGetApplicationsApplicationIdEmojis(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
+      ) => InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdEmojisQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdEmojisQueryKey(args),
     queryFn: async () =>
       parseResponse(client.applications[':application_id'].emojis.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/emojis
+ * Generates Vue Query cache key for GET /applications/{application_id/emojis
  */
 export function getGetApplicationsApplicationIdEmojisQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
@@ -252,11 +590,45 @@ export function getGetApplicationsApplicationIdEmojisQueryKey(
 /**
  * POST /applications/{application_id}/emojis
  */
-export function usePostApplicationsApplicationIdEmojis(clientOptions?: ClientRequestOptions) {
+export function usePostApplicationsApplicationIdEmojis(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.applications)[':application_id']['emojis']['$post']>,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.applications)[':application_id']['emojis']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>,
     ) => parseResponse(client.applications[':application_id'].emojis.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -267,20 +639,41 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.applications[':application_id'].emojis[':emoji_id'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/emojis/{emoji_id}
+ * Generates Vue Query cache key for GET /applications/{application_id/emojis/{emoji_id
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
   args: InferRequestType<
@@ -293,9 +686,46 @@ export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
 /**
  * DELETE /applications/{application_id}/emojis/{emoji_id}
  */
-export function useDeleteApplicationsApplicationIdEmojisEmojiId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -305,15 +735,51 @@ export function useDeleteApplicationsApplicationIdEmojisEmojiId(
       parseResponse(
         client.applications[':application_id'].emojis[':emoji_id'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /applications/{application_id}/emojis/{emoji_id}
  */
-export function usePatchApplicationsApplicationIdEmojisEmojiId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePatchApplicationsApplicationIdEmojisEmojiId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -323,6 +789,7 @@ export function usePatchApplicationsApplicationIdEmojisEmojiId(
       parseResponse(
         client.applications[':application_id'].emojis[':emoji_id'].$patch(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -331,18 +798,39 @@ export function usePatchApplicationsApplicationIdEmojisEmojiId(
  */
 export function useGetApplicationsApplicationIdEntitlements(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['entitlements']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['entitlements']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdEntitlementsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdEntitlementsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.applications[':application_id'].entitlements.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/entitlements
+ * Generates Vue Query cache key for GET /applications/{application_id/entitlements
  */
 export function getGetApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
@@ -353,7 +841,44 @@ export function getGetApplicationsApplicationIdEntitlementsQueryKey(
 /**
  * POST /applications/{application_id}/entitlements
  */
-export function usePostApplicationsApplicationIdEntitlements(clientOptions?: ClientRequestOptions) {
+export function usePostApplicationsApplicationIdEntitlements(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['entitlements']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -361,6 +886,7 @@ export function usePostApplicationsApplicationIdEntitlements(clientOptions?: Cli
       >,
     ) =>
       parseResponse(client.applications[':application_id'].entitlements.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -371,11 +897,31 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.applications[':application_id'].entitlements[':entitlement_id'].$get(
@@ -383,11 +929,12 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
+ * Generates Vue Query cache key for GET /applications/{application_id/entitlements/{entitlement_id
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(
   args: InferRequestType<
@@ -400,9 +947,46 @@ export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey
 /**
  * DELETE /applications/{application_id}/entitlements/{entitlement_id}
  */
-export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -415,15 +999,53 @@ export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /applications/{application_id}/entitlements/{entitlement_id}/consume
  */
-export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -436,6 +1058,7 @@ export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -446,11 +1069,31 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands.$get(
@@ -458,11 +1101,12 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
+ * Generates Vue Query cache key for GET /applications/{application_id/guilds/{guild_id/commands
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
   args: InferRequestType<
@@ -475,9 +1119,44 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
 /**
  * PUT /applications/{application_id}/guilds/{guild_id}/commands
  */
-export function usePutApplicationsApplicationIdGuildsGuildIdCommands(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -490,15 +1169,51 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommands(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /applications/{application_id}/guilds/{guild_id}/commands
  */
-export function usePostApplicationsApplicationIdGuildsGuildIdCommands(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePostApplicationsApplicationIdGuildsGuildIdCommands(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -511,6 +1226,7 @@ export function usePostApplicationsApplicationIdGuildsGuildIdCommands(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -521,11 +1237,31 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$get(
@@ -533,11 +1269,12 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
+ * Generates Vue Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(
   args: InferRequestType<
@@ -554,11 +1291,31 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$get(
@@ -566,11 +1323,12 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
+ * Generates Vue Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/{command_id
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(
   args: InferRequestType<
@@ -583,9 +1341,46 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQue
 /**
  * DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
-export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -598,15 +1393,51 @@ export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
-export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -619,6 +1450,7 @@ export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -629,23 +1461,44 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey =
-    getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey:
+      getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands[
           ':command_id'
         ].permissions.$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
+ * Generates Vue Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/{command_id/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(
   args: InferRequestType<
@@ -661,9 +1514,44 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
 /**
  * PUT /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
  */
-export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissions(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissions(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -675,6 +1563,7 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
           ':command_id'
         ].permissions.$put(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -685,11 +1574,31 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.applications[':application_id']['role-connections'].metadata.$get(
@@ -697,11 +1606,12 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id}/role-connections/metadata
+ * Generates Vue Query cache key for GET /applications/{application_id/role-connections/metadata
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
   args: InferRequestType<
@@ -714,9 +1624,44 @@ export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
 /**
  * PUT /applications/{application_id}/role-connections/metadata
  */
-export function usePutApplicationsApplicationIdRoleConnectionsMetadata(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePutApplicationsApplicationIdRoleConnectionsMetadata(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+      >,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -729,6 +1674,7 @@ export function usePutApplicationsApplicationIdRoleConnectionsMetadata(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -737,17 +1683,34 @@ export function usePutApplicationsApplicationIdRoleConnectionsMetadata(
  */
 export function useGetChannelsChannelId(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdQueryKey(args),
     queryFn: async () => parseResponse(client.channels[':channel_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}
+ * Generates Vue Query cache key for GET /channels/{channel_id
  */
 export function getGetChannelsChannelIdQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
@@ -758,32 +1721,106 @@ export function getGetChannelsChannelIdQueryKey(
 /**
  * DELETE /channels/{channel_id}
  */
-export function useDeleteChannelsChannelId(clientOptions?: ClientRequestOptions) {
+export function useDeleteChannelsChannelId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['$delete']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
     ) => parseResponse(client.channels[':channel_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /channels/{channel_id}
  */
-export function usePatchChannelsChannelId(clientOptions?: ClientRequestOptions) {
+export function usePatchChannelsChannelId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['$patch']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>) =>
       parseResponse(client.channels[':channel_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /channels/{channel_id}/followers
  */
-export function usePostChannelsChannelIdFollowers(clientOptions?: ClientRequestOptions) {
+export function usePostChannelsChannelIdFollowers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['followers']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].followers.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -792,18 +1829,35 @@ export function usePostChannelsChannelIdFollowers(clientOptions?: ClientRequestO
  */
 export function useGetChannelsChannelIdInvites(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdInvitesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdInvitesQueryKey(args),
     queryFn: async () =>
       parseResponse(client.channels[':channel_id'].invites.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/invites
+ * Generates Vue Query cache key for GET /channels/{channel_id/invites
  */
 export function getGetChannelsChannelIdInvitesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
@@ -814,11 +1868,39 @@ export function getGetChannelsChannelIdInvitesQueryKey(
 /**
  * POST /channels/{channel_id}/invites
  */
-export function usePostChannelsChannelIdInvites(clientOptions?: ClientRequestOptions) {
+export function usePostChannelsChannelIdInvites(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['invites']['$post']>
+        | undefined,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['invites']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].invites.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -827,18 +1909,35 @@ export function usePostChannelsChannelIdInvites(clientOptions?: ClientRequestOpt
  */
 export function useGetChannelsChannelIdMessages(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdMessagesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdMessagesQueryKey(args),
     queryFn: async () =>
       parseResponse(client.channels[':channel_id'].messages.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/messages
+ * Generates Vue Query cache key for GET /channels/{channel_id/messages
  */
 export function getGetChannelsChannelIdMessagesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
@@ -849,18 +1948,83 @@ export function getGetChannelsChannelIdMessagesQueryKey(
 /**
  * POST /channels/{channel_id}/messages
  */
-export function usePostChannelsChannelIdMessages(clientOptions?: ClientRequestOptions) {
+export function usePostChannelsChannelIdMessages(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['messages']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].messages.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /channels/{channel_id}/messages/bulk-delete
  */
-export function usePostChannelsChannelIdMessagesBulkDelete(clientOptions?: ClientRequestOptions) {
+export function usePostChannelsChannelIdMessagesBulkDelete(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -870,6 +2034,7 @@ export function usePostChannelsChannelIdMessagesBulkDelete(clientOptions?: Clien
       parseResponse(
         client.channels[':channel_id'].messages['bulk-delete'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -878,18 +2043,37 @@ export function usePostChannelsChannelIdMessagesBulkDelete(clientOptions?: Clien
  */
 export function useGetChannelsChannelIdMessagesPins(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.channels)[':channel_id']['messages']['pins']['$get']
+        >,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdMessagesPinsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdMessagesPinsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.channels[':channel_id'].messages.pins.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/messages/pins
+ * Generates Vue Query cache key for GET /channels/{channel_id/messages/pins
  */
 export function getGetChannelsChannelIdMessagesPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
@@ -900,7 +2084,46 @@ export function getGetChannelsChannelIdMessagesPinsQueryKey(
 /**
  * PUT /channels/{channel_id}/messages/pins/{message_id}
  */
-export function usePutChannelsChannelIdMessagesPinsMessageId(clientOptions?: ClientRequestOptions) {
+export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -910,15 +2133,53 @@ export function usePutChannelsChannelIdMessagesPinsMessageId(clientOptions?: Cli
       parseResponse(
         client.channels[':channel_id'].messages.pins[':message_id'].$put(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /channels/{channel_id}/messages/pins/{message_id}
  */
-export function useDeleteChannelsChannelIdMessagesPinsMessageId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -928,6 +2189,7 @@ export function useDeleteChannelsChannelIdMessagesPinsMessageId(
       parseResponse(
         client.channels[':channel_id'].messages.pins[':message_id'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -938,20 +2200,41 @@ export function useGetChannelsChannelIdMessagesMessageId(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdMessagesMessageIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdMessagesMessageIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/messages/{message_id}
+ * Generates Vue Query cache key for GET /channels/{channel_id/messages/{message_id
  */
 export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
   args: InferRequestType<
@@ -964,7 +2247,46 @@ export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}
  */
-export function useDeleteChannelsChannelIdMessagesMessageId(clientOptions?: ClientRequestOptions) {
+export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -974,13 +2296,51 @@ export function useDeleteChannelsChannelIdMessagesMessageId(clientOptions?: Clie
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /channels/{channel_id}/messages/{message_id}
  */
-export function usePatchChannelsChannelIdMessagesMessageId(clientOptions?: ClientRequestOptions) {
+export function usePatchChannelsChannelIdMessagesMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -990,15 +2350,51 @@ export function usePatchChannelsChannelIdMessagesMessageId(clientOptions?: Clien
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].$patch(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /channels/{channel_id}/messages/{message_id}/crosspost
  */
-export function usePostChannelsChannelIdMessagesMessageIdCrosspost(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePostChannelsChannelIdMessagesMessageIdCrosspost(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1008,15 +2404,53 @@ export function usePostChannelsChannelIdMessagesMessageIdCrosspost(
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].crosspost.$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions
  */
-export function useDeleteChannelsChannelIdMessagesMessageIdReactions(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteChannelsChannelIdMessagesMessageIdReactions(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1029,6 +2463,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactions(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1039,11 +2474,31 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$get(
@@ -1051,11 +2506,12 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
+ * Generates Vue Query cache key for GET /channels/{channel_id/messages/{message_id/reactions/{emoji_name
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(
   args: InferRequestType<
@@ -1068,9 +2524,46 @@ export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryK
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
  */
-export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1083,15 +2576,53 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
  */
-export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1104,15 +2635,53 @@ export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
  */
-export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1124,15 +2693,53 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
           '@me'
         ].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/{user_id}
  */
-export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1144,15 +2751,51 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUse
           ':user_id'
         ].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /channels/{channel_id}/messages/{message_id}/threads
  */
-export function usePostChannelsChannelIdMessagesMessageIdThreads(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePostChannelsChannelIdMessagesMessageIdThreads(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1162,15 +2805,53 @@ export function usePostChannelsChannelIdMessagesMessageIdThreads(
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].threads.$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PUT /channels/{channel_id}/permissions/{overwrite_id}
  */
-export function usePutChannelsChannelIdPermissionsOverwriteId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1180,15 +2861,53 @@ export function usePutChannelsChannelIdPermissionsOverwriteId(
       parseResponse(
         client.channels[':channel_id'].permissions[':overwrite_id'].$put(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /channels/{channel_id}/permissions/{overwrite_id}
  */
-export function useDeleteChannelsChannelIdPermissionsOverwriteId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1198,6 +2917,7 @@ export function useDeleteChannelsChannelIdPermissionsOverwriteId(
       parseResponse(
         client.channels[':channel_id'].permissions[':overwrite_id'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1206,18 +2926,35 @@ export function useDeleteChannelsChannelIdPermissionsOverwriteId(
  */
 export function useGetChannelsChannelIdPins(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdPinsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdPinsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.channels[':channel_id'].pins.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/pins
+ * Generates Vue Query cache key for GET /channels/{channel_id/pins
  */
 export function getGetChannelsChannelIdPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
@@ -1228,7 +2965,42 @@ export function getGetChannelsChannelIdPinsQueryKey(
 /**
  * PUT /channels/{channel_id}/pins/{message_id}
  */
-export function usePutChannelsChannelIdPinsMessageId(clientOptions?: ClientRequestOptions) {
+export function usePutChannelsChannelIdPinsMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1236,13 +3008,53 @@ export function usePutChannelsChannelIdPinsMessageId(clientOptions?: ClientReque
       >,
     ) =>
       parseResponse(client.channels[':channel_id'].pins[':message_id'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /channels/{channel_id}/pins/{message_id}
  */
-export function useDeleteChannelsChannelIdPinsMessageId(clientOptions?: ClientRequestOptions) {
+export function useDeleteChannelsChannelIdPinsMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1252,6 +3064,7 @@ export function useDeleteChannelsChannelIdPinsMessageId(clientOptions?: ClientRe
       parseResponse(
         client.channels[':channel_id'].pins[':message_id'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1262,11 +3075,31 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$get(
@@ -1274,11 +3107,12 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
+ * Generates Vue Query cache key for GET /channels/{channel_id/polls/{message_id/answers/{answer_id
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
   args: InferRequestType<
@@ -1291,7 +3125,44 @@ export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
 /**
  * POST /channels/{channel_id}/polls/{message_id}/expire
  */
-export function usePostChannelsChannelIdPollsMessageIdExpire(clientOptions?: ClientRequestOptions) {
+export function usePostChannelsChannelIdPollsMessageIdExpire(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1301,13 +3172,53 @@ export function usePostChannelsChannelIdPollsMessageIdExpire(clientOptions?: Cli
       parseResponse(
         client.channels[':channel_id'].polls[':message_id'].expire.$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PUT /channels/{channel_id}/recipients/{user_id}
  */
-export function usePutChannelsChannelIdRecipientsUserId(clientOptions?: ClientRequestOptions) {
+export function usePutChannelsChannelIdRecipientsUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1317,13 +3228,53 @@ export function usePutChannelsChannelIdRecipientsUserId(clientOptions?: ClientRe
       parseResponse(
         client.channels[':channel_id'].recipients[':user_id'].$put(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /channels/{channel_id}/recipients/{user_id}
  */
-export function useDeleteChannelsChannelIdRecipientsUserId(clientOptions?: ClientRequestOptions) {
+export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1333,13 +3284,53 @@ export function useDeleteChannelsChannelIdRecipientsUserId(clientOptions?: Clien
       parseResponse(
         client.channels[':channel_id'].recipients[':user_id'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /channels/{channel_id}/send-soundboard-sound
  */
-export function usePostChannelsChannelIdSendSoundboardSound(clientOptions?: ClientRequestOptions) {
+export function usePostChannelsChannelIdSendSoundboardSound(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1349,6 +3340,7 @@ export function usePostChannelsChannelIdSendSoundboardSound(clientOptions?: Clie
       parseResponse(
         client.channels[':channel_id']['send-soundboard-sound'].$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1357,18 +3349,35 @@ export function usePostChannelsChannelIdSendSoundboardSound(clientOptions?: Clie
  */
 export function useGetChannelsChannelIdThreadMembers(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdThreadMembersQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdThreadMembersQueryKey(args),
     queryFn: async () =>
       parseResponse(client.channels[':channel_id']['thread-members'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/thread-members
+ * Generates Vue Query cache key for GET /channels/{channel_id/thread-members
  */
 export function getGetChannelsChannelIdThreadMembersQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
@@ -1379,7 +3388,46 @@ export function getGetChannelsChannelIdThreadMembersQueryKey(
 /**
  * PUT /channels/{channel_id}/thread-members/@me
  */
-export function usePutChannelsChannelIdThreadMembersMe(clientOptions?: ClientRequestOptions) {
+export function usePutChannelsChannelIdThreadMembersMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1389,13 +3437,53 @@ export function usePutChannelsChannelIdThreadMembersMe(clientOptions?: ClientReq
       parseResponse(
         client.channels[':channel_id']['thread-members']['@me'].$put(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /channels/{channel_id}/thread-members/@me
  */
-export function useDeleteChannelsChannelIdThreadMembersMe(clientOptions?: ClientRequestOptions) {
+export function useDeleteChannelsChannelIdThreadMembersMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1405,6 +3493,7 @@ export function useDeleteChannelsChannelIdThreadMembersMe(clientOptions?: Client
       parseResponse(
         client.channels[':channel_id']['thread-members']['@me'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1415,20 +3504,41 @@ export function useGetChannelsChannelIdThreadMembersUserId(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdThreadMembersUserIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdThreadMembersUserIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.channels[':channel_id']['thread-members'][':user_id'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/thread-members/{user_id}
+ * Generates Vue Query cache key for GET /channels/{channel_id/thread-members/{user_id
  */
 export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
   args: InferRequestType<
@@ -1441,7 +3551,46 @@ export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
 /**
  * PUT /channels/{channel_id}/thread-members/{user_id}
  */
-export function usePutChannelsChannelIdThreadMembersUserId(clientOptions?: ClientRequestOptions) {
+export function usePutChannelsChannelIdThreadMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1451,15 +3600,53 @@ export function usePutChannelsChannelIdThreadMembersUserId(clientOptions?: Clien
       parseResponse(
         client.channels[':channel_id']['thread-members'][':user_id'].$put(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /channels/{channel_id}/thread-members/{user_id}
  */
-export function useDeleteChannelsChannelIdThreadMembersUserId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1469,17 +3656,44 @@ export function useDeleteChannelsChannelIdThreadMembersUserId(
       parseResponse(
         client.channels[':channel_id']['thread-members'][':user_id'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /channels/{channel_id}/threads
  */
-export function usePostChannelsChannelIdThreads(clientOptions?: ClientRequestOptions) {
+export function usePostChannelsChannelIdThreads(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['threads']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].threads.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1490,20 +3704,41 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.channels[':channel_id'].threads.archived.private.$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/threads/archived/private
+ * Generates Vue Query cache key for GET /channels/{channel_id/threads/archived/private
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
@@ -1520,20 +3755,41 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdThreadsArchivedPublicQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdThreadsArchivedPublicQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.channels[':channel_id'].threads.archived.public.$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/threads/archived/public
+ * Generates Vue Query cache key for GET /channels/{channel_id/threads/archived/public
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
   args: InferRequestType<
@@ -1548,18 +3804,37 @@ export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
  */
 export function useGetChannelsChannelIdThreadsSearch(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.channels)[':channel_id']['threads']['search']['$get']
+        >,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdThreadsSearchQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdThreadsSearchQueryKey(args),
     queryFn: async () =>
       parseResponse(client.channels[':channel_id'].threads.search.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/threads/search
+ * Generates Vue Query cache key for GET /channels/{channel_id/threads/search
  */
 export function getGetChannelsChannelIdThreadsSearchQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
@@ -1570,11 +3845,39 @@ export function getGetChannelsChannelIdThreadsSearchQueryKey(
 /**
  * POST /channels/{channel_id}/typing
  */
-export function usePostChannelsChannelIdTyping(clientOptions?: ClientRequestOptions) {
+export function usePostChannelsChannelIdTyping(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['typing']['$post']>
+        | undefined,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['typing']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].typing.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1585,11 +3888,31 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.channels[':channel_id'].users['@me'].threads.archived.private.$get(
@@ -1597,11 +3920,12 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
+ * Generates Vue Query cache key for GET /channels/{channel_id/users/@me/threads/archived/private
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
@@ -1616,18 +3940,35 @@ export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
  */
 export function useGetChannelsChannelIdWebhooks(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
+      ) => InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetChannelsChannelIdWebhooksQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetChannelsChannelIdWebhooksQueryKey(args),
     queryFn: async () =>
       parseResponse(client.channels[':channel_id'].webhooks.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id}/webhooks
+ * Generates Vue Query cache key for GET /channels/{channel_id/webhooks
  */
 export function getGetChannelsChannelIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
@@ -1638,22 +3979,65 @@ export function getGetChannelsChannelIdWebhooksQueryKey(
 /**
  * POST /channels/{channel_id}/webhooks
  */
-export function usePostChannelsChannelIdWebhooks(clientOptions?: ClientRequestOptions) {
+export function usePostChannelsChannelIdWebhooks(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].webhooks.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /gateway
  */
-export function useGetGateway(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetGatewayQueryKey()
+export function useGetGateway(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.gateway.$get>,
+    ) => InferResponseType<typeof client.gateway.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGatewayQueryKey(),
     queryFn: async () => parseResponse(client.gateway.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1667,11 +4051,28 @@ export function getGetGatewayQueryKey() {
 /**
  * GET /gateway/bot
  */
-export function useGetGatewayBot(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetGatewayBotQueryKey()
+export function useGetGatewayBot(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.gateway.bot.$get>,
+    ) => InferResponseType<typeof client.gateway.bot.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGatewayBotQueryKey(),
     queryFn: async () => parseResponse(client.gateway.bot.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -1687,17 +4088,34 @@ export function getGetGatewayBotQueryKey() {
  */
 export function useGetGuildsTemplatesCode(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds.templates)[':code']['$get']>,
+      ) => InferResponseType<(typeof client.guilds.templates)[':code']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsTemplatesCodeQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsTemplatesCodeQueryKey(args),
     queryFn: async () => parseResponse(client.guilds.templates[':code'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/templates/{code}
+ * Generates Vue Query cache key for GET /guilds/templates/{code
  */
 export function getGetGuildsTemplatesCodeQueryKey(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
@@ -1710,17 +4128,34 @@ export function getGetGuildsTemplatesCodeQueryKey(
  */
 export function useGetGuildsGuildId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdQueryKey(args),
     queryFn: async () => parseResponse(client.guilds[':guild_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}
+ * Generates Vue Query cache key for GET /guilds/{guild_id
  */
 export function getGetGuildsGuildIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
@@ -1731,10 +4166,32 @@ export function getGetGuildsGuildIdQueryKey(
 /**
  * PATCH /guilds/{guild_id}
  */
-export function usePatchGuildsGuildId(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['$patch']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>) =>
       parseResponse(client.guilds[':guild_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1743,18 +4200,35 @@ export function usePatchGuildsGuildId(clientOptions?: ClientRequestOptions) {
  */
 export function useGetGuildsGuildIdAuditLogs(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdAuditLogsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdAuditLogsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id']['audit-logs'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/audit-logs
+ * Generates Vue Query cache key for GET /guilds/{guild_id/audit-logs
  */
 export function getGetGuildsGuildIdAuditLogsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
@@ -1767,18 +4241,39 @@ export function getGetGuildsGuildIdAuditLogsQueryKey(
  */
 export function useGetGuildsGuildIdAutoModerationRules(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdAutoModerationRulesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdAutoModerationRulesQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id']['auto-moderation'].rules.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/auto-moderation/rules
+ * Generates Vue Query cache key for GET /guilds/{guild_id/auto-moderation/rules
  */
 export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
@@ -1789,7 +4284,44 @@ export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
 /**
  * POST /guilds/{guild_id}/auto-moderation/rules
  */
-export function usePostGuildsGuildIdAutoModerationRules(clientOptions?: ClientRequestOptions) {
+export function usePostGuildsGuildIdAutoModerationRules(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1797,6 +4329,7 @@ export function usePostGuildsGuildIdAutoModerationRules(clientOptions?: ClientRe
       >,
     ) =>
       parseResponse(client.guilds[':guild_id']['auto-moderation'].rules.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1807,20 +4340,41 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
+ * Generates Vue Query cache key for GET /guilds/{guild_id/auto-moderation/rules/{rule_id
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
   args: InferRequestType<
@@ -1833,9 +4387,46 @@ export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
-export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1848,15 +4439,51 @@ export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
-export function usePatchGuildsGuildIdAutoModerationRulesRuleId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -1866,6 +4493,7 @@ export function usePatchGuildsGuildIdAutoModerationRulesRuleId(
       parseResponse(
         client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$patch(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -1874,17 +4502,34 @@ export function usePatchGuildsGuildIdAutoModerationRulesRuleId(
  */
 export function useGetGuildsGuildIdBans(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdBansQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdBansQueryKey(args),
     queryFn: async () => parseResponse(client.guilds[':guild_id'].bans.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/bans
+ * Generates Vue Query cache key for GET /guilds/{guild_id/bans
  */
 export function getGetGuildsGuildIdBansQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
@@ -1897,18 +4542,35 @@ export function getGetGuildsGuildIdBansQueryKey(
  */
 export function useGetGuildsGuildIdBansUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdBansUserIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdBansUserIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].bans[':user_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/bans/{user_id}
+ * Generates Vue Query cache key for GET /guilds/{guild_id/bans/{user_id
  */
 export function getGetGuildsGuildIdBansUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
@@ -1919,33 +4581,121 @@ export function getGetGuildsGuildIdBansUserIdQueryKey(
 /**
  * PUT /guilds/{guild_id}/bans/{user_id}
  */
-export function usePutGuildsGuildIdBansUserId(clientOptions?: ClientRequestOptions) {
+export function usePutGuildsGuildIdBansUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>
+        | undefined,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
     ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /guilds/{guild_id}/bans/{user_id}
  */
-export function useDeleteGuildsGuildIdBansUserId(clientOptions?: ClientRequestOptions) {
+export function useDeleteGuildsGuildIdBansUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>,
     ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /guilds/{guild_id}/bulk-ban
  */
-export function usePostGuildsGuildIdBulkBan(clientOptions?: ClientRequestOptions) {
+export function usePostGuildsGuildIdBulkBan(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
     ) => parseResponse(client.guilds[':guild_id']['bulk-ban'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -1954,18 +4704,35 @@ export function usePostGuildsGuildIdBulkBan(clientOptions?: ClientRequestOptions
  */
 export function useGetGuildsGuildIdChannels(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdChannelsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdChannelsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].channels.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/channels
+ * Generates Vue Query cache key for GET /guilds/{guild_id/channels
  */
 export function getGetGuildsGuildIdChannelsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
@@ -1976,22 +4743,74 @@ export function getGetGuildsGuildIdChannelsQueryKey(
 /**
  * POST /guilds/{guild_id}/channels
  */
-export function usePostGuildsGuildIdChannels(clientOptions?: ClientRequestOptions) {
+export function usePostGuildsGuildIdChannels(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].channels.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /guilds/{guild_id}/channels
  */
-export function usePatchGuildsGuildIdChannels(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdChannels(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$patch']>
+        | undefined,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].channels.$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2000,17 +4819,34 @@ export function usePatchGuildsGuildIdChannels(clientOptions?: ClientRequestOptio
  */
 export function useGetGuildsGuildIdEmojis(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdEmojisQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdEmojisQueryKey(args),
     queryFn: async () => parseResponse(client.guilds[':guild_id'].emojis.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/emojis
+ * Generates Vue Query cache key for GET /guilds/{guild_id/emojis
  */
 export function getGetGuildsGuildIdEmojisQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
@@ -2021,11 +4857,35 @@ export function getGetGuildsGuildIdEmojisQueryKey(
 /**
  * POST /guilds/{guild_id}/emojis
  */
-export function usePostGuildsGuildIdEmojis(clientOptions?: ClientRequestOptions) {
+export function usePostGuildsGuildIdEmojis(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].emojis.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2034,18 +4894,35 @@ export function usePostGuildsGuildIdEmojis(clientOptions?: ClientRequestOptions)
  */
 export function useGetGuildsGuildIdEmojisEmojiId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdEmojisEmojiIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdEmojisEmojiIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
+ * Generates Vue Query cache key for GET /guilds/{guild_id/emojis/{emoji_id
  */
 export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
@@ -2056,22 +4933,92 @@ export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/emojis/{emoji_id}
  */
-export function useDeleteGuildsGuildIdEmojisEmojiId(clientOptions?: ClientRequestOptions) {
+export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>,
     ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /guilds/{guild_id}/emojis/{emoji_id}
  */
-export function usePatchGuildsGuildIdEmojisEmojiId(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdEmojisEmojiId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2080,18 +5027,35 @@ export function usePatchGuildsGuildIdEmojisEmojiId(clientOptions?: ClientRequest
  */
 export function useGetGuildsGuildIdIntegrations(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdIntegrationsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdIntegrationsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].integrations.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/integrations
+ * Generates Vue Query cache key for GET /guilds/{guild_id/integrations
  */
 export function getGetGuildsGuildIdIntegrationsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
@@ -2102,9 +5066,46 @@ export function getGetGuildsGuildIdIntegrationsQueryKey(
 /**
  * DELETE /guilds/{guild_id}/integrations/{integration_id}
  */
-export function useDeleteGuildsGuildIdIntegrationsIntegrationId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2114,6 +5115,7 @@ export function useDeleteGuildsGuildIdIntegrationsIntegrationId(
       parseResponse(
         client.guilds[':guild_id'].integrations[':integration_id'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2122,18 +5124,35 @@ export function useDeleteGuildsGuildIdIntegrationsIntegrationId(
  */
 export function useGetGuildsGuildIdInvites(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdInvitesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdInvitesQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].invites.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/invites
+ * Generates Vue Query cache key for GET /guilds/{guild_id/invites
  */
 export function getGetGuildsGuildIdInvitesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
@@ -2146,18 +5165,35 @@ export function getGetGuildsGuildIdInvitesQueryKey(
  */
 export function useGetGuildsGuildIdMembers(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdMembersQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdMembersQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].members.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/members
+ * Generates Vue Query cache key for GET /guilds/{guild_id/members
  */
 export function getGetGuildsGuildIdMembersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
@@ -2168,11 +5204,37 @@ export function getGetGuildsGuildIdMembersQueryKey(
 /**
  * PATCH /guilds/{guild_id}/members/@me
  */
-export function usePatchGuildsGuildIdMembersMe(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdMembersMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].members['@me'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2181,18 +5243,35 @@ export function usePatchGuildsGuildIdMembersMe(clientOptions?: ClientRequestOpti
  */
 export function useGetGuildsGuildIdMembersSearch(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdMembersSearchQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdMembersSearchQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].members.search.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/members/search
+ * Generates Vue Query cache key for GET /guilds/{guild_id/members/search
  */
 export function getGetGuildsGuildIdMembersSearchQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
@@ -2205,18 +5284,35 @@ export function getGetGuildsGuildIdMembersSearchQueryKey(
  */
 export function useGetGuildsGuildIdMembersUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdMembersUserIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdMembersUserIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].members[':user_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/members/{user_id}
+ * Generates Vue Query cache key for GET /guilds/{guild_id/members/{user_id
  */
 export function getGetGuildsGuildIdMembersUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
@@ -2227,40 +5323,187 @@ export function getGetGuildsGuildIdMembersUserIdQueryKey(
 /**
  * PUT /guilds/{guild_id}/members/{user_id}
  */
-export function usePutGuildsGuildIdMembersUserId(clientOptions?: ClientRequestOptions) {
+export function usePutGuildsGuildIdMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>,
     ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /guilds/{guild_id}/members/{user_id}
  */
-export function useDeleteGuildsGuildIdMembersUserId(clientOptions?: ClientRequestOptions) {
+export function useDeleteGuildsGuildIdMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>,
     ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /guilds/{guild_id}/members/{user_id}
  */
-export function usePatchGuildsGuildIdMembersUserId(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PUT /guilds/{guild_id}/members/{user_id}/roles/{role_id}
  */
-export function usePutGuildsGuildIdMembersUserIdRolesRoleId(clientOptions?: ClientRequestOptions) {
+export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2270,15 +5513,53 @@ export function usePutGuildsGuildIdMembersUserIdRolesRoleId(clientOptions?: Clie
       parseResponse(
         client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$put(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /guilds/{guild_id}/members/{user_id}/roles/{role_id}
  */
-export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2291,6 +5572,7 @@ export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2299,18 +5581,39 @@ export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(
  */
 export function useGetGuildsGuildIdNewMemberWelcome(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data:
+          | InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>
+          | undefined,
+      ) =>
+        | InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>
+        | undefined
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdNewMemberWelcomeQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdNewMemberWelcomeQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id']['new-member-welcome'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/new-member-welcome
+ * Generates Vue Query cache key for GET /guilds/{guild_id/new-member-welcome
  */
 export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
@@ -2323,18 +5626,35 @@ export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
  */
 export function useGetGuildsGuildIdOnboarding(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdOnboardingQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdOnboardingQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].onboarding.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/onboarding
+ * Generates Vue Query cache key for GET /guilds/{guild_id/onboarding
  */
 export function getGetGuildsGuildIdOnboardingQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
@@ -2345,11 +5665,37 @@ export function getGetGuildsGuildIdOnboardingQueryKey(
 /**
  * PUT /guilds/{guild_id}/onboarding
  */
-export function usePutGuildsGuildIdOnboarding(clientOptions?: ClientRequestOptions) {
+export function usePutGuildsGuildIdOnboarding(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
     ) => parseResponse(client.guilds[':guild_id'].onboarding.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2358,18 +5704,35 @@ export function usePutGuildsGuildIdOnboarding(clientOptions?: ClientRequestOptio
  */
 export function useGetGuildsGuildIdPreview(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdPreviewQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdPreviewQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].preview.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/preview
+ * Generates Vue Query cache key for GET /guilds/{guild_id/preview
  */
 export function getGetGuildsGuildIdPreviewQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
@@ -2382,17 +5745,34 @@ export function getGetGuildsGuildIdPreviewQueryKey(
  */
 export function useGetGuildsGuildIdPrune(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdPruneQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdPruneQueryKey(args),
     queryFn: async () => parseResponse(client.guilds[':guild_id'].prune.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/prune
+ * Generates Vue Query cache key for GET /guilds/{guild_id/prune
  */
 export function getGetGuildsGuildIdPruneQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
@@ -2403,11 +5783,35 @@ export function getGetGuildsGuildIdPruneQueryKey(
 /**
  * POST /guilds/{guild_id}/prune
  */
-export function usePostGuildsGuildIdPrune(clientOptions?: ClientRequestOptions) {
+export function usePostGuildsGuildIdPrune(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].prune.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2416,18 +5820,35 @@ export function usePostGuildsGuildIdPrune(clientOptions?: ClientRequestOptions) 
  */
 export function useGetGuildsGuildIdRegions(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdRegionsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdRegionsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].regions.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/regions
+ * Generates Vue Query cache key for GET /guilds/{guild_id/regions
  */
 export function getGetGuildsGuildIdRegionsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
@@ -2440,17 +5861,34 @@ export function getGetGuildsGuildIdRegionsQueryKey(
  */
 export function useGetGuildsGuildIdRoles(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdRolesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdRolesQueryKey(args),
     queryFn: async () => parseResponse(client.guilds[':guild_id'].roles.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/roles
+ * Generates Vue Query cache key for GET /guilds/{guild_id/roles
  */
 export function getGetGuildsGuildIdRolesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
@@ -2461,22 +5899,70 @@ export function getGetGuildsGuildIdRolesQueryKey(
 /**
  * POST /guilds/{guild_id}/roles
  */
-export function usePostGuildsGuildIdRoles(clientOptions?: ClientRequestOptions) {
+export function usePostGuildsGuildIdRoles(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].roles.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /guilds/{guild_id}/roles
  */
-export function usePatchGuildsGuildIdRoles(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdRoles(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].roles.$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2485,18 +5971,35 @@ export function usePatchGuildsGuildIdRoles(clientOptions?: ClientRequestOptions)
  */
 export function useGetGuildsGuildIdRolesRoleId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdRolesRoleIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdRolesRoleIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].roles[':role_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/roles/{role_id}
+ * Generates Vue Query cache key for GET /guilds/{guild_id/roles/{role_id
  */
 export function getGetGuildsGuildIdRolesRoleIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
@@ -2507,22 +6010,92 @@ export function getGetGuildsGuildIdRolesRoleIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/roles/{role_id}
  */
-export function useDeleteGuildsGuildIdRolesRoleId(clientOptions?: ClientRequestOptions) {
+export function useDeleteGuildsGuildIdRolesRoleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>,
     ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /guilds/{guild_id}/roles/{role_id}
  */
-export function usePatchGuildsGuildIdRolesRoleId(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdRolesRoleId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2531,18 +6104,35 @@ export function usePatchGuildsGuildIdRolesRoleId(clientOptions?: ClientRequestOp
  */
 export function useGetGuildsGuildIdScheduledEvents(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdScheduledEventsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdScheduledEventsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id']['scheduled-events'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events
+ * Generates Vue Query cache key for GET /guilds/{guild_id/scheduled-events
  */
 export function getGetGuildsGuildIdScheduledEventsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
@@ -2553,11 +6143,37 @@ export function getGetGuildsGuildIdScheduledEventsQueryKey(
 /**
  * POST /guilds/{guild_id}/scheduled-events
  */
-export function usePostGuildsGuildIdScheduledEvents(clientOptions?: ClientRequestOptions) {
+export function usePostGuildsGuildIdScheduledEvents(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
     ) => parseResponse(client.guilds[':guild_id']['scheduled-events'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2568,11 +6184,31 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$get(
@@ -2580,11 +6216,12 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
+ * Generates Vue Query cache key for GET /guilds/{guild_id/scheduled-events/{guild_scheduled_event_id
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
   args: InferRequestType<
@@ -2597,9 +6234,46 @@ export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
-export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2612,15 +6286,51 @@ export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
-export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2633,6 +6343,7 @@ export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2643,11 +6354,31 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].users.$get(
@@ -2655,11 +6386,12 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
+ * Generates Vue Query cache key for GET /guilds/{guild_id/scheduled-events/{guild_scheduled_event_id/users
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(
   args: InferRequestType<
@@ -2674,18 +6406,35 @@ export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQuer
  */
 export function useGetGuildsGuildIdSoundboardSounds(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdSoundboardSoundsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdSoundboardSoundsQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/soundboard-sounds
+ * Generates Vue Query cache key for GET /guilds/{guild_id/soundboard-sounds
  */
 export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
@@ -2696,11 +6445,45 @@ export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
 /**
  * POST /guilds/{guild_id}/soundboard-sounds
  */
-export function usePostGuildsGuildIdSoundboardSounds(clientOptions?: ClientRequestOptions) {
+export function usePostGuildsGuildIdSoundboardSounds(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>,
     ) => parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2711,20 +6494,41 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
+ * Generates Vue Query cache key for GET /guilds/{guild_id/soundboard-sounds/{sound_id
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
   args: InferRequestType<
@@ -2737,9 +6541,46 @@ export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
-export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2749,13 +6590,51 @@ export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(
       parseResponse(
         client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
-export function usePatchGuildsGuildIdSoundboardSoundsSoundId(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2765,6 +6644,7 @@ export function usePatchGuildsGuildIdSoundboardSoundsSoundId(clientOptions?: Cli
       parseResponse(
         client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$patch(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -2773,18 +6653,35 @@ export function usePatchGuildsGuildIdSoundboardSoundsSoundId(clientOptions?: Cli
  */
 export function useGetGuildsGuildIdStickers(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdStickersQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdStickersQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].stickers.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/stickers
+ * Generates Vue Query cache key for GET /guilds/{guild_id/stickers
  */
 export function getGetGuildsGuildIdStickersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
@@ -2795,11 +6692,35 @@ export function getGetGuildsGuildIdStickersQueryKey(
 /**
  * POST /guilds/{guild_id}/stickers
  */
-export function usePostGuildsGuildIdStickers(clientOptions?: ClientRequestOptions) {
+export function usePostGuildsGuildIdStickers(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].stickers.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2808,18 +6729,37 @@ export function usePostGuildsGuildIdStickers(clientOptions?: ClientRequestOption
  */
 export function useGetGuildsGuildIdStickersStickerId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']
+        >,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdStickersStickerIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdStickersStickerIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
+ * Generates Vue Query cache key for GET /guilds/{guild_id/stickers/{sticker_id
  */
 export function getGetGuildsGuildIdStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
@@ -2830,7 +6770,46 @@ export function getGetGuildsGuildIdStickersStickerIdQueryKey(
 /**
  * DELETE /guilds/{guild_id}/stickers/{sticker_id}
  */
-export function useDeleteGuildsGuildIdStickersStickerId(clientOptions?: ClientRequestOptions) {
+export function useDeleteGuildsGuildIdStickersStickerId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2840,13 +6819,51 @@ export function useDeleteGuildsGuildIdStickersStickerId(clientOptions?: ClientRe
       parseResponse(
         client.guilds[':guild_id'].stickers[':sticker_id'].$delete(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /guilds/{guild_id}/stickers/{sticker_id}
  */
-export function usePatchGuildsGuildIdStickersStickerId(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdStickersStickerId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -2854,6 +6871,7 @@ export function usePatchGuildsGuildIdStickersStickerId(clientOptions?: ClientReq
       >,
     ) =>
       parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2862,18 +6880,35 @@ export function usePatchGuildsGuildIdStickersStickerId(clientOptions?: ClientReq
  */
 export function useGetGuildsGuildIdTemplates(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdTemplatesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdTemplatesQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].templates.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/templates
+ * Generates Vue Query cache key for GET /guilds/{guild_id/templates
  */
 export function getGetGuildsGuildIdTemplatesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
@@ -2884,44 +6919,172 @@ export function getGetGuildsGuildIdTemplatesQueryKey(
 /**
  * POST /guilds/{guild_id}/templates
  */
-export function usePostGuildsGuildIdTemplates(clientOptions?: ClientRequestOptions) {
+export function usePostGuildsGuildIdTemplates(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].templates.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PUT /guilds/{guild_id}/templates/{code}
  */
-export function usePutGuildsGuildIdTemplatesCode(clientOptions?: ClientRequestOptions) {
+export function usePutGuildsGuildIdTemplatesCode(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>,
     ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /guilds/{guild_id}/templates/{code}
  */
-export function useDeleteGuildsGuildIdTemplatesCode(clientOptions?: ClientRequestOptions) {
+export function useDeleteGuildsGuildIdTemplatesCode(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>,
     ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /guilds/{guild_id}/templates/{code}
  */
-export function usePatchGuildsGuildIdTemplatesCode(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdTemplatesCode(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['templates'][':code']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -2930,18 +7093,35 @@ export function usePatchGuildsGuildIdTemplatesCode(clientOptions?: ClientRequest
  */
 export function useGetGuildsGuildIdThreadsActive(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdThreadsActiveQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdThreadsActiveQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].threads.active.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/threads/active
+ * Generates Vue Query cache key for GET /guilds/{guild_id/threads/active
  */
 export function getGetGuildsGuildIdThreadsActiveQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
@@ -2954,18 +7134,35 @@ export function getGetGuildsGuildIdThreadsActiveQueryKey(
  */
 export function useGetGuildsGuildIdVanityUrl(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdVanityUrlQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdVanityUrlQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id']['vanity-url'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/vanity-url
+ * Generates Vue Query cache key for GET /guilds/{guild_id/vanity-url
  */
 export function getGetGuildsGuildIdVanityUrlQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
@@ -2978,18 +7175,35 @@ export function getGetGuildsGuildIdVanityUrlQueryKey(
  */
 export function useGetGuildsGuildIdVoiceStatesMe(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdVoiceStatesMeQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdVoiceStatesMeQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/voice-states/@me
+ * Generates Vue Query cache key for GET /guilds/{guild_id/voice-states/@me
  */
 export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
@@ -3000,12 +7214,48 @@ export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
 /**
  * PATCH /guilds/{guild_id}/voice-states/@me
  */
-export function usePatchGuildsGuildIdVoiceStatesMe(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdVoiceStatesMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>,
     ) =>
       parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -3014,20 +7264,41 @@ export function usePatchGuildsGuildIdVoiceStatesMe(clientOptions?: ClientRequest
  */
 export function useGetGuildsGuildIdVoiceStatesUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdVoiceStatesUserIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdVoiceStatesUserIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.guilds[':guild_id']['voice-states'][':user_id'].$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/voice-states/{user_id}
+ * Generates Vue Query cache key for GET /guilds/{guild_id/voice-states/{user_id
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
@@ -3038,7 +7309,46 @@ export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
 /**
  * PATCH /guilds/{guild_id}/voice-states/{user_id}
  */
-export function usePatchGuildsGuildIdVoiceStatesUserId(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdVoiceStatesUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3048,6 +7358,7 @@ export function usePatchGuildsGuildIdVoiceStatesUserId(clientOptions?: ClientReq
       parseResponse(
         client.guilds[':guild_id']['voice-states'][':user_id'].$patch(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3056,18 +7367,35 @@ export function usePatchGuildsGuildIdVoiceStatesUserId(clientOptions?: ClientReq
  */
 export function useGetGuildsGuildIdWebhooks(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdWebhooksQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdWebhooksQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id'].webhooks.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/webhooks
+ * Generates Vue Query cache key for GET /guilds/{guild_id/webhooks
  */
 export function getGetGuildsGuildIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
@@ -3080,18 +7408,35 @@ export function getGetGuildsGuildIdWebhooksQueryKey(
  */
 export function useGetGuildsGuildIdWelcomeScreen(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdWelcomeScreenQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdWelcomeScreenQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id']['welcome-screen'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/welcome-screen
+ * Generates Vue Query cache key for GET /guilds/{guild_id/welcome-screen
  */
 export function getGetGuildsGuildIdWelcomeScreenQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
@@ -3102,11 +7447,37 @@ export function getGetGuildsGuildIdWelcomeScreenQueryKey(
 /**
  * PATCH /guilds/{guild_id}/welcome-screen
  */
-export function usePatchGuildsGuildIdWelcomeScreen(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdWelcomeScreen(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id']['welcome-screen'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -3115,17 +7486,34 @@ export function usePatchGuildsGuildIdWelcomeScreen(clientOptions?: ClientRequest
  */
 export function useGetGuildsGuildIdWidget(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdWidgetQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdWidgetQueryKey(args),
     queryFn: async () => parseResponse(client.guilds[':guild_id'].widget.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/widget
+ * Generates Vue Query cache key for GET /guilds/{guild_id/widget
  */
 export function getGetGuildsGuildIdWidgetQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
@@ -3136,11 +7524,35 @@ export function getGetGuildsGuildIdWidgetQueryKey(
 /**
  * PATCH /guilds/{guild_id}/widget
  */
-export function usePatchGuildsGuildIdWidget(clientOptions?: ClientRequestOptions) {
+export function usePatchGuildsGuildIdWidget(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].widget.$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -3149,18 +7561,35 @@ export function usePatchGuildsGuildIdWidget(clientOptions?: ClientRequestOptions
  */
 export function useGetGuildsGuildIdWidgetJson(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdWidgetJsonQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdWidgetJsonQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id']['widget.json'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/widget.json
+ * Generates Vue Query cache key for GET /guilds/{guild_id/widget.json
  */
 export function getGetGuildsGuildIdWidgetJsonQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
@@ -3173,18 +7602,35 @@ export function getGetGuildsGuildIdWidgetJsonQueryKey(
  */
 export function useGetGuildsGuildIdWidgetPng(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
+      ) => InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetGuildsGuildIdWidgetPngQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetGuildsGuildIdWidgetPngQueryKey(args),
     queryFn: async () =>
       parseResponse(client.guilds[':guild_id']['widget.png'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id}/widget.png
+ * Generates Vue Query cache key for GET /guilds/{guild_id/widget.png
  */
 export function getGetGuildsGuildIdWidgetPngQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
@@ -3195,9 +7641,46 @@ export function getGetGuildsGuildIdWidgetPngQueryKey(
 /**
  * POST /interactions/{interaction_id}/{interaction_token}/callback
  */
-export function usePostInteractionsInteractionIdInteractionTokenCallback(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePostInteractionsInteractionIdInteractionTokenCallback(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3210,6 +7693,7 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3218,17 +7702,34 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(
  */
 export function useGetInvitesCode(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.invites)[':code']['$get']>,
+      ) => InferResponseType<(typeof client.invites)[':code']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetInvitesCodeQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetInvitesCodeQueryKey(args),
     queryFn: async () => parseResponse(client.invites[':code'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /invites/{code}
+ * Generates Vue Query cache key for GET /invites/{code
  */
 export function getGetInvitesCodeQueryKey(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
@@ -3239,30 +7740,90 @@ export function getGetInvitesCodeQueryKey(
 /**
  * DELETE /invites/{code}
  */
-export function useDeleteInvitesCode(clientOptions?: ClientRequestOptions) {
+export function useDeleteInvitesCode(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.invites)[':code']['$delete']>,
+      variables: InferRequestType<(typeof client.invites)[':code']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.invites)[':code']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.invites)[':code']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.invites)[':code']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.invites)[':code']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.invites)[':code']['$delete']>) =>
       parseResponse(client.invites[':code'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PUT /lobbies
  */
-export function usePutLobbies(clientOptions?: ClientRequestOptions) {
+export function usePutLobbies(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.lobbies.$put>,
+      variables: InferRequestType<typeof client.lobbies.$put>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.lobbies.$put>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.lobbies.$put> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.lobbies.$put>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.lobbies.$put>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.lobbies.$put>) =>
       parseResponse(client.lobbies.$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /lobbies
  */
-export function usePostLobbies(clientOptions?: ClientRequestOptions) {
+export function usePostLobbies(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.lobbies.$post>,
+      variables: InferRequestType<typeof client.lobbies.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.lobbies.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.lobbies.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.lobbies.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.lobbies.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<typeof client.lobbies.$post>) =>
       parseResponse(client.lobbies.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -3271,17 +7832,34 @@ export function usePostLobbies(clientOptions?: ClientRequestOptions) {
  */
 export function useGetLobbiesLobbyId(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>,
+      ) => InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetLobbiesLobbyIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetLobbiesLobbyIdQueryKey(args),
     queryFn: async () => parseResponse(client.lobbies[':lobby_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /lobbies/{lobby_id}
+ * Generates Vue Query cache key for GET /lobbies/{lobby_id
  */
 export function getGetLobbiesLobbyIdQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
@@ -3292,39 +7870,168 @@ export function getGetLobbiesLobbyIdQueryKey(
 /**
  * PATCH /lobbies/{lobby_id}
  */
-export function usePatchLobbiesLobbyId(clientOptions?: ClientRequestOptions) {
+export function usePatchLobbiesLobbyId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['$patch']>,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>) =>
       parseResponse(client.lobbies[':lobby_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /lobbies/{lobby_id}/channel-linking
  */
-export function usePatchLobbiesLobbyIdChannelLinking(clientOptions?: ClientRequestOptions) {
+export function usePatchLobbiesLobbyIdChannelLinking(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>,
     ) => parseResponse(client.lobbies[':lobby_id']['channel-linking'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /lobbies/{lobby_id}/members/@me
  */
-export function useDeleteLobbiesLobbyIdMembersMe(clientOptions?: ClientRequestOptions) {
+export function useDeleteLobbiesLobbyIdMembersMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>,
     ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /lobbies/{lobby_id}/members/@me/invites
  */
-export function usePostLobbiesLobbyIdMembersMeInvites(clientOptions?: ClientRequestOptions) {
+export function usePostLobbiesLobbyIdMembersMeInvites(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3332,35 +8039,131 @@ export function usePostLobbiesLobbyIdMembersMeInvites(clientOptions?: ClientRequ
       >,
     ) =>
       parseResponse(client.lobbies[':lobby_id'].members['@me'].invites.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /lobbies/{lobby_id}/members/bulk
  */
-export function usePostLobbiesLobbyIdMembersBulk(clientOptions?: ClientRequestOptions) {
+export function usePostLobbiesLobbyIdMembersBulk(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
     ) => parseResponse(client.lobbies[':lobby_id'].members.bulk.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PUT /lobbies/{lobby_id}/members/{user_id}
  */
-export function usePutLobbiesLobbyIdMembersUserId(clientOptions?: ClientRequestOptions) {
+export function usePutLobbiesLobbyIdMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>,
     ) => parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /lobbies/{lobby_id}/members/{user_id}
  */
-export function useDeleteLobbiesLobbyIdMembersUserId(clientOptions?: ClientRequestOptions) {
+export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3368,13 +8171,51 @@ export function useDeleteLobbiesLobbyIdMembersUserId(clientOptions?: ClientReque
       >,
     ) =>
       parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /lobbies/{lobby_id}/members/{user_id}/invites
  */
-export function usePostLobbiesLobbyIdMembersUserIdInvites(clientOptions?: ClientRequestOptions) {
+export function usePostLobbiesLobbyIdMembersUserIdInvites(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3384,6 +8225,7 @@ export function usePostLobbiesLobbyIdMembersUserIdInvites(clientOptions?: Client
       parseResponse(
         client.lobbies[':lobby_id'].members[':user_id'].invites.$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -3392,18 +8234,35 @@ export function usePostLobbiesLobbyIdMembersUserIdInvites(clientOptions?: Client
  */
 export function useGetLobbiesLobbyIdMessages(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
+      ) => InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetLobbiesLobbyIdMessagesQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetLobbiesLobbyIdMessagesQueryKey(args),
     queryFn: async () =>
       parseResponse(client.lobbies[':lobby_id'].messages.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /lobbies/{lobby_id}/messages
+ * Generates Vue Query cache key for GET /lobbies/{lobby_id/messages
  */
 export function getGetLobbiesLobbyIdMessagesQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
@@ -3414,22 +8273,65 @@ export function getGetLobbiesLobbyIdMessagesQueryKey(
 /**
  * POST /lobbies/{lobby_id}/messages
  */
-export function usePostLobbiesLobbyIdMessages(clientOptions?: ClientRequestOptions) {
+export function usePostLobbiesLobbyIdMessages(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
     ) => parseResponse(client.lobbies[':lobby_id'].messages.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /oauth2/@me
  */
-export function useGetOauth2Me(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetOauth2MeQueryKey()
+export function useGetOauth2Me(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.oauth2)['@me']['$get']>,
+    ) => InferResponseType<(typeof client.oauth2)['@me']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOauth2MeQueryKey(),
     queryFn: async () => parseResponse(client.oauth2['@me'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -3443,12 +8345,29 @@ export function getGetOauth2MeQueryKey() {
 /**
  * GET /oauth2/applications/@me
  */
-export function useGetOauth2ApplicationsMe(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetOauth2ApplicationsMeQueryKey()
+export function useGetOauth2ApplicationsMe(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>,
+    ) => InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOauth2ApplicationsMeQueryKey(),
     queryFn: async () =>
       parseResponse(client.oauth2.applications['@me'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -3462,11 +8381,28 @@ export function getGetOauth2ApplicationsMeQueryKey() {
 /**
  * GET /oauth2/keys
  */
-export function useGetOauth2Keys(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetOauth2KeysQueryKey()
+export function useGetOauth2Keys(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.oauth2.keys.$get>,
+    ) => InferResponseType<typeof client.oauth2.keys.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOauth2KeysQueryKey(),
     queryFn: async () => parseResponse(client.oauth2.keys.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -3480,11 +8416,28 @@ export function getGetOauth2KeysQueryKey() {
 /**
  * GET /oauth2/userinfo
  */
-export function useGetOauth2Userinfo(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetOauth2UserinfoQueryKey()
+export function useGetOauth2Userinfo(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.oauth2.userinfo.$get>,
+    ) => InferResponseType<typeof client.oauth2.userinfo.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetOauth2UserinfoQueryKey(),
     queryFn: async () => parseResponse(client.oauth2.userinfo.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -3498,7 +8451,46 @@ export function getGetOauth2UserinfoQueryKey() {
 /**
  * POST /partner-sdk/provisional-accounts/unmerge
  */
-export function usePostPartnerSdkProvisionalAccountsUnmerge(clientOptions?: ClientRequestOptions) {
+export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3508,15 +8500,53 @@ export function usePostPartnerSdkProvisionalAccountsUnmerge(clientOptions?: Clie
       parseResponse(
         client['partner-sdk']['provisional-accounts'].unmerge.$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /partner-sdk/provisional-accounts/unmerge/bot
  */
-export function usePostPartnerSdkProvisionalAccountsUnmergeBot(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3526,39 +8556,105 @@ export function usePostPartnerSdkProvisionalAccountsUnmergeBot(
       parseResponse(
         client['partner-sdk']['provisional-accounts'].unmerge.bot.$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /partner-sdk/token
  */
-export function usePostPartnerSdkToken(clientOptions?: ClientRequestOptions) {
+export function usePostPartnerSdkToken(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['partner-sdk']['token']['$post']>,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['partner-sdk']['token']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>) =>
       parseResponse(client['partner-sdk'].token.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /partner-sdk/token/bot
  */
-export function usePostPartnerSdkTokenBot(clientOptions?: ClientRequestOptions) {
+export function usePostPartnerSdkTokenBot(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['partner-sdk']['token']['bot']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
     ) => parseResponse(client['partner-sdk'].token.bot.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /soundboard-default-sounds
  */
-export function useGetSoundboardDefaultSounds(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetSoundboardDefaultSoundsQueryKey()
+export function useGetSoundboardDefaultSounds(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
+    ) => InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetSoundboardDefaultSoundsQueryKey(),
     queryFn: async () =>
       parseResponse(client['soundboard-default-sounds'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -3572,10 +8668,32 @@ export function getGetSoundboardDefaultSoundsQueryKey() {
 /**
  * POST /stage-instances
  */
-export function usePostStageInstances(clientOptions?: ClientRequestOptions) {
+export function usePostStageInstances(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['stage-instances']['$post']>,
+      variables: InferRequestType<(typeof client)['stage-instances']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['stage-instances']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client)['stage-instances']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['stage-instances']['$post']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client)['stage-instances']['$post']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client)['stage-instances']['$post']>) =>
       parseResponse(client['stage-instances'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -3584,18 +8702,35 @@ export function usePostStageInstances(clientOptions?: ClientRequestOptions) {
  */
 export function useGetStageInstancesChannelId(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
+      ) => InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetStageInstancesChannelIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetStageInstancesChannelIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client['stage-instances'][':channel_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /stage-instances/{channel_id}
+ * Generates Vue Query cache key for GET /stage-instances/{channel_id
  */
 export function getGetStageInstancesChannelIdQueryKey(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
@@ -3606,33 +8741,104 @@ export function getGetStageInstancesChannelIdQueryKey(
 /**
  * DELETE /stage-instances/{channel_id}
  */
-export function useDeleteStageInstancesChannelId(clientOptions?: ClientRequestOptions) {
+export function useDeleteStageInstancesChannelId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client)['stage-instances'][':channel_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['stage-instances'][':channel_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
     ) => parseResponse(client['stage-instances'][':channel_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /stage-instances/{channel_id}
  */
-export function usePatchStageInstancesChannelId(clientOptions?: ClientRequestOptions) {
+export function usePatchStageInstancesChannelId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client)['stage-instances'][':channel_id']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
     ) => parseResponse(client['stage-instances'][':channel_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /sticker-packs
  */
-export function useGetStickerPacks(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetStickerPacksQueryKey()
+export function useGetStickerPacks(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client)['sticker-packs']['$get']>,
+    ) => InferResponseType<(typeof client)['sticker-packs']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetStickerPacksQueryKey(),
     queryFn: async () => parseResponse(client['sticker-packs'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -3648,18 +8854,35 @@ export function getGetStickerPacksQueryKey() {
  */
 export function useGetStickerPacksPackId(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
+      ) => InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetStickerPacksPackIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetStickerPacksPackIdQueryKey(args),
     queryFn: async () =>
       parseResponse(client['sticker-packs'][':pack_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /sticker-packs/{pack_id}
+ * Generates Vue Query cache key for GET /sticker-packs/{pack_id
  */
 export function getGetStickerPacksPackIdQueryKey(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
@@ -3672,17 +8895,34 @@ export function getGetStickerPacksPackIdQueryKey(
  */
 export function useGetStickersStickerId(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>,
+      ) => InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetStickersStickerIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetStickersStickerIdQueryKey(args),
     queryFn: async () => parseResponse(client.stickers[':sticker_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /stickers/{sticker_id}
+ * Generates Vue Query cache key for GET /stickers/{sticker_id
  */
 export function getGetStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
@@ -3693,11 +8933,28 @@ export function getGetStickersStickerIdQueryKey(
 /**
  * GET /users/@me
  */
-export function useGetUsersMe(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetUsersMeQueryKey()
+export function useGetUsersMe(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.users)['@me']['$get']>,
+    ) => InferResponseType<(typeof client.users)['@me']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersMeQueryKey(),
     queryFn: async () => parseResponse(client.users['@me'].$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -3711,10 +8968,32 @@ export function getGetUsersMeQueryKey() {
 /**
  * PATCH /users/@me
  */
-export function usePatchUsersMe(clientOptions?: ClientRequestOptions) {
+export function usePatchUsersMe(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)['@me']['$patch']>,
+      variables: InferRequestType<(typeof client.users)['@me']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)['@me']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)['@me']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)['@me']['$patch']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.users)['@me']['$patch']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['$patch']>) =>
       parseResponse(client.users['@me'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -3725,20 +9004,41 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.users['@me'].applications[':application_id'].entitlements.$get(args, clientOptions),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /users/@me/applications/{application_id}/entitlements
+ * Generates Vue Query cache key for GET /users/@me/applications/{application_id/entitlements
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<
@@ -3755,11 +9055,31 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.users['@me'].applications[':application_id']['role-connection'].$get(
@@ -3767,11 +9087,12 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /users/@me/applications/{application_id}/role-connection
+ * Generates Vue Query cache key for GET /users/@me/applications/{application_id/role-connection
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
   args: InferRequestType<
@@ -3784,9 +9105,44 @@ export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
 /**
  * PUT /users/@me/applications/{application_id}/role-connection
  */
-export function usePutUsersMeApplicationsApplicationIdRoleConnection(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePutUsersMeApplicationsApplicationIdRoleConnection(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+      >,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3799,15 +9155,53 @@ export function usePutUsersMeApplicationsApplicationIdRoleConnection(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /users/@me/applications/{application_id}/role-connection
  */
-export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -3820,28 +9214,70 @@ export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /users/@me/channels
  */
-export function usePostUsersMeChannels(clientOptions?: ClientRequestOptions) {
+export function usePostUsersMeChannels(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.users)['@me']['channels']['$post']>,
+      variables: InferRequestType<(typeof client.users)['@me']['channels']['$post']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)['@me']['channels']['$post']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.users)['@me']['channels']['$post']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)['@me']['channels']['$post']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)['@me']['channels']['$post']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['channels']['$post']>) =>
       parseResponse(client.users['@me'].channels.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * GET /users/@me/connections
  */
-export function useGetUsersMeConnections(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetUsersMeConnectionsQueryKey()
+export function useGetUsersMeConnections(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
+    ) => InferResponseType<(typeof client.users)['@me']['connections']['$get']>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersMeConnectionsQueryKey(),
     queryFn: async () =>
       parseResponse(client.users['@me'].connections.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -3857,12 +9293,29 @@ export function getGetUsersMeConnectionsQueryKey() {
  */
 export function useGetUsersMeGuilds(
   args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)['@me']['guilds']['$get']>,
+      ) => InferResponseType<(typeof client.users)['@me']['guilds']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUsersMeGuildsQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersMeGuildsQueryKey(args),
     queryFn: async () => parseResponse(client.users['@me'].guilds.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -3878,11 +9331,39 @@ export function getGetUsersMeGuildsQueryKey(
 /**
  * DELETE /users/@me/guilds/{guild_id}
  */
-export function useDeleteUsersMeGuildsGuildId(clientOptions?: ClientRequestOptions) {
+export function useDeleteUsersMeGuildsGuildId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>
+        | undefined,
+      variables: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
     ) => parseResponse(client.users['@me'].guilds[':guild_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -3891,18 +9372,37 @@ export function useDeleteUsersMeGuildsGuildId(clientOptions?: ClientRequestOptio
  */
 export function useGetUsersMeGuildsGuildIdMember(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']
+        >,
+      ) => InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUsersMeGuildsGuildIdMemberQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersMeGuildsGuildIdMemberQueryKey(args),
     queryFn: async () =>
       parseResponse(client.users['@me'].guilds[':guild_id'].member.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /users/@me/guilds/{guild_id}/member
+ * Generates Vue Query cache key for GET /users/@me/guilds/{guild_id/member
  */
 export function getGetUsersMeGuildsGuildIdMemberQueryKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
@@ -3915,17 +9415,34 @@ export function getGetUsersMeGuildsGuildIdMemberQueryKey(
  */
 export function useGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.users)[':user_id']['$get']>,
+      ) => InferResponseType<(typeof client.users)[':user_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetUsersUserIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetUsersUserIdQueryKey(args),
     queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{user_id}
+ * Generates Vue Query cache key for GET /users/{user_id
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
@@ -3936,11 +9453,28 @@ export function getGetUsersUserIdQueryKey(
 /**
  * GET /voice/regions
  */
-export function useGetVoiceRegions(clientOptions?: ClientRequestOptions) {
-  const queryKey = getGetVoiceRegionsQueryKey()
+export function useGetVoiceRegions(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.voice.regions.$get>,
+    ) => InferResponseType<typeof client.voice.regions.$get>
+  }
+  client?: ClientRequestOptions
+}) {
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetVoiceRegionsQueryKey(),
     queryFn: async () => parseResponse(client.voice.regions.$get(undefined, clientOptions)),
+    ...queryOptions,
   })
 }
 
@@ -3956,17 +9490,34 @@ export function getGetVoiceRegionsQueryKey() {
  */
 export function useGetWebhooksWebhookId(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>,
+      ) => InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetWebhooksWebhookIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWebhooksWebhookIdQueryKey(args),
     queryFn: async () => parseResponse(client.webhooks[':webhook_id'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /webhooks/{webhook_id}
+ * Generates Vue Query cache key for GET /webhooks/{webhook_id
  */
 export function getGetWebhooksWebhookIdQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
@@ -3977,21 +9528,69 @@ export function getGetWebhooksWebhookIdQueryKey(
 /**
  * DELETE /webhooks/{webhook_id}
  */
-export function useDeleteWebhooksWebhookId(clientOptions?: ClientRequestOptions) {
+export function useDeleteWebhooksWebhookId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
     ) => parseResponse(client.webhooks[':webhook_id'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /webhooks/{webhook_id}
  */
-export function usePatchWebhooksWebhookId(clientOptions?: ClientRequestOptions) {
+export function usePatchWebhooksWebhookId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$patch']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>) =>
       parseResponse(client.webhooks[':webhook_id'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -4000,18 +9599,35 @@ export function usePatchWebhooksWebhookId(clientOptions?: ClientRequestOptions) 
  */
 export function useGetWebhooksWebhookIdWebhookToken(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
+      ) => InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetWebhooksWebhookIdWebhookTokenQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWebhooksWebhookIdWebhookTokenQueryKey(args),
     queryFn: async () =>
       parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}
+ * Generates Vue Query cache key for GET /webhooks/{webhook_id/{webhook_token
  */
 export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
@@ -4022,42 +9638,187 @@ export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
 /**
  * POST /webhooks/{webhook_id}/{webhook_token}
  */
-export function usePostWebhooksWebhookIdWebhookToken(clientOptions?: ClientRequestOptions) {
+export function usePostWebhooksWebhookIdWebhookToken(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>,
     ) => parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * DELETE /webhooks/{webhook_id}/{webhook_token}
  */
-export function useDeleteWebhooksWebhookIdWebhookToken(clientOptions?: ClientRequestOptions) {
+export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>,
     ) =>
       parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /webhooks/{webhook_id}/{webhook_token}
  */
-export function usePatchWebhooksWebhookIdWebhookToken(clientOptions?: ClientRequestOptions) {
+export function usePatchWebhooksWebhookIdWebhookToken(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>,
     ) =>
       parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$patch(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /webhooks/{webhook_id}/{webhook_token}/github
  */
-export function usePostWebhooksWebhookIdWebhookTokenGithub(clientOptions?: ClientRequestOptions) {
+export function usePostWebhooksWebhookIdWebhookTokenGithub(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4067,6 +9828,7 @@ export function usePostWebhooksWebhookIdWebhookTokenGithub(clientOptions?: Clien
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].github.$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4077,11 +9839,31 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$get(
@@ -4089,11 +9871,12 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
+ * Generates Vue Query cache key for GET /webhooks/{webhook_id/{webhook_token/messages/@original
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
   args: InferRequestType<
@@ -4106,9 +9889,46 @@ export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
 /**
  * DELETE /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
-export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4121,15 +9941,51 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
-export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4142,6 +9998,7 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
@@ -4152,11 +10009,31 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
   >,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<
+          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+        >,
+      ) => InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+      >
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$get(
@@ -4164,11 +10041,12 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
           clientOptions,
         ),
       ),
+    ...queryOptions,
   })
 }
 
 /**
- * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
+ * Generates Vue Query cache key for GET /webhooks/{webhook_id/{webhook_token/messages/{message_id
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
   args: InferRequestType<
@@ -4181,9 +10059,46 @@ export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
 /**
  * DELETE /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
-export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+          >
+        | undefined,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4196,15 +10111,51 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * PATCH /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
-export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(
-  clientOptions?: ClientRequestOptions,
-) {
+export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+      >,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4217,13 +10168,51 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(
           clientOptions,
         ),
       ),
+    ...mutationOptions,
   })
 }
 
 /**
  * POST /webhooks/{webhook_id}/{webhook_token}/slack
  */
-export function usePostWebhooksWebhookIdWebhookTokenSlack(clientOptions?: ClientRequestOptions) {
+export function usePostWebhooksWebhookIdWebhookTokenSlack(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+      >,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+      >,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+      >,
+    ) => void
+    onSettled?: (
+      data:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+          >
+        | undefined,
+      error: Error | null,
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+      >,
+    ) => void
+    onMutate?: (
+      variables: InferRequestType<
+        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+      >,
+    ) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
     mutationFn: async (
       args: InferRequestType<
@@ -4233,5 +10222,6 @@ export function usePostWebhooksWebhookIdWebhookTokenSlack(clientOptions?: Client
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].slack.$post(args, clientOptions),
       ),
+    ...mutationOptions,
   })
 }

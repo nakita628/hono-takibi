@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
@@ -213,9 +214,20 @@ export function getGetMixedLevelSecurityKey() {
  *
  * Admin-only security
  */
-export function usePutMixedLevelSecurity(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('PUT /mixed-level-security', async () =>
-    parseResponse(client['mixed-level-security'].$put(undefined, options?.client)),
+export function usePutMixedLevelSecurity(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['mixed-level-security']['$put']>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'PUT /mixed-level-security',
+    async () => parseResponse(client['mixed-level-security'].$put(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -224,9 +236,20 @@ export function usePutMixedLevelSecurity(options?: { client?: ClientRequestOptio
  *
  * Different security for POST
  */
-export function usePostMixedLevelSecurity(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('POST /mixed-level-security', async () =>
-    parseResponse(client['mixed-level-security'].$post(undefined, options?.client)),
+export function usePostMixedLevelSecurity(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['mixed-level-security']['$post']>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'POST /mixed-level-security',
+    async () => parseResponse(client['mixed-level-security'].$post(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -235,9 +258,20 @@ export function usePostMixedLevelSecurity(options?: { client?: ClientRequestOpti
  *
  * Super admin security
  */
-export function useDeleteMixedLevelSecurity(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('DELETE /mixed-level-security', async () =>
-    parseResponse(client['mixed-level-security'].$delete(undefined, options?.client)),
+export function useDeleteMixedLevelSecurity(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'DELETE /mixed-level-security',
+    async () => parseResponse(client['mixed-level-security'].$delete(undefined, options?.client)),
+    mutationOptions,
   )
 }
 

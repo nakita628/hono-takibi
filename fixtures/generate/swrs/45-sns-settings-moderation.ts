@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
@@ -39,11 +40,21 @@ export function getGetSettingsAccountKey() {
  *
  * アカウント設定更新
  */
-export function usePutSettingsAccount(options?: { client?: ClientRequestOptions }) {
+export function usePutSettingsAccount(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.settings.account.$put>,
+    Error,
+    string,
+    InferRequestType<typeof client.settings.account.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /settings/account',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.settings.account.$put> }) =>
       parseResponse(client.settings.account.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -115,11 +126,21 @@ export function getGetSettingsPrivacyKey() {
  *
  * プライバシー設定更新
  */
-export function usePutSettingsPrivacy(options?: { client?: ClientRequestOptions }) {
+export function usePutSettingsPrivacy(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.settings.privacy.$put>,
+    Error,
+    string,
+    InferRequestType<typeof client.settings.privacy.$put>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /settings/privacy',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.settings.privacy.$put> }) =>
       parseResponse(client.settings.privacy.$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -158,13 +179,23 @@ export function getGetSettingsContentPreferencesKey() {
  *
  * コンテンツ設定更新
  */
-export function usePutSettingsContentPreferences(options?: { client?: ClientRequestOptions }) {
+export function usePutSettingsContentPreferences(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.settings)['content-preferences']['$put']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.settings)['content-preferences']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /settings/content-preferences',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.settings)['content-preferences']['$put']> },
     ) => parseResponse(client.settings['content-preferences'].$put(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -202,13 +233,23 @@ export function getGetSettingsMutedWordsKey() {
  *
  * ミュートワード追加
  */
-export function usePostSettingsMutedWords(options?: { client?: ClientRequestOptions }) {
+export function usePostSettingsMutedWords(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.settings)['muted-words']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.settings)['muted-words']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /settings/muted-words',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.settings)['muted-words']['$post']> },
     ) => parseResponse(client.settings['muted-words'].$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -217,7 +258,16 @@ export function usePostSettingsMutedWords(options?: { client?: ClientRequestOpti
  *
  * ミュートワード削除
  */
-export function useDeleteSettingsMutedWordsWordId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteSettingsMutedWordsWordId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /settings/muted-words/:wordId',
     async (
@@ -226,6 +276,7 @@ export function useDeleteSettingsMutedWordsWordId(options?: { client?: ClientReq
         arg,
       }: { arg: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']> },
     ) => parseResponse(client.settings['muted-words'][':wordId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -263,7 +314,16 @@ export function getGetSettingsSessionsKey() {
  *
  * セッション無効化
  */
-export function useDeleteSettingsSessionsSessionId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteSettingsSessionsSessionId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /settings/sessions/:sessionId',
     async (
@@ -272,6 +332,7 @@ export function useDeleteSettingsSessionsSessionId(options?: { client?: ClientRe
         arg,
       }: { arg: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']> },
     ) => parseResponse(client.settings.sessions[':sessionId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -309,7 +370,16 @@ export function getGetSettingsConnectedAppsKey() {
  *
  * 連携アプリ解除
  */
-export function useDeleteSettingsConnectedAppsAppId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteSettingsConnectedAppsAppId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /settings/connected-apps/:appId',
     async (
@@ -318,6 +388,7 @@ export function useDeleteSettingsConnectedAppsAppId(options?: { client?: ClientR
         arg,
       }: { arg: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']> },
     ) => parseResponse(client.settings['connected-apps'][':appId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -326,9 +397,20 @@ export function useDeleteSettingsConnectedAppsAppId(options?: { client?: ClientR
  *
  * データエクスポートリクエスト
  */
-export function usePostSettingsDataExport(options?: { client?: ClientRequestOptions }) {
-  return useSWRMutation('POST /settings/data-export', async () =>
-    parseResponse(client.settings['data-export'].$post(undefined, options?.client)),
+export function usePostSettingsDataExport(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.settings)['data-export']['$post']>,
+    Error,
+    string,
+    void
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  return useSWRMutation(
+    'POST /settings/data-export',
+    async () => parseResponse(client.settings['data-export'].$post(undefined, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -360,7 +442,7 @@ export function useGetSettingsDataExportRequestId(
 }
 
 /**
- * Generates SWR cache key for GET /settings/data-export/{requestId}
+ * Generates SWR cache key for GET /settings/data-export/{requestId
  */
 export function getGetSettingsDataExportRequestIdKey(
   args?: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
@@ -373,13 +455,23 @@ export function getGetSettingsDataExportRequestIdKey(
  *
  * アカウント一時停止
  */
-export function usePostSettingsDeactivate(options?: { client?: ClientRequestOptions }) {
+export function usePostSettingsDeactivate(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.settings.deactivate.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.settings.deactivate.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /settings/deactivate',
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.settings.deactivate.$post> },
     ) => parseResponse(client.settings.deactivate.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -388,11 +480,21 @@ export function usePostSettingsDeactivate(options?: { client?: ClientRequestOpti
  *
  * 通報作成
  */
-export function usePostReports(options?: { client?: ClientRequestOptions }) {
+export function usePostReports(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.reports.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.reports.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /reports',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.reports.$post> }) =>
       parseResponse(client.reports.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -422,7 +524,7 @@ export function useGetReportsReportId(
 }
 
 /**
- * Generates SWR cache key for GET /reports/{reportId}
+ * Generates SWR cache key for GET /reports/{reportId
  */
 export function getGetReportsReportIdKey(
   args?: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
@@ -492,7 +594,7 @@ export function useGetModerationItemsItemId(
 }
 
 /**
- * Generates SWR cache key for GET /moderation/items/{itemId}
+ * Generates SWR cache key for GET /moderation/items/{itemId
  */
 export function getGetModerationItemsItemIdKey(
   args?: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
@@ -505,7 +607,16 @@ export function getGetModerationItemsItemIdKey(
  *
  * モデレーションアクション実行
  */
-export function usePostModerationItemsItemIdAction(options?: { client?: ClientRequestOptions }) {
+export function usePostModerationItemsItemIdAction(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /moderation/items/:itemId/action',
     async (
@@ -514,6 +625,7 @@ export function usePostModerationItemsItemIdAction(options?: { client?: ClientRe
         arg,
       }: { arg: InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']> },
     ) => parseResponse(client.moderation.items[':itemId'].action.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -545,7 +657,7 @@ export function useGetModerationUsersUserIdHistory(
 }
 
 /**
- * Generates SWR cache key for GET /moderation/users/{userId}/history
+ * Generates SWR cache key for GET /moderation/users/{userId/history
  */
 export function getGetModerationUsersUserIdHistoryKey(
   args?: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
@@ -558,7 +670,16 @@ export function getGetModerationUsersUserIdHistoryKey(
  *
  * ユーザー凍結
  */
-export function usePostModerationUsersUserIdSuspend(options?: { client?: ClientRequestOptions }) {
+export function usePostModerationUsersUserIdSuspend(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /moderation/users/:userId/suspend',
     async (
@@ -567,6 +688,7 @@ export function usePostModerationUsersUserIdSuspend(options?: { client?: ClientR
         arg,
       }: { arg: InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']> },
     ) => parseResponse(client.moderation.users[':userId'].suspend.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -575,7 +697,16 @@ export function usePostModerationUsersUserIdSuspend(options?: { client?: ClientR
  *
  * ユーザー凍結解除
  */
-export function usePostModerationUsersUserIdUnsuspend(options?: { client?: ClientRequestOptions }) {
+export function usePostModerationUsersUserIdUnsuspend(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /moderation/users/:userId/unsuspend',
     async (
@@ -586,6 +717,7 @@ export function usePostModerationUsersUserIdUnsuspend(options?: { client?: Clien
         arg: InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
       },
     ) => parseResponse(client.moderation.users[':userId'].unsuspend.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -615,7 +747,7 @@ export function useGetAnalyticsPostsPostId(
 }
 
 /**
- * Generates SWR cache key for GET /analytics/posts/{postId}
+ * Generates SWR cache key for GET /analytics/posts/{postId
  */
 export function getGetAnalyticsPostsPostIdKey(
   args?: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,

@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import type { QueryClient, UseQueryOptions } from '@tanstack/react-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/schema-reference'
@@ -9,29 +8,29 @@ import { client } from '../clients/schema-reference'
  *
  * Sample Endpoint
  */
-export function useGetExample(
-  options?: {
-    query?: UseQueryOptions<
-      InferResponseType<typeof client.example.$get>,
-      Error,
-      InferResponseType<typeof client.example.$get>,
-      readonly ['/example']
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
+export function useGetExample(options?: {
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+    select?: (
+      data: InferResponseType<typeof client.example.$get>,
+    ) => InferResponseType<typeof client.example.$get>
+  }
+  client?: ClientRequestOptions
+}) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const queryKey = getGetExampleQueryKey()
-  const query = useQuery(
-    {
-      ...queryOptions,
-      queryKey,
-      queryFn: async () => parseResponse(client.example.$get(undefined, clientOptions)),
-    },
-    queryClient,
-  )
-  return { ...query, queryKey }
+  return useQuery({
+    queryKey: getGetExampleQueryKey(),
+    queryFn: async () => parseResponse(client.example.$get(undefined, clientOptions)),
+    ...queryOptions,
+  })
 }
 
 /**

@@ -1,18 +1,29 @@
 import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
 /**
  * POST /orders
  */
-export function usePostOrders(options?: { client?: ClientRequestOptions }) {
+export function usePostOrders(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.orders.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.orders.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /orders',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
       parseResponse(client.orders.$post(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -40,7 +51,7 @@ export function useGetOrdersOrderId(
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId}
+ * Generates SWR cache key for GET /orders/{orderId
  */
 export function getGetOrdersOrderIdKey(
   args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
@@ -51,13 +62,23 @@ export function getGetOrdersOrderIdKey(
 /**
  * DELETE /orders/{orderId}
  */
-export function useDeleteOrdersOrderId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteOrdersOrderId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.orders)[':orderId']['$delete']>,
+    Error,
+    string,
+    InferRequestType<(typeof client.orders)[':orderId']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /orders/:orderId',
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.orders)[':orderId']['$delete']> },
     ) => parseResponse(client.orders[':orderId'].$delete(arg, options?.client)),
+    mutationOptions,
   )
 }
 
@@ -85,7 +106,7 @@ export function useGetOrdersOrderIdItems(
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId}/items
+ * Generates SWR cache key for GET /orders/{orderId/items
  */
 export function getGetOrdersOrderIdItemsKey(
   args?: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
@@ -117,7 +138,7 @@ export function useGetCustomersCustomerId(
 }
 
 /**
- * Generates SWR cache key for GET /customers/{customerId}
+ * Generates SWR cache key for GET /customers/{customerId
  */
 export function getGetCustomersCustomerIdKey(
   args?: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
@@ -149,7 +170,7 @@ export function useGetCustomersCustomerIdOrders(
 }
 
 /**
- * Generates SWR cache key for GET /customers/{customerId}/orders
+ * Generates SWR cache key for GET /customers/{customerId/orders
  */
 export function getGetCustomersCustomerIdOrdersKey(
   args?: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
@@ -181,7 +202,7 @@ export function useGetPaymentsPaymentId(
 }
 
 /**
- * Generates SWR cache key for GET /payments/{paymentId}
+ * Generates SWR cache key for GET /payments/{paymentId
  */
 export function getGetPaymentsPaymentIdKey(
   args?: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,

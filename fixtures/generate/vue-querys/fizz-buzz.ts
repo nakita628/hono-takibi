@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 
@@ -12,12 +12,29 @@ import { client } from '../clients/fizz-buzz'
  */
 export function useGetFizzbuzz(
   args: InferRequestType<typeof client.fizzbuzz.$get>,
-  clientOptions?: ClientRequestOptions,
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+      select?: (
+        data: InferResponseType<typeof client.fizzbuzz.$get>,
+      ) => InferResponseType<typeof client.fizzbuzz.$get>
+    }
+    client?: ClientRequestOptions
+  },
 ) {
-  const queryKey = getGetFizzbuzzQueryKey(args)
+  const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey,
+    queryKey: getGetFizzbuzzQueryKey(args),
     queryFn: async () => parseResponse(client.fizzbuzz.$get(args, clientOptions)),
+    ...queryOptions,
   })
 }
 
