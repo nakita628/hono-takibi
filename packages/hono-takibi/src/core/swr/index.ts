@@ -158,7 +158,7 @@ ${keyGetterCode}`
     // useSWRMutation hook for POST/PUT/DELETE/PATCH
     const methodUpper = method.toUpperCase()
     const mutationKey = `'${methodUpper} ${honoPath}'`
-    const variablesType = hasArgs ? inferRequestType : 'void'
+    const variablesType = hasArgs ? inferRequestType : 'undefined'
 
     // Only add | undefined when there are 204/205 No Content responses
     const responseTypeWithUndefined = hasNoContent
@@ -235,10 +235,12 @@ const makeHeader = (
     lines.push("import type{SWRMutationConfiguration}from'swr/mutation'")
   }
 
-  // Hono client imports - InferResponseType always needed for proper typing
+  // Hono client imports
+  // InferRequestType: needed when operation has args
+  // InferResponseType: needed for mutation SWRMutationConfiguration type parameter
   const typeImportParts: string[] = []
   if (hasArgs) typeImportParts.push('InferRequestType')
-  typeImportParts.push('InferResponseType')
+  if (hasMutation) typeImportParts.push('InferResponseType')
   typeImportParts.push('ClientRequestOptions')
   lines.push(`import type{${typeImportParts.join(',')}}from'hono/client'`)
   lines.push("import{parseResponse}from'hono/client'")

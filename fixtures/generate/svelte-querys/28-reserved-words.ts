@@ -1,5 +1,5 @@
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
@@ -104,14 +104,17 @@ export function getGetTypeQueryKey() {
  */
 export function createPostFunction(options?: {
   mutation?: {
-    onSuccess?: (data: InferResponseType<typeof client.function.$post>, variables: void) => void
-    onError?: (error: Error, variables: void) => void
+    onSuccess?: (
+      data: InferResponseType<typeof client.function.$post>,
+      variables: undefined,
+    ) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<typeof client.function.$post> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -257,14 +260,14 @@ export function getGetDefaultQueryKey() {
  */
 export function createPostNew(options?: {
   mutation?: {
-    onSuccess?: (data: InferResponseType<typeof client.new.$post>, variables: void) => void
-    onError?: (error: Error, variables: void) => void
+    onSuccess?: (data: InferResponseType<typeof client.new.$post>, variables: undefined) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<typeof client.new.$post> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -282,14 +285,17 @@ export function createPostNew(options?: {
  */
 export function createDeleteDelete(options?: {
   mutation?: {
-    onSuccess?: (data: InferResponseType<typeof client.delete.$delete>, variables: void) => void
-    onError?: (error: Error, variables: void) => void
+    onSuccess?: (
+      data: InferResponseType<typeof client.delete.$delete>,
+      variables: undefined,
+    ) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<typeof client.delete.$delete> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }

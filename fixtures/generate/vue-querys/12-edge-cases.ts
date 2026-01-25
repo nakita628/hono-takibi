@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
@@ -42,15 +42,15 @@ export function usePutAllMethods(options?: {
   mutation?: {
     onSuccess?: (
       data: InferResponseType<(typeof client)['all-methods']['$put']>,
-      variables: void,
+      variables: undefined,
     ) => void
-    onError?: (error: Error, variables: void) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<(typeof client)['all-methods']['$put']> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -70,15 +70,15 @@ export function usePostAllMethods(options?: {
   mutation?: {
     onSuccess?: (
       data: InferResponseType<(typeof client)['all-methods']['$post']>,
-      variables: void,
+      variables: undefined,
     ) => void
-    onError?: (error: Error, variables: void) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<(typeof client)['all-methods']['$post']> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -98,15 +98,15 @@ export function useDeleteAllMethods(options?: {
   mutation?: {
     onSuccess?: (
       data: InferResponseType<(typeof client)['all-methods']['$delete']>,
-      variables: void,
+      variables: undefined,
     ) => void
-    onError?: (error: Error, variables: void) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<(typeof client)['all-methods']['$delete']> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -126,15 +126,15 @@ export function useOptionsAllMethods(options?: {
   mutation?: {
     onSuccess?: (
       data: InferResponseType<(typeof client)['all-methods']['$options']>,
-      variables: void,
+      variables: undefined,
     ) => void
-    onError?: (error: Error, variables: void) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<(typeof client)['all-methods']['$options']> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -154,15 +154,15 @@ export function useHeadAllMethods(options?: {
   mutation?: {
     onSuccess?: (
       data: InferResponseType<(typeof client)['all-methods']['$head']>,
-      variables: void,
+      variables: undefined,
     ) => void
-    onError?: (error: Error, variables: void) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<(typeof client)['all-methods']['$head']> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -182,15 +182,15 @@ export function usePatchAllMethods(options?: {
   mutation?: {
     onSuccess?: (
       data: InferResponseType<(typeof client)['all-methods']['$patch']>,
-      variables: void,
+      variables: undefined,
     ) => void
-    onError?: (error: Error, variables: void) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<(typeof client)['all-methods']['$patch']> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -210,15 +210,15 @@ export function useTraceAllMethods(options?: {
   mutation?: {
     onSuccess?: (
       data: InferResponseType<(typeof client)['all-methods']['$trace']>,
-      variables: void,
+      variables: undefined,
     ) => void
-    onError?: (error: Error, variables: void) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<(typeof client)['all-methods']['$trace']> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -320,15 +320,15 @@ export function usePostNoContent(options?: {
   mutation?: {
     onSuccess?: (
       data: InferResponseType<(typeof client)['no-content']['$post']> | undefined,
-      variables: void,
+      variables: undefined,
     ) => void
-    onError?: (error: Error, variables: void) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<(typeof client)['no-content']['$post']> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }

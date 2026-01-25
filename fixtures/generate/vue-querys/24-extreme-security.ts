@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
@@ -251,15 +251,15 @@ export function usePutMixedLevelSecurity(options?: {
   mutation?: {
     onSuccess?: (
       data: InferResponseType<(typeof client)['mixed-level-security']['$put']>,
-      variables: void,
+      variables: undefined,
     ) => void
-    onError?: (error: Error, variables: void) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<(typeof client)['mixed-level-security']['$put']> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -282,15 +282,15 @@ export function usePostMixedLevelSecurity(options?: {
   mutation?: {
     onSuccess?: (
       data: InferResponseType<(typeof client)['mixed-level-security']['$post']>,
-      variables: void,
+      variables: undefined,
     ) => void
-    onError?: (error: Error, variables: void) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<(typeof client)['mixed-level-security']['$post']> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -313,15 +313,15 @@ export function useDeleteMixedLevelSecurity(options?: {
   mutation?: {
     onSuccess?: (
       data: InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
-      variables: void,
+      variables: undefined,
     ) => void
-    onError?: (error: Error, variables: void) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<(typeof client)['mixed-level-security']['$delete']> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }

@@ -237,7 +237,7 @@ const makeMutationHookCode = (
   hasNoContent: boolean,
 ): string => {
   // Build mutation hook with inline options type (no separate type definition)
-  const variablesType = hasArgs ? inferRequestType : 'void'
+  const variablesType = hasArgs ? inferRequestType : 'undefined'
 
   // For 204/205 responses, parseResponse returns undefined, so callback types should reflect this
   // onSuccess receives the success data (undefined for 204)
@@ -376,10 +376,12 @@ const makeHeader = (
     ...(hasMutation ? [config.mutationFn] : []),
   ]
 
-  // Hono client type imports - always need InferResponseType for option types
+  // Hono client type imports
+  // InferRequestType: needed when operation has args
+  // InferResponseType: needed for mutation option types (onSuccess, onError, etc.)
   const honoTypeImportParts = [
     ...(needsInferRequestType ? ['InferRequestType'] : []),
-    'InferResponseType',
+    ...(hasMutation ? ['InferResponseType'] : []),
     'ClientRequestOptions',
   ]
 

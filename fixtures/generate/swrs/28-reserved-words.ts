@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
 /**
@@ -95,7 +95,7 @@ export function usePostFunction(options?: {
     InferResponseType<typeof client.function.$post>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -223,7 +223,7 @@ export function usePostNew(options?: {
     InferResponseType<typeof client.new.$post>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -243,7 +243,7 @@ export function useDeleteDelete(options?: {
     InferResponseType<typeof client.delete.$delete>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {

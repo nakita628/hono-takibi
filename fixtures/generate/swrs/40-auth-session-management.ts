@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
 /**
@@ -104,7 +104,7 @@ export function useDeleteSessionsCurrent(options?: {
     InferResponseType<typeof client.sessions.current.$delete> | undefined,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -182,7 +182,7 @@ export function usePostSessionsCurrentActivity(options?: {
     InferResponseType<typeof client.sessions.current.activity.$post>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {

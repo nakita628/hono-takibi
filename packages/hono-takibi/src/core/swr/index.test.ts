@@ -182,7 +182,7 @@ export * from './usePostUsers'
       const useGetHono = fs.readFileSync(path.join(dir, 'swr', 'useGetHono.ts'), 'utf-8')
       const useGetHonoExpected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -223,7 +223,7 @@ export function getGetHonoKey() {
       const useGetUsers = fs.readFileSync(path.join(dir, 'swr', 'useGetUsers.ts'), 'utf-8')
       const useGetUsersExpected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -335,7 +335,7 @@ describe('swr (custom client name)', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
@@ -452,7 +452,7 @@ export function usePostPing(options?: {
     InferResponseType<typeof client.ping.$post>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -498,7 +498,7 @@ describe('swr (path with special characters)', () => {
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import useSWR from 'swr'
 import type { Key, SWRConfiguration } from 'swr'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 

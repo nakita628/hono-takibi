@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
 /**
@@ -41,7 +41,7 @@ export function usePutAllMethods(options?: {
     InferResponseType<(typeof client)['all-methods']['$put']>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -61,7 +61,7 @@ export function usePostAllMethods(options?: {
     InferResponseType<(typeof client)['all-methods']['$post']>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -81,7 +81,7 @@ export function useDeleteAllMethods(options?: {
     InferResponseType<(typeof client)['all-methods']['$delete']>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -101,7 +101,7 @@ export function useOptionsAllMethods(options?: {
     InferResponseType<(typeof client)['all-methods']['$options']>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -121,7 +121,7 @@ export function useHeadAllMethods(options?: {
     InferResponseType<(typeof client)['all-methods']['$head']>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -141,7 +141,7 @@ export function usePatchAllMethods(options?: {
     InferResponseType<(typeof client)['all-methods']['$patch']>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -161,7 +161,7 @@ export function useTraceAllMethods(options?: {
     InferResponseType<(typeof client)['all-methods']['$trace']>,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -254,7 +254,7 @@ export function usePostNoContent(options?: {
     InferResponseType<(typeof client)['no-content']['$post']> | undefined,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {

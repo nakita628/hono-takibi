@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
 /**
@@ -91,7 +91,7 @@ export function usePostAuthLogout(options?: {
     InferResponseType<typeof client.auth.logout.$post> | undefined,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {
@@ -381,7 +381,7 @@ export function useDeleteUsersMeAvatar(options?: {
     InferResponseType<typeof client.users.me.avatar.$delete> | undefined,
     Error,
     string,
-    void
+    undefined
   >
   client?: ClientRequestOptions
 }) {

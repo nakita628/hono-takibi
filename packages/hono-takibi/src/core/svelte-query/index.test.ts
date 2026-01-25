@@ -196,7 +196,7 @@ export * from './createPostUsers'
       // Check GET hook file without args
       const createGetHono = fs.readFileSync(path.join(dir, 'hooks', 'createGetHono.ts'), 'utf-8')
       const createGetHonoExpected = `import { createQuery } from '@tanstack/svelte-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -241,7 +241,7 @@ export function getGetHonoQueryKey() {
       // Check GET hook file with args
       const createGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'createGetUsers.ts'), 'utf-8')
       const createGetUsersExpected = `import { createQuery } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -367,7 +367,7 @@ describe('svelteQuery (custom client name)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { createQuery } from '@tanstack/svelte-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
@@ -488,14 +488,14 @@ export function getGetPingQueryKey() {
  */
 export function createPostPing(options?: {
   mutation?: {
-    onSuccess?: (data: InferResponseType<typeof client.ping.$post>, variables: void) => void
-    onError?: (error: Error, variables: void) => void
+    onSuccess?: (data: InferResponseType<typeof client.ping.$post>, variables: undefined) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<typeof client.ping.$post> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -541,7 +541,7 @@ describe('svelteQuery (path with special characters)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { createQuery } from '@tanstack/svelte-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 

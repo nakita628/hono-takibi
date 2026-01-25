@@ -196,7 +196,7 @@ export * from './usePostUsers'
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'useGetHono.ts'), 'utf-8')
       const useGetHonoExpected = `import { useQuery } from '@tanstack/vue-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -241,7 +241,7 @@ export function getGetHonoQueryKey() {
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'useGetUsers.ts'), 'utf-8')
       const useGetUsersExpected = `import { useQuery } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 
@@ -364,7 +364,7 @@ describe('vueQuery (custom client name)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { useQuery } from '@tanstack/vue-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
 
@@ -485,14 +485,14 @@ export function getGetPingQueryKey() {
  */
 export function usePostPing(options?: {
   mutation?: {
-    onSuccess?: (data: InferResponseType<typeof client.ping.$post>, variables: void) => void
-    onError?: (error: Error, variables: void) => void
+    onSuccess?: (data: InferResponseType<typeof client.ping.$post>, variables: undefined) => void
+    onError?: (error: Error, variables: undefined) => void
     onSettled?: (
       data: InferResponseType<typeof client.ping.$post> | undefined,
       error: Error | null,
-      variables: void,
+      variables: undefined,
     ) => void
-    onMutate?: (variables: void) => void
+    onMutate?: (variables: undefined) => void
     retry?: boolean | number
     retryDelay?: number
   }
@@ -538,7 +538,7 @@ describe('vueQuery (path with special characters)', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { useQuery } from '@tanstack/vue-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
 

@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -100,6 +100,8 @@ export function useGetPetFindByStatus(
     ...queryOptions,
   })
 }
+
+const { data, isLoading, isError, isSuccess } = useGetPetFindByStatus({ status: 'available' })
 
 /**
  * Generates TanStack Query cache key for GET /pet/findByStatus
