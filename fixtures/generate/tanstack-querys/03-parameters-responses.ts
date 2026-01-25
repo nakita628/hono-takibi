@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
@@ -39,6 +39,21 @@ export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$
 }
 
 /**
+ * Returns TanStack Query query options for GET /items
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetItemsQueryOptions(
+  args: InferRequestType<typeof client.items.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetItemsQueryKey(args),
+    queryFn: async () => parseResponse(client.items.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /items/{itemId}
  */
 export function useGetItemsItemId(
@@ -73,6 +88,21 @@ export function getGetItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
   return ['/items/:itemId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /items/{itemId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetItemsItemIdQueryOptions(
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetItemsItemIdQueryKey(args),
+    queryFn: async () => parseResponse(client.items[':itemId'].$get(args, clientOptions)),
+  }
 }
 
 /**

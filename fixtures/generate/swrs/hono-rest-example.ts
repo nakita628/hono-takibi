@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/hono-rest-example'
 
 /**
@@ -91,7 +91,7 @@ export function usePostPosts(options?: {
   return useSWRMutation(
     'POST /posts',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.posts.$post> }) =>
-      parseResponse(client.posts.$post(arg, options?.client)),
+      parseResponse(client.posts.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -116,7 +116,7 @@ export function usePutPostsId(options?: {
   return useSWRMutation(
     'PUT /posts/:id',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client.posts)[':id']['$put']> }) =>
-      parseResponse(client.posts[':id'].$put(arg, options?.client)),
+      parseResponse(client.posts[':id'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -143,7 +143,7 @@ export function useDeletePostsId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':id']['$delete']> },
-    ) => parseResponse(client.posts[':id'].$delete(arg, options?.client)),
+    ) => parseResponse(client.posts[':id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }

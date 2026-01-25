@@ -91,6 +91,18 @@ export function getGetHonoQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /hono
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoQueryKey(),
+    queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /users
  *
  * List users
@@ -127,6 +139,21 @@ export function useGetUsers(
  */
 export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['/users', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersQueryKey(args),
+    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -235,6 +262,18 @@ export function useGetHono(options?: {
 export function getGetHonoQueryKey() {
   return ['/hono'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /hono
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoQueryKey(),
+    queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+  }
+}
 `
       expect(useGetHono).toBe(useGetHonoExpected)
 
@@ -282,6 +321,21 @@ export function useGetUsers(
  */
 export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['/users', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersQueryKey(args),
+    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
+  }
 }
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
@@ -401,6 +455,18 @@ export function useGetUsers(options?: {
 export function getGetUsersQueryKey() {
   return ['/users'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetUsersQueryKey(),
+    queryFn: async () => parseResponse(authClient.users.$get(undefined, clientOptions)),
+  }
+}
 `
       expect(code).toBe(expected)
     } finally {
@@ -476,6 +542,18 @@ export function useGetPing(options?: {
  */
 export function getGetPingQueryKey() {
   return ['/ping'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /ping
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetPingQueryKey(),
+    queryFn: async () => parseResponse(client.ping.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -575,6 +653,18 @@ export function useGetHonoX(options?: {
 export function getGetHonoXQueryKey() {
   return ['/hono-x'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /hono-x
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoXQueryKey(),
+    queryFn: async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
+  }
+}
 `
       expect(code).toBe(expected)
     } finally {
@@ -656,6 +746,21 @@ export function getGetUsersIdQueryKey(
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
 ) {
   return ['/users/:id', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /users/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':id'].$get(args, clientOptions)),
+  }
 }
 
 /**

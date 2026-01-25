@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
@@ -38,6 +38,18 @@ export function getGetMfaStatusQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /mfa/status
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMfaStatusQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMfaStatusQueryKey(),
+    queryFn: async () => parseResponse(client.mfa.status.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /mfa/methods
  *
  * 登録済みMFA方式一覧
@@ -69,6 +81,18 @@ export function createGetMfaMethods(options?: {
  */
 export function getGetMfaMethodsQueryKey() {
   return ['/mfa/methods'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /mfa/methods
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMfaMethodsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMfaMethodsQueryKey(),
+    queryFn: async () => parseResponse(client.mfa.methods.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -486,6 +510,19 @@ export function getGetMfaWebauthnCredentialsQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /mfa/webauthn/credentials
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMfaWebauthnCredentialsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMfaWebauthnCredentialsQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.mfa.webauthn.credentials.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * DELETE /mfa/webauthn/credentials/{credentialId}
  *
  * WebAuthn認証器削除
@@ -655,6 +692,19 @@ export function createGetMfaBackupCodesStatus(options?: {
  */
 export function getGetMfaBackupCodesStatusQueryKey() {
   return ['/mfa/backup-codes/status'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /mfa/backup-codes/status
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMfaBackupCodesStatusQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMfaBackupCodesStatusQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.mfa['backup-codes'].status.$get(undefined, clientOptions)),
+  }
 }
 
 /**

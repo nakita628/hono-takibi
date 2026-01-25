@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/43-sns-users-relationships'
 
@@ -43,6 +43,21 @@ export function getGetUsersUserIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /users/{userId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /users/by/username/{username}
  *
  * ユーザー名でユーザー取得
@@ -83,6 +98,22 @@ export function getGetUsersByUsernameUsernameQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /users/by/username/{username}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersByUsernameUsernameQueryOptions(
+  args: InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersByUsernameUsernameQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.users.by.username[':username'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /users/search
  *
  * ユーザー検索
@@ -117,6 +148,21 @@ export function createGetUsersSearch(
  */
 export function getGetUsersSearchQueryKey(args: InferRequestType<typeof client.users.search.$get>) {
   return ['/users/search', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /users/search
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersSearchQueryOptions(
+  args: InferRequestType<typeof client.users.search.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersSearchQueryKey(args),
+    queryFn: async () => parseResponse(client.users.search.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -157,6 +203,21 @@ export function getGetUsersLookupQueryKey(args: InferRequestType<typeof client.u
 }
 
 /**
+ * Returns Svelte Query query options for GET /users/lookup
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersLookupQueryOptions(
+  args: InferRequestType<typeof client.users.lookup.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersLookupQueryKey(args),
+    queryFn: async () => parseResponse(client.users.lookup.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /me
  *
  * 現在のユーザー情報取得
@@ -188,6 +249,18 @@ export function createGetMe(options?: {
  */
 export function getGetMeQueryKey() {
   return ['/me'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMeQueryKey(),
+    queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -457,6 +530,21 @@ export function getGetUsersUserIdFollowersQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /users/{userId}/followers
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdFollowersQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdFollowersQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].followers.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /users/{userId}/following
  *
  * フォロー中一覧取得
@@ -493,6 +581,21 @@ export function getGetUsersUserIdFollowingQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
 ) {
   return ['/users/:userId/following', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /users/{userId}/following
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdFollowingQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdFollowingQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].following.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -576,6 +679,21 @@ export function getGetRelationshipsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /relationships
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetRelationshipsQueryOptions(
+  args: InferRequestType<typeof client.relationships.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetRelationshipsQueryKey(args),
+    queryFn: async () => parseResponse(client.relationships.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /follow-requests
  *
  * フォローリクエスト一覧
@@ -614,6 +732,21 @@ export function getGetFollowRequestsQueryKey(
   args: InferRequestType<(typeof client)['follow-requests']['$get']>,
 ) {
   return ['/follow-requests', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /follow-requests
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFollowRequestsQueryOptions(
+  args: InferRequestType<(typeof client)['follow-requests']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetFollowRequestsQueryKey(args),
+    queryFn: async () => parseResponse(client['follow-requests'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -879,6 +1012,21 @@ export function getGetBlocksQueryKey(args: InferRequestType<typeof client.blocks
 }
 
 /**
+ * Returns Svelte Query query options for GET /blocks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetBlocksQueryOptions(
+  args: InferRequestType<typeof client.blocks.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetBlocksQueryKey(args),
+    queryFn: async () => parseResponse(client.blocks.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /mutes
  *
  * ミュートユーザー一覧
@@ -916,6 +1064,21 @@ export function getGetMutesQueryKey(args: InferRequestType<typeof client.mutes.$
 }
 
 /**
+ * Returns Svelte Query query options for GET /mutes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMutesQueryOptions(
+  args: InferRequestType<typeof client.mutes.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMutesQueryKey(args),
+    queryFn: async () => parseResponse(client.mutes.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /lists
  *
  * リスト一覧取得
@@ -947,6 +1110,18 @@ export function createGetLists(options?: {
  */
 export function getGetListsQueryKey() {
   return ['/lists'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /lists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetListsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetListsQueryKey(),
+    queryFn: async () => parseResponse(client.lists.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -1017,6 +1192,21 @@ export function getGetListsListIdQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['$get']>,
 ) {
   return ['/lists/:listId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /lists/{listId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetListsListIdQueryOptions(
+  args: InferRequestType<(typeof client.lists)[':listId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetListsListIdQueryKey(args),
+    queryFn: async () => parseResponse(client.lists[':listId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -1124,6 +1314,21 @@ export function getGetListsListIdMembersQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
 ) {
   return ['/lists/:listId/members', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /lists/{listId}/members
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetListsListIdMembersQueryOptions(
+  args: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetListsListIdMembersQueryKey(args),
+    queryFn: async () => parseResponse(client.lists[':listId'].members.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -1252,6 +1457,21 @@ export function getGetListsListIdTimelineQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /lists/{listId}/timeline
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetListsListIdTimelineQueryOptions(
+  args: InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetListsListIdTimelineQueryKey(args),
+    queryFn: async () => parseResponse(client.lists[':listId'].timeline.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /users/{userId}/lists
  *
  * ユーザーが所属するリスト一覧
@@ -1288,4 +1508,19 @@ export function getGetUsersUserIdListsQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,
 ) {
   return ['/users/:userId/lists', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /users/{userId}/lists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdListsQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdListsQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].lists.$get(args, clientOptions)),
+  }
 }

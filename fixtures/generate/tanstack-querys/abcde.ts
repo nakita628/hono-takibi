@@ -36,3 +36,15 @@ export function useGetExample(options?: {
 export function getGetExampleQueryKey() {
   return ['/example'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /example
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetExampleQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetExampleQueryKey(),
+    queryFn: async () => parseResponse(client.example.$get(undefined, clientOptions)),
+  }
+}

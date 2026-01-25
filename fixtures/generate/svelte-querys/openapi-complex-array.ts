@@ -38,3 +38,15 @@ export function createGetArray(options?: {
 export function getGetArrayQueryKey() {
   return ['/array'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /array
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetArrayQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetArrayQueryKey(),
+    queryFn: async () => parseResponse(client.array.$get(undefined, clientOptions)),
+  }
+}

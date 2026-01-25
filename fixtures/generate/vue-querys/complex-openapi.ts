@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-openapi'
 
@@ -35,6 +35,18 @@ export function useGetUsers(options?: {
  */
 export function getGetUsersQueryKey() {
   return ['/users'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetUsersQueryKey(),
+    queryFn: async () => parseResponse(client.users.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -105,6 +117,21 @@ export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
   return ['/users/:userId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /users/{userId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -207,6 +234,18 @@ export function useGetOrders(options?: {
  */
 export function getGetOrdersQueryKey() {
   return ['/orders'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /orders
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOrdersQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetOrdersQueryKey(),
+    queryFn: async () => parseResponse(client.orders.$get(undefined, clientOptions)),
+  }
 }
 
 /**

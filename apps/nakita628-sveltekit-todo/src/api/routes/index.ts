@@ -1,13 +1,11 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-export const OKSchema = z
+const OKSchema = z
   .object({ message: z.string() })
   .openapi({ required: ['message'], example: { status: 200, message: 'OK' } })
   .openapi('OK')
 
-export type OK = z.infer<typeof OKSchema>
-
-export const TodoSchema = z
+const TodoSchema = z
   .object({
     id: z.uuid(),
     content: z.string().min(1).max(140),
@@ -27,42 +25,30 @@ export const TodoSchema = z
   })
   .openapi('Todo')
 
-export type Todo = z.infer<typeof TodoSchema>
-
-export const NotFoundSchema = z
+const NotFoundSchema = z
   .object({ message: z.string() })
   .openapi({ required: ['message'] })
   .openapi('NotFound')
 
-export type NotFound = z.infer<typeof NotFoundSchema>
-
-export const UnprocessableContentSchema = z
+const UnprocessableContentSchema = z
   .object({ message: z.string() })
   .openapi({ required: ['message'] })
   .openapi('UnprocessableContent')
 
-export type UnprocessableContent = z.infer<typeof UnprocessableContentSchema>
-
-export const InternalServerErrorSchema = z
+const InternalServerErrorSchema = z
   .object({ message: z.string() })
   .openapi({ required: ['message'] })
   .openapi('InternalServerError')
 
-export type InternalServerError = z.infer<typeof InternalServerErrorSchema>
-
-export const ServiceUnavailableSchema = z
+const ServiceUnavailableSchema = z
   .object({ message: z.string(), retryAfter: z.string().exactOptional() })
   .openapi({ required: ['message'] })
   .openapi('ServiceUnavailable')
 
-export type ServiceUnavailable = z.infer<typeof ServiceUnavailableSchema>
-
-export const CreatedSchema = z
+const CreatedSchema = z
   .object({ message: z.string() })
   .openapi({ required: ['message'], example: { status: 201, message: 'Created' } })
   .openapi('Created')
-
-export type Created = z.infer<typeof CreatedSchema>
 
 export const getApiRoute = createRoute({
   method: 'get',
@@ -82,7 +68,7 @@ export const getApiTodoRoute = createRoute({
   method: 'get',
   path: '/api/todo',
   tags: ['Todos'],
-  summary: 'Retrieve a list of todos',
+  summary: 'Retrieve a list of posts',
   operationId: 'Todos_list',
   request: {
     query: z.object({
@@ -90,25 +76,13 @@ export const getApiTodoRoute = createRoute({
         .number()
         .exactOptional()
         .openapi({
-          param: {
-            name: 'limit',
-            in: 'query',
-            required: false,
-            schema: { type: 'number' },
-            explode: false,
-          },
+          param: { name: 'limit', in: 'query', required: false, schema: { type: 'number' } },
         }),
       offset: z.coerce
         .number()
         .exactOptional()
         .openapi({
-          param: {
-            name: 'offset',
-            in: 'query',
-            required: false,
-            schema: { type: 'number' },
-            explode: false,
-          },
+          param: { name: 'offset', in: 'query', required: false, schema: { type: 'number' } },
         }),
     }),
   },
@@ -140,7 +114,7 @@ export const postApiTodoRoute = createRoute({
   method: 'post',
   path: '/api/todo',
   tags: ['Todos'],
-  summary: 'Create a new todo',
+  summary: 'Create a new post',
   operationId: 'Todos_create',
   request: {
     body: {
@@ -254,7 +228,7 @@ export const putApiTodoIdRoute = createRoute({
   },
   responses: {
     204: {
-      description: 'There is no content to send for this request, but the headers may be useful. ',
+      description: 'There is no content to send for this request, but the headers may be useful.',
     },
     404: {
       description: 'The server cannot find the requested resource.',
@@ -297,7 +271,7 @@ export const deleteApiTodoIdRoute = createRoute({
   },
   responses: {
     204: {
-      description: 'There is no content to send for this request, but the headers may be useful. ',
+      description: 'There is no content to send for this request, but the headers may be useful.',
     },
     404: {
       description: 'The server cannot find the requested resource.',

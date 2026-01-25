@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
@@ -40,6 +40,21 @@ export function useGetPath(
  */
 export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
   return ['/:path', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /{path}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPathQueryOptions(
+  args: InferRequestType<(typeof client)[':path']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPathQueryKey(args),
+    queryFn: async () => parseResponse(client[':path'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -497,6 +512,22 @@ export function getGet1IndexesIndexNameObjectIDQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
 ) {
   return ['/1/indexes/:indexName/:objectID', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/indexes/{indexName}/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1IndexesIndexNameObjectIDQueryOptions(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1IndexesIndexNameObjectIDQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'][':objectID'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -969,6 +1000,22 @@ export function getGet1IndexesIndexNameSettingsQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /1/indexes/{indexName}/settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1IndexesIndexNameSettingsQueryOptions(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1IndexesIndexNameSettingsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'].settings.$get(args, clientOptions)),
+  }
+}
+
+/**
  * PUT /1/indexes/{indexName}/settings
  *
  * Update index settings
@@ -1070,6 +1117,26 @@ export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
   >,
 ) {
   return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/indexes/{indexName}/synonyms/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1IndexesIndexNameSynonymsObjectIDQueryOptions(
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, clientOptions),
+      ),
+  }
 }
 
 /**
@@ -1397,6 +1464,18 @@ export function getGet1KeysQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /1/keys
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1KeysQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGet1KeysQueryKey(),
+    queryFn: async () => parseResponse(client['1'].keys.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * POST /1/keys
  *
  * Create an API key
@@ -1475,6 +1554,21 @@ export function getGet1KeysKeyQueryKey(
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
 ) {
   return ['/1/keys/:key', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/keys/{key}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1KeysKeyQueryOptions(
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1KeysKeyQueryKey(args),
+    queryFn: async () => parseResponse(client['1'].keys[':key'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -1642,6 +1736,24 @@ export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
   >,
 ) {
   return ['/1/indexes/:indexName/rules/:objectID', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/indexes/{indexName}/rules/{objectID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1IndexesIndexNameRulesObjectIDQueryOptions(
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1IndexesIndexNameRulesObjectIDQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -2083,6 +2195,19 @@ export function getGet1DictionariesSettingsQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /1/dictionaries/* /settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1DictionariesSettingsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGet1DictionariesSettingsQueryKey(),
+    queryFn: async () =>
+      parseResponse(client['1'].dictionaries['*'].settings.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * PUT /1/dictionaries/[*]/settings
  *
  * Update dictionary settings
@@ -2161,6 +2286,19 @@ export function getGet1DictionariesLanguagesQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /1/dictionaries/* /languages
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1DictionariesLanguagesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGet1DictionariesLanguagesQueryKey(),
+    queryFn: async () =>
+      parseResponse(client['1'].dictionaries['*'].languages.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /1/clusters/mapping
  *
  * List user IDs
@@ -2202,6 +2340,21 @@ export function getGet1ClustersMappingQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
 ) {
   return ['/1/clusters/mapping', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/clusters/mapping
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1ClustersMappingQueryOptions(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1ClustersMappingQueryKey(args),
+    queryFn: async () => parseResponse(client['1'].clusters.mapping.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -2329,6 +2482,19 @@ export function getGet1ClustersMappingTopQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /1/clusters/mapping/top
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1ClustersMappingTopQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGet1ClustersMappingTopQueryKey(),
+    queryFn: async () =>
+      parseResponse(client['1'].clusters.mapping.top.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /1/clusters/mapping/{userID}
  *
  * Retrieve user ID
@@ -2371,6 +2537,22 @@ export function getGet1ClustersMappingUserIDQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
 ) {
   return ['/1/clusters/mapping/:userID', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/clusters/mapping/{userID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1ClustersMappingUserIDQueryOptions(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1ClustersMappingUserIDQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['1'].clusters.mapping[':userID'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -2456,6 +2638,18 @@ export function useGet1Clusters(options?: {
  */
 export function getGet1ClustersQueryKey() {
   return ['/1/clusters'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/clusters
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1ClustersQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGet1ClustersQueryKey(),
+    queryFn: async () => parseResponse(client['1'].clusters.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -2545,6 +2739,22 @@ export function getGet1ClustersMappingPendingQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /1/clusters/mapping/pending
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1ClustersMappingPendingQueryOptions(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1ClustersMappingPendingQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['1'].clusters.mapping.pending.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /1/security/sources
  *
  * List allowed sources
@@ -2578,6 +2788,18 @@ export function useGet1SecuritySources(options?: {
  */
 export function getGet1SecuritySourcesQueryKey() {
   return ['/1/security/sources'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/security/sources
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1SecuritySourcesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGet1SecuritySourcesQueryKey(),
+    queryFn: async () => parseResponse(client['1'].security.sources.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -2753,6 +2975,21 @@ export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1'][
 }
 
 /**
+ * Returns Vue Query query options for GET /1/logs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1LogsQueryOptions(
+  args: InferRequestType<(typeof client)['1']['logs']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1LogsQueryKey(args),
+    queryFn: async () => parseResponse(client['1'].logs.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /1/task/{taskID}
  *
  * Check application task status
@@ -2791,6 +3028,21 @@ export function getGet1TaskTaskIDQueryKey(
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
 ) {
   return ['/1/task/:taskID', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/task/{taskID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1TaskTaskIDQueryOptions(
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1TaskTaskIDQueryKey(args),
+    queryFn: async () => parseResponse(client['1'].task[':taskID'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -2839,6 +3091,22 @@ export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
   return ['/1/indexes/:indexName/task/:taskID', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /1/indexes/{indexName}/task/{taskID}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1IndexesIndexNameTaskTaskIDQueryOptions(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1IndexesIndexNameTaskTaskIDQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['1'].indexes[':indexName'].task[':taskID'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -2957,6 +3225,21 @@ export function getGet1IndexesQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /1/indexes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGet1IndexesQueryOptions(
+  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGet1IndexesQueryKey(args),
+    queryFn: async () => parseResponse(client['1'].indexes.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /waitForApiKey
  *
  * Wait for an API key operation
@@ -2995,6 +3278,21 @@ export function getGetWaitForApiKeyQueryKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
 ) {
   return ['/waitForApiKey', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /waitForApiKey
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWaitForApiKeyQueryOptions(
+  args: InferRequestType<typeof client.waitForApiKey.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetWaitForApiKeyQueryKey(args),
+    queryFn: async () => parseResponse(client.waitForApiKey.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -3039,6 +3337,21 @@ export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.w
 }
 
 /**
+ * Returns Vue Query query options for GET /waitForTask
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWaitForTaskQueryOptions(
+  args: InferRequestType<typeof client.waitForTask.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetWaitForTaskQueryKey(args),
+    queryFn: async () => parseResponse(client.waitForTask.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /waitForAppTask
  *
  * Wait for application-level operation to complete
@@ -3077,6 +3390,21 @@ export function getGetWaitForAppTaskQueryKey(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
 ) {
   return ['/waitForAppTask', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /waitForAppTask
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWaitForAppTaskQueryOptions(
+  args: InferRequestType<typeof client.waitForAppTask.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetWaitForAppTaskQueryKey(args),
+    queryFn: async () => parseResponse(client.waitForAppTask.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -3122,6 +3450,21 @@ export function getGetBrowseObjectsQueryKey(
   args: InferRequestType<typeof client.browseObjects.$get>,
 ) {
   return ['/browseObjects', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /browseObjects
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetBrowseObjectsQueryOptions(
+  args: InferRequestType<typeof client.browseObjects.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetBrowseObjectsQueryKey(args),
+    queryFn: async () => parseResponse(client.browseObjects.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -3178,6 +3521,21 @@ export function getGetGenerateSecuredApiKeyQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /generateSecuredApiKey
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetGenerateSecuredApiKeyQueryOptions(
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetGenerateSecuredApiKeyQueryKey(args),
+    queryFn: async () => parseResponse(client.generateSecuredApiKey.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /accountCopyIndex
  *
  * Copies the given `sourceIndexName` records, rules and synonyms to an other Algolia application for the given `destinationIndexName`
@@ -3216,6 +3574,21 @@ export function getGetAccountCopyIndexQueryKey(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
   return ['/accountCopyIndex', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /accountCopyIndex
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAccountCopyIndexQueryOptions(
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAccountCopyIndexQueryKey(args),
+    queryFn: async () => parseResponse(client.accountCopyIndex.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -3275,6 +3648,21 @@ export function getGetReplaceAllObjectsQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /replaceAllObjects
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetReplaceAllObjectsQueryOptions(
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetReplaceAllObjectsQueryKey(args),
+    queryFn: async () => parseResponse(client.replaceAllObjects.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /replaceAllObjectsWithTransformation
  *
  * Replace all records in an index
@@ -3329,6 +3717,22 @@ export function getGetReplaceAllObjectsWithTransformationQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /replaceAllObjectsWithTransformation
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetReplaceAllObjectsWithTransformationQueryOptions(
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetReplaceAllObjectsWithTransformationQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.replaceAllObjectsWithTransformation.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /chunkedBatch
  *
  * Replace all records in an index
@@ -3367,6 +3771,21 @@ export function getGetChunkedBatchQueryKey(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
 ) {
   return ['/chunkedBatch', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /chunkedBatch
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetChunkedBatchQueryOptions(
+  args: InferRequestType<typeof client.chunkedBatch.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetChunkedBatchQueryKey(args),
+    queryFn: async () => parseResponse(client.chunkedBatch.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -3409,6 +3828,21 @@ export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.s
 }
 
 /**
+ * Returns Vue Query query options for GET /saveObjects
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSaveObjectsQueryOptions(
+  args: InferRequestType<typeof client.saveObjects.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSaveObjectsQueryKey(args),
+    queryFn: async () => parseResponse(client.saveObjects.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /saveObjectsWithTransformation
  *
  * Save objects to an Algolia index by leveraging the Transformation pipeline setup using the Push connector (https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/connectors/push)
@@ -3448,6 +3882,22 @@ export function getGetSaveObjectsWithTransformationQueryKey(
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
 ) {
   return ['/saveObjectsWithTransformation', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /saveObjectsWithTransformation
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSaveObjectsWithTransformationQueryOptions(
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSaveObjectsWithTransformationQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.saveObjectsWithTransformation.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -3600,6 +4050,21 @@ export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.i
 }
 
 /**
+ * Returns Vue Query query options for GET /indexExists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetIndexExistsQueryOptions(
+  args: InferRequestType<typeof client.indexExists.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetIndexExistsQueryKey(args),
+    queryFn: async () => parseResponse(client.indexExists.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /setClientApiKey
  *
  * Switch the API key used to authenticate requests
@@ -3638,4 +4103,19 @@ export function getGetSetClientApiKeyQueryKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
 ) {
   return ['/setClientApiKey', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /setClientApiKey
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSetClientApiKeyQueryOptions(
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSetClientApiKeyQueryKey(args),
+    queryFn: async () => parseResponse(client.setClientApiKey.$get(args, clientOptions)),
+  }
 }

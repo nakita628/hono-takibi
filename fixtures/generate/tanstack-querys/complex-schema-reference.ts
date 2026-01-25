@@ -36,3 +36,15 @@ export function useGetTest(options?: {
 export function getGetTestQueryKey() {
   return ['/test'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /test
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTestQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTestQueryKey(),
+    queryFn: async () => parseResponse(client.test.$get(undefined, clientOptions)),
+  }
+}

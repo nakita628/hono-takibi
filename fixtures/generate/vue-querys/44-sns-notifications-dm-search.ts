@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/44-sns-notifications-dm-search'
 
@@ -43,6 +43,21 @@ export function getGetNotificationsQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /notifications
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetNotificationsQueryOptions(
+  args: InferRequestType<typeof client.notifications.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetNotificationsQueryKey(args),
+    queryFn: async () => parseResponse(client.notifications.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /notifications/unread-count
  *
  * 未読通知数取得
@@ -75,6 +90,19 @@ export function useGetNotificationsUnreadCount(options?: {
  */
 export function getGetNotificationsUnreadCountQueryKey() {
   return ['/notifications/unread-count'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /notifications/unread-count
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetNotificationsUnreadCountQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNotificationsUnreadCountQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.notifications['unread-count'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -147,6 +175,19 @@ export function useGetNotificationsSettings(options?: {
  */
 export function getGetNotificationsSettingsQueryKey() {
   return ['/notifications/settings'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /notifications/settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetNotificationsSettingsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNotificationsSettingsQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.notifications.settings.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -223,6 +264,21 @@ export function getGetDmConversationsQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /dm/conversations
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDmConversationsQueryOptions(
+  args: InferRequestType<typeof client.dm.conversations.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetDmConversationsQueryKey(args),
+    queryFn: async () => parseResponse(client.dm.conversations.$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /dm/conversations
  *
  * 会話作成
@@ -294,6 +350,22 @@ export function getGetDmConversationsConversationIdQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
 ) {
   return ['/dm/conversations/:conversationId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /dm/conversations/{conversationId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDmConversationsConversationIdQueryOptions(
+  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetDmConversationsConversationIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.dm.conversations[':conversationId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -375,6 +447,22 @@ export function getGetDmConversationsConversationIdMessagesQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
 ) {
   return ['/dm/conversations/:conversationId/messages', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /dm/conversations/{conversationId}/messages
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDmConversationsConversationIdMessagesQueryOptions(
+  args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetDmConversationsConversationIdMessagesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.dm.conversations[':conversationId'].messages.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -688,6 +776,18 @@ export function getGetDmUnreadCountQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /dm/unread-count
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDmUnreadCountQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetDmUnreadCountQueryKey(),
+    queryFn: async () => parseResponse(client.dm['unread-count'].$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /search/posts
  *
  * 投稿検索
@@ -725,6 +825,21 @@ export function getGetSearchPostsQueryKey(args: InferRequestType<typeof client.s
 }
 
 /**
+ * Returns Vue Query query options for GET /search/posts
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSearchPostsQueryOptions(
+  args: InferRequestType<typeof client.search.posts.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSearchPostsQueryKey(args),
+    queryFn: async () => parseResponse(client.search.posts.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /search/users
  *
  * ユーザー検索
@@ -759,6 +874,21 @@ export function useGetSearchUsers(
  */
 export function getGetSearchUsersQueryKey(args: InferRequestType<typeof client.search.users.$get>) {
   return ['/search/users', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /search/users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSearchUsersQueryOptions(
+  args: InferRequestType<typeof client.search.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSearchUsersQueryKey(args),
+    queryFn: async () => parseResponse(client.search.users.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -801,6 +931,21 @@ export function getGetSearchHashtagsQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /search/hashtags
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSearchHashtagsQueryOptions(
+  args: InferRequestType<typeof client.search.hashtags.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSearchHashtagsQueryKey(args),
+    queryFn: async () => parseResponse(client.search.hashtags.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /search/recent
  *
  * 最近の検索履歴
@@ -832,6 +977,18 @@ export function useGetSearchRecent(options?: {
  */
 export function getGetSearchRecentQueryKey() {
   return ['/search/recent'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /search/recent
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSearchRecentQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSearchRecentQueryKey(),
+    queryFn: async () => parseResponse(client.search.recent.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -902,6 +1059,21 @@ export function getGetTrendsQueryKey(args: InferRequestType<typeof client.trends
 }
 
 /**
+ * Returns Vue Query query options for GET /trends
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTrendsQueryOptions(
+  args: InferRequestType<typeof client.trends.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTrendsQueryKey(args),
+    queryFn: async () => parseResponse(client.trends.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /trends/locations
  *
  * トレンド対応地域一覧
@@ -933,6 +1105,18 @@ export function useGetTrendsLocations(options?: {
  */
 export function getGetTrendsLocationsQueryKey() {
   return ['/trends/locations'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /trends/locations
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTrendsLocationsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTrendsLocationsQueryKey(),
+    queryFn: async () => parseResponse(client.trends.locations.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -972,6 +1156,21 @@ export function getGetSuggestionsUsersQueryKey(
   args: InferRequestType<typeof client.suggestions.users.$get>,
 ) {
   return ['/suggestions/users', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /suggestions/users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSuggestionsUsersQueryOptions(
+  args: InferRequestType<typeof client.suggestions.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSuggestionsUsersQueryKey(args),
+    queryFn: async () => parseResponse(client.suggestions.users.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -1045,6 +1244,18 @@ export function useGetSuggestionsTopics(options?: {
  */
 export function getGetSuggestionsTopicsQueryKey() {
   return ['/suggestions/topics'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /suggestions/topics
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSuggestionsTopicsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSuggestionsTopicsQueryKey(),
+    queryFn: async () => parseResponse(client.suggestions.topics.$get(undefined, clientOptions)),
+  }
 }
 
 /**

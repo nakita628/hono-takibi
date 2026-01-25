@@ -36,6 +36,18 @@ export function getGetPublicQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /public
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPublicQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetPublicQueryKey(),
+    queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /protected
  */
 export function useGetProtected(options?: {
@@ -65,6 +77,18 @@ export function useGetProtected(options?: {
  */
 export function getGetProtectedQueryKey() {
   return ['/protected'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /protected
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetProtectedQueryKey(),
+    queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -100,6 +124,18 @@ export function getGetAdminQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /admin
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAdminQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAdminQueryKey(),
+    queryFn: async () => parseResponse(client.admin.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /oauth-resource
  */
 export function useGetOauthResource(options?: {
@@ -132,6 +168,18 @@ export function getGetOauthResourceQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /oauth-resource
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOauthResourceQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetOauthResourceQueryKey(),
+    queryFn: async () => parseResponse(client['oauth-resource'].$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /multi-auth
  */
 export function useGetMultiAuth(options?: {
@@ -161,4 +209,16 @@ export function useGetMultiAuth(options?: {
  */
 export function getGetMultiAuthQueryKey() {
   return ['/multi-auth'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /multi-auth
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMultiAuthQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMultiAuthQueryKey(),
+    queryFn: async () => parseResponse(client['multi-auth'].$get(undefined, clientOptions)),
+  }
 }

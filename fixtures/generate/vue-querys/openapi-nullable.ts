@@ -38,3 +38,15 @@ export function useGetNullable(options?: {
 export function getGetNullableQueryKey() {
   return ['/nullable'] as const
 }
+
+/**
+ * Returns Vue Query query options for GET /nullable
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetNullableQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNullableQueryKey(),
+    queryFn: async () => parseResponse(client.nullable.$get(undefined, clientOptions)),
+  }
+}

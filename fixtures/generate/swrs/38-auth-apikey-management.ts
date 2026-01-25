@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/38-auth-apikey-management'
 
 /**
@@ -56,7 +56,7 @@ export function usePostApiKeys(options?: {
   return useSWRMutation(
     'POST /api-keys',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)['api-keys']['$post']> }) =>
-      parseResponse(client['api-keys'].$post(arg, options?.client)),
+      parseResponse(client['api-keys'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -115,7 +115,7 @@ export function useDeleteApiKeysKeyId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']> },
-    ) => parseResponse(client['api-keys'][':keyId'].$delete(arg, options?.client)),
+    ) => parseResponse(client['api-keys'][':keyId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -140,7 +140,7 @@ export function usePatchApiKeysKeyId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']> },
-    ) => parseResponse(client['api-keys'][':keyId'].$patch(arg, options?.client)),
+    ) => parseResponse(client['api-keys'][':keyId'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -165,7 +165,7 @@ export function usePostApiKeysKeyIdRevoke(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']> },
-    ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(arg, options?.client)),
+    ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -190,7 +190,7 @@ export function usePostApiKeysKeyIdRotate(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']> },
-    ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(arg, options?.client)),
+    ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -285,7 +285,7 @@ export function usePostApiKeysVerify(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['api-keys']['verify']['$post']> },
-    ) => parseResponse(client['api-keys'].verify.$post(arg, options?.client)),
+    ) => parseResponse(client['api-keys'].verify.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -101,8 +101,6 @@ export function useGetPetFindByStatus(
   })
 }
 
-const { data, isLoading, isError, isSuccess } = useGetPetFindByStatus({ status: 'available' })
-
 /**
  * Generates TanStack Query cache key for GET /pet/findByStatus
  */
@@ -110,6 +108,21 @@ export function getGetPetFindByStatusQueryKey(
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
 ) {
   return ['/pet/findByStatus', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /pet/findByStatus
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPetFindByStatusQueryOptions(
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPetFindByStatusQueryKey(args),
+    queryFn: async () => parseResponse(client.pet.findByStatus.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -154,6 +167,21 @@ export function getGetPetFindByTagsQueryKey(
 }
 
 /**
+ * Returns TanStack Query query options for GET /pet/findByTags
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPetFindByTagsQueryOptions(
+  args: InferRequestType<typeof client.pet.findByTags.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPetFindByTagsQueryKey(args),
+    queryFn: async () => parseResponse(client.pet.findByTags.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /pet/{petId}
  *
  * Find pet by ID
@@ -192,6 +220,21 @@ export function getGetPetPetIdQueryKey(
   args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
 ) {
   return ['/pet/:petId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /pet/{petId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPetPetIdQueryOptions(
+  args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPetPetIdQueryKey(args),
+    queryFn: async () => parseResponse(client.pet[':petId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -338,6 +381,18 @@ export function getGetStoreInventoryQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /store/inventory
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetStoreInventoryQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetStoreInventoryQueryKey(),
+    queryFn: async () => parseResponse(client.store.inventory.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * POST /store/order
  *
  * Place an order for a pet
@@ -409,6 +464,21 @@ export function getGetStoreOrderOrderIdQueryKey(
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
 ) {
   return ['/store/order/:orderId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /store/order/{orderId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetStoreOrderOrderIdQueryOptions(
+  args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetStoreOrderOrderIdQueryKey(args),
+    queryFn: async () => parseResponse(client.store.order[':orderId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -557,6 +627,21 @@ export function getGetUserLoginQueryKey(args: InferRequestType<typeof client.use
 }
 
 /**
+ * Returns TanStack Query query options for GET /user/login
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUserLoginQueryOptions(
+  args: InferRequestType<typeof client.user.login.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUserLoginQueryKey(args),
+    queryFn: async () => parseResponse(client.user.login.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /user/logout
  *
  * Logs out current logged in user session
@@ -588,6 +673,18 @@ export function useGetUserLogout(options?: {
  */
 export function getGetUserLogoutQueryKey() {
   return ['/user/logout'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /user/logout
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUserLogoutQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetUserLogoutQueryKey(),
+    queryFn: async () => parseResponse(client.user.logout.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -627,6 +724,21 @@ export function getGetUserUsernameQueryKey(
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
 ) {
   return ['/user/:username', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /user/{username}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUserUsernameQueryOptions(
+  args: InferRequestType<(typeof client.user)[':username']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUserUsernameQueryKey(args),
+    queryFn: async () => parseResponse(client.user[':username'].$get(args, clientOptions)),
+  }
 }
 
 /**

@@ -167,13 +167,13 @@ ${keyGetterCode}`
     const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},Error,string,${variablesType}>`
 
     if (hasArgs) {
-      const clientCall = `${deps.client}${pathResult.runtimePath}.$${method}(arg,options?.client)`
+      const clientCall = `${deps.client}${pathResult.runtimePath}.$${method}(arg,clientOptions)`
       const fetcherBody = buildFetcher(clientCall)
       const optionsSig = `options?:{mutation?:${mutationConfigType};client?:ClientRequestOptions}`
       hookCode = `${docs}
 export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};return useSWRMutation(${mutationKey},async(_:string,{arg}:{arg:${inferRequestType}})=>${fetcherBody},mutationOptions)}`
     } else {
-      const clientCall = `${deps.client}${pathResult.runtimePath}.$${method}(undefined,options?.client)`
+      const clientCall = `${deps.client}${pathResult.runtimePath}.$${method}(undefined,clientOptions)`
       const fetcherBody = buildFetcher(clientCall)
       const optionsSig = `options?:{mutation?:${mutationConfigType};client?:ClientRequestOptions}`
       hookCode = `${docs}

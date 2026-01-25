@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/sample-geojson'
 
@@ -40,6 +40,18 @@ export function getGetQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetQueryKey(),
+    queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /projects
  *
  * Get projects related to a given chiban
@@ -76,4 +88,19 @@ export function useGetProjects(
  */
 export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
   return ['/projects', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /projects
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProjectsQueryOptions(
+  args: InferRequestType<typeof client.projects.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProjectsQueryKey(args),
+    queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
+  }
 }

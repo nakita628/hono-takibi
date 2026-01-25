@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
 /**
@@ -28,7 +28,7 @@ export function usePostWebauthnRegisterOptions(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.webauthn.register.options.$post> },
-    ) => parseResponse(client.webauthn.register.options.$post(arg, options?.client)),
+    ) => parseResponse(client.webauthn.register.options.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -55,7 +55,7 @@ export function usePostWebauthnRegisterVerify(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.webauthn.register.verify.$post> },
-    ) => parseResponse(client.webauthn.register.verify.$post(arg, options?.client)),
+    ) => parseResponse(client.webauthn.register.verify.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -82,7 +82,7 @@ export function usePostWebauthnAuthenticateOptions(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.webauthn.authenticate.options.$post> },
-    ) => parseResponse(client.webauthn.authenticate.options.$post(arg, options?.client)),
+    ) => parseResponse(client.webauthn.authenticate.options.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -109,7 +109,7 @@ export function usePostWebauthnAuthenticateVerify(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.webauthn.authenticate.verify.$post> },
-    ) => parseResponse(client.webauthn.authenticate.verify.$post(arg, options?.client)),
+    ) => parseResponse(client.webauthn.authenticate.verify.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -207,7 +207,7 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
       }: {
         arg: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
       },
-    ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -236,7 +236,7 @@ export function usePatchWebauthnCredentialsCredentialId(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']> },
-    ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(arg, options?.client)),
+    ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -321,7 +321,7 @@ export function usePutWebauthnSettingsRp(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.webauthn.settings.rp.$put> },
-    ) => parseResponse(client.webauthn.settings.rp.$put(arg, options?.client)),
+    ) => parseResponse(client.webauthn.settings.rp.$put(arg, clientOptions)),
     mutationOptions,
   )
 }

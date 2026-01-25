@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/twilio_api_v2010'
 
 /**
@@ -64,7 +64,7 @@ export function usePost20100401AccountsJson(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']> },
-    ) => parseResponse(client['2010-04-01']['Accounts.json'].$post(arg, options?.client)),
+    ) => parseResponse(client['2010-04-01']['Accounts.json'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -130,7 +130,7 @@ export function usePost20100401AccountsSidJson(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']> },
-    ) => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(arg, options?.client)),
+    ) => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -206,7 +206,7 @@ export function usePost20100401AccountsAccountSidAddressesJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$post(arg, options?.client),
+        client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -288,7 +288,7 @@ export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -328,7 +328,7 @@ export function useDelete20100401AccountsAccountSidAddressesSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -417,10 +417,7 @@ export function usePost20100401AccountsAccountSidApplicationsJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$post(
-          arg,
-          options?.client,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -513,7 +510,7 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -557,7 +554,7 @@ export function useDelete20100401AccountsAccountSidApplicationsSidJson(options?:
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -1222,7 +1219,7 @@ export function usePost20100401AccountsAccountSidCallsJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$post(arg, options?.client),
+        client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1306,7 +1303,7 @@ export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$post(arg, options?.client),
+        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1347,10 +1344,7 @@ export function useDelete20100401AccountsAccountSidCallsSidJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$delete(
-          arg,
-          options?.client,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1587,7 +1581,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(opti
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -1680,7 +1674,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(o
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
           ':Sid.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1723,7 +1717,7 @@ export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
           ':Sid.json'
-        ].$delete(arg, options?.client),
+        ].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1812,7 +1806,7 @@ export function usePost20100401AccountsAccountSidConferencesSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -2007,7 +2001,7 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
           ':Sid.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2050,7 +2044,7 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecor
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
           ':Sid.json'
-        ].$delete(arg, options?.client),
+        ].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2143,7 +2137,7 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -2187,7 +2181,7 @@ export function useDelete20100401AccountsAccountSidConnectAppsSidJson(options?: 
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -2377,7 +2371,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(opt
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -2421,7 +2415,7 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(o
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -2515,7 +2509,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(option
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -2613,7 +2607,7 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceS
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
           ':ResourceSid'
-        ].AssignedAddOns[':Sid.json'].$delete(arg, options?.client),
+        ].AssignedAddOns[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2707,7 +2701,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSid
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
           'AssignedAddOns.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2900,7 +2894,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(o
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -2986,7 +2980,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -3072,7 +3066,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJso
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -3149,7 +3143,7 @@ export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$post(arg, options?.client),
+        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -3186,10 +3180,7 @@ export function useDelete20100401AccountsAccountSidKeysSidJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$delete(
-          arg,
-          options?.client,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -3263,7 +3254,7 @@ export function usePost20100401AccountsAccountSidKeysJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$post(arg, options?.client),
+        client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -3356,7 +3347,7 @@ export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJso
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
           ':Sid.json'
-        ].$delete(arg, options?.client),
+        ].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -3499,7 +3490,7 @@ export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJso
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
           ':CallSid.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -3634,7 +3625,7 @@ export function usePost20100401AccountsAccountSidMessagesJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$post(arg, options?.client),
+        client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -3724,7 +3715,7 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -3768,7 +3759,7 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -3811,7 +3802,7 @@ export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Feedback.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -3896,10 +3887,7 @@ export function usePost20100401AccountsAccountSidSigningKeysJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$post(
-          arg,
-          options?.client,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -4091,7 +4079,7 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(option
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -4135,7 +4123,7 @@ export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(opti
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -4225,7 +4213,7 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(options?:
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -4320,7 +4308,7 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
           ':CallSid.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -4363,7 +4351,7 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidParti
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
           ':CallSid.json'
-        ].$delete(arg, options?.client),
+        ].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -4453,7 +4441,7 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
           'Participants.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -4495,7 +4483,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(option
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Payments.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -4538,7 +4526,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(opt
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Payments[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -4627,10 +4615,7 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$post(
-          arg,
-          options?.client,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -4673,7 +4658,7 @@ export function useDelete20100401AccountsAccountSidQueuesSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -4758,7 +4743,7 @@ export function usePost20100401AccountsAccountSidQueuesJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$post(arg, options?.client),
+        client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -4800,7 +4785,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Transcriptions.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -4843,7 +4828,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJs
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Transcriptions[
           ':Sid.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -4934,7 +4919,7 @@ export function useDelete20100401AccountsAccountSidRecordingsSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -5075,7 +5060,7 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
           ':Sid.json'
-        ].$delete(arg, options?.client),
+        ].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -5224,7 +5209,7 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
           ':AddOnResultSid'
-        ].Payloads[':Sid.json'].$delete(arg, options?.client),
+        ].Payloads[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -5419,7 +5404,7 @@ export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscr
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
           ':Sid.json'
-        ].$delete(arg, options?.client),
+        ].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -5560,7 +5545,7 @@ export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(options?: 
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -5694,7 +5679,7 @@ export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -5734,7 +5719,7 @@ export function useDelete20100401AccountsAccountSidSigningKeysSidJson(options?: 
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -5831,7 +5816,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCre
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
           'CredentialListMappings.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -5928,7 +5913,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
           ':DomainSid'
-        ].Auth.Calls.CredentialListMappings[':Sid.json'].$delete(arg, options?.client),
+        ].Auth.Calls.CredentialListMappings[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -6024,7 +6009,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpA
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
           'IpAccessControlListMappings.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -6121,7 +6106,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
           ':DomainSid'
-        ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$delete(arg, options?.client),
+        ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -6217,7 +6202,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistra
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
           'CredentialListMappings.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -6314,7 +6299,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
           ':DomainSid'
-        ].Auth.Registrations.CredentialListMappings[':Sid.json'].$delete(arg, options?.client),
+        ].Auth.Registrations.CredentialListMappings[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -6408,7 +6393,7 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
           'Credentials.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -6504,7 +6489,7 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
           ':CredentialListSid'
-        ].Credentials[':Sid.json'].$post(arg, options?.client),
+        ].Credentials[':Sid.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -6547,7 +6532,7 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialL
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
           ':CredentialListSid'
-        ].Credentials[':Sid.json'].$delete(arg, options?.client),
+        ].Credentials[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -6640,7 +6625,7 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsJson(options?
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -6734,7 +6719,7 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(optio
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -6778,7 +6763,7 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(opt
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -6873,7 +6858,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialLi
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
           'CredentialListMappings.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -6968,7 +6953,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredential
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
           ':DomainSid'
-        ].CredentialListMappings[':Sid.json'].$delete(arg, options?.client),
+        ].CredentialListMappings[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -7056,10 +7041,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$post(
-          arg,
-          options?.client,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -7152,7 +7134,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -7196,7 +7178,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -7290,7 +7272,7 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(opt
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -7384,7 +7366,7 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -7428,7 +7410,7 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJso
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -7526,7 +7508,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
           ':DomainSid'
-        ].IpAccessControlListMappings[':Sid.json'].$delete(arg, options?.client),
+        ].IpAccessControlListMappings[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -7620,7 +7602,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCont
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
           'IpAccessControlListMappings.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -7716,7 +7698,7 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
           ':IpAccessControlListSid'
-        ]['IpAddresses.json'].$post(arg, options?.client),
+        ]['IpAddresses.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -7812,7 +7794,7 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
           ':IpAccessControlListSid'
-        ].IpAddresses[':Sid.json'].$post(arg, options?.client),
+        ].IpAddresses[':Sid.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -7855,7 +7837,7 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
           ':IpAccessControlListSid'
-        ].IpAddresses[':Sid.json'].$delete(arg, options?.client),
+        ].IpAddresses[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -7897,7 +7879,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Siprec.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -7940,7 +7922,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(optio
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Siprec[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -7983,7 +7965,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Streams.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -8026,7 +8008,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(opti
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Streams[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -8067,7 +8049,7 @@ export function usePost20100401AccountsAccountSidTokensJson(options?: {
       },
     ) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$post(arg, options?.client),
+        client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -8161,7 +8143,7 @@ export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(options
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -8727,7 +8709,7 @@ export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: 
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -8767,7 +8749,7 @@ export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(options?
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -8858,7 +8840,7 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -8901,7 +8883,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
           'UserDefinedMessages.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -8943,7 +8925,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
           'UserDefinedMessageSubscriptions.json'
-        ].$post(arg, options?.client),
+        ].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -8986,7 +8968,7 @@ export function useDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessag
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[
           ':CallSid'
-        ].UserDefinedMessageSubscriptions[':Sid.json'].$delete(arg, options?.client),
+        ].UserDefinedMessageSubscriptions[':Sid.json'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )

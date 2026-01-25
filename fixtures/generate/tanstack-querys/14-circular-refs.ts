@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
@@ -33,6 +33,18 @@ export function useGetTrees(options?: {
  */
 export function getGetTreesQueryKey() {
   return ['/trees'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /trees
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTreesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTreesQueryKey(),
+    queryFn: async () => parseResponse(client.trees.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -97,6 +109,18 @@ export function getGetGraphsQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /graphs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetGraphsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetGraphsQueryKey(),
+    queryFn: async () => parseResponse(client.graphs.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /linked-lists
  */
 export function useGetLinkedLists(options?: {
@@ -126,6 +150,18 @@ export function useGetLinkedLists(options?: {
  */
 export function getGetLinkedListsQueryKey() {
   return ['/linked-lists'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /linked-lists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetLinkedListsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetLinkedListsQueryKey(),
+    queryFn: async () => parseResponse(client['linked-lists'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -161,6 +197,18 @@ export function getGetSocialNetworkQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /social-network
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSocialNetworkQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSocialNetworkQueryKey(),
+    queryFn: async () => parseResponse(client['social-network'].$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /file-system
  */
 export function useGetFileSystem(options?: {
@@ -190,6 +238,18 @@ export function useGetFileSystem(options?: {
  */
 export function getGetFileSystemQueryKey() {
   return ['/file-system'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /file-system
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFileSystemQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetFileSystemQueryKey(),
+    queryFn: async () => parseResponse(client['file-system'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -225,6 +285,18 @@ export function getGetCommentsQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /comments
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCommentsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetCommentsQueryKey(),
+    queryFn: async () => parseResponse(client.comments.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /polymorphic
  */
 export function useGetPolymorphic(options?: {
@@ -254,6 +326,18 @@ export function useGetPolymorphic(options?: {
  */
 export function getGetPolymorphicQueryKey() {
   return ['/polymorphic'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /polymorphic
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPolymorphicQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetPolymorphicQueryKey(),
+    queryFn: async () => parseResponse(client.polymorphic.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -289,6 +373,18 @@ export function getGetCategoriesQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /categories
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCategoriesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetCategoriesQueryKey(),
+    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /workflow
  */
 export function useGetWorkflow(options?: {
@@ -318,4 +414,16 @@ export function useGetWorkflow(options?: {
  */
 export function getGetWorkflowQueryKey() {
   return ['/workflow'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /workflow
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWorkflowQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetWorkflowQueryKey(),
+    queryFn: async () => parseResponse(client.workflow.$get(undefined, clientOptions)),
+  }
 }

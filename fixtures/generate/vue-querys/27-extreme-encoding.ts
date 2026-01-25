@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
@@ -73,6 +73,21 @@ export function getGetContentNegotiationQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /content-negotiation
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetContentNegotiationQueryOptions(
+  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetContentNegotiationQueryKey(args),
+    queryFn: async () => parseResponse(client['content-negotiation'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /binary-variations
  */
 export function usePostBinaryVariations(options?: {
@@ -134,6 +149,18 @@ export function useGetStreaming(options?: {
  */
 export function getGetStreamingQueryKey() {
   return ['/streaming'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /streaming
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetStreamingQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetStreamingQueryKey(),
+    queryFn: async () => parseResponse(client.streaming.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -229,6 +256,18 @@ export function useGetResponseEncoding(options?: {
  */
 export function getGetResponseEncodingQueryKey() {
   return ['/response-encoding'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /response-encoding
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetResponseEncodingQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetResponseEncodingQueryKey(),
+    queryFn: async () => parseResponse(client['response-encoding'].$get(undefined, clientOptions)),
+  }
 }
 
 /**

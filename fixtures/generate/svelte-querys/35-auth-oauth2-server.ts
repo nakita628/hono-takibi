@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
@@ -43,6 +43,21 @@ export function getGetOauthAuthorizeQueryKey(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
 ) {
   return ['/oauth/authorize', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /oauth/authorize
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOauthAuthorizeQueryOptions(
+  args: InferRequestType<typeof client.oauth.authorize.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetOauthAuthorizeQueryKey(args),
+    queryFn: async () => parseResponse(client.oauth.authorize.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -221,6 +236,18 @@ export function getGetOauthUserinfoQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /oauth/userinfo
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOauthUserinfoQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetOauthUserinfoQueryKey(),
+    queryFn: async () => parseResponse(client.oauth.userinfo.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /.well-known/openid-configuration
  *
  * OpenID Connect Discovery
@@ -255,6 +282,21 @@ export function createGetWellKnownOpenidConfiguration(options?: {
  */
 export function getGetWellKnownOpenidConfigurationQueryKey() {
   return ['/.well-known/openid-configuration'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /.well-known/openid-configuration
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWellKnownOpenidConfigurationQueryOptions(
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetWellKnownOpenidConfigurationQueryKey(),
+    queryFn: async () =>
+      parseResponse(client['.well-known']['openid-configuration'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -295,6 +337,19 @@ export function getGetWellKnownJwksJsonQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /.well-known/jwks.json
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWellKnownJwksJsonQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetWellKnownJwksJsonQueryKey(),
+    queryFn: async () =>
+      parseResponse(client['.well-known']['jwks.json'].$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /oauth/clients
  *
  * クライアント一覧取得
@@ -326,6 +381,18 @@ export function createGetOauthClients(options?: {
  */
 export function getGetOauthClientsQueryKey() {
   return ['/oauth/clients'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /oauth/clients
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOauthClientsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetOauthClientsQueryKey(),
+    queryFn: async () => parseResponse(client.oauth.clients.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -396,6 +463,21 @@ export function getGetOauthClientsClientIdQueryKey(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
 ) {
   return ['/oauth/clients/:clientId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /oauth/clients/{clientId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOauthClientsClientIdQueryOptions(
+  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetOauthClientsClientIdQueryKey(args),
+    queryFn: async () => parseResponse(client.oauth.clients[':clientId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -545,6 +627,18 @@ export function createGetOauthConsents(options?: {
  */
 export function getGetOauthConsentsQueryKey() {
   return ['/oauth/consents'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /oauth/consents
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOauthConsentsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetOauthConsentsQueryKey(),
+    queryFn: async () => parseResponse(client.oauth.consents.$get(undefined, clientOptions)),
+  }
 }
 
 /**

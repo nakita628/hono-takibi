@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
@@ -33,6 +33,18 @@ export function createGetAllMethods(options?: {
  */
 export function getGetAllMethodsQueryKey() {
   return ['/all-methods'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /all-methods
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAllMethodsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAllMethodsQueryKey(),
+    queryFn: async () => parseResponse(client['all-methods'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -276,6 +288,26 @@ export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /users/{userId}/posts/{postId}/comments/{commentId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryOptions(
+  args: InferRequestType<
+    (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.users[':userId'].posts[':postId'].comments[':commentId'].$get(args, clientOptions),
+      ),
+  }
+}
+
+/**
  * GET /params-test/{pathParam}
  */
 export function createGetParamsTestPathParam(
@@ -311,6 +343,22 @@ export function getGetParamsTestPathParamQueryKey(
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
   return ['/params-test/:pathParam', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /params-test/{pathParam}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetParamsTestPathParamQueryOptions(
+  args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetParamsTestPathParamQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['params-test'][':pathParam'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -371,6 +419,18 @@ export function createGetMultiContent(options?: {
  */
 export function getGetMultiContentQueryKey() {
   return ['/multi-content'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /multi-content
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMultiContentQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMultiContentQueryKey(),
+    queryFn: async () => parseResponse(client['multi-content'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -438,6 +498,18 @@ export function getGetResponseRangesQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /response-ranges
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetResponseRangesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetResponseRangesQueryKey(),
+    queryFn: async () => parseResponse(client['response-ranges'].$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /deprecated
  *
  * This operation is deprecated
@@ -472,6 +544,18 @@ export function getGetDeprecatedQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /deprecated
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDeprecatedQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetDeprecatedQueryKey(),
+    queryFn: async () => parseResponse(client.deprecated.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /no-operation-id
  *
  * Operation without operationId
@@ -503,6 +587,18 @@ export function createGetNoOperationId(options?: {
  */
 export function getGetNoOperationIdQueryKey() {
   return ['/no-operation-id'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /no-operation-id
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetNoOperationIdQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNoOperationIdQueryKey(),
+    queryFn: async () => parseResponse(client['no-operation-id'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -570,6 +666,18 @@ export function getGetCircularQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /circular
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCircularQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetCircularQueryKey(),
+    queryFn: async () => parseResponse(client.circular.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /deep-nesting
  */
 export function createGetDeepNesting(options?: {
@@ -599,6 +707,18 @@ export function createGetDeepNesting(options?: {
  */
 export function getGetDeepNestingQueryKey() {
   return ['/deep-nesting'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /deep-nesting
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDeepNestingQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetDeepNestingQueryKey(),
+    queryFn: async () => parseResponse(client['deep-nesting'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -639,6 +759,21 @@ export function getGetArrayParamsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /array-params
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetArrayParamsQueryOptions(
+  args: InferRequestType<(typeof client)['array-params']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetArrayParamsQueryKey(args),
+    queryFn: async () => parseResponse(client['array-params'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /object-param
  */
 export function createGetObjectParam(
@@ -673,4 +808,19 @@ export function getGetObjectParamQueryKey(
   args: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
   return ['/object-param', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /object-param
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetObjectParamQueryOptions(
+  args: InferRequestType<(typeof client)['object-param']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetObjectParamQueryKey(args),
+    queryFn: async () => parseResponse(client['object-param'].$get(args, clientOptions)),
+  }
 }

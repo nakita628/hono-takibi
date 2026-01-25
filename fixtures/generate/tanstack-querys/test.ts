@@ -40,6 +40,18 @@ export function getGetHonoQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /hono
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoQueryKey(),
+    queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /hono-x
  *
  * HonoX
@@ -76,6 +88,18 @@ export function getGetHonoXQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /hono-x
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHonoXQueryKey(),
+    queryFn: async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /zod-openapi-hono
  *
  * ZodOpenAPIHono
@@ -109,4 +133,16 @@ export function useGetZodOpenapiHono(options?: {
  */
 export function getGetZodOpenapiHonoQueryKey() {
   return ['/zod-openapi-hono'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /zod-openapi-hono
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetZodOpenapiHonoQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetZodOpenapiHonoQueryKey(),
+    queryFn: async () => parseResponse(client['zod-openapi-hono'].$get(undefined, clientOptions)),
+  }
 }

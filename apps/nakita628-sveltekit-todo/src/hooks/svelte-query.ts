@@ -1,5 +1,5 @@
 import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '$lib'
 
@@ -9,22 +9,25 @@ import { client } from '$lib'
  * Health Check
  */
 export function createGetApi(options?: {
-  query?: { enabled?: boolean }
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+  }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const isEnabled = queryOptions?.enabled !== false
-  return createQuery({ ...getGetApiQueryOptions(clientOptions), enabled: isEnabled })
-}
-
-/**
- * Returns Svelte Query query options for GET /api
- */
-export function getGetApiQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+  return createQuery({
     queryKey: getGetApiQueryKey(),
     queryFn: async () => parseResponse(client.api.$get(undefined, clientOptions)),
-  }
+    ...queryOptions,
+  })
 }
 
 /**
@@ -41,24 +44,27 @@ export function getGetApiQueryKey() {
  */
 export function createGetApiTodo(
   args: InferRequestType<typeof client.api.todo.$get>,
-  options?: { query?: { enabled?: boolean }; client?: ClientRequestOptions },
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+    }
+    client?: ClientRequestOptions
+  },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const isEnabled = queryOptions?.enabled !== false
-  return createQuery({ ...getGetApiTodoQueryOptions(args, clientOptions), enabled: isEnabled })
-}
-
-/**
- * Returns Svelte Query query options for GET /api/todo
- */
-export function getGetApiTodoQueryOptions(
-  args: InferRequestType<typeof client.api.todo.$get>,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
+  return createQuery({
     queryKey: getGetApiTodoQueryKey(args),
     queryFn: async () => parseResponse(client.api.todo.$get(args, clientOptions)),
-  }
+    ...queryOptions,
+  })
 }
 
 /**
@@ -73,10 +79,29 @@ export function getGetApiTodoQueryKey(args: InferRequestType<typeof client.api.t
  *
  * Create a new post
  */
-export function createPostApiTodo(clientOptions?: ClientRequestOptions) {
+export function createPostApiTodo(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.api.todo.$post>,
+      variables: InferRequestType<typeof client.api.todo.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.api.todo.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.api.todo.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.api.todo.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.api.todo.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
     mutationFn: async (args: InferRequestType<typeof client.api.todo.$post>) =>
       parseResponse(client.api.todo.$post(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -87,24 +112,27 @@ export function createPostApiTodo(clientOptions?: ClientRequestOptions) {
  */
 export function createGetApiTodoId(
   args: InferRequestType<(typeof client.api.todo)[':id']['$get']>,
-  options?: { query?: { enabled?: boolean }; client?: ClientRequestOptions },
+  options?: {
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+    }
+    client?: ClientRequestOptions
+  },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  const isEnabled = queryOptions?.enabled !== false
-  return createQuery({ ...getGetApiTodoIdQueryOptions(args, clientOptions), enabled: isEnabled })
-}
-
-/**
- * Returns Svelte Query query options for GET /api/todo/{id}
- */
-export function getGetApiTodoIdQueryOptions(
-  args: InferRequestType<(typeof client.api.todo)[':id']['$get']>,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
+  return createQuery({
     queryKey: getGetApiTodoIdQueryKey(args),
     queryFn: async () => parseResponse(client.api.todo[':id'].$get(args, clientOptions)),
-  }
+    ...queryOptions,
+  })
 }
 
 /**
@@ -121,10 +149,32 @@ export function getGetApiTodoIdQueryKey(
  *
  * Update an existing todo
  */
-export function createPutApiTodoId(clientOptions?: ClientRequestOptions) {
+export function createPutApiTodoId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.api.todo)[':id']['$put']> | undefined,
+      variables: InferRequestType<(typeof client.api.todo)[':id']['$put']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.api.todo)[':id']['$put']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.api.todo)[':id']['$put']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.api.todo)[':id']['$put']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.api.todo)[':id']['$put']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
     mutationFn: async (args: InferRequestType<(typeof client.api.todo)[':id']['$put']>) =>
       parseResponse(client.api.todo[':id'].$put(args, clientOptions)),
+    ...mutationOptions,
   })
 }
 
@@ -133,9 +183,31 @@ export function createPutApiTodoId(clientOptions?: ClientRequestOptions) {
  *
  * Delete a todo
  */
-export function createDeleteApiTodoId(clientOptions?: ClientRequestOptions) {
+export function createDeleteApiTodoId(options?: {
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<(typeof client.api.todo)[':id']['$delete']> | undefined,
+      variables: InferRequestType<(typeof client.api.todo)[':id']['$delete']>,
+    ) => void
+    onError?: (
+      error: Error,
+      variables: InferRequestType<(typeof client.api.todo)[':id']['$delete']>,
+    ) => void
+    onSettled?: (
+      data: InferResponseType<(typeof client.api.todo)[':id']['$delete']> | undefined,
+      error: Error | null,
+      variables: InferRequestType<(typeof client.api.todo)[':id']['$delete']>,
+    ) => void
+    onMutate?: (variables: InferRequestType<(typeof client.api.todo)[':id']['$delete']>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
     mutationFn: async (args: InferRequestType<(typeof client.api.todo)[':id']['$delete']>) =>
       parseResponse(client.api.todo[':id'].$delete(args, clientOptions)),
+    ...mutationOptions,
   })
 }

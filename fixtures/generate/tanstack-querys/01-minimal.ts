@@ -34,3 +34,15 @@ export function useGetHealth(options?: {
 export function getGetHealthQueryKey() {
   return ['/health'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /health
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetHealthQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetHealthQueryKey(),
+    queryFn: async () => parseResponse(client.health.$get(undefined, clientOptions)),
+  }
+}

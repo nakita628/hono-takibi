@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/33-practical-notification-api'
 
 /**
@@ -95,7 +95,7 @@ export function useDeleteNotificationsNotificationId(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.notifications)[':notificationId']['$delete']> },
-    ) => parseResponse(client.notifications[':notificationId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.notifications[':notificationId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -124,7 +124,7 @@ export function usePostNotificationsNotificationIdRead(options?: {
       }: {
         arg: InferRequestType<(typeof client.notifications)[':notificationId']['read']['$post']>
       },
-    ) => parseResponse(client.notifications[':notificationId'].read.$post(arg, options?.client)),
+    ) => parseResponse(client.notifications[':notificationId'].read.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -146,7 +146,7 @@ export function usePostNotificationsReadAll(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /notifications/read-all',
-    async () => parseResponse(client.notifications['read-all'].$post(undefined, options?.client)),
+    async () => parseResponse(client.notifications['read-all'].$post(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -201,7 +201,7 @@ export function usePostMessagesSend(options?: {
   return useSWRMutation(
     'POST /messages/send',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.messages.send.$post> }) =>
-      parseResponse(client.messages.send.$post(arg, options?.client)),
+      parseResponse(client.messages.send.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -226,7 +226,7 @@ export function usePostMessagesSendBatch(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.messages)['send-batch']['$post']> },
-    ) => parseResponse(client.messages['send-batch'].$post(arg, options?.client)),
+    ) => parseResponse(client.messages['send-batch'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -315,7 +315,7 @@ export function usePostTemplates(options?: {
   return useSWRMutation(
     'POST /templates',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.templates.$post> }) =>
-      parseResponse(client.templates.$post(arg, options?.client)),
+      parseResponse(client.templates.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -374,7 +374,7 @@ export function usePutTemplatesTemplateId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.templates)[':templateId']['$put']> },
-    ) => parseResponse(client.templates[':templateId'].$put(arg, options?.client)),
+    ) => parseResponse(client.templates[':templateId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -399,7 +399,7 @@ export function useDeleteTemplatesTemplateId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.templates)[':templateId']['$delete']> },
-    ) => parseResponse(client.templates[':templateId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.templates[':templateId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -426,7 +426,7 @@ export function usePostTemplatesTemplateIdPreview(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']> },
-    ) => parseResponse(client.templates[':templateId'].preview.$post(arg, options?.client)),
+    ) => parseResponse(client.templates[':templateId'].preview.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -480,7 +480,7 @@ export function usePutChannelsPreferences(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.channels.preferences.$put> },
-    ) => parseResponse(client.channels.preferences.$put(arg, options?.client)),
+    ) => parseResponse(client.channels.preferences.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -532,7 +532,7 @@ export function usePostChannelsDevices(options?: {
   return useSWRMutation(
     'POST /channels/devices',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.channels.devices.$post> }) =>
-      parseResponse(client.channels.devices.$post(arg, options?.client)),
+      parseResponse(client.channels.devices.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -557,7 +557,7 @@ export function useDeleteChannelsDevicesDeviceId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']> },
-    ) => parseResponse(client.channels.devices[':deviceId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.channels.devices[':deviceId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -609,7 +609,7 @@ export function usePostWebhooks(options?: {
   return useSWRMutation(
     'POST /webhooks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.webhooks.$post> }) =>
-      parseResponse(client.webhooks.$post(arg, options?.client)),
+      parseResponse(client.webhooks.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -668,7 +668,7 @@ export function usePutWebhooksWebhookId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.webhooks)[':webhookId']['$put']> },
-    ) => parseResponse(client.webhooks[':webhookId'].$put(arg, options?.client)),
+    ) => parseResponse(client.webhooks[':webhookId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -693,7 +693,7 @@ export function useDeleteWebhooksWebhookId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']> },
-    ) => parseResponse(client.webhooks[':webhookId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.webhooks[':webhookId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -718,7 +718,7 @@ export function usePostWebhooksWebhookIdTest(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']> },
-    ) => parseResponse(client.webhooks[':webhookId'].test.$post(arg, options?.client)),
+    ) => parseResponse(client.webhooks[':webhookId'].test.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

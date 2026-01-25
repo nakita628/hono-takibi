@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/19-resolution-order'
 
 /**
@@ -49,7 +49,7 @@ export function usePostProcess(options?: {
   return useSWRMutation(
     'POST /process',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.process.$post> }) =>
-      parseResponse(client.process.$post(arg, options?.client)),
+      parseResponse(client.process.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -97,7 +97,7 @@ export function usePostTransform(options?: {
   return useSWRMutation(
     'POST /transform',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.transform.$post> }) =>
-      parseResponse(client.transform.$post(arg, options?.client)),
+      parseResponse(client.transform.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

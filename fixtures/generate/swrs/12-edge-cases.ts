@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/12-edge-cases'
 
 /**
@@ -48,7 +48,7 @@ export function usePutAllMethods(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /all-methods',
-    async () => parseResponse(client['all-methods'].$put(undefined, options?.client)),
+    async () => parseResponse(client['all-methods'].$put(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -68,7 +68,7 @@ export function usePostAllMethods(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /all-methods',
-    async () => parseResponse(client['all-methods'].$post(undefined, options?.client)),
+    async () => parseResponse(client['all-methods'].$post(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -88,7 +88,7 @@ export function useDeleteAllMethods(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /all-methods',
-    async () => parseResponse(client['all-methods'].$delete(undefined, options?.client)),
+    async () => parseResponse(client['all-methods'].$delete(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -108,7 +108,7 @@ export function useOptionsAllMethods(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'OPTIONS /all-methods',
-    async () => parseResponse(client['all-methods'].$options(undefined, options?.client)),
+    async () => parseResponse(client['all-methods'].$options(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -128,7 +128,7 @@ export function useHeadAllMethods(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'HEAD /all-methods',
-    async () => parseResponse(client['all-methods'].$head(undefined, options?.client)),
+    async () => parseResponse(client['all-methods'].$head(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -148,7 +148,7 @@ export function usePatchAllMethods(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PATCH /all-methods',
-    async () => parseResponse(client['all-methods'].$patch(undefined, options?.client)),
+    async () => parseResponse(client['all-methods'].$patch(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -168,7 +168,7 @@ export function useTraceAllMethods(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'TRACE /all-methods',
-    async () => parseResponse(client['all-methods'].$trace(undefined, options?.client)),
+    async () => parseResponse(client['all-methods'].$trace(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -261,7 +261,7 @@ export function usePostNoContent(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /no-content',
-    async () => parseResponse(client['no-content'].$post(undefined, options?.client)),
+    async () => parseResponse(client['no-content'].$post(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -311,7 +311,7 @@ export function usePostMultiContent(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['multi-content']['$post']> },
-    ) => parseResponse(client['multi-content'].$post(arg, options?.client)),
+    ) => parseResponse(client['multi-content'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -417,7 +417,7 @@ export function usePostEmptyBody(options?: {
   return useSWRMutation(
     'POST /empty-body',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)['empty-body']['$post']> }) =>
-      parseResponse(client['empty-body'].$post(arg, options?.client)),
+      parseResponse(client['empty-body'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }

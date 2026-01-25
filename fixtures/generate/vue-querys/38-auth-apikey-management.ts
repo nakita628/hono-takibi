@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
@@ -38,6 +38,21 @@ export function useGetApiKeys(
  */
 export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
   return ['/api-keys', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /api-keys
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetApiKeysQueryOptions(
+  args: InferRequestType<(typeof client)['api-keys']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetApiKeysQueryKey(args),
+    queryFn: async () => parseResponse(client['api-keys'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -111,6 +126,21 @@ export function getGetApiKeysKeyIdQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
 ) {
   return ['/api-keys/:keyId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /api-keys/{keyId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetApiKeysKeyIdQueryOptions(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetApiKeysKeyIdQueryKey(args),
+    queryFn: async () => parseResponse(client['api-keys'][':keyId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -300,6 +330,22 @@ export function getGetApiKeysKeyIdUsageQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /api-keys/{keyId}/usage
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetApiKeysKeyIdUsageQueryOptions(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetApiKeysKeyIdUsageQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['api-keys'][':keyId'].usage.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /api-keys/{keyId}/rate-limit/current
  *
  * 現在のレート制限状況取得
@@ -337,6 +383,22 @@ export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
   return ['/api-keys/:keyId/rate-limit/current', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /api-keys/{keyId}/rate-limit/current
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetApiKeysKeyIdRateLimitCurrentQueryOptions(
+  args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetApiKeysKeyIdRateLimitCurrentQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['api-keys'][':keyId']['rate-limit'].current.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -405,4 +467,16 @@ export function useGetScopes(options?: {
  */
 export function getGetScopesQueryKey() {
   return ['/scopes'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /scopes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetScopesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetScopesQueryKey(),
+    queryFn: async () => parseResponse(client.scopes.$get(undefined, clientOptions)),
+  }
 }

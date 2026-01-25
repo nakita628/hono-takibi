@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
 
@@ -40,6 +40,21 @@ export function useGetProducts(
  */
 export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
   return ['/products', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /products
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProductsQueryOptions(
+  args: InferRequestType<typeof client.products.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProductsQueryKey(args),
+    queryFn: async () => parseResponse(client.products.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -110,6 +125,21 @@ export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
   return ['/products/:productId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /products/{productId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProductsProductIdQueryOptions(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProductsProductIdQueryKey(args),
+    queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
+  }
 }
 
 /**

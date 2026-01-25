@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/23-extreme-parameters'
 
@@ -50,6 +50,28 @@ export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryOptions(
+  args: InferRequestType<
+    (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
+          ':p10'
+        ].$get(args, clientOptions),
+      ),
+  }
+}
+
+/**
  * GET /query-styles
  */
 export function useGetQueryStyles(
@@ -84,6 +106,21 @@ export function getGetQueryStylesQueryKey(
   args: InferRequestType<(typeof client)['query-styles']['$get']>,
 ) {
   return ['/query-styles', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /query-styles
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetQueryStylesQueryOptions(
+  args: InferRequestType<(typeof client)['query-styles']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetQueryStylesQueryKey(args),
+    queryFn: async () => parseResponse(client['query-styles'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -127,6 +164,24 @@ export function getGetPathStylesSimpleLabelMatrixQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /path-styles/{simple}/{label}/{matrix}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPathStylesSimpleLabelMatrixQueryOptions(
+  args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPathStylesSimpleLabelMatrixQueryKey(args),
+    queryFn: async () =>
+      parseResponse(
+        client['path-styles'][':simple'][':label'][':matrix'].$get(args, clientOptions),
+      ),
+  }
+}
+
+/**
  * GET /header-styles
  */
 export function useGetHeaderStyles(
@@ -161,6 +216,21 @@ export function getGetHeaderStylesQueryKey(
   args: InferRequestType<(typeof client)['header-styles']['$get']>,
 ) {
   return ['/header-styles', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /header-styles
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetHeaderStylesQueryOptions(
+  args: InferRequestType<(typeof client)['header-styles']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetHeaderStylesQueryKey(args),
+    queryFn: async () => parseResponse(client['header-styles'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -201,6 +271,21 @@ export function getGetCookieStylesQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /cookie-styles
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCookieStylesQueryOptions(
+  args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetCookieStylesQueryKey(args),
+    queryFn: async () => parseResponse(client['cookie-styles'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /many-query-params
  */
 export function useGetManyQueryParams(
@@ -235,6 +320,21 @@ export function getGetManyQueryParamsQueryKey(
   args: InferRequestType<(typeof client)['many-query-params']['$get']>,
 ) {
   return ['/many-query-params', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /many-query-params
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetManyQueryParamsQueryOptions(
+  args: InferRequestType<(typeof client)['many-query-params']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetManyQueryParamsQueryKey(args),
+    queryFn: async () => parseResponse(client['many-query-params'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -275,6 +375,21 @@ export function getGetParameterContentQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /parameter-content
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetParameterContentQueryOptions(
+  args: InferRequestType<(typeof client)['parameter-content']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetParameterContentQueryKey(args),
+    queryFn: async () => parseResponse(client['parameter-content'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /deprecated-params
  */
 export function useGetDeprecatedParams(
@@ -312,6 +427,21 @@ export function getGetDeprecatedParamsQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /deprecated-params
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDeprecatedParamsQueryOptions(
+  args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetDeprecatedParamsQueryKey(args),
+    queryFn: async () => parseResponse(client['deprecated-params'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /examples-params
  */
 export function useGetExamplesParams(
@@ -346,4 +476,19 @@ export function getGetExamplesParamsQueryKey(
   args: InferRequestType<(typeof client)['examples-params']['$get']>,
 ) {
   return ['/examples-params', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /examples-params
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetExamplesParamsQueryOptions(
+  args: InferRequestType<(typeof client)['examples-params']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetExamplesParamsQueryKey(args),
+    queryFn: async () => parseResponse(client['examples-params'].$get(args, clientOptions)),
+  }
 }

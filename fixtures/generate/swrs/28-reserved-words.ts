@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/28-reserved-words'
 
 /**
@@ -102,7 +102,7 @@ export function usePostFunction(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /function',
-    async () => parseResponse(client.function.$post(undefined, options?.client)),
+    async () => parseResponse(client.function.$post(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -230,7 +230,7 @@ export function usePostNew(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /new',
-    async () => parseResponse(client.new.$post(undefined, options?.client)),
+    async () => parseResponse(client.new.$post(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -250,7 +250,7 @@ export function useDeleteDelete(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /delete',
-    async () => parseResponse(client.delete.$delete(undefined, options?.client)),
+    async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
     mutationOptions,
   )
 }

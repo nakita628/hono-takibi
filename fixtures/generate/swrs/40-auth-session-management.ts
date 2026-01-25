@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/40-auth-session-management'
 
 /**
@@ -60,7 +60,7 @@ export function usePostSessions(options?: {
   return useSWRMutation(
     'POST /sessions',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.sessions.$post> }) =>
-      parseResponse(client.sessions.$post(arg, options?.client)),
+      parseResponse(client.sessions.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -111,7 +111,7 @@ export function useDeleteSessionsCurrent(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /sessions/current',
-    async () => parseResponse(client.sessions.current.$delete(undefined, options?.client)),
+    async () => parseResponse(client.sessions.current.$delete(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -138,7 +138,7 @@ export function usePostSessionsCurrentRefresh(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.sessions.current.refresh.$post> },
-    ) => parseResponse(client.sessions.current.refresh.$post(arg, options?.client)),
+    ) => parseResponse(client.sessions.current.refresh.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -165,7 +165,7 @@ export function usePostSessionsCurrentExtend(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.sessions.current.extend.$post> },
-    ) => parseResponse(client.sessions.current.extend.$post(arg, options?.client)),
+    ) => parseResponse(client.sessions.current.extend.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -189,7 +189,7 @@ export function usePostSessionsCurrentActivity(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /sessions/current/activity',
-    async () => parseResponse(client.sessions.current.activity.$post(undefined, options?.client)),
+    async () => parseResponse(client.sessions.current.activity.$post(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -250,7 +250,7 @@ export function useDeleteSessionsSessionId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']> },
-    ) => parseResponse(client.sessions[':sessionId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.sessions[':sessionId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -277,7 +277,7 @@ export function usePostSessionsRevokeAll(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.sessions)['revoke-all']['$post']> },
-    ) => parseResponse(client.sessions['revoke-all'].$post(arg, options?.client)),
+    ) => parseResponse(client.sessions['revoke-all'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -302,7 +302,7 @@ export function usePostSessionsValidate(options?: {
   return useSWRMutation(
     'POST /sessions/validate',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.sessions.validate.$post> }) =>
-      parseResponse(client.sessions.validate.$post(arg, options?.client)),
+      parseResponse(client.sessions.validate.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -424,7 +424,7 @@ export function usePutSessionsPolicies(options?: {
   return useSWRMutation(
     'PUT /sessions/policies',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.sessions.policies.$put> }) =>
-      parseResponse(client.sessions.policies.$put(arg, options?.client)),
+      parseResponse(client.sessions.policies.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -478,7 +478,7 @@ export function usePostSessionsTrustedDevices(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']> },
-    ) => parseResponse(client.sessions['trusted-devices'].$post(arg, options?.client)),
+    ) => parseResponse(client.sessions['trusted-devices'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -508,8 +508,7 @@ export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
       }: {
         arg: InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
       },
-    ) =>
-      parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }

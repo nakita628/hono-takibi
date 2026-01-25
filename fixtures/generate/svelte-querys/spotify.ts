@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -43,6 +43,21 @@ export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums
 }
 
 /**
+ * Returns Svelte Query query options for GET /albums
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAlbumsQueryOptions(
+  args: InferRequestType<typeof client.albums.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAlbumsQueryKey(args),
+    queryFn: async () => parseResponse(client.albums.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /albums/{id}
  *
  * Get Album
@@ -81,6 +96,21 @@ export function getGetAlbumsIdQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
 ) {
   return ['/albums/:id', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /albums/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAlbumsIdQueryOptions(
+  args: InferRequestType<(typeof client.albums)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAlbumsIdQueryKey(args),
+    queryFn: async () => parseResponse(client.albums[':id'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -126,6 +156,21 @@ export function getGetAlbumsIdTracksQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /albums/{id}/tracks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAlbumsIdTracksQueryOptions(
+  args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAlbumsIdTracksQueryKey(args),
+    queryFn: async () => parseResponse(client.albums[':id'].tracks.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /artists
  *
  * Get Several Artists
@@ -162,6 +207,21 @@ export function createGetArtists(
  */
 export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
   return ['/artists', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /artists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetArtistsQueryOptions(
+  args: InferRequestType<typeof client.artists.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetArtistsQueryKey(args),
+    queryFn: async () => parseResponse(client.artists.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -206,6 +266,21 @@ export function getGetArtistsIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /artists/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetArtistsIdQueryOptions(
+  args: InferRequestType<(typeof client.artists)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetArtistsIdQueryKey(args),
+    queryFn: async () => parseResponse(client.artists[':id'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /artists/{id}/albums
  *
  * Get Artist's Albums
@@ -244,6 +319,21 @@ export function getGetArtistsIdAlbumsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
   return ['/artists/:id/albums', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /artists/{id}/albums
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetArtistsIdAlbumsQueryOptions(
+  args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetArtistsIdAlbumsQueryKey(args),
+    queryFn: async () => parseResponse(client.artists[':id'].albums.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -289,6 +379,22 @@ export function getGetArtistsIdRelatedArtistsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /artists/{id}/related-artists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetArtistsIdRelatedArtistsQueryOptions(
+  args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetArtistsIdRelatedArtistsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.artists[':id']['related-artists'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /artists/{id}/top-tracks
  *
  * Get Artist's Top Tracks
@@ -328,6 +434,22 @@ export function getGetArtistsIdTopTracksQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
   return ['/artists/:id/top-tracks', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /artists/{id}/top-tracks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetArtistsIdTopTracksQueryOptions(
+  args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetArtistsIdTopTracksQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.artists[':id']['top-tracks'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -372,6 +494,21 @@ export function getGetAudioAnalysisIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /audio-analysis/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAudioAnalysisIdQueryOptions(
+  args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAudioAnalysisIdQueryKey(args),
+    queryFn: async () => parseResponse(client['audio-analysis'][':id'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /audio-features
  *
  * Get Tracks' Audio Features
@@ -410,6 +547,21 @@ export function getGetAudioFeaturesQueryKey(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
   return ['/audio-features', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /audio-features
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAudioFeaturesQueryOptions(
+  args: InferRequestType<(typeof client)['audio-features']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAudioFeaturesQueryKey(args),
+    queryFn: async () => parseResponse(client['audio-features'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -455,6 +607,21 @@ export function getGetAudioFeaturesIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /audio-features/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAudioFeaturesIdQueryOptions(
+  args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAudioFeaturesIdQueryKey(args),
+    queryFn: async () => parseResponse(client['audio-features'][':id'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /audiobooks
  *
  * Get Several Audiobooks
@@ -492,6 +659,21 @@ export function createGetAudiobooks(
  */
 export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
   return ['/audiobooks', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /audiobooks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAudiobooksQueryOptions(
+  args: InferRequestType<typeof client.audiobooks.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAudiobooksQueryKey(args),
+    queryFn: async () => parseResponse(client.audiobooks.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -537,6 +719,21 @@ export function getGetAudiobooksIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /audiobooks/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAudiobooksIdQueryOptions(
+  args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAudiobooksIdQueryKey(args),
+    queryFn: async () => parseResponse(client.audiobooks[':id'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /audiobooks/{id}/chapters
  *
  * Get Audiobook Chapters
@@ -579,6 +776,21 @@ export function getGetAudiobooksIdChaptersQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /audiobooks/{id}/chapters
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAudiobooksIdChaptersQueryOptions(
+  args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAudiobooksIdChaptersQueryKey(args),
+    queryFn: async () => parseResponse(client.audiobooks[':id'].chapters.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /browse/categories
  *
  * Get Several Browse Categories
@@ -617,6 +829,21 @@ export function getGetBrowseCategoriesQueryKey(
   args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
   return ['/browse/categories', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /browse/categories
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetBrowseCategoriesQueryOptions(
+  args: InferRequestType<typeof client.browse.categories.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetBrowseCategoriesQueryKey(args),
+    queryFn: async () => parseResponse(client.browse.categories.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -662,6 +889,22 @@ export function getGetBrowseCategoriesCategoryIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /browse/categories/{category_id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetBrowseCategoriesCategoryIdQueryOptions(
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetBrowseCategoriesCategoryIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.browse.categories[':category_id'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /browse/categories/{category_id}/playlists
  *
  * Get Category's Playlists
@@ -701,6 +944,22 @@ export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
   return ['/browse/categories/:category_id/playlists', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /browse/categories/{category_id}/playlists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions(
+  args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.browse.categories[':category_id'].playlists.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -746,6 +1005,22 @@ export function getGetBrowseFeaturedPlaylistsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /browse/featured-playlists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetBrowseFeaturedPlaylistsQueryOptions(
+  args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetBrowseFeaturedPlaylistsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.browse['featured-playlists'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /browse/new-releases
  *
  * Get New Releases
@@ -787,6 +1062,21 @@ export function getGetBrowseNewReleasesQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /browse/new-releases
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetBrowseNewReleasesQueryOptions(
+  args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetBrowseNewReleasesQueryKey(args),
+    queryFn: async () => parseResponse(client.browse['new-releases'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /chapters
  *
  * Get Several Chapters
@@ -824,6 +1114,21 @@ export function createGetChapters(
  */
 export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
   return ['/chapters', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /chapters
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetChaptersQueryOptions(
+  args: InferRequestType<typeof client.chapters.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetChaptersQueryKey(args),
+    queryFn: async () => parseResponse(client.chapters.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -869,6 +1174,21 @@ export function getGetChaptersIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /chapters/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetChaptersIdQueryOptions(
+  args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetChaptersIdQueryKey(args),
+    queryFn: async () => parseResponse(client.chapters[':id'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /episodes
  *
  * Get Several Episodes
@@ -905,6 +1225,21 @@ export function createGetEpisodes(
  */
 export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
   return ['/episodes', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /episodes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetEpisodesQueryOptions(
+  args: InferRequestType<typeof client.episodes.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetEpisodesQueryKey(args),
+    queryFn: async () => parseResponse(client.episodes.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -950,6 +1285,21 @@ export function getGetEpisodesIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /episodes/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetEpisodesIdQueryOptions(
+  args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetEpisodesIdQueryKey(args),
+    queryFn: async () => parseResponse(client.episodes[':id'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /markets
  *
  * Get Available Markets
@@ -983,6 +1333,18 @@ export function createGetMarkets(options?: {
  */
 export function getGetMarketsQueryKey() {
   return ['/markets'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /markets
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMarketsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMarketsQueryKey(),
+    queryFn: async () => parseResponse(client.markets.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -1023,6 +1385,18 @@ export function getGetMeQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /me
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMeQueryKey(),
+    queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /me/albums
  *
  * Get User's Saved Albums
@@ -1059,6 +1433,21 @@ export function createGetMeAlbums(
  */
 export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
   return ['/me/albums', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/albums
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeAlbumsQueryOptions(
+  args: InferRequestType<typeof client.me.albums.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeAlbumsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.albums.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -1169,6 +1558,21 @@ export function getGetMeAlbumsContainsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /me/albums/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeAlbumsContainsQueryOptions(
+  args: InferRequestType<typeof client.me.albums.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeAlbumsContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.albums.contains.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /me/audiobooks
  *
  * Get User's Saved Audiobooks
@@ -1207,6 +1611,21 @@ export function getGetMeAudiobooksQueryKey(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
 ) {
   return ['/me/audiobooks', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/audiobooks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeAudiobooksQueryOptions(
+  args: InferRequestType<typeof client.me.audiobooks.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeAudiobooksQueryKey(args),
+    queryFn: async () => parseResponse(client.me.audiobooks.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -1320,6 +1739,21 @@ export function getGetMeAudiobooksContainsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /me/audiobooks/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeAudiobooksContainsQueryOptions(
+  args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeAudiobooksContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.audiobooks.contains.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /me/episodes
  *
  * Get User's Saved Episodes
@@ -1357,6 +1791,21 @@ export function createGetMeEpisodes(
  */
 export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
   return ['/me/episodes', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/episodes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeEpisodesQueryOptions(
+  args: InferRequestType<typeof client.me.episodes.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeEpisodesQueryKey(args),
+    queryFn: async () => parseResponse(client.me.episodes.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -1470,6 +1919,21 @@ export function getGetMeEpisodesContainsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /me/episodes/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeEpisodesContainsQueryOptions(
+  args: InferRequestType<typeof client.me.episodes.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeEpisodesContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.episodes.contains.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /me/following
  *
  * Get Followed Artists
@@ -1506,6 +1970,21 @@ export function createGetMeFollowing(
  */
 export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
   return ['/me/following', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/following
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeFollowingQueryOptions(
+  args: InferRequestType<typeof client.me.following.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeFollowingQueryKey(args),
+    queryFn: async () => parseResponse(client.me.following.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -1619,6 +2098,21 @@ export function getGetMeFollowingContainsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /me/following/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeFollowingContainsQueryOptions(
+  args: InferRequestType<typeof client.me.following.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeFollowingContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.following.contains.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /me/player
  *
  * Get Playback State
@@ -1655,6 +2149,21 @@ export function createGetMePlayer(
  */
 export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
   return ['/me/player', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/player
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMePlayerQueryOptions(
+  args: InferRequestType<typeof client.me.player.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMePlayerQueryKey(args),
+    queryFn: async () => parseResponse(client.me.player.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -1733,6 +2242,22 @@ export function getGetMePlayerCurrentlyPlayingQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /me/player/currently-playing
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMePlayerCurrentlyPlayingQueryOptions(
+  args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMePlayerCurrentlyPlayingQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.me.player['currently-playing'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /me/player/devices
  *
  * Get Available Devices
@@ -1766,6 +2291,18 @@ export function createGetMePlayerDevices(options?: {
  */
 export function getGetMePlayerDevicesQueryKey() {
   return ['/me/player/devices'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/player/devices
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMePlayerDevicesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMePlayerDevicesQueryKey(),
+    queryFn: async () => parseResponse(client.me.player.devices.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -1946,6 +2483,18 @@ export function getGetMePlayerQueueQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /me/player/queue
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMePlayerQueueQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetMePlayerQueueQueryKey(),
+    queryFn: async () => parseResponse(client.me.player.queue.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * POST /me/player/queue
  *
  * Add Item to Playback Queue
@@ -2022,6 +2571,22 @@ export function getGetMePlayerRecentlyPlayedQueryKey(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
 ) {
   return ['/me/player/recently-played', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/player/recently-played
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMePlayerRecentlyPlayedQueryOptions(
+  args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMePlayerRecentlyPlayedQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.me.player['recently-played'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -2207,6 +2772,21 @@ export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.m
 }
 
 /**
+ * Returns Svelte Query query options for GET /me/playlists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMePlaylistsQueryOptions(
+  args: InferRequestType<typeof client.me.playlists.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMePlaylistsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.playlists.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /me/shows
  *
  * Get User's Saved Shows
@@ -2243,6 +2823,21 @@ export function createGetMeShows(
  */
 export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
   return ['/me/shows', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/shows
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeShowsQueryOptions(
+  args: InferRequestType<typeof client.me.shows.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeShowsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.shows.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -2353,6 +2948,21 @@ export function getGetMeShowsContainsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /me/shows/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeShowsContainsQueryOptions(
+  args: InferRequestType<typeof client.me.shows.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeShowsContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.shows.contains.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /me/top/{type}
  *
  * Get User's Top Items
@@ -2394,6 +3004,21 @@ export function getGetMeTopTypeQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /me/top/{type}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeTopTypeQueryOptions(
+  args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeTopTypeQueryKey(args),
+    queryFn: async () => parseResponse(client.me.top[':type'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /me/tracks
  *
  * Get User's Saved Tracks
@@ -2430,6 +3055,21 @@ export function createGetMeTracks(
  */
 export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
   return ['/me/tracks', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /me/tracks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeTracksQueryOptions(
+  args: InferRequestType<typeof client.me.tracks.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeTracksQueryKey(args),
+    queryFn: async () => parseResponse(client.me.tracks.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -2540,6 +3180,21 @@ export function getGetMeTracksContainsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /me/tracks/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMeTracksContainsQueryOptions(
+  args: InferRequestType<typeof client.me.tracks.contains.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMeTracksContainsQueryKey(args),
+    queryFn: async () => parseResponse(client.me.tracks.contains.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /playlists/{playlist_id}
  *
  * Get Playlist
@@ -2578,6 +3233,21 @@ export function getGetPlaylistsPlaylistIdQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
   return ['/playlists/:playlist_id', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /playlists/{playlist_id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPlaylistsPlaylistIdQueryOptions(
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPlaylistsPlaylistIdQueryKey(args),
+    queryFn: async () => parseResponse(client.playlists[':playlist_id'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -2756,6 +3426,24 @@ export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /playlists/{playlist_id}/followers/contains
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPlaylistsPlaylistIdFollowersContainsQueryOptions(
+  args: InferRequestType<
+    (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
+  >,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.playlists[':playlist_id'].followers.contains.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /playlists/{playlist_id}/images
  *
  * Get Playlist Cover Image
@@ -2795,6 +3483,22 @@ export function getGetPlaylistsPlaylistIdImagesQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
   return ['/playlists/:playlist_id/images', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /playlists/{playlist_id}/images
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPlaylistsPlaylistIdImagesQueryOptions(
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPlaylistsPlaylistIdImagesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.playlists[':playlist_id'].images.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -2878,6 +3582,22 @@ export function getGetPlaylistsPlaylistIdTracksQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
 ) {
   return ['/playlists/:playlist_id/tracks', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /playlists/{playlist_id}/tracks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPlaylistsPlaylistIdTracksQueryOptions(
+  args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPlaylistsPlaylistIdTracksQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.playlists[':playlist_id'].tracks.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -3053,6 +3773,21 @@ export function getGetRecommendationsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /recommendations
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetRecommendationsQueryOptions(
+  args: InferRequestType<typeof client.recommendations.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetRecommendationsQueryKey(args),
+    queryFn: async () => parseResponse(client.recommendations.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /recommendations/available-genre-seeds
  *
  * Get Available Genre Seeds
@@ -3087,6 +3822,21 @@ export function createGetRecommendationsAvailableGenreSeeds(options?: {
  */
 export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
   return ['/recommendations/available-genre-seeds'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /recommendations/available-genre-seeds
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetRecommendationsAvailableGenreSeedsQueryOptions(
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetRecommendationsAvailableGenreSeedsQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.recommendations['available-genre-seeds'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -3131,6 +3881,21 @@ export function getGetSearchQueryKey(args: InferRequestType<typeof client.search
 }
 
 /**
+ * Returns Svelte Query query options for GET /search
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSearchQueryOptions(
+  args: InferRequestType<typeof client.search.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSearchQueryKey(args),
+    queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /shows
  *
  * Get Several Shows
@@ -3167,6 +3932,21 @@ export function createGetShows(
  */
 export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
   return ['/shows', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /shows
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetShowsQueryOptions(
+  args: InferRequestType<typeof client.shows.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetShowsQueryKey(args),
+    queryFn: async () => parseResponse(client.shows.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -3212,6 +3992,21 @@ export function getGetShowsIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /shows/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetShowsIdQueryOptions(
+  args: InferRequestType<(typeof client.shows)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetShowsIdQueryKey(args),
+    queryFn: async () => parseResponse(client.shows[':id'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /shows/{id}/episodes
  *
  * Get Show Episodes
@@ -3253,6 +4048,21 @@ export function getGetShowsIdEpisodesQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /shows/{id}/episodes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetShowsIdEpisodesQueryOptions(
+  args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetShowsIdEpisodesQueryKey(args),
+    queryFn: async () => parseResponse(client.shows[':id'].episodes.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /tracks
  *
  * Get Several Tracks
@@ -3289,6 +4099,21 @@ export function createGetTracks(
  */
 export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
   return ['/tracks', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /tracks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTracksQueryOptions(
+  args: InferRequestType<typeof client.tracks.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTracksQueryKey(args),
+    queryFn: async () => parseResponse(client.tracks.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -3334,6 +4159,21 @@ export function getGetTracksIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /tracks/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTracksIdQueryOptions(
+  args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTracksIdQueryKey(args),
+    queryFn: async () => parseResponse(client.tracks[':id'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /users/{user_id}
  *
  * Get User's Profile
@@ -3372,6 +4212,21 @@ export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
   return ['/users/:user_id', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /users/{user_id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -3414,6 +4269,22 @@ export function getGetUsersUserIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
   return ['/users/:user_id/playlists', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /users/{user_id}/playlists
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdPlaylistsQueryOptions(
+  args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdPlaylistsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.users[':user_id'].playlists.$get(args, clientOptions)),
+  }
 }
 
 /**

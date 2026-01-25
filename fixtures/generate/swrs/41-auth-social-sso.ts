@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/41-auth-social-sso'
 
 /**
@@ -98,7 +98,7 @@ export function usePostSocialToken(options?: {
   return useSWRMutation(
     'POST /social/token',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.social.token.$post> }) =>
-      parseResponse(client.social.token.$post(arg, options?.client)),
+      parseResponse(client.social.token.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -125,7 +125,7 @@ export function usePostSocialTokenNative(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.social.token.native.$post> },
-    ) => parseResponse(client.social.token.native.$post(arg, options?.client)),
+    ) => parseResponse(client.social.token.native.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -206,7 +206,7 @@ export function usePostProvidersAdmin(options?: {
   return useSWRMutation(
     'POST /providers/admin',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.providers.admin.$post> }) =>
-      parseResponse(client.providers.admin.$post(arg, options?.client)),
+      parseResponse(client.providers.admin.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -265,7 +265,7 @@ export function usePutProvidersProviderId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.providers)[':providerId']['$put']> },
-    ) => parseResponse(client.providers[':providerId'].$put(arg, options?.client)),
+    ) => parseResponse(client.providers[':providerId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -290,7 +290,7 @@ export function useDeleteProvidersProviderId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.providers)[':providerId']['$delete']> },
-    ) => parseResponse(client.providers[':providerId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.providers[':providerId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -315,7 +315,7 @@ export function usePostProvidersProviderIdTest(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']> },
-    ) => parseResponse(client.providers[':providerId'].test.$post(arg, options?.client)),
+    ) => parseResponse(client.providers[':providerId'].test.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -371,7 +371,7 @@ export function usePostAccountLinkProvider(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.account.link)[':provider']['$post']> },
-    ) => parseResponse(client.account.link[':provider'].$post(arg, options?.client)),
+    ) => parseResponse(client.account.link[':provider'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -396,7 +396,7 @@ export function useDeleteAccountLinkProvider(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.account.link)[':provider']['$delete']> },
-    ) => parseResponse(client.account.link[':provider'].$delete(arg, options?.client)),
+    ) => parseResponse(client.account.link[':provider'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -448,7 +448,7 @@ export function usePostEnterpriseSso(options?: {
   return useSWRMutation(
     'POST /enterprise/sso',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.enterprise.sso.$post> }) =>
-      parseResponse(client.enterprise.sso.$post(arg, options?.client)),
+      parseResponse(client.enterprise.sso.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -507,7 +507,7 @@ export function usePutEnterpriseSsoConfigId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']> },
-    ) => parseResponse(client.enterprise.sso[':configId'].$put(arg, options?.client)),
+    ) => parseResponse(client.enterprise.sso[':configId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -532,7 +532,7 @@ export function useDeleteEnterpriseSsoConfigId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']> },
-    ) => parseResponse(client.enterprise.sso[':configId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.enterprise.sso[':configId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }

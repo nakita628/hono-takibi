@@ -38,3 +38,15 @@ export function useGetNumber(options?: {
 export function getGetNumberQueryKey() {
   return ['/number'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /number
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetNumberQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNumberQueryKey(),
+    queryFn: async () => parseResponse(client.number.$get(undefined, clientOptions)),
+  }
+}

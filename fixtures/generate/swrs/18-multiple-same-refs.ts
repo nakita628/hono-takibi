@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/18-multiple-same-refs'
 
 /**
@@ -52,7 +52,7 @@ export function usePostDocuments(options?: {
   return useSWRMutation(
     'POST /documents',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.documents.$post> }) =>
-      parseResponse(client.documents.$post(arg, options?.client)),
+      parseResponse(client.documents.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -107,7 +107,7 @@ export function usePutDocumentsDocumentId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.documents)[':documentId']['$put']> },
-    ) => parseResponse(client.documents[':documentId'].$put(arg, options?.client)),
+    ) => parseResponse(client.documents[':documentId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -165,7 +165,7 @@ export function usePostDocumentsDocumentIdShare(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']> },
-    ) => parseResponse(client.documents[':documentId'].share.$post(arg, options?.client)),
+    ) => parseResponse(client.documents[':documentId'].share.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -218,7 +218,7 @@ export function usePostCompare(options?: {
   return useSWRMutation(
     'POST /compare',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.compare.$post> }) =>
-      parseResponse(client.compare.$post(arg, options?.client)),
+      parseResponse(client.compare.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -266,7 +266,7 @@ export function usePostTemplates(options?: {
   return useSWRMutation(
     'POST /templates',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.templates.$post> }) =>
-      parseResponse(client.templates.$post(arg, options?.client)),
+      parseResponse(client.templates.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -287,7 +287,7 @@ export function usePostWorkflows(options?: {
   return useSWRMutation(
     'POST /workflows',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.workflows.$post> }) =>
-      parseResponse(client.workflows.$post(arg, options?.client)),
+      parseResponse(client.workflows.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

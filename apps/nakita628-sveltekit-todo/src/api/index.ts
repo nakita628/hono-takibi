@@ -21,48 +21,54 @@ import {
 // Initialize custom error messages
 configureCustomErrors()
 
-/**
- * OpenAPI Hono application instance for the Todo API.
- */
-const app = new OpenAPIHono<{
-  Bindings: {
-    DB: D1Database
-  }
-}>({
-  defaultHook: (result, c) => {
-    if (!result.success) {
-      const errors = makeZodErrors(result.error)
-      return c.json(makeProblemDetails(errors), 422)
-    }
-  },
+const app = new OpenAPIHono().basePath('/api')
+
+app.openapi(getApiRoute, (c) => {
+  return c.json({ message: 'Hono🔥 SvelteKit' }, 200)
 })
 
 /**
- * Configured API router with all Todo endpoints.
+ * OpenAPI Hono application instance for the Todo API.
  */
-const api = app
-  .openapi(getApiRoute, getApiRouteHandler)
-  .openapi(getApiTodoRoute, getApiTodoRouteHandler)
-  .openapi(postApiTodoRoute, postApiTodoRouteHandler)
-  .openapi(getApiTodoIdRoute, getApiTodoIdRouteHandler)
-  .openapi(putApiTodoIdRoute, putApiTodoIdRouteHandler)
-  .openapi(deleteApiTodoIdRoute, deleteApiTodoIdRouteHandler)
+// const app = new OpenAPIHono<{
+//   Bindings: {
+//     DB: D1Database
+//   }
+// }>({
+//   defaultHook: (result, c) => {
+//     if (!result.success) {
+//       const errors = makeZodErrors(result.error)
+//       return c.json(makeProblemDetails(errors), 422)
+//     }
+//   },
+// }).basePath('/api')
 
-// Swagger UI (development only)
-if (import.meta.env.DEV) {
-  app.doc('/api/doc', {
-    openapi: '3.0.0',
-    info: {
-      title: 'Takibi SvelteKit Todo API',
-      version: '1.0.0',
-    },
-  })
-  app.get('/api/swagger', swaggerUI({ url: '/api/doc' }))
-}
+// /**
+//  * Configured API router with all Todo endpoints.
+//  */
+// const api = app
+//   .openapi(getApiRoute, getApiRouteHandler)
+//   .openapi(getApiTodoRoute, getApiTodoRouteHandler)
+//   .openapi(postApiTodoRoute, postApiTodoRouteHandler)
+//   .openapi(getApiTodoIdRoute, getApiTodoIdRouteHandler)
+//   .openapi(putApiTodoIdRoute, putApiTodoIdRouteHandler)
+//   .openapi(deleteApiTodoIdRoute, deleteApiTodoIdRouteHandler)
 
-/**
- * Type representing the full API application with all routes.
- */
-export type AppType = typeof api
+// // Swagger UI (development only)
+// if (import.meta.env.DEV) {
+//   app.doc('/api/doc', {
+//     openapi: '3.0.0',
+//     info: {
+//       title: 'Takibi SvelteKit Todo API',
+//       version: '1.0.0',
+//     },
+//   })
+//   app.get('/api/swagger', swaggerUI({ url: '/api/doc' }))
+// }
+
+// /**
+//  * Type representing the full API application with all routes.
+//  */
+// export type AppType = typeof api
 
 export default app

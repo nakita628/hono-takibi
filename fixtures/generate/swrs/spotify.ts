@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/spotify'
 
 /**
@@ -950,7 +950,7 @@ export function usePutMeAlbums(options?: {
   return useSWRMutation(
     'PUT /me/albums',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.albums.$put> }) =>
-      parseResponse(client.me.albums.$put(arg, options?.client)),
+      parseResponse(client.me.albums.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -975,7 +975,7 @@ export function useDeleteMeAlbums(options?: {
   return useSWRMutation(
     'DELETE /me/albums',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.albums.$delete> }) =>
-      parseResponse(client.me.albums.$delete(arg, options?.client)),
+      parseResponse(client.me.albums.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1070,7 +1070,7 @@ export function usePutMeAudiobooks(options?: {
   return useSWRMutation(
     'PUT /me/audiobooks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.audiobooks.$put> }) =>
-      parseResponse(client.me.audiobooks.$put(arg, options?.client)),
+      parseResponse(client.me.audiobooks.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1095,7 +1095,7 @@ export function useDeleteMeAudiobooks(options?: {
   return useSWRMutation(
     'DELETE /me/audiobooks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.audiobooks.$delete> }) =>
-      parseResponse(client.me.audiobooks.$delete(arg, options?.client)),
+      parseResponse(client.me.audiobooks.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1192,7 +1192,7 @@ export function usePutMeEpisodes(options?: {
   return useSWRMutation(
     'PUT /me/episodes',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.episodes.$put> }) =>
-      parseResponse(client.me.episodes.$put(arg, options?.client)),
+      parseResponse(client.me.episodes.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1218,7 +1218,7 @@ export function useDeleteMeEpisodes(options?: {
   return useSWRMutation(
     'DELETE /me/episodes',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.episodes.$delete> }) =>
-      parseResponse(client.me.episodes.$delete(arg, options?.client)),
+      parseResponse(client.me.episodes.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1314,7 +1314,7 @@ export function usePutMeFollowing(options?: {
   return useSWRMutation(
     'PUT /me/following',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.following.$put> }) =>
-      parseResponse(client.me.following.$put(arg, options?.client)),
+      parseResponse(client.me.following.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1339,7 +1339,7 @@ export function useDeleteMeFollowing(options?: {
   return useSWRMutation(
     'DELETE /me/following',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.following.$delete> }) =>
-      parseResponse(client.me.following.$delete(arg, options?.client)),
+      parseResponse(client.me.following.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1434,7 +1434,7 @@ export function usePutMePlayer(options?: {
   return useSWRMutation(
     'PUT /me/player',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.$put> }) =>
-      parseResponse(client.me.player.$put(arg, options?.client)),
+      parseResponse(client.me.player.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1526,7 +1526,7 @@ export function usePostMePlayerNext(options?: {
   return useSWRMutation(
     'POST /me/player/next',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.next.$post> }) =>
-      parseResponse(client.me.player.next.$post(arg, options?.client)),
+      parseResponse(client.me.player.next.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1551,7 +1551,7 @@ export function usePutMePlayerPause(options?: {
   return useSWRMutation(
     'PUT /me/player/pause',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.pause.$put> }) =>
-      parseResponse(client.me.player.pause.$put(arg, options?.client)),
+      parseResponse(client.me.player.pause.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1576,7 +1576,7 @@ export function usePutMePlayerPlay(options?: {
   return useSWRMutation(
     'PUT /me/player/play',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.play.$put> }) =>
-      parseResponse(client.me.player.play.$put(arg, options?.client)),
+      parseResponse(client.me.player.play.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1601,7 +1601,7 @@ export function usePostMePlayerPrevious(options?: {
   return useSWRMutation(
     'POST /me/player/previous',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.previous.$post> }) =>
-      parseResponse(client.me.player.previous.$post(arg, options?.client)),
+      parseResponse(client.me.player.previous.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1657,7 +1657,7 @@ export function usePostMePlayerQueue(options?: {
   return useSWRMutation(
     'POST /me/player/queue',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.queue.$post> }) =>
-      parseResponse(client.me.player.queue.$post(arg, options?.client)),
+      parseResponse(client.me.player.queue.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1720,7 +1720,7 @@ export function usePutMePlayerRepeat(options?: {
   return useSWRMutation(
     'PUT /me/player/repeat',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.repeat.$put> }) =>
-      parseResponse(client.me.player.repeat.$put(arg, options?.client)),
+      parseResponse(client.me.player.repeat.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1745,7 +1745,7 @@ export function usePutMePlayerSeek(options?: {
   return useSWRMutation(
     'PUT /me/player/seek',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.seek.$put> }) =>
-      parseResponse(client.me.player.seek.$put(arg, options?.client)),
+      parseResponse(client.me.player.seek.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1770,7 +1770,7 @@ export function usePutMePlayerShuffle(options?: {
   return useSWRMutation(
     'PUT /me/player/shuffle',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.shuffle.$put> }) =>
-      parseResponse(client.me.player.shuffle.$put(arg, options?.client)),
+      parseResponse(client.me.player.shuffle.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1795,7 +1795,7 @@ export function usePutMePlayerVolume(options?: {
   return useSWRMutation(
     'PUT /me/player/volume',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.player.volume.$put> }) =>
-      parseResponse(client.me.player.volume.$put(arg, options?.client)),
+      parseResponse(client.me.player.volume.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1889,7 +1889,7 @@ export function usePutMeShows(options?: {
   return useSWRMutation(
     'PUT /me/shows',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.shows.$put> }) =>
-      parseResponse(client.me.shows.$put(arg, options?.client)),
+      parseResponse(client.me.shows.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1914,7 +1914,7 @@ export function useDeleteMeShows(options?: {
   return useSWRMutation(
     'DELETE /me/shows',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.shows.$delete> }) =>
-      parseResponse(client.me.shows.$delete(arg, options?.client)),
+      parseResponse(client.me.shows.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2045,7 +2045,7 @@ export function usePutMeTracks(options?: {
   return useSWRMutation(
     'PUT /me/tracks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.tracks.$put> }) =>
-      parseResponse(client.me.tracks.$put(arg, options?.client)),
+      parseResponse(client.me.tracks.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2070,7 +2070,7 @@ export function useDeleteMeTracks(options?: {
   return useSWRMutation(
     'DELETE /me/tracks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.me.tracks.$delete> }) =>
-      parseResponse(client.me.tracks.$delete(arg, options?.client)),
+      parseResponse(client.me.tracks.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2170,7 +2170,7 @@ export function usePutPlaylistsPlaylistId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']> },
-    ) => parseResponse(client.playlists[':playlist_id'].$put(arg, options?.client)),
+    ) => parseResponse(client.playlists[':playlist_id'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2199,7 +2199,7 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']> },
-    ) => parseResponse(client.playlists[':playlist_id'].followers.$put(arg, options?.client)),
+    ) => parseResponse(client.playlists[':playlist_id'].followers.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2230,7 +2230,7 @@ export function useDeletePlaylistsPlaylistIdFollowers(options?: {
       }: {
         arg: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
       },
-    ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(arg, options?.client)),
+    ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2339,7 +2339,7 @@ export function usePutPlaylistsPlaylistIdImages(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']> },
-    ) => parseResponse(client.playlists[':playlist_id'].images.$put(arg, options?.client)),
+    ) => parseResponse(client.playlists[':playlist_id'].images.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2410,7 +2410,7 @@ export function usePutPlaylistsPlaylistIdTracks(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']> },
-    ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(arg, options?.client)),
+    ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2439,7 +2439,7 @@ export function usePostPlaylistsPlaylistIdTracks(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']> },
-    ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(arg, options?.client)),
+    ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2468,7 +2468,7 @@ export function useDeletePlaylistsPlaylistIdTracks(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']> },
-    ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(arg, options?.client)),
+    ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2851,7 +2851,7 @@ export function usePostUsersUserIdPlaylists(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']> },
-    ) => parseResponse(client.users[':user_id'].playlists.$post(arg, options?.client)),
+    ) => parseResponse(client.users[':user_id'].playlists.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

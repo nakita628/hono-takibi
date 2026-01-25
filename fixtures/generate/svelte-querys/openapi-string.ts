@@ -38,3 +38,15 @@ export function createGetString(options?: {
 export function getGetStringQueryKey() {
   return ['/string'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /string
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetStringQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetStringQueryKey(),
+    queryFn: async () => parseResponse(client.string.$get(undefined, clientOptions)),
+  }
+}

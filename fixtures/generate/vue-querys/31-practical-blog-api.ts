@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/31-practical-blog-api'
 
@@ -38,6 +38,21 @@ export function useGetPosts(
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
   return ['/posts', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsQueryOptions(
+  args: InferRequestType<typeof client.posts.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsQueryKey(args),
+    queryFn: async () => parseResponse(client.posts.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -108,6 +123,21 @@ export function getGetPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
   return ['/posts/:postId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts/{postId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsPostIdQueryOptions(
+  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsPostIdQueryKey(args),
+    queryFn: async () => parseResponse(client.posts[':postId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -215,6 +245,21 @@ export function getGetPostsSlugSlugQueryKey(
   args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
 ) {
   return ['/posts/slug/:slug', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts/slug/{slug}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsSlugSlugQueryOptions(
+  args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsSlugSlugQueryKey(args),
+    queryFn: async () => parseResponse(client.posts.slug[':slug'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -328,6 +373,21 @@ export function getGetPostsPostIdCommentsQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
 ) {
   return ['/posts/:postId/comments', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts/{postId}/comments
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsPostIdCommentsQueryOptions(
+  args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsPostIdCommentsQueryKey(args),
+    queryFn: async () => parseResponse(client.posts[':postId'].comments.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -477,6 +537,18 @@ export function getGetCategoriesQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /categories
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCategoriesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetCategoriesQueryKey(),
+    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * POST /categories
  *
  * カテゴリ作成
@@ -544,6 +616,21 @@ export function getGetCategoriesCategoryIdQueryKey(
   args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
 ) {
   return ['/categories/:categoryId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /categories/{categoryId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCategoriesCategoryIdQueryOptions(
+  args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetCategoriesCategoryIdQueryKey(args),
+    queryFn: async () => parseResponse(client.categories[':categoryId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -657,6 +744,21 @@ export function getGetTagsQueryKey(args: InferRequestType<typeof client.tags.$ge
 }
 
 /**
+ * Returns Vue Query query options for GET /tags
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTagsQueryOptions(
+  args: InferRequestType<typeof client.tags.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTagsQueryKey(args),
+    queryFn: async () => parseResponse(client.tags.$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /tags
  *
  * タグ作成
@@ -722,6 +824,21 @@ export function useGetMedia(
  */
 export function getGetMediaQueryKey(args: InferRequestType<typeof client.media.$get>) {
   return ['/media', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /media
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMediaQueryOptions(
+  args: InferRequestType<typeof client.media.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMediaQueryKey(args),
+    queryFn: async () => parseResponse(client.media.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -792,6 +909,21 @@ export function getGetMediaMediaIdQueryKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
   return ['/media/:mediaId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /media/{mediaId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMediaMediaIdQueryOptions(
+  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMediaMediaIdQueryKey(args),
+    queryFn: async () => parseResponse(client.media[':mediaId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -897,6 +1029,18 @@ export function getGetAuthorsQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /authors
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAuthorsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAuthorsQueryKey(),
+    queryFn: async () => parseResponse(client.authors.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /authors/{authorId}
  *
  * 著者詳細取得
@@ -933,4 +1077,19 @@ export function getGetAuthorsAuthorIdQueryKey(
   args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
 ) {
   return ['/authors/:authorId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /authors/{authorId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAuthorsAuthorIdQueryOptions(
+  args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAuthorsAuthorIdQueryKey(args),
+    queryFn: async () => parseResponse(client.authors[':authorId'].$get(args, clientOptions)),
+  }
 }

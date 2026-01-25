@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/33-practical-notification-api'
 
@@ -43,6 +43,21 @@ export function getGetNotificationsQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /notifications
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetNotificationsQueryOptions(
+  args: InferRequestType<typeof client.notifications.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetNotificationsQueryKey(args),
+    queryFn: async () => parseResponse(client.notifications.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /notifications/{notificationId}
  *
  * 通知詳細取得
@@ -80,6 +95,22 @@ export function getGetNotificationsNotificationIdQueryKey(
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
 ) {
   return ['/notifications/:notificationId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /notifications/{notificationId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetNotificationsNotificationIdQueryOptions(
+  args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetNotificationsNotificationIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.notifications[':notificationId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -237,6 +268,19 @@ export function getGetNotificationsUnreadCountQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /notifications/unread-count
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetNotificationsUnreadCountQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNotificationsUnreadCountQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.notifications['unread-count'].$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * POST /messages/send
  *
  * メッセージ送信
@@ -345,6 +389,21 @@ export function getGetMessagesMessageIdQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /messages/{messageId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMessagesMessageIdQueryOptions(
+  args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMessagesMessageIdQueryKey(args),
+    queryFn: async () => parseResponse(client.messages[':messageId'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /templates
  *
  * テンプレート一覧取得
@@ -379,6 +438,21 @@ export function useGetTemplates(
  */
 export function getGetTemplatesQueryKey(args: InferRequestType<typeof client.templates.$get>) {
   return ['/templates', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /templates
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTemplatesQueryOptions(
+  args: InferRequestType<typeof client.templates.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTemplatesQueryKey(args),
+    queryFn: async () => parseResponse(client.templates.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -449,6 +523,21 @@ export function getGetTemplatesTemplateIdQueryKey(
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
 ) {
   return ['/templates/:templateId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /templates/{templateId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTemplatesTemplateIdQueryOptions(
+  args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTemplatesTemplateIdQueryKey(args),
+    queryFn: async () => parseResponse(client.templates[':templateId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -598,6 +687,18 @@ export function getGetChannelsPreferencesQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /channels/preferences
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetChannelsPreferencesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetChannelsPreferencesQueryKey(),
+    queryFn: async () => parseResponse(client.channels.preferences.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * PUT /channels/preferences
  *
  * チャンネル設定更新
@@ -663,6 +764,18 @@ export function useGetChannelsDevices(options?: {
  */
 export function getGetChannelsDevicesQueryKey() {
   return ['/channels/devices'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /channels/devices
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetChannelsDevicesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetChannelsDevicesQueryKey(),
+    queryFn: async () => parseResponse(client.channels.devices.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -771,6 +884,18 @@ export function getGetWebhooksQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /webhooks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWebhooksQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetWebhooksQueryKey(),
+    queryFn: async () => parseResponse(client.webhooks.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * POST /webhooks
  *
  * Webhook作成
@@ -838,6 +963,21 @@ export function getGetWebhooksWebhookIdQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
 ) {
   return ['/webhooks/:webhookId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /webhooks/{webhookId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWebhooksWebhookIdQueryOptions(
+  args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetWebhooksWebhookIdQueryKey(args),
+    queryFn: async () => parseResponse(client.webhooks[':webhookId'].$get(args, clientOptions)),
+  }
 }
 
 /**

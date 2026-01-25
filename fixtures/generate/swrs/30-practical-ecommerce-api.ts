@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/30-practical-ecommerce-api'
 
 /**
@@ -56,7 +56,7 @@ export function usePostProducts(options?: {
   return useSWRMutation(
     'POST /products',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.products.$post> }) =>
-      parseResponse(client.products.$post(arg, options?.client)),
+      parseResponse(client.products.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -115,7 +115,7 @@ export function usePutProductsProductId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.products)[':productId']['$put']> },
-    ) => parseResponse(client.products[':productId'].$put(arg, options?.client)),
+    ) => parseResponse(client.products[':productId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -140,7 +140,7 @@ export function useDeleteProductsProductId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.products)[':productId']['$delete']> },
-    ) => parseResponse(client.products[':productId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.products[':productId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -165,7 +165,7 @@ export function usePostProductsProductIdImages(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.products)[':productId']['images']['$post']> },
-    ) => parseResponse(client.products[':productId'].images.$post(arg, options?.client)),
+    ) => parseResponse(client.products[':productId'].images.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -217,7 +217,7 @@ export function usePostCategories(options?: {
   return useSWRMutation(
     'POST /categories',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.categories.$post> }) =>
-      parseResponse(client.categories.$post(arg, options?.client)),
+      parseResponse(client.categories.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -268,7 +268,7 @@ export function useDeleteCart(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /cart',
-    async () => parseResponse(client.cart.$delete(undefined, options?.client)),
+    async () => parseResponse(client.cart.$delete(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -291,7 +291,7 @@ export function usePostCartItems(options?: {
   return useSWRMutation(
     'POST /cart/items',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.cart.items.$post> }) =>
-      parseResponse(client.cart.items.$post(arg, options?.client)),
+      parseResponse(client.cart.items.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -316,7 +316,7 @@ export function usePutCartItemsItemId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.cart.items)[':itemId']['$put']> },
-    ) => parseResponse(client.cart.items[':itemId'].$put(arg, options?.client)),
+    ) => parseResponse(client.cart.items[':itemId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -341,7 +341,7 @@ export function useDeleteCartItemsItemId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']> },
-    ) => parseResponse(client.cart.items[':itemId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.cart.items[':itemId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -398,7 +398,7 @@ export function usePostOrders(options?: {
   return useSWRMutation(
     'POST /orders',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
-      parseResponse(client.orders.$post(arg, options?.client)),
+      parseResponse(client.orders.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -457,7 +457,7 @@ export function usePostOrdersOrderIdCancel(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']> },
-    ) => parseResponse(client.orders[':orderId'].cancel.$post(arg, options?.client)),
+    ) => parseResponse(client.orders[':orderId'].cancel.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -516,7 +516,7 @@ export function usePutInventoryProductId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.inventory)[':productId']['$put']> },
-    ) => parseResponse(client.inventory[':productId'].$put(arg, options?.client)),
+    ) => parseResponse(client.inventory[':productId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }

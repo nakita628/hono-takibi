@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/03-parameters-responses'
 
 /**
@@ -86,7 +86,7 @@ export function useDeleteItemsItemId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.items)[':itemId']['$delete']> },
-    ) => parseResponse(client.items[':itemId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.items[':itemId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }

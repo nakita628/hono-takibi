@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
@@ -35,6 +35,18 @@ export function createGetSettingsAccount(options?: {
  */
 export function getGetSettingsAccountQueryKey() {
   return ['/settings/account'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /settings/account
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSettingsAccountQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSettingsAccountQueryKey(),
+    queryFn: async () => parseResponse(client.settings.account.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -111,6 +123,21 @@ export function getGetSettingsUsernameCheckQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /settings/username/check
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSettingsUsernameCheckQueryOptions(
+  args: InferRequestType<typeof client.settings.username.check.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSettingsUsernameCheckQueryKey(args),
+    queryFn: async () => parseResponse(client.settings.username.check.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /settings/privacy
  *
  * プライバシー設定取得
@@ -142,6 +169,18 @@ export function createGetSettingsPrivacy(options?: {
  */
 export function getGetSettingsPrivacyQueryKey() {
   return ['/settings/privacy'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /settings/privacy
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSettingsPrivacyQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSettingsPrivacyQueryKey(),
+    queryFn: async () => parseResponse(client.settings.privacy.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -214,6 +253,19 @@ export function getGetSettingsContentPreferencesQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /settings/content-preferences
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSettingsContentPreferencesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSettingsContentPreferencesQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.settings['content-preferences'].$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * PUT /settings/content-preferences
  *
  * コンテンツ設定更新
@@ -283,6 +335,19 @@ export function createGetSettingsMutedWords(options?: {
  */
 export function getGetSettingsMutedWordsQueryKey() {
   return ['/settings/muted-words'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /settings/muted-words
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSettingsMutedWordsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSettingsMutedWordsQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.settings['muted-words'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -397,6 +462,18 @@ export function getGetSettingsSessionsQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /settings/sessions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSettingsSessionsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSettingsSessionsQueryKey(),
+    queryFn: async () => parseResponse(client.settings.sessions.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * DELETE /settings/sessions/{sessionId}
  *
  * セッション無効化
@@ -470,6 +547,19 @@ export function createGetSettingsConnectedApps(options?: {
  */
 export function getGetSettingsConnectedAppsQueryKey() {
   return ['/settings/connected-apps'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /settings/connected-apps
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSettingsConnectedAppsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSettingsConnectedAppsQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.settings['connected-apps'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -585,6 +675,22 @@ export function getGetSettingsDataExportRequestIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /settings/data-export/{requestId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSettingsDataExportRequestIdQueryOptions(
+  args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSettingsDataExportRequestIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.settings['data-export'][':requestId'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /settings/deactivate
  *
  * アカウント一時停止
@@ -689,6 +795,21 @@ export function getGetReportsReportIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /reports/{reportId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetReportsReportIdQueryOptions(
+  args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetReportsReportIdQueryKey(args),
+    queryFn: async () => parseResponse(client.reports[':reportId'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /moderation/queue
  *
  * モデレーションキュー取得
@@ -730,6 +851,21 @@ export function getGetModerationQueueQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /moderation/queue
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetModerationQueueQueryOptions(
+  args: InferRequestType<typeof client.moderation.queue.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetModerationQueueQueryKey(args),
+    queryFn: async () => parseResponse(client.moderation.queue.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /moderation/items/{itemId}
  *
  * モデレーションアイテム詳細
@@ -767,6 +903,22 @@ export function getGetModerationItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
 ) {
   return ['/moderation/items/:itemId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /moderation/items/{itemId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetModerationItemsItemIdQueryOptions(
+  args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetModerationItemsItemIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.moderation.items[':itemId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -846,6 +998,22 @@ export function getGetModerationUsersUserIdHistoryQueryKey(
   args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
 ) {
   return ['/moderation/users/:userId/history', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /moderation/users/{userId}/history
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetModerationUsersUserIdHistoryQueryOptions(
+  args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetModerationUsersUserIdHistoryQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.moderation.users[':userId'].history.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -974,6 +1142,21 @@ export function getGetAnalyticsPostsPostIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /analytics/posts/{postId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAnalyticsPostsPostIdQueryOptions(
+  args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAnalyticsPostsPostIdQueryKey(args),
+    queryFn: async () => parseResponse(client.analytics.posts[':postId'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /analytics/account
  *
  * アカウント分析取得
@@ -1010,6 +1193,21 @@ export function getGetAnalyticsAccountQueryKey(
   args: InferRequestType<typeof client.analytics.account.$get>,
 ) {
   return ['/analytics/account', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /analytics/account
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAnalyticsAccountQueryOptions(
+  args: InferRequestType<typeof client.analytics.account.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAnalyticsAccountQueryKey(args),
+    queryFn: async () => parseResponse(client.analytics.account.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -1052,6 +1250,21 @@ export function getGetAnalyticsFollowersQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /analytics/followers
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAnalyticsFollowersQueryOptions(
+  args: InferRequestType<typeof client.analytics.followers.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAnalyticsFollowersQueryKey(args),
+    queryFn: async () => parseResponse(client.analytics.followers.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /analytics/top-posts
  *
  * トップ投稿取得
@@ -1088,4 +1301,19 @@ export function getGetAnalyticsTopPostsQueryKey(
   args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
 ) {
   return ['/analytics/top-posts', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /analytics/top-posts
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAnalyticsTopPostsQueryOptions(
+  args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAnalyticsTopPostsQueryKey(args),
+    queryFn: async () => parseResponse(client.analytics['top-posts'].$get(args, clientOptions)),
+  }
 }

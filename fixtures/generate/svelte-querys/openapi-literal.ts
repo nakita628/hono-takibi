@@ -38,3 +38,15 @@ export function createGetPrimitive(options?: {
 export function getGetPrimitiveQueryKey() {
   return ['/primitive'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /primitive
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPrimitiveQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetPrimitiveQueryKey(),
+    queryFn: async () => parseResponse(client.primitive.$get(undefined, clientOptions)),
+  }
+}

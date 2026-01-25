@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/31-practical-blog-api'
 
 /**
@@ -56,7 +56,7 @@ export function usePostPosts(options?: {
   return useSWRMutation(
     'POST /posts',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.posts.$post> }) =>
-      parseResponse(client.posts.$post(arg, options?.client)),
+      parseResponse(client.posts.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -115,7 +115,7 @@ export function usePutPostsPostId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['$put']> },
-    ) => parseResponse(client.posts[':postId'].$put(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -140,7 +140,7 @@ export function useDeletePostsPostId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['$delete']> },
-    ) => parseResponse(client.posts[':postId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -199,7 +199,7 @@ export function usePostPostsPostIdPublish(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['publish']['$post']> },
-    ) => parseResponse(client.posts[':postId'].publish.$post(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].publish.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -224,7 +224,7 @@ export function usePostPostsPostIdUnpublish(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['unpublish']['$post']> },
-    ) => parseResponse(client.posts[':postId'].unpublish.$post(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].unpublish.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -283,7 +283,7 @@ export function usePostPostsPostIdComments(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['comments']['$post']> },
-    ) => parseResponse(client.posts[':postId'].comments.$post(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].comments.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -308,7 +308,7 @@ export function useDeleteCommentsCommentId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.comments)[':commentId']['$delete']> },
-    ) => parseResponse(client.comments[':commentId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.comments[':commentId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -335,7 +335,7 @@ export function usePostCommentsCommentIdApprove(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.comments)[':commentId']['approve']['$post']> },
-    ) => parseResponse(client.comments[':commentId'].approve.$post(arg, options?.client)),
+    ) => parseResponse(client.comments[':commentId'].approve.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -387,7 +387,7 @@ export function usePostCategories(options?: {
   return useSWRMutation(
     'POST /categories',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.categories.$post> }) =>
-      parseResponse(client.categories.$post(arg, options?.client)),
+      parseResponse(client.categories.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -446,7 +446,7 @@ export function usePutCategoriesCategoryId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.categories)[':categoryId']['$put']> },
-    ) => parseResponse(client.categories[':categoryId'].$put(arg, options?.client)),
+    ) => parseResponse(client.categories[':categoryId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -471,7 +471,7 @@ export function useDeleteCategoriesCategoryId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.categories)[':categoryId']['$delete']> },
-    ) => parseResponse(client.categories[':categoryId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.categories[':categoryId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -522,7 +522,7 @@ export function usePostTags(options?: {
   return useSWRMutation(
     'POST /tags',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.tags.$post> }) =>
-      parseResponse(client.tags.$post(arg, options?.client)),
+      parseResponse(client.tags.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -577,7 +577,7 @@ export function usePostMedia(options?: {
   return useSWRMutation(
     'POST /media',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.media.$post> }) =>
-      parseResponse(client.media.$post(arg, options?.client)),
+      parseResponse(client.media.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -636,7 +636,7 @@ export function usePutMediaMediaId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.media)[':mediaId']['$put']> },
-    ) => parseResponse(client.media[':mediaId'].$put(arg, options?.client)),
+    ) => parseResponse(client.media[':mediaId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -661,7 +661,7 @@ export function useDeleteMediaMediaId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.media)[':mediaId']['$delete']> },
-    ) => parseResponse(client.media[':mediaId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.media[':mediaId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }

@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/27-extreme-encoding'
 
 /**
@@ -24,7 +24,7 @@ export function usePostEncodingTest(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['encoding-test']['$post']> },
-    ) => parseResponse(client['encoding-test'].$post(arg, options?.client)),
+    ) => parseResponse(client['encoding-test'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -79,7 +79,7 @@ export function usePostBinaryVariations(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['binary-variations']['$post']> },
-    ) => parseResponse(client['binary-variations'].$post(arg, options?.client)),
+    ) => parseResponse(client['binary-variations'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -127,7 +127,7 @@ export function usePostStreaming(options?: {
   return useSWRMutation(
     'POST /streaming',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.streaming.$post> }) =>
-      parseResponse(client.streaming.$post(arg, options?.client)),
+      parseResponse(client.streaming.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -150,7 +150,7 @@ export function usePostUrlEncodedComplex(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['url-encoded-complex']['$post']> },
-    ) => parseResponse(client['url-encoded-complex'].$post(arg, options?.client)),
+    ) => parseResponse(client['url-encoded-complex'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -200,7 +200,7 @@ export function usePostSchemaEncoding(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['schema-encoding']['$post']> },
-    ) => parseResponse(client['schema-encoding'].$post(arg, options?.client)),
+    ) => parseResponse(client['schema-encoding'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }

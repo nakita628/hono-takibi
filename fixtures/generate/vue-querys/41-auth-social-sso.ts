@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
 
@@ -46,6 +46,22 @@ export function getGetSocialAuthorizeProviderQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /social/authorize/{provider}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSocialAuthorizeProviderQueryOptions(
+  args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSocialAuthorizeProviderQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.social.authorize[':provider'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /social/callback/{provider}
  *
  * ソーシャル認証コールバック
@@ -85,6 +101,22 @@ export function getGetSocialCallbackProviderQueryKey(
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
 ) {
   return ['/social/callback/:provider', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /social/callback/{provider}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSocialCallbackProviderQueryOptions(
+  args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSocialCallbackProviderQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.social.callback[':provider'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -191,6 +223,18 @@ export function getGetProvidersQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /providers
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProvidersQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetProvidersQueryKey(),
+    queryFn: async () => parseResponse(client.providers.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /providers/admin
  *
  * 全プロバイダー一覧（管理用）
@@ -222,6 +266,18 @@ export function useGetProvidersAdmin(options?: {
  */
 export function getGetProvidersAdminQueryKey() {
   return ['/providers/admin'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /providers/admin
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProvidersAdminQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetProvidersAdminQueryKey(),
+    queryFn: async () => parseResponse(client.providers.admin.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -295,6 +351,21 @@ export function getGetProvidersProviderIdQueryKey(
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
 ) {
   return ['/providers/:providerId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /providers/{providerId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProvidersProviderIdQueryOptions(
+  args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProvidersProviderIdQueryKey(args),
+    queryFn: async () => parseResponse(client.providers[':providerId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -444,6 +515,18 @@ export function getGetAccountLinkedQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /account/linked
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAccountLinkedQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAccountLinkedQueryKey(),
+    queryFn: async () => parseResponse(client.account.linked.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * POST /account/link/{provider}
  *
  * アカウント連携
@@ -554,6 +637,18 @@ export function getGetEnterpriseSsoQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /enterprise/sso
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetEnterpriseSsoQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetEnterpriseSsoQueryKey(),
+    queryFn: async () => parseResponse(client.enterprise.sso.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * POST /enterprise/sso
  *
  * エンタープライズSSO設定作成
@@ -625,6 +720,22 @@ export function getGetEnterpriseSsoConfigIdQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
 ) {
   return ['/enterprise/sso/:configId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /enterprise/sso/{configId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetEnterpriseSsoConfigIdQueryOptions(
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetEnterpriseSsoConfigIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.enterprise.sso[':configId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -742,6 +853,22 @@ export function getGetEnterpriseSsoDomainLookupQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /enterprise/sso/domain-lookup
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetEnterpriseSsoDomainLookupQueryOptions(
+  args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetEnterpriseSsoDomainLookupQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.enterprise.sso['domain-lookup'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /enterprise/sso/{configId}/metadata
  *
  * SPメタデータ取得
@@ -781,4 +908,20 @@ export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
 ) {
   return ['/enterprise/sso/:configId/metadata', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /enterprise/sso/{configId}/metadata
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetEnterpriseSsoConfigIdMetadataQueryOptions(
+  args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetEnterpriseSsoConfigIdMetadataQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.enterprise.sso[':configId'].metadata.$get(args, clientOptions)),
+  }
 }

@@ -36,3 +36,15 @@ export function useGetSample(options?: {
 export function getGetSampleQueryKey() {
   return ['/sample'] as const
 }
+
+/**
+ * Returns TanStack Query query options for GET /sample
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSampleQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSampleQueryKey(),
+    queryFn: async () => parseResponse(client.sample.$get(undefined, clientOptions)),
+  }
+}

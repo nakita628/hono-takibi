@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/37-auth-mfa'
 
 /**
@@ -82,7 +82,7 @@ export function usePutMfaPreferred(options?: {
   return useSWRMutation(
     'PUT /mfa/preferred',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.preferred.$put> }) =>
-      parseResponse(client.mfa.preferred.$put(arg, options?.client)),
+      parseResponse(client.mfa.preferred.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -107,7 +107,7 @@ export function usePostMfaTotpSetup(options?: {
   return useSWRMutation(
     'POST /mfa/totp/setup',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.totp.setup.$post> }) =>
-      parseResponse(client.mfa.totp.setup.$post(arg, options?.client)),
+      parseResponse(client.mfa.totp.setup.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -132,7 +132,7 @@ export function usePostMfaTotpVerify(options?: {
   return useSWRMutation(
     'POST /mfa/totp/verify',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.totp.verify.$post> }) =>
-      parseResponse(client.mfa.totp.verify.$post(arg, options?.client)),
+      parseResponse(client.mfa.totp.verify.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -155,7 +155,7 @@ export function useDeleteMfaTotp(options?: {
   return useSWRMutation(
     'DELETE /mfa/totp',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.totp.$delete> }) =>
-      parseResponse(client.mfa.totp.$delete(arg, options?.client)),
+      parseResponse(client.mfa.totp.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -180,7 +180,7 @@ export function usePostMfaSmsSetup(options?: {
   return useSWRMutation(
     'POST /mfa/sms/setup',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.sms.setup.$post> }) =>
-      parseResponse(client.mfa.sms.setup.$post(arg, options?.client)),
+      parseResponse(client.mfa.sms.setup.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -203,7 +203,7 @@ export function usePostMfaSmsVerify(options?: {
   return useSWRMutation(
     'POST /mfa/sms/verify',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.sms.verify.$post> }) =>
-      parseResponse(client.mfa.sms.verify.$post(arg, options?.client)),
+      parseResponse(client.mfa.sms.verify.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -228,7 +228,7 @@ export function useDeleteMfaSmsMethodId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']> },
-    ) => parseResponse(client.mfa.sms[':methodId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.mfa.sms[':methodId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -251,7 +251,7 @@ export function usePostMfaEmailSetup(options?: {
   return useSWRMutation(
     'POST /mfa/email/setup',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.email.setup.$post> }) =>
-      parseResponse(client.mfa.email.setup.$post(arg, options?.client)),
+      parseResponse(client.mfa.email.setup.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -274,7 +274,7 @@ export function usePostMfaEmailVerify(options?: {
   return useSWRMutation(
     'POST /mfa/email/verify',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.email.verify.$post> }) =>
-      parseResponse(client.mfa.email.verify.$post(arg, options?.client)),
+      parseResponse(client.mfa.email.verify.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -301,7 +301,7 @@ export function usePostMfaWebauthnRegisterOptions(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.mfa.webauthn.register.options.$post> },
-    ) => parseResponse(client.mfa.webauthn.register.options.$post(arg, options?.client)),
+    ) => parseResponse(client.mfa.webauthn.register.options.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -326,7 +326,7 @@ export function usePostMfaWebauthnRegisterVerify(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.mfa.webauthn.register.verify.$post> },
-    ) => parseResponse(client.mfa.webauthn.register.verify.$post(arg, options?.client)),
+    ) => parseResponse(client.mfa.webauthn.register.verify.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -386,7 +386,7 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
         arg: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
       },
     ) =>
-      parseResponse(client.mfa.webauthn.credentials[':credentialId'].$delete(arg, options?.client)),
+      parseResponse(client.mfa.webauthn.credentials[':credentialId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -415,8 +415,7 @@ export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
       }: {
         arg: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
       },
-    ) =>
-      parseResponse(client.mfa.webauthn.credentials[':credentialId'].$patch(arg, options?.client)),
+    ) => parseResponse(client.mfa.webauthn.credentials[':credentialId'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -443,7 +442,7 @@ export function usePostMfaBackupCodesGenerate(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']> },
-    ) => parseResponse(client.mfa['backup-codes'].generate.$post(arg, options?.client)),
+    ) => parseResponse(client.mfa['backup-codes'].generate.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -497,7 +496,7 @@ export function usePostMfaChallenge(options?: {
   return useSWRMutation(
     'POST /mfa/challenge',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.challenge.$post> }) =>
-      parseResponse(client.mfa.challenge.$post(arg, options?.client)),
+      parseResponse(client.mfa.challenge.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -522,7 +521,7 @@ export function usePostMfaChallengeSend(options?: {
   return useSWRMutation(
     'POST /mfa/challenge/send',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.challenge.send.$post> }) =>
-      parseResponse(client.mfa.challenge.send.$post(arg, options?.client)),
+      parseResponse(client.mfa.challenge.send.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -547,7 +546,7 @@ export function usePostMfaVerify(options?: {
   return useSWRMutation(
     'POST /mfa/verify',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.verify.$post> }) =>
-      parseResponse(client.mfa.verify.$post(arg, options?.client)),
+      parseResponse(client.mfa.verify.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -572,7 +571,7 @@ export function usePostMfaWebauthnAuthenticateOptions(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post> },
-    ) => parseResponse(client.mfa.webauthn.authenticate.options.$post(arg, options?.client)),
+    ) => parseResponse(client.mfa.webauthn.authenticate.options.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -597,7 +596,7 @@ export function usePostMfaRecovery(options?: {
   return useSWRMutation(
     'POST /mfa/recovery',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mfa.recovery.$post> }) =>
-      parseResponse(client.mfa.recovery.$post(arg, options?.client)),
+      parseResponse(client.mfa.recovery.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -622,7 +621,7 @@ export function usePostMfaRecoveryVerify(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.mfa.recovery.verify.$post> },
-    ) => parseResponse(client.mfa.recovery.verify.$post(arg, options?.client)),
+    ) => parseResponse(client.mfa.recovery.verify.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

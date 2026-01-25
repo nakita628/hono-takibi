@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/discord-api-spec-openapi'
 
 /**
@@ -51,7 +51,7 @@ export function usePatchApplicationsMe(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.applications)['@me']['$patch']> },
-    ) => parseResponse(client.applications['@me'].$patch(arg, options?.client)),
+    ) => parseResponse(client.applications['@me'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -106,7 +106,7 @@ export function usePatchApplicationsApplicationId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.applications)[':application_id']['$patch']> },
-    ) => parseResponse(client.applications[':application_id'].$patch(arg, options?.client)),
+    ) => parseResponse(client.applications[':application_id'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -182,8 +182,7 @@ export function usePostApplicationsApplicationIdAttachment(options?: {
           (typeof client.applications)[':application_id']['attachment']['$post']
         >
       },
-    ) =>
-      parseResponse(client.applications[':application_id'].attachment.$post(arg, options?.client)),
+    ) => parseResponse(client.applications[':application_id'].attachment.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -244,7 +243,7 @@ export function usePutApplicationsApplicationIdCommands(options?: {
       }: {
         arg: InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>
       },
-    ) => parseResponse(client.applications[':application_id'].commands.$put(arg, options?.client)),
+    ) => parseResponse(client.applications[':application_id'].commands.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -271,7 +270,7 @@ export function usePostApplicationsApplicationIdCommands(options?: {
       }: {
         arg: InferRequestType<(typeof client.applications)[':application_id']['commands']['$post']>
       },
-    ) => parseResponse(client.applications[':application_id'].commands.$post(arg, options?.client)),
+    ) => parseResponse(client.applications[':application_id'].commands.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -348,10 +347,7 @@ export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
       },
     ) =>
       parseResponse(
-        client.applications[':application_id'].commands[':command_id'].$delete(
-          arg,
-          options?.client,
-        ),
+        client.applications[':application_id'].commands[':command_id'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -387,7 +383,7 @@ export function usePatchApplicationsApplicationIdCommandsCommandId(options?: {
       },
     ) =>
       parseResponse(
-        client.applications[':application_id'].commands[':command_id'].$patch(arg, options?.client),
+        client.applications[':application_id'].commands[':command_id'].$patch(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -449,7 +445,7 @@ export function usePostApplicationsApplicationIdEmojis(options?: {
       }: {
         arg: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>
       },
-    ) => parseResponse(client.applications[':application_id'].emojis.$post(arg, options?.client)),
+    ) => parseResponse(client.applications[':application_id'].emojis.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -525,7 +521,7 @@ export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
       },
     ) =>
       parseResponse(
-        client.applications[':application_id'].emojis[':emoji_id'].$delete(arg, options?.client),
+        client.applications[':application_id'].emojis[':emoji_id'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -561,7 +557,7 @@ export function usePatchApplicationsApplicationIdEmojisEmojiId(options?: {
       },
     ) =>
       parseResponse(
-        client.applications[':application_id'].emojis[':emoji_id'].$patch(arg, options?.client),
+        client.applications[':application_id'].emojis[':emoji_id'].$patch(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -628,9 +624,7 @@ export function usePostApplicationsApplicationIdEntitlements(options?: {
         >
       },
     ) =>
-      parseResponse(
-        client.applications[':application_id'].entitlements.$post(arg, options?.client),
-      ),
+      parseResponse(client.applications[':application_id'].entitlements.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -715,7 +709,7 @@ export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(opti
       parseResponse(
         client.applications[':application_id'].entitlements[':entitlement_id'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -755,7 +749,7 @@ export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume
       parseResponse(
         client.applications[':application_id'].entitlements[':entitlement_id'].consume.$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -841,7 +835,7 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands.$put(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -880,7 +874,7 @@ export function usePostApplicationsApplicationIdGuildsGuildIdCommands(options?: 
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands.$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -1014,7 +1008,7 @@ export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -1053,7 +1047,7 @@ export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$patch(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -1140,7 +1134,7 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands[
           ':command_id'
-        ].permissions.$put(arg, options?.client),
+        ].permissions.$put(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1225,7 +1219,7 @@ export function usePutApplicationsApplicationIdRoleConnectionsMetadata(options?:
       parseResponse(
         client.applications[':application_id']['role-connections'].metadata.$put(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -1282,7 +1276,7 @@ export function useDeleteChannelsChannelId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['$delete']> },
-    ) => parseResponse(client.channels[':channel_id'].$delete(arg, options?.client)),
+    ) => parseResponse(client.channels[':channel_id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1305,7 +1299,7 @@ export function usePatchChannelsChannelId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['$patch']> },
-    ) => parseResponse(client.channels[':channel_id'].$patch(arg, options?.client)),
+    ) => parseResponse(client.channels[':channel_id'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1330,7 +1324,7 @@ export function usePostChannelsChannelIdFollowers(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']> },
-    ) => parseResponse(client.channels[':channel_id'].followers.$post(arg, options?.client)),
+    ) => parseResponse(client.channels[':channel_id'].followers.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1387,7 +1381,7 @@ export function usePostChannelsChannelIdInvites(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']> },
-    ) => parseResponse(client.channels[':channel_id'].invites.$post(arg, options?.client)),
+    ) => parseResponse(client.channels[':channel_id'].invites.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1444,7 +1438,7 @@ export function usePostChannelsChannelIdMessages(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']> },
-    ) => parseResponse(client.channels[':channel_id'].messages.$post(arg, options?.client)),
+    ) => parseResponse(client.channels[':channel_id'].messages.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1476,7 +1470,7 @@ export function usePostChannelsChannelIdMessagesBulkDelete(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id'].messages['bulk-delete'].$post(arg, options?.client),
+        client.channels[':channel_id'].messages['bulk-delete'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1547,7 +1541,7 @@ export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id'].messages.pins[':message_id'].$put(arg, options?.client),
+        client.channels[':channel_id'].messages.pins[':message_id'].$put(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1584,7 +1578,7 @@ export function useDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id'].messages.pins[':message_id'].$delete(arg, options?.client),
+        client.channels[':channel_id'].messages.pins[':message_id'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1659,7 +1653,7 @@ export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].$delete(arg, options?.client),
+        client.channels[':channel_id'].messages[':message_id'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1691,7 +1685,7 @@ export function usePatchChannelsChannelIdMessagesMessageId(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].$patch(arg, options?.client),
+        client.channels[':channel_id'].messages[':message_id'].$patch(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1727,10 +1721,7 @@ export function usePostChannelsChannelIdMessagesMessageIdCrosspost(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].crosspost.$post(
-          arg,
-          options?.client,
-        ),
+        client.channels[':channel_id'].messages[':message_id'].crosspost.$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1769,7 +1760,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactions(options?: {
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].reactions.$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -1856,7 +1847,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(op
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -1896,7 +1887,7 @@ export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(opt
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name']['@me'].$put(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -1936,7 +1927,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
           '@me'
-        ].$delete(arg, options?.client),
+        ].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1975,7 +1966,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUse
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
           ':user_id'
-        ].$delete(arg, options?.client),
+        ].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2011,7 +2002,7 @@ export function usePostChannelsChannelIdMessagesMessageIdThreads(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].threads.$post(arg, options?.client),
+        client.channels[':channel_id'].messages[':message_id'].threads.$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2048,7 +2039,7 @@ export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id'].permissions[':overwrite_id'].$put(arg, options?.client),
+        client.channels[':channel_id'].permissions[':overwrite_id'].$put(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2085,7 +2076,7 @@ export function useDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id'].permissions[':overwrite_id'].$delete(arg, options?.client),
+        client.channels[':channel_id'].permissions[':overwrite_id'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2148,8 +2139,7 @@ export function usePutChannelsChannelIdPinsMessageId(options?: {
           (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
         >
       },
-    ) =>
-      parseResponse(client.channels[':channel_id'].pins[':message_id'].$put(arg, options?.client)),
+    ) => parseResponse(client.channels[':channel_id'].pins[':message_id'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2180,9 +2170,7 @@ export function useDeleteChannelsChannelIdPinsMessageId(options?: {
         >
       },
     ) =>
-      parseResponse(
-        client.channels[':channel_id'].pins[':message_id'].$delete(arg, options?.client),
-      ),
+      parseResponse(client.channels[':channel_id'].pins[':message_id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2264,7 +2252,7 @@ export function usePostChannelsChannelIdPollsMessageIdExpire(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id'].polls[':message_id'].expire.$post(arg, options?.client),
+        client.channels[':channel_id'].polls[':message_id'].expire.$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2296,9 +2284,7 @@ export function usePutChannelsChannelIdRecipientsUserId(options?: {
         >
       },
     ) =>
-      parseResponse(
-        client.channels[':channel_id'].recipients[':user_id'].$put(arg, options?.client),
-      ),
+      parseResponse(client.channels[':channel_id'].recipients[':user_id'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2332,7 +2318,7 @@ export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id'].recipients[':user_id'].$delete(arg, options?.client),
+        client.channels[':channel_id'].recipients[':user_id'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2365,7 +2351,7 @@ export function usePostChannelsChannelIdSendSoundboardSound(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id']['send-soundboard-sound'].$post(arg, options?.client),
+        client.channels[':channel_id']['send-soundboard-sound'].$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2432,7 +2418,7 @@ export function usePutChannelsChannelIdThreadMembersMe(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id']['thread-members']['@me'].$put(arg, options?.client),
+        client.channels[':channel_id']['thread-members']['@me'].$put(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2465,7 +2451,7 @@ export function useDeleteChannelsChannelIdThreadMembersMe(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id']['thread-members']['@me'].$delete(arg, options?.client),
+        client.channels[':channel_id']['thread-members']['@me'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2540,7 +2526,7 @@ export function usePutChannelsChannelIdThreadMembersUserId(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id']['thread-members'][':user_id'].$put(arg, options?.client),
+        client.channels[':channel_id']['thread-members'][':user_id'].$put(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2577,7 +2563,7 @@ export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
       },
     ) =>
       parseResponse(
-        client.channels[':channel_id']['thread-members'][':user_id'].$delete(arg, options?.client),
+        client.channels[':channel_id']['thread-members'][':user_id'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -2603,7 +2589,7 @@ export function usePostChannelsChannelIdThreads(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']> },
-    ) => parseResponse(client.channels[':channel_id'].threads.$post(arg, options?.client)),
+    ) => parseResponse(client.channels[':channel_id'].threads.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2743,7 +2729,7 @@ export function usePostChannelsChannelIdTyping(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']> },
-    ) => parseResponse(client.channels[':channel_id'].typing.$post(arg, options?.client)),
+    ) => parseResponse(client.channels[':channel_id'].typing.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2847,7 +2833,7 @@ export function usePostChannelsChannelIdWebhooks(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']> },
-    ) => parseResponse(client.channels[':channel_id'].webhooks.$post(arg, options?.client)),
+    ) => parseResponse(client.channels[':channel_id'].webhooks.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2988,7 +2974,7 @@ export function usePatchGuildsGuildId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']> },
-    ) => parseResponse(client.guilds[':guild_id'].$patch(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3086,9 +3072,7 @@ export function usePostGuildsGuildIdAutoModerationRules(options?: {
         >
       },
     ) =>
-      parseResponse(
-        client.guilds[':guild_id']['auto-moderation'].rules.$post(arg, options?.client),
-      ),
+      parseResponse(client.guilds[':guild_id']['auto-moderation'].rules.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3164,10 +3148,7 @@ export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
       },
     ) =>
       parseResponse(
-        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$delete(
-          arg,
-          options?.client,
-        ),
+        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -3203,10 +3184,7 @@ export function usePatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
       },
     ) =>
       parseResponse(
-        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$patch(
-          arg,
-          options?.client,
-        ),
+        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$patch(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -3297,7 +3275,7 @@ export function usePutGuildsGuildIdBansUserId(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']> },
-    ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$put(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3325,7 +3303,7 @@ export function useDeleteGuildsGuildIdBansUserId(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
       },
-    ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$delete(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3348,7 +3326,7 @@ export function usePostGuildsGuildIdBulkBan(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']> },
-    ) => parseResponse(client.guilds[':guild_id']['bulk-ban'].$post(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id']['bulk-ban'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3403,7 +3381,7 @@ export function usePostGuildsGuildIdChannels(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']> },
-    ) => parseResponse(client.guilds[':guild_id'].channels.$post(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].channels.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3426,7 +3404,7 @@ export function usePatchGuildsGuildIdChannels(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']> },
-    ) => parseResponse(client.guilds[':guild_id'].channels.$patch(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].channels.$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3481,7 +3459,7 @@ export function usePostGuildsGuildIdEmojis(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']> },
-    ) => parseResponse(client.guilds[':guild_id'].emojis.$post(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].emojis.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3543,8 +3521,7 @@ export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
       },
-    ) =>
-      parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$delete(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3571,7 +3548,7 @@ export function usePatchGuildsGuildIdEmojisEmojiId(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>
       },
-    ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$patch(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3639,7 +3616,7 @@ export function useDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
       },
     ) =>
       parseResponse(
-        client.guilds[':guild_id'].integrations[':integration_id'].$delete(arg, options?.client),
+        client.guilds[':guild_id'].integrations[':integration_id'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -3729,7 +3706,7 @@ export function usePatchGuildsGuildIdMembersMe(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']> },
-    ) => parseResponse(client.guilds[':guild_id'].members['@me'].$patch(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].members['@me'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3825,7 +3802,7 @@ export function usePutGuildsGuildIdMembersUserId(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
       },
-    ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$put(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3853,8 +3830,7 @@ export function useDeleteGuildsGuildIdMembersUserId(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
       },
-    ) =>
-      parseResponse(client.guilds[':guild_id'].members[':user_id'].$delete(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3882,7 +3858,7 @@ export function usePatchGuildsGuildIdMembersUserId(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
       },
-    ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$patch(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -3918,7 +3894,7 @@ export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
       },
     ) =>
       parseResponse(
-        client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$put(arg, options?.client),
+        client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$put(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -3957,7 +3933,7 @@ export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
       parseResponse(
         client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -4048,7 +4024,7 @@ export function usePutGuildsGuildIdOnboarding(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']> },
-    ) => parseResponse(client.guilds[':guild_id'].onboarding.$put(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].onboarding.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4135,7 +4111,7 @@ export function usePostGuildsGuildIdPrune(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']> },
-    ) => parseResponse(client.guilds[':guild_id'].prune.$post(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].prune.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4222,7 +4198,7 @@ export function usePostGuildsGuildIdRoles(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']> },
-    ) => parseResponse(client.guilds[':guild_id'].roles.$post(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].roles.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4245,7 +4221,7 @@ export function usePatchGuildsGuildIdRoles(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']> },
-    ) => parseResponse(client.guilds[':guild_id'].roles.$patch(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].roles.$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4306,7 +4282,7 @@ export function useDeleteGuildsGuildIdRolesRoleId(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
       },
-    ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$delete(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4333,7 +4309,7 @@ export function usePatchGuildsGuildIdRolesRoleId(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>
       },
-    ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$patch(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4394,7 +4370,7 @@ export function usePostGuildsGuildIdScheduledEvents(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>
       },
-    ) => parseResponse(client.guilds[':guild_id']['scheduled-events'].$post(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id']['scheduled-events'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4479,7 +4455,7 @@ export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(optio
       parseResponse(
         client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -4518,7 +4494,7 @@ export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(option
       parseResponse(
         client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$patch(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -4628,7 +4604,7 @@ export function usePostGuildsGuildIdSoundboardSounds(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>
       },
-    ) => parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$post(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4704,7 +4680,7 @@ export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
       },
     ) =>
       parseResponse(
-        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$delete(arg, options?.client),
+        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -4740,7 +4716,7 @@ export function usePatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
       },
     ) =>
       parseResponse(
-        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$patch(arg, options?.client),
+        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$patch(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -4796,7 +4772,7 @@ export function usePostGuildsGuildIdStickers(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']> },
-    ) => parseResponse(client.guilds[':guild_id'].stickers.$post(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].stickers.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4861,9 +4837,7 @@ export function useDeleteGuildsGuildIdStickersStickerId(options?: {
         >
       },
     ) =>
-      parseResponse(
-        client.guilds[':guild_id'].stickers[':sticker_id'].$delete(arg, options?.client),
-      ),
+      parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4893,9 +4867,7 @@ export function usePatchGuildsGuildIdStickersStickerId(options?: {
         >
       },
     ) =>
-      parseResponse(
-        client.guilds[':guild_id'].stickers[':sticker_id'].$patch(arg, options?.client),
-      ),
+      parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4950,7 +4922,7 @@ export function usePostGuildsGuildIdTemplates(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']> },
-    ) => parseResponse(client.guilds[':guild_id'].templates.$post(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].templates.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -4977,7 +4949,7 @@ export function usePutGuildsGuildIdTemplatesCode(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>
       },
-    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$put(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5004,7 +4976,7 @@ export function useDeleteGuildsGuildIdTemplatesCode(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>
       },
-    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$delete(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5031,7 +5003,7 @@ export function usePatchGuildsGuildIdTemplatesCode(options?: {
       }: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>
       },
-    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$patch(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5160,7 +5132,7 @@ export function usePatchGuildsGuildIdVoiceStatesMe(options?: {
         arg: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
       },
     ) =>
-      parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$patch(arg, options?.client)),
+      parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5228,7 +5200,7 @@ export function usePatchGuildsGuildIdVoiceStatesUserId(options?: {
       },
     ) =>
       parseResponse(
-        client.guilds[':guild_id']['voice-states'][':user_id'].$patch(arg, options?.client),
+        client.guilds[':guild_id']['voice-states'][':user_id'].$patch(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -5320,7 +5292,7 @@ export function usePatchGuildsGuildIdWelcomeScreen(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']> },
-    ) => parseResponse(client.guilds[':guild_id']['welcome-screen'].$patch(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id']['welcome-screen'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5375,7 +5347,7 @@ export function usePatchGuildsGuildIdWidget(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']> },
-    ) => parseResponse(client.guilds[':guild_id'].widget.$patch(arg, options?.client)),
+    ) => parseResponse(client.guilds[':guild_id'].widget.$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5478,7 +5450,7 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(options
       parseResponse(
         client.interactions[':interaction_id'][':interaction_token'].callback.$post(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -5535,7 +5507,7 @@ export function useDeleteInvitesCode(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.invites)[':code']['$delete']> },
-    ) => parseResponse(client.invites[':code'].$delete(arg, options?.client)),
+    ) => parseResponse(client.invites[':code'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5556,7 +5528,7 @@ export function usePutLobbies(options?: {
   return useSWRMutation(
     'PUT /lobbies',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.lobbies.$put> }) =>
-      parseResponse(client.lobbies.$put(arg, options?.client)),
+      parseResponse(client.lobbies.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5577,7 +5549,7 @@ export function usePostLobbies(options?: {
   return useSWRMutation(
     'POST /lobbies',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.lobbies.$post> }) =>
-      parseResponse(client.lobbies.$post(arg, options?.client)),
+      parseResponse(client.lobbies.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5632,7 +5604,7 @@ export function usePatchLobbiesLobbyId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']> },
-    ) => parseResponse(client.lobbies[':lobby_id'].$patch(arg, options?.client)),
+    ) => parseResponse(client.lobbies[':lobby_id'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5659,7 +5631,7 @@ export function usePatchLobbiesLobbyIdChannelLinking(options?: {
       }: {
         arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>
       },
-    ) => parseResponse(client.lobbies[':lobby_id']['channel-linking'].$patch(arg, options?.client)),
+    ) => parseResponse(client.lobbies[':lobby_id']['channel-linking'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5687,7 +5659,7 @@ export function useDeleteLobbiesLobbyIdMembersMe(options?: {
       }: {
         arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
       },
-    ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(arg, options?.client)),
+    ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5717,7 +5689,7 @@ export function usePostLobbiesLobbyIdMembersMeInvites(options?: {
         >
       },
     ) =>
-      parseResponse(client.lobbies[':lobby_id'].members['@me'].invites.$post(arg, options?.client)),
+      parseResponse(client.lobbies[':lobby_id'].members['@me'].invites.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5744,7 +5716,7 @@ export function usePostLobbiesLobbyIdMembersBulk(options?: {
       }: {
         arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>
       },
-    ) => parseResponse(client.lobbies[':lobby_id'].members.bulk.$post(arg, options?.client)),
+    ) => parseResponse(client.lobbies[':lobby_id'].members.bulk.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5771,7 +5743,7 @@ export function usePutLobbiesLobbyIdMembersUserId(options?: {
       }: {
         arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>
       },
-    ) => parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$put(arg, options?.client)),
+    ) => parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5801,8 +5773,7 @@ export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
           (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
         >
       },
-    ) =>
-      parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$delete(arg, options?.client)),
+    ) => parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -5837,7 +5808,7 @@ export function usePostLobbiesLobbyIdMembersUserIdInvites(options?: {
       },
     ) =>
       parseResponse(
-        client.lobbies[':lobby_id'].members[':user_id'].invites.$post(arg, options?.client),
+        client.lobbies[':lobby_id'].members[':user_id'].invites.$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -5893,7 +5864,7 @@ export function usePostLobbiesLobbyIdMessages(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']> },
-    ) => parseResponse(client.lobbies[':lobby_id'].messages.$post(arg, options?.client)),
+    ) => parseResponse(client.lobbies[':lobby_id'].messages.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6033,7 +6004,7 @@ export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
       },
     ) =>
       parseResponse(
-        client['partner-sdk']['provisional-accounts'].unmerge.$post(arg, options?.client),
+        client['partner-sdk']['provisional-accounts'].unmerge.$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -6070,7 +6041,7 @@ export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
       },
     ) =>
       parseResponse(
-        client['partner-sdk']['provisional-accounts'].unmerge.bot.$post(arg, options?.client),
+        client['partner-sdk']['provisional-accounts'].unmerge.bot.$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -6094,7 +6065,7 @@ export function usePostPartnerSdkToken(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['partner-sdk']['token']['$post']> },
-    ) => parseResponse(client['partner-sdk'].token.$post(arg, options?.client)),
+    ) => parseResponse(client['partner-sdk'].token.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6117,7 +6088,7 @@ export function usePostPartnerSdkTokenBot(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']> },
-    ) => parseResponse(client['partner-sdk'].token.bot.$post(arg, options?.client)),
+    ) => parseResponse(client['partner-sdk'].token.bot.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6167,7 +6138,7 @@ export function usePostStageInstances(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['stage-instances']['$post']> },
-    ) => parseResponse(client['stage-instances'].$post(arg, options?.client)),
+    ) => parseResponse(client['stage-instances'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6224,7 +6195,7 @@ export function useDeleteStageInstancesChannelId(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']> },
-    ) => parseResponse(client['stage-instances'][':channel_id'].$delete(arg, options?.client)),
+    ) => parseResponse(client['stage-instances'][':channel_id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6249,7 +6220,7 @@ export function usePatchStageInstancesChannelId(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']> },
-    ) => parseResponse(client['stage-instances'][':channel_id'].$patch(arg, options?.client)),
+    ) => parseResponse(client['stage-instances'][':channel_id'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6388,7 +6359,7 @@ export function usePatchUsersMe(options?: {
   return useSWRMutation(
     'PATCH /users/@me',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client.users)['@me']['$patch']> }) =>
-      parseResponse(client.users['@me'].$patch(arg, options?.client)),
+      parseResponse(client.users['@me'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6516,7 +6487,7 @@ export function usePutUsersMeApplicationsApplicationIdRoleConnection(options?: {
       parseResponse(
         client.users['@me'].applications[':application_id']['role-connection'].$put(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -6556,7 +6527,7 @@ export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?
       parseResponse(
         client.users['@me'].applications[':application_id']['role-connection'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -6581,7 +6552,7 @@ export function usePostUsersMeChannels(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)['@me']['channels']['$post']> },
-    ) => parseResponse(client.users['@me'].channels.$post(arg, options?.client)),
+    ) => parseResponse(client.users['@me'].channels.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6665,7 +6636,7 @@ export function useDeleteUsersMeGuildsGuildId(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']> },
-    ) => parseResponse(client.users['@me'].guilds[':guild_id'].$delete(arg, options?.client)),
+    ) => parseResponse(client.users['@me'].guilds[':guild_id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6813,7 +6784,7 @@ export function useDeleteWebhooksWebhookId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']> },
-    ) => parseResponse(client.webhooks[':webhook_id'].$delete(arg, options?.client)),
+    ) => parseResponse(client.webhooks[':webhook_id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6836,7 +6807,7 @@ export function usePatchWebhooksWebhookId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']> },
-    ) => parseResponse(client.webhooks[':webhook_id'].$patch(arg, options?.client)),
+    ) => parseResponse(client.webhooks[':webhook_id'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6898,8 +6869,7 @@ export function usePostWebhooksWebhookIdWebhookToken(options?: {
       }: {
         arg: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
       },
-    ) =>
-      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$post(arg, options?.client)),
+    ) => parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6928,7 +6898,7 @@ export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
         arg: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
       },
     ) =>
-      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$delete(arg, options?.client)),
+      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6955,8 +6925,7 @@ export function usePatchWebhooksWebhookIdWebhookToken(options?: {
       }: {
         arg: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>
       },
-    ) =>
-      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$patch(arg, options?.client)),
+    ) => parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -6990,7 +6959,7 @@ export function usePostWebhooksWebhookIdWebhookTokenGithub(options?: {
       },
     ) =>
       parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].github.$post(arg, options?.client),
+        client.webhooks[':webhook_id'][':webhook_token'].github.$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -7076,7 +7045,7 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?:
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -7115,7 +7084,7 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: 
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$patch(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -7202,7 +7171,7 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$delete(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -7241,7 +7210,7 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?:
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$patch(
           arg,
-          options?.client,
+          clientOptions,
         ),
       ),
     mutationOptions,
@@ -7274,7 +7243,7 @@ export function usePostWebhooksWebhookIdWebhookTokenSlack(options?: {
       },
     ) =>
       parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].slack.$post(arg, options?.client),
+        client.webhooks[':webhook_id'][':webhook_token'].slack.$post(arg, clientOptions),
       ),
     mutationOptions,
   )

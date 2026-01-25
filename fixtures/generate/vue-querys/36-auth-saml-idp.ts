@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
@@ -40,6 +40,21 @@ export function useGetSamlSso(
  */
 export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
   return ['/saml/sso', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /saml/sso
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSamlSsoQueryOptions(
+  args: InferRequestType<typeof client.saml.sso.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSamlSsoQueryKey(args),
+    queryFn: async () => parseResponse(client.saml.sso.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -112,6 +127,21 @@ export function useGetSamlSlo(
  */
 export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
   return ['/saml/slo', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /saml/slo
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSamlSloQueryOptions(
+  args: InferRequestType<typeof client.saml.slo.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSamlSloQueryKey(args),
+    queryFn: async () => parseResponse(client.saml.slo.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -217,6 +247,18 @@ export function getGetSamlMetadataQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /saml/metadata
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSamlMetadataQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSamlMetadataQueryKey(),
+    queryFn: async () => parseResponse(client.saml.metadata.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /service-providers
  *
  * SP一覧取得
@@ -253,6 +295,21 @@ export function getGetServiceProvidersQueryKey(
   args: InferRequestType<(typeof client)['service-providers']['$get']>,
 ) {
   return ['/service-providers', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /service-providers
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetServiceProvidersQueryOptions(
+  args: InferRequestType<(typeof client)['service-providers']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetServiceProvidersQueryKey(args),
+    queryFn: async () => parseResponse(client['service-providers'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -327,6 +384,22 @@ export function getGetServiceProvidersSpIdQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
 ) {
   return ['/service-providers/:spId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /service-providers/{spId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetServiceProvidersSpIdQueryOptions(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetServiceProvidersSpIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['service-providers'][':spId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -444,6 +517,22 @@ export function getGetServiceProvidersSpIdMetadataQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /service-providers/{spId}/metadata
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetServiceProvidersSpIdMetadataQueryOptions(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetServiceProvidersSpIdMetadataQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['service-providers'][':spId'].metadata.$get(args, clientOptions)),
+  }
+}
+
+/**
  * PUT /service-providers/{spId}/metadata
  *
  * SPメタデータ更新
@@ -531,6 +620,22 @@ export function getGetServiceProvidersSpIdAttributesQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /service-providers/{spId}/attributes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetServiceProvidersSpIdAttributesQueryOptions(
+  args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetServiceProvidersSpIdAttributesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client['service-providers'][':spId'].attributes.$get(args, clientOptions)),
+  }
+}
+
+/**
  * PUT /service-providers/{spId}/attributes
  *
  * SP属性マッピング更新
@@ -612,6 +717,18 @@ export function getGetAttributesQueryKey() {
 }
 
 /**
+ * Returns Vue Query query options for GET /attributes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAttributesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetAttributesQueryKey(),
+    queryFn: async () => parseResponse(client.attributes.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /certificates
  *
  * 証明書一覧取得
@@ -643,6 +760,18 @@ export function useGetCertificates(options?: {
  */
 export function getGetCertificatesQueryKey() {
   return ['/certificates'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /certificates
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCertificatesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetCertificatesQueryKey(),
+    queryFn: async () => parseResponse(client.certificates.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -790,6 +919,21 @@ export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sess
 }
 
 /**
+ * Returns Vue Query query options for GET /sessions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSessionsQueryOptions(
+  args: InferRequestType<typeof client.sessions.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSessionsQueryKey(args),
+    queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
+  }
+}
+
+/**
  * DELETE /sessions/{sessionId}
  *
  * セッション終了
@@ -862,4 +1006,19 @@ export function getGetAuditLogsQueryKey(
   args: InferRequestType<(typeof client)['audit-logs']['$get']>,
 ) {
   return ['/audit-logs', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /audit-logs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetAuditLogsQueryOptions(
+  args: InferRequestType<(typeof client)['audit-logs']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetAuditLogsQueryKey(args),
+    queryFn: async () => parseResponse(client['audit-logs'].$get(args, clientOptions)),
+  }
 }

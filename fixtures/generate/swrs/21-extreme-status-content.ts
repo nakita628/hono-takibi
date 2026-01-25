@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/21-extreme-status-content'
 
 /**
@@ -51,7 +51,7 @@ export function usePostMultipartVariations(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['multipart-variations']['$post']> },
-    ) => parseResponse(client['multipart-variations'].$post(arg, options?.client)),
+    ) => parseResponse(client['multipart-variations'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -74,7 +74,7 @@ export function usePostCharsetVariations(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['charset-variations']['$post']> },
-    ) => parseResponse(client['charset-variations'].$post(arg, options?.client)),
+    ) => parseResponse(client['charset-variations'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }

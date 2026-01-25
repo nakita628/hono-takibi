@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/17-mixed-inline-refs'
 
@@ -36,6 +36,21 @@ export function createGetUsers(
  */
 export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
   return ['/users', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersQueryKey(args),
+    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -105,6 +120,21 @@ export function getGetUsersUserIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /users/{userId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /orders
  */
 export function createPostOrders(options?: {
@@ -169,6 +199,22 @@ export function getGetProductsProductIdVariantsQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
 ) {
   return ['/products/:productId/variants', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /products/{productId}/variants
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProductsProductIdVariantsQueryOptions(
+  args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProductsProductIdVariantsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.products[':productId'].variants.$get(args, clientOptions)),
+  }
 }
 
 /**

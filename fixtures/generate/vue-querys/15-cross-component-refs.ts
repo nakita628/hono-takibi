@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -36,6 +36,21 @@ export function useGetEntities(
  */
 export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.entities.$get>) {
   return ['/entities', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /entities
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetEntitiesQueryOptions(
+  args: InferRequestType<typeof client.entities.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetEntitiesQueryKey(args),
+    queryFn: async () => parseResponse(client.entities.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -102,6 +117,21 @@ export function getGetEntitiesEntityIdQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
   return ['/entities/:entityId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /entities/{entityId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetEntitiesEntityIdQueryOptions(
+  args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetEntitiesEntityIdQueryKey(args),
+    queryFn: async () => parseResponse(client.entities[':entityId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -206,6 +236,22 @@ export function getGetEntitiesEntityIdRelationshipsQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
   return ['/entities/:entityId/relationships', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /entities/{entityId}/relationships
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetEntitiesEntityIdRelationshipsQueryOptions(
+  args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetEntitiesEntityIdRelationshipsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.entities[':entityId'].relationships.$get(args, clientOptions)),
+  }
 }
 
 /**

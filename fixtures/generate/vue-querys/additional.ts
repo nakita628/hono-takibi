@@ -38,3 +38,15 @@ export function useGetPassthrough(options?: {
 export function getGetPassthroughQueryKey() {
   return ['/passthrough'] as const
 }
+
+/**
+ * Returns Vue Query query options for GET /passthrough
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPassthroughQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetPassthroughQueryKey(),
+    queryFn: async () => parseResponse(client.passthrough.$get(undefined, clientOptions)),
+  }
+}

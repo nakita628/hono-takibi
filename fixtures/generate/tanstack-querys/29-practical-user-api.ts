@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
@@ -242,6 +242,21 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
 }
 
 /**
+ * Returns TanStack Query query options for GET /users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersQueryKey(args),
+    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /users/{userId}
  *
  * ユーザー詳細取得
@@ -278,6 +293,21 @@ export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
   return ['/users/:userId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /users/{userId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -380,6 +410,18 @@ export function useGetUsersMe(options?: {
  */
 export function getGetUsersMeQueryKey() {
   return ['/users/me'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /users/me
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersMeQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetUsersMeQueryKey(),
+    queryFn: async () => parseResponse(client.users.me.$get(undefined, clientOptions)),
+  }
 }
 
 /**

@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/algolia'
 
 /**
@@ -60,7 +60,7 @@ export function usePutPath(options?: {
   return useSWRMutation(
     'PUT /:path',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)[':path']['$put']> }) =>
-      parseResponse(client[':path'].$put(arg, options?.client)),
+      parseResponse(client[':path'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -85,7 +85,7 @@ export function usePostPath(options?: {
   return useSWRMutation(
     'POST /:path',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)[':path']['$post']> }) =>
-      parseResponse(client[':path'].$post(arg, options?.client)),
+      parseResponse(client[':path'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -110,7 +110,7 @@ export function useDeletePath(options?: {
   return useSWRMutation(
     'DELETE /:path',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)[':path']['$delete']> }) =>
-      parseResponse(client[':path'].$delete(arg, options?.client)),
+      parseResponse(client[':path'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -142,7 +142,7 @@ export function usePost1IndexesIndexNameQuery(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']> },
-    ) => parseResponse(client['1'].indexes[':indexName'].query.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].query.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -176,7 +176,7 @@ export function usePost1IndexesQueries(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']> },
-    ) => parseResponse(client['1'].indexes['*'].queries.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes['*'].queries.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -219,7 +219,7 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
       },
     ) =>
       parseResponse(
-        client['1'].indexes[':indexName'].facets[':facetName'].query.$post(arg, options?.client),
+        client['1'].indexes[':indexName'].facets[':facetName'].query.$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -275,7 +275,7 @@ export function usePost1IndexesIndexNameBrowse(options?: {
       }: {
         arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
       },
-    ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -312,7 +312,7 @@ export function usePost1IndexesIndexName(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']> },
-    ) => parseResponse(client['1'].indexes[':indexName'].$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -345,7 +345,7 @@ export function useDelete1IndexesIndexName(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']> },
-    ) => parseResponse(client['1'].indexes[':indexName'].$delete(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -420,7 +420,7 @@ export function usePut1IndexesIndexNameObjectID(options?: {
       }: {
         arg: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
       },
-    ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -454,8 +454,7 @@ export function useDelete1IndexesIndexNameObjectID(options?: {
       }: {
         arg: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
       },
-    ) =>
-      parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -495,7 +494,7 @@ export function usePost1IndexesIndexNameDeleteByQuery(options?: {
           (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
         >
       },
-    ) => parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -525,7 +524,7 @@ export function usePost1IndexesIndexNameClear(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']> },
-    ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -588,7 +587,7 @@ export function usePost1IndexesIndexNameObjectIDPartial(options?: {
       },
     ) =>
       parseResponse(
-        client['1'].indexes[':indexName'][':objectID'].partial.$post(arg, options?.client),
+        client['1'].indexes[':indexName'][':objectID'].partial.$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -625,7 +624,7 @@ export function usePost1IndexesIndexNameBatch(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']> },
-    ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -657,7 +656,7 @@ export function usePost1IndexesBatch(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']> },
-    ) => parseResponse(client['1'].indexes['*'].batch.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes['*'].batch.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -686,7 +685,7 @@ export function usePost1IndexesObjects(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']> },
-    ) => parseResponse(client['1'].indexes['*'].objects.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes['*'].objects.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -759,7 +758,7 @@ export function usePut1IndexesIndexNameSettings(options?: {
       }: {
         arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
       },
-    ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -844,7 +843,7 @@ export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
       },
     ) =>
       parseResponse(
-        client['1'].indexes[':indexName'].synonyms[':objectID'].$put(arg, options?.client),
+        client['1'].indexes[':indexName'].synonyms[':objectID'].$put(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -885,7 +884,7 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
       },
     ) =>
       parseResponse(
-        client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(arg, options?.client),
+        client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -922,8 +921,7 @@ export function usePost1IndexesIndexNameSynonymsBatch(options?: {
           (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
         >
       },
-    ) =>
-      parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -956,8 +954,7 @@ export function usePost1IndexesIndexNameSynonymsClear(options?: {
           (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
         >
       },
-    ) =>
-      parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -990,8 +987,7 @@ export function usePost1IndexesIndexNameSynonymsSearch(options?: {
           (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
         >
       },
-    ) =>
-      parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1047,7 +1043,7 @@ export function usePost1Keys(options?: {
   return useSWRMutation(
     'POST /1/keys',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client)['1']['keys']['$post']> }) =>
-      parseResponse(client['1'].keys.$post(arg, options?.client)),
+      parseResponse(client['1'].keys.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1116,7 +1112,7 @@ export function usePut1KeysKey(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['$put']> },
-    ) => parseResponse(client['1'].keys[':key'].$put(arg, options?.client)),
+    ) => parseResponse(client['1'].keys[':key'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1143,7 +1139,7 @@ export function useDelete1KeysKey(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']> },
-    ) => parseResponse(client['1'].keys[':key'].$delete(arg, options?.client)),
+    ) => parseResponse(client['1'].keys[':key'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1175,7 +1171,7 @@ export function usePost1KeysKeyRestore(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']> },
-    ) => parseResponse(client['1'].keys[':key'].restore.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].keys[':key'].restore.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1257,9 +1253,7 @@ export function usePut1IndexesIndexNameRulesObjectID(options?: {
         >
       },
     ) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].rules[':objectID'].$put(arg, options?.client),
-      ),
+      parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1298,7 +1292,7 @@ export function useDelete1IndexesIndexNameRulesObjectID(options?: {
       },
     ) =>
       parseResponse(
-        client['1'].indexes[':indexName'].rules[':objectID'].$delete(arg, options?.client),
+        client['1'].indexes[':indexName'].rules[':objectID'].$delete(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -1337,7 +1331,7 @@ export function usePost1IndexesIndexNameRulesBatch(options?: {
           (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
         >
       },
-    ) => parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1370,7 +1364,7 @@ export function usePost1IndexesIndexNameRulesClear(options?: {
           (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
         >
       },
-    ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1403,7 +1397,7 @@ export function usePost1IndexesIndexNameRulesSearch(options?: {
           (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
         >
       },
-    ) => parseResponse(client['1'].indexes[':indexName'].rules.search.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].rules.search.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1436,8 +1430,7 @@ export function usePost1DictionariesDictionaryNameBatch(options?: {
           (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
         >
       },
-    ) =>
-      parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1471,7 +1464,7 @@ export function usePost1DictionariesDictionaryNameSearch(options?: {
         >
       },
     ) =>
-      parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(arg, options?.client)),
+      parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1532,7 +1525,7 @@ export function usePut1DictionariesSettings(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']> },
-    ) => parseResponse(client['1'].dictionaries['*'].settings.$put(arg, options?.client)),
+    ) => parseResponse(client['1'].dictionaries['*'].settings.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1632,7 +1625,7 @@ export function usePost1ClustersMapping(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']> },
-    ) => parseResponse(client['1'].clusters.mapping.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].clusters.mapping.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1663,7 +1656,7 @@ export function usePost1ClustersMappingBatch(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']> },
-    ) => parseResponse(client['1'].clusters.mapping.batch.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].clusters.mapping.batch.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1767,7 +1760,7 @@ export function useDelete1ClustersMappingUserID(options?: {
       }: {
         arg: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
       },
-    ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(arg, options?.client)),
+    ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1830,7 +1823,7 @@ export function usePost1ClustersMappingSearch(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']> },
-    ) => parseResponse(client['1'].clusters.mapping.search.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].clusters.mapping.search.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1924,7 +1917,7 @@ export function usePut1SecuritySources(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['1']['security']['sources']['$put']> },
-    ) => parseResponse(client['1'].security.sources.$put(arg, options?.client)),
+    ) => parseResponse(client['1'].security.sources.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1953,7 +1946,7 @@ export function usePost1SecuritySourcesAppend(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']> },
-    ) => parseResponse(client['1'].security.sources.append.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].security.sources.append.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -1984,7 +1977,7 @@ export function useDelete1SecuritySourcesSource(options?: {
       }: {
         arg: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
       },
-    ) => parseResponse(client['1'].security.sources[':source'].$delete(arg, options?.client)),
+    ) => parseResponse(client['1'].security.sources[':source'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2156,7 +2149,7 @@ export function usePost1IndexesIndexNameOperation(options?: {
       }: {
         arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
       },
-    ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(arg, options?.client)),
+    ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2653,7 +2646,7 @@ export function usePostDeleteObjects(options?: {
   return useSWRMutation(
     'POST /deleteObjects',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.deleteObjects.$post> }) =>
-      parseResponse(client.deleteObjects.$post(arg, options?.client)),
+      parseResponse(client.deleteObjects.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2680,7 +2673,7 @@ export function usePostPartialUpdateObjects(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.partialUpdateObjects.$post> },
-    ) => parseResponse(client.partialUpdateObjects.$post(arg, options?.client)),
+    ) => parseResponse(client.partialUpdateObjects.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -2709,7 +2702,7 @@ export function usePostPartialUpdateObjectsWithTransformation(options?: {
       {
         arg,
       }: { arg: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post> },
-    ) => parseResponse(client.partialUpdateObjectsWithTransformation.$post(arg, options?.client)),
+    ) => parseResponse(client.partialUpdateObjectsWithTransformation.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

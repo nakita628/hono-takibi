@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -35,6 +35,18 @@ export function createGetStream(options?: {
  */
 export function getGetStreamQueryKey() {
   return ['/stream'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /stream
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetStreamQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetStreamQueryKey(),
+    queryFn: async () => parseResponse(client.stream.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -139,4 +151,17 @@ export function createGetDeprecatedEndpoint(options?: {
  */
 export function getGetDeprecatedEndpointQueryKey() {
   return ['/deprecated-endpoint'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /deprecated-endpoint
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDeprecatedEndpointQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetDeprecatedEndpointQueryKey(),
+    queryFn: async () =>
+      parseResponse(client['deprecated-endpoint'].$get(undefined, clientOptions)),
+  }
 }

@@ -159,6 +159,20 @@ const makeQueryKeyGetterName = (method: string, pathStr: string): string => {
   return `get${funcName.charAt(0).toUpperCase()}${funcName.slice(1)}QueryKey`
 }
 
+/* ─────────────────────────────── Query Options Getter ─────────────────────────────── */
+
+/**
+ * Generates the query options getter function name.
+ *
+ * @param method - HTTP method
+ * @param pathStr - API path
+ * @returns Query options getter function name (e.g., "getGetUsersQueryOptions")
+ */
+const makeQueryOptionsGetterName = (method: string, pathStr: string): string => {
+  const funcName = methodPath(method, pathStr)
+  return `get${funcName.charAt(0).toUpperCase()}${funcName.slice(1)}QueryOptions`
+}
+
 /**
  * Generates query key getter function code.
  *
@@ -189,6 +203,59 @@ export function ${keyGetterName}(args:${inferRequestType}){return['${honoPath}',
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
  */
 export function ${keyGetterName}(){return['${honoPath}']as const}`
+}
+
+/**
+ * Generates query options getter function code.
+ *
+ * This function returns an object compatible with TanStack Query's queryOptions pattern,
+ * enabling prefetching, ensureQueryData, and other advanced patterns.
+ *
+ * @param optionsGetterName - Function name for options getter
+ * @param keyGetterName - Function name for key getter
+ * @param hasArgs - Whether the operation has arguments
+ * @param inferRequestType - TypeScript type for request
+ * @param clientPath - Client path expression
+ * @param method - HTTP method
+ * @param honoPath - Hono-style path (with :param)
+ * @param config - Framework configuration
+ * @returns Query options getter function code
+ */
+const makeQueryOptionsGetterCode = (
+  optionsGetterName: string,
+  keyGetterName: string,
+  hasArgs: boolean,
+  inferRequestType: string,
+  clientPath: string,
+  method: string,
+  honoPath: string,
+  config: QueryFrameworkConfig,
+): string => {
+  // Add space between * and / to prevent early comment termination (* / instead of */)
+  const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
+  const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
+  const commentPath = hasArgs ? safeCommentPath : safeCommentPathNoParam
+
+  const clientCall = hasArgs
+    ? `${clientPath}.$${method}(args,clientOptions)`
+    : `${clientPath}.$${method}(undefined,clientOptions)`
+  const fetcherBody = buildFetcher(clientCall)
+  const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+
+  if (hasArgs) {
+    return `/**
+ * Returns ${config.frameworkName} query options for GET ${commentPath}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function ${optionsGetterName}(args:${inferRequestType},clientOptions?:ClientRequestOptions){return{queryKey:${queryKeyCall},queryFn:async()=>${fetcherBody}}}`
+  }
+  return `/**
+ * Returns ${config.frameworkName} query options for GET ${commentPath}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return{queryKey:${queryKeyCall},queryFn:async()=>${fetcherBody}}}`
 }
 
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
@@ -293,10 +360,21 @@ const makeHookCode = (
 
   if (isQuery) {
     const keyGetterName = makeQueryKeyGetterName(method, pathStr)
+    const optionsGetterName = makeQueryOptionsGetterName(method, pathStr)
     const keyGetterCode = makeQueryKeyGetterCode(
       keyGetterName,
       hasArgs,
       inferRequestType,
+      honoPath,
+      config,
+    )
+    const optionsGetterCode = makeQueryOptionsGetterCode(
+      optionsGetterName,
+      keyGetterName,
+      hasArgs,
+      inferRequestType,
+      clientPath,
+      method,
       honoPath,
       config,
     )
@@ -310,8 +388,12 @@ const makeHookCode = (
       docs,
       config,
     )
-    // Combine hook code with key getter code
-    return { code: `${hookCode}\n\n${keyGetterCode}`, isQuery: true, hasArgs }
+    // Combine hook code with key getter code and query options getter code
+    return {
+      code: `${hookCode}\n\n${keyGetterCode}\n\n${optionsGetterCode}`,
+      isQuery: true,
+      hasArgs,
+    }
   }
 
   const hookCode = makeMutationHookCode(

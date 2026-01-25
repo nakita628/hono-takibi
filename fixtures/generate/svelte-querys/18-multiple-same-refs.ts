@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -36,6 +36,21 @@ export function createGetDocuments(
  */
 export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.documents.$get>) {
   return ['/documents', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /documents
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDocumentsQueryOptions(
+  args: InferRequestType<typeof client.documents.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetDocumentsQueryKey(args),
+    queryFn: async () => parseResponse(client.documents.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -102,6 +117,21 @@ export function getGetDocumentsDocumentIdQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
   return ['/documents/:documentId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /documents/{documentId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDocumentsDocumentIdQueryOptions(
+  args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetDocumentsDocumentIdQueryKey(args),
+    queryFn: async () => parseResponse(client.documents[':documentId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -174,6 +204,22 @@ export function getGetDocumentsDocumentIdVersionsQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
   return ['/documents/:documentId/versions', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /documents/{documentId}/versions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDocumentsDocumentIdVersionsQueryOptions(
+  args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetDocumentsDocumentIdVersionsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.documents[':documentId'].versions.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -251,6 +297,21 @@ export function getGetUsersUserIdDocumentsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /users/{userId}/documents
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdDocumentsQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdDocumentsQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].documents.$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /compare
  */
 export function createPostCompare(options?: {
@@ -309,6 +370,18 @@ export function createGetTemplates(options?: {
  */
 export function getGetTemplatesQueryKey() {
   return ['/templates'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /templates
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTemplatesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTemplatesQueryKey(),
+    queryFn: async () => parseResponse(client.templates.$get(undefined, clientOptions)),
+  }
 }
 
 /**

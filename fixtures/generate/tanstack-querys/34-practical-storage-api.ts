@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
@@ -38,6 +38,21 @@ export function useGetFiles(
  */
 export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$get>) {
   return ['/files', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /files
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFilesQueryOptions(
+  args: InferRequestType<typeof client.files.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetFilesQueryKey(args),
+    queryFn: async () => parseResponse(client.files.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -250,6 +265,21 @@ export function getGetFilesFileIdQueryKey(
 }
 
 /**
+ * Returns TanStack Query query options for GET /files/{fileId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFilesFileIdQueryOptions(
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetFilesFileIdQueryKey(args),
+    queryFn: async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * DELETE /files/{fileId}
  *
  * ファイル削除（ゴミ箱へ移動）
@@ -357,6 +387,21 @@ export function getGetFilesFileIdDownloadQueryKey(
 }
 
 /**
+ * Returns TanStack Query query options for GET /files/{fileId}/download
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFilesFileIdDownloadQueryOptions(
+  args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetFilesFileIdDownloadQueryKey(args),
+    queryFn: async () => parseResponse(client.files[':fileId'].download.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /files/{fileId}/download-url
  *
  * 署名付きダウンロードURL取得
@@ -394,6 +439,22 @@ export function getGetFilesFileIdDownloadUrlQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
   return ['/files/:fileId/download-url', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /files/{fileId}/download-url
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFilesFileIdDownloadUrlQueryOptions(
+  args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetFilesFileIdDownloadUrlQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.files[':fileId']['download-url'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -508,6 +569,21 @@ export function getGetFilesFileIdThumbnailQueryKey(
 }
 
 /**
+ * Returns TanStack Query query options for GET /files/{fileId}/thumbnail
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFilesFileIdThumbnailQueryOptions(
+  args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetFilesFileIdThumbnailQueryKey(args),
+    queryFn: async () => parseResponse(client.files[':fileId'].thumbnail.$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /folders
  *
  * フォルダ作成
@@ -575,6 +651,21 @@ export function getGetFoldersFolderIdQueryKey(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
 ) {
   return ['/folders/:folderId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /folders/{folderId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFoldersFolderIdQueryOptions(
+  args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetFoldersFolderIdQueryKey(args),
+    queryFn: async () => parseResponse(client.folders[':folderId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -684,6 +775,21 @@ export function getGetFilesFileIdShareQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
 ) {
   return ['/files/:fileId/share', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /files/{fileId}/share
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFilesFileIdShareQueryOptions(
+  args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetFilesFileIdShareQueryKey(args),
+    queryFn: async () => parseResponse(client.files[':fileId'].share.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -839,6 +945,21 @@ export function getGetFilesFileIdVersionsQueryKey(
 }
 
 /**
+ * Returns TanStack Query query options for GET /files/{fileId}/versions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFilesFileIdVersionsQueryOptions(
+  args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetFilesFileIdVersionsQueryKey(args),
+    queryFn: async () => parseResponse(client.files[':fileId'].versions.$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /files/{fileId}/versions/{versionId}/restore
  *
  * バージョン復元
@@ -929,6 +1050,21 @@ export function useGetTrash(
  */
 export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$get>) {
   return ['/trash', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /trash
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTrashQueryOptions(
+  args: InferRequestType<typeof client.trash.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTrashQueryKey(args),
+    queryFn: async () => parseResponse(client.trash.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -1030,4 +1166,16 @@ export function useGetStorageUsage(options?: {
  */
 export function getGetStorageUsageQueryKey() {
   return ['/storage/usage'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /storage/usage
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetStorageUsageQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetStorageUsageQueryKey(),
+    queryFn: async () => parseResponse(client.storage.usage.$get(undefined, clientOptions)),
+  }
 }

@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/14-circular-refs'
 
 /**
@@ -49,7 +49,7 @@ export function usePostTrees(options?: {
   return useSWRMutation(
     'POST /trees',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.trees.$post> }) =>
-      parseResponse(client.trees.$post(arg, options?.client)),
+      parseResponse(client.trees.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/17-mixed-inline-refs'
 
 /**
@@ -52,7 +52,7 @@ export function usePostUsers(options?: {
   return useSWRMutation(
     'POST /users',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
-      parseResponse(client.users.$post(arg, options?.client)),
+      parseResponse(client.users.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -105,7 +105,7 @@ export function usePostOrders(options?: {
   return useSWRMutation(
     'POST /orders',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
-      parseResponse(client.orders.$post(arg, options?.client)),
+      parseResponse(client.orders.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -158,7 +158,7 @@ export function usePostReportsGenerate(options?: {
   return useSWRMutation(
     'POST /reports/generate',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.reports.generate.$post> }) =>
-      parseResponse(client.reports.generate.$post(arg, options?.client)),
+      parseResponse(client.reports.generate.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -179,7 +179,7 @@ export function usePostWebhooksTest(options?: {
   return useSWRMutation(
     'POST /webhooks/test',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.webhooks.test.$post> }) =>
-      parseResponse(client.webhooks.test.$post(arg, options?.client)),
+      parseResponse(client.webhooks.test.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

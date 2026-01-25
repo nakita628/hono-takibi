@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -69,6 +69,21 @@ export function useGetSearch(
  */
 export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
   return ['/search', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /search
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSearchQueryOptions(
+  args: InferRequestType<typeof client.search.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSearchQueryKey(args),
+    queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
+  }
 }
 
 /**

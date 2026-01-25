@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/44-sns-notifications-dm-search'
 
 /**
@@ -88,7 +88,7 @@ export function usePostNotificationsMarkRead(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.notifications)['mark-read']['$post']> },
-    ) => parseResponse(client.notifications['mark-read'].$post(arg, options?.client)),
+    ) => parseResponse(client.notifications['mark-read'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -142,7 +142,7 @@ export function usePutNotificationsSettings(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.notifications.settings.$put> },
-    ) => parseResponse(client.notifications.settings.$put(arg, options?.client)),
+    ) => parseResponse(client.notifications.settings.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -199,7 +199,7 @@ export function usePostDmConversations(options?: {
   return useSWRMutation(
     'POST /dm/conversations',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.dm.conversations.$post> }) =>
-      parseResponse(client.dm.conversations.$post(arg, options?.client)),
+      parseResponse(client.dm.conversations.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -262,7 +262,7 @@ export function useDeleteDmConversationsConversationId(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']> },
-    ) => parseResponse(client.dm.conversations[':conversationId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.dm.conversations[':conversationId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -332,9 +332,7 @@ export function usePostDmConversationsConversationIdMessages(options?: {
         >
       },
     ) =>
-      parseResponse(
-        client.dm.conversations[':conversationId'].messages.$post(arg, options?.client),
-      ),
+      parseResponse(client.dm.conversations[':conversationId'].messages.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -363,7 +361,7 @@ export function usePostDmConversationsConversationIdRead(options?: {
       }: {
         arg: InferRequestType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>
       },
-    ) => parseResponse(client.dm.conversations[':conversationId'].read.$post(arg, options?.client)),
+    ) => parseResponse(client.dm.conversations[':conversationId'].read.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -394,8 +392,7 @@ export function usePostDmConversationsConversationIdTyping(options?: {
           (typeof client.dm.conversations)[':conversationId']['typing']['$post']
         >
       },
-    ) =>
-      parseResponse(client.dm.conversations[':conversationId'].typing.$post(arg, options?.client)),
+    ) => parseResponse(client.dm.conversations[':conversationId'].typing.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -420,7 +417,7 @@ export function useDeleteDmMessagesMessageId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']> },
-    ) => parseResponse(client.dm.messages[':messageId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.dm.messages[':messageId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -447,7 +444,7 @@ export function usePostDmMessagesMessageIdReactions(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']> },
-    ) => parseResponse(client.dm.messages[':messageId'].reactions.$post(arg, options?.client)),
+    ) => parseResponse(client.dm.messages[':messageId'].reactions.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -476,7 +473,7 @@ export function useDeleteDmMessagesMessageIdReactions(options?: {
       }: {
         arg: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>
       },
-    ) => parseResponse(client.dm.messages[':messageId'].reactions.$delete(arg, options?.client)),
+    ) => parseResponse(client.dm.messages[':messageId'].reactions.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -654,7 +651,7 @@ export function useDeleteSearchRecent(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /search/recent',
-    async () => parseResponse(client.search.recent.$delete(undefined, options?.client)),
+    async () => parseResponse(client.search.recent.$delete(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -776,7 +773,7 @@ export function usePostSuggestionsUsersUserIdHide(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']> },
-    ) => parseResponse(client.suggestions.users[':userId'].hide.$post(arg, options?.client)),
+    ) => parseResponse(client.suggestions.users[':userId'].hide.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -830,7 +827,7 @@ export function usePostTopicsTopicIdFollow(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']> },
-    ) => parseResponse(client.topics[':topicId'].follow.$post(arg, options?.client)),
+    ) => parseResponse(client.topics[':topicId'].follow.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -855,7 +852,7 @@ export function useDeleteTopicsTopicIdFollow(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']> },
-    ) => parseResponse(client.topics[':topicId'].follow.$delete(arg, options?.client)),
+    ) => parseResponse(client.topics[':topicId'].follow.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }

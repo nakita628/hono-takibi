@@ -1,7 +1,7 @@
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/05-request-bodies'
 
 /**
@@ -20,7 +20,7 @@ export function usePostUsers(options?: {
   return useSWRMutation(
     'POST /users',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
-      parseResponse(client.users.$post(arg, options?.client)),
+      parseResponse(client.users.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -43,7 +43,7 @@ export function usePutUsersUserId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$put']> },
-    ) => parseResponse(client.users[':userId'].$put(arg, options?.client)),
+    ) => parseResponse(client.users[':userId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -66,7 +66,7 @@ export function usePatchUsersUserId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$patch']> },
-    ) => parseResponse(client.users[':userId'].$patch(arg, options?.client)),
+    ) => parseResponse(client.users[':userId'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -89,7 +89,7 @@ export function usePostUsersUserIdAvatar(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['avatar']['$post']> },
-    ) => parseResponse(client.users[':userId'].avatar.$post(arg, options?.client)),
+    ) => parseResponse(client.users[':userId'].avatar.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -110,7 +110,7 @@ export function usePostBulkUsers(options?: {
   return useSWRMutation(
     'POST /bulk/users',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.bulk.users.$post> }) =>
-      parseResponse(client.bulk.users.$post(arg, options?.client)),
+      parseResponse(client.bulk.users.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

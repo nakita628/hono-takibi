@@ -1,7 +1,7 @@
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/09-callbacks'
 
 /**
@@ -22,7 +22,7 @@ export function usePostWebhooks(options?: {
   return useSWRMutation(
     'POST /webhooks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.webhooks.$post> }) =>
-      parseResponse(client.webhooks.$post(arg, options?.client)),
+      parseResponse(client.webhooks.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -45,7 +45,7 @@ export function usePostSubscriptions(options?: {
   return useSWRMutation(
     'POST /subscriptions',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.subscriptions.$post> }) =>
-      parseResponse(client.subscriptions.$post(arg, options?.client)),
+      parseResponse(client.subscriptions.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -68,7 +68,7 @@ export function usePostJobs(options?: {
   return useSWRMutation(
     'POST /jobs',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.jobs.$post> }) =>
-      parseResponse(client.jobs.$post(arg, options?.client)),
+      parseResponse(client.jobs.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -95,7 +95,7 @@ export function usePostIntegrationsIntegrationIdSync(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']> },
-    ) => parseResponse(client.integrations[':integrationId'].sync.$post(arg, options?.client)),
+    ) => parseResponse(client.integrations[':integrationId'].sync.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/complex-openapi'
 
 /**
@@ -53,7 +53,7 @@ export function usePostUsers(options?: {
   return useSWRMutation(
     'POST /users',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
-      parseResponse(client.users.$post(arg, options?.client)),
+      parseResponse(client.users.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -112,7 +112,7 @@ export function usePutUsersUserId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$put']> },
-    ) => parseResponse(client.users[':userId'].$put(arg, options?.client)),
+    ) => parseResponse(client.users[':userId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -137,7 +137,7 @@ export function useDeleteUsersUserId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$delete']> },
-    ) => parseResponse(client.users[':userId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.users[':userId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -189,7 +189,7 @@ export function usePostOrders(options?: {
   return useSWRMutation(
     'POST /orders',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
-      parseResponse(client.orders.$post(arg, options?.client)),
+      parseResponse(client.orders.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

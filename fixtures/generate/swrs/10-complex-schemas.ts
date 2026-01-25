@@ -1,7 +1,7 @@
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/10-complex-schemas'
 
 /**
@@ -20,7 +20,7 @@ export function usePostEvents(options?: {
   return useSWRMutation(
     'POST /events',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.events.$post> }) =>
-      parseResponse(client.events.$post(arg, options?.client)),
+      parseResponse(client.events.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -41,7 +41,7 @@ export function usePostNotifications(options?: {
   return useSWRMutation(
     'POST /notifications',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.notifications.$post> }) =>
-      parseResponse(client.notifications.$post(arg, options?.client)),
+      parseResponse(client.notifications.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -62,7 +62,7 @@ export function usePostShapes(options?: {
   return useSWRMutation(
     'POST /shapes',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.shapes.$post> }) =>
-      parseResponse(client.shapes.$post(arg, options?.client)),
+      parseResponse(client.shapes.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -83,7 +83,7 @@ export function usePostDocuments(options?: {
   return useSWRMutation(
     'POST /documents',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.documents.$post> }) =>
-      parseResponse(client.documents.$post(arg, options?.client)),
+      parseResponse(client.documents.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -104,7 +104,7 @@ export function usePostMixed(options?: {
   return useSWRMutation(
     'POST /mixed',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.mixed.$post> }) =>
-      parseResponse(client.mixed.$post(arg, options?.client)),
+      parseResponse(client.mixed.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/42-sns-posts-timeline'
 
@@ -40,6 +40,21 @@ export function useGetPosts(
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
   return ['/posts', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsQueryOptions(
+  args: InferRequestType<typeof client.posts.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsQueryKey(args),
+    queryFn: async () => parseResponse(client.posts.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -110,6 +125,21 @@ export function getGetPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
   return ['/posts/:postId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts/{postId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsPostIdQueryOptions(
+  args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsPostIdQueryKey(args),
+    queryFn: async () => parseResponse(client.posts[':postId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -188,6 +218,21 @@ export function getGetPostsPostIdThreadQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /posts/{postId}/thread
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsPostIdThreadQueryOptions(
+  args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsPostIdThreadQueryKey(args),
+    queryFn: async () => parseResponse(client.posts[':postId'].thread.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /posts/{postId}/context
  *
  * 投稿コンテキスト取得
@@ -226,6 +271,21 @@ export function getGetPostsPostIdContextQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
 ) {
   return ['/posts/:postId/context', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts/{postId}/context
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsPostIdContextQueryOptions(
+  args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsPostIdContextQueryKey(args),
+    queryFn: async () => parseResponse(client.posts[':postId'].context.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -270,6 +330,21 @@ export function getGetTimelineHomeQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /timeline/home
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTimelineHomeQueryOptions(
+  args: InferRequestType<typeof client.timeline.home.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTimelineHomeQueryKey(args),
+    queryFn: async () => parseResponse(client.timeline.home.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /timeline/for-you
  *
  * おすすめタイムライン取得
@@ -308,6 +383,21 @@ export function getGetTimelineForYouQueryKey(
   args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
 ) {
   return ['/timeline/for-you', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /timeline/for-you
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTimelineForYouQueryOptions(
+  args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTimelineForYouQueryKey(args),
+    queryFn: async () => parseResponse(client.timeline['for-you'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -350,6 +440,21 @@ export function getGetTimelineUserUserIdQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /timeline/user/{userId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTimelineUserUserIdQueryOptions(
+  args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTimelineUserUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.timeline.user[':userId'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /timeline/hashtag/{hashtag}
  *
  * ハッシュタグタイムライン取得
@@ -387,6 +492,22 @@ export function getGetTimelineHashtagHashtagQueryKey(
   args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
 ) {
   return ['/timeline/hashtag/:hashtag', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /timeline/hashtag/{hashtag}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTimelineHashtagHashtagQueryOptions(
+  args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTimelineHashtagHashtagQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.timeline.hashtag[':hashtag'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -685,6 +806,21 @@ export function getGetBookmarksQueryKey(args: InferRequestType<typeof client.boo
 }
 
 /**
+ * Returns Vue Query query options for GET /bookmarks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetBookmarksQueryOptions(
+  args: InferRequestType<typeof client.bookmarks.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetBookmarksQueryKey(args),
+    queryFn: async () => parseResponse(client.bookmarks.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /posts/{postId}/likes
  *
  * いいねしたユーザー一覧
@@ -721,6 +857,21 @@ export function getGetPostsPostIdLikesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
 ) {
   return ['/posts/:postId/likes', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts/{postId}/likes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsPostIdLikesQueryOptions(
+  args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsPostIdLikesQueryKey(args),
+    queryFn: async () => parseResponse(client.posts[':postId'].likes.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -763,6 +914,21 @@ export function getGetPostsPostIdRepostsQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /posts/{postId}/reposts
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsPostIdRepostsQueryOptions(
+  args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsPostIdRepostsQueryKey(args),
+    queryFn: async () => parseResponse(client.posts[':postId'].reposts.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /posts/{postId}/quotes
  *
  * 引用投稿一覧
@@ -802,6 +968,21 @@ export function getGetPostsPostIdQuotesQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /posts/{postId}/quotes
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsPostIdQuotesQueryOptions(
+  args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsPostIdQuotesQueryKey(args),
+    queryFn: async () => parseResponse(client.posts[':postId'].quotes.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /posts/{postId}/replies
  *
  * 返信一覧取得
@@ -838,6 +1019,21 @@ export function getGetPostsPostIdRepliesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
 ) {
   return ['/posts/:postId/replies', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /posts/{postId}/replies
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsPostIdRepliesQueryOptions(
+  args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsPostIdRepliesQueryKey(args),
+    queryFn: async () => parseResponse(client.posts[':postId'].replies.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -945,6 +1141,21 @@ export function getGetMediaMediaIdQueryKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
   return ['/media/:mediaId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /media/{mediaId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetMediaMediaIdQueryOptions(
+  args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetMediaMediaIdQueryKey(args),
+    queryFn: async () => parseResponse(client.media[':mediaId'].$get(args, clientOptions)),
+  }
 }
 
 /**

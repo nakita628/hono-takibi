@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
@@ -40,6 +40,18 @@ export function getGetQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetQueryKey(),
+    queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /posts
  *
  * Retrieve a list of posts
@@ -76,6 +88,21 @@ export function useGetPosts(
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
   return ['/posts', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /posts
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPostsQueryOptions(
+  args: InferRequestType<typeof client.posts.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPostsQueryKey(args),
+    queryFn: async () => parseResponse(client.posts.$get(args, clientOptions)),
+  }
 }
 
 /**

@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/36-auth-saml-idp'
 
 /**
@@ -60,7 +60,7 @@ export function usePostSamlSso(options?: {
   return useSWRMutation(
     'POST /saml/sso',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.saml.sso.$post> }) =>
-      parseResponse(client.saml.sso.$post(arg, options?.client)),
+      parseResponse(client.saml.sso.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -119,7 +119,7 @@ export function usePostSamlSlo(options?: {
   return useSWRMutation(
     'POST /saml/slo',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.saml.slo.$post> }) =>
-      parseResponse(client.saml.slo.$post(arg, options?.client)),
+      parseResponse(client.saml.slo.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -144,7 +144,7 @@ export function usePostSamlAcs(options?: {
   return useSWRMutation(
     'POST /saml/acs',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.saml.acs.$post> }) =>
-      parseResponse(client.saml.acs.$post(arg, options?.client)),
+      parseResponse(client.saml.acs.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -234,7 +234,7 @@ export function usePostServiceProviders(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['service-providers']['$post']> },
-    ) => parseResponse(client['service-providers'].$post(arg, options?.client)),
+    ) => parseResponse(client['service-providers'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -293,7 +293,7 @@ export function usePutServiceProvidersSpId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['service-providers'][':spId']['$put']> },
-    ) => parseResponse(client['service-providers'][':spId'].$put(arg, options?.client)),
+    ) => parseResponse(client['service-providers'][':spId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -318,7 +318,7 @@ export function useDeleteServiceProvidersSpId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']> },
-    ) => parseResponse(client['service-providers'][':spId'].$delete(arg, options?.client)),
+    ) => parseResponse(client['service-providers'][':spId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -383,7 +383,7 @@ export function usePutServiceProvidersSpIdMetadata(options?: {
       }: {
         arg: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>
       },
-    ) => parseResponse(client['service-providers'][':spId'].metadata.$put(arg, options?.client)),
+    ) => parseResponse(client['service-providers'][':spId'].metadata.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -448,7 +448,7 @@ export function usePutServiceProvidersSpIdAttributes(options?: {
       }: {
         arg: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>
       },
-    ) => parseResponse(client['service-providers'][':spId'].attributes.$put(arg, options?.client)),
+    ) => parseResponse(client['service-providers'][':spId'].attributes.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -529,7 +529,7 @@ export function usePostCertificates(options?: {
   return useSWRMutation(
     'POST /certificates',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.certificates.$post> }) =>
-      parseResponse(client.certificates.$post(arg, options?.client)),
+      parseResponse(client.certificates.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -554,7 +554,7 @@ export function useDeleteCertificatesCertId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.certificates)[':certId']['$delete']> },
-    ) => parseResponse(client.certificates[':certId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.certificates[':certId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -581,7 +581,7 @@ export function usePostCertificatesCertIdActivate(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']> },
-    ) => parseResponse(client.certificates[':certId'].activate.$post(arg, options?.client)),
+    ) => parseResponse(client.certificates[':certId'].activate.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -638,7 +638,7 @@ export function useDeleteSessionsSessionId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']> },
-    ) => parseResponse(client.sessions[':sessionId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.sessions[':sessionId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }

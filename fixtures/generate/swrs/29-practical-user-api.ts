@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/29-practical-user-api'
 
 /**
@@ -26,7 +26,7 @@ export function usePostAuthRegister(options?: {
   return useSWRMutation(
     'POST /auth/register',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.auth.register.$post> }) =>
-      parseResponse(client.auth.register.$post(arg, options?.client)),
+      parseResponse(client.auth.register.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -51,7 +51,7 @@ export function usePostAuthLogin(options?: {
   return useSWRMutation(
     'POST /auth/login',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.auth.login.$post> }) =>
-      parseResponse(client.auth.login.$post(arg, options?.client)),
+      parseResponse(client.auth.login.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -76,7 +76,7 @@ export function usePostAuthRefresh(options?: {
   return useSWRMutation(
     'POST /auth/refresh',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.auth.refresh.$post> }) =>
-      parseResponse(client.auth.refresh.$post(arg, options?.client)),
+      parseResponse(client.auth.refresh.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -98,7 +98,7 @@ export function usePostAuthLogout(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /auth/logout',
-    async () => parseResponse(client.auth.logout.$post(undefined, options?.client)),
+    async () => parseResponse(client.auth.logout.$post(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -125,7 +125,7 @@ export function usePostAuthPasswordForgot(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.auth.password.forgot.$post> },
-    ) => parseResponse(client.auth.password.forgot.$post(arg, options?.client)),
+    ) => parseResponse(client.auth.password.forgot.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -150,7 +150,7 @@ export function usePostAuthPasswordReset(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.auth.password.reset.$post> },
-    ) => parseResponse(client.auth.password.reset.$post(arg, options?.client)),
+    ) => parseResponse(client.auth.password.reset.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -243,7 +243,7 @@ export function useDeleteUsersUserId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$delete']> },
-    ) => parseResponse(client.users[':userId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.users[':userId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -268,7 +268,7 @@ export function usePatchUsersUserId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)[':userId']['$patch']> },
-    ) => parseResponse(client.users[':userId'].$patch(arg, options?.client)),
+    ) => parseResponse(client.users[':userId'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -320,7 +320,7 @@ export function usePatchUsersMe(options?: {
   return useSWRMutation(
     'PATCH /users/me',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.me.$patch> }) =>
-      parseResponse(client.users.me.$patch(arg, options?.client)),
+      parseResponse(client.users.me.$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -343,7 +343,7 @@ export function usePutUsersMePassword(options?: {
   return useSWRMutation(
     'PUT /users/me/password',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.me.password.$put> }) =>
-      parseResponse(client.users.me.password.$put(arg, options?.client)),
+      parseResponse(client.users.me.password.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -366,7 +366,7 @@ export function usePutUsersMeAvatar(options?: {
   return useSWRMutation(
     'PUT /users/me/avatar',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.me.avatar.$put> }) =>
-      parseResponse(client.users.me.avatar.$put(arg, options?.client)),
+      parseResponse(client.users.me.avatar.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -388,7 +388,7 @@ export function useDeleteUsersMeAvatar(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /users/me/avatar',
-    async () => parseResponse(client.users.me.avatar.$delete(undefined, options?.client)),
+    async () => parseResponse(client.users.me.avatar.$delete(undefined, clientOptions)),
     mutationOptions,
   )
 }

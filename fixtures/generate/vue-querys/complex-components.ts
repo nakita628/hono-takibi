@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-components'
 
@@ -72,6 +72,21 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
 }
 
 /**
+ * Returns Vue Query query options for GET /users
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersQueryOptions(
+  args: InferRequestType<typeof client.users.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersQueryKey(args),
+    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /users
  *
  * Create user
@@ -139,6 +154,21 @@ export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
   return ['/users/:userId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /users/{userId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUsersUserIdQueryOptions(
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetUsersUserIdQueryKey(args),
+    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -215,6 +245,21 @@ export function getGetCompaniesCompanyIdQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /companies/{companyId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCompaniesCompanyIdQueryOptions(
+  args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetCompaniesCompanyIdQueryKey(args),
+    queryFn: async () => parseResponse(client.companies[':companyId'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /orders
  *
  * List orders
@@ -249,6 +294,21 @@ export function useGetOrders(
  */
 export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
   return ['/orders', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /orders
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOrdersQueryOptions(
+  args: InferRequestType<typeof client.orders.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetOrdersQueryKey(args),
+    queryFn: async () => parseResponse(client.orders.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -322,6 +382,21 @@ export function getGetOrdersOrderIdQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /orders/{orderId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOrdersOrderIdQueryOptions(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetOrdersOrderIdQueryKey(args),
+    queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /files/{fileId}
  *
  * Get file metadata
@@ -358,6 +433,21 @@ export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
   return ['/files/:fileId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /files/{fileId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFilesFileIdQueryOptions(
+  args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetFilesFileIdQueryKey(args),
+    queryFn: async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
+  }
 }
 
 /**

@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/35-auth-oauth2-server'
 
 /**
@@ -64,7 +64,7 @@ export function usePostOauthToken(options?: {
   return useSWRMutation(
     'POST /oauth/token',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.token.$post> }) =>
-      parseResponse(client.oauth.token.$post(arg, options?.client)),
+      parseResponse(client.oauth.token.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -89,7 +89,7 @@ export function usePostOauthRevoke(options?: {
   return useSWRMutation(
     'POST /oauth/revoke',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.revoke.$post> }) =>
-      parseResponse(client.oauth.revoke.$post(arg, options?.client)),
+      parseResponse(client.oauth.revoke.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -114,7 +114,7 @@ export function usePostOauthIntrospect(options?: {
   return useSWRMutation(
     'POST /oauth/introspect',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.introspect.$post> }) =>
-      parseResponse(client.oauth.introspect.$post(arg, options?.client)),
+      parseResponse(client.oauth.introspect.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -139,7 +139,7 @@ export function usePostOauthDeviceCode(options?: {
   return useSWRMutation(
     'POST /oauth/device/code',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.device.code.$post> }) =>
-      parseResponse(client.oauth.device.code.$post(arg, options?.client)),
+      parseResponse(client.oauth.device.code.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -285,7 +285,7 @@ export function usePostOauthClients(options?: {
   return useSWRMutation(
     'POST /oauth/clients',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.clients.$post> }) =>
-      parseResponse(client.oauth.clients.$post(arg, options?.client)),
+      parseResponse(client.oauth.clients.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -344,7 +344,7 @@ export function usePutOauthClientsClientId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']> },
-    ) => parseResponse(client.oauth.clients[':clientId'].$put(arg, options?.client)),
+    ) => parseResponse(client.oauth.clients[':clientId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -369,7 +369,7 @@ export function useDeleteOauthClientsClientId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']> },
-    ) => parseResponse(client.oauth.clients[':clientId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.oauth.clients[':clientId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -396,7 +396,7 @@ export function usePostOauthClientsClientIdSecret(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> },
-    ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(arg, options?.client)),
+    ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -454,7 +454,7 @@ export function useDeleteOauthConsentsClientId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']> },
-    ) => parseResponse(client.oauth.consents[':clientId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.oauth.consents[':clientId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }

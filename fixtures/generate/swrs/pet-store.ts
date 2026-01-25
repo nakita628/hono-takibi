@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/pet-store'
 
 /**
@@ -26,7 +26,7 @@ export function usePutPet(options?: {
   return useSWRMutation(
     'PUT /pet',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.pet.$put> }) =>
-      parseResponse(client.pet.$put(arg, options?.client)),
+      parseResponse(client.pet.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -51,7 +51,7 @@ export function usePostPet(options?: {
   return useSWRMutation(
     'POST /pet',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.pet.$post> }) =>
-      parseResponse(client.pet.$post(arg, options?.client)),
+      parseResponse(client.pet.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -82,8 +82,6 @@ export function useGetPetFindByStatus(
     ),
   }
 }
-
-const { data, isLoading, isError, isSuccess } = useGetPetFindByStatus({ status: 'available' })
 
 /**
  * Generates SWR cache key for GET /pet/findByStatus
@@ -180,7 +178,7 @@ export function usePostPetPetId(options?: {
   return useSWRMutation(
     'POST /pet/:petId',
     async (_: string, { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['$post']> }) =>
-      parseResponse(client.pet[':petId'].$post(arg, options?.client)),
+      parseResponse(client.pet[':petId'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -207,7 +205,7 @@ export function useDeletePetPetId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['$delete']> },
-    ) => parseResponse(client.pet[':petId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.pet[':petId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -232,7 +230,7 @@ export function usePostPetPetIdUploadImage(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']> },
-    ) => parseResponse(client.pet[':petId'].uploadImage.$post(arg, options?.client)),
+    ) => parseResponse(client.pet[':petId'].uploadImage.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -288,7 +286,7 @@ export function usePostStoreOrder(options?: {
   return useSWRMutation(
     'POST /store/order',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.store.order.$post> }) =>
-      parseResponse(client.store.order.$post(arg, options?.client)),
+      parseResponse(client.store.order.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -351,7 +349,7 @@ export function useDeleteStoreOrderOrderId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.store.order)[':orderId']['$delete']> },
-    ) => parseResponse(client.store.order[':orderId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.store.order[':orderId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -376,7 +374,7 @@ export function usePostUser(options?: {
   return useSWRMutation(
     'POST /user',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.user.$post> }) =>
-      parseResponse(client.user.$post(arg, options?.client)),
+      parseResponse(client.user.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -403,7 +401,7 @@ export function usePostUserCreateWithList(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.user.createWithList.$post> },
-    ) => parseResponse(client.user.createWithList.$post(arg, options?.client)),
+    ) => parseResponse(client.user.createWithList.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -525,7 +523,7 @@ export function usePutUserUsername(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.user)[':username']['$put']> },
-    ) => parseResponse(client.user[':username'].$put(arg, options?.client)),
+    ) => parseResponse(client.user[':username'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -552,7 +550,7 @@ export function useDeleteUserUsername(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.user)[':username']['$delete']> },
-    ) => parseResponse(client.user[':username'].$delete(arg, options?.client)),
+    ) => parseResponse(client.user[':username'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }

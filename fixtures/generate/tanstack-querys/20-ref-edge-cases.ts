@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 
@@ -39,6 +39,21 @@ export function getGetTestQueryKey(args: InferRequestType<typeof client.test.$ge
 }
 
 /**
+ * Returns TanStack Query query options for GET /test
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTestQueryOptions(
+  args: InferRequestType<typeof client.test.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTestQueryKey(args),
+    queryFn: async () => parseResponse(client.test.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /empty-refs
  */
 export function useGetEmptyRefs(options?: {
@@ -68,6 +83,18 @@ export function useGetEmptyRefs(options?: {
  */
 export function getGetEmptyRefsQueryKey() {
   return ['/empty-refs'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /empty-refs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetEmptyRefsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetEmptyRefsQueryKey(),
+    queryFn: async () => parseResponse(client['empty-refs'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -103,6 +130,18 @@ export function getGetUnicodeRefsQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /unicode-refs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetUnicodeRefsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetUnicodeRefsQueryKey(),
+    queryFn: async () => parseResponse(client['unicode-refs'].$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /special-chars
  */
 export function useGetSpecialChars(options?: {
@@ -132,6 +171,18 @@ export function useGetSpecialChars(options?: {
  */
 export function getGetSpecialCharsQueryKey() {
   return ['/special-chars'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /special-chars
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSpecialCharsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSpecialCharsQueryKey(),
+    queryFn: async () => parseResponse(client['special-chars'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -167,6 +218,18 @@ export function getGetNumericStartQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /numeric-start
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetNumericStartQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetNumericStartQueryKey(),
+    queryFn: async () => parseResponse(client['numeric-start'].$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /ref-in-allof
  */
 export function useGetRefInAllof(options?: {
@@ -196,6 +259,18 @@ export function useGetRefInAllof(options?: {
  */
 export function getGetRefInAllofQueryKey() {
   return ['/ref-in-allof'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /ref-in-allof
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetRefInAllofQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetRefInAllofQueryKey(),
+    queryFn: async () => parseResponse(client['ref-in-allof'].$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -231,6 +306,18 @@ export function getGetDeeplyNestedQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /deeply-nested
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDeeplyNestedQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetDeeplyNestedQueryKey(),
+    queryFn: async () => parseResponse(client['deeply-nested'].$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /same-name-diff-context
  */
 export function useGetSameNameDiffContext(options?: {
@@ -261,4 +348,17 @@ export function useGetSameNameDiffContext(options?: {
  */
 export function getGetSameNameDiffContextQueryKey() {
   return ['/same-name-diff-context'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /same-name-diff-context
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSameNameDiffContextQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSameNameDiffContextQueryKey(),
+    queryFn: async () =>
+      parseResponse(client['same-name-diff-context'].$get(undefined, clientOptions)),
+  }
 }

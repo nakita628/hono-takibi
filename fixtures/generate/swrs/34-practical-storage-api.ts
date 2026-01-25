@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/34-practical-storage-api'
 
 /**
@@ -56,7 +56,7 @@ export function usePostFilesUpload(options?: {
   return useSWRMutation(
     'POST /files/upload',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.files.upload.$post> }) =>
-      parseResponse(client.files.upload.$post(arg, options?.client)),
+      parseResponse(client.files.upload.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -83,7 +83,7 @@ export function usePostFilesUploadMultipartInit(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.files.upload.multipart.init.$post> },
-    ) => parseResponse(client.files.upload.multipart.init.$post(arg, options?.client)),
+    ) => parseResponse(client.files.upload.multipart.init.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -112,7 +112,7 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
       }: {
         arg: InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
       },
-    ) => parseResponse(client.files.upload.multipart[':uploadId'].part.$post(arg, options?.client)),
+    ) => parseResponse(client.files.upload.multipart[':uploadId'].part.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -144,9 +144,7 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
         >
       },
     ) =>
-      parseResponse(
-        client.files.upload.multipart[':uploadId'].complete.$post(arg, options?.client),
-      ),
+      parseResponse(client.files.upload.multipart[':uploadId'].complete.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -205,7 +203,7 @@ export function useDeleteFilesFileId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['$delete']> },
-    ) => parseResponse(client.files[':fileId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.files[':fileId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -230,7 +228,7 @@ export function usePatchFilesFileId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['$patch']> },
-    ) => parseResponse(client.files[':fileId'].$patch(arg, options?.client)),
+    ) => parseResponse(client.files[':fileId'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -323,7 +321,7 @@ export function usePostFilesFileIdCopy(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']> },
-    ) => parseResponse(client.files[':fileId'].copy.$post(arg, options?.client)),
+    ) => parseResponse(client.files[':fileId'].copy.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -348,7 +346,7 @@ export function usePostFilesFileIdMove(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['move']['$post']> },
-    ) => parseResponse(client.files[':fileId'].move.$post(arg, options?.client)),
+    ) => parseResponse(client.files[':fileId'].move.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -405,7 +403,7 @@ export function usePostFolders(options?: {
   return useSWRMutation(
     'POST /folders',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.folders.$post> }) =>
-      parseResponse(client.folders.$post(arg, options?.client)),
+      parseResponse(client.folders.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -464,7 +462,7 @@ export function useDeleteFoldersFolderId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.folders)[':folderId']['$delete']> },
-    ) => parseResponse(client.folders[':folderId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.folders[':folderId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -489,7 +487,7 @@ export function usePatchFoldersFolderId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.folders)[':folderId']['$patch']> },
-    ) => parseResponse(client.folders[':folderId'].$patch(arg, options?.client)),
+    ) => parseResponse(client.folders[':folderId'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -548,7 +546,7 @@ export function usePostFilesFileIdShare(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['share']['$post']> },
-    ) => parseResponse(client.files[':fileId'].share.$post(arg, options?.client)),
+    ) => parseResponse(client.files[':fileId'].share.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -573,7 +571,7 @@ export function useDeleteFilesFileIdShare(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']> },
-    ) => parseResponse(client.files[':fileId'].share.$delete(arg, options?.client)),
+    ) => parseResponse(client.files[':fileId'].share.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -600,7 +598,7 @@ export function usePostFilesFileIdShareLink(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']> },
-    ) => parseResponse(client.files[':fileId'].share.link.$post(arg, options?.client)),
+    ) => parseResponse(client.files[':fileId'].share.link.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -669,7 +667,7 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
       },
     ) =>
       parseResponse(
-        client.files[':fileId'].versions[':versionId'].restore.$post(arg, options?.client),
+        client.files[':fileId'].versions[':versionId'].restore.$post(arg, clientOptions),
       ),
     mutationOptions,
   )
@@ -724,7 +722,7 @@ export function useDeleteTrash(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /trash',
-    async () => parseResponse(client.trash.$delete(undefined, options?.client)),
+    async () => parseResponse(client.trash.$delete(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -749,7 +747,7 @@ export function usePostTrashFileIdRestore(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']> },
-    ) => parseResponse(client.trash[':fileId'].restore.$post(arg, options?.client)),
+    ) => parseResponse(client.trash[':fileId'].restore.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

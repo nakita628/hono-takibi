@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
@@ -40,6 +40,21 @@ export function createGetSessions(
  */
 export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
   return ['/sessions', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sessions
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSessionsQueryOptions(
+  args: InferRequestType<typeof client.sessions.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSessionsQueryKey(args),
+    queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -107,6 +122,18 @@ export function createGetSessionsCurrent(options?: {
  */
 export function getGetSessionsCurrentQueryKey() {
   return ['/sessions/current'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sessions/current
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSessionsCurrentQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSessionsCurrentQueryKey(),
+    queryFn: async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -285,6 +312,21 @@ export function getGetSessionsSessionIdQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /sessions/{sessionId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSessionsSessionIdQueryOptions(
+  args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSessionsSessionIdQueryKey(args),
+    queryFn: async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * DELETE /sessions/{sessionId}
  *
  * セッション無効化
@@ -436,6 +478,21 @@ export function getGetSessionsHistoryQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /sessions/history
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSessionsHistoryQueryOptions(
+  args: InferRequestType<typeof client.sessions.history.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSessionsHistoryQueryKey(args),
+    queryFn: async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /sessions/security-events
  *
  * セキュリティイベント取得
@@ -478,6 +535,22 @@ export function getGetSessionsSecurityEventsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /sessions/security-events
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSessionsSecurityEventsQueryOptions(
+  args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetSessionsSecurityEventsQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /sessions/policies
  *
  * セッションポリシー取得
@@ -509,6 +582,18 @@ export function createGetSessionsPolicies(options?: {
  */
 export function getGetSessionsPoliciesQueryKey() {
   return ['/sessions/policies'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sessions/policies
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSessionsPoliciesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSessionsPoliciesQueryKey(),
+    queryFn: async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -578,6 +663,19 @@ export function createGetSessionsTrustedDevices(options?: {
  */
 export function getGetSessionsTrustedDevicesQueryKey() {
   return ['/sessions/trusted-devices'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /sessions/trusted-devices
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetSessionsTrustedDevicesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetSessionsTrustedDevicesQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
+  }
 }
 
 /**

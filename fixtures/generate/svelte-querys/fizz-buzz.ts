@@ -1,5 +1,5 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 
@@ -40,4 +40,19 @@ export function createGetFizzbuzz(
  */
 export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
   return ['/fizzbuzz', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /fizzbuzz
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetFizzbuzzQueryOptions(
+  args: InferRequestType<typeof client.fizzbuzz.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetFizzbuzzQueryKey(args),
+    queryFn: async () => parseResponse(client.fizzbuzz.$get(args, clientOptions)),
+  }
 }

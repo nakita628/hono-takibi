@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
@@ -67,6 +67,21 @@ export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
   return ['/orders/:orderId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /orders/{orderId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOrdersOrderIdQueryOptions(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetOrdersOrderIdQueryKey(args),
+    queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -139,6 +154,21 @@ export function getGetOrdersOrderIdItemsQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /orders/{orderId}/items
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOrdersOrderIdItemsQueryOptions(
+  args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetOrdersOrderIdItemsQueryKey(args),
+    queryFn: async () => parseResponse(client.orders[':orderId'].items.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /customers/{customerId}
  */
 export function useGetCustomersCustomerId(
@@ -173,6 +203,21 @@ export function getGetCustomersCustomerIdQueryKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
   return ['/customers/:customerId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /customers/{customerId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCustomersCustomerIdQueryOptions(
+  args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetCustomersCustomerIdQueryKey(args),
+    queryFn: async () => parseResponse(client.customers[':customerId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -214,6 +259,22 @@ export function getGetCustomersCustomerIdOrdersQueryKey(
 }
 
 /**
+ * Returns Vue Query query options for GET /customers/{customerId}/orders
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCustomersCustomerIdOrdersQueryOptions(
+  args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetCustomersCustomerIdOrdersQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.customers[':customerId'].orders.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /payments/{paymentId}
  */
 export function useGetPaymentsPaymentId(
@@ -248,4 +309,19 @@ export function getGetPaymentsPaymentIdQueryKey(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
   return ['/payments/:paymentId', args] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /payments/{paymentId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetPaymentsPaymentIdQueryOptions(
+  args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetPaymentsPaymentIdQueryKey(args),
+    queryFn: async () => parseResponse(client.payments[':paymentId'].$get(args, clientOptions)),
+  }
 }

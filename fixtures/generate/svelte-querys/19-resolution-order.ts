@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -33,6 +33,18 @@ export function createGetEntities(options?: {
  */
 export function getGetEntitiesQueryKey() {
   return ['/entities'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /entities
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetEntitiesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetEntitiesQueryKey(),
+    queryFn: async () => parseResponse(client.entities.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -94,6 +106,18 @@ export function createGetGraph(options?: {
  */
 export function getGetGraphQueryKey() {
   return ['/graph'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /graph
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetGraphQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetGraphQueryKey(),
+    queryFn: async () => parseResponse(client.graph.$get(undefined, clientOptions)),
+  }
 }
 
 /**

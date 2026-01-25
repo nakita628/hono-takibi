@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/32-practical-project-api'
 
 /**
@@ -56,7 +56,7 @@ export function usePostProjects(options?: {
   return useSWRMutation(
     'POST /projects',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.projects.$post> }) =>
-      parseResponse(client.projects.$post(arg, options?.client)),
+      parseResponse(client.projects.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -115,7 +115,7 @@ export function usePutProjectsProjectId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.projects)[':projectId']['$put']> },
-    ) => parseResponse(client.projects[':projectId'].$put(arg, options?.client)),
+    ) => parseResponse(client.projects[':projectId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -140,7 +140,7 @@ export function useDeleteProjectsProjectId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.projects)[':projectId']['$delete']> },
-    ) => parseResponse(client.projects[':projectId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.projects[':projectId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -201,7 +201,7 @@ export function usePostProjectsProjectIdMembers(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']> },
-    ) => parseResponse(client.projects[':projectId'].members.$post(arg, options?.client)),
+    ) => parseResponse(client.projects[':projectId'].members.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -260,7 +260,7 @@ export function usePostProjectsProjectIdTasks(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']> },
-    ) => parseResponse(client.projects[':projectId'].tasks.$post(arg, options?.client)),
+    ) => parseResponse(client.projects[':projectId'].tasks.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -319,7 +319,7 @@ export function usePutTasksTaskId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.tasks)[':taskId']['$put']> },
-    ) => parseResponse(client.tasks[':taskId'].$put(arg, options?.client)),
+    ) => parseResponse(client.tasks[':taskId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -344,7 +344,7 @@ export function useDeleteTasksTaskId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.tasks)[':taskId']['$delete']> },
-    ) => parseResponse(client.tasks[':taskId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.tasks[':taskId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -369,7 +369,7 @@ export function usePatchTasksTaskIdStatus(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']> },
-    ) => parseResponse(client.tasks[':taskId'].status.$patch(arg, options?.client)),
+    ) => parseResponse(client.tasks[':taskId'].status.$patch(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -428,7 +428,7 @@ export function usePostTasksTaskIdComments(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']> },
-    ) => parseResponse(client.tasks[':taskId'].comments.$post(arg, options?.client)),
+    ) => parseResponse(client.tasks[':taskId'].comments.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -487,7 +487,7 @@ export function usePostTasksTaskIdTimeEntries(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']> },
-    ) => parseResponse(client.tasks[':taskId']['time-entries'].$post(arg, options?.client)),
+    ) => parseResponse(client.tasks[':taskId']['time-entries'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -549,7 +549,7 @@ export function usePostProjectsProjectIdMilestones(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']> },
-    ) => parseResponse(client.projects[':projectId'].milestones.$post(arg, options?.client)),
+    ) => parseResponse(client.projects[':projectId'].milestones.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -601,7 +601,7 @@ export function usePostTeams(options?: {
   return useSWRMutation(
     'POST /teams',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.teams.$post> }) =>
-      parseResponse(client.teams.$post(arg, options?.client)),
+      parseResponse(client.teams.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

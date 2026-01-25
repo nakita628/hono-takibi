@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
@@ -38,6 +38,21 @@ export function createGetProjects(
  */
 export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
   return ['/projects', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /projects
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProjectsQueryOptions(
+  args: InferRequestType<typeof client.projects.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProjectsQueryKey(args),
+    queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -108,6 +123,21 @@ export function getGetProjectsProjectIdQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
 ) {
   return ['/projects/:projectId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /projects/{projectId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProjectsProjectIdQueryOptions(
+  args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProjectsProjectIdQueryKey(args),
+    queryFn: async () => parseResponse(client.projects[':projectId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -221,6 +251,22 @@ export function getGetProjectsProjectIdMembersQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /projects/{projectId}/members
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProjectsProjectIdMembersQueryOptions(
+  args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProjectsProjectIdMembersQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.projects[':projectId'].members.$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /projects/{projectId}/members
  *
  * メンバー追加
@@ -300,6 +346,22 @@ export function getGetProjectsProjectIdTasksQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /projects/{projectId}/tasks
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProjectsProjectIdTasksQueryOptions(
+  args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProjectsProjectIdTasksQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.projects[':projectId'].tasks.$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /projects/{projectId}/tasks
  *
  * タスク作成
@@ -373,6 +435,21 @@ export function getGetTasksTaskIdQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
 ) {
   return ['/tasks/:taskId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /tasks/{taskId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTasksTaskIdQueryOptions(
+  args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTasksTaskIdQueryKey(args),
+    queryFn: async () => parseResponse(client.tasks[':taskId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -520,6 +597,21 @@ export function getGetTasksTaskIdCommentsQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /tasks/{taskId}/comments
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTasksTaskIdCommentsQueryOptions(
+  args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTasksTaskIdCommentsQueryKey(args),
+    queryFn: async () => parseResponse(client.tasks[':taskId'].comments.$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /tasks/{taskId}/comments
  *
  * コメント追加
@@ -594,6 +686,22 @@ export function getGetTasksTaskIdTimeEntriesQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
 ) {
   return ['/tasks/:taskId/time-entries', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /tasks/{taskId}/time-entries
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTasksTaskIdTimeEntriesQueryOptions(
+  args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetTasksTaskIdTimeEntriesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.tasks[':taskId']['time-entries'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -676,6 +784,22 @@ export function getGetProjectsProjectIdMilestonesQueryKey(
 }
 
 /**
+ * Returns Svelte Query query options for GET /projects/{projectId}/milestones
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProjectsProjectIdMilestonesQueryOptions(
+  args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProjectsProjectIdMilestonesQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.projects[':projectId'].milestones.$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /projects/{projectId}/milestones
  *
  * マイルストーン作成
@@ -746,6 +870,18 @@ export function createGetTeams(options?: {
  */
 export function getGetTeamsQueryKey() {
   return ['/teams'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /teams
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetTeamsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetTeamsQueryKey(),
+    queryFn: async () => parseResponse(client.teams.$get(undefined, clientOptions)),
+  }
 }
 
 /**

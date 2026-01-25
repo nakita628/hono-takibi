@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/45-sns-settings-moderation'
 
 /**
@@ -53,7 +53,7 @@ export function usePutSettingsAccount(options?: {
   return useSWRMutation(
     'PUT /settings/account',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.settings.account.$put> }) =>
-      parseResponse(client.settings.account.$put(arg, options?.client)),
+      parseResponse(client.settings.account.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -139,7 +139,7 @@ export function usePutSettingsPrivacy(options?: {
   return useSWRMutation(
     'PUT /settings/privacy',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.settings.privacy.$put> }) =>
-      parseResponse(client.settings.privacy.$put(arg, options?.client)),
+      parseResponse(client.settings.privacy.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -194,7 +194,7 @@ export function usePutSettingsContentPreferences(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.settings)['content-preferences']['$put']> },
-    ) => parseResponse(client.settings['content-preferences'].$put(arg, options?.client)),
+    ) => parseResponse(client.settings['content-preferences'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -248,7 +248,7 @@ export function usePostSettingsMutedWords(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.settings)['muted-words']['$post']> },
-    ) => parseResponse(client.settings['muted-words'].$post(arg, options?.client)),
+    ) => parseResponse(client.settings['muted-words'].$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -275,7 +275,7 @@ export function useDeleteSettingsMutedWordsWordId(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']> },
-    ) => parseResponse(client.settings['muted-words'][':wordId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.settings['muted-words'][':wordId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -331,7 +331,7 @@ export function useDeleteSettingsSessionsSessionId(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']> },
-    ) => parseResponse(client.settings.sessions[':sessionId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.settings.sessions[':sessionId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -387,7 +387,7 @@ export function useDeleteSettingsConnectedAppsAppId(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']> },
-    ) => parseResponse(client.settings['connected-apps'][':appId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.settings['connected-apps'][':appId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -409,7 +409,7 @@ export function usePostSettingsDataExport(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /settings/data-export',
-    async () => parseResponse(client.settings['data-export'].$post(undefined, options?.client)),
+    async () => parseResponse(client.settings['data-export'].$post(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -470,7 +470,7 @@ export function usePostSettingsDeactivate(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<typeof client.settings.deactivate.$post> },
-    ) => parseResponse(client.settings.deactivate.$post(arg, options?.client)),
+    ) => parseResponse(client.settings.deactivate.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -493,7 +493,7 @@ export function usePostReports(options?: {
   return useSWRMutation(
     'POST /reports',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.reports.$post> }) =>
-      parseResponse(client.reports.$post(arg, options?.client)),
+      parseResponse(client.reports.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -624,7 +624,7 @@ export function usePostModerationItemsItemIdAction(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']> },
-    ) => parseResponse(client.moderation.items[':itemId'].action.$post(arg, options?.client)),
+    ) => parseResponse(client.moderation.items[':itemId'].action.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -687,7 +687,7 @@ export function usePostModerationUsersUserIdSuspend(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']> },
-    ) => parseResponse(client.moderation.users[':userId'].suspend.$post(arg, options?.client)),
+    ) => parseResponse(client.moderation.users[':userId'].suspend.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -716,7 +716,7 @@ export function usePostModerationUsersUserIdUnsuspend(options?: {
       }: {
         arg: InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>
       },
-    ) => parseResponse(client.moderation.users[':userId'].unsuspend.$post(arg, options?.client)),
+    ) => parseResponse(client.moderation.users[':userId'].unsuspend.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

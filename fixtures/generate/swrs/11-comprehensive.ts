@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/11-comprehensive'
 
 /**
@@ -58,7 +58,7 @@ export function usePostProducts(options?: {
   return useSWRMutation(
     'POST /products',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.products.$post> }) =>
-      parseResponse(client.products.$post(arg, options?.client)),
+      parseResponse(client.products.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -117,7 +117,7 @@ export function usePutProductsProductId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.products)[':productId']['$put']> },
-    ) => parseResponse(client.products[':productId'].$put(arg, options?.client)),
+    ) => parseResponse(client.products[':productId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -142,7 +142,7 @@ export function useDeleteProductsProductId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.products)[':productId']['$delete']> },
-    ) => parseResponse(client.products[':productId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.products[':productId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -165,7 +165,7 @@ export function usePostOrders(options?: {
   return useSWRMutation(
     'POST /orders',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
-      parseResponse(client.orders.$post(arg, options?.client)),
+      parseResponse(client.orders.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -188,7 +188,7 @@ export function usePostWebhooks(options?: {
   return useSWRMutation(
     'POST /webhooks',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.webhooks.$post> }) =>
-      parseResponse(client.webhooks.$post(arg, options?.client)),
+      parseResponse(client.webhooks.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

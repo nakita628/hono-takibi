@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -39,6 +39,21 @@ export function getGetResourcesQueryKey(args: InferRequestType<typeof client.res
 }
 
 /**
+ * Returns TanStack Query query options for GET /resources
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetResourcesQueryOptions(
+  args: InferRequestType<typeof client.resources.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetResourcesQueryKey(args),
+    queryFn: async () => parseResponse(client.resources.$get(args, clientOptions)),
+  }
+}
+
+/**
  * GET /resources/{id}
  */
 export function useGetResourcesId(
@@ -73,6 +88,21 @@ export function getGetResourcesIdQueryKey(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
   return ['/resources/:id', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /resources/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetResourcesIdQueryOptions(
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetResourcesIdQueryKey(args),
+    queryFn: async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -142,4 +172,19 @@ export function getGetDownloadIdQueryKey(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
   return ['/download/:id', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /download/{id}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDownloadIdQueryOptions(
+  args: InferRequestType<(typeof client.download)[':id']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetDownloadIdQueryKey(args),
+    queryFn: async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
+  }
 }

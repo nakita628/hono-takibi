@@ -142,7 +142,7 @@ export function usePostUsers(options?: {
   return useSWRMutation(
     'POST /users',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
-      parseResponse(client.users.$post(arg, options?.client)),
+      parseResponse(client.users.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -291,7 +291,7 @@ export function usePostUsers(options?: {
   return useSWRMutation(
     'POST /users',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
-      parseResponse(client.users.$post(arg, options?.client)),
+      parseResponse(client.users.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -459,7 +459,7 @@ export function usePostPing(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /ping',
-    async () => parseResponse(client.ping.$post(undefined, options?.client)),
+    async () => parseResponse(client.ping.$post(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -629,7 +629,7 @@ export function useDeleteUsersId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.users)[':id']['$delete']> },
-    ) => parseResponse(client.users[':id'].$delete(arg, options?.client)),
+    ) => parseResponse(client.users[':id'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }

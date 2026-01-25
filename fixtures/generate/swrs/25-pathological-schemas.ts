@@ -1,7 +1,7 @@
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/25-pathological-schemas'
 
 /**
@@ -20,7 +20,7 @@ export function usePostPathological(options?: {
   return useSWRMutation(
     'POST /pathological',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.pathological.$post> }) =>
-      parseResponse(client.pathological.$post(arg, options?.client)),
+      parseResponse(client.pathological.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

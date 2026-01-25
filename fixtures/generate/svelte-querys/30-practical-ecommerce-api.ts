@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
 
@@ -38,6 +38,21 @@ export function createGetProducts(
  */
 export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
   return ['/products', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /products
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProductsQueryOptions(
+  args: InferRequestType<typeof client.products.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProductsQueryKey(args),
+    queryFn: async () => parseResponse(client.products.$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -108,6 +123,21 @@ export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
   return ['/products/:productId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /products/{productId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetProductsProductIdQueryOptions(
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetProductsProductIdQueryKey(args),
+    queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -254,6 +284,18 @@ export function getGetCategoriesQueryKey() {
 }
 
 /**
+ * Returns Svelte Query query options for GET /categories
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCategoriesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetCategoriesQueryKey(),
+    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * POST /categories
  *
  * カテゴリ作成
@@ -316,6 +358,18 @@ export function createGetCart(options?: {
  */
 export function getGetCartQueryKey() {
   return ['/cart'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /cart
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCartQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetCartQueryKey(),
+    queryFn: async () => parseResponse(client.cart.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -487,6 +541,21 @@ export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders
 }
 
 /**
+ * Returns Svelte Query query options for GET /orders
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOrdersQueryOptions(
+  args: InferRequestType<typeof client.orders.$get>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetOrdersQueryKey(args),
+    queryFn: async () => parseResponse(client.orders.$get(args, clientOptions)),
+  }
+}
+
+/**
  * POST /orders
  *
  * 注文作成
@@ -556,6 +625,21 @@ export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
   return ['/orders/:orderId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /orders/{orderId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetOrdersOrderIdQueryOptions(
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetOrdersOrderIdQueryKey(args),
+    queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -632,6 +716,21 @@ export function getGetInventoryProductIdQueryKey(
   args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
 ) {
   return ['/inventory/:productId', args] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /inventory/{productId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetInventoryProductIdQueryOptions(
+  args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetInventoryProductIdQueryKey(args),
+    queryFn: async () => parseResponse(client.inventory[':productId'].$get(args, clientOptions)),
+  }
 }
 
 /**

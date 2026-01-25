@@ -34,3 +34,15 @@ export function createGetCategories(options?: {
 export function getGetCategoriesQueryKey() {
   return ['/categories'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /categories
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetCategoriesQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetCategoriesQueryKey(),
+    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
+  }
+}

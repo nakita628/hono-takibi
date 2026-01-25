@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/24-extreme-security'
 
 /**
@@ -226,7 +226,7 @@ export function usePutMixedLevelSecurity(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'PUT /mixed-level-security',
-    async () => parseResponse(client['mixed-level-security'].$put(undefined, options?.client)),
+    async () => parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -248,7 +248,7 @@ export function usePostMixedLevelSecurity(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'POST /mixed-level-security',
-    async () => parseResponse(client['mixed-level-security'].$post(undefined, options?.client)),
+    async () => parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
     mutationOptions,
   )
 }
@@ -270,7 +270,7 @@ export function useDeleteMixedLevelSecurity(options?: {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
     'DELETE /mixed-level-security',
-    async () => parseResponse(client['mixed-level-security'].$delete(undefined, options?.client)),
+    async () => parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
     mutationOptions,
   )
 }

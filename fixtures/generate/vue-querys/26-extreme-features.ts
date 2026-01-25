@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -35,6 +35,18 @@ export function useGetStream(options?: {
  */
 export function getGetStreamQueryKey() {
   return ['/stream'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /stream
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetStreamQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetStreamQueryKey(),
+    queryFn: async () => parseResponse(client.stream.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -139,4 +151,17 @@ export function useGetDeprecatedEndpoint(options?: {
  */
 export function getGetDeprecatedEndpointQueryKey() {
   return ['/deprecated-endpoint'] as const
+}
+
+/**
+ * Returns Vue Query query options for GET /deprecated-endpoint
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetDeprecatedEndpointQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetDeprecatedEndpointQueryKey(),
+    queryFn: async () =>
+      parseResponse(client['deprecated-endpoint'].$get(undefined, clientOptions)),
+  }
 }

@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
@@ -188,6 +188,18 @@ export function getGetWebauthnCredentialsQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /webauthn/credentials
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWebauthnCredentialsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetWebauthnCredentialsQueryKey(),
+    queryFn: async () => parseResponse(client.webauthn.credentials.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /webauthn/credentials/{credentialId}
  *
  * 認証情報詳細取得
@@ -225,6 +237,22 @@ export function getGetWebauthnCredentialsCredentialIdQueryKey(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
   return ['/webauthn/credentials/:credentialId', args] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /webauthn/credentials/{credentialId}
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWebauthnCredentialsCredentialIdQueryOptions(
+  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+  clientOptions?: ClientRequestOptions,
+) {
+  return {
+    queryKey: getGetWebauthnCredentialsCredentialIdQueryKey(args),
+    queryFn: async () =>
+      parseResponse(client.webauthn.credentials[':credentialId'].$get(args, clientOptions)),
+  }
 }
 
 /**
@@ -348,6 +376,18 @@ export function getGetWebauthnSettingsQueryKey() {
 }
 
 /**
+ * Returns TanStack Query query options for GET /webauthn/settings
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWebauthnSettingsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetWebauthnSettingsQueryKey(),
+    queryFn: async () => parseResponse(client.webauthn.settings.$get(undefined, clientOptions)),
+  }
+}
+
+/**
  * GET /webauthn/settings/rp
  *
  * リライングパーティ情報取得
@@ -379,6 +419,18 @@ export function useGetWebauthnSettingsRp(options?: {
  */
 export function getGetWebauthnSettingsRpQueryKey() {
   return ['/webauthn/settings/rp'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /webauthn/settings/rp
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWebauthnSettingsRpQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetWebauthnSettingsRpQueryKey(),
+    queryFn: async () => parseResponse(client.webauthn.settings.rp.$get(undefined, clientOptions)),
+  }
 }
 
 /**
@@ -450,4 +502,17 @@ export function useGetWebauthnAuthenticators(options?: {
  */
 export function getGetWebauthnAuthenticatorsQueryKey() {
   return ['/webauthn/authenticators'] as const
+}
+
+/**
+ * Returns TanStack Query query options for GET /webauthn/authenticators
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetWebauthnAuthenticatorsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetWebauthnAuthenticatorsQueryKey(),
+    queryFn: async () =>
+      parseResponse(client.webauthn.authenticators.$get(undefined, clientOptions)),
+  }
 }

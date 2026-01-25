@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/42-sns-posts-timeline'
 
 /**
@@ -58,7 +58,7 @@ export function usePostPosts(options?: {
   return useSWRMutation(
     'POST /posts',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.posts.$post> }) =>
-      parseResponse(client.posts.$post(arg, options?.client)),
+      parseResponse(client.posts.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -117,7 +117,7 @@ export function useDeletePostsPostId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['$delete']> },
-    ) => parseResponse(client.posts[':postId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -352,7 +352,7 @@ export function usePostPostsPostIdLike(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['like']['$post']> },
-    ) => parseResponse(client.posts[':postId'].like.$post(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].like.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -377,7 +377,7 @@ export function useDeletePostsPostIdLike(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['like']['$delete']> },
-    ) => parseResponse(client.posts[':postId'].like.$delete(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].like.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -402,7 +402,7 @@ export function usePostPostsPostIdRepost(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['repost']['$post']> },
-    ) => parseResponse(client.posts[':postId'].repost.$post(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].repost.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -427,7 +427,7 @@ export function useDeletePostsPostIdRepost(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']> },
-    ) => parseResponse(client.posts[':postId'].repost.$delete(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].repost.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -452,7 +452,7 @@ export function usePostPostsPostIdQuote(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['quote']['$post']> },
-    ) => parseResponse(client.posts[':postId'].quote.$post(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].quote.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -477,7 +477,7 @@ export function usePostPostsPostIdBookmark(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']> },
-    ) => parseResponse(client.posts[':postId'].bookmark.$post(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].bookmark.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -502,7 +502,7 @@ export function useDeletePostsPostIdBookmark(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']> },
-    ) => parseResponse(client.posts[':postId'].bookmark.$delete(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].bookmark.$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -695,7 +695,7 @@ export function usePostPostsPostIdReplies(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['replies']['$post']> },
-    ) => parseResponse(client.posts[':postId'].replies.$post(arg, options?.client)),
+    ) => parseResponse(client.posts[':postId'].replies.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -718,7 +718,7 @@ export function usePostMediaUpload(options?: {
   return useSWRMutation(
     'POST /media/upload',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.media.upload.$post> }) =>
-      parseResponse(client.media.upload.$post(arg, options?.client)),
+      parseResponse(client.media.upload.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -777,7 +777,7 @@ export function usePatchMediaMediaId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.media)[':mediaId']['$patch']> },
-    ) => parseResponse(client.media[':mediaId'].$patch(arg, options?.client)),
+    ) => parseResponse(client.media[':mediaId'].$patch(arg, clientOptions)),
     mutationOptions,
   )
 }

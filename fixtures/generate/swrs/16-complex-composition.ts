@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/16-complex-composition'
 
 /**
@@ -22,7 +22,7 @@ export function usePostMessages(options?: {
   return useSWRMutation(
     'POST /messages',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.messages.$post> }) =>
-      parseResponse(client.messages.$post(arg, options?.client)),
+      parseResponse(client.messages.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -43,7 +43,7 @@ export function usePostEvents(options?: {
   return useSWRMutation(
     'POST /events',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.events.$post> }) =>
-      parseResponse(client.events.$post(arg, options?.client)),
+      parseResponse(client.events.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -91,7 +91,7 @@ export function usePutConfigs(options?: {
   return useSWRMutation(
     'PUT /configs',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.configs.$put> }) =>
-      parseResponse(client.configs.$put(arg, options?.client)),
+      parseResponse(client.configs.$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -112,7 +112,7 @@ export function usePostResources(options?: {
   return useSWRMutation(
     'POST /resources',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.resources.$post> }) =>
-      parseResponse(client.resources.$post(arg, options?.client)),
+      parseResponse(client.resources.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -133,7 +133,7 @@ export function usePostValidations(options?: {
   return useSWRMutation(
     'POST /validations',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.validations.$post> }) =>
-      parseResponse(client.validations.$post(arg, options?.client)),
+      parseResponse(client.validations.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

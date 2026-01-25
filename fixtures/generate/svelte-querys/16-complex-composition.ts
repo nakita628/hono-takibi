@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
@@ -91,6 +91,18 @@ export function createGetConfigs(options?: {
  */
 export function getGetConfigsQueryKey() {
   return ['/configs'] as const
+}
+
+/**
+ * Returns Svelte Query query options for GET /configs
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetConfigsQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetConfigsQueryKey(),
+    queryFn: async () => parseResponse(client.configs.$get(undefined, clientOptions)),
+  }
 }
 
 /**

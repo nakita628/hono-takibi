@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/15-cross-component-refs'
 
 /**
@@ -52,7 +52,7 @@ export function usePostEntities(options?: {
   return useSWRMutation(
     'POST /entities',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.entities.$post> }) =>
-      parseResponse(client.entities.$post(arg, options?.client)),
+      parseResponse(client.entities.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -107,7 +107,7 @@ export function usePutEntitiesEntityId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.entities)[':entityId']['$put']> },
-    ) => parseResponse(client.entities[':entityId'].$put(arg, options?.client)),
+    ) => parseResponse(client.entities[':entityId'].$put(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -130,7 +130,7 @@ export function useDeleteEntitiesEntityId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.entities)[':entityId']['$delete']> },
-    ) => parseResponse(client.entities[':entityId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.entities[':entityId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -189,7 +189,7 @@ export function usePostEntitiesEntityIdRelationships(options?: {
       {
         arg,
       }: { arg: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']> },
-    ) => parseResponse(client.entities[':entityId'].relationships.$post(arg, options?.client)),
+    ) => parseResponse(client.entities[':entityId'].relationships.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -210,7 +210,7 @@ export function usePostBatch(options?: {
   return useSWRMutation(
     'POST /batch',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.batch.$post> }) =>
-      parseResponse(client.batch.$post(arg, options?.client)),
+      parseResponse(client.batch.$post(arg, clientOptions)),
     mutationOptions,
   )
 }

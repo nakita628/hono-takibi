@@ -1,9 +1,9 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWRMutation from 'swr/mutation'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/08-links'
 
 /**
@@ -22,7 +22,7 @@ export function usePostOrders(options?: {
   return useSWRMutation(
     'POST /orders',
     async (_: string, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
-      parseResponse(client.orders.$post(arg, options?.client)),
+      parseResponse(client.orders.$post(arg, clientOptions)),
     mutationOptions,
   )
 }
@@ -77,7 +77,7 @@ export function useDeleteOrdersOrderId(options?: {
     async (
       _: string,
       { arg }: { arg: InferRequestType<(typeof client.orders)[':orderId']['$delete']> },
-    ) => parseResponse(client.orders[':orderId'].$delete(arg, options?.client)),
+    ) => parseResponse(client.orders[':orderId'].$delete(arg, clientOptions)),
     mutationOptions,
   )
 }

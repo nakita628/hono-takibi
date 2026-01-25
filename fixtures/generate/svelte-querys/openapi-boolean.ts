@@ -38,3 +38,15 @@ export function createGetBoolean(options?: {
 export function getGetBooleanQueryKey() {
   return ['/boolean'] as const
 }
+
+/**
+ * Returns Svelte Query query options for GET /boolean
+ *
+ * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
+ */
+export function getGetBooleanQueryOptions(clientOptions?: ClientRequestOptions) {
+  return {
+    queryKey: getGetBooleanQueryKey(),
+    queryFn: async () => parseResponse(client.boolean.$get(undefined, clientOptions)),
+  }
+}
