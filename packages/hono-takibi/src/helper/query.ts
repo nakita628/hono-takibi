@@ -214,7 +214,8 @@ const makeQueryHookCode = (
   // Build hook with inline query options type
   // Note: select is intentionally excluded to ensure proper type inference of data.
   // If users need select, they can use the underlying queryOptions helper.
-  const inlineQueryOptionsType = '{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number}'
+  const inlineQueryOptionsType =
+    '{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number}'
   const optionsType = `{query?:${inlineQueryOptionsType};client?:ClientRequestOptions}`
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
 

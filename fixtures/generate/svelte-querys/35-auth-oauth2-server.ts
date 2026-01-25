@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-string'
 
